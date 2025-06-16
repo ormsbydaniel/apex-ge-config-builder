@@ -21,11 +21,13 @@ export const useLayerFormManagement = ({
 
   const initialData = editingLayer || {
     name: '',
-    description: '',
+    isActive: false,
+    data: [],
     layout: {
       interfaceGroup: ''
     },
     meta: {
+      description: '',
       attribution: {
         text: '',
         url: ''

@@ -55,8 +55,8 @@ const LayersTabContent = ({
   return (
     <Card className="border-primary/20">
       <LayersTabHeader 
-        layerCount={config.sources.length}
         onAddGroup={onAddGroup}
+        onAddBaseLayer={onAddBaseLayer}
       />
       <CardContent>
         {config.sources.length === 0 && config.interfaceGroups.length === 0 ? (
