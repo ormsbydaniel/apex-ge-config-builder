@@ -1,5 +1,5 @@
 
-import { ComponentConfig, ComposedComponentProps } from './componentComposition';
+// Test helpers for component testing and validation
 
 export interface TestConfig {
   mockProps?: Record<string, any>;
@@ -17,72 +17,6 @@ export const createMockComponent = (name: string, returnValue?: any) => {
   };
   MockComponent.displayName = `Mock${name}`;
   return MockComponent;
-};
-
-export const createTestComponentConfig = (
-  name: string,
-  overrides: Partial<ComponentConfig> = {}
-): ComponentConfig => ({
-  name,
-  component: createMockComponent(name),
-  props: { testProp: `test-${name}` },
-  ...overrides
-});
-
-export const createTestCompositionConfig = (
-  componentCount = 3,
-  overrides: Partial<ComposedComponentProps> = {}
-): ComposedComponentProps => ({
-  components: Array.from({ length: componentCount }, (_, i) =>
-    createTestComponentConfig(`TestComponent${i + 1}`)
-  ),
-  sharedProps: { shared: 'test-value' },
-  layout: 'stack',
-  ...overrides
-});
-
-// Validation helpers
-export const validateComponentConfig = (config: ComponentConfig): string[] => {
-  const errors: string[] = [];
-
-  if (!config.name) {
-    errors.push('Component config must have a name');
-  }
-
-  if (!config.component) {
-    errors.push('Component config must have a component');
-  }
-
-  if (config.dependencies?.includes(config.name)) {
-    errors.push('Component cannot depend on itself');
-  }
-
-  return errors;
-};
-
-export const validateCompositionConfig = (config: ComposedComponentProps): string[] => {
-  const errors: string[] = [];
-
-  if (!config.components || config.components.length === 0) {
-    errors.push('Composition must have at least one component');
-  }
-
-  config.components?.forEach((componentConfig, index) => {
-    const componentErrors = validateComponentConfig(componentConfig);
-    errors.push(...componentErrors.map(error => `Component ${index}: ${error}`));
-  });
-
-  // Check for circular dependencies
-  const componentNames = config.components?.map(c => c.name) || [];
-  config.components?.forEach(component => {
-    component.dependencies?.forEach(dep => {
-      if (!componentNames.includes(dep)) {
-        errors.push(`Component ${component.name} has unknown dependency: ${dep}`);
-      }
-    });
-  });
-
-  return errors;
 };
 
 // Mock data generators
