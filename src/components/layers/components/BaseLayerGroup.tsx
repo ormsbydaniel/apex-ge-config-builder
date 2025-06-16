@@ -43,7 +43,7 @@ const BaseLayerGroup = ({
   onMoveLayer,
   onAddBaseLayer
 }: BaseLayerGroupProps) => {
-  const { toggleCard, isExpanded: isCardExpanded } = useLayerCardState();
+  const { toggleCard, isCardExpanded } = useLayerCardState();
 
   const moveBaseLayer = (fromIndex: number, direction: 'up' | 'down') => {
     const toIndex = direction === 'up' ? fromIndex - 1 : fromIndex + 1;

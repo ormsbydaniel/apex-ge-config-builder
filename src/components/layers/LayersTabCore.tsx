@@ -39,6 +39,7 @@ interface LayersTabCoreProps {
     clearExpandedLayerAfterCreation: () => void;
     clearExpandedGroup: () => void;
     setShowAddGroupDialog: (show: boolean) => void;
+    showAddGroupDialog: boolean;
     handleAddInterfaceGroup: (groupName: string) => void;
     handleAddLayerForGroup: (groupName: string) => void;
     handleAddBaseLayer: () => void;

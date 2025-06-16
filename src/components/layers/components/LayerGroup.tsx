@@ -57,7 +57,7 @@ const LayerGroup = ({
   canMoveGroupUp = false,
   canMoveGroupDown = false
 }: LayerGroupProps) => {
-  const { toggleCard, isExpanded: isCardExpanded } = useLayerCardState();
+  const { toggleCard, isCardExpanded } = useLayerCardState();
 
   // Handle expanding layer card after creation
   useEffect(() => {
