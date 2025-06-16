@@ -79,6 +79,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
     
     setLocalCategories(copiedCategories);
     setUseValues(sourceLayer.hasValues);
+    onUpdate(copiedCategories);
     setShowCopyConfirmation(false);
     
     toast({
