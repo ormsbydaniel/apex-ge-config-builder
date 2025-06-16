@@ -27,7 +27,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
   const [newCategory, setNewCategory] = useState<Category>({
     label: '',
     color: '#000000',
-    value: undefined
+    value: 0
   });
   const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
   const [selectedSourceLayer, setSelectedSourceLayer] = useState<string>('');
@@ -43,24 +43,33 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
   // Get available layers with categories for copying
   const availableSourceLayers = config.sources
     .filter(source => source.meta?.categories && source.meta.categories.length > 0)
-    .map(source => ({
-      name: source.name || 'Unnamed Layer',
-      categories: source.meta?.categories || [],
-      hasValues: source.meta?.categories?.some(cat => cat.value !== undefined) || false
-    }));
+    .map(source => {
+      // Ensure categories have proper defaults for required properties
+      const normalizedCategories: Category[] = (source.meta?.categories || []).map((cat, index) => ({
+        label: cat.label || `Category ${index + 1}`,
+        color: cat.color || '#000000',
+        value: cat.value !== undefined ? cat.value : index
+      }));
+
+      return {
+        name: source.name || 'Unnamed Layer',
+        categories: normalizedCategories,
+        hasValues: normalizedCategories.some(cat => cat.value !== undefined)
+      };
+    });
 
   const addCategory = () => {
     if (newCategory.label.trim()) {
       const categoryToAdd: Category = {
         color: newCategory.color,
         label: newCategory.label,
-        ...(useValues && { value: newCategory.value || localCategories.length })
+        value: useValues ? (newCategory.value !== undefined ? newCategory.value : localCategories.length) : localCategories.length
       };
       setLocalCategories([...localCategories, categoryToAdd]);
       setNewCategory({
         label: '',
         color: '#000000',
-        value: undefined
+        value: 0
       });
     }
   };
@@ -94,12 +103,12 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
         setNewCategory(prev => ({ ...prev, value: localCategories.length }));
       }
     } else {
-      const updatedCategories = localCategories.map(cat => {
-        const { value, ...categoryWithoutValue } = cat;
-        return categoryWithoutValue;
-      });
-      setLocalCategories(updatedCategories as Category[]);
-      setNewCategory(prev => ({ ...prev, value: undefined }));
+      const updatedCategories = localCategories.map((cat, index) => ({
+        ...cat,
+        value: index
+      }));
+      setLocalCategories(updatedCategories);
+      setNewCategory(prev => ({ ...prev, value: 0 }));
     }
   };
 
@@ -240,7 +249,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
                     value={newCategory.value !== undefined ? newCategory.value : ''}
                     onChange={(e) => setNewCategory(prev => ({ 
                       ...prev, 
-                      value: e.target.value ? parseInt(e.target.value) : undefined 
+                      value: e.target.value ? parseInt(e.target.value) : 0 
                     }))}
                     placeholder="Value"
                     className="w-20"
@@ -285,7 +294,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
                         <Input
                           type="number"
                           value={category.value !== undefined ? category.value : ''}
-                          onChange={(e) => updateCategory(index, 'value', e.target.value ? parseInt(e.target.value) : undefined)}
+                          onChange={(e) => updateCategory(index, 'value', e.target.value ? parseInt(e.target.value) : 0)}
                           placeholder="Value"
                           className="w-20"
                         />
