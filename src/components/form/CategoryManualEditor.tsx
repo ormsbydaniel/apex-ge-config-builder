@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,7 +67,7 @@ const CategoryManualEditor = ({
       }));
       setLocalCategories(updatedCategories);
       if (newCategory.value === undefined) {
-        setNewCategory(prev => ({ ...prev, value: localCategories.length }));
+        setNewCategory({ ...newCategory, value: localCategories.length });
       }
     } else {
       const updatedCategories = localCategories.map((cat, index) => ({
@@ -74,7 +75,7 @@ const CategoryManualEditor = ({
         value: index
       }));
       setLocalCategories(updatedCategories);
-      setNewCategory(prev => ({ ...prev, value: 0 }));
+      setNewCategory({ ...newCategory, value: 0 });
     }
   };
 
@@ -101,13 +102,13 @@ const CategoryManualEditor = ({
           <input
             type="color"
             value={newCategory.color}
-            onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
+            onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })}
             className="w-12 h-10 rounded border cursor-pointer"
             title="Category color"
           />
           <Input
             value={newCategory.label}
-            onChange={(e) => setNewCategory(prev => ({ ...prev, label: e.target.value }))}
+            onChange={(e) => setNewCategory({ ...newCategory, label: e.target.value })}
             placeholder="Category label"
             className="flex-1"
             onKeyDown={(e) => e.key === 'Enter' && addCategory()}
@@ -116,10 +117,10 @@ const CategoryManualEditor = ({
             <Input
               type="number"
               value={newCategory.value !== undefined ? newCategory.value : ''}
-              onChange={(e) => setNewCategory(prev => ({ 
-                ...prev, 
+              onChange={(e) => setNewCategory({ 
+                ...newCategory, 
                 value: e.target.value ? parseInt(e.target.value) : 0 
-              }))}
+              })}
               placeholder="Value"
               className="w-20"
             />
