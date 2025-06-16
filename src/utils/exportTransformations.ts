@@ -245,8 +245,10 @@ export const applyExportTransformations = (config: any, options: ExportOptions):
   }
   
   // Handle category values (remove them if includeCategoryValues is false)
-  // For now, we'll default to including them since the export option doesn't exist yet
-  transformedConfig = handleCategoryValues(transformedConfig, true);
+  transformedConfig = handleCategoryValues(transformedConfig, options.includeCategoryValues);
+  if (!options.includeCategoryValues) {
+    appliedTransformations.push('removeCategoryValues');
+  }
   
   // Add export metadata
   const exportMetadata: ExportMetadata = {
@@ -263,4 +265,3 @@ export const applyExportTransformations = (config: any, options: ExportOptions):
   console.log('Final transformed config:', transformedConfig);
   return transformedConfig;
 };
-

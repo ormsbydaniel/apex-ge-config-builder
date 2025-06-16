@@ -10,6 +10,7 @@ export interface ExportOptions {
   singleItemArrayToObject: boolean;
   configureCogsAsImages: boolean;
   removeEmptyCategories: boolean;
+  includeCategoryValues: boolean;
 }
 
 interface ExportOptionsDialogProps {
@@ -23,7 +24,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
     defaultValues: {
       singleItemArrayToObject: false,
       configureCogsAsImages: false,
-      removeEmptyCategories: false
+      removeEmptyCategories: false,
+      includeCategoryValues: true
     }
   });
 
@@ -34,7 +36,12 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
   };
 
   const handleQuickExport = () => {
-    onExport({ singleItemArrayToObject: false, configureCogsAsImages: false, removeEmptyCategories: false });
+    onExport({ 
+      singleItemArrayToObject: false, 
+      configureCogsAsImages: false, 
+      removeEmptyCategories: false,
+      includeCategoryValues: true
+    });
     onOpenChange(false);
   };
 
@@ -108,6 +115,26 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
             </div>
             <p className="text-xs text-muted-foreground ml-6">
               Remove categories arrays that are empty from the exported JSON
+            </p>
+
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="includeCategoryValues"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox 
+                    id="includeCategoryValues"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <Label htmlFor="includeCategoryValues" className="text-sm">
+                Include category values
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              Include numeric values in category definitions (if present)
             </p>
           </div>
 
