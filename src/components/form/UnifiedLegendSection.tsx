@@ -42,6 +42,9 @@ const UnifiedLegendSection = ({
   categories,
   onUpdate
 }: UnifiedLegendSectionProps) => {
+  // Check if any categories have values defined
+  const hasValues = categories.some(cat => cat.value !== undefined);
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -198,6 +201,9 @@ const UnifiedLegendSection = ({
                       style={{ backgroundColor: category.color }}
                     />
                     {category.label || `Category ${index + 1}`}
+                    {hasValues && category.value !== undefined && (
+                      <span className="text-xs text-muted-foreground ml-1">({category.value})</span>
+                    )}
                   </Badge>
                 ))}
               </div>
