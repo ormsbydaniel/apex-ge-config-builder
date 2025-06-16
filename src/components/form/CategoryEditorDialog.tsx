@@ -148,6 +148,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
 
               <TabsContent value="manual">
                 <CategoryManualEditor
+                  key={`manual-editor-${localCategories.length}-${localCategories.map(c => c.label).join('-')}`}
                   localCategories={localCategories}
                   setLocalCategories={setLocalCategories}
                   useValues={useValues}
