@@ -10,7 +10,10 @@ export const useConfigBuilderState = () => {
 
   // Use focused hooks for different concerns
   const layoutState = useLayoutState({ dispatch });
-  const exclusivitySets = useExclusivitySets({ config, dispatch });
+  const exclusivitySets = useExclusivitySets({ 
+    config: { exclusivitySets: config.exclusivitySets || [] }, 
+    dispatch 
+  });
   const serviceManagement = useServiceManagement({ config, dispatch });
   const layerManagement = useLayerManagement({ config, dispatch });
 
