@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -22,6 +23,8 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
   const { config } = useConfig();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  
+  // Initialize localCategories with the provided categories at component creation
   const [localCategories, setLocalCategories] = useState<Category[]>([...categories]);
   const [useValues, setUseValues] = useState(categories.some(cat => cat.value !== undefined));
   const [newCategory, setNewCategory] = useState<Category>({
@@ -32,6 +35,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
   const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
   const [selectedSourceLayer, setSelectedSourceLayer] = useState<string>('');
 
+  // Simple handleOpen that only controls dialog visibility
   const handleOpen = (isOpen: boolean) => {
     setOpen(isOpen);
   };
@@ -202,7 +206,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </Dialog>
     </>
   );
 };
