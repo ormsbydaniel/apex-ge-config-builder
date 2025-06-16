@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,22 +10,15 @@ import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
+
 interface ConfigSummaryProps {
   config: any;
 }
-const ConfigSummary = ({
-  config
-}: ConfigSummaryProps) => {
-  const {
-    dispatch
-  } = useConfig();
-  const {
-    handleFileSelect,
-    importConfig
-  } = useConfigImport();
-  const {
-    exportConfig
-  } = useConfigExport();
+
+const ConfigSummary = ({ config }: ConfigSummaryProps) => {
+  const { dispatch } = useConfig();
+  const { handleFileSelect, importConfig } = useConfigImport();
+  const { exportConfig } = useConfigExport();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
@@ -33,14 +27,19 @@ const ConfigSummary = ({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   const [title, setTitle] = useState(config.layout.navigation.title);
+
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
+
   const handleNewConfig = () => {
-    dispatch({
-      type: 'RESET_CONFIG'
-    });
+    dispatch({ type: 'RESET_CONFIG' });
   };
+
+  const handleExportClick = () => {
+    exportConfig({ singleItemArrayToObject: false });
+  };
+
   const handleFileSelectWithErrorHandling = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -56,6 +55,7 @@ const ConfigSummary = ({
       fileInputRef.current.value = '';
     }
   };
+
   const handleSaveLogo = () => {
     dispatch({
       type: 'UPDATE_LAYOUT',
@@ -66,10 +66,12 @@ const ConfigSummary = ({
     });
     setIsEditingLogo(false);
   };
+
   const handleCancelLogo = () => {
     setLogoUrl(config.layout.navigation.logo);
     setIsEditingLogo(false);
   };
+
   const handleSaveTitle = () => {
     dispatch({
       type: 'UPDATE_LAYOUT',
@@ -80,6 +82,7 @@ const ConfigSummary = ({
     });
     setIsEditingTitle(false);
   };
+
   const handleCancelTitle = () => {
     setTitle(config.layout.navigation.title);
     setIsEditingTitle(false);
@@ -90,7 +93,9 @@ const ConfigSummary = ({
     setLogoUrl(config.layout.navigation.logo);
     setTitle(config.layout.navigation.title);
   }, [config.layout.navigation.logo, config.layout.navigation.title]);
-  return <>
+
+  return (
+    <>
       <Card className="sticky top-8 border-primary/20 bg-[o#2D5F72] bg-[#2d5f72]">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg text-slate-50">Configuration Summary</CardTitle>
@@ -102,7 +107,7 @@ const ConfigSummary = ({
               Load
             </Button>
             
-            <Button onClick={exportConfig} variant="outline" size="sm" className="border-green-300 text-green-700 hover:bg-green-50 text-xs px-2">
+            <Button onClick={handleExportClick} variant="outline" size="sm" className="border-green-300 text-green-700 hover:bg-green-50 text-xs px-2">
               <Download className="h-3 w-3 mr-1" />
               Export
             </Button>
@@ -115,8 +120,6 @@ const ConfigSummary = ({
 
           <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
 
-          
-          
           {/* Logo Section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -125,7 +128,8 @@ const ConfigSummary = ({
                 <Edit className="h-3 w-3" />
               </Button>
             </div>
-            {isEditingLogo ? <div className="space-y-2">
+            {isEditingLogo ? (
+              <div className="space-y-2">
                 <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://example.com/logo.svg" className="text-xs" />
                 <div className="flex gap-1">
                   <Button size="sm" onClick={handleSaveLogo} className="text-xs">
@@ -135,15 +139,20 @@ const ConfigSummary = ({
                     Cancel
                   </Button>
                 </div>
-              </div> : <div className="flex justify-center">
-                {config.layout.navigation.logo ? <img src={config.layout.navigation.logo} alt="Logo" className="max-h-12 max-w-full object-contain" onError={e => {
-              e.currentTarget.style.display = 'none';
-            }} /> : <div className="text-xs text-slate-500 italic">No logo set</div>}
-              </div>}
+              </div>
+            ) : (
+              <div className="flex justify-center">
+                {config.layout.navigation.logo ? (
+                  <img src={config.layout.navigation.logo} alt="Logo" className="max-h-12 max-w-full object-contain" onError={e => {
+                    e.currentTarget.style.display = 'none';
+                  }} />
+                ) : (
+                  <div className="text-xs text-slate-500 italic">No logo set</div>
+                )}
+              </div>
+            )}
           </div>
 
-          
-          
           <div className="space-y-2 text-sm">
             {/* Title Section */}
             <div>
@@ -153,7 +162,8 @@ const ConfigSummary = ({
                   <Edit className="h-3 w-3" />
                 </Button>
               </div>
-              {isEditingTitle ? <div className="space-y-2">
+              {isEditingTitle ? (
+                <div className="space-y-2">
                   <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Geospatial Explorer" className="text-xs" />
                   <div className="flex gap-1">
                     <Button size="sm" onClick={handleSaveTitle} className="text-xs">
@@ -163,7 +173,10 @@ const ConfigSummary = ({
                       Cancel
                     </Button>
                   </div>
-                </div> : <span className="text-slate-50 font-bold">{config.layout.navigation.title}</span>}
+                </div>
+              ) : (
+                <span className="text-slate-50 font-bold">{config.layout.navigation.title}</span>
+              )}
             </div>
 
             <Separator className="my-3" />
@@ -186,20 +199,24 @@ const ConfigSummary = ({
             </div>
           </div>
           
-          {config.lastSaved && <>
+          {config.lastSaved && (
+            <>
               <Separator />
               <div className="text-xs text-slate-50">
                 <span className="font-medium">Last saved: </span>
                 {config.lastSaved.toLocaleString()}
               </div>
-            </>}
+            </>
+          )}
           
-          {config.isLoading && <>
+          {config.isLoading && (
+            <>
               <Separator />
               <div className="text-sm text-blue-600">
                 Loading configuration...
               </div>
-            </>}
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -219,6 +236,8 @@ const ConfigSummary = ({
           </div>
         </DialogContent>
       </Dialog>
-    </>;
+    </>
+  );
 };
+
 export default ConfigSummary;
