@@ -17,9 +17,10 @@ interface CategoryEditorDialogProps {
   categories: Category[];
   onUpdate: (categories: Category[]) => void;
   trigger?: React.ReactNode;
+  layerName?: string;
 }
 
-const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorDialogProps) => {
+const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: CategoryEditorDialogProps) => {
   const { config } = useConfig();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -172,7 +173,9 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
         </DialogTrigger>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle>Edit Categories</DialogTitle>
+            <DialogTitle>
+              {layerName ? `Edit Categories for ${layerName}` : 'Edit Categories'}
+            </DialogTitle>
             <DialogDescription>
               Add, edit, or remove categories for your legend.
             </DialogDescription>
@@ -250,7 +253,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
                   </div>
                 </div>
 
-                {/* Existing Categories */}
+                {/* Existing Categories - Compact Table Style */}
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">
                     Categories ({localCategories.length})
@@ -261,14 +264,19 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
                       No categories defined. Add your first category above.
                     </p>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="bg-muted/20 rounded-lg overflow-hidden">
                       {localCategories.map((category, index) => (
-                        <div key={index} className="flex items-center gap-3 p-3 border rounded-lg bg-background">
+                        <div 
+                          key={index} 
+                          className={`flex items-center gap-3 px-3 py-2 ${
+                            index % 2 === 0 ? 'bg-background/50' : 'bg-transparent'
+                          } hover:bg-muted/50 transition-colors`}
+                        >
                           <input
                             type="color"
                             value={category.color}
                             onChange={(e) => updateCategory(index, 'color', e.target.value)}
-                            className="w-8 h-8 rounded border cursor-pointer"
+                            className="w-8 h-8 rounded border cursor-pointer flex-shrink-0"
                             title="Category color"
                           />
                           
@@ -276,7 +284,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
                             value={category.label}
                             onChange={(e) => updateCategory(index, 'label', e.target.value)}
                             placeholder="Category label"
-                            className="flex-1"
+                            className="flex-1 h-8 text-sm"
                           />
                           
                           {useValues && (
@@ -285,7 +293,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
                               value={category.value !== undefined ? category.value : ''}
                               onChange={(e) => updateCategory(index, 'value', e.target.value ? parseInt(e.target.value) : 0)}
                               placeholder="Value"
-                              className="w-20"
+                              className="w-16 h-8 text-sm"
                             />
                           )}
                           
@@ -294,7 +302,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
                             variant="ghost"
                             size="sm"
                             onClick={() => removeCategory(index)}
-                            className="text-destructive hover:text-destructive"
+                            className="text-destructive hover:text-destructive h-8 w-8 p-0 flex-shrink-0"
                           >
                             <X className="h-4 w-4" />
                           </Button>

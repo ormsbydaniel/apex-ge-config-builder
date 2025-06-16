@@ -28,6 +28,9 @@ interface UnifiedLegendSectionProps {
   
   // Update handler
   onUpdate: (field: string, value: any) => void;
+  
+  // Optional layer name for context
+  layerName?: string;
 }
 
 const UnifiedLegendSection = ({
@@ -40,7 +43,8 @@ const UnifiedLegendSection = ({
   minValue,
   maxValue,
   categories,
-  onUpdate
+  onUpdate,
+  layerName
 }: UnifiedLegendSectionProps) => {
   // Check if any categories have values defined
   const hasValues = categories.some(cat => cat.value !== undefined);
@@ -183,6 +187,7 @@ const UnifiedLegendSection = ({
             <CategoryEditorDialog
               categories={categories}
               onUpdate={(updatedCategories) => onUpdate('categories', updatedCategories)}
+              layerName={layerName}
             />
           </div>
 
