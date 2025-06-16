@@ -3,6 +3,7 @@ import React from 'react';
 import LayersTabContent from './components/LayersTabContent';
 import ExclusivitySetsSection from './components/ExclusivitySetsSection';
 import AddInterfaceGroupDialog from './components/AddInterfaceGroupDialog';
+import LayersTabHeader from './components/LayersTabHeader';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
 
 interface LayersMainContentProps {
@@ -20,39 +21,31 @@ const LayersMainContent = ({
   setNewExclusivitySet,
   layersLogic
 }: LayersMainContentProps) => {
-  const {
-    config,
-    onRemoveLayer,
-    onEditLayer,
-    onEditBaseLayer,
-    onDuplicateLayer,
-    onMoveLayer,
-    onUpdateConfig,
-    onAddDataSource,
-    onRemoveDataSource,
-    onRemoveStatisticsSource,
-    onEditDataSource,
-    onEditStatisticsSource
-  } = useLayersTabContext();
+  const { config } = useLayersTabContext();
 
   return (
     <div className="space-y-6">
+      <LayersTabHeader
+        onAddGroup={() => layersLogic.setShowAddGroupDialog(true)}
+        onAddBaseLayer={layersLogic.handleAddBaseLayer}
+      />
+
       <LayersTabContent
         config={config}
         onAddGroup={() => layersLogic.setShowAddGroupDialog(true)}
-        onRemove={onRemoveLayer}
-        onEdit={onEditLayer}
-        onEditBaseLayer={onEditBaseLayer}
-        onDuplicate={onDuplicateLayer}
-        onAddDataSource={onAddDataSource}
-        onRemoveDataSource={onRemoveDataSource}
-        onRemoveStatisticsSource={onRemoveStatisticsSource}
-        onEditDataSource={onEditDataSource}
-        onEditStatisticsSource={onEditStatisticsSource}
-        onMoveLayer={onMoveLayer}
+        onRemove={() => {}} // Will be handled by context
+        onEdit={() => {}} // Will be handled by context
+        onEditBaseLayer={() => {}} // Will be handled by context
+        onDuplicate={() => {}} // Will be handled by context
+        onAddDataSource={() => {}} // Will be handled by context
+        onRemoveDataSource={() => {}} // Will be handled by context
+        onRemoveStatisticsSource={() => {}} // Will be handled by context
+        onEditDataSource={() => {}} // Will be handled by context
+        onEditStatisticsSource={() => {}} // Will be handled by context
+        onMoveLayer={() => {}} // Will be handled by context
         onAddLayer={layersLogic.handleAddLayerForGroup}
         onAddBaseLayer={layersLogic.handleAddBaseLayer}
-        updateConfig={onUpdateConfig}
+        updateConfig={() => {}} // Will be handled by context
         expandedLayerAfterCreation={layersLogic.expandedLayerAfterCreation}
         expandedGroupAfterAction={layersLogic.expandedGroupAfterAction}
         onClearExpandedLayer={layersLogic.clearExpandedLayerAfterCreation}

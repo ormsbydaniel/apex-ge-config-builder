@@ -1,7 +1,8 @@
 
 import { useState, useCallback } from 'react';
 import { DataSource, LayerType } from '@/types/config';
-import { useFormComposition } from './useFormComposition';
+import { useFormData } from './useFormData';
+import { useLayerFormValidation } from './useLayerFormValidation';
 
 interface UseLayerFormManagementProps {
   onLayerSaved?: (layer: DataSource) => void;
@@ -32,20 +33,23 @@ export const useLayerFormManagement = ({
     }
   };
 
-  const formComposition = useFormComposition({
-    initialData,
-    fields: [
+  const formData = useFormData({ initialData });
+  const validation = useLayerFormValidation({
+    rules: [
       { name: 'name', required: true },
       { name: 'description', required: false },
       { name: 'layout.interfaceGroup', required: true },
       { name: 'meta.attribution.text', required: true },
       { name: 'meta.attribution.url', required: false }
-    ],
-    onSubmit: (data) => {
-      onLayerSaved?.(data as DataSource);
+    ]
+  });
+
+  const handleSubmit = useCallback(() => {
+    if (validation.validateForm(formData.formData)) {
+      onLayerSaved?.(formData.formData as DataSource);
       handleCloseForm();
     }
-  });
+  }, [formData.formData, validation, onLayerSaved]);
 
   const handleOpenForm = useCallback((type: LayerType, layer?: DataSource) => {
     setSelectedType(type);
@@ -57,9 +61,10 @@ export const useLayerFormManagement = ({
     setShowForm(false);
     setSelectedType(null);
     setIsEditing(false);
-    formComposition.resetForm();
+    formData.resetForm();
+    validation.clearErrors();
     onLayerCanceled?.();
-  }, [formComposition, onLayerCanceled]);
+  }, [formData, validation, onLayerCanceled]);
 
   const handleTypeSelect = useCallback((type: LayerType) => {
     setSelectedType(type);
@@ -69,14 +74,14 @@ export const useLayerFormManagement = ({
     showForm,
     selectedType,
     isEditing,
-    formData: formComposition.formData,
-    errors: formComposition.errors,
-    isDirty: formComposition.isDirty,
-    updateField: formComposition.updateField,
-    handleSubmit: formComposition.handleSubmit,
+    formData: formData.formData,
+    errors: validation.errors,
+    isDirty: formData.isDirty,
+    updateField: formData.updateField,
+    handleSubmit,
     handleOpenForm,
     handleCloseForm,
     handleTypeSelect,
-    validateForm: formComposition.validateForm
+    validateForm: validation.validateForm
   };
 };

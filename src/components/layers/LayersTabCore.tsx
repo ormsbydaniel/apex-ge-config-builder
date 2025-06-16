@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
-import LayerFormHandler from './LayerFormHandler';
+import LayerFormStateManager from './components/LayerFormStateManager';
 import LayersMainContent from './LayersMainContent';
 
 interface LayersTabCoreProps {
@@ -28,7 +28,7 @@ interface LayersTabCoreProps {
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
-  layersLogic: any; // From useLayersTabLogic
+  layersLogic: any;
 }
 
 const LayersTabCore = ({
@@ -70,10 +70,9 @@ const LayersTabCore = ({
     setDefaultInterfaceGroup(undefined);
   };
 
-  // Show form if we're in form mode
-  if (showLayerForm || layersLogic.showDataSourceForm) {
-    return (
-      <LayerFormHandler
+  return (
+    <>
+      <LayerFormStateManager
         showLayerForm={showLayerForm}
         showDataSourceForm={layersLogic.showDataSourceForm}
         selectedLayerType={selectedLayerType}
@@ -91,18 +90,17 @@ const LayersTabCore = ({
         onDataSourceCancel={layersLogic.handleCancelDataSource}
         onAddService={addService}
       />
-    );
-  }
 
-  // Show main content
-  return (
-    <LayersMainContent
-      addExclusivitySet={addExclusivitySet}
-      removeExclusivitySet={removeExclusivitySet}
-      newExclusivitySet={newExclusivitySet}
-      setNewExclusivitySet={setNewExclusivitySet}
-      layersLogic={layersLogic}
-    />
+      {!showLayerForm && !layersLogic.showDataSourceForm && (
+        <LayersMainContent
+          addExclusivitySet={addExclusivitySet}
+          removeExclusivitySet={removeExclusivitySet}
+          newExclusivitySet={newExclusivitySet}
+          setNewExclusivitySet={setNewExclusivitySet}
+          layersLogic={layersLogic}
+        />
+      )}
+    </>
   );
 };
 

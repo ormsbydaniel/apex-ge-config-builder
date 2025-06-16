@@ -2,16 +2,16 @@
 import { useState } from 'react';
 import { DataSource } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  getLayerCountsByGroup, 
+  getMigrationOptions, 
+  updateSourcesInterfaceGroup,
+  removeSourcesByGroup,
+  GroupLayerCount,
+  MigrationOption
+} from '@/utils/interfaceGroupUtils';
 
-export interface GroupLayerCount {
-  groupName: string;
-  layerCount: number;
-}
-
-export interface MigrationOption {
-  groupName: string;
-  isAvailable: boolean;
-}
+export type { GroupLayerCount, MigrationOption };
 
 export const useInterfaceGroupManagement = (
   interfaceGroups: string[],
@@ -22,21 +22,8 @@ export const useInterfaceGroupManagement = (
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState('');
 
-  const getLayerCountsByGroup = (): GroupLayerCount[] => {
-    return interfaceGroups.map(groupName => ({
-      groupName,
-      layerCount: sources.filter(source => source.layout?.interfaceGroup === groupName).length
-    }));
-  };
-
-  const getMigrationOptions = (excludeGroup?: string): MigrationOption[] => {
-    return interfaceGroups
-      .filter(group => group !== excludeGroup)
-      .map(groupName => ({
-        groupName,
-        isAvailable: true
-      }));
-  };
+  const getLayerCounts = () => getLayerCountsByGroup(interfaceGroups, sources);
+  const getMigrationOpts = (excludeGroup?: string) => getMigrationOptions(interfaceGroups, excludeGroup);
 
   const addInterfaceGroup = (newGroup: string): boolean => {
     if (newGroup.trim() && !interfaceGroups.includes(newGroup.trim())) {
@@ -55,11 +42,7 @@ export const useInterfaceGroupManagement = (
   const removeInterfaceGroup = (index: number): void => {
     const groupToRemove = interfaceGroups[index];
     const updatedGroups = interfaceGroups.filter((_, i) => i !== index);
-    
-    // Remove all sources that use this interface group
-    const updatedSources = sources.filter(source => 
-      source.layout?.interfaceGroup !== groupToRemove
-    );
+    const updatedSources = removeSourcesByGroup(sources, groupToRemove);
 
     updateConfig({
       interfaceGroups: updatedGroups,
@@ -75,13 +58,7 @@ export const useInterfaceGroupManagement = (
   const migrateLayersAndRemoveGroup = (groupIndex: number, destinationGroup: string): void => {
     const groupToRemove = interfaceGroups[groupIndex];
     const updatedGroups = interfaceGroups.filter((_, i) => i !== groupIndex);
-    
-    // Update sources to use the destination group
-    const updatedSources = sources.map(source => 
-      source.layout?.interfaceGroup === groupToRemove
-        ? { ...source, layout: { ...source.layout, interfaceGroup: destinationGroup } }
-        : source
-    );
+    const updatedSources = updateSourcesInterfaceGroup(sources, groupToRemove, destinationGroup);
 
     updateConfig({
       interfaceGroups: updatedGroups,
@@ -110,13 +87,7 @@ export const useInterfaceGroupManagement = (
       const updatedGroups = interfaceGroups.map((group, i) => 
         i === editingIndex ? editingValue.trim() : group
       );
-
-      // Update sources that use the old interface group name
-      const updatedSources = sources.map(source => 
-        source.layout?.interfaceGroup === oldName
-          ? { ...source, layout: { ...source.layout, interfaceGroup: editingValue.trim() } }
-          : source
-      );
+      const updatedSources = updateSourcesInterfaceGroup(sources, oldName, editingValue.trim());
 
       updateConfig({
         interfaceGroups: updatedGroups,
@@ -139,8 +110,8 @@ export const useInterfaceGroupManagement = (
     editingIndex,
     editingValue,
     setEditingValue,
-    getLayerCountsByGroup,
-    getMigrationOptions,
+    getLayerCountsByGroup: getLayerCounts,
+    getMigrationOptions: getMigrationOpts,
     addInterfaceGroup,
     removeInterfaceGroup,
     migrateLayersAndRemoveGroup,
