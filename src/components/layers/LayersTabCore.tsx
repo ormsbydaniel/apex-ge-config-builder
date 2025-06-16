@@ -9,7 +9,7 @@ interface LayersTabCoreProps {
     sources: DataSource[];
     interfaceGroups: string[];
     services: Service[];
-    exclusivity Sets: string[];
+    exclusivitySets: string[];
   };
   showLayerForm: boolean;
   selectedLayerType: LayerType | null;
