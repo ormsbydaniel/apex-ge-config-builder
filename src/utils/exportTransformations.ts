@@ -181,6 +181,45 @@ export const removeEmptyCategories = (config: any, enabled: boolean): any => {
   return transformedConfig;
 };
 
+export const handleCategoryValues = (config: any, includeCategoryValues: boolean): any => {
+  if (includeCategoryValues) return config;
+
+  console.log('Removing category values from export...');
+  
+  const removeCategoryValuesRecursive = (obj: any): any => {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (Array.isArray(obj)) {
+      return obj.map(removeCategoryValuesRecursive);
+    }
+    
+    const result: any = {};
+    
+    for (const [key, value] of Object.entries(obj)) {
+      if (key === 'categories' && Array.isArray(value)) {
+        // Remove value field from categories if present
+        result[key] = value.map(category => {
+          if (typeof category === 'object' && category !== null && 'value' in category) {
+            const { value: _, ...categoryWithoutValue } = category;
+            return categoryWithoutValue;
+          }
+          return category;
+        });
+      } else {
+        result[key] = removeCategoryValuesRecursive(value);
+      }
+    }
+    
+    return result;
+  };
+
+  const transformedConfig = removeCategoryValuesRecursive(config);
+  console.log('Category values removal completed');
+  return transformedConfig;
+};
+
 export const applyExportTransformations = (config: any, options: ExportOptions): any => {
   let transformedConfig = { ...config };
   const appliedTransformations: string[] = [];
@@ -205,6 +244,10 @@ export const applyExportTransformations = (config: any, options: ExportOptions):
     appliedTransformations.push('removeEmptyCategories');
   }
   
+  // Handle category values (remove them if includeCategoryValues is false)
+  // For now, we'll default to including them since the export option doesn't exist yet
+  transformedConfig = handleCategoryValues(transformedConfig, true);
+  
   // Add export metadata
   const exportMetadata: ExportMetadata = {
     version: '1.0.0',
@@ -220,3 +263,4 @@ export const applyExportTransformations = (config: any, options: ExportOptions):
   console.log('Final transformed config:', transformedConfig);
   return transformedConfig;
 };
+

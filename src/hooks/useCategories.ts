@@ -8,17 +8,24 @@ export const useCategories = (
   updateFormData: (path: string, value: any) => void
 ) => {
   const { toast } = useToast();
-  const [newCategory, setNewCategory] = useState<Category>({ color: '#000000', label: '', value: 0 });
+  const [newCategory, setNewCategory] = useState<Category>({ 
+    color: '#000000', 
+    label: '', 
+    value: undefined // Initialize with undefined instead of 0
+  });
   const [showCategories, setShowCategories] = useState(false);
 
   const addCategory = () => {
     if (newCategory.label.trim() && newCategory.color) {
-      const categoryWithValue = {
-        ...newCategory,
-        value: (formData.meta?.categories?.length || 0) // Auto-assign value based on current length
+      // Only include value if it's been set (not undefined)
+      const categoryToAdd: Category = {
+        color: newCategory.color,
+        label: newCategory.label,
+        ...(newCategory.value !== undefined && { value: newCategory.value })
       };
-      updateFormData('meta.categories', [...(formData.meta?.categories || []), categoryWithValue]);
-      setNewCategory({ color: '#000000', label: '', value: 0 });
+      
+      updateFormData('meta.categories', [...(formData.meta?.categories || []), categoryToAdd]);
+      setNewCategory({ color: '#000000', label: '', value: undefined });
       toast({
         title: "Category Added",
         description: `"${newCategory.label}" has been added to categories.`,
@@ -40,3 +47,4 @@ export const useCategories = (
     removeCategory
   };
 };
+

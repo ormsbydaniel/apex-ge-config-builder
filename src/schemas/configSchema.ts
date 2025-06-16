@@ -1,9 +1,9 @@
-
 import { z } from 'zod';
 
 export const CategorySchema = z.object({
   color: z.string(),
   label: z.string(),
+  value: z.number().optional(), // Add optional value field
 });
 
 export const ServiceCapabilitiesSchema = z.object({
