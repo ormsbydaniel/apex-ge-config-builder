@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -18,7 +18,7 @@ interface ExportOptionsDialogProps {
 }
 
 const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDialogProps) => {
-  const { register, handleSubmit, watch } = useForm<ExportOptions>({
+  const { control, handleSubmit, watch } = useForm<ExportOptions>({
     defaultValues: {
       singleItemArrayToObject: false,
       configureCogsAsImages: false
@@ -26,6 +26,7 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
   });
 
   const onSubmit = (data: ExportOptions) => {
+    console.log('Form submitted with data:', data);
     onExport(data);
     onOpenChange(false);
   };
@@ -48,9 +49,16 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="singleItemArrayToObject"
-                {...register('singleItemArrayToObject')}
+              <Controller
+                name="singleItemArrayToObject"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox 
+                    id="singleItemArrayToObject"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
               />
               <Label htmlFor="singleItemArrayToObject" className="text-sm">
                 Export single item data arrays as data object
@@ -61,9 +69,16 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
             </p>
 
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="configureCogsAsImages"
-                {...register('configureCogsAsImages')}
+              <Controller
+                name="configureCogsAsImages"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox 
+                    id="configureCogsAsImages"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
               />
               <Label htmlFor="configureCogsAsImages" className="text-sm">
                 Configure COGs as images
