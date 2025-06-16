@@ -28,6 +28,11 @@ const GroupHeader = ({
     onDeleteGroup?.(groupName);
   };
 
+  const handleAddLayer = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAddLayer();
+  };
+
   return (
     <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50">
       <div className="flex items-center justify-between">
@@ -59,7 +64,7 @@ const GroupHeader = ({
             </Button>
           )}
           <Button 
-            onClick={onAddLayer} 
+            onClick={handleAddLayer} 
             size="sm"
             className="bg-primary hover:bg-primary/90"
           >
