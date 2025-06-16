@@ -38,7 +38,7 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
   };
 
   const handleQuickExport = () => {
-    exportConfig({ singleItemArrayToObject: false });
+    exportConfig({ singleItemArrayToObject: false, configureCogsAsImages: false });
   };
 
   const handleExportWithOptions = (options: ExportOptions) => {

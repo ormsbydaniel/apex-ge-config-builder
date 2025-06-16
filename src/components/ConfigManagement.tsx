@@ -35,7 +35,7 @@ const ConfigManagement = () => {
   };
 
   const handleQuickExport = () => {
-    exportConfig({ singleItemArrayToObject: false });
+    exportConfig({ singleItemArrayToObject: false, configureCogsAsImages: false });
   };
 
   const handleFileSelectWithErrorHandling = async (event: React.ChangeEvent<HTMLInputElement>) => {
