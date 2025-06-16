@@ -14,7 +14,7 @@ interface LayersLogic {
   expandedGroupAfterAction: string | null;
   clearExpandedLayerAfterCreation: () => void;
   clearExpandedGroup: () => void;
-  handleAddInterfaceGroup: (groupName: string) => void;
+  handleAddInterfaceGroup: (groupName: string) => boolean;
   handleAddLayerForGroup: (groupName: string) => void;
 }
 
