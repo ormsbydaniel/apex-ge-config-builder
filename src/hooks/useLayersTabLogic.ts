@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import { useLayersTabComposition } from '@/hooks/useLayersTabComposition';
+import { useLayerTypeHandlers } from './useLayerTypeHandlers';
 
 interface UseLayersTabLogicProps {
   config: {
@@ -22,11 +23,19 @@ interface UseLayersTabLogicProps {
 }
 
 export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
-  const { setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm } = props;
+  const { setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm, setEditingLayerIndex } = props;
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
 
   // Use the composed hook for all layers tab logic
   const composedLogic = useLayersTabComposition(props);
+
+  // Use layer type handlers
+  const layerTypeHandlers = useLayerTypeHandlers({
+    setDefaultInterfaceGroup,
+    setSelectedLayerType,
+    setShowLayerForm,
+    setEditingLayerIndex
+  });
 
   const {
     showDataSourceForm,
@@ -49,23 +58,6 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     }
   }, [expandedLayerAfterDataSource, showDataSourceForm, toggleCard, clearExpandedLayer]);
 
-  const handleAddLayerForGroup = (groupName: string) => {
-    setDefaultInterfaceGroup(groupName);
-    setSelectedLayerType(null); // Show type picker instead of going directly to layerCard
-    setShowLayerForm(true);
-  };
-
-  const handleAddBaseLayer = () => {
-    setSelectedLayerType('base');
-    setShowLayerForm(true);
-  };
-
-  const handleEditSwipeLayer = (layerIndex: number) => {
-    props.setEditingLayerIndex(layerIndex);
-    setSelectedLayerType('swipe');
-    setShowLayerForm(true);
-  };
-
   return {
     showAddGroupDialog,
     setShowAddGroupDialog,
@@ -73,12 +65,11 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     selectedLayerIndex,
     expandedLayerAfterCreation,
     expandedGroupAfterAction,
-    handleAddLayerForGroup,
-    handleAddBaseLayer,
-    handleEditSwipeLayer,
     handleStartDataSourceFormWithExpansion,
     clearExpandedLayerAfterCreation,
     clearExpandedGroup,
+    // Layer type handlers
+    ...layerTypeHandlers,
     // Spread all other logic from the composed hook
     ...restLogic
   };
