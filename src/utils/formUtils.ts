@@ -1,4 +1,7 @@
 
+import React from 'react';
+
+// Form validation helpers
 export const validateFormField = (value: string, required: boolean = false): boolean => {
   if (required && !value.trim()) {
     return false;
