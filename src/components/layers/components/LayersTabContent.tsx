@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { DataSource } from '@/types/config';
 import LayerHierarchy from '../LayerHierarchy';
 import EmptyLayersState from '../EmptyLayersState';
+import LayersTabHeader from './LayersTabHeader';
 
 interface LayersTabContentProps {
   config: {
@@ -53,6 +54,10 @@ const LayersTabContent = ({
 }: LayersTabContentProps) => {
   return (
     <Card className="border-primary/20">
+      <LayersTabHeader 
+        layerCount={config.sources.length}
+        onAddGroup={onAddGroup}
+      />
       <CardContent>
         {config.sources.length === 0 && config.interfaceGroups.length === 0 ? (
           <EmptyLayersState />

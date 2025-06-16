@@ -1,8 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { DataSource, LayerType } from '@/types/config';
-import { useFormData } from './useFormData';
-import { useLayerFormValidation } from './useLayerFormValidation';
+import { useFormComposition } from './useFormComposition';
 
 interface UseLayerFormManagementProps {
   onLayerSaved?: (layer: DataSource) => void;
@@ -21,13 +20,11 @@ export const useLayerFormManagement = ({
 
   const initialData = editingLayer || {
     name: '',
-    isActive: false,
-    data: [],
+    description: '',
     layout: {
       interfaceGroup: ''
     },
     meta: {
-      description: '',
       attribution: {
         text: '',
         url: ''
@@ -35,23 +32,20 @@ export const useLayerFormManagement = ({
     }
   };
 
-  const formData = useFormData({ initialData });
-  const validation = useLayerFormValidation({
-    rules: [
+  const formComposition = useFormComposition({
+    initialData,
+    fields: [
       { name: 'name', required: true },
       { name: 'description', required: false },
       { name: 'layout.interfaceGroup', required: true },
       { name: 'meta.attribution.text', required: true },
       { name: 'meta.attribution.url', required: false }
-    ]
-  });
-
-  const handleSubmit = useCallback(() => {
-    if (validation.validateForm(formData.formData)) {
-      onLayerSaved?.(formData.formData as DataSource);
+    ],
+    onSubmit: (data) => {
+      onLayerSaved?.(data as DataSource);
       handleCloseForm();
     }
-  }, [formData.formData, validation, onLayerSaved]);
+  });
 
   const handleOpenForm = useCallback((type: LayerType, layer?: DataSource) => {
     setSelectedType(type);
@@ -63,10 +57,9 @@ export const useLayerFormManagement = ({
     setShowForm(false);
     setSelectedType(null);
     setIsEditing(false);
-    formData.resetForm();
-    validation.clearErrors();
+    formComposition.resetForm();
     onLayerCanceled?.();
-  }, [formData, validation, onLayerCanceled]);
+  }, [formComposition, onLayerCanceled]);
 
   const handleTypeSelect = useCallback((type: LayerType) => {
     setSelectedType(type);
@@ -76,14 +69,14 @@ export const useLayerFormManagement = ({
     showForm,
     selectedType,
     isEditing,
-    formData: formData.formData,
-    errors: validation.errors,
-    isDirty: formData.isDirty,
-    updateField: formData.updateField,
-    handleSubmit,
+    formData: formComposition.formData,
+    errors: formComposition.errors,
+    isDirty: formComposition.isDirty,
+    updateField: formComposition.updateField,
+    handleSubmit: formComposition.handleSubmit,
     handleOpenForm,
     handleCloseForm,
     handleTypeSelect,
-    validateForm: validation.validateForm
+    validateForm: formComposition.validateForm
   };
 };

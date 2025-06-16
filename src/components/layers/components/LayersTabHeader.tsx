@@ -1,28 +1,35 @@
 
 import React from 'react';
+import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
 interface LayersTabHeaderProps {
+  layerCount: number;
   onAddGroup: () => void;
-  onAddBaseLayer: () => void;
 }
 
-const LayersTabHeader = ({ onAddGroup, onAddBaseLayer }: LayersTabHeaderProps) => {
+const LayersTabHeader = ({ layerCount, onAddGroup }: LayersTabHeaderProps) => {
   return (
-    <div className="flex justify-between items-center mb-6">
-      <h2 className="text-2xl font-bold">Layers</h2>
-      <div className="flex gap-2">
-        <Button onClick={onAddGroup} variant="outline" size="sm">
+    <CardHeader>
+      <div className="flex items-center justify-between">
+        <div>
+          <CardTitle className="text-primary">
+            Map Layers
+          </CardTitle>
+          <CardDescription>
+            Configure your map layers organized by interface groups. Total: {layerCount} layers
+          </CardDescription>
+        </div>
+        <Button 
+          onClick={onAddGroup}
+          className="bg-primary hover:bg-primary/90"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Add Group
         </Button>
-        <Button onClick={onAddBaseLayer} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Base Layer
-        </Button>
       </div>
-    </div>
+    </CardHeader>
   );
 };
 

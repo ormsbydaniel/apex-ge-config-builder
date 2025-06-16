@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
-import LayerFormStateManager from './components/LayerFormStateManager';
+import LayerFormHandler from './LayerFormHandler';
 import LayersMainContent from './LayersMainContent';
 
 interface LayersTabCoreProps {
@@ -28,33 +28,7 @@ interface LayersTabCoreProps {
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
-  removeLayer: (index: number) => void;
-  moveLayer: (fromIndex: number, toIndex: number) => void;
-  updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
-  layersLogic: {
-    showDataSourceForm: boolean;
-    selectedLayerIndex: number | null;
-    handleDataSourceAdded: (dataSource: any) => void;
-    handleStatisticsLayerAdded: (statisticsItem: any) => void;
-    handleCancelDataSource: () => void;
-    expandedLayerAfterCreation: string | null;
-    expandedGroupAfterAction: string | null;
-    clearExpandedLayerAfterCreation: () => void;
-    clearExpandedGroup: () => void;
-    setShowAddGroupDialog: (show: boolean) => void;
-    showAddGroupDialog: boolean;
-    handleAddInterfaceGroup: (groupName: string) => boolean;
-    handleAddLayerForGroup: (groupName: string) => void;
-    handleAddBaseLayer: () => void;
-    handleEditLayer: (index: number) => void;
-    handleEditBaseLayer: (index: number) => void;
-    handleDuplicateLayer: (index: number) => void;
-    handleRemoveDataSource: (layerIndex: number, dataSourceIndex: number) => void;
-    handleRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
-    handleEditDataSource: (layerIndex: number, dataIndex: number) => void;
-    handleEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
-    handleStartDataSourceFormWithExpansion: (layerIndex: number) => void;
-  };
+  layersLogic: any; // From useLayersTabLogic
 }
 
 const LayersTabCore = ({
@@ -76,9 +50,6 @@ const LayersTabCore = ({
   removeExclusivitySet,
   newExclusivitySet,
   setNewExclusivitySet,
-  removeLayer,
-  moveLayer,
-  updateConfig,
   layersLogic
 }: LayersTabCoreProps) => {
   const handleLayerFormCancel = () => {
@@ -99,9 +70,10 @@ const LayersTabCore = ({
     setDefaultInterfaceGroup(undefined);
   };
 
-  return (
-    <>
-      <LayerFormStateManager
+  // Show form if we're in form mode
+  if (showLayerForm || layersLogic.showDataSourceForm) {
+    return (
+      <LayerFormHandler
         showLayerForm={showLayerForm}
         showDataSourceForm={layersLogic.showDataSourceForm}
         selectedLayerType={selectedLayerType}
@@ -119,20 +91,18 @@ const LayersTabCore = ({
         onDataSourceCancel={layersLogic.handleCancelDataSource}
         onAddService={addService}
       />
+    );
+  }
 
-      {!showLayerForm && !layersLogic.showDataSourceForm && (
-        <LayersMainContent
-          addExclusivitySet={addExclusivitySet}
-          removeExclusivitySet={removeExclusivitySet}
-          newExclusivitySet={newExclusivitySet}
-          setNewExclusivitySet={setNewExclusivitySet}
-          layersLogic={layersLogic}
-          removeLayer={removeLayer}
-          moveLayer={moveLayer}
-          updateConfig={updateConfig}
-        />
-      )}
-    </>
+  // Show main content
+  return (
+    <LayersMainContent
+      addExclusivitySet={addExclusivitySet}
+      removeExclusivitySet={removeExclusivitySet}
+      newExclusivitySet={newExclusivitySet}
+      setNewExclusivitySet={setNewExclusivitySet}
+      layersLogic={layersLogic}
+    />
   );
 };
 

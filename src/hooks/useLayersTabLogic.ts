@@ -1,12 +1,8 @@
 
 import { useEffect, useState } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
+import { useLayersTabComposition } from '@/hooks/useLayersTabComposition';
 import { useLayerTypeHandlers } from './useLayerTypeHandlers';
-import { useLayerFormState } from './useLayerFormState';
-import { useLayerCardState } from './useLayerCardState';
-import { useLayerActions } from './useLayerActions';
-import { useDataSourceActions } from './useDataSourceActions';
-import { useInterfaceGroupActions } from './useInterfaceGroupActions';
 
 interface UseLayersTabLogicProps {
   config: {
@@ -27,43 +23,13 @@ interface UseLayersTabLogicProps {
 }
 
 export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
-  const { 
-    config,
-    setDefaultInterfaceGroup, 
-    setSelectedLayerType, 
-    setShowLayerForm, 
-    setEditingLayerIndex,
-    updateLayer,
-    addLayer,
-    updateConfig
-  } = props;
-  
+  const { setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm, setEditingLayerIndex } = props;
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
 
-  // Individual hook results
-  const layerFormState = useLayerFormState();
-  const layerCardState = useLayerCardState();
-  const layerActions = useLayerActions({
-    config,
-    updateLayer,
-    addLayer,
-    setEditingLayerIndex,
-    setSelectedLayerType,
-    setShowLayerForm
-  });
-  const dataSourceActions = useDataSourceActions({
-    config,
-    updateLayer,
-    selectedLayerIndex: layerFormState.selectedLayerIndex,
-    handleLayerCreated: layerFormState.handleLayerCreated,
-    handleDataSourceComplete: layerFormState.handleDataSourceComplete
-  });
-  const interfaceGroupActions = useInterfaceGroupActions({
-    config,
-    updateConfig
-  });
+  // Use the composed hook for all layers tab logic
+  const composedLogic = useLayersTabComposition(props);
 
-  // Layer type handlers
+  // Use layer type handlers
   const layerTypeHandlers = useLayerTypeHandlers({
     setDefaultInterfaceGroup,
     setSelectedLayerType,
@@ -77,26 +43,20 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     expandedLayerAfterDataSource,
     expandedLayerAfterCreation,
     expandedGroupAfterAction,
+    toggleCard,
     clearExpandedLayer,
     clearExpandedLayerAfterCreation,
     clearExpandedGroup,
-    handleStartDataSourceForm
-  } = layerFormState;
+    handleStartDataSourceFormWithExpansion,
+    ...restLogic
+  } = composedLogic;
 
   useEffect(() => {
     if (expandedLayerAfterDataSource && !showDataSourceForm) {
-      layerCardState.toggleCard(expandedLayerAfterDataSource);
+      toggleCard(expandedLayerAfterDataSource);
       clearExpandedLayer();
     }
-  }, [expandedLayerAfterDataSource, showDataSourceForm, layerCardState.toggleCard, clearExpandedLayer]);
-
-  const handleStartDataSourceFormWithExpansion = (layerIndex: number) => {
-    const layer = config.sources[layerIndex];
-    const groupName = layer.layout?.interfaceGroup || 'ungrouped';
-    const cardId = `${groupName}-${layerIndex}`;
-    
-    handleStartDataSourceForm(layerIndex, cardId);
-  };
+  }, [expandedLayerAfterDataSource, showDataSourceForm, toggleCard, clearExpandedLayer]);
 
   return {
     showAddGroupDialog,
@@ -106,28 +66,11 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     expandedLayerAfterCreation,
     expandedGroupAfterAction,
     handleStartDataSourceFormWithExpansion,
-    clearExpandedLayerAfterCreation: clearExpandedLayerAfterCreation,
+    clearExpandedLayerAfterCreation,
     clearExpandedGroup,
-    toggleCard: layerCardState.toggleCard,
-    
     // Layer type handlers
     ...layerTypeHandlers,
-    
-    // Layer actions
-    handleEditLayer: layerActions.handleEditLayer,
-    handleEditBaseLayer: layerActions.handleEditBaseLayer,
-    handleDuplicateLayer: layerActions.handleDuplicateLayer,
-    handleRemoveDataSource: layerActions.handleRemoveDataSource,
-    handleRemoveStatisticsSource: layerActions.handleRemoveStatisticsSource,
-    handleEditDataSource: layerActions.handleEditDataSource,
-    handleEditStatisticsSource: layerActions.handleEditStatisticsSource,
-    
-    // Data source actions
-    handleDataSourceAdded: dataSourceActions.handleDataSourceAdded,
-    handleStatisticsLayerAdded: dataSourceActions.handleStatisticsLayerAdded,
-    handleCancelDataSource: layerFormState.handleCancelDataSource,
-    
-    // Interface group actions
-    handleAddInterfaceGroup: interfaceGroupActions.handleAddInterfaceGroup
+    // Spread all other logic from the composed hook
+    ...restLogic
   };
 };

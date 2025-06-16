@@ -30,7 +30,7 @@ const UngroupedLayersGroup = ({
   onEditDataSource,
   onEditStatisticsSource
 }: UngroupedLayersGroupProps) => {
-  const { toggleCard, isCardExpanded } = useLayerCardState();
+  const { toggleCard, isExpanded } = useLayerCardState();
 
   return (
     <Card className="border-amber-200">
@@ -56,7 +56,7 @@ const UngroupedLayersGroup = ({
               onRemoveStatisticsSource={(statsIndex) => onRemoveStatisticsSource(originalIndex, statsIndex)}
               onEditDataSource={(dataIndex) => onEditDataSource(originalIndex, dataIndex)}
               onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
-              isExpanded={isCardExpanded(`ungrouped-${originalIndex}`)}
+              isExpanded={isExpanded(`ungrouped-${originalIndex}`)}
               onToggle={() => toggleCard(`ungrouped-${originalIndex}`)}
             />
           ))}

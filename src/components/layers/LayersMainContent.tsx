@@ -1,40 +1,16 @@
+
 import React from 'react';
 import LayersTabContent from './components/LayersTabContent';
 import ExclusivitySetsSection from './components/ExclusivitySetsSection';
 import AddInterfaceGroupDialog from './components/AddInterfaceGroupDialog';
-import LayersTabHeader from './components/LayersTabHeader';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
-import { DataSource } from '@/types/config';
-
-interface LayersLogic {
-  setShowAddGroupDialog: (show: boolean) => void;
-  showAddGroupDialog: boolean;
-  handleAddBaseLayer: () => void;
-  expandedLayerAfterCreation: string | null;
-  expandedGroupAfterAction: string | null;
-  clearExpandedLayerAfterCreation: () => void;
-  clearExpandedGroup: () => void;
-  handleAddInterfaceGroup: (groupName: string) => boolean;
-  handleAddLayerForGroup: (groupName: string) => void;
-  handleEditLayer: (index: number) => void;
-  handleEditBaseLayer: (index: number) => void;
-  handleDuplicateLayer: (index: number) => void;
-  handleRemoveDataSource: (layerIndex: number, dataSourceIndex: number) => void;
-  handleRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
-  handleEditDataSource: (layerIndex: number, dataIndex: number) => void;
-  handleEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
-  handleStartDataSourceFormWithExpansion: (layerIndex: number) => void;
-}
 
 interface LayersMainContentProps {
   addExclusivitySet: () => void;
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
-  layersLogic: LayersLogic;
-  removeLayer: (index: number) => void;
-  moveLayer: (fromIndex: number, toIndex: number) => void;
-  updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
+  layersLogic: any;
 }
 
 const LayersMainContent = ({
@@ -42,36 +18,41 @@ const LayersMainContent = ({
   removeExclusivitySet,
   newExclusivitySet,
   setNewExclusivitySet,
-  layersLogic,
-  removeLayer,
-  moveLayer,
-  updateConfig
+  layersLogic
 }: LayersMainContentProps) => {
-  const { config } = useLayersTabContext();
+  const {
+    config,
+    onRemoveLayer,
+    onEditLayer,
+    onEditBaseLayer,
+    onDuplicateLayer,
+    onMoveLayer,
+    onUpdateConfig,
+    onAddDataSource,
+    onRemoveDataSource,
+    onRemoveStatisticsSource,
+    onEditDataSource,
+    onEditStatisticsSource
+  } = useLayersTabContext();
 
   return (
     <div className="space-y-6">
-      <LayersTabHeader
-        onAddGroup={() => layersLogic.setShowAddGroupDialog(true)}
-        onAddBaseLayer={layersLogic.handleAddBaseLayer}
-      />
-
       <LayersTabContent
         config={config}
         onAddGroup={() => layersLogic.setShowAddGroupDialog(true)}
-        onRemove={removeLayer}
-        onEdit={layersLogic.handleEditLayer}
-        onEditBaseLayer={layersLogic.handleEditBaseLayer}
-        onDuplicate={layersLogic.handleDuplicateLayer}
-        onAddDataSource={layersLogic.handleStartDataSourceFormWithExpansion}
-        onRemoveDataSource={layersLogic.handleRemoveDataSource}
-        onRemoveStatisticsSource={layersLogic.handleRemoveStatisticsSource}
-        onEditDataSource={layersLogic.handleEditDataSource}
-        onEditStatisticsSource={layersLogic.handleEditStatisticsSource}
-        onMoveLayer={moveLayer}
+        onRemove={onRemoveLayer}
+        onEdit={onEditLayer}
+        onEditBaseLayer={onEditBaseLayer}
+        onDuplicate={onDuplicateLayer}
+        onAddDataSource={onAddDataSource}
+        onRemoveDataSource={onRemoveDataSource}
+        onRemoveStatisticsSource={onRemoveStatisticsSource}
+        onEditDataSource={onEditDataSource}
+        onEditStatisticsSource={onEditStatisticsSource}
+        onMoveLayer={onMoveLayer}
         onAddLayer={layersLogic.handleAddLayerForGroup}
         onAddBaseLayer={layersLogic.handleAddBaseLayer}
-        updateConfig={updateConfig}
+        updateConfig={onUpdateConfig}
         expandedLayerAfterCreation={layersLogic.expandedLayerAfterCreation}
         expandedGroupAfterAction={layersLogic.expandedGroupAfterAction}
         onClearExpandedLayer={layersLogic.clearExpandedLayerAfterCreation}
