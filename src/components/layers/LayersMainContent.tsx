@@ -1,10 +1,10 @@
-
 import React from 'react';
 import LayersTabContent from './components/LayersTabContent';
 import ExclusivitySetsSection from './components/ExclusivitySetsSection';
 import AddInterfaceGroupDialog from './components/AddInterfaceGroupDialog';
 import LayersTabHeader from './components/LayersTabHeader';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
+import { DataSource } from '@/types/config';
 
 interface LayersLogic {
   setShowAddGroupDialog: (show: boolean) => void;
