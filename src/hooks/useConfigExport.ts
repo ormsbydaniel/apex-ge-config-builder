@@ -10,7 +10,7 @@ export const useConfigExport = () => {
   const { config } = useConfig();
   const { toast } = useToast();
 
-  const exportConfig = useCallback((options: ExportOptions = { singleItemArrayToObject: false, configureCogsAsImages: false }) => {
+  const exportConfig = useCallback((options: ExportOptions = { singleItemArrayToObject: false, configureCogsAsImages: false, removeEmptyCategories: false }) => {
     try {
       console.log('Starting config export with options:', options);
       console.log('Original config sources:', config.sources);

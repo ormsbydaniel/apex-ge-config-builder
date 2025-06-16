@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 export interface ExportOptions {
   singleItemArrayToObject: boolean;
   configureCogsAsImages: boolean;
+  removeEmptyCategories: boolean;
 }
 
 interface ExportOptionsDialogProps {
@@ -21,7 +22,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
   const { control, handleSubmit, watch } = useForm<ExportOptions>({
     defaultValues: {
       singleItemArrayToObject: false,
-      configureCogsAsImages: false
+      configureCogsAsImages: false,
+      removeEmptyCategories: false
     }
   });
 
@@ -32,7 +34,7 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
   };
 
   const handleQuickExport = () => {
-    onExport({ singleItemArrayToObject: false, configureCogsAsImages: false });
+    onExport({ singleItemArrayToObject: false, configureCogsAsImages: false, removeEmptyCategories: false });
     onOpenChange(false);
   };
 
@@ -86,6 +88,26 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
             </div>
             <p className="text-xs text-muted-foreground ml-6">
               Consolidate COG items into single objects with images arrays
+            </p>
+
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="removeEmptyCategories"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox 
+                    id="removeEmptyCategories"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <Label htmlFor="removeEmptyCategories" className="text-sm">
+                Remove empty categories
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              Remove categories arrays that are empty from the exported JSON
             </p>
           </div>
 
