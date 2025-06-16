@@ -6,12 +6,24 @@ import AddInterfaceGroupDialog from './components/AddInterfaceGroupDialog';
 import LayersTabHeader from './components/LayersTabHeader';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
 
+interface LayersLogic {
+  setShowAddGroupDialog: (show: boolean) => void;
+  showAddGroupDialog: boolean;
+  handleAddBaseLayer: () => void;
+  expandedLayerAfterCreation: string | null;
+  expandedGroupAfterAction: string | null;
+  clearExpandedLayerAfterCreation: () => void;
+  clearExpandedGroup: () => void;
+  handleAddInterfaceGroup: (groupName: string) => void;
+  handleAddLayerForGroup: (groupName: string) => void;
+}
+
 interface LayersMainContentProps {
   addExclusivitySet: () => void;
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
-  layersLogic: any;
+  layersLogic: LayersLogic;
 }
 
 const LayersMainContent = ({

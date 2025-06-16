@@ -9,7 +9,7 @@ interface LayersTabCoreProps {
     sources: DataSource[];
     interfaceGroups: string[];
     services: Service[];
-    exclusivitySets: string[];
+    exclusivity Sets: string[];
   };
   showLayerForm: boolean;
   selectedLayerType: LayerType | null;
@@ -28,7 +28,21 @@ interface LayersTabCoreProps {
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
-  layersLogic: any;
+  layersLogic: {
+    showDataSourceForm: boolean;
+    selectedLayerIndex: number | null;
+    handleDataSourceAdded: (dataSource: any) => void;
+    handleStatisticsLayerAdded: (statisticsItem: any) => void;
+    handleCancelDataSource: () => void;
+    expandedLayerAfterCreation: string | null;
+    expandedGroupAfterAction: string | null;
+    clearExpandedLayerAfterCreation: () => void;
+    clearExpandedGroup: () => void;
+    setShowAddGroupDialog: (show: boolean) => void;
+    handleAddInterfaceGroup: (groupName: string) => void;
+    handleAddLayerForGroup: (groupName: string) => void;
+    handleAddBaseLayer: () => void;
+  };
 }
 
 const LayersTabCore = ({

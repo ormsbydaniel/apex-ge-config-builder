@@ -1,23 +1,41 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 export const useLayerCardState = () => {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-  const toggleCard = (cardId: string) => {
-    const newExpanded = new Set(expandedCards);
-    if (newExpanded.has(cardId)) {
-      newExpanded.delete(cardId);
-    } else {
-      newExpanded.add(cardId);
-    }
-    setExpandedCards(newExpanded);
-  };
+  const toggleCard = useCallback((cardId: string) => {
+    setExpandedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(cardId)) {
+        newSet.delete(cardId);
+      } else {
+        newSet.add(cardId);
+      }
+      return newSet;
+    });
+  }, []);
 
-  const isExpanded = (cardId: string) => expandedCards.has(cardId);
+  const isCardExpanded = useCallback((cardId: string) => {
+    return expandedCards.has(cardId);
+  }, [expandedCards]);
+
+  const expandCard = useCallback((cardId: string) => {
+    setExpandedCards(prev => new Set(prev).add(cardId));
+  }, []);
+
+  const collapseCard = useCallback((cardId: string) => {
+    setExpandedCards(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(cardId);
+      return newSet;
+    });
+  }, []);
 
   return {
     toggleCard,
-    isExpanded
+    isCardExpanded,
+    expandCard,
+    collapseCard
   };
 };

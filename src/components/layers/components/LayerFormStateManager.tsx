@@ -19,7 +19,7 @@ interface LayerFormStateManagerProps {
   onDataSourceAdded: (dataSource: any) => void;
   onStatisticsLayerAdded: (statisticsItem: any) => void;
   onDataSourceCancel: () => void;
-  onAddService: (service: any) => void;
+  onAddService: (service: Service) => void;
 }
 
 const LayerFormStateManager = (props: LayerFormStateManagerProps) => {

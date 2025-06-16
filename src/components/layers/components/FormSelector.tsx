@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { DataSource, LayerType } from '@/types/config';
+import { DataSource, LayerType, Service } from '@/types/config';
 import LayerFormContainer from '../LayerFormContainer';
 import DataSourceForm from '../DataSourceForm';
 
@@ -10,7 +10,7 @@ interface FormSelectorProps {
   selectedLayerType: LayerType | null;
   selectedLayerIndex: number | null;
   interfaceGroups: string[];
-  services: any[];
+  services: Service[];
   editingLayerIndex: number | null;
   config: { sources: DataSource[] };
   defaultInterfaceGroup?: string;
@@ -20,7 +20,7 @@ interface FormSelectorProps {
   onDataSourceAdded: (dataSource: any) => void;
   onStatisticsLayerAdded: (statisticsItem: any) => void;
   onDataSourceCancel: () => void;
-  onAddService: (service: any) => void;
+  onAddService: (service: Service) => void;
 }
 
 const FormSelector = ({
