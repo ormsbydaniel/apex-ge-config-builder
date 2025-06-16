@@ -6,6 +6,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { formatValidationErrors, parseJSONWithLineNumbers } from '@/utils/validationUtils';
 import { ValidationErrorDetails } from '@/types/config';
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
+import { normalizeImportedConfig } from '@/utils/importTransformations';
 
 export const useConfigImport = () => {
   const { dispatch } = useConfig();
@@ -38,8 +39,11 @@ export const useConfigImport = () => {
       
       const jsonData = parseResult.data;
       
-      // Validate the configuration using Zod schema
-      const validatedConfig = ConfigurationSchema.parse(jsonData);
+      // Normalize imported config to internal schema (reverse any export transformations)
+      const normalizedData = normalizeImportedConfig(jsonData);
+      
+      // Validate the normalized configuration using Zod schema
+      const validatedConfig = ConfigurationSchema.parse(normalizedData);
       
       // Fetch capabilities for all services if they exist
       const servicesWithCapabilities = await Promise.all(
@@ -60,9 +64,15 @@ export const useConfigImport = () => {
       
       dispatch({ type: 'LOAD_CONFIG', payload: configWithCapabilities });
       
+      // Check if transformations were detected and inform user
+      const hadTransformations = jsonData._exportMeta && jsonData._exportMeta.transformations?.length > 0;
+      const description = hadTransformations 
+        ? `Successfully loaded configuration from ${file.name}. Export transformations were automatically reversed.`
+        : `Successfully loaded configuration from ${file.name}`;
+      
       toast({
         title: "Configuration Loaded",
-        description: `Successfully loaded configuration from ${file.name}`,
+        description,
       });
       
       return { success: true };

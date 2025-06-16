@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Download, RotateCcw, FileText, AlertTriangle } from 'lucide-react';
+import { Upload, Download, RotateCcw, FileText, AlertTriangle, Settings } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from './ValidationErrorDetails';
+import ExportOptionsDialog, { ExportOptions } from './ExportOptionsDialog';
 
 const ConfigManagement = () => {
   const { config, dispatch } = useConfig();
@@ -15,6 +16,7 @@ const ConfigManagement = () => {
   const { exportConfig } = useConfigExport();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [jsonError, setJsonError] = useState<any>(null);
   const [errorFileName, setErrorFileName] = useState<string>('');
@@ -25,6 +27,14 @@ const ConfigManagement = () => {
 
   const handleNewConfig = () => {
     dispatch({ type: 'RESET_CONFIG' });
+  };
+
+  const handleExportWithOptions = (options: ExportOptions) => {
+    exportConfig(options);
+  };
+
+  const handleQuickExport = () => {
+    exportConfig({ singleItemArrayToObject: false, configureCogsAsImages: false, removeEmptyCategories: false });
   };
 
   const handleFileSelectWithErrorHandling = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +67,7 @@ const ConfigManagement = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <Button
               onClick={handleImportClick}
               variant="outline"
@@ -69,12 +79,21 @@ const ConfigManagement = () => {
             </Button>
             
             <Button
-              onClick={exportConfig}
+              onClick={handleQuickExport}
               variant="outline"
               className="border-green-300 text-green-700 hover:bg-green-50"
             >
               <Download className="h-4 w-4 mr-2" />
-              Export Configuration
+              Quick Export
+            </Button>
+
+            <Button
+              onClick={() => setShowExportDialog(true)}
+              variant="outline"
+              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Export Options
             </Button>
             
             <Button
@@ -102,6 +121,12 @@ const ConfigManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      <ExportOptionsDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        onExport={handleExportWithOptions}
+      />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
