@@ -1,0 +1,589 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Save, X, Database, Globe, Plus, ArrowLeft } from 'lucide-react';
+import { Service, DataSourceFormat, DataSourceItem } from '@/types/config';
+import { FORMAT_CONFIGS } from '@/constants/formats';
+import { useServices } from '@/hooks/useServices';
+import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
+import { useToast } from '@/hooks/use-toast';
+
+interface DataSourceFormProps {
+  services: Service[];
+  currentLayerStatistics?: DataSourceItem[];
+  onAddDataSource: (dataSource: DataSourceItem) => void;
+  onAddStatisticsLayer: (statisticsItem: DataSourceItem) => void;
+  onAddService: (service: Service) => void;
+  onCancel: () => void;
+}
+
+const DataSourceForm = ({ 
+  services, 
+  currentLayerStatistics = [],
+  onAddDataSource, 
+  onAddStatisticsLayer,
+  onAddService, 
+  onCancel 
+}: DataSourceFormProps) => {
+  const { toast } = useToast();
+  const { addService, isLoadingCapabilities } = useServices(services, onAddService);
+  
+  const [sourceType, setSourceType] = useState<'service' | 'direct'>('service');
+  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('wms');
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedLayer, setSelectedLayer] = useState('');
+  const [directUrl, setDirectUrl] = useState('');
+  const [directLayers, setDirectLayers] = useState('');
+  const [zIndex, setZIndex] = useState(2);
+  const [showLayerSelection, setShowLayerSelection] = useState(false);
+  
+  // Statistics layer state
+  const {
+    isStatisticsLayer,
+    setIsStatisticsLayer,
+    statisticsLevel
+  } = useStatisticsLayer(currentLayerStatistics);
+  
+  // New service form
+  const [showNewServiceForm, setShowNewServiceForm] = useState(false);
+  const [newServiceName, setNewServiceName] = useState('');
+  const [newServiceUrl, setNewServiceUrl] = useState('');
+
+  const config_format = FORMAT_CONFIGS[selectedFormat];
+
+  // Check if current format supports statistics
+  const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
+
+  console.log('=== DataSourceForm Debug ===');
+  console.log('selectedFormat:', selectedFormat);
+  console.log('supportsStatistics:', supportsStatistics);
+  console.log('isStatisticsLayer:', isStatisticsLayer);
+  console.log('statisticsLevel (auto-calculated):', statisticsLevel);
+  console.log('currentLayerStatistics:', currentLayerStatistics);
+  console.log('================================');
+
+  const handleFormatChange = (format: DataSourceFormat) => {
+    console.log('Format changed from:', selectedFormat, 'to:', format);
+    setSelectedFormat(format);
+    
+    // Reset statistics state for unsupported formats
+    if (format !== 'flatgeobuf' && format !== 'geojson') {
+      setIsStatisticsLayer(false);
+    }
+  };
+
+  const handleStatisticsToggle = (checked: boolean) => {
+    console.log('Statistics toggle changed to:', checked);
+    setIsStatisticsLayer(checked);
+  };
+
+  const handleAddNewService = async () => {
+    if (newServiceName.trim() && newServiceUrl.trim()) {
+      await addService(newServiceName, newServiceUrl, selectedFormat);
+      setNewServiceName('');
+      setNewServiceUrl('');
+      setShowNewServiceForm(false);
+    }
+  };
+
+  const handleServiceSelect = (service: Service) => {
+    setSelectedService(service);
+    setSelectedFormat(service.format as DataSourceFormat);
+    setShowLayerSelection(true);
+    setSelectedLayer('');
+  };
+
+  const handleBackToServices = () => {
+    setShowLayerSelection(false);
+    setSelectedService(null);
+    setSelectedLayer('');
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    let url = '';
+    let layers = '';
+    let serviceId = undefined;
+
+    if (sourceType === 'service') {
+      if (!selectedService) {
+        toast({
+          title: "Missing Service",
+          description: "Please select a service.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      url = selectedService.url;
+      serviceId = selectedService.id;
+      
+      const serviceConfig = FORMAT_CONFIGS[selectedService.format as DataSourceFormat];
+      if (serviceConfig.requiresLayers && !selectedLayer) {
+        toast({
+          title: "Missing Layer",
+          description: "Please select a layer.",
+          variant: "destructive"
+        });
+        return;
+      }
+      layers = selectedLayer;
+    } else {
+      if (!directUrl.trim()) {
+        toast({
+          title: "Missing URL",
+          description: "Please provide a data source URL.",
+          variant: "destructive"
+        });
+        return;
+      }
+      url = directUrl.trim();
+      
+      if (config_format.requiresLayers && !directLayers.trim()) {
+        toast({
+          title: "Missing Layers",
+          description: "Please provide layer information.",
+          variant: "destructive"
+        });
+        return;
+      }
+      layers = directLayers.trim();
+    }
+
+    // Validate statistics layer requirements
+    if (isStatisticsLayer && !supportsStatistics) {
+      toast({
+        title: "Invalid Statistics Layer",
+        description: "Statistics layers are only supported for FlatGeoBuf and GeoJSON formats.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const dataSourceItem: DataSourceItem = {
+      url,
+      format: sourceType === 'service' ? selectedService!.format : selectedFormat,
+      zIndex,
+      ...(layers && { layers }),
+      ...(serviceId && { serviceId }),
+      ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel })
+    };
+
+    // Call appropriate callback based on statistics layer flag
+    if (isStatisticsLayer && supportsStatistics) {
+      onAddStatisticsLayer(dataSourceItem);
+      toast({
+        title: "Statistics Layer Added",
+        description: `${(sourceType === 'service' ? selectedService!.format : selectedFormat).toUpperCase()} statistics layer (level ${statisticsLevel}) has been added.`,
+      });
+    } else {
+      onAddDataSource(dataSourceItem);
+      toast({
+        title: "Data Source Added",
+        description: `${(sourceType === 'service' ? selectedService!.format : selectedFormat).toUpperCase()} data source has been added to the layer.`,
+      });
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Database className="h-5 w-5" />
+          Add Data Source
+        </CardTitle>
+        <CardDescription>
+          Configure a data source for this layer from an existing service or provide direct connection details.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Source Type Selection */}
+          <div className="space-y-4">
+            <Label>Source Type</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <Card 
+                className={`cursor-pointer transition-colors ${
+                  sourceType === 'service' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                }`}
+                onClick={() => setSourceType('service')}
+              >
+                <CardContent className="p-4 text-center">
+                  <Globe className="h-6 w-6 mx-auto mb-2" />
+                  <div className="font-medium">From Service</div>
+                  <div className="text-sm text-muted-foreground">Use configured service</div>
+                </CardContent>
+              </Card>
+              <Card 
+                className={`cursor-pointer transition-colors ${
+                  sourceType === 'direct' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                }`}
+                onClick={() => setSourceType('direct')}
+              >
+                <CardContent className="p-4 text-center">
+                  <Database className="h-6 w-6 mx-auto mb-2" />
+                  <div className="font-medium">Direct Connection</div>
+                  <div className="text-sm text-muted-foreground">Provide URL directly</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Service-based Configuration */}
+          {sourceType === 'service' && (
+            <div className="space-y-4">
+              {!showLayerSelection ? (
+                <>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label>Select Service</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowNewServiceForm(!showNewServiceForm)}
+                        size="sm"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add New Service
+                      </Button>
+                    </div>
+
+                    {showNewServiceForm && (
+                      <Card className="border-primary/30">
+                        <CardContent className="p-4 space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="newServiceFormat">Data Format</Label>
+                            <Select value={selectedFormat} onValueChange={handleFormatChange}>
+                              <SelectTrigger id="newServiceFormat">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(FORMAT_CONFIGS).map(([key, config]) => (
+                                  <SelectItem key={key} value={key}>
+                                    {config.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Statistics Layer Toggle for New Service */}
+                          {supportsStatistics && (
+                            <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                              <div className="flex items-center space-x-2">
+                                <Switch
+                                  id="newServiceStatisticsLayer"
+                                  name="newServiceStatisticsLayer"
+                                  checked={isStatisticsLayer}
+                                  onCheckedChange={handleStatisticsToggle}
+                                />
+                                <Label htmlFor="newServiceStatisticsLayer" className="font-medium">
+                                  Statistics Layer
+                                </Label>
+                              </div>
+                              
+                              {isStatisticsLayer && (
+                                <div className="space-y-2">
+                                  <Label>Level (Auto-assigned)</Label>
+                                  <div className="p-2 bg-muted/50 border rounded text-sm">
+                                    Level {statisticsLevel}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="newServiceName">Service Name</Label>
+                              <Input
+                                id="newServiceName"
+                                name="newServiceName"
+                                value={newServiceName}
+                                onChange={(e) => setNewServiceName(e.target.value)}
+                                placeholder="e.g., My WMS Service"
+                                autoComplete="organization"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="newServiceUrl">Service URL</Label>
+                              <Input
+                                id="newServiceUrl"
+                                name="newServiceUrl"
+                                value={newServiceUrl}
+                                onChange={(e) => setNewServiceUrl(e.target.value)}
+                                placeholder={FORMAT_CONFIGS[selectedFormat].urlPlaceholder}
+                                autoComplete="url"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              onClick={handleAddNewService}
+                              disabled={!newServiceName.trim() || !newServiceUrl.trim() || isLoadingCapabilities}
+                              size="sm"
+                            >
+                              Add Service
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setShowNewServiceForm(false)}
+                              size="sm"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    <div className="grid gap-4">
+                      {services.map((service) => (
+                        <Card key={service.id} className="border-primary/20 hover:border-primary/40 transition-colors">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h3 className="font-medium">{service.name}</h3>
+                                  <Badge variant="outline">{service.format.toUpperCase()}</Badge>
+                                  {service.capabilities?.layers.length && (
+                                    <Badge variant="secondary">
+                                      {service.capabilities.layers.length} layers
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-sm text-muted-foreground truncate">{service.url}</p>
+                              </div>
+                              <Button
+                                type="button"
+                                onClick={() => handleServiceSelect(service)}
+                                size="sm"
+                                className="ml-4"
+                              >
+                                Add Layer
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={handleBackToServices}
+                        size="sm"
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Services
+                      </Button>
+                    </div>
+
+                    <Card className="border-primary/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-medium">{selectedService?.name}</h3>
+                          <Badge variant="outline">{selectedService?.format.toUpperCase()}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{selectedService?.url}</p>
+                      </CardContent>
+                    </Card>
+
+                    {selectedService && FORMAT_CONFIGS[selectedService.format as DataSourceFormat].requiresLayers && (
+                      <div className="space-y-2">
+                        <Label htmlFor="selectedLayer">Select Layer *</Label>
+                        {selectedService.capabilities?.layers.length ? (
+                          <Select value={selectedLayer} onValueChange={setSelectedLayer}>
+                            <SelectTrigger id="selectedLayer">
+                              <SelectValue placeholder="Select layer" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-60">
+                              {selectedService.capabilities.layers.map((layer) => (
+                                <SelectItem key={layer.name} value={layer.name}>
+                                  <div>
+                                    <div className="font-medium">{layer.title || layer.name}</div>
+                                    {layer.title !== layer.name && (
+                                      <div className="text-xs text-muted-foreground">{layer.name}</div>
+                                    )}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            id="selectedLayer"
+                            name="selectedLayer"
+                            value={selectedLayer}
+                            onChange={(e) => setSelectedLayer(e.target.value)}
+                            placeholder={FORMAT_CONFIGS[selectedService.format as DataSourceFormat].layersPlaceholder}
+                            autoComplete="off"
+                          />
+                        )}
+                      </div>
+                    )}
+
+                    {/* Statistics Layer Toggle for Service Layer Selection */}
+                    {supportsStatistics && (
+                      <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="serviceStatisticsLayer"
+                            name="serviceStatisticsLayer"
+                            checked={isStatisticsLayer}
+                            onCheckedChange={handleStatisticsToggle}
+                          />
+                          <Label htmlFor="serviceStatisticsLayer" className="font-medium">
+                            Statistics Layer
+                          </Label>
+                        </div>
+                        
+                        {isStatisticsLayer && (
+                          <div className="space-y-2">
+                            <Label>Level (Auto-assigned)</Label>
+                            <div className="p-2 bg-muted/50 border rounded text-sm">
+                              Level {statisticsLevel}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="serviceZIndex">Z-Index</Label>
+                      <Input
+                        id="serviceZIndex"
+                        name="serviceZIndex"
+                        type="number"
+                        value={zIndex}
+                        onChange={(e) => setZIndex(parseInt(e.target.value) || 2)}
+                        min="0"
+                        max="100"
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Direct Configuration */}
+          {sourceType === 'direct' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="directFormat">Data Format *</Label>
+                <Select value={selectedFormat} onValueChange={handleFormatChange}>
+                  <SelectTrigger id="directFormat">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(FORMAT_CONFIGS).map(([key, config]) => (
+                      <SelectItem key={key} value={key}>
+                        {config.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Statistics Layer Toggle for Direct Configuration */}
+              {supportsStatistics && (
+                <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="directStatisticsLayer"
+                      name="directStatisticsLayer"
+                      checked={isStatisticsLayer}
+                      onCheckedChange={handleStatisticsToggle}
+                    />
+                    <Label htmlFor="directStatisticsLayer" className="font-medium">
+                      Statistics Layer
+                    </Label>
+                  </div>
+                  
+                  {isStatisticsLayer && (
+                    <div className="space-y-2">
+                      <Label>Level (Auto-assigned)</Label>
+                      <div className="p-2 bg-muted/50 border rounded text-sm">
+                        Level {statisticsLevel}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="directUrl">Data Source URL *</Label>
+                <Input
+                  id="directUrl"
+                  name="directUrl"
+                  value={directUrl}
+                  onChange={(e) => setDirectUrl(e.target.value)}
+                  placeholder={config_format.urlPlaceholder}
+                  autoComplete="url"
+                />
+              </div>
+              
+              {config_format.requiresLayers && (
+                <div className="space-y-2">
+                  <Label htmlFor="directLayers">Layer Name *</Label>
+                  <Input
+                    id="directLayers"
+                    name="directLayers"
+                    value={directLayers}
+                    onChange={(e) => setDirectLayers(e.target.value)}
+                    placeholder={config_format.layersPlaceholder}
+                    autoComplete="off"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="directZIndex">Z-Index</Label>
+                <Input
+                  id="directZIndex"
+                  name="directZIndex"
+                  type="number"
+                  value={zIndex}
+                  onChange={(e) => setZIndex(parseInt(e.target.value) || 2)}
+                  min="0"
+                  max="100"
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            {(sourceType === 'direct' || (sourceType === 'service' && showLayerSelection)) && (
+              <Button type="submit" className="bg-primary hover:bg-primary/90">
+                <Save className="h-4 w-4 mr-2" />
+                Add {isStatisticsLayer ? 'Statistics Layer' : 'Data Source'}
+              </Button>
+            )}
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default DataSourceForm;

@@ -1,0 +1,87 @@
+
+import React from 'react';
+import { Card } from '@/components/ui/card';
+import { DataSource, isDataSourceItemArray } from '@/types/config';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
+import LayerCardHeader from './components/LayerCardHeader';
+import LayerCardContent from './components/LayerCardContent';
+
+interface LayerCardProps {
+  source: DataSource;
+  index: number;
+  onRemove: (index: number) => void;
+  onEdit: (index: number) => void;
+  onEditBaseLayer: (index: number) => void;
+  onDuplicate: (index: number) => void;
+  onAddDataSource?: () => void;
+  onRemoveDataSource: (dataSourceIndex: number) => void;
+  onRemoveStatisticsSource?: (statsIndex: number) => void;
+  onEditDataSource?: (dataIndex: number) => void;
+  onEditStatisticsSource?: (statsIndex: number) => void;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+const LayerCard = ({ 
+  source, 
+  index, 
+  onRemove, 
+  onEdit, 
+  onEditBaseLayer, 
+  onDuplicate, 
+  onAddDataSource, 
+  onRemoveDataSource,
+  onRemoveStatisticsSource,
+  onEditDataSource,
+  onEditStatisticsSource,
+  isExpanded,
+  onToggle
+}: LayerCardProps) => {
+  const isBaseLayer = isDataSourceItemArray(source.data) && 
+    source.data.some(item => item.isBaseLayer === true);
+  const isSwipeLayer = source.meta?.swipeConfig !== undefined;
+
+  const handleEdit = () => {
+    if (isBaseLayer) {
+      onEditBaseLayer(index);
+    } else {
+      onEdit(index);
+    }
+  };
+
+  // Determine border color based on layer type
+  const borderClass = isSwipeLayer 
+    ? 'border-l-4 border-l-purple-500' 
+    : isBaseLayer 
+      ? 'border-l-4 border-l-green-500'
+      : 'border-l-4 border-l-primary/30';
+
+  return (
+    <Card className={borderClass}>
+      <Collapsible open={isExpanded} onOpenChange={onToggle}>
+        <LayerCardHeader
+          source={source}
+          index={index}
+          isExpanded={isExpanded}
+          isSwipeLayer={isSwipeLayer}
+          onRemove={onRemove}
+          onEdit={onEdit}
+          onDuplicate={onDuplicate}
+          handleEdit={handleEdit}
+        />
+        <CollapsibleContent>
+          <LayerCardContent
+            source={source}
+            onAddDataSource={onAddDataSource}
+            onRemoveDataSource={onRemoveDataSource}
+            onRemoveStatisticsSource={onRemoveStatisticsSource}
+            onEditDataSource={onEditDataSource}
+            onEditStatisticsSource={onEditStatisticsSource}
+          />
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  );
+};
+
+export default LayerCard;
