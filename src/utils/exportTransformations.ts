@@ -45,6 +45,87 @@ export const transformSingleItemArrays = (config: any, enabled: boolean): any =>
   return transformedConfig;
 };
 
+export const transformCogsAsImages = (config: any, enabled: boolean): any => {
+  if (!enabled) return config;
+
+  const transformedConfig = { ...config };
+  
+  // Transform sources
+  if (transformedConfig.sources) {
+    transformedConfig.sources = transformedConfig.sources.map((source: DataSource) => {
+      const transformedSource = { ...source };
+      
+      // Transform main data array for COGs
+      if (transformedSource.data && Array.isArray(transformedSource.data)) {
+        const { cogItems, nonCogItems } = transformedSource.data.reduce((acc: any, item: DataSourceItem) => {
+          if (item.format === 'cog') {
+            acc.cogItems.push(item);
+          } else {
+            acc.nonCogItems.push(item);
+          }
+          return acc;
+        }, { cogItems: [], nonCogItems: [] });
+
+        // If we have COG items, consolidate them
+        if (cogItems.length > 0) {
+          // Extract URLs and find max zIndex
+          const images = cogItems.map((item: DataSourceItem) => ({ url: item.url })).filter((img: any) => img.url);
+          const maxZIndex = Math.max(...cogItems.map((item: DataSourceItem) => item.zIndex || 0));
+          
+          // Create consolidated COG object using properties from the first COG item
+          const firstCogItem = cogItems[0];
+          const consolidatedCog = {
+            ...firstCogItem,
+            images,
+            zIndex: maxZIndex,
+            // Remove individual url since we now have images array
+            url: undefined
+          };
+
+          // Replace data array with consolidated COG + non-COG items
+          transformedSource.data = [...nonCogItems, consolidatedCog];
+        }
+      }
+      
+      // Transform statistics array for COGs if it exists
+      if (transformedSource.statistics && Array.isArray(transformedSource.statistics)) {
+        const { cogItems, nonCogItems } = transformedSource.statistics.reduce((acc: any, item: DataSourceItem) => {
+          if (item.format === 'cog') {
+            acc.cogItems.push(item);
+          } else {
+            acc.nonCogItems.push(item);
+          }
+          return acc;
+        }, { cogItems: [], nonCogItems: [] });
+
+        // If we have COG items, consolidate them
+        if (cogItems.length > 0) {
+          // Extract URLs and find max zIndex
+          const images = cogItems.map((item: DataSourceItem) => ({ url: item.url })).filter((img: any) => img.url);
+          const maxZIndex = Math.max(...cogItems.map((item: DataSourceItem) => item.zIndex || 0));
+          
+          // Create consolidated COG object using properties from the first COG item
+          const firstCogItem = cogItems[0];
+          const consolidatedCog = {
+            ...firstCogItem,
+            images,
+            zIndex: maxZIndex,
+            // Remove individual url since we now have images array
+            url: undefined
+          };
+
+          // Replace statistics array with consolidated COG + non-COG items
+          transformedSource.statistics = [...nonCogItems, consolidatedCog];
+        }
+      }
+      
+      return transformedSource;
+    });
+  }
+  
+  return transformedConfig;
+};
+
 export const applyExportTransformations = (config: any, options: ExportOptions): any => {
   let transformedConfig = { ...config };
   const appliedTransformations: string[] = [];
@@ -53,6 +134,12 @@ export const applyExportTransformations = (config: any, options: ExportOptions):
   if (options.singleItemArrayToObject) {
     transformedConfig = transformSingleItemArrays(transformedConfig, true);
     appliedTransformations.push('singleItemArrayToObject');
+  }
+  
+  // Apply COG consolidation transformation
+  if (options.configureCogsAsImages) {
+    transformedConfig = transformCogsAsImages(transformedConfig, true);
+    appliedTransformations.push('configureCogsAsImages');
   }
   
   // Add export metadata

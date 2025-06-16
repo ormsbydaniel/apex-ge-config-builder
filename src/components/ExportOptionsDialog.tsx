@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 
 export interface ExportOptions {
   singleItemArrayToObject: boolean;
+  configureCogsAsImages: boolean;
 }
 
 interface ExportOptionsDialogProps {
@@ -19,7 +20,8 @@ interface ExportOptionsDialogProps {
 const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDialogProps) => {
   const { register, handleSubmit, watch } = useForm<ExportOptions>({
     defaultValues: {
-      singleItemArrayToObject: false
+      singleItemArrayToObject: false,
+      configureCogsAsImages: false
     }
   });
 
@@ -29,7 +31,7 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
   };
 
   const handleQuickExport = () => {
-    onExport({ singleItemArrayToObject: false });
+    onExport({ singleItemArrayToObject: false, configureCogsAsImages: false });
     onOpenChange(false);
   };
 
@@ -56,6 +58,19 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
             </div>
             <p className="text-xs text-muted-foreground ml-6">
               Convert layers with single data items from arrays to objects for simpler format
+            </p>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="configureCogsAsImages"
+                {...register('configureCogsAsImages')}
+              />
+              <Label htmlFor="configureCogsAsImages" className="text-sm">
+                Configure COGs as images
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              Consolidate COG items into single objects with images arrays
             </p>
           </div>
 
