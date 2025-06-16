@@ -28,6 +28,9 @@ interface LayersTabCoreProps {
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
+  removeLayer: (index: number) => void;
+  moveLayer: (fromIndex: number, toIndex: number) => void;
+  updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
   layersLogic: {
     showDataSourceForm: boolean;
     selectedLayerIndex: number | null;
@@ -43,6 +46,14 @@ interface LayersTabCoreProps {
     handleAddInterfaceGroup: (groupName: string) => boolean;
     handleAddLayerForGroup: (groupName: string) => void;
     handleAddBaseLayer: () => void;
+    handleEditLayer: (index: number) => void;
+    handleEditBaseLayer: (index: number) => void;
+    handleDuplicateLayer: (index: number) => void;
+    handleRemoveDataSource: (layerIndex: number, dataSourceIndex: number) => void;
+    handleRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
+    handleEditDataSource: (layerIndex: number, dataIndex: number) => void;
+    handleEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
+    handleStartDataSourceFormWithExpansion: (layerIndex: number) => void;
   };
 }
 
@@ -65,6 +76,9 @@ const LayersTabCore = ({
   removeExclusivitySet,
   newExclusivitySet,
   setNewExclusivitySet,
+  removeLayer,
+  moveLayer,
+  updateConfig,
   layersLogic
 }: LayersTabCoreProps) => {
   const handleLayerFormCancel = () => {
@@ -113,6 +127,9 @@ const LayersTabCore = ({
           newExclusivitySet={newExclusivitySet}
           setNewExclusivitySet={setNewExclusivitySet}
           layersLogic={layersLogic}
+          removeLayer={removeLayer}
+          moveLayer={moveLayer}
+          updateConfig={updateConfig}
         />
       )}
     </>

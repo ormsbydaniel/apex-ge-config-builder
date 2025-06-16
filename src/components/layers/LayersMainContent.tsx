@@ -16,6 +16,14 @@ interface LayersLogic {
   clearExpandedGroup: () => void;
   handleAddInterfaceGroup: (groupName: string) => boolean;
   handleAddLayerForGroup: (groupName: string) => void;
+  handleEditLayer: (index: number) => void;
+  handleEditBaseLayer: (index: number) => void;
+  handleDuplicateLayer: (index: number) => void;
+  handleRemoveDataSource: (layerIndex: number, dataSourceIndex: number) => void;
+  handleRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
+  handleEditDataSource: (layerIndex: number, dataIndex: number) => void;
+  handleEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
+  handleStartDataSourceFormWithExpansion: (layerIndex: number) => void;
 }
 
 interface LayersMainContentProps {
@@ -24,6 +32,9 @@ interface LayersMainContentProps {
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
   layersLogic: LayersLogic;
+  removeLayer: (index: number) => void;
+  moveLayer: (fromIndex: number, toIndex: number) => void;
+  updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
 }
 
 const LayersMainContent = ({
@@ -31,7 +42,10 @@ const LayersMainContent = ({
   removeExclusivitySet,
   newExclusivitySet,
   setNewExclusivitySet,
-  layersLogic
+  layersLogic,
+  removeLayer,
+  moveLayer,
+  updateConfig
 }: LayersMainContentProps) => {
   const { config } = useLayersTabContext();
 
@@ -45,19 +59,19 @@ const LayersMainContent = ({
       <LayersTabContent
         config={config}
         onAddGroup={() => layersLogic.setShowAddGroupDialog(true)}
-        onRemove={() => {}} // Will be handled by context
-        onEdit={() => {}} // Will be handled by context
-        onEditBaseLayer={() => {}} // Will be handled by context
-        onDuplicate={() => {}} // Will be handled by context
-        onAddDataSource={() => {}} // Will be handled by context
-        onRemoveDataSource={() => {}} // Will be handled by context
-        onRemoveStatisticsSource={() => {}} // Will be handled by context
-        onEditDataSource={() => {}} // Will be handled by context
-        onEditStatisticsSource={() => {}} // Will be handled by context
-        onMoveLayer={() => {}} // Will be handled by context
+        onRemove={removeLayer}
+        onEdit={layersLogic.handleEditLayer}
+        onEditBaseLayer={layersLogic.handleEditBaseLayer}
+        onDuplicate={layersLogic.handleDuplicateLayer}
+        onAddDataSource={layersLogic.handleStartDataSourceFormWithExpansion}
+        onRemoveDataSource={layersLogic.handleRemoveDataSource}
+        onRemoveStatisticsSource={layersLogic.handleRemoveStatisticsSource}
+        onEditDataSource={layersLogic.handleEditDataSource}
+        onEditStatisticsSource={layersLogic.handleEditStatisticsSource}
+        onMoveLayer={moveLayer}
         onAddLayer={layersLogic.handleAddLayerForGroup}
         onAddBaseLayer={layersLogic.handleAddBaseLayer}
-        updateConfig={() => {}} // Will be handled by context
+        updateConfig={updateConfig}
         expandedLayerAfterCreation={layersLogic.expandedLayerAfterCreation}
         expandedGroupAfterAction={layersLogic.expandedGroupAfterAction}
         onClearExpandedLayer={layersLogic.clearExpandedLayerAfterCreation}
