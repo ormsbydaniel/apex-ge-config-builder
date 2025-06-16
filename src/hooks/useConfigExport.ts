@@ -3,12 +3,14 @@ import { useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useConfig } from '@/contexts/ConfigContext';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
+import { applyExportTransformations } from '@/utils/exportTransformations';
+import { ExportOptions } from '@/components/ExportOptionsDialog';
 
 export const useConfigExport = () => {
   const { config } = useConfig();
   const { toast } = useToast();
 
-  const exportConfig = useCallback(() => {
+  const exportConfig = useCallback((options: ExportOptions = { singleItemArrayToObject: false }) => {
     try {
       // Create a clean config object without internal state and capabilities
       const exportData = {
@@ -31,12 +33,24 @@ export const useConfigExport = () => {
             url: item.url ? sanitizeUrl(item.url) : item.url,
             format: item.format,
             zIndex: item.zIndex
-          }))
+          })),
+          // Include statistics if they exist
+          ...(source.statistics && {
+            statistics: source.statistics.map(item => ({
+              ...item,
+              url: item.url ? sanitizeUrl(item.url) : item.url,
+              format: item.format,
+              zIndex: item.zIndex
+            }))
+          })
         })),
       };
 
-      console.log('Exporting config with sanitized URLs');
-      const configJson = JSON.stringify(exportData, null, 2);
+      // Apply export transformations
+      const transformedConfig = applyExportTransformations(exportData, options);
+
+      console.log('Exporting config with transformations:', options);
+      const configJson = JSON.stringify(transformedConfig, null, 2);
       const blob = new Blob([configJson], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -45,9 +59,14 @@ export const useConfigExport = () => {
       a.click();
       URL.revokeObjectURL(url);
       
+      const transformationsApplied = Object.values(options).some(value => value);
+      const description = transformationsApplied 
+        ? "Your config.json file has been downloaded with custom transformations applied."
+        : "Your config.json file has been downloaded with sanitized URLs.";
+      
       toast({
         title: "Configuration Exported",
-        description: "Your config.json file has been downloaded with sanitized URLs.",
+        description,
       });
     } catch (error) {
       console.error('Export error:', error);
