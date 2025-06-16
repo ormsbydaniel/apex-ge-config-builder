@@ -254,7 +254,7 @@ interface ConfigContextType {
 
 const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 
-export const ConfigProvider = ({ children }: { children: ReactNode }) => {
+export const ConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [config, dispatch] = useReducer(configReducer, initialState);
 
   return (

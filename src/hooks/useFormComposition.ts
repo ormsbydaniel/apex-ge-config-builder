@@ -1,6 +1,5 @@
-
 import { useState, useCallback } from 'react';
-import { validateFormField } from '@/utils/formHelpers';
+import { validateFormField } from '@/utils/formUtils';
 
 interface FormFieldConfig {
   name: string;
