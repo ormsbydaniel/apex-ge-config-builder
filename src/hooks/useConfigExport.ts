@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -9,7 +10,13 @@ export const useConfigExport = () => {
   const { config } = useConfig();
   const { toast } = useToast();
 
-  const exportConfig = useCallback((options: ExportOptions = { singleItemArrayToObject: false, configureCogsAsImages: false, removeEmptyCategories: false, includeCategoryValues: true }) => {
+  const exportConfig = useCallback((options: ExportOptions = { 
+    singleItemArrayToObject: false, 
+    configureCogsAsImages: false, 
+    removeEmptyCategories: false, 
+    includeCategoryValues: true,
+    addNormalizeFalseToCogs: false 
+  }) => {
     try {
       console.log('Starting config export with options:', options);
       console.log('Original config sources:', config.sources);

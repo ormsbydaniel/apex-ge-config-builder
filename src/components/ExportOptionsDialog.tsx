@@ -11,6 +11,7 @@ export interface ExportOptions {
   configureCogsAsImages: boolean;
   removeEmptyCategories: boolean;
   includeCategoryValues: boolean;
+  addNormalizeFalseToCogs: boolean;
 }
 
 interface ExportOptionsDialogProps {
@@ -25,7 +26,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
       singleItemArrayToObject: false,
       configureCogsAsImages: false,
       removeEmptyCategories: false,
-      includeCategoryValues: true
+      includeCategoryValues: true,
+      addNormalizeFalseToCogs: false
     }
   });
 
@@ -40,7 +42,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
       singleItemArrayToObject: false, 
       configureCogsAsImages: false, 
       removeEmptyCategories: false,
-      includeCategoryValues: true
+      includeCategoryValues: true,
+      addNormalizeFalseToCogs: false
     });
     onOpenChange(false);
   };
@@ -135,6 +138,26 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
             </div>
             <p className="text-xs text-muted-foreground ml-6">
               Include numeric values in category definitions (if present)
+            </p>
+
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="addNormalizeFalseToCogs"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox 
+                    id="addNormalizeFalseToCogs"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <Label htmlFor="addNormalizeFalseToCogs" className="text-sm">
+                Add normalize FALSE to COGs
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              Add normalize: false property to all COG items in the exported configuration
             </p>
           </div>
 
