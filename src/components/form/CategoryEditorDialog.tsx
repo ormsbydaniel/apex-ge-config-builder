@@ -22,7 +22,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
   const { config } = useConfig();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [localCategories, setLocalCategories] = useState<Category[]>(categories);
+  const [localCategories, setLocalCategories] = useState<Category[]>([...categories]);
   const [useValues, setUseValues] = useState(categories.some(cat => cat.value !== undefined));
   const [newCategory, setNewCategory] = useState<Category>({
     label: '',
@@ -33,10 +33,6 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
   const [selectedSourceLayer, setSelectedSourceLayer] = useState<string>('');
 
   const handleOpen = (isOpen: boolean) => {
-    if (isOpen) {
-      setLocalCategories([...categories]);
-      setUseValues(categories.some(cat => cat.value !== undefined));
-    }
     setOpen(isOpen);
   };
 
@@ -92,6 +88,7 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
   };
 
   const handleCancel = () => {
+    // Reset to original state only when explicitly canceling
     setLocalCategories([...categories]);
     setUseValues(categories.some(cat => cat.value !== undefined));
     setOpen(false);
