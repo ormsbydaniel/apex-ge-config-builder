@@ -1,15 +1,15 @@
-
 import React, { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Settings } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
+import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
 
 interface ConfigSummaryProps {
   config: any;
@@ -21,6 +21,7 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
   const { exportConfig } = useConfigExport();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [errorFileName, setErrorFileName] = useState<string>('');
   const [isEditingLogo, setIsEditingLogo] = useState(false);
@@ -36,8 +37,12 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
     dispatch({ type: 'RESET_CONFIG' });
   };
 
-  const handleExportClick = () => {
+  const handleQuickExport = () => {
     exportConfig({ singleItemArrayToObject: false });
+  };
+
+  const handleExportWithOptions = (options: ExportOptions) => {
+    exportConfig(options);
   };
 
   const handleFileSelectWithErrorHandling = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,18 +112,23 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
               Load
             </Button>
             
-            <Button onClick={handleExportClick} variant="outline" size="sm" className="border-green-300 text-green-700 hover:bg-green-50 text-xs px-2">
+            <Button onClick={handleQuickExport} variant="outline" size="sm" className="border-green-300 text-green-700 hover:bg-green-50 text-xs px-2">
               <Download className="h-3 w-3 mr-1" />
               Export
             </Button>
             
-            <Button onClick={handleNewConfig} variant="outline" size="sm" className="border-orange-300 text-orange-700 hover:bg-orange-50 text-xs px-2">
-              <RotateCcw className="h-3 w-3 mr-1" />
-              New
+            <Button onClick={() => setShowExportDialog(true)} variant="outline" size="sm" className="border-purple-300 text-purple-700 hover:bg-purple-50 text-xs px-2">
+              <Settings className="h-3 w-3 mr-1" />
+              Options
             </Button>
           </div>
 
           <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
+
+          <Button onClick={handleNewConfig} variant="outline" size="sm" className="w-full border-orange-300 text-orange-700 hover:bg-orange-50 text-xs">
+            <RotateCcw className="h-3 w-3 mr-1" />
+            New Config
+          </Button>
 
           {/* Logo Section */}
           <div className="space-y-2">
@@ -219,6 +229,12 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
           )}
         </CardContent>
       </Card>
+
+      <ExportOptionsDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        onExport={handleExportWithOptions}
+      />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
