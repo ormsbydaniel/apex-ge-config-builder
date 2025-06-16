@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -79,7 +78,6 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
     
     setLocalCategories(copiedCategories);
     setUseValues(sourceLayer.hasValues);
-    onUpdate(copiedCategories);
     setShowCopyConfirmation(false);
     
     toast({
