@@ -1,13 +1,16 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Plus, X, Edit3 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, X, Edit3, Copy } from 'lucide-react';
 import { Category } from '@/types/config';
+import { useConfig } from '@/contexts/ConfigContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface CategoryEditorDialogProps {
   categories: Category[];
@@ -16,6 +19,8 @@ interface CategoryEditorDialogProps {
 }
 
 const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorDialogProps) => {
+  const { config } = useConfig();
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [localCategories, setLocalCategories] = useState<Category[]>(categories);
   const [useValues, setUseValues] = useState(categories.some(cat => cat.value !== undefined));
@@ -24,6 +29,8 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
     color: '#000000',
     value: undefined
   });
+  const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
+  const [selectedSourceLayer, setSelectedSourceLayer] = useState<string>('');
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -32,6 +39,15 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
     }
     setOpen(isOpen);
   };
+
+  // Get available layers with categories for copying
+  const availableSourceLayers = config.sources
+    .filter(source => source.meta?.categories && source.meta.categories.length > 0)
+    .map(source => ({
+      name: source.name || 'Unnamed Layer',
+      categories: source.meta?.categories || [],
+      hasValues: source.meta?.categories?.some(cat => cat.value !== undefined) || false
+    }));
 
   const addCategory = () => {
     if (newCategory.label.trim()) {
@@ -53,7 +69,6 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
     const updated = localCategories.map((cat, i) => {
       if (i === index) {
         if (field === 'value' && !useValues) {
-          // Don't update value if useValues is false
           return cat;
         }
         return { ...cat, [field]: value };
@@ -70,7 +85,6 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
   const handleUseValuesToggle = (checked: boolean) => {
     setUseValues(checked);
     if (checked) {
-      // Add default values to categories that don't have them
       const updatedCategories = localCategories.map((cat, index) => ({
         ...cat,
         value: cat.value !== undefined ? cat.value : index
@@ -80,7 +94,6 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
         setNewCategory(prev => ({ ...prev, value: localCategories.length }));
       }
     } else {
-      // Remove values from categories
       const updatedCategories = localCategories.map(cat => {
         const { value, ...categoryWithoutValue } = cat;
         return categoryWithoutValue;
@@ -88,6 +101,34 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
       setLocalCategories(updatedCategories as Category[]);
       setNewCategory(prev => ({ ...prev, value: undefined }));
     }
+  };
+
+  const handleCopyFromLayer = () => {
+    if (!selectedSourceLayer) return;
+    
+    const sourceLayer = availableSourceLayers.find(layer => layer.name === selectedSourceLayer);
+    if (!sourceLayer) return;
+
+    // Check if we have existing categories
+    if (localCategories.length > 0) {
+      setShowCopyConfirmation(true);
+    } else {
+      performCopy(sourceLayer);
+    }
+  };
+
+  const performCopy = (sourceLayer: { categories: Category[]; hasValues: boolean; name: string }) => {
+    // Deep copy categories to avoid reference issues
+    const copiedCategories = sourceLayer.categories.map(cat => ({ ...cat }));
+    
+    setLocalCategories(copiedCategories);
+    setUseValues(sourceLayer.hasValues);
+    setShowCopyConfirmation(false);
+    
+    toast({
+      title: "Categories Copied",
+      description: `Copied ${copiedCategories.length} categories from "${sourceLayer.name}".`,
+    });
   };
 
   const handleSave = () => {
@@ -101,6 +142,8 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
     setOpen(false);
   };
 
+  const selectedSourceLayerData = availableSourceLayers.find(layer => layer.name === selectedSourceLayer);
+
   const defaultTrigger = (
     <Button type="button" variant="outline" size="sm">
       <Edit3 className="h-4 w-4 mr-2" />
@@ -109,156 +152,220 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger }: CategoryEditorD
   );
 
   return (
-    <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Edit Categories</DialogTitle>
-          <DialogDescription>
-            Add, edit, or remove categories for your legend.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="flex-1 overflow-y-auto space-y-4">
-          {/* Use Values Toggle */}
-          <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-            <div className="space-y-1">
-              <Label className="text-sm font-medium">Use Category Values</Label>
-              <p className="text-xs text-muted-foreground">
-                Enable numeric values for categories (useful for statistics and data mapping)
-              </p>
-            </div>
-            <Switch
-              checked={useValues}
-              onCheckedChange={handleUseValuesToggle}
-            />
-          </div>
+    <>
+      <Dialog open={open} onOpenChange={handleOpen}>
+        <DialogTrigger asChild>
+          {trigger || defaultTrigger}
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Edit Categories</DialogTitle>
+            <DialogDescription>
+              Add, edit, or remove categories for your legend.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto space-y-4">
+            {/* Copy from Another Layer Section */}
+            {availableSourceLayers.length > 0 && (
+              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                <Label className="text-sm font-medium">Copy from Another Layer</Label>
+                <div className="flex gap-3">
+                  <Select value={selectedSourceLayer} onValueChange={setSelectedSourceLayer}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Select a layer to copy from..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableSourceLayers.map((layer) => (
+                        <SelectItem key={layer.name} value={layer.name}>
+                          {layer.name} ({layer.categories.length} categories)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    type="button" 
+                    onClick={handleCopyFromLayer}
+                    disabled={!selectedSourceLayer}
+                    variant="outline"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
+                </div>
+                {selectedSourceLayerData && (
+                  <p className="text-xs text-muted-foreground">
+                    Will copy {selectedSourceLayerData.categories.length} categories
+                    {selectedSourceLayerData.hasValues ? ' (with values)' : ' (without values)'}
+                  </p>
+                )}
+              </div>
+            )}
 
-          {/* Add New Category */}
-          <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-            <Label className="text-sm font-medium">Add New Category</Label>
-            <div className="flex gap-3">
-              <input
-                type="color"
-                value={newCategory.color}
-                onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
-                className="w-12 h-10 rounded border cursor-pointer"
-                title="Category color"
+            {/* Use Values Toggle */}
+            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">Use Category Values</Label>
+                <p className="text-xs text-muted-foreground">
+                  Enable numeric values for categories (useful for statistics and data mapping)
+                </p>
+              </div>
+              <Switch
+                checked={useValues}
+                onCheckedChange={handleUseValuesToggle}
               />
-              <Input
-                value={newCategory.label}
-                onChange={(e) => setNewCategory(prev => ({ ...prev, label: e.target.value }))}
-                placeholder="Category label"
-                className="flex-1"
-                onKeyDown={(e) => e.key === 'Enter' && addCategory()}
-              />
-              {useValues && (
-                <Input
-                  type="number"
-                  value={newCategory.value !== undefined ? newCategory.value : ''}
-                  onChange={(e) => setNewCategory(prev => ({ 
-                    ...prev, 
-                    value: e.target.value ? parseInt(e.target.value) : undefined 
-                  }))}
-                  placeholder="Value"
-                  className="w-20"
+            </div>
+
+            {/* Add New Category */}
+            <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+              <Label className="text-sm font-medium">Add New Category</Label>
+              <div className="flex gap-3">
+                <input
+                  type="color"
+                  value={newCategory.color}
+                  onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
+                  className="w-12 h-10 rounded border cursor-pointer"
+                  title="Category color"
                 />
-              )}
-              <Button type="button" onClick={addCategory} disabled={!newCategory.label.trim()}>
-                <Plus className="h-4 w-4" />
-              </Button>
+                <Input
+                  value={newCategory.label}
+                  onChange={(e) => setNewCategory(prev => ({ ...prev, label: e.target.value }))}
+                  placeholder="Category label"
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === 'Enter' && addCategory()}
+                />
+                {useValues && (
+                  <Input
+                    type="number"
+                    value={newCategory.value !== undefined ? newCategory.value : ''}
+                    onChange={(e) => setNewCategory(prev => ({ 
+                      ...prev, 
+                      value: e.target.value ? parseInt(e.target.value) : undefined 
+                    }))}
+                    placeholder="Value"
+                    className="w-20"
+                  />
+                )}
+                <Button type="button" onClick={addCategory} disabled={!newCategory.label.trim()}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
 
-          {/* Existing Categories */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">
-              Categories ({localCategories.length})
-            </Label>
-            
-            {localCategories.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">
-                No categories defined. Add your first category above.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {localCategories.map((category, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 border rounded-lg bg-background">
-                    <input
-                      type="color"
-                      value={category.color}
-                      onChange={(e) => updateCategory(index, 'color', e.target.value)}
-                      className="w-8 h-8 rounded border cursor-pointer"
-                      title="Category color"
-                    />
-                    
-                    <Input
-                      value={category.label}
-                      onChange={(e) => updateCategory(index, 'label', e.target.value)}
-                      placeholder="Category label"
-                      className="flex-1"
-                    />
-                    
-                    {useValues && (
-                      <Input
-                        type="number"
-                        value={category.value !== undefined ? category.value : ''}
-                        onChange={(e) => updateCategory(index, 'value', e.target.value ? parseInt(e.target.value) : undefined)}
-                        placeholder="Value"
-                        className="w-20"
+            {/* Existing Categories */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">
+                Categories ({localCategories.length})
+              </Label>
+              
+              {localCategories.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-8 text-center">
+                  No categories defined. Add your first category above or copy from another layer.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {localCategories.map((category, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 border rounded-lg bg-background">
+                      <input
+                        type="color"
+                        value={category.color}
+                        onChange={(e) => updateCategory(index, 'color', e.target.value)}
+                        className="w-8 h-8 rounded border cursor-pointer"
+                        title="Category color"
                       />
-                    )}
-                    
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeCategory(index)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+                      
+                      <Input
+                        value={category.label}
+                        onChange={(e) => updateCategory(index, 'label', e.target.value)}
+                        placeholder="Category label"
+                        className="flex-1"
+                      />
+                      
+                      {useValues && (
+                        <Input
+                          type="number"
+                          value={category.value !== undefined ? category.value : ''}
+                          onChange={(e) => updateCategory(index, 'value', e.target.value ? parseInt(e.target.value) : undefined)}
+                          placeholder="Value"
+                          className="w-20"
+                        />
+                      )}
+                      
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeCategory(index)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Preview */}
+            {localCategories.length > 0 && (
+              <div className="space-y-2 p-4 bg-muted/30 rounded-lg">
+                <Label className="text-sm font-medium">Preview</Label>
+                <div className="flex flex-wrap gap-1">
+                  {localCategories.map((category, index) => (
+                    <Badge key={index} variant="outline" className="flex items-center gap-1">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: category.color }}
+                      />
+                      {category.label || `Category ${index + 1}`}
+                      {useValues && category.value !== undefined && (
+                        <span className="text-xs text-muted-foreground ml-1">({category.value})</span>
+                      )}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             )}
           </div>
 
-          {/* Preview */}
-          {localCategories.length > 0 && (
-            <div className="space-y-2 p-4 bg-muted/30 rounded-lg">
-              <Label className="text-sm font-medium">Preview</Label>
-              <div className="flex flex-wrap gap-1">
-                {localCategories.map((category, index) => (
-                  <Badge key={index} variant="outline" className="flex items-center gap-1">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: category.color }}
-                    />
-                    {category.label || `Category ${index + 1}`}
-                    {useValues && category.value !== undefined && (
-                      <span className="text-xs text-muted-foreground ml-1">({category.value})</span>
-                    )}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+          {/* Dialog Actions */}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button type="button" variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleSave}>
+              Save Categories
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-        {/* Dialog Actions */}
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button type="button" variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={handleSave}>
-            Save Categories
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      {/* Copy Confirmation Dialog */}
+      <AlertDialog open={showCopyConfirmation} onOpenChange={setShowCopyConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace Existing Categories?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will replace your current {localCategories.length} categories with {selectedSourceLayerData?.categories.length} categories from "{selectedSourceLayer}".
+              {selectedSourceLayerData?.hasValues !== useValues && (
+                <span className="block mt-2 text-amber-600">
+                  Note: The value settings will also change to match the source layer.
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => selectedSourceLayerData && performCopy(selectedSourceLayerData)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Replace All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
