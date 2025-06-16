@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Layers } from 'lucide-react';
 import { DataSource, Category } from '@/types/config';
-import BasicInfoSection from './BasicInfoSection';
+import ConfigBasicInfo from './ConfigBasicInfo';
 import AttributionSection from './AttributionSection';
 import CategoriesSection from './CategoriesSection';
 
@@ -46,7 +46,7 @@ const LayerCardConfigSection = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <BasicInfoSection
+        <ConfigBasicInfo
           formData={formData}
           interfaceGroups={interfaceGroups}
           hasFeatureStatistics={hasFeatureStatistics}
