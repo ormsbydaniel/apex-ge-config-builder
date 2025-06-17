@@ -37,8 +37,8 @@ const LayerCard = ({
   isExpanded,
   onToggle
 }: LayerCardProps) => {
-  const isBaseLayer = isDataSourceItemArray(source.data) && 
-    source.data.some(item => item.isBaseLayer === true);
+  // UPDATED: Check for base layer using the new format (top-level isBaseLayer property)
+  const isBaseLayer = source.isBaseLayer === true;
   const isSwipeLayer = source.meta?.swipeConfig !== undefined;
 
   const handleEdit = () => {

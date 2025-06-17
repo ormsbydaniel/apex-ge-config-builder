@@ -1,4 +1,3 @@
-
 import { useConfig } from '@/contexts/ConfigContext';
 import { DataSource, Service, Category } from '@/types/config';
 import { validateImages } from '@/utils/imageValidation';
@@ -34,7 +33,7 @@ export const useValidatedConfig = () => {
     }));
 
     // Check if this is a base layer
-    const isBaseLayer = validatedData.some(item => item.isBaseLayer === true);
+    const isBaseLayer = source.isBaseLayer === true;
     
     const baseSource = {
       ...source,

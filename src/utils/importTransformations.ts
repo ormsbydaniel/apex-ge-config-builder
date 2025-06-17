@@ -1,17 +1,18 @@
-
 import { DataSource, DataSourceItem } from '@/types/config';
 
 interface DetectedTransformations {
   singleItemArrayToObject: boolean;
   configureCogsAsImages: boolean;
   transformSwipeLayersToData: boolean;
+  baseLayerFormat: boolean; // NEW: Detect old base layer format
 }
 
 export const detectTransformations = (config: any): DetectedTransformations => {
   const detected: DetectedTransformations = {
     singleItemArrayToObject: false,
     configureCogsAsImages: false,
-    transformSwipeLayersToData: false
+    transformSwipeLayersToData: false,
+    baseLayerFormat: false
   };
   
   // Check if export metadata exists
@@ -19,6 +20,7 @@ export const detectTransformations = (config: any): DetectedTransformations => {
     detected.singleItemArrayToObject = config._exportMeta.transformations.includes('singleItemArrayToObject');
     detected.configureCogsAsImages = config._exportMeta.transformations.includes('configureCogsAsImages');
     detected.transformSwipeLayersToData = config._exportMeta.transformations.includes('transformSwipeLayersToData');
+    detected.baseLayerFormat = config._exportMeta.transformations.includes('baseLayerFormat');
     return detected;
   }
   
@@ -38,6 +40,16 @@ export const detectTransformations = (config: any): DetectedTransformations => {
       // Check statistics field as well
       if (source.statistics && !Array.isArray(source.statistics) && typeof source.statistics === 'object') {
         detected.singleItemArrayToObject = true;
+      }
+      
+      // NEW: Check for old base layer format (isBaseLayer in data items but not at source level)
+      if (source.data && Array.isArray(source.data)) {
+        const hasBaseLayerInData = source.data.some((item: any) => item.isBaseLayer === true);
+        const hasBaseLayerAtSourceLevel = source.isBaseLayer === true;
+        
+        if (hasBaseLayerInData && !hasBaseLayerAtSourceLevel) {
+          detected.baseLayerFormat = true;
+        }
       }
       
       // Check for COG transformation: look for COG objects with images arrays instead of url
@@ -63,6 +75,45 @@ export const detectTransformations = (config: any): DetectedTransformations => {
   }
   
   return detected;
+};
+
+// NEW: Reverse base layer transformation (old format → new format)
+export const reverseBaseLayerTransformation = (config: any, enabled: boolean): any => {
+  if (!enabled) return config;
+
+  console.log('Reversing base layer transformation (old format → new format)');
+  const normalizedConfig = { ...config };
+  
+  if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
+    normalizedConfig.sources = normalizedConfig.sources.map((source: any) => {
+      // Check if this source has base layer items in data but no top-level isBaseLayer
+      if (source.data && Array.isArray(source.data)) {
+        const hasBaseLayerInData = source.data.some((item: any) => item.isBaseLayer === true);
+        const hasBaseLayerAtSourceLevel = source.isBaseLayer === true;
+        
+        if (hasBaseLayerInData && !hasBaseLayerAtSourceLevel) {
+          console.log('Converting base layer from old format:', source.name);
+          
+          const normalizedSource = { ...source };
+          
+          // Set isBaseLayer at the source level
+          normalizedSource.isBaseLayer = true;
+          
+          // Remove isBaseLayer from data items
+          normalizedSource.data = source.data.map((item: any) => {
+            const { isBaseLayer, ...itemWithoutBaseLayer } = item;
+            return itemWithoutBaseLayer;
+          });
+          
+          return normalizedSource;
+        }
+      }
+      
+      return source;
+    });
+  }
+  
+  return normalizedConfig;
 };
 
 export const reverseSwipeLayerTransformation = (config: any, enabled: boolean): any => {
@@ -189,17 +240,22 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
   
   // Apply transformations in the correct order
   
-  // 1. Reverse swipe layer transformation first (data object → internal format)
+  // 1. Reverse base layer transformation first (old format → new format)
+  if (detectedTransforms.baseLayerFormat) {
+    normalizedConfig = reverseBaseLayerTransformation(normalizedConfig, true);
+  }
+  
+  // 2. Reverse swipe layer transformation (data object → internal format)
   if (detectedTransforms.transformSwipeLayersToData) {
     normalizedConfig = reverseSwipeLayerTransformation(normalizedConfig, true);
   }
   
-  // 2. Reverse COG transformation (before single item array transformation)
+  // 3. Reverse COG transformation (before single item array transformation)
   if (detectedTransforms.configureCogsAsImages) {
     normalizedConfig = reverseCogTransformation(normalizedConfig, true);
   }
   
-  // 3. Reverse single item object to array transformation
+  // 4. Reverse single item object to array transformation
   if (detectedTransforms.singleItemArrayToObject) {
     if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
       normalizedConfig.sources = normalizedConfig.sources.map((source: any) => {

@@ -148,8 +148,8 @@ const LayerHierarchy = ({
   const ungroupedLayers: Array<{ layer: DataSource; originalIndex: number }> = [];
 
   config.sources.forEach((source, index) => {
-    const isBaseLayer = Array.isArray(source.data) && 
-      source.data.some(item => item.isBaseLayer === true);
+    // UPDATED: Check for base layer using the new format (top-level isBaseLayer property)
+    const isBaseLayer = source.isBaseLayer === true;
     
     if (isBaseLayer) {
       baseLayers.push({ layer: source, originalIndex: index });
