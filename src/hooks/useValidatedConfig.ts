@@ -55,7 +55,9 @@ export const useValidatedConfig = () => {
         },
         categories: source.meta?.categories?.map(cat => ({
           color: cat.color || '#000000',
-          label: cat.label || ''
+          label: cat.label || '',
+          // Preserve the value field if it exists, otherwise use 0 as default
+          value: cat.value !== undefined ? cat.value : 0
         } as Category)) || [],
         units: source.meta?.units,
         // Include additional meta fields if present (including gradient fields)
@@ -107,7 +109,9 @@ export const useValidatedConfig = () => {
           },
           categories: source.meta.categories?.map(cat => ({
             color: cat.color || '#000000',
-            label: cat.label || ''
+            label: cat.label || '',
+            // Preserve the value field if it exists, otherwise use 0 as default
+            value: cat.value !== undefined ? cat.value : 0
           } as Category)) || [],
           // Include additional meta fields if present (including gradient fields)
           ...(source.meta.min !== undefined && { min: source.meta.min }),

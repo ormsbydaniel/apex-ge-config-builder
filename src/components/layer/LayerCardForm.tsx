@@ -121,6 +121,7 @@ const LayerCardForm = ({
             maxValue={formData.maxValue}
             categories={processedCategories || []}
             onUpdate={updateFormData}
+            layerName={formData.name || ''}
           />
 
           <div className="flex justify-end gap-2 pt-4">

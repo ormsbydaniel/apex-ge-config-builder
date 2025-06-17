@@ -1,4 +1,3 @@
-
 import { DataSource, DataSourceItem } from '@/types/config';
 import { ExportOptions } from '@/components/ExportOptionsDialog';
 
@@ -181,6 +180,92 @@ export const removeEmptyCategories = (config: any, enabled: boolean): any => {
   return transformedConfig;
 };
 
+export const handleCategoryValues = (config: any, includeCategoryValues: boolean): any => {
+  if (includeCategoryValues) return config;
+
+  console.log('Removing category values from export...');
+  
+  const removeCategoryValuesRecursive = (obj: any): any => {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (Array.isArray(obj)) {
+      return obj.map(removeCategoryValuesRecursive);
+    }
+    
+    const result: any = {};
+    
+    for (const [key, value] of Object.entries(obj)) {
+      if (key === 'categories' && Array.isArray(value)) {
+        // Remove value field from categories if present
+        result[key] = value.map(category => {
+          if (typeof category === 'object' && category !== null && 'value' in category) {
+            const { value: _, ...categoryWithoutValue } = category;
+            return categoryWithoutValue;
+          }
+          return category;
+        });
+      } else {
+        result[key] = removeCategoryValuesRecursive(value);
+      }
+    }
+    
+    return result;
+  };
+
+  const transformedConfig = removeCategoryValuesRecursive(config);
+  console.log('Category values removal completed');
+  return transformedConfig;
+};
+
+export const addNormalizeFalseToCogs = (config: any, enabled: boolean): any => {
+  if (!enabled) return config;
+
+  console.log('Starting normalize false addition to COGs...');
+  const transformedConfig = { ...config };
+  
+  // Transform sources
+  if (transformedConfig.sources) {
+    transformedConfig.sources = transformedConfig.sources.map((source: DataSource) => {
+      const transformedSource = { ...source };
+      
+      // Transform main data array for COGs
+      if (transformedSource.data && Array.isArray(transformedSource.data)) {
+        transformedSource.data = transformedSource.data.map((item: any) => {
+          // Check if it's a COG item (individual or consolidated)
+          if (item.format === 'cog') {
+            return {
+              ...item,
+              normalize: false
+            };
+          }
+          return item;
+        });
+      }
+      
+      // Transform statistics array for COGs if it exists
+      if (transformedSource.statistics && Array.isArray(transformedSource.statistics)) {
+        transformedSource.statistics = transformedSource.statistics.map((item: any) => {
+          // Check if it's a COG item (individual or consolidated)
+          if (item.format === 'cog') {
+            return {
+              ...item,
+              normalize: false
+            };
+          }
+          return item;
+        });
+      }
+      
+      return transformedSource;
+    });
+  }
+  
+  console.log('Normalize false addition to COGs completed');
+  return transformedConfig;
+};
+
 export const applyExportTransformations = (config: any, options: ExportOptions): any => {
   let transformedConfig = { ...config };
   const appliedTransformations: string[] = [];
@@ -199,10 +284,22 @@ export const applyExportTransformations = (config: any, options: ExportOptions):
     appliedTransformations.push('configureCogsAsImages');
   }
   
+  // Apply normalize false to COGs transformation (after COG consolidation)
+  if (options.addNormalizeFalseToCogs) {
+    transformedConfig = addNormalizeFalseToCogs(transformedConfig, true);
+    appliedTransformations.push('addNormalizeFalseToCogs');
+  }
+  
   // Apply empty categories removal transformation
   if (options.removeEmptyCategories) {
     transformedConfig = removeEmptyCategories(transformedConfig, true);
     appliedTransformations.push('removeEmptyCategories');
+  }
+  
+  // Handle category values (remove them if includeCategoryValues is false)
+  transformedConfig = handleCategoryValues(transformedConfig, options.includeCategoryValues);
+  if (!options.includeCategoryValues) {
+    appliedTransformations.push('removeCategoryValues');
   }
   
   // Add export metadata

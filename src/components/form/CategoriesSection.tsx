@@ -27,6 +27,8 @@ const CategoriesSection = ({
   onAddCategory,
   onRemoveCategory
 }: CategoriesSectionProps) => {
+  const hasValues = formData.meta?.categories?.some(cat => cat.value !== undefined) || false;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -58,19 +60,35 @@ const CategoriesSection = ({
                 onChange={(e) => onSetNewCategory({ ...newCategory, color: e.target.value })}
               />
             </div>
+            {hasValues && (
+              <div className="w-20">
+                <Input
+                  type="number"
+                  value={newCategory.value !== undefined ? newCategory.value : ''}
+                  onChange={(e) => onSetNewCategory({ 
+                    ...newCategory, 
+                    value: e.target.value ? parseInt(e.target.value) : undefined 
+                  })}
+                  placeholder="Value"
+                />
+              </div>
+            )}
             <Button type="button" onClick={onAddCategory} size="sm">
               <Plus className="h-4 w-4" />
             </Button>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {formData.meta.categories?.map((category, index) => (
+            {formData.meta?.categories?.map((category, index) => (
               <Badge key={index} variant="secondary" className="flex items-center gap-2">
                 <div
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: category.color }}
                 />
                 {category.label}
+                {hasValues && category.value !== undefined && (
+                  <span className="text-xs text-muted-foreground">({category.value})</span>
+                )}
                 <button
                   type="button"
                   onClick={() => onRemoveCategory(index)}

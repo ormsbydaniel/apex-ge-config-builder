@@ -10,6 +10,8 @@ interface LayerCategoriesProps {
 const LayerCategories = ({ categories }: LayerCategoriesProps) => {
   if (!categories || categories.length === 0) return null;
 
+  const hasValues = categories.some(cat => cat.value !== undefined);
+
   return (
     <div className="mt-3">
       <span className="text-sm font-medium text-slate-600">Categories:</span>
@@ -21,6 +23,9 @@ const LayerCategories = ({ categories }: LayerCategoriesProps) => {
               style={{ backgroundColor: cat.color }}
             />
             {cat.label}
+            {hasValues && cat.value !== undefined && (
+              <span className="text-xs text-muted-foreground ml-1">({cat.value})</span>
+            )}
           </Badge>
         ))}
       </div>
