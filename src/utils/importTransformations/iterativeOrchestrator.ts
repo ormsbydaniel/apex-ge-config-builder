@@ -2,10 +2,10 @@
 import { detectTransformations } from './detector';
 import { DetectedTransformations } from './types';
 
-// Import all transformers
-import { reverseTypeToFormatConversion } from './transformers/typeToFormatTransformer';
-import { reverseSingleItemArrayToObject } from './transformers/singleItemTransformer';
-import { reverseBaseLayerFormat } from './transformers/baseLayerTransformer';
+// Import all transformers with correct function names
+import { reverseTypeToFormatTransformation } from './transformers/typeToFormatTransformer';
+import { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
+import { reverseBaseLayerTransformation } from './transformers/baseLayerTransformer';
 import { reverseSwipeLayerTransformation } from './transformers/swipeLayerTransformer';
 import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
@@ -51,28 +51,40 @@ export const normalizeImportedConfig = (config: any): any => {
     if (detected.typeToFormatConversion) {
       console.log('Applying typeToFormatConversion...');
       const beforeCount = currentConfig.sources?.filter((s: any) => s.data?.some?.((d: any) => d.type)).length || 0;
-      currentConfig = reverseTypeToFormatConversion(currentConfig, true);
+      currentConfig = reverseTypeToFormatTransformation(currentConfig, true);
       const afterCount = currentConfig.sources?.filter((s: any) => s.data?.some?.((d: any) => d.type)).length || 0;
       console.log(`TypeToFormat: ${beforeCount} sources with type before, ${afterCount} after`);
     }
     
     if (detected.singleItemArrayToObject) {
       console.log('Applying singleItemArrayToObject...');
-      currentConfig = reverseSingleItemArrayToObject(currentConfig, true);
+      currentConfig = reverseSingleItemTransformation(currentConfig, true);
     }
     
     if (detected.baseLayerFormat) {
       console.log('Applying baseLayerFormat...');
-      currentConfig = reverseBaseLayerFormat(currentConfig, true);
+      currentConfig = reverseBaseLayerTransformation(currentConfig, true);
     }
     
     if (detected.transformSwipeLayersToData) {
-      console.log('Applying swipe layer transformation...');
+      console.log('🔍 SWIPE TRANSFORMATION DEBUG: Starting swipe layer transformation...');
+      console.log('🔍 SWIPE TRANSFORMATION DEBUG: Current config before transformation:', JSON.stringify(currentConfig, null, 2));
+      
       const beforeSwipeCount = currentConfig.sources?.filter((s: any) => 
         s.data && !Array.isArray(s.data) && typeof s.data === 'object' && s.data.type === 'swipe'
       ).length || 0;
       
+      console.log(`🔍 SWIPE TRANSFORMATION DEBUG: Found ${beforeSwipeCount} swipe layers before transformation`);
+      
+      // Deep clone to ensure we can track changes
+      const beforeTransform = JSON.parse(JSON.stringify(currentConfig));
+      
       currentConfig = reverseSwipeLayerTransformation(currentConfig, true);
+      
+      // Validate transformation occurred
+      const afterTransform = JSON.stringify(currentConfig);
+      const transformationOccurred = JSON.stringify(beforeTransform) !== afterTransform;
+      console.log(`🔍 SWIPE TRANSFORMATION DEBUG: Transformation occurred: ${transformationOccurred}`);
       
       const afterSwipeCount = currentConfig.sources?.filter((s: any) => 
         s.data && !Array.isArray(s.data) && typeof s.data === 'object' && s.data.type === 'swipe'
@@ -82,17 +94,30 @@ export const normalizeImportedConfig = (config: any): any => {
         s.meta?.swipeConfig && Array.isArray(s.data)
       ).length || 0;
       
-      console.log(`Swipe transformation: ${beforeSwipeCount} swipe layers before, ${afterSwipeCount} still untransformed, ${transformedSwipeCount} properly transformed`);
+      console.log(`🔍 SWIPE TRANSFORMATION DEBUG: ${beforeSwipeCount} swipe layers before, ${afterSwipeCount} still untransformed, ${transformedSwipeCount} properly transformed`);
       
       // Validate specific swipe layer
       const sentinelLayer = currentConfig.sources?.find((s: any) => s.name === "Sentinel-2 RGB vs WorldCover (2020)");
       if (sentinelLayer) {
-        console.log('Sentinel layer after swipe transformation:', {
+        console.log('🔍 SWIPE TRANSFORMATION DEBUG: Sentinel layer state after transformation:', {
           name: sentinelLayer.name,
           dataIsArray: Array.isArray(sentinelLayer.data),
+          dataContent: sentinelLayer.data,
           hasSwipeConfig: !!sentinelLayer.meta?.swipeConfig,
-          meta: sentinelLayer.meta
+          swipeConfig: sentinelLayer.meta?.swipeConfig,
+          completeMeta: sentinelLayer.meta,
+          transformationSuccess: Array.isArray(sentinelLayer.data) && !!sentinelLayer.meta?.swipeConfig
         });
+        
+        // Extra validation
+        if (!Array.isArray(sentinelLayer.data)) {
+          console.error('🚨 SWIPE TRANSFORMATION ERROR: Sentinel layer data is not an array after transformation!');
+        }
+        if (!sentinelLayer.meta?.swipeConfig) {
+          console.error('🚨 SWIPE TRANSFORMATION ERROR: Sentinel layer missing swipeConfig after transformation!');
+        }
+      } else {
+        console.error('🚨 SWIPE TRANSFORMATION ERROR: Could not find Sentinel layer after transformation!');
       }
     }
     
@@ -133,13 +158,33 @@ export const normalizeImportedConfig = (config: any): any => {
   
   const sentinelFinal = currentConfig.sources?.find((s: any) => s.name === "Sentinel-2 RGB vs WorldCover (2020)");
   if (sentinelFinal) {
-    console.log('Final Sentinel layer state:', {
+    console.log('🏁 FINAL STATE: Sentinel layer state:', {
       name: sentinelFinal.name,
       dataIsArray: Array.isArray(sentinelFinal.data),
       hasSwipeConfig: !!sentinelFinal.meta?.swipeConfig,
-      hasRequiredMeta: !!(sentinelFinal.meta?.description && sentinelFinal.meta?.attribution?.text)
+      hasRequiredMeta: !!(sentinelFinal.meta?.description && sentinelFinal.meta?.attribution?.text),
+      finalValidationPassed: Array.isArray(sentinelFinal.data) && !!sentinelFinal.meta?.swipeConfig && !!sentinelFinal.meta?.description && !!sentinelFinal.meta?.attribution?.text
     });
   }
   
   return currentConfig;
+};
+
+// Export for backward compatibility
+export const reverseTransformationsIterative = (config: any) => {
+  try {
+    const result = normalizeImportedConfig(config);
+    return {
+      success: true,
+      config: result,
+      transformationsApplied: [] // TODO: track actual transformations
+    };
+  } catch (error) {
+    console.error('Iterative transformation failed:', error);
+    return {
+      success: false,
+      error: error,
+      config: config
+    };
+  }
 };
