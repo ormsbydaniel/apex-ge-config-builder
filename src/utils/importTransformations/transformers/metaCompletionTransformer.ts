@@ -17,26 +17,51 @@ export const reverseMetaCompletionTransformation = (config: any, enabled: boolea
         return source;
       }
 
-      // Special handling for swipe layers
+      // Enhanced handling for swipe layers
       const isSwipeLayer = source.meta?.swipeConfig !== undefined;
       if (isSwipeLayer) {
         console.log(`MetaCompletion transformer: Processing swipe layer "${source.name}" at index ${index}`);
         
-        // Ensure swipe layers have complete meta
-        const updatedSource = {
-          ...source,
-          meta: {
-            ...source.meta,
-            description: source.meta.description || `Swipe comparison layer for ${source.name}`,
-            attribution: {
-              text: source.meta.attribution?.text || 'Swipe layer data',
-              ...(source.meta.attribution?.url && { url: source.meta.attribution.url })
-            }
-          }
-        };
+        // Check what meta fields are missing or empty
+        const needsDescription = !source.meta.description || source.meta.description.trim() === '';
+        const needsAttribution = !source.meta.attribution?.text || source.meta.attribution.text.trim() === '';
         
-        console.log(`MetaCompletion transformer: Enhanced swipe layer meta:`, updatedSource.meta);
-        return updatedSource;
+        if (needsDescription || needsAttribution) {
+          console.log(`MetaCompletion transformer: Swipe layer needs completion:`, {
+            needsDescription,
+            needsAttribution,
+            currentDescription: source.meta.description,
+            currentAttributionText: source.meta.attribution?.text
+          });
+          
+          // Generate better descriptions for swipe layers
+          const clippedSource = source.meta.swipeConfig.clippedSourceName;
+          const baseSources = source.meta.swipeConfig.baseSourceNames || [];
+          
+          const updatedSource = {
+            ...source,
+            meta: {
+              ...source.meta,
+              description: needsDescription 
+                ? `Swipe comparison between ${clippedSource} and ${baseSources.join(', ')}`
+                : source.meta.description,
+              attribution: {
+                ...source.meta.attribution,
+                text: needsAttribution 
+                  ? `Swipe layer data comparison`
+                  : source.meta.attribution.text
+              }
+            }
+          };
+          
+          console.log(`MetaCompletion transformer: Enhanced swipe layer meta:`, {
+            description: updatedSource.meta.description,
+            attributionText: updatedSource.meta.attribution.text
+          });
+          return updatedSource;
+        }
+        
+        return source;
       }
 
       // Check if this source has meta but is missing description

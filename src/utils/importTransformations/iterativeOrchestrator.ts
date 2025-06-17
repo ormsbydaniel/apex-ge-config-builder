@@ -89,16 +89,28 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
       configChanged = true;
     }
     
-    // Apply swipe layer transformation before meta completion
+    // Apply swipe layer transformation with enhanced debugging
     if (detectedTransforms.transformSwipeLayersToData) {
       console.log(`Iteration ${iteration}: Applying swipeLayer transformation`);
       const beforeSwipe = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-      console.log(`Iteration ${iteration}: Swipe layer before transform:`, beforeSwipe);
+      console.log(`Iteration ${iteration}: Swipe layer before transform:`, {
+        name: beforeSwipe?.name,
+        dataType: beforeSwipe?.data?.type,
+        metaKeys: beforeSwipe?.meta ? Object.keys(beforeSwipe.meta) : 'no meta',
+        metaEmpty: beforeSwipe?.meta && Object.keys(beforeSwipe.meta).length === 0
+      });
       
       currentConfig = reverseSwipeLayerTransformation(currentConfig, true);
       
       const afterSwipe = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-      console.log(`Iteration ${iteration}: Swipe layer after transform:`, afterSwipe);
+      console.log(`Iteration ${iteration}: Swipe layer after transform:`, {
+        name: afterSwipe?.name,
+        dataIsArray: Array.isArray(afterSwipe?.data),
+        hasSwipeConfig: !!afterSwipe?.meta?.swipeConfig,
+        hasDescription: !!afterSwipe?.meta?.description,
+        hasAttributionText: !!afterSwipe?.meta?.attribution?.text,
+        metaKeys: afterSwipe?.meta ? Object.keys(afterSwipe.meta) : 'no meta'
+      });
       
       transformationsApplied.push(`swipeLayer (iteration ${iteration})`);
       configChanged = true;
@@ -111,16 +123,30 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
       configChanged = true;
     }
     
-    // Apply meta completion after structural transformations (especially after swipe layer transformation)
+    // Apply meta completion after structural transformations with enhanced validation
     if (detectedTransforms.metaCompletionNeeded) {
       console.log(`Iteration ${iteration}: Applying metaCompletion transformation`);
       const beforeMeta = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-      console.log(`Iteration ${iteration}: Swipe layer before meta completion:`, beforeMeta);
+      console.log(`Iteration ${iteration}: Swipe layer before meta completion:`, {
+        name: beforeMeta?.name,
+        hasDescription: !!beforeMeta?.meta?.description,
+        descriptionValue: beforeMeta?.meta?.description,
+        hasAttributionText: !!beforeMeta?.meta?.attribution?.text,
+        attributionTextValue: beforeMeta?.meta?.attribution?.text,
+        hasSwipeConfig: !!beforeMeta?.meta?.swipeConfig
+      });
       
       currentConfig = reverseMetaCompletionTransformation(currentConfig, true);
       
       const afterMeta = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-      console.log(`Iteration ${iteration}: Swipe layer after meta completion:`, afterMeta);
+      console.log(`Iteration ${iteration}: Swipe layer after meta completion:`, {
+        name: afterMeta?.name,
+        hasDescription: !!afterMeta?.meta?.description,
+        descriptionValue: afterMeta?.meta?.description,
+        hasAttributionText: !!afterMeta?.meta?.attribution?.text,
+        attributionTextValue: afterMeta?.meta?.attribution?.text,
+        hasSwipeConfig: !!afterMeta?.meta?.swipeConfig
+      });
       
       transformationsApplied.push(`metaCompletion (iteration ${iteration})`);
       configChanged = true;
@@ -133,10 +159,22 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
       break;
     }
     
-    // Debug the current state after all transformations
-    console.log(`Iteration ${iteration} complete. Swipe layer state:`, {
-      swipeLayer: currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)')
-    });
+    // Enhanced debug for final state validation
+    const swipeLayer = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
+    if (swipeLayer) {
+      console.log(`Iteration ${iteration} complete. Swipe layer validation check:`, {
+        name: swipeLayer.name,
+        dataIsArray: Array.isArray(swipeLayer.data),
+        dataEmpty: Array.isArray(swipeLayer.data) && swipeLayer.data.length === 0,
+        hasValidMeta: !!(swipeLayer.meta?.description && swipeLayer.meta?.attribution?.text),
+        hasSwipeConfig: !!swipeLayer.meta?.swipeConfig,
+        metaComplete: {
+          description: swipeLayer.meta?.description,
+          attributionText: swipeLayer.meta?.attribution?.text,
+          swipeConfig: swipeLayer.meta?.swipeConfig
+        }
+      });
+    }
   }
   
   const success = iteration < MAX_ITERATIONS;
@@ -145,18 +183,25 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
   console.log(`Iterative transformation completed after ${iteration} iterations`);
   console.log('Transformations applied:', transformationsApplied);
   
-  // Final validation debug for swipe layer
+  // Enhanced final validation for swipe layer
   const swipeLayer = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
   if (swipeLayer) {
-    console.log('Final swipe layer config:', {
+    const isValid = Array.isArray(swipeLayer.data) && 
+                   swipeLayer.meta?.description && 
+                   swipeLayer.meta?.attribution?.text &&
+                   swipeLayer.meta?.swipeConfig;
+    
+    console.log('Final swipe layer validation:', {
       name: swipeLayer.name,
-      data: swipeLayer.data,
-      dataIsArray: Array.isArray(swipeLayer.data),
-      meta: swipeLayer.meta,
-      hasSwipeConfig: !!swipeLayer.meta?.swipeConfig,
-      hasDescription: !!swipeLayer.meta?.description,
-      hasAttribution: !!swipeLayer.meta?.attribution?.text,
-      layout: swipeLayer.layout
+      isValid,
+      validationDetails: {
+        dataIsArray: Array.isArray(swipeLayer.data),
+        hasDescription: !!swipeLayer.meta?.description,
+        hasAttributionText: !!swipeLayer.meta?.attribution?.text,
+        hasSwipeConfig: !!swipeLayer.meta?.swipeConfig,
+        layout: !!swipeLayer.layout
+      },
+      finalMeta: swipeLayer.meta
     });
   }
   

@@ -36,15 +36,19 @@ export const reverseSwipeLayerTransformation = (config: any, enabled: boolean): 
         
         // Create or update meta with swipeConfig and ensure required fields exist
         const existingMeta = normalizedSource.meta || {};
+        
+        // FIXED: Construct meta object properly to avoid overwriting defaults
         normalizedSource.meta = {
-          // Provide defaults for required meta fields
+          // Preserve any existing meta fields first
+          ...existingMeta,
+          // Then ensure required fields are present (these will override empty/missing values)
           description: existingMeta.description || `Comparison between ${swipeData.clippedSource} and ${(swipeData.baseSources || []).join(', ')}`,
           attribution: {
-            text: existingMeta.attribution?.text || 'Swipe layer comparison',
-            ...(existingMeta.attribution?.url && { url: existingMeta.attribution.url })
+            // Preserve existing attribution if it exists
+            ...existingMeta.attribution,
+            // Ensure text is present
+            text: existingMeta.attribution?.text || 'Swipe layer comparison'
           },
-          // Preserve any existing meta fields
-          ...existingMeta,
           // Add swipe configuration - handle both old and new formats
           swipeConfig: {
             clippedSourceName: swipeData.clippedSource,
@@ -59,7 +63,8 @@ export const reverseSwipeLayerTransformation = (config: any, enabled: boolean): 
           hasSwipeConfig: !!normalizedSource.meta.swipeConfig,
           swipeConfig: normalizedSource.meta.swipeConfig,
           metaDescription: normalizedSource.meta.description,
-          metaAttribution: normalizedSource.meta.attribution
+          metaAttribution: normalizedSource.meta.attribution,
+          metaKeys: Object.keys(normalizedSource.meta)
         });
         
         return normalizedSource;
