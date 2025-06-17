@@ -21,7 +21,11 @@ export const reverseTypeToFormatTransformation = (config: any, enabled: boolean)
               ...itemWithoutType,
               format: type
             };
-            console.log(`TypeToFormat transformer: Converted item (preserved all fields):`, convertedItem);
+            console.log(`TypeToFormat transformer: Converted item:`, {
+              original: item,
+              converted: convertedItem,
+              hasFormat: !!convertedItem.format
+            });
             return convertedItem;
           }
           return item;

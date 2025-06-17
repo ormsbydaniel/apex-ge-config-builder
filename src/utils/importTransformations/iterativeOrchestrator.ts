@@ -1,4 +1,3 @@
-
 import { DetectedTransformations } from './types';
 import { reverseTypeToFormatTransformation } from './transformers/typeToFormatTransformer';
 import { reverseBaseLayerTransformation } from './transformers/baseLayerTransformer';
@@ -7,6 +6,7 @@ import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
 import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 import { detectTransformations } from './detector';
+import { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
 
 interface TransformationResult {
   config: any;
@@ -59,7 +59,7 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
     let configChanged = false;
     const previousConfig = JSON.stringify(currentConfig);
     
-    // Apply transformations in logical order
+    // Apply transformations in logical order - meta completion should come after structural changes
     if (detectedTransforms.exclusivitySetsTransformation) {
       console.log(`Iteration ${iteration}: Applying exclusivitySets transformation`);
       const beforeTransform = JSON.parse(JSON.stringify(currentConfig));
@@ -111,6 +111,14 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
       configChanged = true;
     }
     
+    // Apply meta completion after structural transformations
+    if (detectedTransforms.metaCompletionNeeded) {
+      console.log(`Iteration ${iteration}: Applying metaCompletion transformation`);
+      currentConfig = reverseMetaCompletionTransformation(currentConfig, true);
+      transformationsApplied.push(`metaCompletion (iteration ${iteration})`);
+      configChanged = true;
+    }
+    
     // Check if config actually changed to prevent infinite loops
     const currentConfigString = JSON.stringify(currentConfig);
     if (!configChanged || currentConfigString === previousConfig) {
@@ -141,7 +149,8 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
       dataIsArray: Array.isArray(geoServiceSource.data),
       dataLength: geoServiceSource.data?.length,
       firstDataItem: geoServiceSource.data?.[0],
-      exclusivitySets: geoServiceSource.exclusivitySets
+      meta: geoServiceSource.meta,
+      layout: geoServiceSource.layout
     });
   }
   
