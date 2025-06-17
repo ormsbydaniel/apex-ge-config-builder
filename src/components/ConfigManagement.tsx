@@ -39,7 +39,8 @@ const ConfigManagement = () => {
       configureCogsAsImages: false, 
       removeEmptyCategories: false,
       includeCategoryValues: true,
-      addNormalizeFalseToCogs: false
+      addNormalizeFalseToCogs: false,
+      transformSwipeLayersToData: false
     });
   };
 

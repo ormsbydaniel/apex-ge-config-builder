@@ -15,7 +15,8 @@ export const useConfigExport = () => {
     configureCogsAsImages: false, 
     removeEmptyCategories: false, 
     includeCategoryValues: true,
-    addNormalizeFalseToCogs: false 
+    addNormalizeFalseToCogs: false,
+    transformSwipeLayersToData: false
   }) => {
     try {
       console.log('Starting config export with options:', options);
