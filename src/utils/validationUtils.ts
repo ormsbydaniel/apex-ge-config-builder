@@ -6,6 +6,17 @@ export const formatValidationErrors = (error: ZodError, configData?: any): Valid
     const path = err.path.join('.');
     const field = getFieldDisplayName(err.path, configData);
     
+    // Enhanced union error handling
+    if (err.code === 'invalid_union') {
+      const enhancedMessage = getEnhancedUnionErrorMessage(err, err.path, configData);
+      return {
+        field,
+        message: enhancedMessage,
+        code: err.code,
+        path: err.path,
+      };
+    }
+    
     return {
       field,
       message: getDetailedErrorMessage(err),
@@ -13,6 +24,239 @@ export const formatValidationErrors = (error: ZodError, configData?: any): Valid
       path: err.path,
     };
   });
+};
+
+const getEnhancedUnionErrorMessage = (error: any, path: (string | number)[], configData?: any): string => {
+  // Check if this is a data source validation error
+  if (path.length >= 2 && path[0] === 'sources' && typeof path[1] === 'number') {
+    const sourceIndex = path[1] as number;
+    const sourceName = getDataSourceName(configData, sourceIndex);
+    const sourceData = configData?.sources?.[sourceIndex];
+    
+    if (sourceData) {
+      return analyzeDataSourceValidationFailure(sourceData, sourceName || `Source ${sourceIndex + 1}`);
+    }
+  }
+  
+  // Generic union error handling with sub-error analysis
+  if (error.unionErrors && Array.isArray(error.unionErrors)) {
+    const commonIssues = analyzeUnionSubErrors(error.unionErrors);
+    if (commonIssues.length > 0) {
+      return `Data structure validation failed. Common issues found: ${commonIssues.join(', ')}. Check the configuration schema documentation for the correct format.`;
+    }
+  }
+  
+  return 'Data structure does not match any of the expected formats. Check the configuration schema documentation';
+};
+
+const detectSwipeLayerFromInput = (sourceData: any): boolean => {
+  console.log('🔍 SWIPE DETECTION DEBUG: Starting detectSwipeLayerFromInput');
+  console.log('🔍 SWIPE DETECTION DEBUG: Input sourceData:', JSON.stringify(sourceData, null, 2));
+  
+  // Check for swipe layer indicators in input format (before transformation)
+  if (sourceData.data && typeof sourceData.data === 'object' && !Array.isArray(sourceData.data)) {
+    console.log('🔍 SWIPE DETECTION DEBUG: Found data object (not array)');
+    console.log('🔍 SWIPE DETECTION DEBUG: data.type =', sourceData.data.type);
+    
+    // Direct swipe type indicator
+    if (sourceData.data.type === 'swipe') {
+      console.log('🔍 SWIPE DETECTION DEBUG: ✅ Found data.type === "swipe" - SWIPE LAYER DETECTED');
+      return true;
+    }
+    
+    console.log('🔍 SWIPE DETECTION DEBUG: data.clippedSource =', sourceData.data.clippedSource);
+    console.log('🔍 SWIPE DETECTION DEBUG: data.baseSources =', sourceData.data.baseSources);
+    
+    // Swipe-specific fields
+    if (sourceData.data.clippedSource && sourceData.data.baseSources) {
+      console.log('🔍 SWIPE DETECTION DEBUG: ✅ Found clippedSource and baseSources - SWIPE LAYER DETECTED');
+      return true;
+    }
+  } else {
+    console.log('🔍 SWIPE DETECTION DEBUG: No data object found or data is array/not object');
+    console.log('🔍 SWIPE DETECTION DEBUG: sourceData.data type:', typeof sourceData.data);
+    console.log('🔍 SWIPE DETECTION DEBUG: sourceData.data isArray:', Array.isArray(sourceData.data));
+  }
+  
+  // Check for already transformed swipe layer
+  console.log('🔍 SWIPE DETECTION DEBUG: Checking meta.swipeConfig...');
+  console.log('🔍 SWIPE DETECTION DEBUG: sourceData.meta =', sourceData.meta);
+  
+  if (sourceData.meta?.swipeConfig) {
+    console.log('🔍 SWIPE DETECTION DEBUG: ✅ Found meta.swipeConfig - TRANSFORMED SWIPE LAYER DETECTED');
+    return true;
+  }
+  
+  console.log('🔍 SWIPE DETECTION DEBUG: ❌ NO SWIPE INDICATORS FOUND - NOT A SWIPE LAYER');
+  return false;
+};
+
+const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string): string => {
+  const issues: string[] = [];
+  const suggestions: string[] = [];
+  
+  // Check basic required fields
+  if (!sourceData.name || typeof sourceData.name !== 'string') {
+    issues.push('missing or invalid name field');
+  }
+  
+  if (sourceData.isActive === undefined || typeof sourceData.isActive !== 'boolean') {
+    issues.push('missing or invalid isActive field (must be boolean)');
+  }
+  
+  if (!sourceData.data || (!Array.isArray(sourceData.data) && typeof sourceData.data !== 'object')) {
+    issues.push('missing or invalid data field (must be array or object)');
+  }
+  
+  // Determine what type of data source this should be
+  const isBaseLayer = sourceData.isBaseLayer === true;
+  const isSwipeLayer = detectSwipeLayerFromInput(sourceData);
+  const hasMeta = sourceData.meta && typeof sourceData.meta === 'object';
+  const hasLayout = sourceData.layout && typeof sourceData.layout === 'object';
+  
+  if (isSwipeLayer) {
+    // Swipe layer validation - more permissive during import
+    suggestions.push('This appears to be a swipe layer (has swipe indicators)');
+    
+    // For swipe layers, we're more permissive about meta/layout requirements during import
+    // since they may be in the process of being transformed
+    if (sourceData.data && typeof sourceData.data === 'object' && sourceData.data.type === 'swipe') {
+      // Input format swipe layer - check required swipe fields
+      if (!sourceData.data.clippedSource) {
+        issues.push('data.clippedSource is required for swipe layers');
+      }
+      if (!sourceData.data.baseSources || !Array.isArray(sourceData.data.baseSources)) {
+        issues.push('data.baseSources must be an array for swipe layers');
+      }
+      
+      // Meta and layout are optional during import for swipe layers as they get auto-generated
+      suggestions.push('Meta and layout will be auto-generated during import if missing');
+    } else if (Array.isArray(sourceData.data) && sourceData.meta?.swipeConfig) {
+      // Already transformed swipe layer
+      if (!sourceData.meta.swipeConfig.clippedSourceName) {
+        issues.push('meta.swipeConfig.clippedSourceName is required');
+      }
+      if (!sourceData.meta.swipeConfig.baseSourceNames || !Array.isArray(sourceData.meta.swipeConfig.baseSourceNames)) {
+        issues.push('meta.swipeConfig.baseSourceNames must be an array');
+      }
+      if (!hasMeta || !sourceData.meta.description) {
+        issues.push('meta.description is required for transformed swipe layers');
+      }
+      if (!hasMeta || !sourceData.meta.attribution?.text) {
+        issues.push('meta.attribution.text is required for transformed swipe layers');
+      }
+    }
+  } else if (isBaseLayer) {
+    // Base layer validation
+    suggestions.push('This appears to be a base layer (isBaseLayer: true)');
+    if (hasMeta && !sourceData.meta.description) {
+      issues.push('meta.description is required when meta is provided');
+    }
+    if (hasMeta && (!sourceData.meta.attribution || !sourceData.meta.attribution.text)) {
+      issues.push('meta.attribution.text is required when meta is provided');
+    }
+  } else {
+    // Regular layer card validation
+    suggestions.push('This appears to be a layer card (regular data source)');
+    if (!hasMeta) {
+      issues.push('meta field is required for layer cards');
+    } else {
+      if (!sourceData.meta.description) {
+        issues.push('meta.description is required');
+      }
+      if (!sourceData.meta.attribution?.text) {
+        issues.push('meta.attribution.text is required');
+      }
+    }
+    if (!hasLayout) {
+      issues.push('layout field is required for layer cards');
+    }
+  }
+  
+  // Check data field structure (only for non-swipe or transformed swipe layers)
+  if (sourceData.data && !isSwipeLayer) {
+    if (Array.isArray(sourceData.data)) {
+      sourceData.data.forEach((item: any, index: number) => {
+        if (!item.format) {
+          issues.push(`data[${index}].format is required`);
+        }
+        if (item.zIndex === undefined) {
+          issues.push(`data[${index}].zIndex is required (number)`);
+        }
+        if (!item.url && (!item.images || !Array.isArray(item.images) || item.images.length === 0)) {
+          issues.push(`data[${index}] must have either 'url' or 'images' array`);
+        }
+      });
+    } else if (typeof sourceData.data === 'object') {
+      if (!sourceData.data.format) {
+        issues.push('data.format is required');
+      }
+      if (sourceData.data.zIndex === undefined) {
+        issues.push('data.zIndex is required (number)');
+      }
+      if (!sourceData.data.url && (!sourceData.data.images || !Array.isArray(sourceData.data.images) || sourceData.data.images.length === 0)) {
+        issues.push('data must have either \'url\' or \'images\' array');
+      }
+    }
+  }
+  
+  let message = `"${sourceName}" validation failed.`;
+  
+  if (suggestions.length > 0) {
+    message += ` ${suggestions[0]}.`;
+  }
+  
+  if (issues.length > 0) {
+    message += ` Issues found: ${issues.join(', ')}.`;
+  }
+  
+  // Add specific guidance based on the type
+  if (isSwipeLayer) {
+    message += ' For swipe layers during import: data.type="swipe", data.clippedSource, and data.baseSources are required. Meta and layout will be auto-generated if missing.';
+  } else if (isBaseLayer) {
+    message += ' For base layers: meta and layout are optional, but if provided, meta.description and meta.attribution.text are required.';
+  } else {
+    message += ' For layer cards: meta (with description and attribution) and layout are required.';
+  }
+  
+  return message;
+};
+
+const analyzeUnionSubErrors = (unionErrors: any[]): string[] => {
+  const commonIssues: string[] = [];
+  const issueCounts: Record<string, number> = {};
+  
+  // Analyze all sub-errors to find common patterns
+  unionErrors.forEach(subError => {
+    if (subError.errors && Array.isArray(subError.errors)) {
+      subError.errors.forEach((err: any) => {
+        let issueKey = '';
+        
+        if (err.code === 'invalid_type') {
+          issueKey = `${err.path?.join?.('.') || 'field'} should be ${err.expected} but got ${err.received}`;
+        } else if (err.code === 'invalid_string') {
+          issueKey = `${err.path?.join?.('.') || 'field'} has invalid format`;
+        } else if (err.code === 'too_small') {
+          issueKey = `${err.path?.join?.('.') || 'field'} is too small (minimum: ${err.minimum})`;
+        } else if (err.message) {
+          issueKey = err.message;
+        }
+        
+        if (issueKey) {
+          issueCounts[issueKey] = (issueCounts[issueKey] || 0) + 1;
+        }
+      });
+    }
+  });
+  
+  // Return the most common issues (appearing in multiple union attempts)
+  Object.entries(issueCounts).forEach(([issue, count]) => {
+    if (count >= 2) { // Issue appears in multiple union validation attempts
+      commonIssues.push(issue);
+    }
+  });
+  
+  return commonIssues.slice(0, 3); // Limit to top 3 issues
 };
 
 const getFieldDisplayName = (path: (string | number)[], configData?: any): string => {
@@ -126,7 +370,7 @@ const getDetailedErrorMessage = (error: any): string => {
       return `Invalid value. Must be one of: ${error.options.join(', ')}`;
     
     case 'invalid_union':
-      return 'Data structure does not match any of the expected formats. Check the configuration schema documentation';
+      return 'Data structure does not match any of the expected formats. Check the configuration schema documentation for the correct format';
     
     case 'custom':
       return error.message || 'Custom validation failed';
