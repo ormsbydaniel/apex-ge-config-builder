@@ -5,6 +5,7 @@ import { reverseBaseLayerTransformation } from './transformers/baseLayerTransfor
 import { reverseSwipeLayerTransformation } from './transformers/swipeLayerTransformer';
 import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
+import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 
 /**
  * Apply all reverse transformations in the correct order
@@ -19,29 +20,34 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
   
   // Apply transformations in the correct order
   
-  // 1. Convert type to format fields first (before other transformations)
+  // 1. Move exclusivitySets from data items to source level FIRST
+  if (detectedTransforms.exclusivitySetsTransformation) {
+    normalizedConfig = reverseExclusivitySetsTransformation(normalizedConfig, true);
+  }
+  
+  // 2. Reverse single item object to array transformation BEFORE type conversion
+  if (detectedTransforms.singleItemArrayToObject) {
+    normalizedConfig = reverseSingleItemTransformation(normalizedConfig, true);
+  }
+  
+  // 3. Convert type to format fields (now that data is an array)
   if (detectedTransforms.typeToFormatConversion) {
     normalizedConfig = reverseTypeToFormatTransformation(normalizedConfig, true);
   }
   
-  // 2. Reverse base layer transformation (old format → new format)
+  // 4. Reverse base layer transformation (old format → new format)
   if (detectedTransforms.baseLayerFormat) {
     normalizedConfig = reverseBaseLayerTransformation(normalizedConfig, true);
   }
   
-  // 3. Reverse swipe layer transformation (data object → internal format)
+  // 5. Reverse swipe layer transformation (data object → internal format)
   if (detectedTransforms.transformSwipeLayersToData) {
     normalizedConfig = reverseSwipeLayerTransformation(normalizedConfig, true);
   }
   
-  // 4. Reverse COG transformation (before single item array transformation)
+  // 6. Reverse COG transformation (after other transformations)
   if (detectedTransforms.configureCogsAsImages) {
     normalizedConfig = reverseCogTransformation(normalizedConfig, true);
-  }
-  
-  // 5. Reverse single item object to array transformation
-  if (detectedTransforms.singleItemArrayToObject) {
-    normalizedConfig = reverseSingleItemTransformation(normalizedConfig, true);
   }
   
   return normalizedConfig;

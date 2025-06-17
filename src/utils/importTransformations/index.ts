@@ -21,3 +21,4 @@ export { reverseBaseLayerTransformation } from './transformers/baseLayerTransfor
 export { reverseSwipeLayerTransformation } from './transformers/swipeLayerTransformer';
 export { reverseCogTransformation } from './transformers/cogTransformer';
 export { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
+export { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';

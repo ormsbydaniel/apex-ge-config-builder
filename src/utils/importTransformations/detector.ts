@@ -5,6 +5,7 @@ import { detectBaseLayerFormat } from './detection/baseLayerDetector';
 import { detectSwipeLayerTransformation } from './detection/swipeLayerDetector';
 import { detectCogTransformation } from './detection/cogDetector';
 import { detectSingleItemArrayToObject } from './detection/singleItemDetector';
+import { detectExclusivitySetsTransformation } from './detection/exclusivitySetsDetector';
 
 /**
  * Detect all transformations needed for the imported config
@@ -15,7 +16,8 @@ export const detectTransformations = (config: any): DetectedTransformations => {
     configureCogsAsImages: false,
     transformSwipeLayersToData: false,
     baseLayerFormat: false,
-    typeToFormatConversion: false
+    typeToFormatConversion: false,
+    exclusivitySetsTransformation: false
   };
   
   // Check if export metadata exists first
@@ -25,6 +27,7 @@ export const detectTransformations = (config: any): DetectedTransformations => {
     detected.transformSwipeLayersToData = config._exportMeta.transformations.includes('transformSwipeLayersToData');
     detected.baseLayerFormat = config._exportMeta.transformations.includes('baseLayerFormat');
     detected.typeToFormatConversion = config._exportMeta.transformations.includes('typeToFormatConversion');
+    detected.exclusivitySetsTransformation = config._exportMeta.transformations.includes('exclusivitySetsTransformation');
     return detected;
   }
   
@@ -34,6 +37,7 @@ export const detectTransformations = (config: any): DetectedTransformations => {
   detected.transformSwipeLayersToData = detectSwipeLayerTransformation(config);
   detected.configureCogsAsImages = detectCogTransformation(config);
   detected.singleItemArrayToObject = detectSingleItemArrayToObject(config);
+  detected.exclusivitySetsTransformation = detectExclusivitySetsTransformation(config);
   
   return detected;
 };

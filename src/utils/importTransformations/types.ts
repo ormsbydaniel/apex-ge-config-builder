@@ -5,6 +5,7 @@ export interface DetectedTransformations {
   transformSwipeLayersToData: boolean;
   baseLayerFormat: boolean;
   typeToFormatConversion: boolean;
+  exclusivitySetsTransformation: boolean;
 }
 
 export interface TransformationContext {
