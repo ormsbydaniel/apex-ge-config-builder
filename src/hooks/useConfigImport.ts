@@ -6,7 +6,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { formatValidationErrors, parseJSONWithLineNumbers } from '@/utils/validationUtils';
 import { ValidationErrorDetails } from '@/types/config';
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
-import { normalizeImportedConfig } from '@/utils/importTransformations';
+import { normalizeImportedConfig, detectTransformations } from '@/utils/importTransformations';
 
 export const useConfigImport = () => {
   const { dispatch } = useConfig();
@@ -39,6 +39,10 @@ export const useConfigImport = () => {
       
       const jsonData = parseResult.data;
       
+      // Detect transformations before normalization for better user feedback
+      const detectedTransforms = detectTransformations(jsonData);
+      console.log('Import: Detected transformations:', detectedTransforms);
+      
       // Normalize imported config to internal schema (reverse any export transformations)
       const normalizedData = normalizeImportedConfig(jsonData);
       
@@ -64,11 +68,19 @@ export const useConfigImport = () => {
       
       dispatch({ type: 'LOAD_CONFIG', payload: configWithCapabilities });
       
-      // Check if transformations were detected and inform user
-      const hadTransformations = jsonData._exportMeta && jsonData._exportMeta.transformations?.length > 0;
-      const description = hadTransformations 
-        ? `Successfully loaded configuration from ${file.name}. Export transformations were automatically reversed.`
-        : `Successfully loaded configuration from ${file.name}`;
+      // Enhanced success message with transformation details
+      const transformationCount = Object.values(detectedTransforms).filter(Boolean).length;
+      const hasSwipeTransformation = detectedTransforms.transformSwipeLayersToData;
+      
+      let description = `Successfully loaded configuration from ${file.name}`;
+      if (transformationCount > 0) {
+        const transformationTypes = [];
+        if (detectedTransforms.singleItemArrayToObject) transformationTypes.push('array/object');
+        if (detectedTransforms.configureCogsAsImages) transformationTypes.push('COG images');
+        if (detectedTransforms.transformSwipeLayersToData) transformationTypes.push('swipe layers');
+        
+        description += `. Export transformations (${transformationTypes.join(', ')}) were automatically reversed.`;
+      }
       
       toast({
         title: "Configuration Loaded",
@@ -92,6 +104,7 @@ export const useConfigImport = () => {
         
         return { success: false, errors: formattedErrors };
       } else {
+        console.error('Import error:', error);
         toast({
           title: "Import Failed",
           description: "An unexpected error occurred while importing the configuration.",
