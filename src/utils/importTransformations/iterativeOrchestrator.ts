@@ -1,218 +1,145 @@
+
+import { detectTransformations } from './detector';
 import { DetectedTransformations } from './types';
-import { reverseTypeToFormatTransformation } from './transformers/typeToFormatTransformer';
-import { reverseBaseLayerTransformation } from './transformers/baseLayerTransformer';
+
+// Import all transformers
+import { reverseTypeToFormatConversion } from './transformers/typeToFormatTransformer';
+import { reverseSingleItemArrayToObject } from './transformers/singleItemTransformer';
+import { reverseBaseLayerFormat } from './transformers/baseLayerTransformer';
 import { reverseSwipeLayerTransformation } from './transformers/swipeLayerTransformer';
 import { reverseCogTransformation } from './transformers/cogTransformer';
-import { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
 import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
-import { detectTransformations } from './detector';
 import { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
 
-interface TransformationResult {
-  config: any;
-  iterations: number;
-  transformationsApplied: string[];
-  success: boolean;
-}
-
-const MAX_ITERATIONS = 10;
-
 /**
- * Apply transformations iteratively until no more are needed
+ * Enhanced iterative orchestrator with deep transformation tracking
  */
-export const reverseTransformationsIterative = (config: any): TransformationResult => {
+export const normalizeImportedConfig = (config: any): any => {
+  console.log('=== ITERATIVE ORCHESTRATOR START ===');
+  console.log('Input config sources count:', config.sources?.length);
+  
   let currentConfig = { ...config };
   let iteration = 0;
-  const transformationsApplied: string[] = [];
+  const maxIterations = 10;
   
-  // Remove export metadata if it exists
-  if (currentConfig._exportMeta) {
-    delete currentConfig._exportMeta;
-  }
-  
-  console.log('Starting iterative transformation process');
-  console.log('Initial config structure:', {
-    hasSources: !!currentConfig.sources,
-    sourcesCount: currentConfig.sources?.length || 0,
-    swipeLayers: currentConfig.sources?.filter((s: any) => 
-      s.data && typeof s.data === 'object' && s.data.type === 'swipe'
-    ).map((s: any) => ({
-      name: s.name,
-      dataType: s.data.type,
-      hasEmptyMeta: s.meta && Object.keys(s.meta).length === 0
-    })) || []
-  });
-  
-  while (iteration < MAX_ITERATIONS) {
+  while (iteration < maxIterations) {
     iteration++;
-    console.log(`\n=== Iteration ${iteration} ===`);
+    console.log(`\n--- ITERATION ${iteration} ---`);
     
-    const detectedTransforms = detectTransformations(currentConfig);
-    const hasAnyTransformation = Object.values(detectedTransforms).some(Boolean);
+    // Detect what transformations are needed
+    const detected = detectTransformations(currentConfig);
+    console.log('Detected transformations:', detected);
     
-    console.log(`Iteration ${iteration}: Detected transformations:`, detectedTransforms);
+    // Track swipe layers specifically
+    const swipeLayers = currentConfig.sources?.filter((s: any) => 
+      s.data && !Array.isArray(s.data) && typeof s.data === 'object' && s.data.type === 'swipe'
+    ) || [];
+    console.log(`Found ${swipeLayers.length} swipe layers to transform:`, 
+      swipeLayers.map((s: any) => s.name));
     
-    if (!hasAnyTransformation) {
-      console.log(`Iteration ${iteration}: No more transformations needed`);
+    // Check if any transformations are needed
+    const hasTransformations = Object.values(detected).some(Boolean);
+    if (!hasTransformations) {
+      console.log('No transformations needed, stopping iteration');
       break;
     }
     
     let configChanged = false;
     const previousConfig = JSON.stringify(currentConfig);
     
-    // Apply structural transformations first
-    if (detectedTransforms.exclusivitySetsTransformation) {
-      console.log(`Iteration ${iteration}: Applying exclusivitySets transformation`);
-      currentConfig = reverseExclusivitySetsTransformation(currentConfig, true);
-      transformationsApplied.push(`exclusivitySets (iteration ${iteration})`);
-      configChanged = true;
+    // Apply transformations in order
+    if (detected.typeToFormatConversion) {
+      console.log('Applying typeToFormatConversion...');
+      const beforeCount = currentConfig.sources?.filter((s: any) => s.data?.some?.((d: any) => d.type)).length || 0;
+      currentConfig = reverseTypeToFormatConversion(currentConfig, true);
+      const afterCount = currentConfig.sources?.filter((s: any) => s.data?.some?.((d: any) => d.type)).length || 0;
+      console.log(`TypeToFormat: ${beforeCount} sources with type before, ${afterCount} after`);
     }
     
-    if (detectedTransforms.singleItemArrayToObject) {
-      console.log(`Iteration ${iteration}: Applying singleItem transformation`);
-      currentConfig = reverseSingleItemTransformation(currentConfig, true);
-      transformationsApplied.push(`singleItem (iteration ${iteration})`);
-      configChanged = true;
+    if (detected.singleItemArrayToObject) {
+      console.log('Applying singleItemArrayToObject...');
+      currentConfig = reverseSingleItemArrayToObject(currentConfig, true);
     }
     
-    if (detectedTransforms.typeToFormatConversion) {
-      console.log(`Iteration ${iteration}: Applying typeToFormat transformation`);
-      currentConfig = reverseTypeToFormatTransformation(currentConfig, true);
-      transformationsApplied.push(`typeToFormat (iteration ${iteration})`);
-      configChanged = true;
+    if (detected.baseLayerFormat) {
+      console.log('Applying baseLayerFormat...');
+      currentConfig = reverseBaseLayerFormat(currentConfig, true);
     }
     
-    if (detectedTransforms.baseLayerFormat) {
-      console.log(`Iteration ${iteration}: Applying baseLayer transformation`);
-      currentConfig = reverseBaseLayerTransformation(currentConfig, true);
-      transformationsApplied.push(`baseLayer (iteration ${iteration})`);
-      configChanged = true;
-    }
-    
-    // Apply swipe layer transformation with enhanced debugging
-    if (detectedTransforms.transformSwipeLayersToData) {
-      console.log(`Iteration ${iteration}: Applying swipeLayer transformation`);
-      const beforeSwipe = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-      console.log(`Iteration ${iteration}: Swipe layer before transform:`, {
-        name: beforeSwipe?.name,
-        dataType: beforeSwipe?.data?.type,
-        metaKeys: beforeSwipe?.meta ? Object.keys(beforeSwipe.meta) : 'no meta',
-        metaEmpty: beforeSwipe?.meta && Object.keys(beforeSwipe.meta).length === 0
-      });
+    if (detected.transformSwipeLayersToData) {
+      console.log('Applying swipe layer transformation...');
+      const beforeSwipeCount = currentConfig.sources?.filter((s: any) => 
+        s.data && !Array.isArray(s.data) && typeof s.data === 'object' && s.data.type === 'swipe'
+      ).length || 0;
       
       currentConfig = reverseSwipeLayerTransformation(currentConfig, true);
       
-      const afterSwipe = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-      console.log(`Iteration ${iteration}: Swipe layer after transform:`, {
-        name: afterSwipe?.name,
-        dataIsArray: Array.isArray(afterSwipe?.data),
-        hasSwipeConfig: !!afterSwipe?.meta?.swipeConfig,
-        hasDescription: !!afterSwipe?.meta?.description,
-        hasAttributionText: !!afterSwipe?.meta?.attribution?.text,
-        metaKeys: afterSwipe?.meta ? Object.keys(afterSwipe.meta) : 'no meta'
-      });
+      const afterSwipeCount = currentConfig.sources?.filter((s: any) => 
+        s.data && !Array.isArray(s.data) && typeof s.data === 'object' && s.data.type === 'swipe'
+      ).length || 0;
       
-      transformationsApplied.push(`swipeLayer (iteration ${iteration})`);
-      configChanged = true;
+      const transformedSwipeCount = currentConfig.sources?.filter((s: any) => 
+        s.meta?.swipeConfig && Array.isArray(s.data)
+      ).length || 0;
+      
+      console.log(`Swipe transformation: ${beforeSwipeCount} swipe layers before, ${afterSwipeCount} still untransformed, ${transformedSwipeCount} properly transformed`);
+      
+      // Validate specific swipe layer
+      const sentinelLayer = currentConfig.sources?.find((s: any) => s.name === "Sentinel-2 RGB vs WorldCover (2020)");
+      if (sentinelLayer) {
+        console.log('Sentinel layer after swipe transformation:', {
+          name: sentinelLayer.name,
+          dataIsArray: Array.isArray(sentinelLayer.data),
+          hasSwipeConfig: !!sentinelLayer.meta?.swipeConfig,
+          meta: sentinelLayer.meta
+        });
+      }
     }
     
-    if (detectedTransforms.configureCogsAsImages) {
-      console.log(`Iteration ${iteration}: Applying cog transformation`);
+    if (detected.configureCogsAsImages) {
+      console.log('Applying cogTransformation...');
       currentConfig = reverseCogTransformation(currentConfig, true);
-      transformationsApplied.push(`cog (iteration ${iteration})`);
-      configChanged = true;
     }
     
-    // Apply meta completion after structural transformations with enhanced validation
-    if (detectedTransforms.metaCompletionNeeded) {
-      console.log(`Iteration ${iteration}: Applying metaCompletion transformation`);
-      const beforeMeta = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-      console.log(`Iteration ${iteration}: Swipe layer before meta completion:`, {
-        name: beforeMeta?.name,
-        hasDescription: !!beforeMeta?.meta?.description,
-        descriptionValue: beforeMeta?.meta?.description,
-        hasAttributionText: !!beforeMeta?.meta?.attribution?.text,
-        attributionTextValue: beforeMeta?.meta?.attribution?.text,
-        hasSwipeConfig: !!beforeMeta?.meta?.swipeConfig
-      });
-      
+    if (detected.exclusivitySetsTransformation) {
+      console.log('Applying exclusivitySetsTransformation...');
+      currentConfig = reverseExclusivitySetsTransformation(currentConfig, true);
+    }
+    
+    if (detected.metaCompletionNeeded) {
+      console.log('Applying metaCompletionTransformation...');
       currentConfig = reverseMetaCompletionTransformation(currentConfig, true);
-      
-      const afterMeta = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-      console.log(`Iteration ${iteration}: Swipe layer after meta completion:`, {
-        name: afterMeta?.name,
-        hasDescription: !!afterMeta?.meta?.description,
-        descriptionValue: afterMeta?.meta?.description,
-        hasAttributionText: !!afterMeta?.meta?.attribution?.text,
-        attributionTextValue: afterMeta?.meta?.attribution?.text,
-        hasSwipeConfig: !!afterMeta?.meta?.swipeConfig
-      });
-      
-      transformationsApplied.push(`metaCompletion (iteration ${iteration})`);
-      configChanged = true;
     }
     
-    // Check if config actually changed to prevent infinite loops
+    // Check if config actually changed
     const currentConfigString = JSON.stringify(currentConfig);
-    if (!configChanged || currentConfigString === previousConfig) {
-      console.log(`Iteration ${iteration}: No actual changes made, stopping`);
-      break;
-    }
+    configChanged = previousConfig !== currentConfigString;
     
-    // Enhanced debug for final state validation
-    const swipeLayer = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-    if (swipeLayer) {
-      console.log(`Iteration ${iteration} complete. Swipe layer validation check:`, {
-        name: swipeLayer.name,
-        dataIsArray: Array.isArray(swipeLayer.data),
-        dataEmpty: Array.isArray(swipeLayer.data) && swipeLayer.data.length === 0,
-        hasValidMeta: !!(swipeLayer.meta?.description && swipeLayer.meta?.attribution?.text),
-        hasSwipeConfig: !!swipeLayer.meta?.swipeConfig,
-        metaComplete: {
-          description: swipeLayer.meta?.description,
-          attributionText: swipeLayer.meta?.attribution?.text,
-          swipeConfig: swipeLayer.meta?.swipeConfig
-        }
-      });
+    console.log(`Iteration ${iteration} complete, config changed: ${configChanged}`);
+    
+    if (!configChanged) {
+      console.log('No changes made in this iteration, stopping');
+      break;
     }
   }
   
-  const success = iteration < MAX_ITERATIONS;
+  console.log(`=== ITERATIVE ORCHESTRATOR COMPLETE (${iteration} iterations) ===`);
   
-  console.log(`\n=== Final Results ===`);
-  console.log(`Iterative transformation completed after ${iteration} iterations`);
-  console.log('Transformations applied:', transformationsApplied);
+  // Final validation
+  const finalSwipeLayers = currentConfig.sources?.filter((s: any) => 
+    s.meta?.swipeConfig && Array.isArray(s.data)
+  ) || [];
+  console.log(`Final result: ${finalSwipeLayers.length} properly transformed swipe layers`);
   
-  // Enhanced final validation for swipe layer
-  const swipeLayer = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
-  if (swipeLayer) {
-    const isValid = Array.isArray(swipeLayer.data) && 
-                   swipeLayer.meta?.description && 
-                   swipeLayer.meta?.attribution?.text &&
-                   swipeLayer.meta?.swipeConfig;
-    
-    console.log('Final swipe layer validation:', {
-      name: swipeLayer.name,
-      isValid,
-      validationDetails: {
-        dataIsArray: Array.isArray(swipeLayer.data),
-        hasDescription: !!swipeLayer.meta?.description,
-        hasAttributionText: !!swipeLayer.meta?.attribution?.text,
-        hasSwipeConfig: !!swipeLayer.meta?.swipeConfig,
-        layout: !!swipeLayer.layout
-      },
-      finalMeta: swipeLayer.meta
+  const sentinelFinal = currentConfig.sources?.find((s: any) => s.name === "Sentinel-2 RGB vs WorldCover (2020)");
+  if (sentinelFinal) {
+    console.log('Final Sentinel layer state:', {
+      name: sentinelFinal.name,
+      dataIsArray: Array.isArray(sentinelFinal.data),
+      hasSwipeConfig: !!sentinelFinal.meta?.swipeConfig,
+      hasRequiredMeta: !!(sentinelFinal.meta?.description && sentinelFinal.meta?.attribution?.text)
     });
   }
   
-  if (!success) {
-    console.warn('Maximum iterations reached - potential infinite loop detected');
-  }
-  
-  return {
-    config: currentConfig,
-    iterations: iteration,
-    transformationsApplied,
-    success
-  };
+  return currentConfig;
 };
