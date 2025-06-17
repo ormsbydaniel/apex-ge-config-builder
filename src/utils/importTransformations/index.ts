@@ -1,4 +1,8 @@
 
+// Import the main functions from their modules
+import { detectTransformations } from './detector';
+import { reverseTransformations } from './orchestrator';
+
 // Re-export the main public API to maintain backward compatibility
 export { detectTransformations } from './detector';
 export { reverseTransformations } from './orchestrator';
