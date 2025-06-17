@@ -33,120 +33,138 @@ export const useValidatedConfig = () => {
       })
     }));
 
-    // Check if this is a base layer
-    const isBaseLayer = validatedData.some(item => item.isBaseLayer === true);
+    // Enhanced base layer detection with debugging
+    const isBaseLayer = source.isBaseLayer === true;
+    console.log(`useValidatedConfig processing "${source.name}":`, {
+      originalIsBaseLayer: source.isBaseLayer,
+      detectedIsBaseLayer: isBaseLayer,
+      hasLegacyBaseLayerInData: source.data.some(d => d.isBaseLayer === true)
+    });
+
+    // Check for legacy base layer format and transform if needed
+    const hasLegacyBaseLayer = source.data.some(d => d.isBaseLayer === true);
+    const shouldBeBaseLayer = isBaseLayer || hasLegacyBaseLayer;
+
+    if (hasLegacyBaseLayer && !isBaseLayer) {
+      console.log(`Transforming legacy base layer "${source.name}" to new format`);
+    }
     
     const baseSource = {
       ...source,
       name: source.name || '',
       isActive: source.isActive ?? false,
       data: validatedData,
+      // Set isBaseLayer at top level if detected from legacy format
+      ...(shouldBeBaseLayer && { isBaseLayer: true }),
       // Include statistics if they exist
       ...(validatedStatistics && { statistics: validatedStatistics })
     };
 
-    // For layer cards (non-base layers), ensure meta and layout are present
-    if (!isBaseLayer) {
-      const meta = {
-        description: source.meta?.description || '',
-        attribution: {
-          text: source.meta?.attribution?.text || '',
-          url: source.meta?.attribution?.url
-        },
-        categories: source.meta?.categories?.map(cat => ({
-          color: cat.color || '#000000',
-          label: cat.label || '',
-          // Preserve the value field if it exists, otherwise use 0 as default
-          value: cat.value !== undefined ? cat.value : 0
-        } as Category)) || [],
-        units: source.meta?.units,
-        // Include additional meta fields if present (including gradient fields)
-        ...(source.meta?.min !== undefined && { min: source.meta.min }),
-        ...(source.meta?.max !== undefined && { max: source.meta.max }),
-        ...(source.meta?.startColor && { startColor: source.meta.startColor }),
-        ...(source.meta?.endColor && { endColor: source.meta.endColor }),
-        // Handle swipeConfig with backward compatibility
-        ...(source.meta?.swipeConfig && {
-          swipeConfig: {
-            clippedSourceName: source.meta.swipeConfig.clippedSourceName,
-            // Handle backward compatibility: convert single baseSourceName to array
-            baseSourceNames: source.meta.swipeConfig.baseSourceNames || 
-              ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
+    // For base layers (now detected at top level), meta and layout are optional
+    if (shouldBeBaseLayer) {
+      console.log(`Processing as base layer: "${source.name}"`);
+      return {
+        ...baseSource,
+        isBaseLayer: true, // Ensure it's explicitly set
+        ...(source.meta && {
+          meta: {
+            ...source.meta,
+            description: source.meta.description || '',
+            attribution: {
+              text: source.meta.attribution?.text || '',
+              url: source.meta.attribution?.url
+            },
+            categories: source.meta.categories?.map(cat => ({
+              color: cat.color || '#000000',
+              label: cat.label || '',
+              // Preserve the value field if it exists, otherwise use 0 as default
+              value: cat.value !== undefined ? cat.value : 0
+            } as Category)) || [],
+            // Include additional meta fields if present (including gradient fields)
+            ...(source.meta.min !== undefined && { min: source.meta.min }),
+            ...(source.meta.max !== undefined && { max: source.meta.max }),
+            ...(source.meta.startColor && { startColor: source.meta.startColor }),
+            ...(source.meta.endColor && { endColor: source.meta.endColor }),
+            // Handle swipeConfig with backward compatibility
+            ...(source.meta.swipeConfig && {
+              swipeConfig: {
+                clippedSourceName: source.meta.swipeConfig.clippedSourceName,
+                // Handle backward compatibility: convert single baseSourceName to array
+                baseSourceNames: source.meta.swipeConfig.baseSourceNames || 
+                  ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
+              }
+            })
+          }
+        }),
+        ...(source.layout && {
+          layout: {
+            ...source.layout,
+            ...(source.layout.layerCard && {
+              layerCard: {
+                toggleable: source.layout.layerCard.toggleable ?? true,
+                legend: source.layout.layerCard.legend ? {
+                  type: source.layout.layerCard.legend.type || 'swatch',
+                  ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
+                } : undefined,
+                controls: source.layout.layerCard.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
+                  ? source.layout.layerCard.controls
+                  : { opacitySlider: true },
+                showStatistics: source.layout.layerCard.showStatistics
+              }
+            })
           }
         })
       };
-
-      return {
-        ...baseSource,
-        meta,
-        layout: {
-          interfaceGroup: source.layout?.interfaceGroup,
-          layerCard: {
-            toggleable: source.layout?.layerCard?.toggleable ?? true,
-            legend: source.layout?.layerCard?.legend ? {
-              type: source.layout.layerCard.legend.type || 'swatch',
-              ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
-            } : undefined,
-            controls: source.layout?.layerCard?.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
-              ? source.layout.layerCard.controls
-              : { opacitySlider: true },
-            showStatistics: source.layout?.layerCard?.showStatistics
-          }
-        }
-      };
     }
 
-    // For base layers, meta and layout are optional
-    return {
-      ...baseSource,
-      ...(source.meta && {
-        meta: {
-          ...source.meta,
-          description: source.meta.description || '',
-          attribution: {
-            text: source.meta.attribution?.text || '',
-            url: source.meta.attribution?.url
-          },
-          categories: source.meta.categories?.map(cat => ({
-            color: cat.color || '#000000',
-            label: cat.label || '',
-            // Preserve the value field if it exists, otherwise use 0 as default
-            value: cat.value !== undefined ? cat.value : 0
-          } as Category)) || [],
-          // Include additional meta fields if present (including gradient fields)
-          ...(source.meta.min !== undefined && { min: source.meta.min }),
-          ...(source.meta.max !== undefined && { max: source.meta.max }),
-          ...(source.meta.startColor && { startColor: source.meta.startColor }),
-          ...(source.meta.endColor && { endColor: source.meta.endColor }),
-          // Handle swipeConfig with backward compatibility
-          ...(source.meta.swipeConfig && {
-            swipeConfig: {
-              clippedSourceName: source.meta.swipeConfig.clippedSourceName,
-              // Handle backward compatibility: convert single baseSourceName to array
-              baseSourceNames: source.meta.swipeConfig.baseSourceNames || 
-                ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
-            }
-          })
-        }
-      }),
-      ...(source.layout && {
-        layout: {
-          ...source.layout,
-          ...(source.layout.layerCard && {
-            layerCard: {
-              toggleable: source.layout.layerCard.toggleable ?? true,
-              legend: source.layout.layerCard.legend ? {
-                type: source.layout.layerCard.legend.type || 'swatch',
-                ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
-              } : undefined,
-              controls: source.layout.layerCard.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
-                ? source.layout.layerCard.controls
-                : { opacitySlider: true },
-              showStatistics: source.layout.layerCard.showStatistics
-            }
-          })
+    // For layer cards (non-base layers), ensure meta and layout are present
+    console.log(`Processing as layer card: "${source.name}"`);
+    const meta = {
+      description: source.meta?.description || '',
+      attribution: {
+        text: source.meta?.attribution?.text || '',
+        url: source.meta?.attribution?.url
+      },
+      categories: source.meta?.categories?.map(cat => ({
+        color: cat.color || '#000000',
+        label: cat.label || '',
+        // Preserve the value field if it exists, otherwise use 0 as default
+        value: cat.value !== undefined ? cat.value : 0
+      } as Category)) || [],
+      units: source.meta?.units,
+      // Include additional meta fields if present (including gradient fields)
+      ...(source.meta?.min !== undefined && { min: source.meta.min }),
+      ...(source.meta?.max !== undefined && { max: source.meta.max }),
+      ...(source.meta?.startColor && { startColor: source.meta.startColor }),
+      ...(source.meta?.endColor && { endColor: source.meta.endColor }),
+      // Handle swipeConfig with backward compatibility
+      ...(source.meta?.swipeConfig && {
+        swipeConfig: {
+          clippedSourceName: source.meta.swipeConfig.clippedSourceName,
+          // Handle backward compatibility: convert single baseSourceName to array
+          baseSourceNames: source.meta.swipeConfig.baseSourceNames || 
+            ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
         }
       })
+    };
+
+    return {
+      ...baseSource,
+      meta,
+      layout: {
+        interfaceGroup: source.layout?.interfaceGroup,
+        layerCard: {
+          toggleable: source.layout?.layerCard?.toggleable ?? true,
+          legend: source.layout?.layerCard?.legend ? {
+            type: source.layout.layerCard.legend.type || 'swatch',
+            ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
+          } : undefined,
+          controls: source.layout?.layerCard?.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
+            ? source.layout.layerCard.controls
+            : { opacitySlider: true },
+          showStatistics: source.layout?.layerCard?.showStatistics
+        }
+      }
     };
   });
 

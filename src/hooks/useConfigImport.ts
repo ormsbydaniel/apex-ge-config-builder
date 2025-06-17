@@ -6,7 +6,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { formatValidationErrors, parseJSONWithLineNumbers } from '@/utils/validationUtils';
 import { ValidationErrorDetails } from '@/types/config';
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
-import { normalizeImportedConfig } from '@/utils/importTransformations';
+import { normalizeImportedConfig, detectTransformations } from '@/utils/importTransformations';
 
 export const useConfigImport = () => {
   const { dispatch } = useConfig();
@@ -39,11 +39,18 @@ export const useConfigImport = () => {
       
       const jsonData = parseResult.data;
       
-      // Normalize imported config to internal schema (reverse any export transformations)
+      // Detect transformations before normalization for better user feedback
+      const detectedTransforms = detectTransformations(jsonData);
+      console.log('Import: Detected transformations:', detectedTransforms);
+      
+      // IMPORTANT: Normalize imported config BEFORE validation
+      // This converts external format (e.g., swipe data objects) to internal format
       const normalizedData = normalizeImportedConfig(jsonData);
+      console.log('Import: Data normalized, now validating with Zod schema');
       
       // Validate the normalized configuration using Zod schema
       const validatedConfig = ConfigurationSchema.parse(normalizedData);
+      console.log('Import: Zod validation successful');
       
       // Fetch capabilities for all services if they exist
       const servicesWithCapabilities = await Promise.all(
@@ -64,11 +71,18 @@ export const useConfigImport = () => {
       
       dispatch({ type: 'LOAD_CONFIG', payload: configWithCapabilities });
       
-      // Check if transformations were detected and inform user
-      const hadTransformations = jsonData._exportMeta && jsonData._exportMeta.transformations?.length > 0;
-      const description = hadTransformations 
-        ? `Successfully loaded configuration from ${file.name}. Export transformations were automatically reversed.`
-        : `Successfully loaded configuration from ${file.name}`;
+      // Enhanced success message with transformation details
+      const transformationCount = Object.values(detectedTransforms).filter(Boolean).length;
+      
+      let description = `Successfully loaded configuration from ${file.name}`;
+      if (transformationCount > 0) {
+        const transformationTypes = [];
+        if (detectedTransforms.singleItemArrayToObject) transformationTypes.push('array/object');
+        if (detectedTransforms.configureCogsAsImages) transformationTypes.push('COG images');
+        if (detectedTransforms.transformSwipeLayersToData) transformationTypes.push('swipe layers');
+        
+        description += `. Export transformations (${transformationTypes.join(', ')}) were automatically reversed.`;
+      }
       
       toast({
         title: "Configuration Loaded",
@@ -81,6 +95,7 @@ export const useConfigImport = () => {
       
       if (error instanceof Error && error.name === 'ZodError') {
         // Format validation errors for detailed display with config data context
+        // Note: We need to get the original data for error context, not the normalized data
         const parseResult = parseJSONWithLineNumbers(await file.text());
         const formattedErrors = formatValidationErrors(error as any, parseResult?.data);
         
@@ -92,6 +107,7 @@ export const useConfigImport = () => {
         
         return { success: false, errors: formattedErrors };
       } else {
+        console.error('Import error:', error);
         toast({
           title: "Import Failed",
           description: "An unexpected error occurred while importing the configuration.",

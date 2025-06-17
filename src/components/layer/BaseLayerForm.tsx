@@ -67,16 +67,17 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false }
       return;
     }
 
-    // Data is always an array - even for single items
+    // NEW FORMAT: isBaseLayer is now at the top level of the source
     const baseLayer: DataSource = {
       name: name.trim(),
       isActive: editingLayer?.isActive ?? true,
+      isBaseLayer: true, // NEW: Set at top level instead of in data items
       data: [
         {
           url: sanitizedUrl,
           format,
           zIndex,
-          isBaseLayer: true
+          // REMOVED: isBaseLayer: true (no longer needed in data items)
         }
       ],
       statistics: editingLayer?.statistics, // Preserve existing statistics when editing

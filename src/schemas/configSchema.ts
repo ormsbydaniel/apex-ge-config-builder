@@ -51,12 +51,12 @@ export const ServiceSchema = z.object({
   // capabilities are not included in serialized config
 });
 
-// Enhanced DataSourceItem schema with optional url and additional fields
+// Enhanced DataSourceItem schema with optional isBaseLayer for backward compatibility
 export const DataSourceItemSchema = z.object({
   url: urlOrRelativePathSchema.optional(),
   format: z.string(),
   zIndex: z.number(),
-  isBaseLayer: z.boolean().optional(),
+  isBaseLayer: z.boolean().optional(), // Keep for backward compatibility during import
   layers: z.string().optional(),
   level: z.number().optional(),
   type: z.string().optional(),
@@ -152,19 +152,28 @@ const BaseDataSourceSchema = z.object({
   data: DataFieldSchema,
   statistics: StatisticsFieldSchema.optional(), // Add optional statistics array
   hasFeatureStatistics: z.boolean().optional(),
+  isBaseLayer: z.boolean().optional(), // Add optional isBaseLayer for new format
 });
 
-// Schema for base layers (meta and layout are optional)
+// Schema for base layers (isBaseLayer: true at top level, meta and layout are optional)
 const BaseLayerSchema = BaseDataSourceSchema.extend({
+  isBaseLayer: z.literal(true), // Must be true for base layers
   meta: MetaSchema.optional(),
   layout: LayoutSchema.optional(),
 });
 
-// Schema for layer cards (meta and layout are required)
+// Schema for layer cards (no isBaseLayer, meta and layout are required)
 const LayerCardSchema = BaseDataSourceSchema.extend({
   meta: MetaSchema,
   layout: LayoutSchema,
-});
+}).refine(
+  (data) => {
+    return !data.isBaseLayer; // Layer cards cannot have isBaseLayer: true
+  },
+  {
+    message: "Layer cards cannot have isBaseLayer: true",
+  }
+);
 
 // Schema for swipe layers (meta with swipeConfig and layout are required)
 const SwipeLayerSchema = BaseDataSourceSchema.extend({
@@ -176,38 +185,24 @@ const SwipeLayerSchema = BaseDataSourceSchema.extend({
     }
   ),
   layout: LayoutSchema,
-});
+}).refine(
+  (data) => {
+    return !data.isBaseLayer; // Swipe layers cannot have isBaseLayer: true
+  },
+  {
+    message: "Swipe layers cannot have isBaseLayer: true",
+  }
+);
 
-// Flexible DataSource schema that handles base layers, layer cards, and swipe layers
+// Updated DataSource schema that handles the new base layer format
 export const DataSourceSchema = z.union([
-  // Base layer: has at least one data item with isBaseLayer: true
-  BaseLayerSchema.refine(
-    (data) => {
-      return data.data.some(item => item.isBaseLayer === true);
-    },
-    {
-      message: "Base layers must have at least one data item with isBaseLayer: true",
-    }
-  ),
+  // Base layer: has isBaseLayer: true at top level
+  BaseLayerSchema,
   // Swipe layer: has swipeConfig in meta
-  SwipeLayerSchema.refine(
-    (data) => {
-      return !data.data.some(item => item.isBaseLayer === true);
-    },
-    {
-      message: "Swipe layers cannot have data items with isBaseLayer: true",
-    }
-  ),
-  // Layer card: doesn't have any items with isBaseLayer: true and no swipeConfig
-  LayerCardSchema.refine(
-    (data) => {
-      return !data.data.some(item => item.isBaseLayer === true) && !data.meta.swipeConfig;
-    },
-    {
-      message: "Layer cards cannot have data items with isBaseLayer: true or swipeConfig",
-    }
-  ),
-  // Flexible schema for layers that don't fit the strict patterns
+  SwipeLayerSchema,
+  // Layer card: has required meta and layout, no isBaseLayer
+  LayerCardSchema,
+  // Flexible schema for backward compatibility
   BaseDataSourceSchema.extend({
     meta: MetaSchema.optional(),
     layout: LayoutSchema.optional(),

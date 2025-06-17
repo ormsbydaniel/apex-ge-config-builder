@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { DataSource, isDataSourceItemArray } from '@/types/config';
 import LayerGroup from './components/LayerGroup';
@@ -148,19 +149,38 @@ const LayerHierarchy = ({
   const ungroupedLayers: Array<{ layer: DataSource; originalIndex: number }> = [];
 
   config.sources.forEach((source, index) => {
-    const isBaseLayer = Array.isArray(source.data) && 
-      source.data.some(item => item.isBaseLayer === true);
+    // Enhanced debugging for base layer detection
+    const isBaseLayer = source.isBaseLayer === true;
+    console.log(`Layer "${source.name}" (index ${index}):`, {
+      isBaseLayer: source.isBaseLayer,
+      isBaseLayerStrict: isBaseLayer,
+      hasLayout: !!source.layout,
+      interfaceGroup: source.layout?.interfaceGroup
+    });
     
     if (isBaseLayer) {
+      console.log(`Adding "${source.name}" to baseLayers`);
       baseLayers.push({ layer: source, originalIndex: index });
     } else {
       const group = source.layout?.interfaceGroup;
       if (group && groupedLayers[group]) {
+        console.log(`Adding "${source.name}" to group "${group}"`);
         groupedLayers[group].push({ layer: source, originalIndex: index });
       } else {
+        console.log(`Adding "${source.name}" to ungroupedLayers`);
         ungroupedLayers.push({ layer: source, originalIndex: index });
       }
     }
+  });
+
+  // Debug output for final categorization
+  console.log('Final layer categorization:', {
+    baseLayers: baseLayers.map(b => b.layer.name),
+    ungroupedLayers: ungroupedLayers.map(u => u.layer.name),
+    groupedLayers: Object.entries(groupedLayers).reduce((acc, [group, layers]) => {
+      acc[group] = layers.map(l => l.layer.name);
+      return acc;
+    }, {} as Record<string, string[]>)
   });
 
   const currentGroupLayerCount = deleteGroupName ? 

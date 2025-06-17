@@ -12,6 +12,7 @@ export interface ExportOptions {
   removeEmptyCategories: boolean;
   includeCategoryValues: boolean;
   addNormalizeFalseToCogs: boolean;
+  transformSwipeLayersToData: boolean;
 }
 
 interface ExportOptionsDialogProps {
@@ -27,7 +28,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
       configureCogsAsImages: false,
       removeEmptyCategories: false,
       includeCategoryValues: true,
-      addNormalizeFalseToCogs: false
+      addNormalizeFalseToCogs: false,
+      transformSwipeLayersToData: false
     }
   });
 
@@ -43,7 +45,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
       configureCogsAsImages: false, 
       removeEmptyCategories: false,
       includeCategoryValues: true,
-      addNormalizeFalseToCogs: false
+      addNormalizeFalseToCogs: false,
+      transformSwipeLayersToData: false
     });
     onOpenChange(false);
   };
@@ -158,6 +161,26 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
             </div>
             <p className="text-xs text-muted-foreground ml-6">
               Add normalize: false property to all COG items in the exported configuration
+            </p>
+
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="transformSwipeLayersToData"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox 
+                    id="transformSwipeLayersToData"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <Label htmlFor="transformSwipeLayersToData" className="text-sm">
+                Transform swipe layers to data objects
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              Convert swipe layers from empty data arrays to structured data objects with clipped and base sources
             </p>
           </div>
 

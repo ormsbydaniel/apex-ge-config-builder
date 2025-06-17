@@ -1,3 +1,4 @@
+
 export interface Category {
   color: string;
   label: string;
@@ -34,7 +35,7 @@ export interface DataSourceItem {
   url?: string;
   format: string;
   zIndex: number;
-  isBaseLayer?: boolean;
+  isBaseLayer?: boolean; // Keep for backward compatibility during import
   layers?: string;
   level?: number;
   type?: string;
@@ -100,22 +101,26 @@ interface BaseDataSource {
   data: DataField;
   statistics?: DataSourceItem[]; // Add statistics array
   hasFeatureStatistics?: boolean;
+  isBaseLayer?: boolean; // Add isBaseLayer as optional to base interface
 }
 
-// Base layer type (meta and layout are optional)
+// Base layer type (meta and layout are optional, isBaseLayer is required)
 export interface BaseLayer extends BaseDataSource {
+  isBaseLayer: true; // NEW: Base layers now have this at the top level
   meta?: DataSourceMeta;
   layout?: DataSourceLayout;
 }
 
-// Layer card type (meta and layout are required)
+// Layer card type (meta and layout are required, isBaseLayer is optional)
 export interface LayerCard extends BaseDataSource {
+  isBaseLayer?: false; // Layer cards can have isBaseLayer: false or undefined
   meta: DataSourceMeta;
   layout: DataSourceLayout;
 }
 
-// Flexible layer type
+// Flexible layer type (for layers that don't fit strict patterns)
 export interface FlexibleLayer extends BaseDataSource {
+  isBaseLayer?: boolean; // Optional for flexible layers
   meta?: DataSourceMeta;
   layout?: DataSourceLayout;
 }

@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Save, X, SwitchCamera, AlertTriangle } from 'lucide-react';
 import { DataSource, Category } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +38,7 @@ const SwipeLayerFormContainer = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [interfaceGroup, setInterfaceGroup] = useState(defaultInterfaceGroup || '');
+  const [isActive, setIsActive] = useState(false);
   
   // Source selection state
   const [clippedSourceName, setClippedSourceName] = useState('');
@@ -74,6 +77,7 @@ const SwipeLayerFormContainer = ({
       setName(editingLayer.name);
       setDescription(editingLayer.meta?.description || '');
       setInterfaceGroup(editingLayer.layout?.interfaceGroup || '');
+      setIsActive(editingLayer.isActive ?? false);
       setAttributionText(editingLayer.meta?.attribution?.text || '');
       setAttributionUrl(editingLayer.meta?.attribution?.url || '');
       
@@ -200,7 +204,7 @@ const SwipeLayerFormContainer = ({
 
     const swipeLayer: DataSource = {
       name: name.trim(),
-      isActive: editingLayer?.isActive ?? true,
+      isActive: isActive,
       data: [],
       meta: {
         description: description.trim(),
@@ -318,6 +322,23 @@ const SwipeLayerFormContainer = ({
             interfaceGroups={interfaceGroups}
             onUpdate={handleBasicInfoUpdate}
           />
+
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-slate-700">Layer Settings</h3>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isActive"
+                checked={isActive}
+                onCheckedChange={setIsActive}
+              />
+              <Label htmlFor="isActive" className="text-sm">
+                Active By Default
+              </Label>
+            </div>
+            <p className="text-xs text-slate-500">
+              When enabled, this layer will be active when the interface loads.
+            </p>
+          </div>
 
           <SwipeLayerSourceSelection
             clippedSourceName={clippedSourceName}
