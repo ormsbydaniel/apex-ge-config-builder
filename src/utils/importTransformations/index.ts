@@ -7,7 +7,7 @@ import { normalizeImportedConfig as iterativeNormalizeConfig, reverseTransformat
 // Re-export the main public API to maintain backward compatibility
 export { detectTransformations } from './detector';
 export { reverseTransformations } from './orchestrator';
-export { reverseTransformationsIterative, normalizeImportedConfig } from './iterativeOrchestrator';
+export { reverseTransformationsIterative } from './iterativeOrchestrator';
 export type { DetectedTransformations } from './types';
 
 // Main entry point that combines detection and transformation with fallback
