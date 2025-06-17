@@ -7,7 +7,7 @@ import { processSourceArrays } from '../utils/sourceHelpers';
 export const reverseTypeToFormatTransformation = (config: any, enabled: boolean): any => {
   if (!enabled) return config;
 
-  console.log('Converting type fields to format fields');
+  console.log('TypeToFormat transformer: Converting type fields to format fields');
   const normalizedConfig = { ...config };
   
   if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
@@ -15,11 +15,14 @@ export const reverseTypeToFormatTransformation = (config: any, enabled: boolean)
       const convertTypeToFormat = (items: any[]): any[] => {
         return items.map(item => {
           if (item && item.type && !item.format) {
+            console.log(`TypeToFormat transformer: Converting type "${item.type}" to format for source "${source.name}"`);
             const { type, ...itemWithoutType } = item;
-            return {
+            const convertedItem = {
               ...itemWithoutType,
               format: type
             };
+            console.log(`TypeToFormat transformer: Converted item (preserved all fields):`, convertedItem);
+            return convertedItem;
           }
           return item;
         });
