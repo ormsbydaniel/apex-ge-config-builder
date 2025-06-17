@@ -49,6 +49,28 @@ const getEnhancedUnionErrorMessage = (error: any, path: (string | number)[], con
   return 'Data structure does not match any of the expected formats. Check the configuration schema documentation';
 };
 
+const detectSwipeLayerFromInput = (sourceData: any): boolean => {
+  // Check for swipe layer indicators in input format (before transformation)
+  if (sourceData.data && typeof sourceData.data === 'object' && !Array.isArray(sourceData.data)) {
+    // Direct swipe type indicator
+    if (sourceData.data.type === 'swipe') {
+      return true;
+    }
+    
+    // Swipe-specific fields
+    if (sourceData.data.clippedSource && sourceData.data.baseSources) {
+      return true;
+    }
+  }
+  
+  // Check for already transformed swipe layer
+  if (sourceData.meta?.swipeConfig) {
+    return true;
+  }
+  
+  return false;
+};
+
 const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string): string => {
   const issues: string[] = [];
   const suggestions: string[] = [];
@@ -68,11 +90,43 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
   
   // Determine what type of data source this should be
   const isBaseLayer = sourceData.isBaseLayer === true;
-  const hasSwipeConfig = sourceData.meta?.swipeConfig;
+  const isSwipeLayer = detectSwipeLayerFromInput(sourceData);
   const hasMeta = sourceData.meta && typeof sourceData.meta === 'object';
   const hasLayout = sourceData.layout && typeof sourceData.layout === 'object';
   
-  if (isBaseLayer) {
+  if (isSwipeLayer) {
+    // Swipe layer validation - more permissive during import
+    suggestions.push('This appears to be a swipe layer (has swipe indicators)');
+    
+    // For swipe layers, we're more permissive about meta/layout requirements during import
+    // since they may be in the process of being transformed
+    if (sourceData.data && typeof sourceData.data === 'object' && sourceData.data.type === 'swipe') {
+      // Input format swipe layer - check required swipe fields
+      if (!sourceData.data.clippedSource) {
+        issues.push('data.clippedSource is required for swipe layers');
+      }
+      if (!sourceData.data.baseSources || !Array.isArray(sourceData.data.baseSources)) {
+        issues.push('data.baseSources must be an array for swipe layers');
+      }
+      
+      // Meta and layout are optional during import for swipe layers as they get auto-generated
+      suggestions.push('Meta and layout will be auto-generated during import if missing');
+    } else if (Array.isArray(sourceData.data) && sourceData.meta?.swipeConfig) {
+      // Already transformed swipe layer
+      if (!sourceData.meta.swipeConfig.clippedSourceName) {
+        issues.push('meta.swipeConfig.clippedSourceName is required');
+      }
+      if (!sourceData.meta.swipeConfig.baseSourceNames || !Array.isArray(sourceData.meta.swipeConfig.baseSourceNames)) {
+        issues.push('meta.swipeConfig.baseSourceNames must be an array');
+      }
+      if (!hasMeta || !sourceData.meta.description) {
+        issues.push('meta.description is required for transformed swipe layers');
+      }
+      if (!hasMeta || !sourceData.meta.attribution?.text) {
+        issues.push('meta.attribution.text is required for transformed swipe layers');
+      }
+    }
+  } else if (isBaseLayer) {
     // Base layer validation
     suggestions.push('This appears to be a base layer (isBaseLayer: true)');
     if (hasMeta && !sourceData.meta.description) {
@@ -80,28 +134,6 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
     }
     if (hasMeta && (!sourceData.meta.attribution || !sourceData.meta.attribution.text)) {
       issues.push('meta.attribution.text is required when meta is provided');
-    }
-  } else if (hasSwipeConfig) {
-    // Swipe layer validation
-    suggestions.push('This appears to be a swipe layer (has swipeConfig)');
-    if (!hasMeta) {
-      issues.push('meta field is required for swipe layers');
-    } else {
-      if (!sourceData.meta.description) {
-        issues.push('meta.description is required for swipe layers');
-      }
-      if (!sourceData.meta.attribution?.text) {
-        issues.push('meta.attribution.text is required for swipe layers');
-      }
-      if (!sourceData.meta.swipeConfig?.clippedSourceName) {
-        issues.push('meta.swipeConfig.clippedSourceName is required');
-      }
-      if (!sourceData.meta.swipeConfig?.baseSourceNames || !Array.isArray(sourceData.meta.swipeConfig.baseSourceNames)) {
-        issues.push('meta.swipeConfig.baseSourceNames must be an array');
-      }
-    }
-    if (!hasLayout) {
-      issues.push('layout field is required for swipe layers');
     }
   } else {
     // Regular layer card validation
@@ -121,8 +153,8 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
     }
   }
   
-  // Check data field structure
-  if (sourceData.data) {
+  // Check data field structure (only for non-swipe or transformed swipe layers)
+  if (sourceData.data && !isSwipeLayer) {
     if (Array.isArray(sourceData.data)) {
       sourceData.data.forEach((item: any, index: number) => {
         if (!item.format) {
@@ -159,10 +191,10 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
   }
   
   // Add specific guidance based on the type
-  if (isBaseLayer) {
+  if (isSwipeLayer) {
+    message += ' For swipe layers during import: data.type="swipe", data.clippedSource, and data.baseSources are required. Meta and layout will be auto-generated if missing.';
+  } else if (isBaseLayer) {
     message += ' For base layers: meta and layout are optional, but if provided, meta.description and meta.attribution.text are required.';
-  } else if (hasSwipeConfig) {
-    message += ' For swipe layers: meta (with description, attribution, and swipeConfig) and layout are required.';
   } else {
     message += ' For layer cards: meta (with description and attribution) and layout are required.';
   }
