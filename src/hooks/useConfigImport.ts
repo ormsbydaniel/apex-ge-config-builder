@@ -43,11 +43,14 @@ export const useConfigImport = () => {
       const detectedTransforms = detectTransformations(jsonData);
       console.log('Import: Detected transformations:', detectedTransforms);
       
-      // Normalize imported config to internal schema (reverse any export transformations)
+      // IMPORTANT: Normalize imported config BEFORE validation
+      // This converts external format (e.g., swipe data objects) to internal format
       const normalizedData = normalizeImportedConfig(jsonData);
+      console.log('Import: Data normalized, now validating with Zod schema');
       
       // Validate the normalized configuration using Zod schema
       const validatedConfig = ConfigurationSchema.parse(normalizedData);
+      console.log('Import: Zod validation successful');
       
       // Fetch capabilities for all services if they exist
       const servicesWithCapabilities = await Promise.all(
@@ -70,7 +73,6 @@ export const useConfigImport = () => {
       
       // Enhanced success message with transformation details
       const transformationCount = Object.values(detectedTransforms).filter(Boolean).length;
-      const hasSwipeTransformation = detectedTransforms.transformSwipeLayersToData;
       
       let description = `Successfully loaded configuration from ${file.name}`;
       if (transformationCount > 0) {
@@ -93,6 +95,7 @@ export const useConfigImport = () => {
       
       if (error instanceof Error && error.name === 'ZodError') {
         // Format validation errors for detailed display with config data context
+        // Note: We need to get the original data for error context, not the normalized data
         const parseResult = parseJSONWithLineNumbers(await file.text());
         const formattedErrors = formatValidationErrors(error as any, parseResult?.data);
         
