@@ -34,12 +34,13 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
   console.log('Initial config structure:', {
     hasSources: !!currentConfig.sources,
     sourcesCount: currentConfig.sources?.length || 0,
-    firstSourceStructure: currentConfig.sources?.[0] ? {
-      name: currentConfig.sources[0].name,
-      hasData: !!currentConfig.sources[0].data,
-      dataIsArray: Array.isArray(currentConfig.sources[0].data),
-      dataStructure: currentConfig.sources[0].data
-    } : 'No sources'
+    swipeLayers: currentConfig.sources?.filter((s: any) => 
+      s.data && typeof s.data === 'object' && s.data.type === 'swipe'
+    ).map((s: any) => ({
+      name: s.name,
+      dataType: s.data.type,
+      hasEmptyMeta: s.meta && Object.keys(s.meta).length === 0
+    })) || []
   });
   
   while (iteration < MAX_ITERATIONS) {
@@ -59,33 +60,24 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
     let configChanged = false;
     const previousConfig = JSON.stringify(currentConfig);
     
-    // Apply transformations in logical order - meta completion should come after structural changes
+    // Apply structural transformations first
     if (detectedTransforms.exclusivitySetsTransformation) {
       console.log(`Iteration ${iteration}: Applying exclusivitySets transformation`);
-      const beforeTransform = JSON.parse(JSON.stringify(currentConfig));
       currentConfig = reverseExclusivitySetsTransformation(currentConfig, true);
-      console.log(`Iteration ${iteration}: ExclusivitySets transform complete. Sample data item:`, 
-        currentConfig.sources?.[1]?.data?.[0] || 'No data');
       transformationsApplied.push(`exclusivitySets (iteration ${iteration})`);
       configChanged = true;
     }
     
     if (detectedTransforms.singleItemArrayToObject) {
       console.log(`Iteration ${iteration}: Applying singleItem transformation`);
-      const beforeTransform = JSON.parse(JSON.stringify(currentConfig));
       currentConfig = reverseSingleItemTransformation(currentConfig, true);
-      console.log(`Iteration ${iteration}: SingleItem transform complete. Sample data:`, 
-        currentConfig.sources?.[1]?.data || 'No data');
       transformationsApplied.push(`singleItem (iteration ${iteration})`);
       configChanged = true;
     }
     
     if (detectedTransforms.typeToFormatConversion) {
       console.log(`Iteration ${iteration}: Applying typeToFormat transformation`);
-      const beforeTransform = JSON.parse(JSON.stringify(currentConfig));
       currentConfig = reverseTypeToFormatTransformation(currentConfig, true);
-      console.log(`Iteration ${iteration}: TypeToFormat transform complete. Sample data item:`, 
-        currentConfig.sources?.[1]?.data?.[0] || 'No data');
       transformationsApplied.push(`typeToFormat (iteration ${iteration})`);
       configChanged = true;
     }
@@ -97,9 +89,17 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
       configChanged = true;
     }
     
+    // Apply swipe layer transformation before meta completion
     if (detectedTransforms.transformSwipeLayersToData) {
       console.log(`Iteration ${iteration}: Applying swipeLayer transformation`);
+      const beforeSwipe = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
+      console.log(`Iteration ${iteration}: Swipe layer before transform:`, beforeSwipe);
+      
       currentConfig = reverseSwipeLayerTransformation(currentConfig, true);
+      
+      const afterSwipe = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
+      console.log(`Iteration ${iteration}: Swipe layer after transform:`, afterSwipe);
+      
       transformationsApplied.push(`swipeLayer (iteration ${iteration})`);
       configChanged = true;
     }
@@ -111,10 +111,17 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
       configChanged = true;
     }
     
-    // Apply meta completion after structural transformations
+    // Apply meta completion after structural transformations (especially after swipe layer transformation)
     if (detectedTransforms.metaCompletionNeeded) {
       console.log(`Iteration ${iteration}: Applying metaCompletion transformation`);
+      const beforeMeta = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
+      console.log(`Iteration ${iteration}: Swipe layer before meta completion:`, beforeMeta);
+      
       currentConfig = reverseMetaCompletionTransformation(currentConfig, true);
+      
+      const afterMeta = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
+      console.log(`Iteration ${iteration}: Swipe layer after meta completion:`, afterMeta);
+      
       transformationsApplied.push(`metaCompletion (iteration ${iteration})`);
       configChanged = true;
     }
@@ -127,10 +134,8 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
     }
     
     // Debug the current state after all transformations
-    console.log(`Iteration ${iteration} complete. Current state:`, {
-      sourcesCount: currentConfig.sources?.length || 0,
-      geoServiceData: currentConfig.sources?.find((s: any) => s.name === 'Geo Service - Labels')?.data || 'Not found',
-      geoServiceExclusivitySets: currentConfig.sources?.find((s: any) => s.name === 'Geo Service - Labels')?.exclusivitySets || 'Not found'
+    console.log(`Iteration ${iteration} complete. Swipe layer state:`, {
+      swipeLayer: currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)')
     });
   }
   
@@ -140,17 +145,18 @@ export const reverseTransformationsIterative = (config: any): TransformationResu
   console.log(`Iterative transformation completed after ${iteration} iterations`);
   console.log('Transformations applied:', transformationsApplied);
   
-  // Final validation debug
-  const geoServiceSource = currentConfig.sources?.find((s: any) => s.name === 'Geo Service - Labels');
-  if (geoServiceSource) {
-    console.log('Final GeoService config:', {
-      name: geoServiceSource.name,
-      data: geoServiceSource.data,
-      dataIsArray: Array.isArray(geoServiceSource.data),
-      dataLength: geoServiceSource.data?.length,
-      firstDataItem: geoServiceSource.data?.[0],
-      meta: geoServiceSource.meta,
-      layout: geoServiceSource.layout
+  // Final validation debug for swipe layer
+  const swipeLayer = currentConfig.sources?.find((s: any) => s.name === 'Sentinel-2 RGB vs WorldCover (2020)');
+  if (swipeLayer) {
+    console.log('Final swipe layer config:', {
+      name: swipeLayer.name,
+      data: swipeLayer.data,
+      dataIsArray: Array.isArray(swipeLayer.data),
+      meta: swipeLayer.meta,
+      hasSwipeConfig: !!swipeLayer.meta?.swipeConfig,
+      hasDescription: !!swipeLayer.meta?.description,
+      hasAttribution: !!swipeLayer.meta?.attribution?.text,
+      layout: swipeLayer.layout
     });
   }
   
