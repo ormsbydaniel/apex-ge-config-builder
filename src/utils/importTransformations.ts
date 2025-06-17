@@ -4,7 +4,8 @@ interface DetectedTransformations {
   singleItemArrayToObject: boolean;
   configureCogsAsImages: boolean;
   transformSwipeLayersToData: boolean;
-  baseLayerFormat: boolean; // NEW: Detect old base layer format
+  baseLayerFormat: boolean;
+  typeToFormatConversion: boolean; // NEW: Detect type → format conversion needed
 }
 
 export const detectTransformations = (config: any): DetectedTransformations => {
@@ -12,7 +13,8 @@ export const detectTransformations = (config: any): DetectedTransformations => {
     singleItemArrayToObject: false,
     configureCogsAsImages: false,
     transformSwipeLayersToData: false,
-    baseLayerFormat: false
+    baseLayerFormat: false,
+    typeToFormatConversion: false
   };
   
   // Check if export metadata exists
@@ -21,6 +23,7 @@ export const detectTransformations = (config: any): DetectedTransformations => {
     detected.configureCogsAsImages = config._exportMeta.transformations.includes('configureCogsAsImages');
     detected.transformSwipeLayersToData = config._exportMeta.transformations.includes('transformSwipeLayersToData');
     detected.baseLayerFormat = config._exportMeta.transformations.includes('baseLayerFormat');
+    detected.typeToFormatConversion = config._exportMeta.transformations.includes('typeToFormatConversion');
     return detected;
   }
   
@@ -42,13 +45,34 @@ export const detectTransformations = (config: any): DetectedTransformations => {
         detected.singleItemArrayToObject = true;
       }
       
-      // NEW: Check for old base layer format (isBaseLayer in data items but not at source level)
+      // Check for old base layer format (isBaseLayer in data items but not at source level)
       if (source.data && Array.isArray(source.data)) {
         const hasBaseLayerInData = source.data.some((item: any) => item.isBaseLayer === true);
         const hasBaseLayerAtSourceLevel = source.isBaseLayer === true;
         
         if (hasBaseLayerInData && !hasBaseLayerAtSourceLevel) {
           detected.baseLayerFormat = true;
+        }
+      }
+      
+      // NEW: Check for type → format conversion needed
+      const checkTypeToFormat = (items: any[]) => {
+        return items.some((item: any) => item && item.type && !item.format);
+      };
+
+      // Check data array/object for type fields
+      if (source.data) {
+        const dataArray = Array.isArray(source.data) ? source.data : [source.data];
+        if (checkTypeToFormat(dataArray)) {
+          detected.typeToFormatConversion = true;
+        }
+      }
+      
+      // Check statistics array for type fields
+      if (source.statistics) {
+        const statsArray = Array.isArray(source.statistics) ? source.statistics : [source.statistics];
+        if (checkTypeToFormat(statsArray)) {
+          detected.typeToFormatConversion = true;
         }
       }
       
@@ -75,6 +99,57 @@ export const detectTransformations = (config: any): DetectedTransformations => {
   }
   
   return detected;
+};
+
+// NEW: Convert type fields to format fields
+export const reverseTypeToFormatTransformation = (config: any, enabled: boolean): any => {
+  if (!enabled) return config;
+
+  console.log('Converting type fields to format fields');
+  const normalizedConfig = { ...config };
+  
+  if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
+    normalizedConfig.sources = normalizedConfig.sources.map((source: any) => {
+      const normalizedSource = { ...source };
+      
+      // Helper function to convert type to format in data items
+      const convertTypeToFormat = (items: any[]): any[] => {
+        return items.map(item => {
+          if (item && item.type && !item.format) {
+            const { type, ...itemWithoutType } = item;
+            return {
+              ...itemWithoutType,
+              format: type
+            };
+          }
+          return item;
+        });
+      };
+      
+      // Process main data array/object
+      if (normalizedSource.data) {
+        if (Array.isArray(normalizedSource.data)) {
+          normalizedSource.data = convertTypeToFormat(normalizedSource.data);
+        } else if (typeof normalizedSource.data === 'object' && normalizedSource.data.type && !normalizedSource.data.format) {
+          // Handle single object case
+          const { type, ...dataWithoutType } = normalizedSource.data;
+          normalizedSource.data = {
+            ...dataWithoutType,
+            format: type
+          };
+        }
+      }
+      
+      // Process statistics array
+      if (normalizedSource.statistics && Array.isArray(normalizedSource.statistics)) {
+        normalizedSource.statistics = convertTypeToFormat(normalizedSource.statistics);
+      }
+      
+      return normalizedSource;
+    });
+  }
+  
+  return normalizedConfig;
 };
 
 // NEW: Reverse base layer transformation (old format → new format)
@@ -240,22 +315,27 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
   
   // Apply transformations in the correct order
   
-  // 1. Reverse base layer transformation first (old format → new format)
+  // 1. Convert type to format fields first (before other transformations)
+  if (detectedTransforms.typeToFormatConversion) {
+    normalizedConfig = reverseTypeToFormatTransformation(normalizedConfig, true);
+  }
+  
+  // 2. Reverse base layer transformation (old format → new format)
   if (detectedTransforms.baseLayerFormat) {
     normalizedConfig = reverseBaseLayerTransformation(normalizedConfig, true);
   }
   
-  // 2. Reverse swipe layer transformation (data object → internal format)
+  // 3. Reverse swipe layer transformation (data object → internal format)
   if (detectedTransforms.transformSwipeLayersToData) {
     normalizedConfig = reverseSwipeLayerTransformation(normalizedConfig, true);
   }
   
-  // 3. Reverse COG transformation (before single item array transformation)
+  // 4. Reverse COG transformation (before single item array transformation)
   if (detectedTransforms.configureCogsAsImages) {
     normalizedConfig = reverseCogTransformation(normalizedConfig, true);
   }
   
-  // 4. Reverse single item object to array transformation
+  // 5. Reverse single item object to array transformation
   if (detectedTransforms.singleItemArrayToObject) {
     if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
       normalizedConfig.sources = normalizedConfig.sources.map((source: any) => {
