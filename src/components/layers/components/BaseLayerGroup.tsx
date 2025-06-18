@@ -18,6 +18,7 @@ interface BaseLayerGroupProps {
   onEdit: (index: number) => void;
   onEditBaseLayer: (index: number) => void;
   onDuplicate: (index: number) => void;
+  onUpdateLayer: (index: number, layer: DataSource) => void;
   onAddDataSource: (layerIndex: number) => void;
   onRemoveDataSource: (layerIndex: number, dataSourceIndex: number) => void;
   onRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
@@ -35,6 +36,7 @@ const BaseLayerGroup = ({
   onEdit,
   onEditBaseLayer,
   onDuplicate,
+  onUpdateLayer,
   onAddDataSource,
   onRemoveDataSource,
   onRemoveStatisticsSource,
@@ -107,6 +109,7 @@ const BaseLayerGroup = ({
                           onEdit={onEdit}
                           onEditBaseLayer={onEditBaseLayer}
                           onDuplicate={onDuplicate}
+                          onUpdateLayer={onUpdateLayer}
                           onAddDataSource={() => onAddDataSource(originalIndex)}
                           onRemoveDataSource={(dataSourceIndex) => onRemoveDataSource(originalIndex, dataSourceIndex)}
                           onRemoveStatisticsSource={(statsIndex) => onRemoveStatisticsSource(originalIndex, statsIndex)}

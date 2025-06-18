@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { DataSource, isDataSourceItemArray } from '@/types/config';
 import LayerGroup from './components/LayerGroup';
@@ -17,6 +16,7 @@ interface LayerHierarchyProps {
   onEdit: (index: number) => void;
   onEditBaseLayer: (index: number) => void;
   onDuplicate: (index: number) => void;
+  onUpdateLayer: (index: number, layer: DataSource) => void;
   onAddDataSource: (layerIndex: number) => void;
   onRemoveDataSource: (layerIndex: number, dataSourceIndex: number) => void;
   onRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
@@ -30,6 +30,8 @@ interface LayerHierarchyProps {
   expandedGroupAfterAction?: string | null;
   onClearExpandedLayer?: () => void;
   onClearExpandedGroup?: () => void;
+  expandedLayers: Set<number>;
+  onToggleLayer: (index: number) => void;
 }
 
 const LayerHierarchy = ({
@@ -38,6 +40,7 @@ const LayerHierarchy = ({
   onEdit,
   onEditBaseLayer,
   onDuplicate,
+  onUpdateLayer,
   onAddDataSource,
   onRemoveDataSource,
   onRemoveStatisticsSource,
@@ -50,7 +53,9 @@ const LayerHierarchy = ({
   expandedLayerAfterCreation,
   expandedGroupAfterAction,
   onClearExpandedLayer,
-  onClearExpandedGroup
+  onClearExpandedGroup,
+  expandedLayers,
+  onToggleLayer
 }: LayerHierarchyProps) => {
   // Default all groups to collapsed
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
@@ -195,27 +200,11 @@ const LayerHierarchy = ({
         <LayerGroup
           key={groupName}
           groupName={groupName}
-          layers={groupedLayers[groupName] || []}
-          isExpanded={expandedGroups.has(groupName)}
-          onToggle={() => toggleGroup(groupName)}
-          onRemove={onRemove}
-          onEdit={onEdit}
-          onEditBaseLayer={onEditBaseLayer}
-          onDuplicate={onDuplicate}
-          onAddDataSource={onAddDataSource}
-          onRemoveDataSource={onRemoveDataSource}
-          onRemoveStatisticsSource={onRemoveStatisticsSource}
-          onEditDataSource={onEditDataSource}
-          onEditStatisticsSource={onEditStatisticsSource}
-          onMoveLayer={onMoveLayer}
-          onAddLayer={() => onAddLayer(groupName)}
-          onEditGroup={handleEditGroup}
-          onDeleteGroup={handleDeleteGroup}
-          expandedLayerAfterCreation={expandedLayerAfterCreation}
-          onClearExpandedLayer={onClearExpandedLayer}
-          onMoveGroup={(direction) => moveInterfaceGroup(groupIndex, direction)}
-          canMoveGroupUp={groupIndex > 0}
-          canMoveGroupDown={groupIndex < config.interfaceGroups.length - 1}
+          sources={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.layer) : []}
+          sourceIndices={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.originalIndex) : []}
+          expandedLayers={expandedLayers}
+          onToggleLayer={onToggleLayer}
+          onRemoveInterfaceGroup={handleDeleteGroup}
         />
       ))}
 
@@ -227,6 +216,7 @@ const LayerHierarchy = ({
           onEdit={onEdit}
           onEditBaseLayer={onEditBaseLayer}
           onDuplicate={onDuplicate}
+          onUpdateLayer={onUpdateLayer}
           onAddDataSource={onAddDataSource}
           onRemoveDataSource={onRemoveDataSource}
           onRemoveStatisticsSource={onRemoveStatisticsSource}
@@ -244,6 +234,7 @@ const LayerHierarchy = ({
         onEdit={onEdit}
         onEditBaseLayer={onEditBaseLayer}
         onDuplicate={onDuplicate}
+        onUpdateLayer={onUpdateLayer}
         onAddDataSource={onAddDataSource}
         onRemoveDataSource={onRemoveDataSource}
         onRemoveStatisticsSource={onRemoveStatisticsSource}

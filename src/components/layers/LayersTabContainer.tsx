@@ -35,28 +35,38 @@ interface LayersTabContainerProps {
 }
 
 const LayersTabContainer = (props: LayersTabContainerProps) => {
-  const {
-    contextValue,
-    expandedLayers,
-    onToggleLayer
-  } = useLayersTabLogic(props);
+  const layersLogic = useLayersTabLogic(props);
 
-  // Add onUpdateLayer to the context value
-  const enhancedContextValue = {
-    ...contextValue,
-    onUpdateLayer: props.updateLayer
+  // Create context value with all required properties
+  const contextValue = {
+    config: props.config,
+    editingLayerIndex: props.editingLayerIndex,
+    defaultInterfaceGroup: props.defaultInterfaceGroup,
+    onRemoveLayer: props.removeLayer,
+    onEditLayer: layersLogic.handleEditLayer,
+    onEditBaseLayer: layersLogic.handleEditBaseLayer,
+    onDuplicateLayer: layersLogic.handleDuplicateLayer,
+    onMoveLayer: props.moveLayer,
+    onUpdateLayer: props.updateLayer,
+    onAddLayer: props.addLayer,
+    onUpdateConfig: props.updateConfig,
+    onAddDataSource: layersLogic.handleStartDataSourceFormWithExpansion,
+    onRemoveDataSource: layersLogic.handleRemoveDataSource,
+    onRemoveStatisticsSource: layersLogic.handleRemoveStatisticsSource,
+    onEditDataSource: layersLogic.handleEditDataSource,
+    onEditStatisticsSource: layersLogic.handleEditStatisticsSource
   };
 
   return (
-    <LayersTabProvider value={enhancedContextValue}>
+    <LayersTabProvider value={contextValue}>
       <LayersTabCore
         config={props.config}
         showLayerForm={props.showLayerForm}
         selectedLayerType={props.selectedLayerType}
         defaultInterfaceGroup={props.defaultInterfaceGroup}
         editingLayerIndex={props.editingLayerIndex}
-        expandedLayers={expandedLayers}
-        onToggleLayer={onToggleLayer}
+        expandedLayers={layersLogic.expandedLayers || new Set()}
+        onToggleLayer={layersLogic.onToggleLayer || (() => {})}
         onLayerTypeSelect={props.handleLayerTypeSelect}
         onCancelLayerForm={props.handleCancelLayerForm}
         onAddLayer={props.addLayer}

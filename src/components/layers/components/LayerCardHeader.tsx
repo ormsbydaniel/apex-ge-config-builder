@@ -30,6 +30,8 @@ const LayerCardHeader = ({
   onEditJson,
   handleEdit 
 }: LayerCardHeaderProps) => {
+  const isBaseLayer = source.isBaseLayer === true;
+  
   return (
     <CardHeader className="pb-2">
       <div className="flex items-center justify-between">
@@ -40,11 +42,11 @@ const LayerCardHeader = ({
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
           <div className="flex items-center gap-2 flex-1">
-            <LayerBadge source={source} isSwipeLayer={isSwipeLayer} />
+            <LayerBadge isBaseLayer={isBaseLayer} />
             <div className="text-left">
               <h3 className="font-medium text-sm">{source.name}</h3>
-              {source.description && (
-                <p className="text-xs text-muted-foreground mt-1">{source.description}</p>
+              {source.meta?.description && (
+                <p className="text-xs text-muted-foreground mt-1">{source.meta.description}</p>
               )}
             </div>
           </div>
