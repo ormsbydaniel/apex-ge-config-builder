@@ -1,4 +1,3 @@
-
 export interface Category {
   color: string;
   label: string;
@@ -44,6 +43,8 @@ export interface DataSourceItem {
   normalize?: boolean;
   style?: any;
   images?: Array<{ url: string }>;
+  // Position field for comparison layers (swipe, mirror, spotlight)
+  position?: 'left' | 'right' | 'background' | 'spotlight';
 }
 
 // Simplified - data is always an array
