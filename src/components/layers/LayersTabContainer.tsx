@@ -65,16 +65,22 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
         selectedLayerType={props.selectedLayerType}
         defaultInterfaceGroup={props.defaultInterfaceGroup}
         editingLayerIndex={props.editingLayerIndex}
-        expandedLayers={layersLogic.expandedLayers || new Set()}
-        onToggleLayer={layersLogic.onToggleLayer || (() => {})}
-        onLayerTypeSelect={props.handleLayerTypeSelect}
-        onCancelLayerForm={props.handleCancelLayerForm}
-        onAddLayer={props.addLayer}
-        onAddService={props.addService}
-        onAddExclusivitySet={props.addExclusivitySet}
-        onRemoveExclusivitySet={props.removeExclusivitySet}
+        expandedLayers={layersLogic.expandedLayers}
+        onToggleLayer={layersLogic.onToggleLayer}
+        handleLayerTypeSelect={props.handleLayerTypeSelect}
+        handleCancelLayerForm={props.handleCancelLayerForm}
+        addLayer={props.addLayer}
+        addService={props.addService}
+        updateLayer={props.updateLayer}
+        setEditingLayerIndex={props.setEditingLayerIndex}
+        setShowLayerForm={props.setShowLayerForm}
+        setSelectedLayerType={props.setSelectedLayerType}
+        setDefaultInterfaceGroup={props.setDefaultInterfaceGroup}
+        addExclusivitySet={props.addExclusivitySet}
+        removeExclusivitySet={props.removeExclusivitySet}
         newExclusivitySet={props.newExclusivitySet}
-        onSetNewExclusivitySet={props.setNewExclusivitySet}
+        setNewExclusivitySet={props.setNewExclusivitySet}
+        layersLogic={layersLogic}
       />
     </LayersTabProvider>
   );
