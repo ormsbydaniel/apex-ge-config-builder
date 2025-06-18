@@ -29,6 +29,9 @@ interface LayersTabContentProps {
   expandedGroupAfterAction: string | null;
   onClearExpandedLayer: () => void;
   onClearExpandedGroup: () => void;
+  expandedLayers: Set<number>;
+  onToggleLayer: (index: number) => void;
+  onUpdateLayer: (index: number, layer: DataSource) => void;
 }
 
 const LayersTabContent = ({
@@ -50,7 +53,10 @@ const LayersTabContent = ({
   expandedLayerAfterCreation,
   expandedGroupAfterAction,
   onClearExpandedLayer,
-  onClearExpandedGroup
+  onClearExpandedGroup,
+  expandedLayers,
+  onToggleLayer,
+  onUpdateLayer
 }: LayersTabContentProps) => {
   return (
     <Card className="border-primary/20">
@@ -81,6 +87,9 @@ const LayersTabContent = ({
             expandedGroupAfterAction={expandedGroupAfterAction}
             onClearExpandedLayer={onClearExpandedLayer}
             onClearExpandedGroup={onClearExpandedGroup}
+            expandedLayers={expandedLayers}
+            onToggleLayer={onToggleLayer}
+            onUpdateLayer={onUpdateLayer}
           />
         )}
       </CardContent>

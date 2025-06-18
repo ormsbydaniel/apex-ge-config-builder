@@ -11,6 +11,8 @@ interface LayersMainContentProps {
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
   layersLogic: any;
+  expandedLayers: Set<number>;
+  onToggleLayer: (index: number) => void;
 }
 
 const LayersMainContent = ({
@@ -18,7 +20,9 @@ const LayersMainContent = ({
   removeExclusivitySet,
   newExclusivitySet,
   setNewExclusivitySet,
-  layersLogic
+  layersLogic,
+  expandedLayers,
+  onToggleLayer
 }: LayersMainContentProps) => {
   const {
     config,
@@ -28,6 +32,7 @@ const LayersMainContent = ({
     onDuplicateLayer,
     onMoveLayer,
     onUpdateConfig,
+    onUpdateLayer,
     onAddDataSource,
     onRemoveDataSource,
     onRemoveStatisticsSource,
@@ -57,6 +62,9 @@ const LayersMainContent = ({
         expandedGroupAfterAction={layersLogic.expandedGroupAfterAction}
         onClearExpandedLayer={layersLogic.clearExpandedLayerAfterCreation}
         onClearExpandedGroup={layersLogic.clearExpandedGroup}
+        expandedLayers={expandedLayers}
+        onToggleLayer={onToggleLayer}
+        onUpdateLayer={onUpdateLayer}
       />
 
       <ExclusivitySetsSection

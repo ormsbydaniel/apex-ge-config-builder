@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import LayerFormHandler from './LayerFormHandler';

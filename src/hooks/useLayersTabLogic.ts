@@ -28,7 +28,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
 
   // Use layer card state for expanded layers
-  const { toggleCard, expandedCards } = useLayerCardState();
+  const { toggleCard, expandedCards, isExpanded } = useLayerCardState();
 
   // Use the composed hook for all layers tab logic
   const composedLogic = useLayersTabComposition(props);
@@ -63,7 +63,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
 
   // Convert expanded cards to a Set for compatibility
   const expandedLayers = new Set(
-    Array.from(expandedCards).map(cardId => {
+    Array.from(expandedCards || new Set()).map((cardId: string) => {
       // Extract layer index from card ID
       const parts = cardId.split('-');
       const indexPart = parts[parts.length - 1];
@@ -73,7 +73,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
 
   const onToggleLayer = (index: number) => {
     // Find existing card ID or create a new one
-    const existingCardId = Array.from(expandedCards).find(cardId => cardId.endsWith(`-${index}`));
+    const existingCardId = Array.from(expandedCards || new Set()).find((cardId: string) => cardId.endsWith(`-${index}`));
     if (existingCardId) {
       toggleCard(existingCardId);
     } else {
