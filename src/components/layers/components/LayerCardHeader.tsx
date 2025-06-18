@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import LayerBadge from './LayerBadge';
 import LayerActions from './LayerActions';
+
 interface LayerCardHeaderProps {
   source: DataSource;
   index: number;
@@ -17,6 +18,7 @@ interface LayerCardHeaderProps {
   onEditJson: (index: number) => void;
   handleEdit: () => void;
 }
+
 const LayerCardHeader = ({
   source,
   index,
@@ -29,13 +31,27 @@ const LayerCardHeader = ({
   handleEdit
 }: LayerCardHeaderProps) => {
   const isBaseLayer = source.isBaseLayer === true;
-  return <CardHeader className="pb-2 relative">
-      {/* Badge positioned lower in top-right */}
+  
+  return (
+    <CardHeader className="pb-2 relative">
+      {/* Badge positioned in top-right */}
       <div className="absolute top-4 right-2 z-10">
         <LayerBadge isBaseLayer={isBaseLayer} />
       </div>
       
-      <div className="flex items-start justify-between pr-20 pt-1">
+      {/* Actions positioned beneath the badge */}
+      <div className="absolute top-12 right-2 z-10">
+        <LayerActions 
+          index={index} 
+          onRemove={onRemove} 
+          onEdit={onEdit} 
+          onDuplicate={onDuplicate} 
+          onEditJson={onEditJson} 
+          handleEdit={handleEdit} 
+        />
+      </div>
+      
+      <div className="flex items-start pr-32 pt-1">
         <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
           {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
           <div className="text-left">
@@ -43,9 +59,9 @@ const LayerCardHeader = ({
             {source.meta?.description && <p className="text-xs text-muted-foreground mt-1">{source.meta.description}</p>}
           </div>
         </CollapsibleTrigger>
-        
-        <LayerActions index={index} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
       </div>
-    </CardHeader>;
+    </CardHeader>
+  );
 };
+
 export default LayerCardHeader;
