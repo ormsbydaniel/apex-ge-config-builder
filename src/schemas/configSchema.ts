@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export const CategorySchema = z.object({
@@ -147,8 +148,8 @@ const LayoutSchema = z.object({
   }).optional(),
 });
 
-// Enhanced base schema with layer type flags
-const BaseDataSourceSchema = z.object({
+// Base object schema without refinements (so it can be extended)
+const BaseDataSourceObjectSchema = z.object({
   name: z.string(),
   isActive: z.boolean(),
   data: DataFieldSchema,
@@ -159,7 +160,10 @@ const BaseDataSourceSchema = z.object({
   isSwipeLayer: z.boolean().optional(),
   isMirrorLayer: z.boolean().optional(),
   isSpotlightLayer: z.boolean().optional(),
-}).refine(
+});
+
+// Apply refinement to create the actual BaseDataSourceSchema
+const BaseDataSourceSchema = BaseDataSourceObjectSchema.refine(
   (data) => {
     // Only one layer type flag can be true
     const flags = [data.isSwipeLayer, data.isMirrorLayer, data.isSpotlightLayer];
@@ -172,7 +176,7 @@ const BaseDataSourceSchema = z.object({
 );
 
 // Schema for base layers (isBaseLayer: true at top level, meta and layout are optional)
-const BaseLayerSchema = BaseDataSourceSchema.extend({
+const BaseLayerSchema = BaseDataSourceObjectSchema.extend({
   isBaseLayer: z.literal(true), // Must be true for base layers
   meta: MetaSchema.optional(),
   layout: LayoutSchema.optional(),
@@ -187,7 +191,7 @@ const BaseLayerSchema = BaseDataSourceSchema.extend({
 );
 
 // Schema for layer cards (no isBaseLayer, meta and layout are required)
-const LayerCardSchema = BaseDataSourceSchema.extend({
+const LayerCardSchema = BaseDataSourceObjectSchema.extend({
   meta: MetaSchema,
   layout: LayoutSchema,
 }).refine(
@@ -200,7 +204,7 @@ const LayerCardSchema = BaseDataSourceSchema.extend({
 );
 
 // Schema for swipe layers (meta with swipeConfig and layout are required)
-const SwipeLayerSchema = BaseDataSourceSchema.extend({
+const SwipeLayerSchema = BaseDataSourceObjectSchema.extend({
   meta: MetaSchema.refine(
     (meta) => meta.swipeConfig !== undefined,
     {
@@ -219,7 +223,7 @@ const SwipeLayerSchema = BaseDataSourceSchema.extend({
 );
 
 // Comparison layer schema for new layer types
-const ComparisonLayerSchema = BaseDataSourceSchema.extend({
+const ComparisonLayerSchema = BaseDataSourceObjectSchema.extend({
   meta: MetaSchema,
   layout: LayoutSchema,
 }).refine(
@@ -250,7 +254,7 @@ export const DataSourceSchema = z.union([
   // Layer card: has required meta and layout, no isBaseLayer
   LayerCardSchema,
   // Flexible schema for backward compatibility
-  BaseDataSourceSchema.extend({
+  BaseDataSourceObjectSchema.extend({
     meta: MetaSchema.optional(),
     layout: LayoutSchema.optional(),
   }),
