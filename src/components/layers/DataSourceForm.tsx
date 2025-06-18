@@ -35,13 +35,6 @@ const DataSourceForm = ({
   onAddService, 
   onCancel 
 }: DataSourceFormProps) => {
-  console.log('=== DataSourceForm Rendering ===');
-  console.log('Props received:', {
-    servicesCount: services.length,
-    layerType,
-    currentLayerStatisticsCount: currentLayerStatistics.length
-  });
-
   const { toast } = useToast();
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   
@@ -78,19 +71,7 @@ const DataSourceForm = ({
   // Check if current format supports statistics
   const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
 
-  console.log('=== DataSourceForm State ===');
-  console.log('layerType:', layerType);
-  console.log('needsPosition:', needsPosition);
-  console.log('selectedPosition:', selectedPosition);
-  console.log('validPositions:', validPositions);
-  console.log('selectedFormat:', selectedFormat);
-  console.log('supportsStatistics:', supportsStatistics);
-  console.log('isStatisticsLayer:', isStatisticsLayer);
-  console.log('statisticsLevel (auto-calculated):', statisticsLevel);
-  console.log('================================');
-
   const handleFormatChange = (format: DataSourceFormat) => {
-    console.log('Format changed from:', selectedFormat, 'to:', format);
     setSelectedFormat(format);
     
     // Reset statistics state for unsupported formats
@@ -100,7 +81,6 @@ const DataSourceForm = ({
   };
 
   const handleStatisticsToggle = (checked: boolean) => {
-    console.log('Statistics toggle changed to:', checked);
     setIsStatisticsLayer(checked);
   };
 

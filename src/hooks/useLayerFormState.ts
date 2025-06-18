@@ -7,10 +7,6 @@ export const useLayerFormState = () => {
   const dataSourceForm = useDataSourceForm();
 
   const handleStartDataSourceForm = (layerIndex: number, layerCardId?: string) => {
-    console.log('=== useLayerFormState.handleStartDataSourceForm ===');
-    console.log('layerIndex:', layerIndex);
-    console.log('layerCardId:', layerCardId);
-    
     dataSourceForm.handleStartDataSourceForm(layerIndex);
     if (layerCardId) {
       expansionState.setExpandedAfterDataSource(layerCardId);
