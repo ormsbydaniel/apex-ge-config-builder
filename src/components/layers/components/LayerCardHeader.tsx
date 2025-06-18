@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -6,7 +5,6 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import LayerBadge from './LayerBadge';
 import LayerActions from './LayerActions';
-
 interface LayerCardHeaderProps {
   source: DataSource;
   index: number;
@@ -18,22 +16,19 @@ interface LayerCardHeaderProps {
   onEditJson: (index: number) => void;
   handleEdit: () => void;
 }
-
-const LayerCardHeader = ({ 
-  source, 
-  index, 
-  isExpanded, 
-  isSwipeLayer, 
-  onRemove, 
-  onEdit, 
-  onDuplicate, 
+const LayerCardHeader = ({
+  source,
+  index,
+  isExpanded,
+  isSwipeLayer,
+  onRemove,
+  onEdit,
+  onDuplicate,
   onEditJson,
-  handleEdit 
+  handleEdit
 }: LayerCardHeaderProps) => {
   const isBaseLayer = source.isBaseLayer === true;
-  
-  return (
-    <CardHeader className="pb-2 relative">
+  return <CardHeader className="pb-2 relative">
       {/* Badge positioned lower in top-right */}
       <div className="absolute top-4 right-2 z-10">
         <LayerBadge isBaseLayer={isBaseLayer} />
@@ -41,30 +36,15 @@ const LayerCardHeader = ({
       
       <div className="flex items-center justify-between pr-20">
         <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
-          {isExpanded ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          )}
+          {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
           <div className="text-left">
-            <h3 className="font-medium text-sm">{source.name}</h3>
-            {source.meta?.description && (
-              <p className="text-xs text-muted-foreground mt-1">{source.meta.description}</p>
-            )}
+            <h3 className="text-sm font-bold">{source.name}</h3>
+            {source.meta?.description && <p className="text-xs text-muted-foreground mt-1">{source.meta.description}</p>}
           </div>
         </CollapsibleTrigger>
         
-        <LayerActions
-          index={index}
-          onRemove={onRemove}
-          onEdit={onEdit}
-          onDuplicate={onDuplicate}
-          onEditJson={onEditJson}
-          handleEdit={handleEdit}
-        />
+        <LayerActions index={index} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
       </div>
-    </CardHeader>
-  );
+    </CardHeader>;
 };
-
 export default LayerCardHeader;
