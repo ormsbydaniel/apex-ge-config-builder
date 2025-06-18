@@ -53,7 +53,13 @@ const LayerCardHeader = ({
       
       <div className="flex items-start pr-32 pt-1">
         <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
-          {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+          <div className="flex-shrink-0">
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" style={{ minWidth: '16px', minHeight: '16px' }} />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-muted-foreground" style={{ minWidth: '16px', minHeight: '16px' }} />
+            )}
+          </div>
           <div className="text-left">
             <h3 className="text-sm font-bold">{source.name}</h3>
             {source.meta?.description && <p className="text-xs text-muted-foreground mt-1">{source.meta.description}</p>}
