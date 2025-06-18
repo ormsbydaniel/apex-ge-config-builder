@@ -55,7 +55,7 @@ const LayersMainContent = ({
         onEditDataSource={onEditDataSource}
         onEditStatisticsSource={onEditStatisticsSource}
         onMoveLayer={onMoveLayer}
-        onAddLayer={layersLogic.handleAddLayerForGroup}
+        onAddLayer={layersLogic.handleAddLayerForGroup || (() => {})}
         onAddBaseLayer={layersLogic.handleAddBaseLayer}
         updateConfig={onUpdateConfig}
         expandedLayerAfterCreation={layersLogic.expandedLayerAfterCreation}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { DataSource, isDataSourceItemArray } from '@/types/config';
 import LayerGroup from './components/LayerGroup';
@@ -57,7 +58,7 @@ const LayerHierarchy = ({
   expandedLayers,
   onToggleLayer
 }: LayerHierarchyProps) => {
-  // Default all groups to collapsed
+  // Group expansion state
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [expandedBaseLayers, setExpandedBaseLayers] = useState(false);
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
@@ -97,14 +98,17 @@ const LayerHierarchy = ({
     setExpandedGroups(newExpanded);
   };
 
-  const handleEditGroup = (groupName: string, newName: string): boolean => {
-    const groupIndex = config.interfaceGroups.indexOf(groupName);
-    if (groupIndex !== -1) {
-      startRename(groupIndex);
-      setEditingValue(newName);
-      return confirmRename();
+  const moveInterfaceGroup = (groupIndex: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? groupIndex - 1 : groupIndex + 1;
+    if (newIndex >= 0 && newIndex < config.interfaceGroups.length) {
+      const updatedGroups = [...config.interfaceGroups];
+      const [movedGroup] = updatedGroups.splice(groupIndex, 1);
+      updatedGroups.splice(newIndex, 0, movedGroup);
+      
+      updateConfig({
+        interfaceGroups: updatedGroups
+      });
     }
-    return false;
   };
 
   const handleDeleteGroup = (groupName: string) => {
@@ -131,19 +135,6 @@ const LayerHierarchy = ({
     }
   };
 
-  const moveInterfaceGroup = (groupIndex: number, direction: 'up' | 'down') => {
-    const newIndex = direction === 'up' ? groupIndex - 1 : groupIndex + 1;
-    if (newIndex >= 0 && newIndex < config.interfaceGroups.length) {
-      const updatedGroups = [...config.interfaceGroups];
-      const [movedGroup] = updatedGroups.splice(groupIndex, 1);
-      updatedGroups.splice(newIndex, 0, movedGroup);
-      
-      updateConfig({
-        interfaceGroups: updatedGroups
-      });
-    }
-  };
-
   // Group layers by interface group
   const groupedLayers = config.interfaceGroups.reduce((acc, group) => {
     acc[group] = [];
@@ -154,38 +145,18 @@ const LayerHierarchy = ({
   const ungroupedLayers: Array<{ layer: DataSource; originalIndex: number }> = [];
 
   config.sources.forEach((source, index) => {
-    // Enhanced debugging for base layer detection
     const isBaseLayer = source.isBaseLayer === true;
-    console.log(`Layer "${source.name}" (index ${index}):`, {
-      isBaseLayer: source.isBaseLayer,
-      isBaseLayerStrict: isBaseLayer,
-      hasLayout: !!source.layout,
-      interfaceGroup: source.layout?.interfaceGroup
-    });
     
     if (isBaseLayer) {
-      console.log(`Adding "${source.name}" to baseLayers`);
       baseLayers.push({ layer: source, originalIndex: index });
     } else {
       const group = source.layout?.interfaceGroup;
       if (group && groupedLayers[group]) {
-        console.log(`Adding "${source.name}" to group "${group}"`);
         groupedLayers[group].push({ layer: source, originalIndex: index });
       } else {
-        console.log(`Adding "${source.name}" to ungroupedLayers`);
         ungroupedLayers.push({ layer: source, originalIndex: index });
       }
     }
-  });
-
-  // Debug output for final categorization
-  console.log('Final layer categorization:', {
-    baseLayers: baseLayers.map(b => b.layer.name),
-    ungroupedLayers: ungroupedLayers.map(u => u.layer.name),
-    groupedLayers: Object.entries(groupedLayers).reduce((acc, [group, layers]) => {
-      acc[group] = layers.map(l => l.layer.name);
-      return acc;
-    }, {} as Record<string, string[]>)
   });
 
   const currentGroupLayerCount = deleteGroupName ? 
@@ -195,16 +166,23 @@ const LayerHierarchy = ({
 
   return (
     <div className="space-y-6">
-      {/* Interface Groups - Always show all groups, even empty ones */}
+      {/* Interface Groups */}
       {config.interfaceGroups.map((groupName, groupIndex) => (
         <LayerGroup
           key={groupName}
           groupName={groupName}
+          groupIndex={groupIndex}
           sources={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.layer) : []}
           sourceIndices={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.originalIndex) : []}
           expandedLayers={expandedLayers}
           onToggleLayer={onToggleLayer}
           onRemoveInterfaceGroup={handleDeleteGroup}
+          onAddLayer={onAddLayer}
+          onMoveGroup={moveInterfaceGroup}
+          isExpanded={expandedGroups.has(groupName)}
+          onToggleGroup={() => toggleGroup(groupName)}
+          canMoveUp={groupIndex > 0}
+          canMoveDown={groupIndex < config.interfaceGroups.length - 1}
         />
       ))}
 
@@ -225,7 +203,7 @@ const LayerHierarchy = ({
         />
       )}
 
-      {/* Base Layers - Always show even if empty */}
+      {/* Base Layers */}
       <BaseLayerGroup
         baseLayers={baseLayers}
         isExpanded={expandedBaseLayers}
