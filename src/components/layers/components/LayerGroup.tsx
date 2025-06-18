@@ -69,117 +69,121 @@ const LayerGroup = ({
   };
 
   return (
-    <Card className="border-primary/20">
-      <Collapsible open={isExpanded} onOpenChange={onToggleGroup}>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2">
-              {isExpanded ? (
-                <ChevronDown className="h-4 w-4 text-primary" />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-primary" />
-              )}
+    <div className="relative">
+      <Card className="border-primary/20">
+        <Collapsible open={isExpanded} onOpenChange={onToggleGroup}>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2">
+                {isExpanded ? (
+                  <ChevronDown className="h-4 w-4 text-primary" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-primary" />
+                )}
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base text-primary">{groupName}</CardTitle>
+                  <Badge variant="secondary" className="text-xs">
+                    {sources.length} layer{sources.length !== 1 ? 's' : ''}
+                  </Badge>
+                </div>
+              </CollapsibleTrigger>
               <div className="flex items-center gap-2">
-                <CardTitle className="text-base text-primary">{groupName}</CardTitle>
-                <Badge variant="secondary" className="text-xs">
-                  {sources.length} layer{sources.length !== 1 ? 's' : ''}
-                </Badge>
-              </div>
-            </CollapsibleTrigger>
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col gap-1">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => onMoveGroup(groupIndex, 'up')}
-                  disabled={!canMoveUp}
-                  className="h-6 w-6 p-0"
+                  onClick={() => onAddLayer(groupName)}
+                  className="text-primary hover:bg-primary/10 border-primary/30"
                 >
-                  <ArrowUp className="h-3 w-3" />
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add Layer
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => onMoveGroup(groupIndex, 'down')}
-                  disabled={!canMoveDown}
-                  className="h-6 w-6 p-0"
+                  onClick={() => onRemoveInterfaceGroup(groupName)}
+                  className="text-destructive hover:bg-destructive/10 border-destructive/30"
                 >
-                  <ArrowDown className="h-3 w-3" />
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onAddLayer(groupName)}
-                className="text-primary hover:bg-primary/10 border-primary/30"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Add Layer
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onRemoveInterfaceGroup(groupName)}
-                className="text-destructive hover:bg-destructive/10 border-destructive/30"
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
             </div>
-          </div>
-        </CardHeader>
-        <CollapsibleContent>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              {sources.map((source, idx) => {
-                const actualIndex = sourceIndices[idx];
-                return (
-                  <div key={actualIndex} className="flex items-start gap-2">
-                    <div className="flex-1">
-                      <LayerCard
-                        source={source}
-                        index={actualIndex}
-                        onRemove={onRemoveLayer}
-                        onEdit={onEditLayer}
-                        onEditBaseLayer={onEditBaseLayer}
-                        onDuplicate={onDuplicateLayer}
-                        onUpdateLayer={onUpdateLayer}
-                        onAddDataSource={() => onAddDataSource(actualIndex)}
-                        onRemoveDataSource={(dataSourceIndex) => onRemoveDataSource(actualIndex, dataSourceIndex)}
-                        onRemoveStatisticsSource={(statsIndex) => onRemoveStatisticsSource(actualIndex, statsIndex)}
-                        onEditDataSource={(dataIndex) => onEditDataSource(actualIndex, dataIndex)}
-                        onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(actualIndex, statsIndex)}
-                        isExpanded={expandedLayers.has(actualIndex)}
-                        onToggle={() => onToggleLayer(actualIndex)}
-                      />
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent className="pt-0">
+              <div className="space-y-3">
+                {sources.map((source, idx) => {
+                  const actualIndex = sourceIndices[idx];
+                  return (
+                    <div key={actualIndex} className="flex items-start gap-2">
+                      <div className="flex-1">
+                        <LayerCard
+                          source={source}
+                          index={actualIndex}
+                          onRemove={onRemoveLayer}
+                          onEdit={onEditLayer}
+                          onEditBaseLayer={onEditBaseLayer}
+                          onDuplicate={onDuplicateLayer}
+                          onUpdateLayer={onUpdateLayer}
+                          onAddDataSource={() => onAddDataSource(actualIndex)}
+                          onRemoveDataSource={(dataSourceIndex) => onRemoveDataSource(actualIndex, dataSourceIndex)}
+                          onRemoveStatisticsSource={(statsIndex) => onRemoveStatisticsSource(actualIndex, statsIndex)}
+                          onEditDataSource={(dataIndex) => onEditDataSource(actualIndex, dataIndex)}
+                          onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(actualIndex, statsIndex)}
+                          isExpanded={expandedLayers.has(actualIndex)}
+                          onToggle={() => onToggleLayer(actualIndex)}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1 pt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleMoveLayerInGroup(actualIndex, 'up')}
+                          disabled={idx === 0}
+                          className="h-6 w-6 p-0"
+                        >
+                          <ArrowUp className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleMoveLayerInGroup(actualIndex, 'down')}
+                          disabled={idx === sources.length - 1}
+                          className="h-6 w-6 p-0"
+                        >
+                          <ArrowDown className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1 pt-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleMoveLayerInGroup(actualIndex, 'up')}
-                        disabled={idx === 0}
-                        className="h-6 w-6 p-0"
-                      >
-                        <ArrowUp className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleMoveLayerInGroup(actualIndex, 'down')}
-                        disabled={idx === sources.length - 1}
-                        className="h-6 w-6 p-0"
-                      >
-                        <ArrowDown className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+      
+      {/* Group move controls positioned outside the card */}
+      <div className="absolute top-3 -right-12 flex flex-col gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onMoveGroup(groupIndex, 'up')}
+          disabled={!canMoveUp}
+          className="h-6 w-6 p-0 bg-white shadow-sm"
+        >
+          <ArrowUp className="h-3 w-3" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onMoveGroup(groupIndex, 'down')}
+          disabled={!canMoveDown}
+          className="h-6 w-6 p-0 bg-white shadow-sm"
+        >
+          <ArrowDown className="h-3 w-3" />
+        </Button>
+      </div>
+    </div>
   );
 };
 
