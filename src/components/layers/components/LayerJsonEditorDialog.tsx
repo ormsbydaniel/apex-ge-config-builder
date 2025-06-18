@@ -75,39 +75,35 @@ const LayerJsonEditorDialog = ({ isOpen, onClose, layer, onSave }: LayerJsonEdit
           </DialogDescription>
         </DialogHeader>
         
-        <div className="flex-1 overflow-hidden min-h-0">
+        <div className="flex-1 overflow-hidden">
           {!isEditMode ? (
-            <div className="h-full flex flex-col">
-              <div className="flex justify-between items-center mb-4">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Read-only view</span>
                 <Button onClick={handleEditModeToggle} variant="outline">
                   Enable Editing
                 </Button>
               </div>
-              <div className="flex-1 overflow-hidden">
-                <MonacoJsonEditor
-                  value={layerJson}
-                  readOnly={true}
-                  height="100%"
-                />
-              </div>
+              <MonacoJsonEditor
+                value={layerJson}
+                readOnly={true}
+                height="500px"
+              />
             </div>
           ) : (
-            <div className="h-full flex flex-col">
+            <div className="space-y-4">
               <JsonEditorToolbar
                 hasUnsavedChanges={hasUnsavedChanges}
                 onApplyChanges={handleApplyChanges}
                 onReset={handleReset}
                 onFormatJson={formatJson}
               />
-              <div className="flex-1 overflow-hidden mt-4">
-                <MonacoJsonEditor
-                  value={editedJson}
-                  onChange={handleJsonChange}
-                  readOnly={false}
-                  height="100%"
-                />
-              </div>
+              <MonacoJsonEditor
+                value={editedJson}
+                onChange={handleJsonChange}
+                readOnly={false}
+                height="450px"
+              />
             </div>
           )}
         </div>
