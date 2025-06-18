@@ -2,8 +2,8 @@
 import React from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import { LayersTabProvider } from '@/contexts/LayersTabContext';
-import LayersTabCore from './LayersTabCore';
 import { useLayersTabLogic } from '@/hooks/useLayersTabLogic';
+import LayersTabCore from './LayersTabCore';
 
 interface LayersTabContainerProps {
   config: {
@@ -36,56 +36,35 @@ interface LayersTabContainerProps {
 
 const LayersTabContainer = (props: LayersTabContainerProps) => {
   const {
-    config,
-    editingLayerIndex,
-    setEditingLayerIndex,
-    setSelectedLayerType,
-    setShowLayerForm,
-    setDefaultInterfaceGroup,
-    updateLayer,
-    addLayer,
-    updateConfig,
-    removeLayer,
-    moveLayer
-  } = props;
+    contextValue,
+    expandedLayers,
+    onToggleLayer
+  } = useLayersTabLogic(props);
 
-  const layersLogic = useLayersTabLogic({
-    config,
-    defaultInterfaceGroup: props.defaultInterfaceGroup,
-    editingLayerIndex,
-    setEditingLayerIndex,
-    setSelectedLayerType,
-    setShowLayerForm,
-    setDefaultInterfaceGroup,
-    updateLayer,
-    addLayer,
-    updateConfig
-  });
-
-  const contextValue = {
-    config,
-    editingLayerIndex,
-    defaultInterfaceGroup: props.defaultInterfaceGroup,
-    onRemoveLayer: removeLayer,
-    onEditLayer: layersLogic.handleEditLayer,
-    onEditBaseLayer: layersLogic.handleEditBaseLayer,
-    onDuplicateLayer: layersLogic.handleDuplicateLayer,
-    onMoveLayer: moveLayer,
-    onUpdateLayer: updateLayer,
-    onAddLayer: addLayer,
-    onUpdateConfig: updateConfig,
-    onAddDataSource: layersLogic.handleStartDataSourceFormWithExpansion,
-    onRemoveDataSource: layersLogic.handleRemoveDataSource,
-    onRemoveStatisticsSource: layersLogic.handleRemoveStatisticsSource,
-    onEditDataSource: layersLogic.handleEditDataSource,
-    onEditStatisticsSource: layersLogic.handleEditStatisticsSource
+  // Add onUpdateLayer to the context value
+  const enhancedContextValue = {
+    ...contextValue,
+    onUpdateLayer: props.updateLayer
   };
 
   return (
-    <LayersTabProvider value={contextValue}>
+    <LayersTabProvider value={enhancedContextValue}>
       <LayersTabCore
-        {...props}
-        layersLogic={layersLogic}
+        config={props.config}
+        showLayerForm={props.showLayerForm}
+        selectedLayerType={props.selectedLayerType}
+        defaultInterfaceGroup={props.defaultInterfaceGroup}
+        editingLayerIndex={props.editingLayerIndex}
+        expandedLayers={expandedLayers}
+        onToggleLayer={onToggleLayer}
+        onLayerTypeSelect={props.handleLayerTypeSelect}
+        onCancelLayerForm={props.handleCancelLayerForm}
+        onAddLayer={props.addLayer}
+        onAddService={props.addService}
+        onAddExclusivitySet={props.addExclusivitySet}
+        onRemoveExclusivitySet={props.removeExclusivitySet}
+        newExclusivitySet={props.newExclusivitySet}
+        onSetNewExclusivitySet={props.setNewExclusivitySet}
       />
     </LayersTabProvider>
   );
