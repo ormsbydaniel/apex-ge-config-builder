@@ -30,7 +30,7 @@ const LayerTypeSelector = ({
         </p>
       </div>
 
-      <div className={`grid grid-cols-1 ${isFromInterfaceGroup ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-6`}>
+      <div className={`grid grid-cols-1 ${isFromInterfaceGroup ? 'md:grid-cols-1' : 'md:grid-cols-3'} gap-6`}>
         <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onSelectType('layerCard')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-primary">
@@ -48,40 +48,42 @@ const LayerTypeSelector = ({
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onSelectType('swipe')}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-primary">
-              <SwitchCamera className="h-6 w-6" />
-              Swipe Layer
-            </CardTitle>
-            <CardDescription>
-              Compare two layers with a swipe interaction. References existing layers in your configuration.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="secondary" className="w-full">
-              Add Swipe Layer
-            </Button>
-          </CardContent>
-        </Card>
-
         {!isFromInterfaceGroup && (
-          <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onSelectType('base')}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-primary">
-                <Globe className="h-6 w-6" />
-                Base Layer
-              </CardTitle>
-              <CardDescription>
-                A background map layer without UI controls or metadata. Used as the base map.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full">
-                Add Base Layer
-              </Button>
-            </CardContent>
-          </Card>
+          <>
+            <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onSelectType('swipe')}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-primary">
+                  <SwitchCamera className="h-6 w-6" />
+                  Swipe Layer (legacy)
+                </CardTitle>
+                <CardDescription>
+                  Compare two layers with a swipe interaction. References existing layers in your configuration.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="secondary" className="w-full">
+                  Add Swipe Layer
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onSelectType('base')}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-primary">
+                  <Globe className="h-6 w-6" />
+                  Base Layer
+                </CardTitle>
+                <CardDescription>
+                  A background map layer without UI controls or metadata. Used as the base map.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">
+                  Add Base Layer
+                </Button>
+              </CardContent>
+            </Card>
+          </>
         )}
       </div>
     </div>

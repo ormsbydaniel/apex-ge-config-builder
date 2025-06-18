@@ -51,7 +51,7 @@ export const ServiceSchema = z.object({
   // capabilities are not included in serialized config
 });
 
-// Enhanced DataSourceItem schema with optional isBaseLayer for backward compatibility
+// Enhanced DataSourceItem schema with position field
 export const DataSourceItemSchema = z.object({
   url: urlOrRelativePathSchema.optional(),
   format: z.string(),
@@ -67,6 +67,8 @@ export const DataSourceItemSchema = z.object({
   images: z.array(z.object({
     url: urlOrRelativePathSchema,
   })).optional(),
+  // Position field for comparison layers
+  position: z.enum(['left', 'right', 'background', 'spotlight']).optional(),
 }).refine(
   (data) => {
     // Either url or images array must be present
@@ -145,7 +147,7 @@ const LayoutSchema = z.object({
   }).optional(),
 });
 
-// Base schema with common required fields including optional statistics
+// Enhanced base schema with layer type flags
 const BaseDataSourceSchema = z.object({
   name: z.string(),
   isActive: z.boolean(),
@@ -153,14 +155,36 @@ const BaseDataSourceSchema = z.object({
   statistics: StatisticsFieldSchema.optional(), // Add optional statistics array
   hasFeatureStatistics: z.boolean().optional(),
   isBaseLayer: z.boolean().optional(), // Add optional isBaseLayer for new format
-});
+  // New layer type flags
+  isSwipeLayer: z.boolean().optional(),
+  isMirrorLayer: z.boolean().optional(),
+  isSpotlightLayer: z.boolean().optional(),
+}).refine(
+  (data) => {
+    // Only one layer type flag can be true
+    const flags = [data.isSwipeLayer, data.isMirrorLayer, data.isSpotlightLayer];
+    const trueFlags = flags.filter(Boolean);
+    return trueFlags.length <= 1;
+  },
+  {
+    message: "Only one layer type flag (isSwipeLayer, isMirrorLayer, isSpotlightLayer) can be true",
+  }
+);
 
 // Schema for base layers (isBaseLayer: true at top level, meta and layout are optional)
 const BaseLayerSchema = BaseDataSourceSchema.extend({
   isBaseLayer: z.literal(true), // Must be true for base layers
   meta: MetaSchema.optional(),
   layout: LayoutSchema.optional(),
-});
+}).refine(
+  (data) => {
+    // Base layers cannot have comparison layer flags
+    return !data.isSwipeLayer && !data.isMirrorLayer && !data.isSpotlightLayer;
+  },
+  {
+    message: "Base layers cannot have comparison layer type flags",
+  }
+);
 
 // Schema for layer cards (no isBaseLayer, meta and layout are required)
 const LayerCardSchema = BaseDataSourceSchema.extend({
@@ -194,12 +218,35 @@ const SwipeLayerSchema = BaseDataSourceSchema.extend({
   }
 );
 
-// Updated DataSource schema that handles the new base layer format
+// Comparison layer schema for new layer types
+const ComparisonLayerSchema = BaseDataSourceSchema.extend({
+  meta: MetaSchema,
+  layout: LayoutSchema,
+}).refine(
+  (data) => {
+    // Comparison layers must have one of the layer type flags
+    return data.isSwipeLayer || data.isMirrorLayer || data.isSpotlightLayer;
+  },
+  {
+    message: "Comparison layers must have one layer type flag",
+  }
+).refine(
+  (data) => {
+    return !data.isBaseLayer; // Comparison layers cannot have isBaseLayer: true
+  },
+  {
+    message: "Comparison layers cannot have isBaseLayer: true",
+  }
+);
+
+// Updated DataSource schema that handles all layer types
 export const DataSourceSchema = z.union([
   // Base layer: has isBaseLayer: true at top level
   BaseLayerSchema,
   // Swipe layer: has swipeConfig in meta
   SwipeLayerSchema,
+  // Comparison layers: have layer type flags
+  ComparisonLayerSchema,
   // Layer card: has required meta and layout, no isBaseLayer
   LayerCardSchema,
   // Flexible schema for backward compatibility
