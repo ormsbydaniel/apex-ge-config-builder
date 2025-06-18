@@ -5,18 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DataSourceRow } from '@/hooks/useDrawOrderData';
 import SortButton from './SortButton';
-
-interface DataSourceRow {
-  sourceIndex: number;
-  dataIndex: number;
-  sourceType: 'data' | 'statistics';
-  zIndex: number;
-  url: string;
-  layerName: string;
-  interfaceGroup: string;
-  isBaseLayer: boolean;
-}
 
 type SortField = 'zIndex' | 'url' | 'layerName' | 'interfaceGroup' | 'sourceType';
 type SortDirection = 'asc' | 'desc';
