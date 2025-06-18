@@ -34,8 +34,8 @@ const LayerCardHeader = ({
   
   return (
     <CardHeader className="pb-2 relative">
-      {/* Badge positioned at top-right */}
-      <div className="absolute top-2 right-2 z-10">
+      {/* Badge positioned lower in top-right */}
+      <div className="absolute top-4 right-2 z-10">
         <LayerBadge isBaseLayer={isBaseLayer} />
       </div>
       
