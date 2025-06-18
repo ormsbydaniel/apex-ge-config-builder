@@ -64,18 +64,23 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   // Convert expanded cards to a Set for compatibility
   const expandedLayers = new Set(
     Array.from(expandedCards || new Set()).map((cardId: string) => {
-      // Extract layer index from card ID
-      const parts = cardId.split('-');
+      // Extract layer index from card ID - ensure we're working with strings
+      const cardIdStr = String(cardId);
+      const parts = cardIdStr.split('-');
       const indexPart = parts[parts.length - 1];
-      return parseInt(indexPart, 10);
+      const parsedIndex = parseInt(indexPart, 10);
+      return parsedIndex;
     }).filter(index => !isNaN(index))
   );
 
   const onToggleLayer = (index: number) => {
     // Find existing card ID or create a new one
-    const existingCardId = Array.from(expandedCards || new Set()).find((cardId: string) => cardId.endsWith(`-${index}`));
+    const existingCardId = Array.from(expandedCards || new Set()).find((cardId: string) => {
+      const cardIdStr = String(cardId);
+      return cardIdStr.endsWith(`-${index}`);
+    });
     if (existingCardId) {
-      toggleCard(existingCardId);
+      toggleCard(String(existingCardId));
     } else {
       // Create a default card ID
       toggleCard(`layer-${index}`);
