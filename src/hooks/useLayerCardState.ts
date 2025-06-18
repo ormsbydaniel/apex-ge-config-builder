@@ -18,6 +18,7 @@ export const useLayerCardState = () => {
 
   return {
     toggleCard,
-    isExpanded
+    isExpanded,
+    expandedCards
   };
 };

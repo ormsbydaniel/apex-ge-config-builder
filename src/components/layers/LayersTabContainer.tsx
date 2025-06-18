@@ -2,8 +2,8 @@
 import React from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import { LayersTabProvider } from '@/contexts/LayersTabContext';
-import LayersTabCore from './LayersTabCore';
 import { useLayersTabLogic } from '@/hooks/useLayersTabLogic';
+import LayersTabCore from './LayersTabCore';
 
 interface LayersTabContainerProps {
   config: {
@@ -35,45 +35,21 @@ interface LayersTabContainerProps {
 }
 
 const LayersTabContainer = (props: LayersTabContainerProps) => {
-  const {
-    config,
-    editingLayerIndex,
-    setEditingLayerIndex,
-    setSelectedLayerType,
-    setShowLayerForm,
-    setDefaultInterfaceGroup,
-    updateLayer,
-    addLayer,
-    updateConfig,
-    removeLayer,
-    moveLayer
-  } = props;
+  const layersLogic = useLayersTabLogic(props);
 
-  const layersLogic = useLayersTabLogic({
-    config,
-    defaultInterfaceGroup: props.defaultInterfaceGroup,
-    editingLayerIndex,
-    setEditingLayerIndex,
-    setSelectedLayerType,
-    setShowLayerForm,
-    setDefaultInterfaceGroup,
-    updateLayer,
-    addLayer,
-    updateConfig
-  });
-
+  // Create context value with all required properties
   const contextValue = {
-    config,
-    editingLayerIndex,
+    config: props.config,
+    editingLayerIndex: props.editingLayerIndex,
     defaultInterfaceGroup: props.defaultInterfaceGroup,
-    onRemoveLayer: removeLayer,
+    onRemoveLayer: props.removeLayer,
     onEditLayer: layersLogic.handleEditLayer,
     onEditBaseLayer: layersLogic.handleEditBaseLayer,
     onDuplicateLayer: layersLogic.handleDuplicateLayer,
-    onMoveLayer: moveLayer,
-    onUpdateLayer: updateLayer,
-    onAddLayer: addLayer,
-    onUpdateConfig: updateConfig,
+    onMoveLayer: props.moveLayer,
+    onUpdateLayer: props.updateLayer,
+    onAddLayer: props.addLayer,
+    onUpdateConfig: props.updateConfig,
     onAddDataSource: layersLogic.handleStartDataSourceFormWithExpansion,
     onRemoveDataSource: layersLogic.handleRemoveDataSource,
     onRemoveStatisticsSource: layersLogic.handleRemoveStatisticsSource,
@@ -84,7 +60,26 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
   return (
     <LayersTabProvider value={contextValue}>
       <LayersTabCore
-        {...props}
+        config={props.config}
+        showLayerForm={props.showLayerForm}
+        selectedLayerType={props.selectedLayerType}
+        defaultInterfaceGroup={props.defaultInterfaceGroup}
+        editingLayerIndex={props.editingLayerIndex}
+        expandedLayers={layersLogic.expandedLayers}
+        onToggleLayer={layersLogic.onToggleLayer}
+        handleLayerTypeSelect={props.handleLayerTypeSelect}
+        handleCancelLayerForm={props.handleCancelLayerForm}
+        addLayer={props.addLayer}
+        addService={props.addService}
+        updateLayer={props.updateLayer}
+        setEditingLayerIndex={props.setEditingLayerIndex}
+        setShowLayerForm={props.setShowLayerForm}
+        setSelectedLayerType={props.setSelectedLayerType}
+        setDefaultInterfaceGroup={props.setDefaultInterfaceGroup}
+        addExclusivitySet={props.addExclusivitySet}
+        removeExclusivitySet={props.removeExclusivitySet}
+        newExclusivitySet={props.newExclusivitySet}
+        setNewExclusivitySet={props.setNewExclusivitySet}
         layersLogic={layersLogic}
       />
     </LayersTabProvider>

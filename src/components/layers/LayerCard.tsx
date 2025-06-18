@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { DataSource, isDataSourceItemArray } from '@/types/config';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import LayerCardHeader from './components/LayerCardHeader';
 import LayerCardContent from './components/LayerCardContent';
+import LayerJsonEditorDialog from './components/LayerJsonEditorDialog';
 
 interface LayerCardProps {
   source: DataSource;
@@ -13,6 +14,7 @@ interface LayerCardProps {
   onEdit: (index: number) => void;
   onEditBaseLayer: (index: number) => void;
   onDuplicate: (index: number) => void;
+  onUpdateLayer: (index: number, layer: DataSource) => void;
   onAddDataSource?: () => void;
   onRemoveDataSource: (dataSourceIndex: number) => void;
   onRemoveStatisticsSource?: (statsIndex: number) => void;
@@ -29,6 +31,7 @@ const LayerCard = ({
   onEdit, 
   onEditBaseLayer, 
   onDuplicate, 
+  onUpdateLayer,
   onAddDataSource, 
   onRemoveDataSource,
   onRemoveStatisticsSource,
@@ -37,6 +40,8 @@ const LayerCard = ({
   isExpanded,
   onToggle
 }: LayerCardProps) => {
+  const [isJsonEditorOpen, setIsJsonEditorOpen] = useState(false);
+  
   // UPDATED: Check for base layer using the new format (top-level isBaseLayer property)
   const isBaseLayer = source.isBaseLayer === true;
   const isSwipeLayer = source.meta?.swipeConfig !== undefined;
@@ -49,6 +54,15 @@ const LayerCard = ({
     }
   };
 
+  const handleEditJson = () => {
+    setIsJsonEditorOpen(true);
+  };
+
+  const handleJsonSave = (updatedLayer: DataSource) => {
+    onUpdateLayer(index, updatedLayer);
+    setIsJsonEditorOpen(false);
+  };
+
   // Determine border color based on layer type
   const borderClass = isSwipeLayer 
     ? 'border-l-4 border-l-purple-500' 
@@ -57,30 +71,40 @@ const LayerCard = ({
       : 'border-l-4 border-l-primary/30';
 
   return (
-    <Card className={borderClass}>
-      <Collapsible open={isExpanded} onOpenChange={onToggle}>
-        <LayerCardHeader
-          source={source}
-          index={index}
-          isExpanded={isExpanded}
-          isSwipeLayer={isSwipeLayer}
-          onRemove={onRemove}
-          onEdit={onEdit}
-          onDuplicate={onDuplicate}
-          handleEdit={handleEdit}
-        />
-        <CollapsibleContent>
-          <LayerCardContent
+    <>
+      <Card className={borderClass}>
+        <Collapsible open={isExpanded} onOpenChange={onToggle}>
+          <LayerCardHeader
             source={source}
-            onAddDataSource={onAddDataSource}
-            onRemoveDataSource={onRemoveDataSource}
-            onRemoveStatisticsSource={onRemoveStatisticsSource}
-            onEditDataSource={onEditDataSource}
-            onEditStatisticsSource={onEditStatisticsSource}
+            index={index}
+            isExpanded={isExpanded}
+            isSwipeLayer={isSwipeLayer}
+            onRemove={onRemove}
+            onEdit={onEdit}
+            onDuplicate={onDuplicate}
+            onEditJson={handleEditJson}
+            handleEdit={handleEdit}
           />
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
+          <CollapsibleContent>
+            <LayerCardContent
+              source={source}
+              onAddDataSource={onAddDataSource}
+              onRemoveDataSource={onRemoveDataSource}
+              onRemoveStatisticsSource={onRemoveStatisticsSource}
+              onEditDataSource={onEditDataSource}
+              onEditStatisticsSource={onEditStatisticsSource}
+            />
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
+      <LayerJsonEditorDialog
+        isOpen={isJsonEditorOpen}
+        onClose={() => setIsJsonEditorOpen(false)}
+        layer={source}
+        onSave={handleJsonSave}
+      />
+    </>
   );
 };
 

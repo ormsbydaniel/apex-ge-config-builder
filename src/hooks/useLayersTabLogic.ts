@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import { useLayersTabComposition } from '@/hooks/useLayersTabComposition';
 import { useLayerTypeHandlers } from './useLayerTypeHandlers';
+import { useLayerCardState } from './useLayerCardState';
 
 interface UseLayersTabLogicProps {
   config: {
@@ -26,6 +27,9 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   const { setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm, setEditingLayerIndex } = props;
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
 
+  // Use layer card state for expanded layers
+  const { toggleCard, expandedCards, isExpanded } = useLayerCardState();
+
   // Use the composed hook for all layers tab logic
   const composedLogic = useLayersTabComposition(props);
 
@@ -43,7 +47,6 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     expandedLayerAfterDataSource,
     expandedLayerAfterCreation,
     expandedGroupAfterAction,
-    toggleCard,
     clearExpandedLayer,
     clearExpandedLayerAfterCreation,
     clearExpandedGroup,
@@ -58,6 +61,32 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     }
   }, [expandedLayerAfterDataSource, showDataSourceForm, toggleCard, clearExpandedLayer]);
 
+  // Convert expanded cards to a Set for compatibility
+  const expandedLayers = new Set(
+    Array.from(expandedCards || new Set()).map((cardId: string) => {
+      // Extract layer index from card ID - ensure we're working with strings
+      const cardIdStr = String(cardId);
+      const parts = cardIdStr.split('-');
+      const indexPart = parts[parts.length - 1];
+      const parsedIndex = parseInt(indexPart, 10);
+      return parsedIndex;
+    }).filter(index => !isNaN(index))
+  );
+
+  const onToggleLayer = (index: number) => {
+    // Find existing card ID or create a new one
+    const existingCardId = Array.from(expandedCards || new Set()).find((cardId: string) => {
+      const cardIdStr = String(cardId);
+      return cardIdStr.endsWith(`-${index}`);
+    });
+    if (existingCardId) {
+      toggleCard(String(existingCardId));
+    } else {
+      // Create a default card ID
+      toggleCard(`layer-${index}`);
+    }
+  };
+
   return {
     showAddGroupDialog,
     setShowAddGroupDialog,
@@ -65,6 +94,8 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     selectedLayerIndex,
     expandedLayerAfterCreation,
     expandedGroupAfterAction,
+    expandedLayers,
+    onToggleLayer,
     handleStartDataSourceFormWithExpansion,
     clearExpandedLayerAfterCreation,
     clearExpandedGroup,

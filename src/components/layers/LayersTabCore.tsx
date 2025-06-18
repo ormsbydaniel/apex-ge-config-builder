@@ -28,6 +28,8 @@ interface LayersTabCoreProps {
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
+  expandedLayers: Set<number>;
+  onToggleLayer: (index: number) => void;
   layersLogic: any; // From useLayersTabLogic
 }
 
@@ -50,6 +52,8 @@ const LayersTabCore = ({
   removeExclusivitySet,
   newExclusivitySet,
   setNewExclusivitySet,
+  expandedLayers,
+  onToggleLayer,
   layersLogic
 }: LayersTabCoreProps) => {
   const handleLayerFormCancel = () => {
@@ -71,13 +75,13 @@ const LayersTabCore = ({
   };
 
   // Show form if we're in form mode
-  if (showLayerForm || layersLogic.showDataSourceForm) {
+  if (showLayerForm || (layersLogic && layersLogic.showDataSourceForm)) {
     return (
       <LayerFormHandler
         showLayerForm={showLayerForm}
-        showDataSourceForm={layersLogic.showDataSourceForm}
+        showDataSourceForm={layersLogic?.showDataSourceForm || false}
         selectedLayerType={selectedLayerType}
-        selectedLayerIndex={layersLogic.selectedLayerIndex}
+        selectedLayerIndex={layersLogic?.selectedLayerIndex || null}
         interfaceGroups={config.interfaceGroups}
         services={config.services}
         editingLayerIndex={editingLayerIndex}
@@ -86,9 +90,9 @@ const LayersTabCore = ({
         onSelectType={handleLayerTypeSelect}
         onLayerSaved={handleLayerSaved}
         onLayerFormCancel={handleLayerFormCancel}
-        onDataSourceAdded={layersLogic.handleDataSourceAdded}
-        onStatisticsLayerAdded={layersLogic.handleStatisticsLayerAdded}
-        onDataSourceCancel={layersLogic.handleCancelDataSource}
+        onDataSourceAdded={layersLogic?.handleDataSourceAdded || (() => {})}
+        onStatisticsLayerAdded={layersLogic?.handleStatisticsLayerAdded || (() => {})}
+        onDataSourceCancel={layersLogic?.handleCancelDataSource || (() => {})}
         onAddService={addService}
       />
     );
@@ -101,6 +105,8 @@ const LayersTabCore = ({
       removeExclusivitySet={removeExclusivitySet}
       newExclusivitySet={newExclusivitySet}
       setNewExclusivitySet={setNewExclusivitySet}
+      expandedLayers={expandedLayers}
+      onToggleLayer={onToggleLayer}
       layersLogic={layersLogic}
     />
   );

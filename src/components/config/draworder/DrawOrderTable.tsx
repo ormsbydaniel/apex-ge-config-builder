@@ -1,22 +1,11 @@
-
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DataSourceRow } from '@/hooks/useDrawOrderData';
 import SortButton from './SortButton';
-
-interface DataSourceRow {
-  sourceIndex: number;
-  dataIndex: number;
-  sourceType: 'data' | 'statistics';
-  zIndex: number;
-  url: string;
-  layerName: string;
-  interfaceGroup: string;
-  isBaseLayer: boolean;
-}
 
 type SortField = 'zIndex' | 'url' | 'layerName' | 'interfaceGroup' | 'sourceType';
 type SortDirection = 'asc' | 'desc';
@@ -30,7 +19,7 @@ interface DrawOrderTableProps {
   isPartiallySelected: boolean;
   onSort: (field: SortField) => void;
   onSelectAll: (checked: boolean) => void;
-  onRowSelection: (rowKey: string, checked: boolean) => void;
+  onRowSelection: (rowKey: string, checked: boolean, shiftKey?: boolean) => void;
   onUpdateZLevel: (rowKey: string, newZLevel: number) => void;
   getRowKey: (row: DataSourceRow) => string;
 }
@@ -72,6 +61,10 @@ const DrawOrderTable = ({
       setEditingZLevel(null);
       setTempZValue('');
     }
+  };
+
+  const handleCheckboxChange = (rowKey: string, checked: boolean, event: React.MouseEvent) => {
+    onRowSelection(rowKey, checked, event.shiftKey);
   };
 
   return (
@@ -150,7 +143,13 @@ const DrawOrderTable = ({
                 <TableCell>
                   <Checkbox
                     checked={selectedRows.has(rowKey)}
-                    onCheckedChange={(checked) => onRowSelection(rowKey, checked === true)}
+                    onCheckedChange={(checked) => {
+                      // We need to capture the event, so we'll handle this differently
+                    }}
+                    onClick={(event) => {
+                      const checked = !selectedRows.has(rowKey);
+                      handleCheckboxChange(rowKey, checked, event);
+                    }}
                   />
                 </TableCell>
                 <TableCell className="font-mono">
