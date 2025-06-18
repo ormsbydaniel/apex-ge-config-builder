@@ -35,7 +35,7 @@ const MonacoJsonEditor = ({
   };
 
   return (
-    <div className="border rounded-md border-primary/20 overflow-hidden">
+    <div className="border rounded-md border-primary/20 overflow-hidden h-full flex flex-col">
       <Editor
         height={height}
         defaultLanguage="json"
