@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -34,7 +35,7 @@ const LayerCardHeader = ({
         <LayerBadge isBaseLayer={isBaseLayer} />
       </div>
       
-      <div className="flex items-center justify-between pr-20">
+      <div className="flex items-start justify-between pr-20 pt-1">
         <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
           {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
           <div className="text-left">
