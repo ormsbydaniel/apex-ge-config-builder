@@ -51,7 +51,7 @@ const LayerCardHeader = ({
         />
       </div>
       
-      <div className="flex items-start pr-32 pt-1">
+      <div className="flex items-start pr-32">
         <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
           <div className="flex-shrink-0">
             {isExpanded ? (
