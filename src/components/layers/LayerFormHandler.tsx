@@ -42,7 +42,15 @@ const LayerFormHandler = ({
   onDataSourceCancel,
   onAddService
 }: LayerFormHandlerProps) => {
+  console.log('=== LayerFormHandler Debug ===');
+  console.log('showLayerForm:', showLayerForm);
+  console.log('showDataSourceForm:', showDataSourceForm);
+  console.log('selectedLayerIndex:', selectedLayerIndex);
+  console.log('config.sources.length:', config.sources.length);
+  console.log('services.length:', services.length);
+
   if (showLayerForm) {
+    console.log('Rendering LayerFormContainer');
     return (
       <LayerFormContainer
         showLayerForm={showLayerForm}
@@ -60,13 +68,27 @@ const LayerFormHandler = ({
   }
 
   if (showDataSourceForm && selectedLayerIndex !== null) {
+    console.log('Attempting to render DataSourceForm');
     const currentLayer = config.sources[selectedLayerIndex];
+    console.log('currentLayer:', currentLayer);
+    
+    if (!currentLayer) {
+      console.error('No layer found at index:', selectedLayerIndex);
+      return null;
+    }
     
     // Determine layer type from flags
     let layerType: LayerTypeOption = 'standard';
     if ((currentLayer as any).isSwipeLayer) layerType = 'swipe';
     else if ((currentLayer as any).isMirrorLayer) layerType = 'mirror';
     else if ((currentLayer as any).isSpotlightLayer) layerType = 'spotlight';
+    
+    console.log('Determined layerType:', layerType);
+    console.log('About to render DataSourceForm with:', {
+      layerType,
+      servicesCount: services.length,
+      currentLayerStatistics: currentLayer?.statistics?.length || 0
+    });
     
     return (
       <DataSourceForm
@@ -81,6 +103,7 @@ const LayerFormHandler = ({
     );
   }
 
+  console.log('Not rendering anything - conditions not met');
   return null;
 };
 

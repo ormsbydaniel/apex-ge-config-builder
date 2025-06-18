@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,13 @@ const DataSourceForm = ({
   onAddService, 
   onCancel 
 }: DataSourceFormProps) => {
+  console.log('=== DataSourceForm Rendering ===');
+  console.log('Props received:', {
+    servicesCount: services.length,
+    layerType,
+    currentLayerStatisticsCount: currentLayerStatistics.length
+  });
+
   const { toast } = useToast();
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   
@@ -70,7 +78,7 @@ const DataSourceForm = ({
   // Check if current format supports statistics
   const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
 
-  console.log('=== DataSourceForm Debug ===');
+  console.log('=== DataSourceForm State ===');
   console.log('layerType:', layerType);
   console.log('needsPosition:', needsPosition);
   console.log('selectedPosition:', selectedPosition);
@@ -79,7 +87,6 @@ const DataSourceForm = ({
   console.log('supportsStatistics:', supportsStatistics);
   console.log('isStatisticsLayer:', isStatisticsLayer);
   console.log('statisticsLevel (auto-calculated):', statisticsLevel);
-  console.log('currentLayerStatistics:', currentLayerStatistics);
   console.log('================================');
 
   const handleFormatChange = (format: DataSourceFormat) => {
