@@ -320,7 +320,7 @@ export const transformFormatToType = (config: any, enabled: boolean): any => {
       if (transformedSource.data) {
         if (Array.isArray(transformedSource.data)) {
           transformedSource.data = transformedSource.data.map((item: any) => {
-            if (item && item.format) {
+            if (item && typeof item === 'object' && item.format) {
               const { format, ...itemWithoutFormat } = item;
               return {
                 ...itemWithoutFormat,
@@ -329,7 +329,7 @@ export const transformFormatToType = (config: any, enabled: boolean): any => {
             }
             return item;
           });
-        } else if (transformedSource.data.format) {
+        } else if (typeof transformedSource.data === 'object' && transformedSource.data.format) {
           // Handle single data object (from other transformations)
           const { format, ...dataWithoutFormat } = transformedSource.data;
           transformedSource.data = {
@@ -342,7 +342,7 @@ export const transformFormatToType = (config: any, enabled: boolean): any => {
       // Transform statistics array if it exists
       if (transformedSource.statistics && Array.isArray(transformedSource.statistics)) {
         transformedSource.statistics = transformedSource.statistics.map((item: any) => {
-          if (item && item.format) {
+          if (item && typeof item === 'object' && item.format) {
             const { format, ...itemWithoutFormat } = item;
             return {
               ...itemWithoutFormat,

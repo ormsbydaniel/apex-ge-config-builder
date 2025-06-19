@@ -44,7 +44,8 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
       removeEmptyCategories: false, 
       includeCategoryValues: true, 
       addNormalizeFalseToCogs: false,
-      transformSwipeLayersToData: false
+      transformSwipeLayersToData: false,
+      changeFormatToType: false
     });
   };
 
@@ -220,7 +221,7 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
             <>
               <Separator />
               <div className="text-xs text-slate-50">
-                <span className="font-medium">Last saved: </span>
+                <span className="font-medium">Last saved: </span> 
                 {config.lastSaved.toLocaleString()}
               </div>
             </>
