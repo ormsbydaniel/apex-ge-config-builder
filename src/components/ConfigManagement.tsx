@@ -40,7 +40,8 @@ const ConfigManagement = () => {
       removeEmptyCategories: false,
       includeCategoryValues: true,
       addNormalizeFalseToCogs: false,
-      transformSwipeLayersToData: false
+      transformSwipeLayersToData: false,
+      changeFormatToType: false
     });
   };
 

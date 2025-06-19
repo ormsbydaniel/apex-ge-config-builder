@@ -305,6 +305,62 @@ export const addNormalizeFalseToCogs = (config: any, enabled: boolean): any => {
   return transformedConfig;
 };
 
+export const transformFormatToType = (config: any, enabled: boolean): any => {
+  if (!enabled) return config;
+
+  console.log('Starting format to type transformation...');
+  const transformedConfig = { ...config };
+  
+  // Transform sources
+  if (transformedConfig.sources) {
+    transformedConfig.sources = transformedConfig.sources.map((source: DataSource) => {
+      const transformedSource = { ...source };
+      
+      // Transform main data array/object
+      if (transformedSource.data) {
+        if (Array.isArray(transformedSource.data)) {
+          transformedSource.data = transformedSource.data.map((item: any) => {
+            if (item && item.format) {
+              const { format, ...itemWithoutFormat } = item;
+              return {
+                ...itemWithoutFormat,
+                type: format
+              };
+            }
+            return item;
+          });
+        } else if (transformedSource.data.format) {
+          // Handle single data object (from other transformations)
+          const { format, ...dataWithoutFormat } = transformedSource.data;
+          transformedSource.data = {
+            ...dataWithoutFormat,
+            type: format
+          };
+        }
+      }
+      
+      // Transform statistics array if it exists
+      if (transformedSource.statistics && Array.isArray(transformedSource.statistics)) {
+        transformedSource.statistics = transformedSource.statistics.map((item: any) => {
+          if (item && item.format) {
+            const { format, ...itemWithoutFormat } = item;
+            return {
+              ...itemWithoutFormat,
+              type: format
+            };
+          }
+          return item;
+        });
+      }
+      
+      return transformedSource;
+    });
+  }
+  
+  console.log('Format to type transformation completed');
+  return transformedConfig;
+};
+
 export const applyExportTransformations = (config: any, options: ExportOptions): any => {
   let transformedConfig = { ...config };
   const appliedTransformations: string[] = [];
@@ -333,6 +389,12 @@ export const applyExportTransformations = (config: any, options: ExportOptions):
   if (options.addNormalizeFalseToCogs) {
     transformedConfig = addNormalizeFalseToCogs(transformedConfig, true);
     appliedTransformations.push('addNormalizeFalseToCogs');
+  }
+  
+  // Apply format to type transformation
+  if (options.changeFormatToType) {
+    transformedConfig = transformFormatToType(transformedConfig, true);
+    appliedTransformations.push('changeFormatToType');
   }
   
   // Apply empty categories removal transformation

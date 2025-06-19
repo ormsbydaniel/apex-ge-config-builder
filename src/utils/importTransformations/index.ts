@@ -45,3 +45,4 @@ export { reverseCogTransformation } from './transformers/cogTransformer';
 export { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
 export { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 export { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
+export { reverseFormatToTypeTransformation } from './transformers/formatToTypeTransformer';
