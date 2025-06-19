@@ -83,7 +83,7 @@ const DataSourceDisplay = ({
                     STATS
                   </span>
                   <span className="text-sm font-medium truncate flex-1">
-                    {stat.name || 'Statistics Layer'}
+                    Statistics Layer
                   </span>
                   <span className="text-xs text-gray-500">
                     Level: {stat.level || 'default'}

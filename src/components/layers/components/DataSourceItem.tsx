@@ -19,28 +19,27 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false }: D
   const { toast } = useToast();
 
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(dataSource.url);
-    toast({
-      title: "URL Copied",
-      description: "Data source URL copied to clipboard",
-    });
+    if (dataSource.url) {
+      navigator.clipboard.writeText(dataSource.url);
+      toast({
+        title: "URL Copied",
+        description: "Data source URL copied to clipboard",
+      });
+    }
   };
 
   const getDisplayName = () => {
-    return extractDisplayName(dataSource.url, dataSource.format);
+    return extractDisplayName(dataSource.url || '', dataSource.format);
   };
 
-  const getZLevel = () => {
-    return dataSource.zLevel || 0;
+  const getLevel = () => {
+    return dataSource.level || 0;
   };
 
   const getPosition = () => {
-    const position = (dataSource as any).position;
+    const position = dataSource.position;
     if (!position) return 'N/A';
     if (typeof position === 'string') return position;
-    if (typeof position === 'object') {
-      return `${position.x || 0}, ${position.y || 0}`;
-    }
     return 'N/A';
   };
 
@@ -59,13 +58,13 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false }: D
               </span>
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs break-all">{dataSource.url}</p>
+              <p className="max-w-xs break-all">{dataSource.url || 'No URL'}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
         
         <span className="text-xs text-gray-500 flex-shrink-0">
-          Z: {getZLevel()}
+          Level: {getLevel()}
         </span>
         
         {showPosition && (
@@ -76,15 +75,17 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false }: D
       </div>
       
       <div className="flex items-center gap-1 flex-shrink-0">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={handleCopyUrl}
-          className="h-8 w-8 p-0"
-          title="Copy URL"
-        >
-          <Copy className="h-3 w-3" />
-        </Button>
+        {dataSource.url && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleCopyUrl}
+            className="h-8 w-8 p-0"
+            title="Copy URL"
+          >
+            <Copy className="h-3 w-3" />
+          </Button>
+        )}
         
         <Button
           size="sm"
