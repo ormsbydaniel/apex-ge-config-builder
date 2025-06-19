@@ -13,9 +13,10 @@ interface DataSourceItemProps {
   index: number;
   onRemove: (index: number) => void;
   showPosition?: boolean;
+  showStatsLevel?: boolean;
 }
 
-const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false }: DataSourceItemProps) => {
+const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, showStatsLevel = false }: DataSourceItemProps) => {
   const { toast } = useToast();
 
   const handleCopyUrl = () => {
@@ -64,8 +65,14 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false }: D
         </TooltipProvider>
         
         <span className="text-xs text-gray-500 flex-shrink-0">
-          Level: {getLevel()}
+          Z: {getLevel()}
         </span>
+
+        {showStatsLevel && (
+          <span className="text-xs text-gray-500 flex-shrink-0">
+            L: {getLevel()}
+          </span>
+        )}
         
         {showPosition && (
           <span className="text-xs text-gray-500 flex-shrink-0">

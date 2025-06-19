@@ -77,43 +77,14 @@ const DataSourceDisplay = ({
           <h4 className="text-sm font-medium text-gray-700 mb-3">Statistics Sources</h4>
           <div className="space-y-2">
             {source.statistics.map((stat, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-blue-50">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                    STATS
-                  </span>
-                  <span className="text-sm font-medium truncate flex-1">
-                    Statistics Layer
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    Level: {stat.level || 'default'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  {onEditStatisticsSource && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onEditStatisticsSource(index)}
-                      className="h-8 w-8 p-0"
-                      title="Edit Statistics"
-                    >
-                      <Plus className="h-3 w-3" />
-                    </Button>
-                  )}
-                  {onRemoveStatisticsSource && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onRemoveStatisticsSource(index)}
-                      className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      title="Remove Statistics"
-                    >
-                      <Plus className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
-              </div>
+              <DataSourceItem
+                key={index}
+                dataSource={stat}
+                index={index}
+                onRemove={onRemoveStatisticsSource || (() => {})}
+                showPosition={isComparisonLayer}
+                showStatsLevel={true}
+              />
             ))}
           </div>
         </div>
