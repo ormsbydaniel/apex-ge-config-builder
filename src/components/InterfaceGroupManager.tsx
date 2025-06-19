@@ -150,7 +150,7 @@ const InterfaceGroupManager = ({
                           variant="ghost"
                           onClick={() => startRename(index)}
                           className="h-8 w-8 p-0 hover:bg-primary/10 border border-primary/20"
-                          title="Rename"
+                          title="Edit name"
                         >
                           <Edit2 className="h-3 w-3" />
                         </Button>

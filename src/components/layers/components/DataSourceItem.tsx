@@ -30,7 +30,31 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, sho
   };
 
   const getDisplayName = () => {
-    return extractDisplayName(dataSource.url || '', dataSource.format);
+    const format = dataSource.format?.toLowerCase() || '';
+    
+    // For web services, try to get the layers parameter
+    if (['wms', 'wmts', 'wfs'].includes(format)) {
+      if (dataSource.layers) {
+        return dataSource.layers;
+      }
+    }
+    
+    // For XYZ services, get the domain
+    if (format === 'xyz' && dataSource.url) {
+      try {
+        const url = new URL(dataSource.url);
+        return url.hostname;
+      } catch (e) {
+        // Fall back to extractDisplayName if URL parsing fails
+      }
+    }
+    
+    // For all other cases, use the existing utility
+    return extractDisplayName(dataSource.url || '', dataSource.format || '');
+  };
+
+  const getZIndex = () => {
+    return dataSource.zIndex || 0;
   };
 
   const getLevel = () => {
@@ -48,7 +72,7 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, sho
     <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50">
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <Badge variant="outline" className="text-xs flex-shrink-0">
-          {dataSource.format.toUpperCase()}
+          {dataSource.format?.toUpperCase() || 'UNKNOWN'}
         </Badge>
         
         <TooltipProvider>
@@ -65,7 +89,7 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, sho
         </TooltipProvider>
         
         <span className="text-xs text-gray-500 flex-shrink-0">
-          Z: {getLevel()}
+          Z: {getZIndex()}
         </span>
 
         {showStatsLevel && (
