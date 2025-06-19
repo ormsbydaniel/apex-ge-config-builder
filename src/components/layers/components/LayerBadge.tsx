@@ -1,15 +1,26 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { DataSource } from '@/types/config';
 
 interface LayerBadgeProps {
-  isBaseLayer: boolean;
+  source: DataSource;
 }
 
-const LayerBadge = ({ isBaseLayer }: LayerBadgeProps) => {
+const LayerBadge = ({ source }: LayerBadgeProps) => {
+  const getLayerType = () => {
+    if (source.isBaseLayer === true) return 'base';
+    if (source.meta?.swipeConfig !== undefined || (source as any).isSwipeLayer) return 'swipe';
+    if ((source as any).isMirrorLayer) return 'mirror';
+    if ((source as any).isSpotlightLayer) return 'spotlight';
+    return 'standard';
+  };
+
+  const layerType = getLayerType();
+
   return (
-    <Badge variant={isBaseLayer ? "secondary" : "default"}>
-      {isBaseLayer ? "Base Layer" : "Layer Card"}
+    <Badge variant={layerType === 'base' ? "secondary" : "default"}>
+      {layerType}
     </Badge>
   );
 };

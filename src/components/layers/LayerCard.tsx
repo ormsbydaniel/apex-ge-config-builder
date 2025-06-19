@@ -42,7 +42,6 @@ const LayerCard = ({
 }: LayerCardProps) => {
   const [isJsonEditorOpen, setIsJsonEditorOpen] = useState(false);
   
-  // UPDATED: Check for base layer using the new format (top-level isBaseLayer property)
   const isBaseLayer = source.isBaseLayer === true;
   const isSwipeLayer = source.meta?.swipeConfig !== undefined || (source as any).isSwipeLayer;
   const isMirrorLayer = (source as any).isMirrorLayer;
