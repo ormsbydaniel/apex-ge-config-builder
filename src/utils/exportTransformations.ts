@@ -1,3 +1,4 @@
+
 import { DataSource, DataSourceItem } from '@/types/config';
 import { ExportOptions } from '@/components/ExportOptionsDialog';
 
@@ -329,13 +330,16 @@ export const transformFormatToType = (config: any, enabled: boolean): any => {
             }
             return item;
           });
-        } else if (typeof transformedSource.data === 'object' && transformedSource.data && 'format' in transformedSource.data && transformedSource.data.format) {
+        } else if (transformedSource.data && typeof transformedSource.data === 'object' && 'format' in transformedSource.data) {
           // Handle single data object (from other transformations)
-          const { format, ...dataWithoutFormat } = transformedSource.data;
-          transformedSource.data = {
-            ...dataWithoutFormat,
-            type: format
-          };
+          const dataObj = transformedSource.data as any;
+          if (dataObj.format) {
+            const { format, ...dataWithoutFormat } = dataObj;
+            transformedSource.data = {
+              ...dataWithoutFormat,
+              type: format
+            };
+          }
         }
       }
       
