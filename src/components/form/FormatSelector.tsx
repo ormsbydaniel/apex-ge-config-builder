@@ -2,12 +2,12 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DataSourceFormat } from '@/types/config';
-import { FORMAT_CONFIGS } from '@/constants/formats';
+import { SourceConfigType } from '@/types/config';
+import { FORMAT_CONFIGS, S3_CONFIG } from '@/constants/formats';
 
 interface FormatSelectorProps {
-  selectedFormat: DataSourceFormat;
-  onFormatChange: (format: DataSourceFormat) => void;
+  selectedFormat: SourceConfigType;
+  onFormatChange: (format: SourceConfigType) => void;
 }
 
 const FormatSelector = ({ selectedFormat, onFormatChange }: FormatSelectorProps) => {
@@ -19,7 +19,7 @@ const FormatSelector = ({ selectedFormat, onFormatChange }: FormatSelectorProps)
     console.log('Available formats:', Object.keys(FORMAT_CONFIGS));
     console.log('===========================');
     
-    onFormatChange(value as DataSourceFormat);
+    onFormatChange(value as SourceConfigType);
   };
 
   // Log current state
@@ -44,6 +44,9 @@ const FormatSelector = ({ selectedFormat, onFormatChange }: FormatSelectorProps)
                 {config.label}
               </SelectItem>
             ))}
+            <SelectItem value="s3">
+              {S3_CONFIG.label}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>

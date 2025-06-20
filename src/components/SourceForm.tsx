@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,13 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { SourceFormProps, DataSourceFormat } from '@/types/config';
+import { SourceFormProps, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useSourceForm } from '@/hooks/useSourceForm';
 import { useCategories } from '@/hooks/useCategories';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useValidatedConfig } from '@/hooks/useValidatedConfig';
-import { validateS3Url, S3Object } from '@/utils/s3Utils';
+import { validateS3Url, S3Object, getFormatFromExtension } from '@/utils/s3Utils';
 import FormatSelector from './form/FormatSelector';
 import ServiceConfigSection from './form/ServiceConfigSection';
 import LayerCardConfigSection from './form/LayerCardConfigSection';
@@ -54,12 +55,14 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
   } = useStatisticsLayer(currentLayerStatistics);
 
   // Check if current format supports statistics
-  const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
+  const effectiveFormat = detectedS3Format || (selectedFormat === 's3' ? null : selectedFormat as DataSourceFormat);
+  const supportsStatistics = effectiveFormat === 'flatgeobuf' || effectiveFormat === 'geojson';
 
   // Enhanced debugging console logs
   console.log('=== SourceForm Debug Info ===');
   console.log('selectedFormat:', selectedFormat);
   console.log('selectedFormat type:', typeof selectedFormat);
+  console.log('effectiveFormat:', effectiveFormat);
   console.log('supportsStatistics:', supportsStatistics);
   console.log('isStatisticsLayer:', isStatisticsLayer);
   console.log('FORMAT_CONFIGS keys:', Object.keys(FORMAT_CONFIGS));
@@ -74,9 +77,6 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
     // Update form data with the selected object's URL and detected format
     updateFormData('data.0.url', object.url);
     updateFormData('data.0.format', detectedFormat);
-    
-    // Update the selected format to trigger the appropriate form sections
-    handleFormatChange(detectedFormat);
     
     toast({
       title: "S3 Object Selected",
@@ -195,20 +195,21 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
       }
     } else {
       // Remove layers field for formats that don't use layers
-      if (selectedFormat === 'xyz' || selectedFormat === 'cog' || selectedFormat === 'geojson' || selectedFormat === 'flatgeobuf' || selectedFormat === 's3') {
+      const actualFormat = detectedS3Format || selectedFormat;
+      if (actualFormat === 'xyz' || actualFormat === 'cog' || actualFormat === 'geojson' || actualFormat === 'flatgeobuf' || selectedFormat === 's3') {
         delete finalFormData.data[0].layers;
       }
     }
 
     onAddSource(finalFormData);
     toast({
-      title: `${(detectedS3Format || selectedFormat).toUpperCase()} Source Added`,
+      title: `${(detectedS3Format || selectedFormat).toString().toUpperCase()} Source Added`,
       description: `"${formData.name}" has been added to your configuration.`,
     });
   };
 
   // Determine the effective format for rendering (S3 object's detected format or selected format)
-  const effectiveFormat = detectedS3Format || selectedFormat;
+  const displayFormat = detectedS3Format || selectedFormat;
 
   return (
     <div className="space-y-6">
@@ -216,7 +217,7 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
         <CardHeader>
           <CardTitle>Add Data Source</CardTitle>
           <CardDescription>
-            Configure a new {effectiveFormat.toUpperCase()} layer for your geospatial explorer
+            Configure a new {displayFormat.toString().toUpperCase()} layer for your geospatial explorer
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -246,7 +247,7 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
             )}
 
             {/* Statistics section for supported formats */}
-            {(effectiveFormat === 'flatgeobuf' || effectiveFormat === 'geojson') && (
+            {supportsStatistics && (
               <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -315,7 +316,7 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
               </Button>
               <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
                 <Save className="h-4 w-4 mr-2" />
-                Add {isStatisticsLayer ? 'Statistics' : effectiveFormat.toUpperCase()} Source
+                Add {isStatisticsLayer ? 'Statistics' : displayFormat.toString().toUpperCase()} Source
               </Button>
             </div>
           </form>

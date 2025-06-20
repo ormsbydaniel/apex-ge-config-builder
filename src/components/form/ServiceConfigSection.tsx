@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,14 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Loader2, Globe } from 'lucide-react';
-import { DataSource, DataSourceFormat, Service } from '@/types/config';
+import { DataSource, DataSourceFormat, Service, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import S3ServiceConfigSection from './S3ServiceConfigSection';
 
 interface ServiceConfigSectionProps {
   formData: DataSource;
-  selectedFormat: DataSourceFormat;
+  selectedFormat: SourceConfigType;
   services: Service[];
   onUpdateFormData: (path: string, value: any) => void;
   onAddService: (service: Service) => void;
@@ -36,7 +37,7 @@ const ServiceConfigSection = ({
     );
   }
 
-  const config = FORMAT_CONFIGS[selectedFormat];
+  const config = FORMAT_CONFIGS[selectedFormat as DataSourceFormat];
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   
   const [newServiceName, setNewServiceName] = useState('');
@@ -48,7 +49,7 @@ const ServiceConfigSection = ({
 
   const handleAddService = async () => {
     if (newServiceName.trim() && newServiceUrl.trim()) {
-      await addService(newServiceName, newServiceUrl, selectedFormat);
+      await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat);
       setNewServiceName('');
       setNewServiceUrl('');
       setShowNewServiceForm(false);
@@ -70,10 +71,10 @@ const ServiceConfigSection = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-primary">
           <Globe className="h-5 w-5" />
-          {selectedFormat.toUpperCase()} Service Configuration
+          {(selectedFormat as string).toUpperCase()} Service Configuration
         </CardTitle>
         <CardDescription>
-          Configure the {selectedFormat.toUpperCase()} service endpoint. Services can be reused across multiple layers.
+          Configure the {(selectedFormat as string).toUpperCase()} service endpoint. Services can be reused across multiple layers.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,8 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Loader2, Globe, Server, Database } from 'lucide-react';
-import { Service, DataSourceFormat } from '@/types/config';
-import { FORMAT_CONFIGS } from '@/constants/formats';
+import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
+import { FORMAT_CONFIGS, S3_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 
 interface ServicesManagerProps {
@@ -19,14 +20,26 @@ interface ServicesManagerProps {
 const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesManagerProps) => {
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceUrl, setNewServiceUrl] = useState('');
-  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('wms');
+  const [selectedFormat, setSelectedFormat] = useState<SourceConfigType>('wms');
   const [showAddForm, setShowAddForm] = useState(false);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
 
   const handleAddService = async () => {
     if (newServiceName.trim() && newServiceUrl.trim()) {
-      await addService(newServiceName, newServiceUrl, selectedFormat);
+      if (selectedFormat === 's3') {
+        // For S3, create a service with a placeholder format since the actual format will be determined by file extension
+        const s3Service: Service = {
+          id: `s3-service-${Date.now()}`,
+          name: newServiceName.trim(),
+          url: newServiceUrl.trim(),
+          format: 'cog', // Default format for S3 services
+          sourceType: 's3'
+        };
+        onAddService(s3Service);
+      } else {
+        await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat);
+      }
       setNewServiceName('');
       setNewServiceUrl('');
       setShowAddForm(false);
@@ -37,6 +50,13 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
     setNewServiceName('');
     setNewServiceUrl('');
     setShowAddForm(false);
+  };
+
+  const getConfigForType = (type: SourceConfigType) => {
+    if (type === 's3') {
+      return S3_CONFIG;
+    }
+    return FORMAT_CONFIGS[type as DataSourceFormat];
   };
 
   return (
@@ -75,7 +95,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                   <Label htmlFor="serviceFormat">Service Type</Label>
                   <Select
                     value={selectedFormat}
-                    onValueChange={(value: DataSourceFormat) => setSelectedFormat(value)}
+                    onValueChange={(value: SourceConfigType) => setSelectedFormat(value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select service type" />
@@ -96,7 +116,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                       <SelectItem value="s3">
                         <div className="flex items-center gap-2">
                           <Database className="h-4 w-4" />
-                          {FORMAT_CONFIGS.s3.label}
+                          {S3_CONFIG.label}
                         </div>
                       </SelectItem>
                     </SelectContent>
@@ -118,7 +138,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                       id="serviceUrl"
                       value={newServiceUrl}
                       onChange={(e) => setNewServiceUrl(e.target.value)}
-                      placeholder={FORMAT_CONFIGS[selectedFormat].urlPlaceholder}
+                      placeholder={getConfigForType(selectedFormat).urlPlaceholder}
                     />
                   </div>
                 </div>
@@ -160,21 +180,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {services.map((service, index) => (
-                <Card key={service.id} className={`border-l-4 ${service.format === 's3' ? 'border-l-green-500' : 'border-l-blue-500'}`}>
+                <Card key={service.id} className={`border-l-4 ${service.sourceType === 's3' ? 'border-l-green-500' : 'border-l-blue-500'}`}>
                   <CardContent className="pt-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          {service.format === 's3' ? (
+                          {service.sourceType === 's3' ? (
                             <Database className="h-4 w-4 text-green-600" />
                           ) : (
                             <Globe className="h-4 w-4 text-blue-600" />
                           )}
-                          <h5 className={`font-medium ${service.format === 's3' ? 'text-green-700' : 'text-blue-700'}`}>
+                          <h5 className={`font-medium ${service.sourceType === 's3' ? 'text-green-700' : 'text-blue-700'}`}>
                             {service.name}
                           </h5>
-                          <Badge variant="outline" className={`${service.format === 's3' ? 'border-green-300 text-green-700' : 'border-blue-300 text-blue-700'}`}>
-                            {service.format.toUpperCase()}
+                          <Badge variant="outline" className={`${service.sourceType === 's3' ? 'border-green-300 text-green-700' : 'border-blue-300 text-blue-700'}`}>
+                            {service.sourceType === 's3' ? 'S3' : service.format.toUpperCase()}
                           </Badge>
                         </div>
                         <p className="text-xs text-slate-500 break-all mb-2">{service.url}</p>

@@ -10,7 +10,7 @@ export interface Service {
   name: string;
   url: string;
   format: DataSourceFormat;
-  capabilities?: ServiceCapabilities;
+  sourceType?: 's3' | 'service'; // New field to distinguish S3 sources
 }
 
 export interface ServiceCapabilities {
@@ -130,8 +130,11 @@ export interface FlexibleLayer extends BaseDataSource {
 // Union type for DataSource
 export type DataSource = BaseLayer | LayerCard | FlexibleLayer;
 
-// Removed 's3' from DataSourceFormat - S3 is just a source location, not a format
+// DataSourceFormat no longer includes 's3'
 export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf';
+
+// New type for source configuration (includes S3)
+export type SourceConfigType = DataSourceFormat | 's3';
 
 export type LayerType = 'base' | 'layerCard' | 'swipe';
 
