@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Palette } from 'lucide-react';
+import { Palette, Image, ExternalLink } from 'lucide-react';
 import { DataSource } from '@/types/config';
 
 interface LayerLegendDisplayProps {
@@ -17,7 +17,7 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
     <div className="p-4 bg-muted/30 rounded-lg">
       <h4 className="font-medium mb-3 flex items-center gap-2">
         <Palette className="h-4 w-4" />
-        Legend Configuration
+        Legend
       </h4>
       <div className="space-y-3 text-sm">
         <div>
@@ -25,16 +25,27 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
         </div>
         
         {legend.type === 'image' && legend.url && (
-          <div>
-            <span className="font-medium">Image URL:</span>
-            <div className="mt-1 text-xs text-muted-foreground break-all">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Image className="h-4 w-4" />
+              <a 
+                href={legend.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1"
+              >
+                View Legend Image
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+            <div className="text-xs text-muted-foreground break-all">
               {legend.url}
             </div>
           </div>
         )}
         
         {legend.type === 'gradient' && source.meta && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="font-medium">Start:</span>
@@ -53,8 +64,20 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
                 <span className="text-xs">{source.meta.endColor}</span>
               </div>
             </div>
-            <div>
-              <span className="font-medium">Range:</span> {source.meta.min} - {source.meta.max}
+            
+            {/* Gradient Preview */}
+            <div className="space-y-2">
+              <span className="font-medium">Preview:</span>
+              <div 
+                className="h-4 rounded border"
+                style={{
+                  background: `linear-gradient(to right, ${source.meta.startColor}, ${source.meta.endColor})`
+                }}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{source.meta.min}</span>
+                <span>{source.meta.max}</span>
+              </div>
             </div>
           </div>
         )}

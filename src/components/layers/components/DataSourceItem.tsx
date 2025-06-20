@@ -68,6 +68,8 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, sho
     return 'N/A';
   };
 
+  const hasZoomLevels = dataSource.minZoom !== undefined || dataSource.maxZoom !== undefined;
+
   return (
     <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50">
       <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -99,9 +101,18 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, sho
         )}
         
         {showPosition && (
-          <span className="text-xs text-gray-500 flex-shrink-0">
-            Pos: {getPosition()}
-          </span>
+          <Badge variant="secondary" className="text-xs flex-shrink-0">
+            {getPosition()}
+          </Badge>
+        )}
+        
+        {hasZoomLevels && (
+          <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
+            <span>Zoom:</span>
+            <span>
+              {dataSource.minZoom !== undefined ? dataSource.minZoom : '∞'}-{dataSource.maxZoom !== undefined ? dataSource.maxZoom : '∞'}
+            </span>
+          </div>
         )}
       </div>
       

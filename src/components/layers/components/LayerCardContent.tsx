@@ -7,6 +7,7 @@ import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
 import LayerLegendDisplay from './LayerLegendDisplay';
 import RegularLayerContent from './RegularLayerContent';
+import LayerAttributionDisplay from './LayerAttributionDisplay';
 
 interface LayerCardContentProps {
   source: DataSource;
@@ -31,9 +32,15 @@ const LayerCardContent = ({
     <CardContent className="space-y-4">
       <LayerMetadata source={source} />
       
+      {/* Attribution Display */}
+      <LayerAttributionDisplay source={source} />
+      
       {source.meta?.categories && source.meta.categories.length > 0 && (
         <LayerCategories categories={source.meta.categories} />
       )}
+
+      {/* Legend Display for all layer types */}
+      <LayerLegendDisplay source={source} />
 
       {/* Only show data source display for non-swipe layers */}
       {!isSwipeLayer && (
@@ -49,9 +56,6 @@ const LayerCardContent = ({
 
       {/* Show swipe configuration for swipe layers */}
       {isSwipeLayer && <SwipeLayerConfig source={source} />}
-
-      {/* Show legend configuration for swipe layers */}
-      {isSwipeLayer && <LayerLegendDisplay source={source} />}
     </CardContent>
   );
 };
