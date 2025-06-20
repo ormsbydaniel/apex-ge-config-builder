@@ -1,6 +1,6 @@
 
 import { useConfig } from '@/contexts/ConfigContext';
-import { DataSource, Service, Category } from '@/types/config';
+import { DataSource, Service, Category, DataSourceFormat } from '@/types/config';
 import { validateImages } from '@/utils/imageValidation';
 
 export const useValidatedConfig = () => {
@@ -168,13 +168,13 @@ export const useValidatedConfig = () => {
     };
   });
 
-  // Ensure services have required fields with defaults (handle backwards compatibility)
+  // Ensure services have required fields with defaults - use proper DataSourceFormat type
   const validatedServices: Service[] = (config.services || []).map(service => ({
     ...service,
     id: service.id || '',
     name: service.name || '',
     url: service.url || '',
-    format: service.format || 'wms'
+    format: service.format || ('wms' as DataSourceFormat)
   }));
 
   return {
