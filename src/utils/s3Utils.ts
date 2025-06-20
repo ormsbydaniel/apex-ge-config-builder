@@ -1,4 +1,3 @@
-
 import { DataSourceFormat } from '@/types/config';
 
 export interface S3Object {
@@ -57,7 +56,7 @@ export const parseS3Url = (url: string): S3BucketInfo | null => {
   }
 };
 
-// Determine file format from file extension
+// Determine file format from file extension with proper error handling
 export const getFormatFromExtension = (filename: string): DataSourceFormat | null => {
   const extension = filename.toLowerCase().split('.').pop();
   
@@ -69,7 +68,29 @@ export const getFormatFromExtension = (filename: string): DataSourceFormat | nul
     'json': 'geojson' // Assume GeoJSON for .json files
   };
   
-  return extension ? extensionMap[extension] || null : null;
+  if (!extension) {
+    console.warn(`No extension found for file: ${filename}`);
+    return null;
+  }
+  
+  const format = extensionMap[extension];
+  if (!format) {
+    console.warn(`Unrecognized format for extension: ${extension} in file: ${filename}`);
+    return null;
+  }
+  
+  return format;
+};
+
+// Check if a filename has a supported format
+export const isSupportedFormat = (filename: string): boolean => {
+  return getFormatFromExtension(filename) !== null;
+};
+
+// Get error message for unsupported formats
+export const getUnsupportedFormatMessage = (filename: string): string => {
+  const extension = filename.toLowerCase().split('.').pop();
+  return `Unrecognized format: ${extension}. Supported formats: .fgb (FlatGeoBuf), .tif/.tiff (COG), .geojson/.json (GeoJSON)`;
 };
 
 // Fetch S3 bucket contents using XML API

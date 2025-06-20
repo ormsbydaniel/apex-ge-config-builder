@@ -168,7 +168,7 @@ export const useValidatedConfig = () => {
     };
   });
 
-  // Ensure services have required fields with defaults - use proper DataSourceFormat type
+  // Ensure services have required fields with defaults
   const validatedServices: Service[] = (config.services || []).map(service => ({
     ...service,
     id: service.id || '',

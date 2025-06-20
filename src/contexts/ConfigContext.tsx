@@ -146,7 +146,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
             // Create a clean data item without serviceId, ensuring all required fields
             const updatedItem: DataSourceItem = {
               url: dataItem.url || '',
-              format: (dataItem.format || 'wms') as DataSourceFormat,
+              format: dataItem.format || 'wms',
               zIndex: dataItem.zIndex ?? 0,
             };
             
@@ -169,7 +169,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
             if (statItem.serviceId === serviceToRemove.id) {
               const updatedStatItem: DataSourceItem = {
                 url: statItem.url || '',
-                format: (statItem.format || 'flatgeobuf') as DataSourceFormat,
+                format: statItem.format || 'flatgeobuf',
                 zIndex: statItem.zIndex ?? 0,
               };
               

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Service, ServiceCapabilities, DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
@@ -10,20 +11,6 @@ export const useServices = (services: Service[], onAddService: (service: Service
   const parseGetCapabilities = async (url: string, format: DataSourceFormat): Promise<ServiceCapabilities | null> => {
     try {
       setIsLoadingCapabilities(true);
-      
-      // Handle S3 bucket listing
-      if (format === 's3') {
-        const objects = await fetchS3BucketContents(url);
-        return {
-          layers: objects.map(obj => ({
-            name: obj.key,
-            title: obj.key,
-            abstract: `S3 object (${Math.round(obj.size / 1024)} KB)`
-          })),
-          title: 'S3 Bucket Contents',
-          abstract: `${objects.length} objects found`
-        };
-      }
       
       // Construct GetCapabilities URL for WMS/WMTS
       const capabilitiesUrl = new URL(url);
@@ -87,10 +74,8 @@ export const useServices = (services: Service[], onAddService: (service: Service
     } catch (error) {
       console.error('Error fetching capabilities:', error);
       toast({
-        title: format === 's3' ? "S3 Bucket Error" : "GetCapabilities Error",
-        description: format === 's3' 
-          ? "Failed to fetch bucket contents. Check bucket permissions and CORS settings."
-          : "Failed to fetch service capabilities. You can still configure the service manually.",
+        title: "GetCapabilities Error",
+        description: "Failed to fetch service capabilities. You can still configure the service manually.",
         variant: "destructive"
       });
       return null;
@@ -100,10 +85,10 @@ export const useServices = (services: Service[], onAddService: (service: Service
   };
 
   const addService = async (name: string, url: string, format: DataSourceFormat) => {
-    // Generate a unique service ID without the zero suffix
+    // Generate a unique service ID
     const serviceId = `${format}-service-${Date.now()}`;
     
-    // For formats that support capabilities/listing, try to fetch them
+    // For formats that support capabilities, try to fetch them
     let capabilities: ServiceCapabilities | undefined;
     if (format !== 'xyz') {
       capabilities = await parseGetCapabilities(url, format) || undefined;
@@ -120,10 +105,9 @@ export const useServices = (services: Service[], onAddService: (service: Service
     onAddService(service);
     
     if (capabilities?.layers.length) {
-      const itemType = format === 's3' ? 'objects' : 'layers';
       toast({
         title: "Service Added",
-        description: `${name} added with ${capabilities.layers.length} ${itemType} discovered.`,
+        description: `${name} added with ${capabilities.layers.length} layers discovered.`,
       });
     } else {
       toast({

@@ -1,6 +1,7 @@
 
 import { FormatConfig, DataSourceFormat } from '@/types/config';
 
+// Removed s3 from FORMAT_CONFIGS - S3 is just a source location, not a format
 export const FORMAT_CONFIGS: Record<DataSourceFormat, FormatConfig> = {
   wms: {
     label: 'WMS (Web Map Service)',
@@ -50,12 +51,13 @@ export const FORMAT_CONFIGS: Record<DataSourceFormat, FormatConfig> = {
     layersPlaceholder: '',
     requiresLayers: false,
     supportsGetCapabilities: false,
-  },
-  s3: {
-    label: 'S3 Bucket',
-    urlPlaceholder: 'https://esa-apex.s3.eu-west-1.amazonaws.com/',
-    layersPlaceholder: '',
-    requiresLayers: false,
-    supportsGetCapabilities: true, // We'll fetch bucket contents
-  },
+  }
+};
+
+// Add special handling for S3 bucket browsing
+export const S3_CONFIG = {
+  label: 'S3 Bucket Browser',
+  urlPlaceholder: 'https://esa-apex.s3.eu-west-1.amazonaws.com/',
+  description: 'Browse and select files from an S3 bucket. File format will be automatically detected.',
+  supportsGetCapabilities: true // We'll fetch bucket contents
 };
