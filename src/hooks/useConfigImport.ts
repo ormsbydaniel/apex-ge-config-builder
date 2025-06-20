@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ConfigurationSchema } from '@/schemas/configSchema';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -11,9 +11,11 @@ import { normalizeImportedConfig, detectTransformations } from '@/utils/importTr
 export const useConfigImport = () => {
   const { dispatch } = useConfig();
   const { toast } = useToast();
+  const [isImporting, setIsImporting] = useState(false);
 
   const importConfig = useCallback(async (file: File): Promise<{ success: boolean; errors?: ValidationErrorDetails[]; jsonError?: any }> => {
     try {
+      setIsImporting(true);
       dispatch({ type: 'SET_LOADING', payload: true });
 
       const text = await file.text();
@@ -23,6 +25,7 @@ export const useConfigImport = () => {
       
       if (parseResult.error) {
         dispatch({ type: 'SET_LOADING', payload: false });
+        setIsImporting(false);
         
         const errorMessage = parseResult.error.lineNumber 
           ? `Invalid JSON at line ${parseResult.error.lineNumber}${parseResult.error.columnNumber ? `, column ${parseResult.error.columnNumber}` : ''}: ${parseResult.error.message}`
@@ -92,6 +95,7 @@ export const useConfigImport = () => {
       return { success: true };
     } catch (error) {
       dispatch({ type: 'SET_LOADING', payload: false });
+      setIsImporting(false);
       
       if (error instanceof Error && error.name === 'ZodError') {
         // Format validation errors for detailed display with config data context
@@ -115,6 +119,9 @@ export const useConfigImport = () => {
         });
         return { success: false };
       }
+    } finally {
+      setIsImporting(false);
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   }, [dispatch, toast]);
 
@@ -125,5 +132,5 @@ export const useConfigImport = () => {
     }
   }, [importConfig]);
 
-  return { importConfig, handleFileSelect };
+  return { importConfig, handleFileSelect, isImporting };
 };

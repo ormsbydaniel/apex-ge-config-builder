@@ -4,10 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Home, Layers, Layout, BarChart3, Eye } from 'lucide-react';
 import HomeTab from '@/components/home/HomeTab';
 import ServicesManager from '../ServicesManager';
-import { LayersTab } from './LayersTab';
-import { LayoutTab } from './LayoutTab';
-import { DrawOrderTab } from './DrawOrderTab';
-import { PreviewTab } from './PreviewTab';
+import LayersTab from './LayersTab';
+import LayoutTab from './LayoutTab';
+import DrawOrderTab from './DrawOrderTab';
+import PreviewTab from './PreviewTab';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useExclusivitySets } from '@/hooks/useExclusivitySets';
 
