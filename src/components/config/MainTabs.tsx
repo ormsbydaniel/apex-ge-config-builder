@@ -8,12 +8,12 @@ import LayersTab from './LayersTab';
 import LayoutTab from './LayoutTab';
 import DrawOrderTab from './DrawOrderTab';
 import PreviewTab from './PreviewTab';
-import { useConfig } from '@/contexts/ConfigContext';
+import { useValidatedConfig } from '@/hooks/useValidatedConfig';
 import { useExclusivitySets } from '@/hooks/useExclusivitySets';
 import { DataSource, Service } from '@/types/config';
 
 const MainTabs = () => {
-  const { config, dispatch } = useConfig();
+  const { config, dispatch } = useValidatedConfig();
   const { addExclusivitySet, removeExclusivitySet, newExclusivitySet, setNewExclusivitySet } = useExclusivitySets();
 
   // Layer management state
@@ -78,9 +78,9 @@ const MainTabs = () => {
     }
   };
 
-  // Type-safe data with proper defaults
-  const sources = (config.sources || []) as DataSource[];
-  const services = (config.services || []) as Service[];
+  // Data is already validated by useValidatedConfig
+  const sources = config.sources;
+  const services = config.services;
   const interfaceGroups = config.interfaceGroups || [];
   const exclusivitySets = config.exclusivitySets || [];
 
