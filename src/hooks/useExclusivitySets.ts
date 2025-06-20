@@ -1,10 +1,13 @@
 
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useConfig } from '@/contexts/ConfigContext';
 
-export const useExclusivitySets = () => {
-  const { config, dispatch } = useConfig();
+interface UseExclusivitySetsProps {
+  config: { exclusivitySets: string[] };
+  dispatch: (action: any) => void;
+}
+
+export const useExclusivitySets = ({ config, dispatch }: UseExclusivitySetsProps) => {
   const { toast } = useToast();
   const [newExclusivitySet, setNewExclusivitySet] = useState('');
 

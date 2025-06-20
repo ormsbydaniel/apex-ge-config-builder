@@ -8,9 +8,15 @@ import { useLayerManagement } from './useLayerManagement';
 export const useConfigBuilderState = () => {
   const { config, dispatch } = useValidatedConfig();
 
+  // Ensure exclusivitySets is always an array for the hook
+  const configWithExclusivitySets = {
+    ...config,
+    exclusivitySets: config.exclusivitySets || []
+  };
+
   // Use focused hooks for different concerns
   const layoutState = useLayoutState({ dispatch });
-  const exclusivitySets = useExclusivitySets();
+  const exclusivitySets = useExclusivitySets({ config: configWithExclusivitySets, dispatch });
   const serviceManagement = useServiceManagement({ config, dispatch });
   const layerManagement = useLayerManagement({ config, dispatch });
 
