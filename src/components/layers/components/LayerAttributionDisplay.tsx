@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { ExternalLink, User } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { DataSource } from '@/types/config';
 
 interface LayerAttributionDisplayProps {
@@ -12,17 +11,14 @@ const LayerAttributionDisplay = ({ source }: LayerAttributionDisplayProps) => {
   if (!source.meta?.attribution?.text) return null;
 
   return (
-    <div className="p-3 bg-muted/20 rounded-lg border">
-      <h4 className="font-medium mb-2 flex items-center gap-2 text-sm">
-        <User className="h-4 w-4" />
-        Attribution
-      </h4>
-      <div className="space-y-2">
-        <div className="text-sm">
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-gray-700">Attribution</h4>
+      <div className="text-sm space-y-1">
+        <div>
           <span className="font-medium">Source:</span> {source.meta.attribution.text}
         </div>
         {source.meta.attribution.url && (
-          <div className="text-sm">
+          <div>
             <span className="font-medium">URL:</span>
             <a 
               href={source.meta.attribution.url} 
