@@ -1,4 +1,3 @@
-
 export interface Category {
   color: string;
   label: string;
@@ -47,6 +46,9 @@ export interface DataSourceItem {
   images?: Array<{ url: string }>;
   // Position field for comparison layers (swipe, mirror, spotlight)
   position?: 'left' | 'right' | 'background' | 'spotlight';
+  // Zoom level constraints
+  minZoom?: number;
+  maxZoom?: number;
 }
 
 // Simplified - data is always an array
