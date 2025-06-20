@@ -1,5 +1,6 @@
 
 
+
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { Service, DataSource, DataSourceItem, DataSourceFormat } from '@/types/config';
 import { ValidatedConfiguration } from '@/schemas/configSchema';
@@ -148,7 +149,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
             // Create a clean data item without serviceId, ensuring all required fields
             const updatedItem: DataSourceItem = {
               url: dataItem.url || '',
-              format: dataItem.format || 'wms',
+              format: dataItem.format as DataSourceFormat,
               zIndex: dataItem.zIndex ?? 0,
             };
             
@@ -171,7 +172,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
             if (statItem.serviceId === serviceToRemove.id) {
               const updatedStatItem: DataSourceItem = {
                 url: statItem.url || '',
-                format: statItem.format || 'wms',
+                format: statItem.format as DataSourceFormat,
                 zIndex: statItem.zIndex ?? 0,
               };
               
@@ -273,4 +274,5 @@ export const useConfig = () => {
   }
   return context;
 };
+
 
