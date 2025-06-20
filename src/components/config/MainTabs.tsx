@@ -109,7 +109,7 @@ const MainTabs = () => {
       <TabsContent value="layers" className="mt-6">
         <div className="space-y-6">
           <ServicesManager
-            services={config.services}
+            services={config.services || []}
             onAddService={addService}
             onRemoveService={(index) => dispatch({ type: 'REMOVE_SERVICE', payload: index })}
           />
@@ -144,6 +144,7 @@ const MainTabs = () => {
           config={config}
           updateLayout={updateLayout}
           updateInterfaceGroups={updateInterfaceGroups}
+          updateConfig={updateConfig}
           addExclusivitySet={addExclusivitySet}
           removeExclusivitySet={removeExclusivitySet}
           newExclusivitySet={newExclusivitySet}
@@ -153,7 +154,10 @@ const MainTabs = () => {
 
       <TabsContent value="draw-order" className="mt-6">
         <DrawOrderTab
-          config={config}
+          config={{
+            sources: config.sources || [],
+            exclusivitySets: config.exclusivitySets || []
+          }}
           updateConfig={updateConfig}
         />
       </TabsContent>
