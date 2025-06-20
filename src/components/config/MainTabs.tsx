@@ -3,6 +3,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Home, Globe, Layers, Settings, FileText, Eye } from 'lucide-react';
 import { useConfig } from '@/contexts/ConfigContext';
+import { useExclusivitySets } from '@/hooks/useExclusivitySets';
 import HomeTab from './HomeTab';
 import ServicesManager from '../ServicesManager';
 import LayersTab from './LayersTab';
@@ -16,6 +17,14 @@ interface MainTabsProps {
 
 const MainTabs = ({ defaultTab = "home" }: MainTabsProps) => {
   const { config, dispatch } = useConfig();
+
+  // Use the exclusivity sets hook
+  const {
+    newExclusivitySet,
+    setNewExclusivitySet,
+    addExclusivitySet,
+    removeExclusivitySet
+  } = useExclusivitySets({ config, dispatch });
 
   // Services management handlers
   const handleAddService = (service: any) => {
@@ -36,15 +45,6 @@ const MainTabs = ({ defaultTab = "home" }: MainTabsProps) => {
 
   const updateInterfaceGroups = (interfaceGroups: string[]) => {
     dispatch({ type: 'UPDATE_INTERFACE_GROUPS', payload: interfaceGroups });
-  };
-
-  const addExclusivitySet = () => {
-    // This would need to be implemented with proper state management
-    console.log('Add exclusivity set - needs implementation');
-  };
-
-  const removeExclusivitySet = (index: number) => {
-    dispatch({ type: 'REMOVE_EXCLUSIVITY_SET', payload: index });
   };
 
   const updateConfig = (updates: any) => {
@@ -117,8 +117,8 @@ const MainTabs = ({ defaultTab = "home" }: MainTabsProps) => {
           updateConfig={updateConfig}
           addExclusivitySet={addExclusivitySet}
           removeExclusivitySet={removeExclusivitySet}
-          newExclusivitySet=""
-          setNewExclusivitySet={() => {}}
+          newExclusivitySet={newExclusivitySet}
+          setNewExclusivitySet={setNewExclusivitySet}
         />
       </TabsContent>
       
@@ -129,15 +129,15 @@ const MainTabs = ({ defaultTab = "home" }: MainTabsProps) => {
           updateInterfaceGroups={updateInterfaceGroups}
           addExclusivitySet={addExclusivitySet}
           removeExclusivitySet={removeExclusivitySet}
-          newExclusivitySet=""
-          setNewExclusivitySet={() => {}}
+          newExclusivitySet={newExclusivitySet}
+          setNewExclusivitySet={setNewExclusivitySet}
           updateConfig={updateConfig}
         />
       </TabsContent>
       
       <TabsContent value="draw-order" className="flex-1 mt-6">
         <DrawOrderTab
-          config={config}
+          config={{ sources: config.sources, exclusivitySets: config.exclusivitySets }}
           updateConfig={updateConfig}
         />
       </TabsContent>
