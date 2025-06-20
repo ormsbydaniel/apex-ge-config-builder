@@ -46,7 +46,9 @@ export const useConfigExport = () => {
             zIndex: item.zIndex,
             // Preserve minZoom and maxZoom if they exist
             ...(item.minZoom !== undefined && { minZoom: item.minZoom }),
-            ...(item.maxZoom !== undefined && { maxZoom: item.maxZoom })
+            ...(item.maxZoom !== undefined && { maxZoom: item.maxZoom }),
+            // Preserve normalize if it exists
+            ...(item.normalize !== undefined && { normalize: item.normalize })
           })),
           // Include statistics if they exist
           ...(source.statistics && {
@@ -57,7 +59,9 @@ export const useConfigExport = () => {
               zIndex: item.zIndex,
               // Preserve minZoom and maxZoom in statistics as well
               ...(item.minZoom !== undefined && { minZoom: item.minZoom }),
-              ...(item.maxZoom !== undefined && { maxZoom: item.maxZoom })
+              ...(item.maxZoom !== undefined && { maxZoom: item.maxZoom }),
+              // Preserve normalize in statistics as well
+              ...(item.normalize !== undefined && { normalize: item.normalize })
             }))
           })
         })),
