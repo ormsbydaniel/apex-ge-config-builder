@@ -10,6 +10,7 @@ import DrawOrderTab from './DrawOrderTab';
 import PreviewTab from './PreviewTab';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useExclusivitySets } from '@/hooks/useExclusivitySets';
+import { DataSource, Service } from '@/types/config';
 
 const MainTabs = () => {
   const { config, dispatch } = useConfig();
@@ -77,6 +78,12 @@ const MainTabs = () => {
     }
   };
 
+  // Type-safe data with proper defaults
+  const sources = (config.sources || []) as DataSource[];
+  const services = (config.services || []) as Service[];
+  const interfaceGroups = config.interfaceGroups || [];
+  const exclusivitySets = config.exclusivitySets || [];
+
   return (
     <Tabs defaultValue="home" className="w-full">
       <TabsList className="grid w-full grid-cols-5">
@@ -109,12 +116,17 @@ const MainTabs = () => {
       <TabsContent value="layers" className="mt-6">
         <div className="space-y-6">
           <ServicesManager
-            services={config.services || []}
+            services={services}
             onAddService={addService}
             onRemoveService={(index) => dispatch({ type: 'REMOVE_SERVICE', payload: index })}
           />
           <LayersTab
-            config={config}
+            config={{
+              sources,
+              interfaceGroups,
+              services,
+              exclusivitySets
+            }}
             showLayerForm={showLayerForm}
             selectedLayerType={selectedLayerType}
             defaultInterfaceGroup={defaultInterfaceGroup}
@@ -155,8 +167,8 @@ const MainTabs = () => {
       <TabsContent value="draw-order" className="mt-6">
         <DrawOrderTab
           config={{
-            sources: config.sources || [],
-            exclusivitySets: config.exclusivitySets || []
+            sources,
+            exclusivitySets
           }}
           updateConfig={updateConfig}
         />
