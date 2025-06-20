@@ -16,7 +16,6 @@ type ConfigAction =
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
   | { type: 'UPDATE_INTERFACE_GROUPS'; payload: string[] }
   | { type: 'UPDATE_EXCLUSIVITY_SETS'; payload: string[] }
-  | { type: 'REMOVE_EXCLUSIVITY_SET'; payload: number }
   | { type: 'ADD_SERVICE'; payload: Service }
   | { type: 'REMOVE_SERVICE'; payload: number }
   | { type: 'ADD_SOURCE'; payload: DataSource }
@@ -129,11 +128,6 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       return {
         ...state,
         exclusivitySets: action.payload,
-      };
-    case 'REMOVE_EXCLUSIVITY_SET':
-      return {
-        ...state,
-        exclusivitySets: state.exclusivitySets.filter((_, i) => i !== action.payload),
       };
     case 'ADD_SERVICE':
       return {
