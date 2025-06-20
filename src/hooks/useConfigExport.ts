@@ -16,7 +16,8 @@ export const useConfigExport = () => {
     removeEmptyCategories: false, 
     includeCategoryValues: true,
     addNormalizeFalseToCogs: false,
-    transformSwipeLayersToData: false
+    transformSwipeLayersToData: false,
+    changeFormatToType: false
   }) => {
     try {
       console.log('Starting config export with options:', options);

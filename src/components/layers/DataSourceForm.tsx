@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,10 +13,13 @@ import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
+import { LayerTypeOption } from '@/hooks/useLayerTypeManagement';
+import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
 
 interface DataSourceFormProps {
   services: Service[];
   currentLayerStatistics?: DataSourceItem[];
+  layerType?: LayerTypeOption;
   onAddDataSource: (dataSource: DataSourceItem) => void;
   onAddStatisticsLayer: (statisticsItem: DataSourceItem) => void;
   onAddService: (service: Service) => void;
@@ -25,6 +29,7 @@ interface DataSourceFormProps {
 const DataSourceForm = ({ 
   services, 
   currentLayerStatistics = [],
+  layerType = 'standard',
   onAddDataSource, 
   onAddStatisticsLayer,
   onAddService, 
@@ -42,6 +47,11 @@ const DataSourceForm = ({
   const [zIndex, setZIndex] = useState(2);
   const [showLayerSelection, setShowLayerSelection] = useState(false);
   
+  // Position state for comparison layers
+  const [selectedPosition, setSelectedPosition] = useState<PositionValue | undefined>(
+    requiresPosition(layerType) ? getDefaultPosition(layerType) : undefined
+  );
+  
   // Statistics layer state
   const {
     isStatisticsLayer,
@@ -55,20 +65,13 @@ const DataSourceForm = ({
   const [newServiceUrl, setNewServiceUrl] = useState('');
 
   const config_format = FORMAT_CONFIGS[selectedFormat];
+  const needsPosition = requiresPosition(layerType);
+  const validPositions = getValidPositions(layerType);
 
   // Check if current format supports statistics
   const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
 
-  console.log('=== DataSourceForm Debug ===');
-  console.log('selectedFormat:', selectedFormat);
-  console.log('supportsStatistics:', supportsStatistics);
-  console.log('isStatisticsLayer:', isStatisticsLayer);
-  console.log('statisticsLevel (auto-calculated):', statisticsLevel);
-  console.log('currentLayerStatistics:', currentLayerStatistics);
-  console.log('================================');
-
   const handleFormatChange = (format: DataSourceFormat) => {
-    console.log('Format changed from:', selectedFormat, 'to:', format);
     setSelectedFormat(format);
     
     // Reset statistics state for unsupported formats
@@ -78,7 +81,6 @@ const DataSourceForm = ({
   };
 
   const handleStatisticsToggle = (checked: boolean) => {
-    console.log('Statistics toggle changed to:', checked);
     setIsStatisticsLayer(checked);
   };
 
@@ -156,6 +158,16 @@ const DataSourceForm = ({
       layers = directLayers.trim();
     }
 
+    // Validate position for comparison layers
+    if (needsPosition && !selectedPosition) {
+      toast({
+        title: "Missing Position",
+        description: `Please select a position for this ${layerType} layer data source.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Validate statistics layer requirements
     if (isStatisticsLayer && !supportsStatistics) {
       toast({
@@ -172,6 +184,7 @@ const DataSourceForm = ({
       zIndex,
       ...(layers && { layers }),
       ...(serviceId && { serviceId }),
+      ...(needsPosition && selectedPosition && { position: selectedPosition }),
       ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel })
     };
 
@@ -197,13 +210,47 @@ const DataSourceForm = ({
         <CardTitle className="flex items-center gap-2">
           <Database className="h-5 w-5" />
           Add Data Source
+          {needsPosition && (
+            <Badge variant="outline" className="text-xs">
+              {layerType} layer
+            </Badge>
+          )}
         </CardTitle>
         <CardDescription>
           Configure a data source for this layer from an existing service or provide direct connection details.
+          {needsPosition && (
+            <span className="block mt-1 text-orange-600">
+              Position assignment is required for {layerType} layers.
+            </span>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Position Selection for Comparison Layers */}
+          {needsPosition && (
+            <div className="space-y-2 p-4 border rounded-lg bg-orange-50 dark:bg-orange-950/20">
+              <Label htmlFor="position" className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                Position *
+              </Label>
+              <Select value={selectedPosition} onValueChange={(value) => setSelectedPosition(value as PositionValue)}>
+                <SelectTrigger id="position" className="border-orange-200 dark:border-orange-800">
+                  <SelectValue placeholder="Select position for this data source" />
+                </SelectTrigger>
+                <SelectContent>
+                  {validPositions.map((position) => (
+                    <SelectItem key={position} value={position}>
+                      {getPositionDisplayName(position)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-orange-600 dark:text-orange-400">
+                This data source will be positioned as "{selectedPosition ? getPositionDisplayName(selectedPosition) : 'None'}" in the {layerType} layer.
+              </p>
+            </div>
+          )}
+
           {/* Source Type Selection */}
           <div className="space-y-4">
             <Label>Source Type</Label>

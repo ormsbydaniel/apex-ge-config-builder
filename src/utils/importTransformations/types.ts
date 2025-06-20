@@ -6,5 +6,6 @@ export interface DetectedTransformations {
   transformSwipeLayersToData: boolean;
   configureCogsAsImages: boolean;
   exclusivitySetsTransformation: boolean;
-  metaCompletionNeeded: boolean; // Add new transformation type
+  metaCompletionNeeded: boolean;
+  formatToTypeConversion: boolean;
 }

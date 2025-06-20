@@ -6,6 +6,7 @@ import { reverseSwipeLayerTransformation } from './transformers/swipeLayerTransf
 import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
 import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
+import { reverseFormatToTypeTransformation } from './transformers/formatToTypeTransformer';
 
 /**
  * Apply all reverse transformations in the correct order
@@ -35,17 +36,22 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
     normalizedConfig = reverseTypeToFormatTransformation(normalizedConfig, true);
   }
   
-  // 4. Reverse base layer transformation (old format → new format)
+  // 4. Convert format-to-type transformation back (type to format)
+  if (detectedTransforms.formatToTypeConversion) {
+    normalizedConfig = reverseFormatToTypeTransformation(normalizedConfig, true);
+  }
+  
+  // 5. Reverse base layer transformation (old format → new format)
   if (detectedTransforms.baseLayerFormat) {
     normalizedConfig = reverseBaseLayerTransformation(normalizedConfig, true);
   }
   
-  // 5. Reverse swipe layer transformation (data object → internal format)
+  // 6. Reverse swipe layer transformation (data object → internal format)
   if (detectedTransforms.transformSwipeLayersToData) {
     normalizedConfig = reverseSwipeLayerTransformation(normalizedConfig, true);
   }
   
-  // 6. Reverse COG transformation (after other transformations)
+  // 7. Reverse COG transformation (after other transformations)
   if (detectedTransforms.configureCogsAsImages) {
     normalizedConfig = reverseCogTransformation(normalizedConfig, true);
   }

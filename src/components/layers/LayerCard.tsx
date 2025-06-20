@@ -42,9 +42,10 @@ const LayerCard = ({
 }: LayerCardProps) => {
   const [isJsonEditorOpen, setIsJsonEditorOpen] = useState(false);
   
-  // UPDATED: Check for base layer using the new format (top-level isBaseLayer property)
   const isBaseLayer = source.isBaseLayer === true;
-  const isSwipeLayer = source.meta?.swipeConfig !== undefined;
+  const isSwipeLayer = source.meta?.swipeConfig !== undefined || (source as any).isSwipeLayer;
+  const isMirrorLayer = (source as any).isMirrorLayer;
+  const isSpotlightLayer = (source as any).isSpotlightLayer;
 
   const handleEdit = () => {
     if (isBaseLayer) {
@@ -66,9 +67,13 @@ const LayerCard = ({
   // Determine border color based on layer type
   const borderClass = isSwipeLayer 
     ? 'border-l-4 border-l-purple-500' 
-    : isBaseLayer 
-      ? 'border-l-4 border-l-green-500'
-      : 'border-l-4 border-l-primary/30';
+    : isMirrorLayer
+      ? 'border-l-4 border-l-blue-500'
+      : isSpotlightLayer
+        ? 'border-l-4 border-l-yellow-500'
+        : isBaseLayer 
+          ? 'border-l-4 border-l-green-500'
+          : 'border-l-4 border-l-primary/30';
 
   return (
     <>

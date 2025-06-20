@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { DataSource } from '@/types/config';
+import { LayerTypeOption } from '@/hooks/useLayerTypeManagement';
 import LayerFormContainer from './LayerFormContainer';
 import DataSourceForm from './DataSourceForm';
 
@@ -60,10 +61,23 @@ const LayerFormHandler = ({
 
   if (showDataSourceForm && selectedLayerIndex !== null) {
     const currentLayer = config.sources[selectedLayerIndex];
+    
+    if (!currentLayer) {
+      console.error('No layer found at index:', selectedLayerIndex);
+      return null;
+    }
+    
+    // Determine layer type from flags
+    let layerType: LayerTypeOption = 'standard';
+    if ((currentLayer as any).isSwipeLayer) layerType = 'swipe';
+    else if ((currentLayer as any).isMirrorLayer) layerType = 'mirror';
+    else if ((currentLayer as any).isSpotlightLayer) layerType = 'spotlight';
+    
     return (
       <DataSourceForm
         services={services}
         currentLayerStatistics={currentLayer?.statistics || []}
+        layerType={layerType}
         onAddDataSource={onDataSourceAdded}
         onAddStatisticsLayer={onStatisticsLayerAdded}
         onAddService={onAddService}

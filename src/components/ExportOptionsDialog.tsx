@@ -13,6 +13,7 @@ export interface ExportOptions {
   includeCategoryValues: boolean;
   addNormalizeFalseToCogs: boolean;
   transformSwipeLayersToData: boolean;
+  changeFormatToType: boolean;
 }
 
 interface ExportOptionsDialogProps {
@@ -29,7 +30,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
       removeEmptyCategories: false,
       includeCategoryValues: true,
       addNormalizeFalseToCogs: false,
-      transformSwipeLayersToData: false
+      transformSwipeLayersToData: false,
+      changeFormatToType: false
     }
   });
 
@@ -46,7 +48,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
       removeEmptyCategories: false,
       includeCategoryValues: true,
       addNormalizeFalseToCogs: false,
-      transformSwipeLayersToData: false
+      transformSwipeLayersToData: false,
+      changeFormatToType: false
     });
     onOpenChange(false);
   };
@@ -181,6 +184,26 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
             </div>
             <p className="text-xs text-muted-foreground ml-6">
               Convert swipe layers from empty data arrays to structured data objects with clipped and base sources
+            </p>
+
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="changeFormatToType"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox 
+                    id="changeFormatToType"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <Label htmlFor="changeFormatToType" className="text-sm">
+                Change data.format to data.type
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              Convert format properties to type properties in data objects for external compatibility
             </p>
           </div>
 
