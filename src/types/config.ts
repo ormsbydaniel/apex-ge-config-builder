@@ -11,6 +11,7 @@ export interface Service {
   url: string;
   format: DataSourceFormat;
   sourceType?: 's3' | 'service'; // New field to distinguish S3 sources
+  capabilities?: ServiceCapabilities; // Add back the capabilities property
 }
 
 export interface ServiceCapabilities {
