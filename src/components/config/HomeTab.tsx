@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,15 +10,22 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
-
 interface HomeTabProps {
   config: any;
 }
-
-const HomeTab = ({ config }: HomeTabProps) => {
-  const { dispatch } = useConfig();
-  const { handleFileSelect, importConfig } = useConfigImport();
-  const { exportConfig } = useConfigExport();
+const HomeTab = ({
+  config
+}: HomeTabProps) => {
+  const {
+    dispatch
+  } = useConfig();
+  const {
+    handleFileSelect,
+    importConfig
+  } = useConfigImport();
+  const {
+    exportConfig
+  } = useConfigExport();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -29,31 +35,28 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   const [title, setTitle] = useState(config.layout.navigation.title);
-
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
-
   const handleNewConfig = () => {
-    dispatch({ type: 'RESET_CONFIG' });
+    dispatch({
+      type: 'RESET_CONFIG'
+    });
   };
-
   const handleQuickExport = () => {
-    exportConfig({ 
-      singleItemArrayToObject: false, 
-      configureCogsAsImages: false, 
-      removeEmptyCategories: false, 
-      includeCategoryValues: true, 
+    exportConfig({
+      singleItemArrayToObject: false,
+      configureCogsAsImages: false,
+      removeEmptyCategories: false,
+      includeCategoryValues: true,
       addNormalizeFalseToCogs: false,
       transformSwipeLayersToData: false,
       changeFormatToType: false
     });
   };
-
   const handleExportWithOptions = (options: ExportOptions) => {
     exportConfig(options);
   };
-
   const handleFileSelectWithErrorHandling = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -69,7 +72,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
       fileInputRef.current.value = '';
     }
   };
-
   const handleSaveLogo = () => {
     dispatch({
       type: 'UPDATE_LAYOUT',
@@ -80,12 +82,10 @@ const HomeTab = ({ config }: HomeTabProps) => {
     });
     setIsEditingLogo(false);
   };
-
   const handleCancelLogo = () => {
     setLogoUrl(config.layout.navigation.logo);
     setIsEditingLogo(false);
   };
-
   const handleSaveTitle = () => {
     dispatch({
       type: 'UPDATE_LAYOUT',
@@ -96,7 +96,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
     });
     setIsEditingTitle(false);
   };
-
   const handleCancelTitle = () => {
     setTitle(config.layout.navigation.title);
     setIsEditingTitle(false);
@@ -107,9 +106,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
     setLogoUrl(config.layout.navigation.logo);
     setTitle(config.layout.navigation.title);
   }, [config.layout.navigation.logo, config.layout.navigation.title]);
-
-  return (
-    <>
+  return <>
       <div className="space-y-6">
         <Card className="border-primary/20">
           <CardHeader>
@@ -160,8 +157,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                       <Edit className="h-3 w-3" />
                     </Button>
                   </div>
-                  {isEditingLogo ? (
-                    <div className="space-y-2">
+                  {isEditingLogo ? <div className="space-y-2">
                       <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://example.com/logo.svg" />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={handleSaveLogo}>
@@ -171,18 +167,11 @@ const HomeTab = ({ config }: HomeTabProps) => {
                           Cancel
                         </Button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex justify-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
-                      {config.layout.navigation.logo ? (
-                        <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
-                          e.currentTarget.style.display = 'none';
-                        }} />
-                      ) : (
-                        <div className="text-sm text-slate-500 italic flex items-center">No logo set</div>
-                      )}
-                    </div>
-                  )}
+                    </div> : <div className="flex justify-center border rounded-lg p-4 min-h-[80px] bg-[#2d5f72]">
+                      {config.layout.navigation.logo ? <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
+                    e.currentTarget.style.display = 'none';
+                  }} /> : <div className="text-sm text-slate-500 italic flex items-center">No logo set</div>}
+                    </div>}
                 </div>
 
                 <div className="space-y-3">
@@ -192,8 +181,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                       <Edit className="h-3 w-3" />
                     </Button>
                   </div>
-                  {isEditingTitle ? (
-                    <div className="space-y-2">
+                  {isEditingTitle ? <div className="space-y-2">
                       <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Geospatial Explorer" />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={handleSaveTitle}>
@@ -203,12 +191,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
                           Cancel
                         </Button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
+                    </div> : <div className="flex items-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
                       <span className="text-lg font-medium">{config.layout.navigation.title}</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </div>
             </div>
@@ -238,33 +223,25 @@ const HomeTab = ({ config }: HomeTabProps) => {
               </div>
             </div>
             
-            {config.lastSaved && (
-              <>
+            {config.lastSaved && <>
                 <Separator />
                 <div className="text-sm text-slate-600">
                   <span className="font-medium">Last saved: </span> 
                   {config.lastSaved.toLocaleString()}
                 </div>
-              </>
-            )}
+              </>}
             
-            {config.isLoading && (
-              <>
+            {config.isLoading && <>
                 <Separator />
                 <div className="text-sm text-blue-600">
                   Loading configuration...
                 </div>
-              </>
-            )}
+              </>}
           </CardContent>
         </Card>
       </div>
 
-      <ExportOptionsDialog
-        open={showExportDialog}
-        onOpenChange={setShowExportDialog}
-        onExport={handleExportWithOptions}
-      />
+      <ExportOptionsDialog open={showExportDialog} onOpenChange={setShowExportDialog} onExport={handleExportWithOptions} />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
@@ -282,8 +259,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
           </div>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 export default HomeTab;
