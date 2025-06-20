@@ -2,8 +2,9 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Home, Globe, Layers, Settings, FileText, Eye } from 'lucide-react';
+import { useConfig } from '@/contexts/ConfigContext';
 import HomeTab from './HomeTab';
-import { ServicesManager } from '../ServicesManager';
+import ServicesManager from '../ServicesManager';
 import LayersTab from './LayersTab';
 import LayoutTab from './LayoutTab';
 import DrawOrderTab from './DrawOrderTab';
@@ -14,6 +15,47 @@ interface MainTabsProps {
 }
 
 const MainTabs = ({ defaultTab = "home" }: MainTabsProps) => {
+  const { config, dispatch } = useConfig();
+
+  // Services management handlers
+  const handleAddService = (service: any) => {
+    dispatch({ type: 'ADD_SERVICE', payload: service });
+  };
+
+  const handleRemoveService = (index: number) => {
+    dispatch({ type: 'REMOVE_SERVICE', payload: index });
+  };
+
+  // Layout management handlers  
+  const updateLayout = (field: string, value: string) => {
+    dispatch({
+      type: 'UPDATE_LAYOUT',
+      payload: { field, value }
+    });
+  };
+
+  const updateInterfaceGroups = (interfaceGroups: string[]) => {
+    dispatch({ type: 'UPDATE_INTERFACE_GROUPS', payload: interfaceGroups });
+  };
+
+  const addExclusivitySet = () => {
+    // This would need to be implemented with proper state management
+    console.log('Add exclusivity set - needs implementation');
+  };
+
+  const removeExclusivitySet = (index: number) => {
+    dispatch({ type: 'REMOVE_EXCLUSIVITY_SET', payload: index });
+  };
+
+  const updateConfig = (updates: any) => {
+    if (updates.sources) {
+      dispatch({ type: 'UPDATE_SOURCES', payload: updates.sources });
+    }
+    if (updates.interfaceGroups) {
+      dispatch({ type: 'UPDATE_INTERFACE_GROUPS', payload: updates.interfaceGroups });
+    }
+  };
+
   return (
     <Tabs defaultValue={defaultTab} className="w-full h-full">
       <TabsList className="grid w-full grid-cols-6">
@@ -48,23 +90,60 @@ const MainTabs = ({ defaultTab = "home" }: MainTabsProps) => {
       </TabsContent>
       
       <TabsContent value="services" className="flex-1 mt-6">
-        <ServicesManager />
+        <ServicesManager 
+          services={config.services}
+          onAddService={handleAddService}
+          onRemoveService={handleRemoveService}
+        />
       </TabsContent>
       
       <TabsContent value="layers" className="flex-1 mt-6">
-        <LayersTab />
+        <LayersTab
+          config={config}
+          showLayerForm={false}
+          selectedLayerType={null}
+          setShowLayerForm={() => {}}
+          setSelectedLayerType={() => {}}
+          setDefaultInterfaceGroup={() => {}}
+          handleLayerTypeSelect={() => {}}
+          handleCancelLayerForm={() => {}}
+          addLayer={() => {}}
+          removeLayer={() => {}}
+          addService={handleAddService}
+          updateLayer={() => {}}
+          editingLayerIndex={null}
+          setEditingLayerIndex={() => {}}
+          moveLayer={() => {}}
+          updateConfig={updateConfig}
+          addExclusivitySet={addExclusivitySet}
+          removeExclusivitySet={removeExclusivitySet}
+          newExclusivitySet=""
+          setNewExclusivitySet={() => {}}
+        />
       </TabsContent>
       
       <TabsContent value="layout" className="flex-1 mt-6">
-        <LayoutTab />
+        <LayoutTab
+          config={config}
+          updateLayout={updateLayout}
+          updateInterfaceGroups={updateInterfaceGroups}
+          addExclusivitySet={addExclusivitySet}
+          removeExclusivitySet={removeExclusivitySet}
+          newExclusivitySet=""
+          setNewExclusivitySet={() => {}}
+          updateConfig={updateConfig}
+        />
       </TabsContent>
       
       <TabsContent value="draw-order" className="flex-1 mt-6">
-        <DrawOrderTab />
+        <DrawOrderTab
+          config={config}
+          updateConfig={updateConfig}
+        />
       </TabsContent>
       
       <TabsContent value="preview" className="flex-1 mt-6">
-        <PreviewTab />
+        <PreviewTab config={config} />
       </TabsContent>
     </Tabs>
   );
