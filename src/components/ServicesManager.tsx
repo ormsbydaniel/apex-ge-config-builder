@@ -29,16 +29,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
     if (newServiceName.trim() && newServiceUrl.trim()) {
       if (selectedFormat === 's3') {
         // For S3, create a service with a placeholder format since the actual format will be determined by file extension
-        const s3Service: Service = {
-          id: `s3-service-${Date.now()}`,
-          name: newServiceName.trim(),
-          url: newServiceUrl.trim(),
-          format: 'cog', // Default format for S3 services
-          sourceType: 's3'
-        };
-        onAddService(s3Service);
+        await addService(newServiceName, newServiceUrl, 'cog', 's3'); // Use 'cog' as default format for S3 services
       } else {
-        await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat);
+        await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat, 'service');
       }
       setNewServiceName('');
       setNewServiceUrl('');
@@ -203,7 +196,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                         )}
                         {service.capabilities?.layers.length ? (
                           <Badge variant="outline" className="border-green-300 text-green-700">
-                            {service.capabilities.layers.length} layers available
+                            {service.capabilities.layers.length} {service.sourceType === 's3' ? 'objects' : 'layers'} available
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="border-orange-300 text-orange-700">
