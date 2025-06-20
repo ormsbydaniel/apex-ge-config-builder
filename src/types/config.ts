@@ -129,7 +129,7 @@ export interface FlexibleLayer extends BaseDataSource {
 // Union type for DataSource
 export type DataSource = BaseLayer | LayerCard | FlexibleLayer;
 
-export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf';
+export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf' | 's3';
 
 export type LayerType = 'base' | 'layerCard' | 'swipe';
 

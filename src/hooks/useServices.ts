@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { Service, ServiceCapabilities, DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
+import { fetchS3BucketContents } from '@/utils/s3Utils';
 
 export const useServices = (services: Service[], onAddService: (service: Service) => void) => {
   const { toast } = useToast();
@@ -11,7 +11,21 @@ export const useServices = (services: Service[], onAddService: (service: Service
     try {
       setIsLoadingCapabilities(true);
       
-      // Construct GetCapabilities URL
+      // Handle S3 bucket listing
+      if (format === 's3') {
+        const objects = await fetchS3BucketContents(url);
+        return {
+          layers: objects.map(obj => ({
+            name: obj.key,
+            title: obj.key,
+            abstract: `S3 object (${Math.round(obj.size / 1024)} KB)`
+          })),
+          title: 'S3 Bucket Contents',
+          abstract: `${objects.length} objects found`
+        };
+      }
+      
+      // Construct GetCapabilities URL for WMS/WMTS
       const capabilitiesUrl = new URL(url);
       capabilitiesUrl.searchParams.set('service', format.toUpperCase());
       capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
@@ -66,15 +80,17 @@ export const useServices = (services: Service[], onAddService: (service: Service
       }
 
       return {
-        layers: layers, // Remove the .slice(0, 50) limitation
+        layers: layers,
         title: xmlDoc.querySelector('Service > Title, ows\\:ServiceIdentification > ows\\:Title')?.textContent || undefined,
         abstract: xmlDoc.querySelector('Service > Abstract, ows\\:ServiceIdentification > ows\\:Abstract')?.textContent || undefined
       };
     } catch (error) {
-      console.error('Error fetching GetCapabilities:', error);
+      console.error('Error fetching capabilities:', error);
       toast({
-        title: "GetCapabilities Error",
-        description: "Failed to fetch service capabilities. You can still configure the service manually.",
+        title: format === 's3' ? "S3 Bucket Error" : "GetCapabilities Error",
+        description: format === 's3' 
+          ? "Failed to fetch bucket contents. Check bucket permissions and CORS settings."
+          : "Failed to fetch service capabilities. You can still configure the service manually.",
         variant: "destructive"
       });
       return null;
@@ -87,7 +103,7 @@ export const useServices = (services: Service[], onAddService: (service: Service
     // Generate a unique service ID without the zero suffix
     const serviceId = `${format}-service-${Date.now()}`;
     
-    // For formats that support GetCapabilities, try to fetch them
+    // For formats that support capabilities/listing, try to fetch them
     let capabilities: ServiceCapabilities | undefined;
     if (format !== 'xyz') {
       capabilities = await parseGetCapabilities(url, format) || undefined;
@@ -104,9 +120,10 @@ export const useServices = (services: Service[], onAddService: (service: Service
     onAddService(service);
     
     if (capabilities?.layers.length) {
+      const itemType = format === 's3' ? 'objects' : 'layers';
       toast({
         title: "Service Added",
-        description: `${name} added with ${capabilities.layers.length} layers discovered.`,
+        description: `${name} added with ${capabilities.layers.length} ${itemType} discovered.`,
       });
     } else {
       toast({

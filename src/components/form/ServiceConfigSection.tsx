@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +9,7 @@ import { Plus, Loader2, Globe } from 'lucide-react';
 import { DataSource, DataSourceFormat, Service } from '@/types/config';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
+import S3ServiceConfigSection from './S3ServiceConfigSection';
 
 interface ServiceConfigSectionProps {
   formData: DataSource;
@@ -26,6 +26,16 @@ const ServiceConfigSection = ({
   onUpdateFormData,
   onAddService
 }: ServiceConfigSectionProps) => {
+  // If S3 format is selected, use the specialized S3 component
+  if (selectedFormat === 's3') {
+    return (
+      <S3ServiceConfigSection
+        formData={formData}
+        onUpdateFormData={onUpdateFormData}
+      />
+    );
+  }
+
   const config = FORMAT_CONFIGS[selectedFormat];
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   

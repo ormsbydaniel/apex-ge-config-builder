@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database } from 'lucide-react';
 import { Service, DataSourceFormat } from '@/types/config';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
@@ -59,7 +58,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
             </Button>
           </CardTitle>
           <CardDescription>
-            Configure WMS and WMTS services that can be used across multiple data sources. Services support automatic layer discovery via GetCapabilities.
+            Configure WMS, WMTS, and S3 services that can be used across multiple data sources. Services support automatic layer discovery via GetCapabilities or bucket listing.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -68,7 +67,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
               <CardHeader className="pb-4">
                 <CardTitle className="text-base">Add New Service</CardTitle>
                 <CardDescription>
-                  Configure a new WMS or WMTS service endpoint
+                  Configure a new WMS, WMTS, or S3 service endpoint
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -94,6 +93,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                           {FORMAT_CONFIGS.wmts.label}
                         </div>
                       </SelectItem>
+                      <SelectItem value="s3">
+                        <div className="flex items-center gap-2">
+                          <Database className="h-4 w-4" />
+                          {FORMAT_CONFIGS.s3.label}
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -104,7 +109,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                       id="serviceName"
                       value={newServiceName}
                       onChange={(e) => setNewServiceName(e.target.value)}
-                      placeholder="e.g., Terrascope WMS"
+                      placeholder={selectedFormat === 's3' ? 'e.g., ESA APEX S3 Bucket' : 'e.g., Terrascope WMS'}
                     />
                   </div>
                   <div className="space-y-2">
@@ -150,19 +155,25 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
             <div className="text-center py-12 text-slate-500">
               <Server className="h-16 w-16 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-medium mb-2">No services configured yet</h3>
-              <p className="mb-4">Add your first WMS or WMTS service to get started</p>
+              <p className="mb-4">Add your first WMS, WMTS, or S3 service to get started</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {services.map((service, index) => (
-                <Card key={service.id} className="border-l-4 border-l-blue-500">
+                <Card key={service.id} className={`border-l-4 ${service.format === 's3' ? 'border-l-green-500' : 'border-l-blue-500'}`}>
                   <CardContent className="pt-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Globe className="h-4 w-4 text-blue-600" />
-                          <h5 className="font-medium text-blue-700">{service.name}</h5>
-                          <Badge variant="outline" className="border-blue-300 text-blue-700">
+                          {service.format === 's3' ? (
+                            <Database className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <Globe className="h-4 w-4 text-blue-600" />
+                          )}
+                          <h5 className={`font-medium ${service.format === 's3' ? 'text-green-700' : 'text-blue-700'}`}>
+                            {service.name}
+                          </h5>
+                          <Badge variant="outline" className={`${service.format === 's3' ? 'border-green-300 text-green-700' : 'border-blue-300 text-blue-700'}`}>
                             {service.format.toUpperCase()}
                           </Badge>
                         </div>

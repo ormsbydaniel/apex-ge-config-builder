@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,9 +12,11 @@ import { useSourceForm } from '@/hooks/useSourceForm';
 import { useCategories } from '@/hooks/useCategories';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useValidatedConfig } from '@/hooks/useValidatedConfig';
+import { validateS3Url, S3Object } from '@/utils/s3Utils';
 import FormatSelector from './form/FormatSelector';
 import ServiceConfigSection from './form/ServiceConfigSection';
 import LayerCardConfigSection from './form/LayerCardConfigSection';
+import S3LayerSelector from './form/S3LayerSelector';
 
 const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCancel }: SourceFormProps) => {
   const { toast } = useToast();
@@ -29,6 +30,9 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
     updateFormData,
     handleFormatChange,
   } = useSourceForm();
+
+  const [selectedS3Object, setSelectedS3Object] = useState<S3Object | null>(null);
+  const [detectedS3Format, setDetectedS3Format] = useState<DataSourceFormat | null>(null);
 
   const {
     newCategory,
@@ -63,29 +67,59 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
   console.log('Component rendered at:', new Date().toISOString());
   console.log('=============================');
 
+  const handleS3ObjectSelect = (object: S3Object, detectedFormat: DataSourceFormat) => {
+    setSelectedS3Object(object);
+    setDetectedS3Format(detectedFormat);
+    
+    // Update form data with the selected object's URL and detected format
+    updateFormData('data.0.url', object.url);
+    updateFormData('data.0.format', detectedFormat);
+    
+    // Update the selected format to trigger the appropriate form sections
+    handleFormatChange(detectedFormat);
+    
+    toast({
+      title: "S3 Object Selected",
+      description: `Selected ${object.key} (detected as ${detectedFormat.toUpperCase()})`,
+    });
+  };
+
   const validateForm = (): string[] => {
     const requiredFields = ['name', 'layout.interfaceGroup'];
-    const config = FORMAT_CONFIGS[selectedFormat as DataSourceFormat];
     
-    // For service-based configuration, require either serviceId or direct URL
-    if (!formData.data[0]?.serviceId && !formData.data[0]?.url?.trim()) {
-      requiredFields.push('data.0.url');
-    }
-    
-    if (config.requiresLayers && !formData.data[0]?.layers?.trim()) {
-      requiredFields.push('data.0.layers');
+    if (selectedFormat === 's3') {
+      // For S3, we need the bucket URL and selected object
+      if (!formData.data[0]?.url?.trim()) {
+        requiredFields.push('S3 bucket URL');
+      } else if (!validateS3Url(formData.data[0].url) && !selectedS3Object) {
+        requiredFields.push('Valid S3 bucket URL or selected object');
+      }
+    } else {
+      const config = FORMAT_CONFIGS[selectedFormat as DataSourceFormat];
+      
+      // For service-based configuration, require either serviceId or direct URL
+      if (!formData.data[0]?.serviceId && !formData.data[0]?.url?.trim()) {
+        requiredFields.push('data.0.url');
+      }
+      
+      if (config.requiresLayers && !formData.data[0]?.layers?.trim()) {
+        requiredFields.push('data.0.layers');
+      }
     }
     
     return requiredFields.filter(field => {
-      const keys = field.split('.');
-      let current: any = formData;
-      for (const key of keys) {
-        current = current[key];
-        if (!current || (typeof current === 'string' && !current.trim())) {
-          return true;
+      if (field.includes('.')) {
+        const keys = field.split('.');
+        let current: any = formData;
+        for (const key of keys) {
+          current = current[key];
+          if (!current || (typeof current === 'string' && !current.trim())) {
+            return true;
+          }
         }
+        return false;
       }
-      return false;
+      return true; // Custom validation messages
     });
   };
 
@@ -161,20 +195,20 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
       }
     } else {
       // Remove layers field for formats that don't use layers
-      if (selectedFormat === 'xyz' || selectedFormat === 'cog' || selectedFormat === 'geojson' || selectedFormat === 'flatgeobuf') {
+      if (selectedFormat === 'xyz' || selectedFormat === 'cog' || selectedFormat === 'geojson' || selectedFormat === 'flatgeobuf' || selectedFormat === 's3') {
         delete finalFormData.data[0].layers;
       }
     }
 
     onAddSource(finalFormData);
     toast({
-      title: `${selectedFormat.toUpperCase()} Source Added`,
+      title: `${(detectedS3Format || selectedFormat).toUpperCase()} Source Added`,
       description: `"${formData.name}" has been added to your configuration.`,
     });
   };
 
-  // Debug render logging
-  console.log('About to render statistics section. supportsStatistics:', supportsStatistics);
+  // Determine the effective format for rendering (S3 object's detected format or selected format)
+  const effectiveFormat = detectedS3Format || selectedFormat;
 
   return (
     <div className="space-y-6">
@@ -182,7 +216,7 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
         <CardHeader>
           <CardTitle>Add Data Source</CardTitle>
           <CardDescription>
-            Configure a new {selectedFormat.toUpperCase()} layer for your geospatial explorer
+            Configure a new {effectiveFormat.toUpperCase()} layer for your geospatial explorer
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -192,12 +226,27 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
               onFormatChange={handleFormatChange}
             />
 
-            {/* Debug information visible in UI */}
-            <div className="p-2 bg-muted/20 border rounded text-xs text-muted-foreground">
-              Debug: Format={selectedFormat}, Supports={supportsStatistics ? 'YES' : 'NO'}
-            </div>
+            {/* S3 Object Selection */}
+            {selectedFormat === 's3' && formData.data[0]?.url && validateS3Url(formData.data[0].url) && (
+              <S3LayerSelector
+                bucketUrl={formData.data[0].url}
+                onObjectSelect={handleS3ObjectSelect}
+              />
+            )}
 
-            {supportsStatistics && (
+            {/* Show detected format info for S3 */}
+            {selectedS3Object && detectedS3Format && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center gap-2 text-green-700">
+                  <span className="font-medium">Selected:</span>
+                  <span>{selectedS3Object.key}</span>
+                  <span className="text-sm">({detectedS3Format.toUpperCase()})</span>
+                </div>
+              </div>
+            )}
+
+            {/* Statistics section for supported formats */}
+            {(effectiveFormat === 'flatgeobuf' || effectiveFormat === 'geojson') && (
               <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -236,25 +285,28 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
               onAddService={onAddService}
             />
 
-            <LayerCardConfigSection
-              formData={formData}
-              interfaceGroups={interfaceGroups}
-              hasFeatureStatistics={hasFeatureStatistics}
-              newCategory={newCategory}
-              showCategories={showCategories}
-              onUpdateFormData={(field, value) => {
-                if (field === 'name') {
-                  handleNameChange(value);
-                } else {
-                  updateFormData(field, value);
-                }
-              }}
-              onSetHasFeatureStatistics={setHasFeatureStatistics}
-              onSetNewCategory={setNewCategory}
-              onSetShowCategories={setShowCategories}
-              onAddCategory={addCategory}
-              onRemoveCategory={removeCategory}
-            />
+            {/* Only show layer card config if we have a valid configuration */}
+            {(selectedFormat !== 's3' || selectedS3Object) && (
+              <LayerCardConfigSection
+                formData={formData}
+                interfaceGroups={interfaceGroups}
+                hasFeatureStatistics={hasFeatureStatistics}
+                newCategory={newCategory}
+                showCategories={showCategories}
+                onUpdateFormData={(field, value) => {
+                  if (field === 'name') {
+                    handleNameChange(value);
+                  } else {
+                    updateFormData(field, value);
+                  }
+                }}
+                onSetHasFeatureStatistics={setHasFeatureStatistics}
+                onSetNewCategory={setNewCategory}
+                onSetShowCategories={setShowCategories}
+                onAddCategory={addCategory}
+                onRemoveCategory={removeCategory}
+              />
+            )}
 
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={onCancel}>
@@ -263,7 +315,7 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
               </Button>
               <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
                 <Save className="h-4 w-4 mr-2" />
-                Add {isStatisticsLayer ? 'Statistics' : selectedFormat.toUpperCase()} Source
+                Add {isStatisticsLayer ? 'Statistics' : effectiveFormat.toUpperCase()} Source
               </Button>
             </div>
           </form>

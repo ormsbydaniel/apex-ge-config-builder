@@ -51,4 +51,11 @@ export const FORMAT_CONFIGS: Record<DataSourceFormat, FormatConfig> = {
     requiresLayers: false,
     supportsGetCapabilities: false,
   },
+  s3: {
+    label: 'S3 Bucket',
+    urlPlaceholder: 'https://esa-apex.s3.eu-west-1.amazonaws.com/',
+    layersPlaceholder: '',
+    requiresLayers: false,
+    supportsGetCapabilities: true, // We'll fetch bucket contents
+  },
 };
