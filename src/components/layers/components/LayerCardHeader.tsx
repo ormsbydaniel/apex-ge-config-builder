@@ -32,13 +32,9 @@ const LayerCardHeader = ({
 }: LayerCardHeaderProps) => {
   return (
     <CardHeader className="pb-2 relative">
-      {/* Badge positioned in top-right */}
-      <div className="absolute top-4 right-2 z-10">
+      {/* Badge and Actions positioned together on the right, vertically centered */}
+      <div className="absolute top-1/2 -translate-y-1/2 right-2 z-10 flex items-center gap-2">
         <LayerBadge source={source} />
-      </div>
-      
-      {/* Actions positioned beneath the badge */}
-      <div className="absolute top-12 right-2 z-10">
         <LayerActions 
           index={index} 
           onRemove={onRemove} 
@@ -49,7 +45,7 @@ const LayerCardHeader = ({
         />
       </div>
       
-      <div className="flex items-start pr-32">
+      <div className="flex items-start pr-40">
         <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1 py-0">
           <div className="flex-shrink-0">
             {isExpanded ? (
