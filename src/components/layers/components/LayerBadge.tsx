@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DataSource } from '@/types/config';
 import LayerQAStatus from './LayerQAStatus';
 
@@ -37,6 +38,20 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
       <Badge variant="outline" className={getBadgeStyles()}>
         {layerType}
       </Badge>
+      {source.isActive && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                active
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">This layer will be visible as soon as the Geospatial Explorer opens</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
       <LayerQAStatus source={source} />
     </div>
   );

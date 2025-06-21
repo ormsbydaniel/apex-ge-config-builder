@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, AlertTriangle, X } from 'lucide-react';
+import { Check, AlertTriangle, Triangle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DataSource } from '@/types/config';
 
@@ -21,7 +21,7 @@ const LayerQAStatus = ({ source }: LayerQAStatusProps) => {
     if (!hasAnyContent) {
       return {
         status: 'error',
-        icon: X,
+        icon: Triangle,
         color: 'text-red-500',
         tooltip: 'Layer has no data or statistics'
       };

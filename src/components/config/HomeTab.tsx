@@ -4,28 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Settings, Home } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Settings, Home, Check, Triangle } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
+import { calculateQAStats } from '@/utils/qaUtils';
+
 interface HomeTabProps {
   config: any;
 }
-const HomeTab = ({
-  config
-}: HomeTabProps) => {
-  const {
-    dispatch
-  } = useConfig();
-  const {
-    handleFileSelect,
-    importConfig
-  } = useConfigImport();
-  const {
-    exportConfig
-  } = useConfigExport();
+
+const HomeTab = ({ config }: HomeTabProps) => {
+  const { dispatch } = useConfig();
+  const { handleFileSelect, importConfig } = useConfigImport();
+  const { exportConfig } = useConfigExport();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -35,14 +29,15 @@ const HomeTab = ({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   const [title, setTitle] = useState(config.layout.navigation.title);
+
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
+
   const handleNewConfig = () => {
-    dispatch({
-      type: 'RESET_CONFIG'
-    });
+    dispatch({ type: 'RESET_CONFIG' });
   };
+
   const handleQuickExport = () => {
     exportConfig({
       singleItemArrayToObject: false,
@@ -54,9 +49,11 @@ const HomeTab = ({
       changeFormatToType: false
     });
   };
+
   const handleExportWithOptions = (options: ExportOptions) => {
     exportConfig(options);
   };
+
   const handleFileSelectWithErrorHandling = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -67,46 +64,47 @@ const HomeTab = ({
         setShowErrorDialog(true);
       }
     }
-    // Reset the input value to allow selecting the same file again
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
+
   const handleSaveLogo = () => {
     dispatch({
       type: 'UPDATE_LAYOUT',
-      payload: {
-        field: 'logo',
-        value: logoUrl
-      }
+      payload: { field: 'logo', value: logoUrl }
     });
     setIsEditingLogo(false);
   };
+
   const handleCancelLogo = () => {
     setLogoUrl(config.layout.navigation.logo);
     setIsEditingLogo(false);
   };
+
   const handleSaveTitle = () => {
     dispatch({
       type: 'UPDATE_LAYOUT',
-      payload: {
-        field: 'title',
-        value: title
-      }
+      payload: { field: 'title', value: title }
     });
     setIsEditingTitle(false);
   };
+
   const handleCancelTitle = () => {
     setTitle(config.layout.navigation.title);
     setIsEditingTitle(false);
   };
 
-  // Update local state when config changes
   React.useEffect(() => {
     setLogoUrl(config.layout.navigation.logo);
     setTitle(config.layout.navigation.title);
   }, [config.layout.navigation.logo, config.layout.navigation.title]);
-  return <>
+
+  // Calculate QA statistics
+  const qaStats = calculateQAStats(config.sources);
+
+  return (
+    <>
       <div className="space-y-6">
         <Card className="border-primary/20">
           <CardHeader>
@@ -157,7 +155,8 @@ const HomeTab = ({
                       <Edit className="h-3 w-3" />
                     </Button>
                   </div>
-                  {isEditingLogo ? <div className="space-y-2">
+                  {isEditingLogo ? (
+                    <div className="space-y-2">
                       <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://example.com/logo.svg" />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={handleSaveLogo}>
@@ -167,11 +166,18 @@ const HomeTab = ({
                           Cancel
                         </Button>
                       </div>
-                    </div> : <div className="flex justify-center border rounded-lg p-4 min-h-[80px] bg-[#2d5f72]">
-                      {config.layout.navigation.logo ? <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
-                    e.currentTarget.style.display = 'none';
-                  }} /> : <div className="text-sm text-slate-500 italic flex items-center">No logo set</div>}
-                    </div>}
+                    </div>
+                  ) : (
+                    <div className="flex justify-center border rounded-lg p-4 min-h-[80px] bg-[#2d5f72]">
+                      {config.layout.navigation.logo ? (
+                        <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
+                          e.currentTarget.style.display = 'none';
+                        }} />
+                      ) : (
+                        <div className="text-sm text-slate-500 italic flex items-center">No logo set</div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-3">
@@ -181,7 +187,8 @@ const HomeTab = ({
                       <Edit className="h-3 w-3" />
                     </Button>
                   </div>
-                  {isEditingTitle ? <div className="space-y-2">
+                  {isEditingTitle ? (
+                    <div className="space-y-2">
                       <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Geospatial Explorer" />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={handleSaveTitle}>
@@ -191,9 +198,12 @@ const HomeTab = ({
                           Cancel
                         </Button>
                       </div>
-                    </div> : <div className="flex items-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
+                    </div>
+                  ) : (
+                    <div className="flex items-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
                       <span className="text-lg font-medium">{config.layout.navigation.title}</span>
-                    </div>}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -222,21 +232,55 @@ const HomeTab = ({
                 </div>
               </div>
             </div>
+
+            <Separator />
+
+            {/* Layer Quality Assurance Statistics */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-medium">Layer Quality Assurance</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Check className="h-5 w-5 text-green-500" />
+                    <div className="text-2xl font-bold text-green-600">{qaStats.success}</div>
+                  </div>
+                  <div className="text-sm text-slate-600">Complete Layers</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <AlertTriangle className="h-5 w-5 text-amber-500" />
+                    <div className="text-2xl font-bold text-amber-600">{qaStats.warning}</div>
+                  </div>
+                  <div className="text-sm text-slate-600">Incomplete Layers</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Triangle className="h-5 w-5 text-red-500" />
+                    <div className="text-2xl font-bold text-red-600">{qaStats.error}</div>
+                  </div>
+                  <div className="text-sm text-slate-600">Layers Without Data</div>
+                </div>
+              </div>
+            </div>
             
-            {config.lastSaved && <>
+            {config.lastSaved && (
+              <>
                 <Separator />
                 <div className="text-sm text-slate-600">
                   <span className="font-medium">Last saved: </span> 
                   {config.lastSaved.toLocaleString()}
                 </div>
-              </>}
+              </>
+            )}
             
-            {config.isLoading && <>
+            {config.isLoading && (
+              <>
                 <Separator />
                 <div className="text-sm text-blue-600">
                   Loading configuration...
                 </div>
-              </>}
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -259,6 +303,8 @@ const HomeTab = ({
           </div>
         </DialogContent>
       </Dialog>
-    </>;
+    </>
+  );
 };
+
 export default HomeTab;
