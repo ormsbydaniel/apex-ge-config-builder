@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { DataSource, isDataSourceItemArray } from '@/types/config';
 import LayerGroup from './components/LayerGroup';
@@ -61,6 +60,7 @@ const LayerHierarchy = ({
   // Group expansion state
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [expandedBaseLayers, setExpandedBaseLayers] = useState(false);
+  const [expandedUngroupedLayers, setExpandedUngroupedLayers] = useState(false);
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
   const [deleteGroupName, setDeleteGroupName] = useState<string | null>(null);
 
@@ -186,23 +186,6 @@ const LayerHierarchy = ({
         />
       ))}
 
-      {/* Ungrouped Layers */}
-      {ungroupedLayers.length > 0 && (
-        <UngroupedLayersGroup
-          ungroupedLayers={ungroupedLayers}
-          onRemove={onRemove}
-          onEdit={onEdit}
-          onEditBaseLayer={onEditBaseLayer}
-          onDuplicate={onDuplicate}
-          onUpdateLayer={onUpdateLayer}
-          onAddDataSource={onAddDataSource}
-          onRemoveDataSource={onRemoveDataSource}
-          onRemoveStatisticsSource={onRemoveStatisticsSource}
-          onEditDataSource={onEditDataSource}
-          onEditStatisticsSource={onEditStatisticsSource}
-        />
-      )}
-
       {/* Base Layers */}
       <BaseLayerGroup
         baseLayers={baseLayers}
@@ -221,6 +204,25 @@ const LayerHierarchy = ({
         onMoveLayer={onMoveLayer}
         onAddBaseLayer={onAddBaseLayer}
       />
+
+      {/* Ungrouped Layers - moved to the end */}
+      {ungroupedLayers.length > 0 && (
+        <UngroupedLayersGroup
+          ungroupedLayers={ungroupedLayers}
+          onRemove={onRemove}
+          onEdit={onEdit}
+          onEditBaseLayer={onEditBaseLayer}
+          onDuplicate={onDuplicate}
+          onUpdateLayer={onUpdateLayer}
+          onAddDataSource={onAddDataSource}
+          onRemoveDataSource={onRemoveDataSource}
+          onRemoveStatisticsSource={onRemoveStatisticsSource}
+          onEditDataSource={onEditDataSource}
+          onEditStatisticsSource={onEditStatisticsSource}
+          isExpanded={expandedUngroupedLayers}
+          onToggle={() => setExpandedUngroupedLayers(!expandedUngroupedLayers)}
+        />
+      )}
 
       {/* Add Group Dialog */}
       <AddInterfaceGroupDialog
