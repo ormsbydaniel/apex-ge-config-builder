@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -27,15 +28,15 @@ const LayerCardHeader = ({
   onEditJson,
   handleEdit
 }: LayerCardHeaderProps) => {
-  return <CardHeader className="pb-2 relative">
+  return <CardHeader className="py-3 relative">
       {/* Badge and Actions positioned together on the right, vertically centered */}
       <div className="absolute top-1/2 -translate-y-1/2 right-2 z-10 flex items-center gap-2">
         <LayerBadge source={source} />
         <LayerActions index={index} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
       </div>
       
-      <div className="flex items-start pr-40">
-        <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1 py-0 mx-[6px] px-[6px]">
+      <div className="flex items-center pr-40">
+        <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1 py-2 mx-[6px] px-[6px]">
           <div className="flex-shrink-0">
             {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" style={{
             minWidth: '16px',
@@ -47,7 +48,7 @@ const LayerCardHeader = ({
           </div>
           <div className="text-left">
             <h3 className="text-sm font-bold">{source.name}</h3>
-            {source.meta?.description && <p className="text-xs text-muted-foreground mt-1 my-[8px]">{source.meta.description}</p>}
+            {source.meta?.description && <p className="text-xs text-muted-foreground mt-1">{source.meta.description}</p>}
           </div>
         </CollapsibleTrigger>
       </div>

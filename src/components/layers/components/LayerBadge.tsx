@@ -22,12 +22,12 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
     switch (layerType) {
       case 'swipe':
         return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'standard':
-        return 'bg-gray-400 text-white border-gray-500';
       case 'base':
-        return 'bg-secondary text-secondary-foreground border-secondary';
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'standard':
+        return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
-        return 'bg-gray-400 text-white border-gray-500';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
