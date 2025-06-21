@@ -18,8 +18,21 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
 
   const layerType = getLayerType();
 
+  const getBadgeStyles = () => {
+    switch (layerType) {
+      case 'swipe':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'standard':
+        return 'bg-gray-400 text-white border-gray-500';
+      case 'base':
+        return 'bg-secondary text-secondary-foreground border-secondary';
+      default:
+        return 'bg-gray-400 text-white border-gray-500';
+    }
+  };
+
   return (
-    <Badge variant={layerType === 'base' ? "secondary" : "default"}>
+    <Badge variant="outline" className={getBadgeStyles()}>
       {layerType}
     </Badge>
   );
