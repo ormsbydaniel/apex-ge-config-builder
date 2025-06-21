@@ -267,7 +267,7 @@ export const ConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [config, dispatch] = useReducer(configReducer, initialState);
 
   return (
-    ConfigContext.Provider value={{ config, dispatch }}>
+    <ConfigContext.Provider value={{ config, dispatch }}>
       {children}
     </ConfigContext.Provider>
   );
