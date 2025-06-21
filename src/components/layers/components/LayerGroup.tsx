@@ -180,6 +180,12 @@ const LayerGroup = ({
                               <span className="text-xs text-green-600">{qaStats.success}</span>
                             </div>
                           )}
+                          {qaStats.info > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Triangle className="h-3 w-3 text-blue-500" />
+                              <span className="text-xs text-blue-600">{qaStats.info}</span>
+                            </div>
+                          )}
                           {qaStats.warning > 0 && (
                             <div className="flex items-center gap-1">
                               <AlertTriangle className="h-3 w-3 text-amber-500" />

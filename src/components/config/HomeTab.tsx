@@ -10,7 +10,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
-import { calculateQAStats } from '@/utils/qaUtils';
+import { calculateQAStats, QAStats } from '@/utils/qaUtils';
 
 interface HomeTabProps {
   config: any;
@@ -238,7 +238,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
             {/* Layer Quality Assurance Statistics */}
             <div className="space-y-3">
               <h3 className="text-lg font-medium">Layer Quality Assurance</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-3 border rounded-lg">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Check className="h-5 w-5 text-green-500" />
@@ -248,17 +248,24 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 </div>
                 <div className="text-center p-3 border rounded-lg">
                   <div className="flex items-center justify-center gap-2 mb-2">
+                    <Triangle className="h-5 w-5 text-blue-500" />
+                    <div className="text-2xl font-bold text-blue-600">{qaStats.info}</div>
+                  </div>
+                  <div className="text-sm text-slate-600">Missing Legend</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
                     <div className="text-2xl font-bold text-amber-600">{qaStats.warning}</div>
                   </div>
-                  <div className="text-sm text-slate-600">Incomplete Layers</div>
+                  <div className="text-sm text-slate-600">Missing Attribution</div>
                 </div>
                 <div className="text-center p-3 border rounded-lg">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Triangle className="h-5 w-5 text-red-500" />
                     <div className="text-2xl font-bold text-red-600">{qaStats.error}</div>
                   </div>
-                  <div className="text-sm text-slate-600">Layers Without Data</div>
+                  <div className="text-sm text-slate-600">No Data/Statistics</div>
                 </div>
               </div>
             </div>

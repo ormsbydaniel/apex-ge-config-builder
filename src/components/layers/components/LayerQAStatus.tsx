@@ -44,11 +44,10 @@ const LayerQAStatus = ({ source }: LayerQAStatusProps) => {
       swipeComplete = hasClippedSource && hasBaseSources;
     }
     
-    // Amber: Missing attribution, legend, or incomplete swipe configuration
-    if (!hasAttribution || !hasLegend || !swipeComplete) {
+    // Amber: Missing attribution or incomplete swipe configuration
+    if (!hasAttribution || (isSwipeLayer && !swipeComplete)) {
       const issues = [];
       if (!hasAttribution) issues.push('attribution');
-      if (!hasLegend) issues.push('legend');
       if (isSwipeLayer && !swipeComplete) issues.push('complete swipe configuration');
       
       return {
@@ -56,6 +55,16 @@ const LayerQAStatus = ({ source }: LayerQAStatusProps) => {
         icon: AlertTriangle,
         color: 'text-amber-500',
         tooltip: `Layer is missing: ${issues.join(', ')}`
+      };
+    }
+    
+    // Blue: Has attribution but missing legend
+    if (!hasLegend) {
+      return {
+        status: 'info',
+        icon: Triangle,
+        color: 'text-blue-500',
+        tooltip: 'Layer is missing: legend'
       };
     }
     

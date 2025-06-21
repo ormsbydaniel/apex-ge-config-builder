@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
+import { calculateQAStats } from '@/utils/qaUtils';
 import LayerCard from '../LayerCard';
 import { useLayerCardState } from '@/hooks/useLayerCardState';
 
@@ -46,6 +47,9 @@ const BaseLayerGroup = ({
 }: BaseLayerGroupProps) => {
   const { toggleCard, isExpanded: isCardExpanded } = useLayerCardState();
 
+  // Calculate QA stats for base layers
+  const qaStats = calculateQAStats(baseLayers.map(item => item.layer));
+
   return (
     <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <Card className="border-green-200">
@@ -62,6 +66,34 @@ const BaseLayerGroup = ({
                 <Badge variant="secondary" className="text-xs">
                   {baseLayers.length} layer{baseLayers.length !== 1 ? 's' : ''}
                 </Badge>
+                
+                {/* QA Status Indicators */}
+                <div className="flex items-center gap-2">
+                  {qaStats.success > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Check className="h-3 w-3 text-green-500" />
+                      <span className="text-xs text-green-600">{qaStats.success}</span>
+                    </div>
+                  )}
+                  {qaStats.info > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Triangle className="h-3 w-3 text-blue-500" />
+                      <span className="text-xs text-blue-600">{qaStats.info}</span>
+                    </div>
+                  )}
+                  {qaStats.warning > 0 && (
+                    <div className="flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3 text-amber-500" />
+                      <span className="text-xs text-amber-600">{qaStats.warning}</span>
+                    </div>
+                  )}
+                  {qaStats.error > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Triangle className="h-3 w-3 text-red-500" />
+                      <span className="text-xs text-red-600">{qaStats.error}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </CollapsibleTrigger>
             <div className="flex items-center gap-2">
