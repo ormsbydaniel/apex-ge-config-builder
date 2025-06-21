@@ -1,4 +1,3 @@
-
 export const removeEmptyCategories = (config: any, enabled: boolean): any => {
   if (!enabled) return config;
 
@@ -34,7 +33,11 @@ export const removeEmptyCategories = (config: any, enabled: boolean): any => {
 };
 
 export const handleCategoryValues = (config: any, includeCategoryValues: boolean): any => {
-  if (!includeCategoryValues) return config;
+  // If includeCategoryValues is true, keep the config as-is (include values)
+  if (includeCategoryValues) {
+    console.log('Keeping category values in export...');
+    return config;
+  }
 
   console.log('Removing category values from export...');
   

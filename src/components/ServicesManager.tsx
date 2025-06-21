@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server } from 'lucide-react';
-import { Service, DataSourceFormat } from '@/types/config';
-import { FORMAT_CONFIGS } from '@/constants/formats';
+import { Plus, Trash2, Loader2, Globe, Server, Database } from 'lucide-react';
+import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
+import { FORMAT_CONFIGS, S3_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 
 interface ServicesManagerProps {
@@ -20,14 +20,19 @@ interface ServicesManagerProps {
 const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesManagerProps) => {
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceUrl, setNewServiceUrl] = useState('');
-  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('wms');
+  const [selectedFormat, setSelectedFormat] = useState<SourceConfigType>('wms');
   const [showAddForm, setShowAddForm] = useState(false);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
 
   const handleAddService = async () => {
     if (newServiceName.trim() && newServiceUrl.trim()) {
-      await addService(newServiceName, newServiceUrl, selectedFormat);
+      if (selectedFormat === 's3') {
+        // For S3, create a service with a placeholder format since the actual format will be determined by file extension
+        await addService(newServiceName, newServiceUrl, 'cog', 's3'); // Use 'cog' as default format for S3 services
+      } else {
+        await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat, 'service');
+      }
       setNewServiceName('');
       setNewServiceUrl('');
       setShowAddForm(false);
@@ -38,6 +43,13 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
     setNewServiceName('');
     setNewServiceUrl('');
     setShowAddForm(false);
+  };
+
+  const getConfigForType = (type: SourceConfigType) => {
+    if (type === 's3') {
+      return S3_CONFIG;
+    }
+    return FORMAT_CONFIGS[type as DataSourceFormat];
   };
 
   return (
@@ -59,7 +71,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
             </Button>
           </CardTitle>
           <CardDescription>
-            Configure WMS and WMTS services that can be used across multiple data sources. Services support automatic layer discovery via GetCapabilities.
+            Configure WMS, WMTS, and S3 services that can be used across multiple data sources. Services support automatic layer discovery via GetCapabilities or bucket listing.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -68,7 +80,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
               <CardHeader className="pb-4">
                 <CardTitle className="text-base">Add New Service</CardTitle>
                 <CardDescription>
-                  Configure a new WMS or WMTS service endpoint
+                  Configure a new WMS, WMTS, or S3 service endpoint
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -76,7 +88,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                   <Label htmlFor="serviceFormat">Service Type</Label>
                   <Select
                     value={selectedFormat}
-                    onValueChange={(value: DataSourceFormat) => setSelectedFormat(value)}
+                    onValueChange={(value: SourceConfigType) => setSelectedFormat(value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select service type" />
@@ -94,6 +106,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                           {FORMAT_CONFIGS.wmts.label}
                         </div>
                       </SelectItem>
+                      <SelectItem value="s3">
+                        <div className="flex items-center gap-2">
+                          <Database className="h-4 w-4" />
+                          {S3_CONFIG.label}
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -104,7 +122,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                       id="serviceName"
                       value={newServiceName}
                       onChange={(e) => setNewServiceName(e.target.value)}
-                      placeholder="e.g., Terrascope WMS"
+                      placeholder={selectedFormat === 's3' ? 'e.g., ESA APEX S3 Bucket' : 'e.g., Terrascope WMS'}
                     />
                   </div>
                   <div className="space-y-2">
@@ -113,7 +131,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                       id="serviceUrl"
                       value={newServiceUrl}
                       onChange={(e) => setNewServiceUrl(e.target.value)}
-                      placeholder={FORMAT_CONFIGS[selectedFormat].urlPlaceholder}
+                      placeholder={getConfigForType(selectedFormat).urlPlaceholder}
                     />
                   </div>
                 </div>
@@ -150,20 +168,26 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
             <div className="text-center py-12 text-slate-500">
               <Server className="h-16 w-16 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-medium mb-2">No services configured yet</h3>
-              <p className="mb-4">Add your first WMS or WMTS service to get started</p>
+              <p className="mb-4">Add your first WMS, WMTS, or S3 service to get started</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {services.map((service, index) => (
-                <Card key={service.id} className="border-l-4 border-l-blue-500">
+                <Card key={service.id} className={`border-l-4 ${service.sourceType === 's3' ? 'border-l-green-500' : 'border-l-blue-500'}`}>
                   <CardContent className="pt-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Globe className="h-4 w-4 text-blue-600" />
-                          <h5 className="font-medium text-blue-700">{service.name}</h5>
-                          <Badge variant="outline" className="border-blue-300 text-blue-700">
-                            {service.format.toUpperCase()}
+                          {service.sourceType === 's3' ? (
+                            <Database className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <Globe className="h-4 w-4 text-blue-600" />
+                          )}
+                          <h5 className={`font-medium ${service.sourceType === 's3' ? 'text-green-700' : 'text-blue-700'}`}>
+                            {service.name}
+                          </h5>
+                          <Badge variant="outline" className={`${service.sourceType === 's3' ? 'border-green-300 text-green-700' : 'border-blue-300 text-blue-700'}`}>
+                            {service.sourceType === 's3' ? 'S3' : service.format.toUpperCase()}
                           </Badge>
                         </div>
                         <p className="text-xs text-slate-500 break-all mb-2">{service.url}</p>
@@ -172,7 +196,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                         )}
                         {service.capabilities?.layers.length ? (
                           <Badge variant="outline" className="border-green-300 text-green-700">
-                            {service.capabilities.layers.length} layers available
+                            {service.capabilities.layers.length} {service.sourceType === 's3' ? 'objects' : 'layers'} available
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="border-orange-300 text-orange-700">

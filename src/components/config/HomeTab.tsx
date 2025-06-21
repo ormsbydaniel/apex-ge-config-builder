@@ -1,16 +1,16 @@
-
 import React, { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Settings, Home } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Settings, Home, Check, Triangle } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
+import { calculateQAStats } from '@/utils/qaUtils';
 
 interface HomeTabProps {
   config: any;
@@ -39,11 +39,11 @@ const HomeTab = ({ config }: HomeTabProps) => {
   };
 
   const handleQuickExport = () => {
-    exportConfig({ 
-      singleItemArrayToObject: false, 
-      configureCogsAsImages: false, 
-      removeEmptyCategories: false, 
-      includeCategoryValues: true, 
+    exportConfig({
+      singleItemArrayToObject: false,
+      configureCogsAsImages: false,
+      removeEmptyCategories: false,
+      includeCategoryValues: true,
       addNormalizeFalseToCogs: false,
       transformSwipeLayersToData: false,
       changeFormatToType: false
@@ -64,7 +64,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
         setShowErrorDialog(true);
       }
     }
-    // Reset the input value to allow selecting the same file again
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -73,10 +72,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const handleSaveLogo = () => {
     dispatch({
       type: 'UPDATE_LAYOUT',
-      payload: {
-        field: 'logo',
-        value: logoUrl
-      }
+      payload: { field: 'logo', value: logoUrl }
     });
     setIsEditingLogo(false);
   };
@@ -89,10 +85,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const handleSaveTitle = () => {
     dispatch({
       type: 'UPDATE_LAYOUT',
-      payload: {
-        field: 'title',
-        value: title
-      }
+      payload: { field: 'title', value: title }
     });
     setIsEditingTitle(false);
   };
@@ -102,11 +95,13 @@ const HomeTab = ({ config }: HomeTabProps) => {
     setIsEditingTitle(false);
   };
 
-  // Update local state when config changes
   React.useEffect(() => {
     setLogoUrl(config.layout.navigation.logo);
     setTitle(config.layout.navigation.title);
   }, [config.layout.navigation.logo, config.layout.navigation.title]);
+
+  // Calculate QA statistics
+  const qaStats = calculateQAStats(config.sources);
 
   return (
     <>
@@ -173,7 +168,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex justify-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
+                    <div className="flex justify-center border rounded-lg p-4 min-h-[80px] bg-[#2d5f72]">
                       {config.layout.navigation.logo ? (
                         <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
                           e.currentTarget.style.display = 'none';
@@ -237,6 +232,36 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 </div>
               </div>
             </div>
+
+            <Separator />
+
+            {/* Layer Quality Assurance Statistics */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-medium">Layer Quality Assurance</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Check className="h-5 w-5 text-green-500" />
+                    <div className="text-2xl font-bold text-green-600">{qaStats.success}</div>
+                  </div>
+                  <div className="text-sm text-slate-600">Complete Layers</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <AlertTriangle className="h-5 w-5 text-amber-500" />
+                    <div className="text-2xl font-bold text-amber-600">{qaStats.warning}</div>
+                  </div>
+                  <div className="text-sm text-slate-600">Incomplete Layers</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Triangle className="h-5 w-5 text-red-500" />
+                    <div className="text-2xl font-bold text-red-600">{qaStats.error}</div>
+                  </div>
+                  <div className="text-sm text-slate-600">Layers Without Data</div>
+                </div>
+              </div>
+            </div>
             
             {config.lastSaved && (
               <>
@@ -260,11 +285,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
         </Card>
       </div>
 
-      <ExportOptionsDialog
-        open={showExportDialog}
-        onOpenChange={setShowExportDialog}
-        onExport={handleExportWithOptions}
-      />
+      <ExportOptionsDialog open={showExportDialog} onOpenChange={setShowExportDialog} onExport={handleExportWithOptions} />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">

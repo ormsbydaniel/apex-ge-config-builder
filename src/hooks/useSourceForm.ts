@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { DataSource, DataSourceFormat } from '@/types/config';
+import { DataSource, SourceConfigType } from '@/types/config';
 
 const initialFormState: DataSource = {
   name: '',
@@ -30,7 +30,7 @@ const initialFormState: DataSource = {
 };
 
 export const useSourceForm = () => {
-  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('wms');
+  const [selectedFormat, setSelectedFormat] = useState<SourceConfigType>('wms');
   const [formData, setFormData] = useState<DataSource>(initialFormState);
   const [hasFeatureStatistics, setHasFeatureStatistics] = useState(false);
 
@@ -51,17 +51,21 @@ export const useSourceForm = () => {
     });
   };
 
-  const handleFormatChange = (format: DataSourceFormat) => {
+  const handleFormatChange = (format: SourceConfigType) => {
     console.log('=== useSourceForm handleFormatChange ===');
     console.log('Previous selectedFormat:', selectedFormat);
     console.log('New format:', format);
     console.log('Format type:', typeof format);
     
     setSelectedFormat(format);
-    updateFormData('data.0.format', format);
+    
+    // For S3, don't set format in data - it will be determined by file extension
+    if (format !== 's3') {
+      updateFormData('data.0.format', format);
+    }
     
     // Clear layers field for formats that don't use layers
-    if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf') {
+    if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf' || format === 's3') {
       updateFormData('data.0.layers', '');
     }
     

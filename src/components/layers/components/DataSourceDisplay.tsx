@@ -22,10 +22,8 @@ const DataSourceDisplay = ({
   onEditDataSource,
   onEditStatisticsSource
 }: DataSourceDisplayProps) => {
-  // Determine if this is a comparison layer that needs position display
-  const isComparisonLayer = source.meta?.swipeConfig !== undefined || 
-                           (source as any).isMirrorLayer || 
-                           (source as any).isSpotlightLayer;
+  // Check if this is a swipe layer that needs position display
+  const isSwipeLayer = (source as any).isSwipeLayer === true || source.meta?.swipeConfig !== undefined;
 
   const hasDataSources = source.data && isDataSourceItemArray(source.data) && source.data.length > 0;
   const hasStatistics = source.statistics && source.statistics.length > 0;
@@ -57,7 +55,7 @@ const DataSourceDisplay = ({
                 dataSource={dataItem}
                 index={index}
                 onRemove={onRemoveDataSource}
-                showPosition={isComparisonLayer}
+                showPosition={isSwipeLayer}
               />
             ))}
           </div>
@@ -82,7 +80,7 @@ const DataSourceDisplay = ({
                 dataSource={stat}
                 index={index}
                 onRemove={onRemoveStatisticsSource || (() => {})}
-                showPosition={isComparisonLayer}
+                showPosition={isSwipeLayer}
                 showStatsLevel={true}
               />
             ))}

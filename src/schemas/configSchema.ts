@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const CategorySchema = z.object({
@@ -52,7 +51,7 @@ export const ServiceSchema = z.object({
   // capabilities are not included in serialized config
 });
 
-// Enhanced DataSourceItem schema with position field
+// Enhanced DataSourceItem schema with position field and zoom levels
 export const DataSourceItemSchema = z.object({
   url: urlOrRelativePathSchema.optional(),
   format: z.string(),
@@ -70,6 +69,9 @@ export const DataSourceItemSchema = z.object({
   })).optional(),
   // Position field for comparison layers
   position: z.enum(['left', 'right', 'background', 'spotlight']).optional(),
+  // Zoom level constraints
+  minZoom: z.number().optional(),
+  maxZoom: z.number().optional(),
 }).refine(
   (data) => {
     // Either url or images array must be present

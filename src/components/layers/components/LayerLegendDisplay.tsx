@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Palette } from 'lucide-react';
+import { ExternalLink, Image } from 'lucide-react';
 import { DataSource } from '@/types/config';
 
 interface LayerLegendDisplayProps {
@@ -14,68 +13,48 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
   const legend = source.layout.layerCard.legend;
 
   return (
-    <div className="p-4 bg-muted/30 rounded-lg">
-      <h4 className="font-medium mb-3 flex items-center gap-2">
-        <Palette className="h-4 w-4" />
-        Legend Configuration
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-gray-700">
+        Legend - {legend.type}
       </h4>
-      <div className="space-y-3 text-sm">
-        <div>
-          <span className="font-medium">Type:</span> {legend.type}
+      
+      {legend.type === 'image' && legend.url && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Image className="h-4 w-4" />
+            <a 
+              href={legend.url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1 text-sm"
+            >
+              View Legend Image
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
         </div>
-        
-        {legend.type === 'image' && legend.url && (
-          <div>
-            <span className="font-medium">Image URL:</span>
-            <div className="mt-1 text-xs text-muted-foreground break-all">
-              {legend.url}
-            </div>
+      )}
+      
+      {legend.type === 'gradient' && source.meta && (
+        <div className="space-y-2">
+          <div 
+            className="h-4 rounded border"
+            style={{
+              background: `linear-gradient(to right, ${source.meta.startColor}, ${source.meta.endColor})`
+            }}
+          />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{source.meta.min}</span>
+            <span>{source.meta.max}</span>
           </div>
-        )}
-        
-        {legend.type === 'gradient' && source.meta && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Start:</span>
-                <div 
-                  className="w-4 h-4 rounded border"
-                  style={{ backgroundColor: source.meta.startColor }}
-                />
-                <span className="text-xs">{source.meta.startColor}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium">End:</span>
-                <div 
-                  className="w-4 h-4 rounded border"
-                  style={{ backgroundColor: source.meta.endColor }}
-                />
-                <span className="text-xs">{source.meta.endColor}</span>
-              </div>
-            </div>
-            <div>
-              <span className="font-medium">Range:</span> {source.meta.min} - {source.meta.max}
-            </div>
-          </div>
-        )}
-        
-        {legend.type === 'swatch' && source.meta?.categories && (
-          <div>
-            <span className="font-medium">Categories:</span>
-            <div className="mt-2 flex flex-wrap gap-1">
-              {source.meta.categories.map((category, index) => (
-                <Badge key={index} variant="outline" className="text-xs flex items-center gap-1">
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: category.color }}
-                  />
-                  {category.label}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
+      
+      {legend.type === 'swatch' && (
+        <div className="text-sm text-muted-foreground">
+          See categories
+        </div>
+      )}
     </div>
   );
 };

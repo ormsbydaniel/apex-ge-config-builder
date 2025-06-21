@@ -9,7 +9,8 @@ export interface Service {
   name: string;
   url: string;
   format: DataSourceFormat;
-  capabilities?: ServiceCapabilities;
+  sourceType?: 's3' | 'service'; // New field to distinguish S3 sources
+  capabilities?: ServiceCapabilities; // Add back the capabilities property
 }
 
 export interface ServiceCapabilities {
@@ -45,6 +46,9 @@ export interface DataSourceItem {
   images?: Array<{ url: string }>;
   // Position field for comparison layers (swipe, mirror, spotlight)
   position?: 'left' | 'right' | 'background' | 'spotlight';
+  // Zoom level constraints
+  minZoom?: number;
+  maxZoom?: number;
 }
 
 // Simplified - data is always an array
@@ -129,7 +133,11 @@ export interface FlexibleLayer extends BaseDataSource {
 // Union type for DataSource
 export type DataSource = BaseLayer | LayerCard | FlexibleLayer;
 
+// DataSourceFormat no longer includes 's3'
 export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf';
+
+// New type for source configuration (includes S3)
+export type SourceConfigType = DataSourceFormat | 's3';
 
 export type LayerType = 'base' | 'layerCard' | 'swipe';
 

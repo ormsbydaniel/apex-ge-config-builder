@@ -13,9 +13,9 @@ const LayerCategories = ({ categories }: LayerCategoriesProps) => {
   const hasValues = categories.some(cat => cat.value !== undefined);
 
   return (
-    <div className="mt-3">
-      <span className="text-sm font-medium text-slate-600">Categories:</span>
-      <div className="flex flex-wrap gap-1 mt-1">
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-gray-700">Categories</h4>
+      <div className="flex flex-wrap gap-1">
         {categories.map((cat, catIndex) => (
           <Badge key={catIndex} variant="outline" className="text-xs border-primary/30">
             <div

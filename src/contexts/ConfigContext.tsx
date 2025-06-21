@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Service, DataSource, DataSourceItem } from '@/types/config';
+import { Service, DataSource, DataSourceItem, DataSourceFormat } from '@/types/config';
 import { ValidatedConfiguration } from '@/schemas/configSchema';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
 import { validateImages } from '@/utils/imageValidation';
@@ -169,7 +169,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
             if (statItem.serviceId === serviceToRemove.id) {
               const updatedStatItem: DataSourceItem = {
                 url: statItem.url || '',
-                format: statItem.format || 'wms',
+                format: statItem.format || 'flatgeobuf',
                 zIndex: statItem.zIndex ?? 0,
               };
               
