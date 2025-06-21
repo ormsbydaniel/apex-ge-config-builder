@@ -103,20 +103,21 @@ const HomeTab = ({ config }: HomeTabProps) => {
   }, [config.layout.navigation.logo, config.layout.navigation.title]);
 
   const handleAttributionUpdates = (updates: Array<{ index: number; attribution: { text: string; url?: string } }>) => {
+    const updatedSources = [...config.sources];
+    
     updates.forEach(update => {
-      dispatch({
-        type: 'UPDATE_SOURCE',
-        payload: {
-          index: update.index,
-          source: {
-            ...config.sources[update.index],
-            meta: {
-              ...config.sources[update.index].meta,
-              attribution: update.attribution
-            }
-          }
+      updatedSources[update.index] = {
+        ...updatedSources[update.index],
+        meta: {
+          ...updatedSources[update.index].meta,
+          attribution: update.attribution
         }
-      });
+      };
+    });
+
+    dispatch({
+      type: 'UPDATE_SOURCES',
+      payload: updatedSources
     });
   };
 
