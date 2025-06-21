@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { useTableSelection } from '@/hooks/useTableSelection';
+import { useTableSorting } from '@/hooks/useTableSorting';
 
 interface LayerWithGroup {
   layer: DataSource;
@@ -58,6 +60,18 @@ const AttributionMissingDialog = ({
     return layers;
   }, [config.sources]);
 
+  // Add sorting functionality
+  const {
+    sortedData: sortedLayers,
+    sortField,
+    sortDirection,
+    handleSort
+  } = useTableSorting({
+    data: layersWithoutAttribution,
+    defaultSortField: 'layer' as keyof LayerWithGroup,
+    defaultSortDirection: 'asc'
+  });
+
   const {
     selectedItems,
     handleItemSelection,
@@ -66,7 +80,7 @@ const AttributionMissingDialog = ({
     isAllSelected,
     isPartiallySelected
   } = useTableSelection({
-    items: layersWithoutAttribution,
+    items: sortedLayers,
     getItemKey: (item) => `${item.index}`
   });
 
@@ -92,6 +106,22 @@ const AttributionMissingDialog = ({
   const handleRowClick = (event: React.MouseEvent, layerKey: string) => {
     const isChecked = selectedItems.has(layerKey);
     handleItemSelection(layerKey, !isChecked, event.shiftKey);
+  };
+
+  const getSortIcon = (field: keyof LayerWithGroup) => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? (
+      <ChevronUp className="h-4 w-4 ml-1" />
+    ) : (
+      <ChevronDown className="h-4 w-4 ml-1" />
+    );
+  };
+
+  const getSortableValue = (item: LayerWithGroup, field: keyof LayerWithGroup) => {
+    if (field === 'layer') {
+      return item.layer.name;
+    }
+    return item[field];
   };
 
   return (
@@ -120,15 +150,35 @@ const AttributionMissingDialog = ({
                           checked={isAllSelected}
                           onCheckedChange={handleSelectAll}
                           aria-label="Select all layers"
-                          {...(isPartiallySelected && { 'data-indeterminate': true })}
+                          ref={(el) => {
+                            if (el && isPartiallySelected) {
+                              el.indeterminate = true;
+                            }
+                          }}
                         />
                       </TableHead>
-                      <TableHead>Layer Name</TableHead>
-                      <TableHead>Interface Group</TableHead>
+                      <TableHead 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleSort('layer' as keyof LayerWithGroup)}
+                      >
+                        <div className="flex items-center">
+                          Layer Name
+                          {getSortIcon('layer' as keyof LayerWithGroup)}
+                        </div>
+                      </TableHead>
+                      <TableHead 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleSort('group')}
+                      >
+                        <div className="flex items-center">
+                          Interface Group
+                          {getSortIcon('group')}
+                        </div>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {layersWithoutAttribution.map((item) => {
+                    {sortedLayers.map((item) => {
                       const layerKey = `${item.index}`;
                       const isSelected = selectedItems.has(layerKey);
                       

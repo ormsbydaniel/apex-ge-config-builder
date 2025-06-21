@@ -22,6 +22,12 @@ export const useTableSorting = <T, K extends keyof T>({
       let aValue = a[sortField];
       let bValue = b[sortField];
 
+      // Special handling for nested properties like layer.name
+      if (sortField === 'layer' && typeof a === 'object' && a !== null && 'layer' in a) {
+        aValue = (a as any).layer.name as T[K];
+        bValue = (b as any).layer.name as T[K];
+      }
+
       if (typeof aValue === 'string') {
         aValue = aValue.toLowerCase() as T[K];
       }
