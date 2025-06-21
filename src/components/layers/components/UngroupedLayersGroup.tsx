@@ -54,7 +54,7 @@ const UngroupedLayersGroup = ({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <CardTitle className="text-base text-primary">
+              <CardTitle className="text-base text-amber-700">
                 Ungrouped Layers
               </CardTitle>
               <Badge variant="secondary" className="text-xs">

@@ -58,7 +58,7 @@ const BaseLayerGroup = ({
                 <ChevronRight className="h-4 w-4 text-primary" />
               )}
               <div className="flex items-center gap-2">
-                <CardTitle className="text-base text-primary">Base Layers</CardTitle>
+                <CardTitle className="text-base text-green-700">Base Layers</CardTitle>
                 <Badge variant="secondary" className="text-xs">
                   {baseLayers.length} layer{baseLayers.length !== 1 ? 's' : ''}
                 </Badge>

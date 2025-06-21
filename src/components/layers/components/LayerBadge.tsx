@@ -2,6 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { DataSource } from '@/types/config';
+import LayerQAStatus from './LayerQAStatus';
 
 interface LayerBadgeProps {
   source: DataSource;
@@ -25,16 +26,19 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
       case 'base':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'standard':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-green-100 text-green-800 border-green-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   return (
-    <Badge variant="outline" className={getBadgeStyles()}>
-      {layerType}
-    </Badge>
+    <div className="flex items-center gap-2">
+      <Badge variant="outline" className={getBadgeStyles()}>
+        {layerType}
+      </Badge>
+      <LayerQAStatus source={source} />
+    </div>
   );
 };
 
