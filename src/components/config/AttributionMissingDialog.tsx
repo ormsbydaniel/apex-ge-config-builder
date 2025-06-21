@@ -150,11 +150,7 @@ const AttributionMissingDialog = ({
                           checked={isAllSelected}
                           onCheckedChange={handleSelectAll}
                           aria-label="Select all layers"
-                          ref={(el) => {
-                            if (el && isPartiallySelected) {
-                              el.indeterminate = true;
-                            }
-                          }}
+                          {...(isPartiallySelected && { 'data-state': 'indeterminate' })}
                         />
                       </TableHead>
                       <TableHead 
