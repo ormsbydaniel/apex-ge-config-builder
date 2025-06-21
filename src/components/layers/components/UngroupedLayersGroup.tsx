@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { DataSource } from '@/types/config';
@@ -43,28 +44,28 @@ const UngroupedLayersGroup = ({
   return (
     <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <Card className="border-amber-200">
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-3">
           <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 -mr-2">
             <div className="flex-shrink-0">
               {isExpanded ? (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                <ChevronDown className="h-4 w-4 text-primary" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <ChevronRight className="h-4 w-4 text-primary" />
               )}
             </div>
-            <div className="flex-1 text-left">
-              <CardTitle className="text-amber-700 text-base font-semibold">
-                Ungrouped Layers ({ungroupedLayers.length})
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base text-primary">
+                Ungrouped Layers
               </CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">
-                These layers don't belong to any interface group.
-              </CardDescription>
+              <Badge variant="secondary" className="text-xs">
+                {ungroupedLayers.length} layer{ungroupedLayers.length !== 1 ? 's' : ''}
+              </Badge>
             </div>
           </CollapsibleTrigger>
         </CardHeader>
         <CollapsibleContent>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="pt-0">
+            <div className="space-y-3">
               {ungroupedLayers.map(({ layer, originalIndex }) => (
                 <LayerCard
                   key={originalIndex}

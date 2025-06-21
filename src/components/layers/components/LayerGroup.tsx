@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, Edit2, Check, X } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
@@ -40,6 +41,9 @@ const LayerGroup = ({
   canMoveUp,
   canMoveDown
 }: LayerGroupProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(groupName);
+
   const {
     onRemoveLayer,
     onEditLayer,
@@ -51,7 +55,9 @@ const LayerGroup = ({
     onRemoveStatisticsSource,
     onEditDataSource,
     onEditStatisticsSource,
-    onMoveLayer
+    onMoveLayer,
+    config,
+    onUpdateConfig
   } = useLayersTabContext();
 
   const handleMoveLayerInGroup = (fromIndex: number, direction: 'up' | 'down') => {
@@ -68,6 +74,46 @@ const LayerGroup = ({
     onMoveLayer(fromIndex, toIndex);
   };
 
+  const handleStartEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditing(true);
+    setEditValue(groupName);
+  };
+
+  const handleConfirmEdit = () => {
+    if (editValue.trim() && editValue.trim() !== groupName && !config.interfaceGroups.includes(editValue.trim())) {
+      const updatedGroups = config.interfaceGroups.map((group, i) => 
+        i === groupIndex ? editValue.trim() : group
+      );
+
+      // Update sources that use the old interface group name
+      const updatedSources = config.sources.map(source => 
+        source.layout?.interfaceGroup === groupName
+          ? { ...source, layout: { ...source.layout, interfaceGroup: editValue.trim() } }
+          : source
+      );
+
+      onUpdateConfig({
+        interfaceGroups: updatedGroups,
+        sources: updatedSources
+      });
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditValue(groupName);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleConfirmEdit();
+    } else if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
+  };
+
   return (
     <div className="flex items-start gap-3">
       <div className="flex-1">
@@ -75,38 +121,77 @@ const LayerGroup = ({
           <Collapsible open={isExpanded} onOpenChange={onToggleGroup}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2">
+                <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
                   {isExpanded ? (
                     <ChevronDown className="h-4 w-4 text-primary" />
                   ) : (
                     <ChevronRight className="h-4 w-4 text-primary" />
                   )}
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-base text-primary">{groupName}</CardTitle>
-                    <Badge variant="secondary" className="text-xs">
-                      {sources.length} layer{sources.length !== 1 ? 's' : ''}
-                    </Badge>
+                  <div className="flex items-center gap-2 flex-1">
+                    {isEditing ? (
+                      <div className="flex items-center gap-2 flex-1" onClick={(e) => e.stopPropagation()}>
+                        <Input
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={handleKeyPress}
+                          className="text-base font-medium h-7 flex-1"
+                          autoFocus
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleConfirmEdit}
+                          className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700"
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleCancelEdit}
+                          className="h-6 w-6 p-0"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <CardTitle className="text-base text-primary">{groupName}</CardTitle>
+                        <Badge variant="secondary" className="text-xs">
+                          {sources.length} layer{sources.length !== 1 ? 's' : ''}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={handleStartEdit}
+                          className="h-6 w-6 p-0 ml-1 opacity-70 hover:opacity-100"
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </CollapsibleTrigger>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onAddLayer(groupName)}
-                    className="text-primary hover:bg-primary/10 border-primary/30"
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Add Layer
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onRemoveInterfaceGroup(groupName)}
-                    className="text-destructive hover:bg-destructive/10 border-destructive/30"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
+                {!isEditing && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onAddLayer(groupName)}
+                      className="text-primary hover:bg-primary/10 border-primary/30"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Add Layer
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onRemoveInterfaceGroup(groupName)}
+                      className="text-destructive hover:bg-destructive/10 border-destructive/30"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CollapsibleContent>
