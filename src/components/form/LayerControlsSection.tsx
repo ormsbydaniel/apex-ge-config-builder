@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface LayerControlsSectionProps {
   toggleable: boolean;
   opacitySlider: boolean;
+  zoomToCenter: boolean;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -20,6 +21,7 @@ interface LayerControlsSectionProps {
 const LayerControlsSection = ({
   toggleable,
   opacitySlider,
+  zoomToCenter,
   legendType,
   legendUrl,
   startColor,
@@ -48,6 +50,15 @@ const LayerControlsSection = ({
           onCheckedChange={(value) => onUpdate('opacitySlider', value)}
         />
         <Label htmlFor="opacitySlider">Opacity Slider</Label>
+      </div>
+      
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="zoomToCenter"
+          checked={zoomToCenter}
+          onCheckedChange={(value) => onUpdate('zoomToCenter', value)}
+        />
+        <Label htmlFor="zoomToCenter">Zoom to layer</Label>
       </div>
       
       <div className="space-y-2">

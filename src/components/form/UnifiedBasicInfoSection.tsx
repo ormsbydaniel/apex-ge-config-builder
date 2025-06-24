@@ -109,29 +109,14 @@ const UnifiedBasicInfoSection = ({
         </div>
       )}
 
-      {(showIsActive || showFeatureStatistics) && (
-        <div className="grid grid-cols-2 gap-4">
-          {showIsActive && (
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="isActive"
-                checked={isActive}
-                onCheckedChange={(checked) => onUpdate('isActive', checked)}
-              />
-              <Label htmlFor="isActive">Active by default</Label>
-            </div>
-          )}
-          
-          {showFeatureStatistics && (
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="hasFeatureStatistics"
-                checked={hasFeatureStatistics}
-                onCheckedChange={(checked) => onUpdate('hasFeatureStatistics', checked)}
-              />
-              <Label htmlFor="hasFeatureStatistics">Has feature statistics</Label>
-            </div>
-          )}
+      {showIsActive && (
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="isActive"
+            checked={isActive}
+            onCheckedChange={(checked) => onUpdate('isActive', checked)}
+          />
+          <Label htmlFor="isActive">Active by default</Label>
         </div>
       )}
     </div>
