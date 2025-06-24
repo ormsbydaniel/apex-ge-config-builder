@@ -107,7 +107,10 @@ export const useValidatedConfig = () => {
                   ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
                 } : undefined,
                 controls: source.layout.layerCard.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
-                  ? source.layout.layerCard.controls
+                  ? {
+                      opacitySlider: source.layout.layerCard.controls.opacitySlider,
+                      zoomToCenter: source.layout.layerCard.controls.zoomToCenter
+                    }
                   : { opacitySlider: true },
                 showStatistics: source.layout.layerCard.showStatistics
               }
@@ -160,7 +163,10 @@ export const useValidatedConfig = () => {
             ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
           } : undefined,
           controls: source.layout?.layerCard?.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
-            ? source.layout.layerCard.controls
+            ? {
+                opacitySlider: source.layout.layerCard.controls.opacitySlider,
+                zoomToCenter: source.layout.layerCard.controls.zoomToCenter
+              }
             : { opacitySlider: true },
           showStatistics: source.layout?.layerCard?.showStatistics
         }
