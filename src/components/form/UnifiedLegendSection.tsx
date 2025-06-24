@@ -65,7 +65,10 @@ const UnifiedLegendSection = ({
         </div>
         
         {categories.length > 0 && (
-          <CategoryPreview categories={categories} />
+          <CategoryPreview 
+            categories={categories} 
+            useValues={true}
+          />
         )}
       </div>
     </div>

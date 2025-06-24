@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,6 +50,7 @@ const SwipeLayerFormContainer = ({
   // Legend configuration state
   const [toggleable, setToggleable] = useState(true);
   const [opacitySlider, setOpacitySlider] = useState(false);
+  const [zoomToCenter, setZoomToCenter] = useState(false);
   const [legendType, setLegendType] = useState<'swatch' | 'gradient' | 'image'>('swatch');
   const [legendUrl, setLegendUrl] = useState('');
   const [startColor, setStartColor] = useState('#000000');
@@ -93,6 +93,7 @@ const SwipeLayerFormContainer = ({
       if (editingLayer.layout?.layerCard) {
         setToggleable(editingLayer.layout.layerCard.toggleable ?? true);
         setOpacitySlider(editingLayer.layout.layerCard.controls?.opacitySlider ?? false);
+        setZoomToCenter((editingLayer.layout.layerCard.controls as any)?.zoomToCenter ?? false);
         
         if (editingLayer.layout.layerCard.legend) {
           setLegendType(editingLayer.layout.layerCard.legend.type);
@@ -143,6 +144,7 @@ const SwipeLayerFormContainer = ({
     switch (field) {
       case 'toggleable': setToggleable(value); break;
       case 'opacitySlider': setOpacitySlider(value); break;
+      case 'zoomToCenter': setZoomToCenter(value); break;
       case 'legendType': setLegendType(value); break;
       case 'legendUrl': setLegendUrl(value); break;
       case 'startColor': setStartColor(value); break;
@@ -233,7 +235,8 @@ const SwipeLayerFormContainer = ({
             ...(legendType === 'image' && { url: legendUrl })
           },
           controls: {
-            opacitySlider
+            opacitySlider,
+            zoomToCenter
           }
         }
       }
@@ -356,6 +359,7 @@ const SwipeLayerFormContainer = ({
           <UnifiedLegendSection
             toggleable={toggleable}
             opacitySlider={opacitySlider}
+            zoomToCenter={zoomToCenter}
             legendType={legendType}
             legendUrl={legendUrl}
             startColor={startColor}
@@ -364,6 +368,7 @@ const SwipeLayerFormContainer = ({
             maxValue={maxValue}
             categories={categories}
             onUpdate={handleLegendConfigUpdate}
+            layerName={name}
           />
 
           <div className="flex justify-end gap-2 pt-4">
