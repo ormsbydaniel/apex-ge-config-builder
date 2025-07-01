@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,14 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
   const availableSourceLayers = config.sources
     .filter(source => source.meta?.categories && source.meta.categories.length > 0)
     .map(source => {
-      const normalizedCategories = normalizeCategories(source.meta?.categories || []);
+      // Convert partial categories to full Category objects before normalizing
+      const sourceCategories = (source.meta?.categories || []).map((cat, index) => ({
+        label: cat.label || `Category ${index + 1}`,
+        color: cat.color || '#000000',
+        value: cat.value !== undefined ? cat.value : index
+      }));
+      
+      const normalizedCategories = normalizeCategories(sourceCategories);
       return {
         name: source.name || 'Unnamed Layer',
         categories: normalizedCategories,
