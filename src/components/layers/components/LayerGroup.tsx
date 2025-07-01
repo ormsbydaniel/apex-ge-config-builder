@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, Edit2, Check, X } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, Edit2, Check, X, AlertTriangle, Triangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
+import { calculateQAStats } from '@/utils/qaUtils';
 import LayerCard from '../LayerCard';
 
 interface LayerGroupProps {
@@ -59,6 +60,9 @@ const LayerGroup = ({
     config,
     onUpdateConfig
   } = useLayersTabContext();
+
+  // Calculate QA stats for this group's sources
+  const qaStats = calculateQAStats(sources);
 
   const handleMoveLayerInGroup = (fromIndex: number, direction: 'up' | 'down') => {
     const currentGroupSources = sourceIndices;
@@ -156,9 +160,6 @@ const LayerGroup = ({
                     ) : (
                       <>
                         <CardTitle className="text-base text-primary">{groupName}</CardTitle>
-                        <Badge variant="secondary" className="text-xs">
-                          {sources.length} layer{sources.length !== 1 ? 's' : ''}
-                        </Badge>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -167,6 +168,37 @@ const LayerGroup = ({
                         >
                           <Edit2 className="h-3 w-3" />
                         </Button>
+                        <Badge variant="secondary" className="text-xs">
+                          {sources.length} layer{sources.length !== 1 ? 's' : ''}
+                        </Badge>
+                        
+                        {/* QA Status Indicators */}
+                        <div className="flex items-center gap-2">
+                          {qaStats.success > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Check className="h-3 w-3 text-green-500" />
+                              <span className="text-xs text-green-600">{qaStats.success}</span>
+                            </div>
+                          )}
+                          {qaStats.info > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Triangle className="h-3 w-3 text-blue-500" />
+                              <span className="text-xs text-blue-600">{qaStats.info}</span>
+                            </div>
+                          )}
+                          {qaStats.warning > 0 && (
+                            <div className="flex items-center gap-1">
+                              <AlertTriangle className="h-3 w-3 text-amber-500" />
+                              <span className="text-xs text-amber-600">{qaStats.warning}</span>
+                            </div>
+                          )}
+                          {qaStats.error > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Triangle className="h-3 w-3 text-red-500" />
+                              <span className="text-xs text-red-600">{qaStats.error}</span>
+                            </div>
+                          )}
+                        </div>
                       </>
                     )}
                   </div>

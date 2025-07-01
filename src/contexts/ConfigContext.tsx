@@ -20,6 +20,7 @@ type ConfigAction =
   | { type: 'REMOVE_SERVICE'; payload: number }
   | { type: 'ADD_SOURCE'; payload: DataSource }
   | { type: 'REMOVE_SOURCE'; payload: number }
+  | { type: 'UPDATE_SOURCE'; payload: { index: number; source: DataSource } }
   | { type: 'UPDATE_SOURCES'; payload: DataSource[] };
 
 const initialState: ConfigState = {
@@ -220,6 +221,14 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...state,
         sources: state.sources.filter((_, i) => i !== action.payload),
       };
+    case 'UPDATE_SOURCE': {
+      const updatedSources = [...state.sources];
+      updatedSources[action.payload.index] = action.payload.source;
+      return {
+        ...state,
+        sources: updatedSources,
+      };
+    }
     case 'UPDATE_SOURCES': {
       // Sanitize URLs in all sources before updating, including statistics
       const sanitizedSources = action.payload.map(source => ({

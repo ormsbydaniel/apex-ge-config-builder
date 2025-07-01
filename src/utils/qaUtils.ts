@@ -4,11 +4,12 @@ import { DataSource } from '@/types/config';
 export interface QAStats {
   error: number;
   warning: number;
+  info: number;
   success: number;
 }
 
 export const calculateQAStats = (sources: DataSource[]): QAStats => {
-  const stats = { error: 0, warning: 0, success: 0 };
+  const stats = { error: 0, warning: 0, info: 0, success: 0 };
 
   sources.forEach(source => {
     const isSwipeLayer = source.meta?.swipeConfig !== undefined;
@@ -41,9 +42,15 @@ export const calculateQAStats = (sources: DataSource[]): QAStats => {
       swipeComplete = hasClippedSource && hasBaseSources;
     }
     
-    // Amber: Missing attribution, legend, or incomplete swipe configuration
-    if (!hasAttribution || !hasLegend || !swipeComplete) {
+    // Amber: Missing attribution or incomplete swipe configuration
+    if (!hasAttribution || (isSwipeLayer && !swipeComplete)) {
       stats.warning++;
+      return;
+    }
+    
+    // Blue: Has attribution but missing legend
+    if (!hasLegend) {
+      stats.info++;
       return;
     }
     

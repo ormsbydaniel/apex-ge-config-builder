@@ -171,11 +171,9 @@ const LayerCardForm = ({
               description={formData.description}
               interfaceGroup={formData.interfaceGroup}
               interfaceGroups={interfaceGroups}
-              hasFeatureStatistics={formData.hasFeatureStatistics}
               units={formData.units}
               isActive={(formData as any).isActive || false}
               onUpdate={updateFormData}
-              showFeatureStatistics={true}
               showUnits={true}
               showIsActive={true}
             />
@@ -189,6 +187,7 @@ const LayerCardForm = ({
             <UnifiedLegendSection
               toggleable={formData.toggleable}
               opacitySlider={formData.opacitySlider}
+              zoomToCenter={(formData as any).zoomToCenter || false}
               legendType={formData.legendType}
               legendUrl={formData.legendUrl}
               startColor={formData.startColor}

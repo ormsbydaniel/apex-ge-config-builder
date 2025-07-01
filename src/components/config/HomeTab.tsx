@@ -10,7 +10,8 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
-import { calculateQAStats } from '@/utils/qaUtils';
+import AttributionMissingDialog from './AttributionMissingDialog';
+import { calculateQAStats, QAStats } from '@/utils/qaUtils';
 
 interface HomeTabProps {
   config: any;
@@ -23,6 +24,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showAttributionDialog, setShowAttributionDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [errorFileName, setErrorFileName] = useState<string>('');
   const [isEditingLogo, setIsEditingLogo] = useState(false);
@@ -99,6 +101,25 @@ const HomeTab = ({ config }: HomeTabProps) => {
     setLogoUrl(config.layout.navigation.logo);
     setTitle(config.layout.navigation.title);
   }, [config.layout.navigation.logo, config.layout.navigation.title]);
+
+  const handleAttributionUpdates = (updates: Array<{ index: number; attribution: { text: string; url?: string } }>) => {
+    const updatedSources = [...config.sources];
+    
+    updates.forEach(update => {
+      updatedSources[update.index] = {
+        ...updatedSources[update.index],
+        meta: {
+          ...updatedSources[update.index].meta,
+          attribution: update.attribution
+        }
+      };
+    });
+
+    dispatch({
+      type: 'UPDATE_SOURCES',
+      payload: updatedSources
+    });
+  };
 
   // Calculate QA statistics
   const qaStats = calculateQAStats(config.sources);
@@ -238,7 +259,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
             {/* Layer Quality Assurance Statistics */}
             <div className="space-y-3">
               <h3 className="text-lg font-medium">Layer Quality Assurance</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-3 border rounded-lg">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Check className="h-5 w-5 text-green-500" />
@@ -248,17 +269,24 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 </div>
                 <div className="text-center p-3 border rounded-lg">
                   <div className="flex items-center justify-center gap-2 mb-2">
+                    <Triangle className="h-5 w-5 text-blue-500" />
+                    <div className="text-2xl font-bold text-blue-600">{qaStats.info}</div>
+                  </div>
+                  <div className="text-sm text-slate-600">Missing Legend</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg cursor-pointer hover:bg-muted/50" onClick={() => setShowAttributionDialog(true)}>
+                  <div className="flex items-center justify-center gap-2 mb-2">
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
                     <div className="text-2xl font-bold text-amber-600">{qaStats.warning}</div>
                   </div>
-                  <div className="text-sm text-slate-600">Incomplete Layers</div>
+                  <div className="text-sm text-slate-600">Missing Attribution</div>
                 </div>
                 <div className="text-center p-3 border rounded-lg">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Triangle className="h-5 w-5 text-red-500" />
                     <div className="text-2xl font-bold text-red-600">{qaStats.error}</div>
                   </div>
-                  <div className="text-sm text-slate-600">Layers Without Data</div>
+                  <div className="text-sm text-slate-600">No Data/Statistics</div>
                 </div>
               </div>
             </div>
@@ -286,6 +314,13 @@ const HomeTab = ({ config }: HomeTabProps) => {
       </div>
 
       <ExportOptionsDialog open={showExportDialog} onOpenChange={setShowExportDialog} onExport={handleExportWithOptions} />
+
+      <AttributionMissingDialog 
+        open={showAttributionDialog}
+        onOpenChange={setShowAttributionDialog}
+        config={config}
+        onUpdateLayers={handleAttributionUpdates}
+      />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">

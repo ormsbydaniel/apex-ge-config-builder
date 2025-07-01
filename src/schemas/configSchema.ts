@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export const CategorySchema = z.object({
@@ -119,7 +120,7 @@ const MetaSchema = z.object({
   swipeConfig: SwipeConfigSchema.optional(),
 });
 
-// Enhanced layout schema
+// Enhanced layout schema with proper controls validation
 const LayoutSchema = z.object({
   interfaceGroup: z.string().optional(),
   layerCard: z.object({
@@ -143,8 +144,9 @@ const LayoutSchema = z.object({
     controls: z.union([
       z.object({
         opacitySlider: z.boolean().optional(),
+        zoomToCenter: z.boolean().optional(),
       }),
-      z.array(z.string()), // Support controls as array of strings
+      z.array(z.string()), // Support controls as array of strings for backward compatibility
     ]).optional(),
     showStatistics: z.boolean().optional(),
   }).optional(),

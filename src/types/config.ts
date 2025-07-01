@@ -1,3 +1,4 @@
+
 export interface Category {
   color: string;
   label: string;
@@ -94,6 +95,7 @@ export interface DataSourceLayout {
     };
     controls?: {
       opacitySlider?: boolean;
+      zoomToCenter?: boolean;
     };
     showStatistics?: boolean;
   };
