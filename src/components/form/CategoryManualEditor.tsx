@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Category } from '@/types/config';
+import { convertColorToHex } from '@/utils/colorUtils';
 import CategoryPreview from './CategoryPreview';
 import CategoryValueToggle from './CategoryValueToggle';
 import CategoryAddForm from './CategoryAddForm';
@@ -23,10 +24,27 @@ const CategoryManualEditor = ({
   newCategory,
   setNewCategory
 }: CategoryManualEditorProps) => {
+  // Ensure all categories have proper hex colors when component mounts or categories change
+  React.useEffect(() => {
+    const normalizedCategories = localCategories.map(cat => ({
+      ...cat,
+      color: convertColorToHex(cat.color)
+    }));
+    
+    // Only update if colors actually changed to avoid infinite loops
+    const hasColorChanges = normalizedCategories.some((cat, index) => 
+      cat.color !== localCategories[index]?.color
+    );
+    
+    if (hasColorChanges) {
+      setLocalCategories(normalizedCategories);
+    }
+  }, [localCategories.length]); // Only run when categories are added/removed, not on every change
+
   const handleAddCategory = () => {
     if (newCategory.label.trim()) {
       const categoryToAdd: Category = {
-        color: newCategory.color,
+        color: convertColorToHex(newCategory.color),
         label: newCategory.label,
         value: useValues ? (newCategory.value !== undefined ? newCategory.value : localCategories.length) : localCategories.length
       };
@@ -45,7 +63,9 @@ const CategoryManualEditor = ({
         if (field === 'value' && !useValues) {
           return cat;
         }
-        return { ...cat, [field]: value };
+        // Ensure color is converted to hex when updating
+        const updatedValue = field === 'color' ? convertColorToHex(value) : value;
+        return { ...cat, [field]: updatedValue };
       }
       return cat;
     });

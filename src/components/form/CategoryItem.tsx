@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
 import { Category } from '@/types/config';
+import { convertColorToHex } from '@/utils/colorUtils';
 
 interface CategoryItemProps {
   category: Category;
@@ -21,6 +22,9 @@ const CategoryItem = ({
   onRemove 
 }: CategoryItemProps) => {
   const isEvenRow = index % 2 === 0;
+  
+  // Ensure color is in hex format for the color picker
+  const displayColor = convertColorToHex(category.color);
 
   return (
     <div 
@@ -30,7 +34,7 @@ const CategoryItem = ({
     >
       <input
         type="color"
-        value={category.color}
+        value={displayColor}
         onChange={(e) => onUpdate(index, 'color', e.target.value)}
         className="w-8 h-8 rounded border cursor-pointer flex-shrink-0"
         title="Category color"
