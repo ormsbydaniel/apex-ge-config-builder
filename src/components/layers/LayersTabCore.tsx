@@ -64,6 +64,11 @@ const LayersTabCore = ({
   const handleLayerSaved = (layer: DataSource) => {
     if (editingLayerIndex !== null) {
       updateLayer(editingLayerIndex, layer);
+      
+      // Trigger expansion for the edited layer
+      const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+      layersLogic.handleLayerEdited?.(groupName, editingLayerIndex);
+      
       setEditingLayerIndex(null);
     } else {
       addLayer(layer);

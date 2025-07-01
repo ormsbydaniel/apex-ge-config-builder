@@ -46,9 +46,11 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     selectedLayerIndex,
     expandedLayerAfterDataSource,
     expandedLayerAfterCreation,
+    expandedLayerAfterEdit,
     expandedGroupAfterAction,
     clearExpandedLayer,
     clearExpandedLayerAfterCreation,
+    clearExpandedLayerAfterEdit,
     clearExpandedGroup,
     handleStartDataSourceFormWithExpansion,
     ...restLogic
@@ -60,6 +62,14 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
       clearExpandedLayer();
     }
   }, [expandedLayerAfterDataSource, showDataSourceForm, toggleCard, clearExpandedLayer]);
+
+  // Handle expansion after layer editing
+  useEffect(() => {
+    if (expandedLayerAfterEdit) {
+      toggleCard(expandedLayerAfterEdit);
+      clearExpandedLayerAfterEdit();
+    }
+  }, [expandedLayerAfterEdit, toggleCard, clearExpandedLayerAfterEdit]);
 
   // Convert expanded cards to a Set for compatibility
   const expandedLayers = new Set(
@@ -93,11 +103,13 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     showDataSourceForm,
     selectedLayerIndex,
     expandedLayerAfterCreation,
+    expandedLayerAfterEdit,
     expandedGroupAfterAction,
     expandedLayers,
     onToggleLayer,
     handleStartDataSourceFormWithExpansion,
     clearExpandedLayerAfterCreation,
+    clearExpandedLayerAfterEdit,
     clearExpandedGroup,
     // Layer type handlers
     ...layerTypeHandlers,

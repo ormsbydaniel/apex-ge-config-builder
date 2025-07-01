@@ -26,8 +26,10 @@ interface LayersTabContentProps {
   onAddBaseLayer: () => void;
   updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
   expandedLayerAfterCreation: string | null;
+  expandedLayerAfterEdit?: string | null;
   expandedGroupAfterAction: string | null;
   onClearExpandedLayer: () => void;
+  onClearExpandedLayerAfterEdit?: () => void;
   onClearExpandedGroup: () => void;
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
@@ -51,8 +53,10 @@ const LayersTabContent = ({
   onAddBaseLayer,
   updateConfig,
   expandedLayerAfterCreation,
+  expandedLayerAfterEdit,
   expandedGroupAfterAction,
   onClearExpandedLayer,
+  onClearExpandedLayerAfterEdit,
   onClearExpandedGroup,
   expandedLayers,
   onToggleLayer,
@@ -84,8 +88,10 @@ const LayersTabContent = ({
             onAddBaseLayer={onAddBaseLayer}
             updateConfig={updateConfig}
             expandedLayerAfterCreation={expandedLayerAfterCreation}
+            expandedLayerAfterEdit={expandedLayerAfterEdit}
             expandedGroupAfterAction={expandedGroupAfterAction}
             onClearExpandedLayer={onClearExpandedLayer}
+            onClearExpandedLayerAfterEdit={onClearExpandedLayerAfterEdit}
             onClearExpandedGroup={onClearExpandedGroup}
             expandedLayers={expandedLayers}
             onToggleLayer={onToggleLayer}
