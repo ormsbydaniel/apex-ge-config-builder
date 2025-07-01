@@ -4,7 +4,6 @@ import { LayerType, DataSource } from '@/types/config';
 import LayerTypeSelector from '../layer/LayerTypeSelector';
 import BaseLayerForm from '../layer/BaseLayerForm';
 import LayerCardForm from '../layer/LayerCardForm';
-import SwipeLayerForm from '../layer/SwipeLayerForm';
 
 interface LayerFormContainerProps {
   showLayerForm: boolean;
@@ -56,20 +55,6 @@ const LayerFormContainer = ({
   if (selectedLayerType === 'layerCard') {
     return (
       <LayerCardForm
-        interfaceGroups={interfaceGroups}
-        defaultInterfaceGroup={defaultInterfaceGroup}
-        onAddLayer={onAddLayer}
-        onCancel={onCancel}
-        editingLayer={editingLayer}
-        isEditing={isEditing}
-      />
-    );
-  }
-
-  if (selectedLayerType === 'swipe') {
-    return (
-      <SwipeLayerForm
-        availableSources={availableSources}
         interfaceGroups={interfaceGroups}
         defaultInterfaceGroup={defaultInterfaceGroup}
         onAddLayer={onAddLayer}

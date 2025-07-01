@@ -26,15 +26,8 @@ export const useLayerTypeHandlers = ({
     setShowLayerForm(true);
   }, [setSelectedLayerType, setShowLayerForm]);
 
-  const handleEditSwipeLayer = useCallback((layerIndex: number) => {
-    setEditingLayerIndex(layerIndex);
-    setSelectedLayerType('swipe');
-    setShowLayerForm(true);
-  }, [setEditingLayerIndex, setSelectedLayerType, setShowLayerForm]);
-
   return {
     handleAddLayerForGroup,
-    handleAddBaseLayer,
-    handleEditSwipeLayer
+    handleAddBaseLayer
   };
 };

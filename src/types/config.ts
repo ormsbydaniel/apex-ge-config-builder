@@ -1,4 +1,3 @@
-
 export interface Category {
   color: string;
   label: string;
@@ -141,7 +140,7 @@ export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson
 // New type for source configuration (includes S3)
 export type SourceConfigType = DataSourceFormat | 's3';
 
-export type LayerType = 'base' | 'layerCard' | 'swipe';
+export type LayerType = 'base' | 'layerCard';
 
 export interface FormatConfig {
   label: string;
