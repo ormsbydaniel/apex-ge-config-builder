@@ -24,10 +24,13 @@ export const useLayerFormState = () => {
     // Expansion state
     expandedLayerAfterDataSource: expansionState.expandedLayerAfterDataSource,
     expandedLayerAfterCreation: expansionState.expandedLayerAfterCreation,
+    expandedLayerAfterEdit: expansionState.expandedLayerAfterEdit,
     expandedGroupAfterAction: expansionState.expandedGroupAfterAction,
     handleLayerCreated: expansionState.handleLayerCreated,
+    handleLayerEdited: expansionState.handleLayerEdited,
     clearExpandedLayer: expansionState.clearExpandedLayer,
     clearExpandedLayerAfterCreation: expansionState.clearExpandedLayerAfterCreation,
+    clearExpandedLayerAfterEdit: expansionState.clearExpandedLayerAfterEdit,
     clearExpandedGroup: expansionState.clearExpandedGroup
   };
 };

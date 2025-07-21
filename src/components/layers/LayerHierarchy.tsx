@@ -27,8 +27,10 @@ interface LayerHierarchyProps {
   onAddBaseLayer: () => void;
   updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
   expandedLayerAfterCreation?: string | null;
+  expandedLayerAfterEdit?: string | null;
   expandedGroupAfterAction?: string | null;
   onClearExpandedLayer?: () => void;
+  onClearExpandedLayerAfterEdit?: () => void;
   onClearExpandedGroup?: () => void;
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
@@ -51,8 +53,10 @@ const LayerHierarchy = ({
   onAddBaseLayer,
   updateConfig,
   expandedLayerAfterCreation,
+  expandedLayerAfterEdit,
   expandedGroupAfterAction,
   onClearExpandedLayer,
+  onClearExpandedLayerAfterEdit,
   onClearExpandedGroup,
   expandedLayers,
   onToggleLayer

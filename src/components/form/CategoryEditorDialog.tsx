@@ -1,16 +1,14 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Edit3 } from 'lucide-react';
 import { Category } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useToast } from '@/hooks/use-toast';
-import CategoryManualEditor from './CategoryManualEditor';
-import CategoryCopyFromLayer from './CategoryCopyFromLayer';
+import { useCategoryEditorState } from '@/hooks/useCategoryEditorState';
+import { normalizeCategories } from '@/utils/categoryValidation';
+import CategoryEditorTabs from './CategoryEditorTabs';
+import CategoryCopyLogic from './CategoryCopyLogic';
 
 interface CategoryEditorDialogProps {
   categories: Category[];
@@ -22,43 +20,19 @@ interface CategoryEditorDialogProps {
 const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: CategoryEditorDialogProps) => {
   const { config } = useConfig();
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>('');
-  
-  // Initialize localCategories with the provided categories at component creation
-  const [localCategories, setLocalCategories] = useState<Category[]>([...categories]);
-  const [useValues, setUseValues] = useState(categories.some(cat => cat.value !== undefined));
-  const [newCategory, setNewCategory] = useState<Category>({
-    label: '',
-    color: '#000000',
-    value: 0
-  });
-  const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
-  const [showAppendReplaceDialog, setShowAppendReplaceDialog] = useState(false);
-  const [selectedSourceLayer, setSelectedSourceLayer] = useState<string>('');
-  const [pendingCopyData, setPendingCopyData] = useState<{ categories: Category[]; hasValues: boolean; name: string } | null>(null);
-
-  // Simple handleOpen that controls dialog visibility and sets default tab
-  const handleOpen = (isOpen: boolean) => {
-    setOpen(isOpen);
-    if (isOpen && !activeTab) {
-      // Determine default tab based on context
-      const defaultTab = localCategories.length === 0 && availableSourceLayers.length > 0 ? "copy" : "manual";
-      setActiveTab(defaultTab);
-    }
-  };
 
   // Get available layers with categories for copying
   const availableSourceLayers = config.sources
     .filter(source => source.meta?.categories && source.meta.categories.length > 0)
     .map(source => {
-      // Ensure categories have proper defaults for required properties
-      const normalizedCategories: Category[] = (source.meta?.categories || []).map((cat, index) => ({
+      // Convert partial categories to full Category objects before normalizing
+      const sourceCategories = (source.meta?.categories || []).map((cat, index) => ({
         label: cat.label || `Category ${index + 1}`,
         color: cat.color || '#000000',
         value: cat.value !== undefined ? cat.value : index
       }));
-
+      
+      const normalizedCategories = normalizeCategories(sourceCategories);
       return {
         name: source.name || 'Unnamed Layer',
         categories: normalizedCategories,
@@ -66,13 +40,35 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
       };
     });
 
+  const {
+    open,
+    activeTab,
+    localCategories,
+    useValues,
+    newCategory,
+    showCopyConfirmation,
+    showAppendReplaceDialog,
+    selectedSourceLayer,
+    pendingCopyData,
+    setActiveTab,
+    setLocalCategories,
+    setUseValues,
+    setNewCategory,
+    setShowCopyConfirmation,
+    setShowAppendReplaceDialog,
+    setSelectedSourceLayer,
+    setPendingCopyData,
+    handleOpen,
+    handleCancel,
+    performCopy
+  } = useCategoryEditorState({ categories, availableSourceLayers });
+
   const handleCopyFromLayer = () => {
     if (!selectedSourceLayer) return;
     
     const sourceLayer = availableSourceLayers.find(layer => layer.name === selectedSourceLayer);
     if (!sourceLayer) return;
 
-    // Check if we have existing categories
     if (localCategories.length > 0) {
       setPendingCopyData(sourceLayer);
       setShowAppendReplaceDialog(true);
@@ -81,50 +77,18 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
     }
   };
 
-  const performCopy = (sourceLayer: { categories: Category[]; hasValues: boolean; name: string }, mode: 'append' | 'replace') => {
-    // Deep copy categories to avoid reference issues
-    const copiedCategories = sourceLayer.categories.map(cat => ({ ...cat }));
-    
-    let finalCategories: Category[];
-    if (mode === 'append') {
-      // Append to existing categories
-      finalCategories = [...localCategories, ...copiedCategories];
-    } else {
-      // Replace existing categories
-      finalCategories = copiedCategories;
-    }
-    
-    setLocalCategories(finalCategories);
-    setUseValues(sourceLayer.hasValues);
-    setShowCopyConfirmation(false);
-    setShowAppendReplaceDialog(false);
-    setPendingCopyData(null);
-    
-    // Switch to manual tab to show the updated categories
-    setActiveTab('manual');
-    
-    const actionText = mode === 'append' ? 'Appended' : 'Copied';
-    toast({
-      title: `Categories ${actionText}`,
-      description: `${actionText} ${copiedCategories.length} categories from "${sourceLayer.name}".`,
-    });
-  };
-
   const handleSave = () => {
-    // If we're on the copy tab and a source layer is selected, perform the copy first
     if (activeTab === 'copy' && selectedSourceLayer) {
       const sourceLayer = availableSourceLayers.find(layer => layer.name === selectedSourceLayer);
       if (sourceLayer) {
-        // Check if we need to show append/replace dialog
         if (localCategories.length > 0) {
           setPendingCopyData(sourceLayer);
           setShowAppendReplaceDialog(true);
-          return; // Don't save yet, wait for user choice
+          return;
         } else {
-          // No existing categories, just copy and save
           const copiedCategories = sourceLayer.categories.map(cat => ({ ...cat }));
           onUpdate(copiedCategories);
-          setOpen(false);
+          handleOpen(false);
           
           toast({
             title: "Categories Copied",
@@ -135,21 +99,10 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
       }
     }
     
-    // Normal save from manual tab or when no copy is needed
     onUpdate(localCategories);
-    setOpen(false);
+    handleOpen(false);
   };
 
-  const handleCancel = () => {
-    // Reset to original state only when explicitly canceling
-    setLocalCategories([...categories]);
-    setUseValues(categories.some(cat => cat.value !== undefined));
-    setActiveTab('');
-    setSelectedSourceLayer('');
-    setOpen(false);
-  };
-
-  // Handle save after append/replace choice
   const handleAppendReplaceSave = (mode: 'append' | 'replace') => {
     if (!pendingCopyData) return;
     
@@ -162,9 +115,8 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
       finalCategories = copiedCategories;
     }
     
-    // Save directly instead of updating local state
     onUpdate(finalCategories);
-    setOpen(false);
+    handleOpen(false);
     setShowAppendReplaceDialog(false);
     setPendingCopyData(null);
     
@@ -174,8 +126,6 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
       description: `${actionText} ${copiedCategories.length} categories from "${pendingCopyData.name}".`,
     });
   };
-
-  const selectedSourceLayerData = availableSourceLayers.find(layer => layer.name === selectedSourceLayer);
 
   const defaultTrigger = (
     <Button type="button" variant="outline" size="sm">
@@ -201,50 +151,22 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
           </DialogHeader>
           
           <div className="flex-1 overflow-y-auto">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="manual" className="flex items-center gap-2">
-                  Manual Editor
-                  <Badge variant="secondary" className="text-xs">
-                    {localCategories.length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="copy" 
-                  disabled={availableSourceLayers.length === 0}
-                  className="flex items-center gap-2"
-                >
-                  Copy from Layer
-                  <Badge variant="secondary" className="text-xs">
-                    {availableSourceLayers.length}
-                  </Badge>
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="manual">
-                <CategoryManualEditor
-                  key={`manual-editor-${localCategories.length}-${localCategories.map(c => c.label).join('-')}`}
-                  localCategories={localCategories}
-                  setLocalCategories={setLocalCategories}
-                  useValues={useValues}
-                  setUseValues={setUseValues}
-                  newCategory={newCategory}
-                  setNewCategory={setNewCategory}
-                />
-              </TabsContent>
-
-              <TabsContent value="copy">
-                <CategoryCopyFromLayer
-                  availableSourceLayers={availableSourceLayers}
-                  selectedSourceLayer={selectedSourceLayer}
-                  setSelectedSourceLayer={setSelectedSourceLayer}
-                  onCopyFromLayer={handleCopyFromLayer}
-                />
-              </TabsContent>
-            </Tabs>
+            <CategoryEditorTabs
+              activeTab={activeTab}
+              localCategories={localCategories}
+              useValues={useValues}
+              newCategory={newCategory}
+              availableSourceLayers={availableSourceLayers}
+              selectedSourceLayer={selectedSourceLayer}
+              onActiveTabChange={setActiveTab}
+              onSetLocalCategories={setLocalCategories}
+              onSetUseValues={setUseValues}
+              onSetNewCategory={setNewCategory}
+              onSetSelectedSourceLayer={setSelectedSourceLayer}
+              onCopyFromLayer={handleCopyFromLayer}
+            />
           </div>
 
-          {/* Dialog Actions */}
           <div className="flex justify-end gap-2 pt-4 border-t">
             <Button type="button" variant="outline" onClick={handleCancel}>
               Cancel
@@ -260,58 +182,19 @@ const CategoryEditorDialog = ({ categories, onUpdate, trigger, layerName }: Cate
         </DialogContent>
       </Dialog>
 
-      {/* Append/Replace Dialog */}
-      <AlertDialog open={showAppendReplaceDialog} onOpenChange={setShowAppendReplaceDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Add Categories</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have {localCategories.length} existing categories. How would you like to add the {pendingCopyData?.categories.length} categories from "{pendingCopyData?.name}"?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button 
-              variant="outline"
-              onClick={() => handleAppendReplaceSave('append')}
-            >
-              Append ({localCategories.length + (pendingCopyData?.categories.length || 0)} total)
-            </Button>
-            <AlertDialogAction 
-              onClick={() => handleAppendReplaceSave('replace')}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Replace ({pendingCopyData?.categories.length} total)
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Legacy Copy Confirmation Dialog (kept for backward compatibility) */}
-      <AlertDialog open={showCopyConfirmation} onOpenChange={setShowCopyConfirmation}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Replace Existing Categories?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will replace your current {localCategories.length} categories with {selectedSourceLayerData?.categories.length} categories from "{selectedSourceLayer}".
-              {selectedSourceLayerData?.hasValues !== useValues && (
-                <span className="block mt-2 text-amber-600">
-                  Note: The value settings will also change to match the source layer.
-                </span>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => selectedSourceLayerData && performCopy(selectedSourceLayerData, 'replace')}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Replace All
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <CategoryCopyLogic
+        availableSourceLayers={availableSourceLayers}
+        selectedSourceLayer={selectedSourceLayer}
+        localCategories={localCategories}
+        useValues={useValues}
+        showCopyConfirmation={showCopyConfirmation}
+        showAppendReplaceDialog={showAppendReplaceDialog}
+        pendingCopyData={pendingCopyData}
+        onSetShowCopyConfirmation={setShowCopyConfirmation}
+        onSetShowAppendReplaceDialog={setShowAppendReplaceDialog}
+        onPerformCopy={performCopy}
+        onHandleAppendReplaceSave={handleAppendReplaceSave}
+      />
     </>
   );
 };
