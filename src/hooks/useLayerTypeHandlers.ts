@@ -26,9 +26,7 @@ export const useLayerTypeHandlers = ({
   const handleAddBaseLayer = useCallback(() => {
     setSelectedLayerType('base');
     setShowLayerForm(true);
-    // Set the group to expand after base layer creation
-    setExpandedGroupAfterAction('__BASE_LAYERS__');
-  }, [setSelectedLayerType, setShowLayerForm, setExpandedGroupAfterAction]);
+  }, [setSelectedLayerType, setShowLayerForm]);
 
   return {
     handleAddLayerForGroup,
