@@ -111,6 +111,7 @@ const LayerGroup = ({
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
+    e.stopPropagation(); // Prevent event from bubbling to CollapsibleTrigger
     if (e.key === 'Enter') {
       handleConfirmEdit();
     } else if (e.key === 'Escape') {
