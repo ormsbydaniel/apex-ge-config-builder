@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { validateFormField } from '@/utils/formUtils';
+import { validateFormFieldLegacy } from '@/utils/formUtils';
 
 interface FormFieldConfig {
   name: string;
@@ -46,7 +46,7 @@ export const useFormComposition = ({
     const fieldConfig = fields.find(f => f.name === path);
     if (fieldConfig) {
       const stringValue = String(value || '');
-      const isValid = fieldConfig.validator ? fieldConfig.validator(value) : validateFormField(stringValue, fieldConfig.required);
+      const isValid = fieldConfig.validator ? fieldConfig.validator(value) : validateFormFieldLegacy(stringValue, fieldConfig.required);
       if (isValid && errors[path]) {
         setErrors(prev => {
           const updated = { ...prev };
@@ -69,7 +69,7 @@ export const useFormComposition = ({
       }
       
       const stringValue = String(value || '');
-      const isValid = field.validator ? field.validator(value) : validateFormField(stringValue, field.required);
+      const isValid = field.validator ? field.validator(value) : validateFormFieldLegacy(stringValue, field.required);
       
       if (!isValid) {
         newErrors[field.name] = field.required ? 'This field is required' : 'Invalid value';
