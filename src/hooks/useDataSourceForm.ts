@@ -6,8 +6,10 @@ export const useDataSourceForm = () => {
   const [selectedLayerIndex, setSelectedLayerIndex] = useState<number | null>(null);
 
   const handleStartDataSourceForm = useCallback((layerIndex: number) => {
+    console.log('handleStartDataSourceForm called with layerIndex:', layerIndex);
     setSelectedLayerIndex(layerIndex);
     setShowDataSourceForm(true);
+    console.log('Data source form state set - selectedLayerIndex:', layerIndex, 'showDataSourceForm: true');
   }, []);
 
   const handleCancelDataSource = useCallback(() => {

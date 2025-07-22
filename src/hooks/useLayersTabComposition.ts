@@ -88,7 +88,9 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     
     // Custom composed methods
     handleStartDataSourceFormWithExpansion: (layerIndex: number) => {
+      console.log('handleStartDataSourceFormWithExpansion called with layerIndex:', layerIndex);
       const layer = config.sources[layerIndex];
+      console.log('Layer found:', layer ? layer.name : 'UNDEFINED');
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
       
