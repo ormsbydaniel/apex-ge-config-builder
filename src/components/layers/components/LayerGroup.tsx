@@ -126,84 +126,83 @@ const LayerGroup = ({
           <Collapsible open={isExpanded} onOpenChange={onToggleGroup}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-primary" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-primary" />
-                  )}
-                  <div className="flex items-center gap-2 flex-1">
-                    {isEditing ? (
-                      <div className="flex items-center gap-2 flex-1" onClick={(e) => e.stopPropagation()}>
-                        <Input
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={handleKeyPress}
-                          className="text-base font-medium h-7 flex-1"
-                          autoFocus
-                        />
-                        <Button
-                          size="sm"
-                          onClick={handleConfirmEdit}
-                          className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700"
-                        >
-                          <Check className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleCancelEdit}
-                          className="h-6 w-6 p-0"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <CardTitle className="text-base text-primary">{groupName}</CardTitle>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={handleStartEdit}
-                          className="h-6 w-6 p-0 ml-1 opacity-70 hover:opacity-100"
-                        >
-                          <Edit2 className="h-3 w-3" />
-                        </Button>
-                        <Badge variant="secondary" className="text-xs">
-                          {sources.length} layer{sources.length !== 1 ? 's' : ''}
-                        </Badge>
-                        
-                        {/* QA Status Indicators */}
-                        <div className="flex items-center gap-2">
-                          {qaStats.success > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Check className="h-3 w-3 text-green-500" />
-                              <span className="text-xs text-green-600">{qaStats.success}</span>
-                            </div>
-                          )}
-                          {qaStats.info > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Triangle className="h-3 w-3 text-blue-500" />
-                              <span className="text-xs text-blue-600">{qaStats.info}</span>
-                            </div>
-                          )}
-                          {qaStats.warning > 0 && (
-                            <div className="flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3 text-amber-500" />
-                              <span className="text-xs text-amber-600">{qaStats.warning}</span>
-                            </div>
-                          )}
-                          {qaStats.error > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Triangle className="h-3 w-3 text-red-500" />
-                              <span className="text-xs text-red-600">{qaStats.error}</span>
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
+                {isEditing ? (
+                  <div className="flex items-center gap-2 flex-1 p-2">
+                    <div className="h-4 w-4" /> {/* Spacer to align with chevron */}
+                    <Input
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      className="text-base font-medium h-7 flex-1"
+                      autoFocus
+                    />
+                    <Button
+                      size="sm"
+                      onClick={handleConfirmEdit}
+                      className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700"
+                    >
+                      <Check className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                      className="h-6 w-6 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
                   </div>
-                </CollapsibleTrigger>
+                ) : (
+                  <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-primary" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-primary" />
+                    )}
+                    <div className="flex items-center gap-2 flex-1">
+                      <CardTitle className="text-base text-primary">{groupName}</CardTitle>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleStartEdit}
+                        className="h-6 w-6 p-0 ml-1 opacity-70 hover:opacity-100"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                      </Button>
+                      <Badge variant="secondary" className="text-xs">
+                        {sources.length} layer{sources.length !== 1 ? 's' : ''}
+                      </Badge>
+                      
+                      {/* QA Status Indicators */}
+                      <div className="flex items-center gap-2">
+                        {qaStats.success > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Check className="h-3 w-3 text-green-500" />
+                            <span className="text-xs text-green-600">{qaStats.success}</span>
+                          </div>
+                        )}
+                        {qaStats.info > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Triangle className="h-3 w-3 text-blue-500" />
+                            <span className="text-xs text-blue-600">{qaStats.info}</span>
+                          </div>
+                        )}
+                        {qaStats.warning > 0 && (
+                          <div className="flex items-center gap-1">
+                            <AlertTriangle className="h-3 w-3 text-amber-500" />
+                            <span className="text-xs text-amber-600">{qaStats.warning}</span>
+                          </div>
+                        )}
+                        {qaStats.error > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Triangle className="h-3 w-3 text-red-500" />
+                            <span className="text-xs text-red-600">{qaStats.error}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CollapsibleTrigger>
+                )}
                 {!isEditing && (
                   <div className="flex items-center gap-2">
                     <Button
