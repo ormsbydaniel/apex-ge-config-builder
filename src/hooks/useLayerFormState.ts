@@ -15,12 +15,8 @@ export const useLayerFormState = () => {
 
   const handleCancelDataSource = () => {
     dataSourceForm.handleCancelDataSource();
-    // If we have a canceled layer index, trigger expansion for it
-    if (dataSourceForm.canceledLayerIndex !== null) {
-      // We need to pass both the group name and layer index, similar to handleLayerEdited
-      const cardId = `layer-${dataSourceForm.canceledLayerIndex}`;
-      expansionState.setExpandedAfterEdit(cardId);
-    }
+    // When canceling data source, we only want to restore the layer card state
+    // but NOT trigger Interface Group expansion changes
   };
 
   return {
