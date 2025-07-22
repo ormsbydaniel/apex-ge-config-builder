@@ -10,12 +10,23 @@ export const createLayerActionHandlers = (
   setShowLayerForm: (show: boolean) => void
 ) => {
   const handleEditLayer = (layerIndex: number) => {
+    console.log('handleEditLayer called with layerIndex:', layerIndex);
     const layer = config.sources[layerIndex];
+    console.log('Layer found:', layer ? layer.name : 'UNDEFINED');
     const isSwipeLayer = layer.meta?.swipeConfig !== undefined;
+    console.log('isSwipeLayer:', isSwipeLayer);
     
+    console.log('About to call setEditingLayerIndex with:', layerIndex);
     setEditingLayerIndex(layerIndex);
-    setSelectedLayerType(isSwipeLayer ? 'swipe' : 'layerCard');
+    
+    const selectedType = isSwipeLayer ? 'swipe' : 'layerCard';
+    console.log('About to call setSelectedLayerType with:', selectedType);
+    setSelectedLayerType(selectedType);
+    
+    console.log('About to call setShowLayerForm with: true');
     setShowLayerForm(true);
+    
+    console.log('handleEditLayer completed');
   };
 
   const handleEditBaseLayer = (layerIndex: number) => {
