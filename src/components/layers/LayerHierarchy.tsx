@@ -112,9 +112,16 @@ const LayerHierarchy = ({
   // Handle expanding group after layer creation or data source addition
   useEffect(() => {
     if (expandedGroupAfterAction) {
-      const newExpanded = new Set(expandedGroups);
-      newExpanded.add(expandedGroupAfterAction);
-      setExpandedGroups(newExpanded);
+      if (expandedGroupAfterAction === '__BASE_LAYERS__') {
+        setExpandedBaseLayers(true);
+      } else if (expandedGroupAfterAction === '__UNGROUPED__') {
+        setExpandedUngroupedLayers(true);
+      } else {
+        // Regular interface group
+        const newExpanded = new Set(expandedGroups);
+        newExpanded.add(expandedGroupAfterAction);
+        setExpandedGroups(newExpanded);
+      }
       onClearExpandedGroup?.();
     }
   }, [expandedGroupAfterAction, expandedGroups, onClearExpandedGroup]);
