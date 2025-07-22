@@ -28,7 +28,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
 
   // Use layer card state for expanded layers
-  const { toggleCard, expandedCards, isExpanded } = useLayerCardState();
+  const { toggleCard, expandCard, expandedCards, isExpanded } = useLayerCardState();
 
   // Use the composed hook for all layers tab logic
   const composedLogic = useLayersTabComposition(props);
@@ -60,35 +60,35 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
 
   useEffect(() => {
     if (expandedLayerAfterDataSource && !showDataSourceForm) {
-      toggleCard(expandedLayerAfterDataSource);
+      expandCard(expandedLayerAfterDataSource);
       clearExpandedLayer();
     }
-  }, [expandedLayerAfterDataSource, showDataSourceForm, toggleCard, clearExpandedLayer]);
+  }, [expandedLayerAfterDataSource, showDataSourceForm, expandCard, clearExpandedLayer]);
 
   // Handle expansion after layer creation
   useEffect(() => {
     if (expandedLayerAfterCreation) {
-      toggleCard(expandedLayerAfterCreation);
+      expandCard(expandedLayerAfterCreation);
       clearExpandedLayerAfterCreation();
     }
-  }, [expandedLayerAfterCreation, toggleCard, clearExpandedLayerAfterCreation]);
+  }, [expandedLayerAfterCreation, expandCard, clearExpandedLayerAfterCreation]);
 
   // Handle expansion after layer editing
   useEffect(() => {
     if (expandedLayerAfterEdit) {
-      toggleCard(expandedLayerAfterEdit);
+      expandCard(expandedLayerAfterEdit);
       clearExpandedLayerAfterEdit();
     }
-  }, [expandedLayerAfterEdit, toggleCard, clearExpandedLayerAfterEdit]);
+  }, [expandedLayerAfterEdit, expandCard, clearExpandedLayerAfterEdit]);
 
   // Handle expansion after data source cancellation
   useEffect(() => {
     if (canceledLayerIndex !== null && !showDataSourceForm) {
       const cardId = `layer-${canceledLayerIndex}`;
-      toggleCard(cardId);
+      expandCard(cardId);
       clearCanceledLayerIndex();
     }
-  }, [canceledLayerIndex, showDataSourceForm, toggleCard, clearCanceledLayerIndex]);
+  }, [canceledLayerIndex, showDataSourceForm, expandCard, clearCanceledLayerIndex]);
 
   // Convert expanded cards to a Set for compatibility
   const expandedLayers = new Set(
