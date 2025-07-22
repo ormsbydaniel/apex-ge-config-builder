@@ -44,6 +44,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   const {
     showDataSourceForm,
     selectedLayerIndex,
+    canceledLayerIndex,
     expandedLayerAfterDataSource,
     expandedLayerAfterCreation,
     expandedLayerAfterEdit,
@@ -52,6 +53,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     clearExpandedLayerAfterCreation,
     clearExpandedLayerAfterEdit,
     clearExpandedGroup,
+    clearCanceledLayerIndex,
     handleStartDataSourceFormWithExpansion,
     ...restLogic
   } = composedLogic;
@@ -70,6 +72,15 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
       clearExpandedLayerAfterEdit();
     }
   }, [expandedLayerAfterEdit, toggleCard, clearExpandedLayerAfterEdit]);
+
+  // Handle expansion after data source cancellation
+  useEffect(() => {
+    if (canceledLayerIndex !== null && !showDataSourceForm) {
+      const cardId = `layer-${canceledLayerIndex}`;
+      toggleCard(cardId);
+      clearCanceledLayerIndex();
+    }
+  }, [canceledLayerIndex, showDataSourceForm, toggleCard, clearCanceledLayerIndex]);
 
   // Convert expanded cards to a Set for compatibility
   const expandedLayers = new Set(

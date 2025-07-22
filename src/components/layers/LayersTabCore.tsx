@@ -57,6 +57,15 @@ const LayersTabCore = ({
   layersLogic
 }: LayersTabCoreProps) => {
   const handleLayerFormCancel = () => {
+    // If we were editing a layer, trigger expansion for that layer
+    if (editingLayerIndex !== null) {
+      const editingLayer = config.sources[editingLayerIndex];
+      if (editingLayer) {
+        const groupName = editingLayer.layout?.interfaceGroup || 'ungrouped';
+        layersLogic.handleLayerEdited?.(groupName, editingLayerIndex);
+      }
+    }
+    
     handleCancelLayerForm();
     setEditingLayerIndex(null);
   };
@@ -76,7 +85,13 @@ const LayersTabCore = ({
       
       setEditingLayerIndex(null);
     } else {
+      // For new layers, trigger expansion after adding
       addLayer(layer);
+      
+      // Find the index where the new layer will be added
+      const newLayerIndex = config.sources.length;
+      const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+      layersLogic.handleLayerCreated?.(groupName, newLayerIndex);
     }
     
     setShowLayerForm(false);

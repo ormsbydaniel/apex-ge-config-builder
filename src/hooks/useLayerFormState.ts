@@ -13,14 +13,26 @@ export const useLayerFormState = () => {
     }
   };
 
+  const handleCancelDataSource = () => {
+    dataSourceForm.handleCancelDataSource();
+    // If we have a canceled layer index, trigger expansion for it
+    if (dataSourceForm.canceledLayerIndex !== null) {
+      // We need to pass both the group name and layer index, similar to handleLayerEdited
+      const cardId = `layer-${dataSourceForm.canceledLayerIndex}`;
+      expansionState.setExpandedAfterEdit(cardId);
+    }
+  };
+
   return {
     // Data source form state
     showDataSourceForm: dataSourceForm.showDataSourceForm,
     selectedLayerIndex: dataSourceForm.selectedLayerIndex,
+    canceledLayerIndex: dataSourceForm.canceledLayerIndex,
     handleStartDataSourceForm,
-    handleCancelDataSource: dataSourceForm.handleCancelDataSource,
+    handleCancelDataSource,
     handleDataSourceComplete: dataSourceForm.handleDataSourceComplete,
     clearDataSourceForm: dataSourceForm.clearDataSourceForm,
+    clearCanceledLayerIndex: dataSourceForm.clearCanceledLayerIndex,
 
     // Expansion state
     expandedLayerAfterDataSource: expansionState.expandedLayerAfterDataSource,
