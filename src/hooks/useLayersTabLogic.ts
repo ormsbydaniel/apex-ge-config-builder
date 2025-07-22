@@ -4,6 +4,7 @@ import { DataSource, LayerType, Service } from '@/types/config';
 import { useLayersTabComposition } from '@/hooks/useLayersTabComposition';
 import { useLayerTypeHandlers } from './useLayerTypeHandlers';
 import { useLayerCardState } from './useLayerCardState';
+import { useScrollToLayer } from './useScrollToLayer';
 
 interface UseLayersTabLogicProps {
   config: {
@@ -29,6 +30,9 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
 
   // Use layer card state for expanded layers
   const { toggleCard, expandCard, expandedCards, isExpanded } = useLayerCardState();
+  
+  // Use scroll to layer functionality
+  const { scrollToLayer } = useScrollToLayer();
 
   // Use the composed hook for all layers tab logic
   const composedLogic = useLayersTabComposition(props);
@@ -69,26 +73,43 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   useEffect(() => {
     if (expandedLayerAfterCreation) {
       expandCard(expandedLayerAfterCreation);
+      // Extract layer index from card ID and scroll to it
+      const cardIdStr = String(expandedLayerAfterCreation);
+      const parts = cardIdStr.split('-');
+      const indexPart = parts[parts.length - 1];
+      const layerIndex = parseInt(indexPart, 10);
+      if (!isNaN(layerIndex)) {
+        scrollToLayer(layerIndex, expandedLayerAfterCreation);
+      }
       clearExpandedLayerAfterCreation();
     }
-  }, [expandedLayerAfterCreation, expandCard, clearExpandedLayerAfterCreation]);
+  }, [expandedLayerAfterCreation, expandCard, clearExpandedLayerAfterCreation, scrollToLayer]);
 
   // Handle expansion after layer editing
   useEffect(() => {
     if (expandedLayerAfterEdit) {
       expandCard(expandedLayerAfterEdit);
+      // Extract layer index from card ID and scroll to it
+      const cardIdStr = String(expandedLayerAfterEdit);
+      const parts = cardIdStr.split('-');
+      const indexPart = parts[parts.length - 1];
+      const layerIndex = parseInt(indexPart, 10);
+      if (!isNaN(layerIndex)) {
+        scrollToLayer(layerIndex, expandedLayerAfterEdit);
+      }
       clearExpandedLayerAfterEdit();
     }
-  }, [expandedLayerAfterEdit, expandCard, clearExpandedLayerAfterEdit]);
+  }, [expandedLayerAfterEdit, expandCard, clearExpandedLayerAfterEdit, scrollToLayer]);
 
   // Handle expansion after data source cancellation
   useEffect(() => {
     if (canceledLayerIndex !== null && !showDataSourceForm) {
       const cardId = `layer-${canceledLayerIndex}`;
       expandCard(cardId);
+      scrollToLayer(canceledLayerIndex, cardId);
       clearCanceledLayerIndex();
     }
-  }, [canceledLayerIndex, showDataSourceForm, expandCard, clearCanceledLayerIndex]);
+  }, [canceledLayerIndex, showDataSourceForm, expandCard, clearCanceledLayerIndex, scrollToLayer]);
 
   // Convert expanded cards to a Set for compatibility
   const expandedLayers = new Set(

@@ -77,7 +77,12 @@ const LayerCard = ({
 
   return (
     <>
-      <Card className={borderClass}>
+      <Card 
+        className={borderClass}
+        data-layer-index={index}
+        data-card-id={`layer-${index}`}
+        data-testid={`layer-card-${index}`}
+      >
         <Collapsible open={isExpanded} onOpenChange={onToggle}>
           <LayerCardHeader
             source={source}
