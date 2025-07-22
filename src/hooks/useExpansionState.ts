@@ -1,12 +1,51 @@
-
 import { useState, useCallback } from 'react';
 
-export const useLayerExpansion = () => {
+/**
+ * Unified expansion state management hook
+ * Phase 1 Refactoring: Consolidate all expansion-related state management
+ */
+
+export interface ExpansionState {
+  // Data source expansion
+  expandedLayerAfterDataSource: string | null;
+  // Layer creation expansion  
+  expandedLayerAfterCreation: string | null;
+  // Layer editing expansion
+  expandedLayerAfterEdit: string | null;
+  // Group expansion after actions
+  expandedGroupAfterAction: string | null;
+}
+
+export interface ExpansionActions {
+  // Setters
+  setExpandedAfterDataSource: (cardId: string | null) => void;
+  setExpandedAfterCreation: (cardId: string | null) => void;
+  setExpandedAfterEdit: (cardId: string | null) => void;
+  setExpandedAfterGroupAction: (groupName: string | null) => void;
+  
+  // Clearers
+  clearExpandedLayer: () => void;
+  clearExpandedLayerAfterCreation: () => void;
+  clearExpandedLayerAfterEdit: () => void;
+  clearExpandedGroup: () => void;
+  
+  // Combined actions
+  handleLayerCreated: (cardId: string | null, groupName?: string | null) => void;
+  handleLayerEdited: (cardId: string | null, groupName?: string | null) => void;
+}
+
+export type UseExpansionStateReturn = ExpansionState & ExpansionActions;
+
+/**
+ * Hook for managing expansion state across the application
+ */
+export const useExpansionState = (): UseExpansionStateReturn => {
   const [expandedLayerAfterDataSource, setExpandedLayerAfterDataSource] = useState<string | null>(null);
   const [expandedLayerAfterCreation, setExpandedLayerAfterCreation] = useState<string | null>(null);
-  const [expandedGroupAfterAction, setExpandedGroupAfterAction] = useState<string | null>(null);
   const [expandedLayerAfterEdit, setExpandedLayerAfterEdit] = useState<string | null>(null);
+  const [expandedGroupAfterAction, setExpandedGroupAfterAction] = useState<string | null>(null);
 
+  // Individual setters
   const setExpandedAfterDataSource = useCallback((cardId: string | null) => {
     setExpandedLayerAfterDataSource(cardId);
   }, []);
@@ -23,6 +62,7 @@ export const useLayerExpansion = () => {
     setExpandedGroupAfterAction(groupName);
   }, []);
 
+  // Individual clearers
   const clearExpandedLayer = useCallback(() => {
     setExpandedLayerAfterDataSource(null);
   }, []);
@@ -39,23 +79,29 @@ export const useLayerExpansion = () => {
     setExpandedGroupAfterAction(null);
   }, []);
 
-  const handleLayerCreated = useCallback((groupName: string, layerIndex: number) => {
-    const cardId = `layer-${layerIndex}`;
+  // Combined action handlers
+  const handleLayerCreated = useCallback((cardId: string | null, groupName?: string | null) => {
     setExpandedAfterCreation(cardId);
-    setExpandedAfterGroupAction(groupName);
+    if (groupName) {
+      setExpandedAfterGroupAction(groupName);
+    }
   }, [setExpandedAfterCreation, setExpandedAfterGroupAction]);
 
-  const handleLayerEdited = useCallback((groupName: string, layerIndex: number) => {
-    const cardId = `layer-${layerIndex}`;
+  const handleLayerEdited = useCallback((cardId: string | null, groupName?: string | null) => {
     setExpandedAfterEdit(cardId);
-    setExpandedAfterGroupAction(groupName);
+    if (groupName) {
+      setExpandedAfterGroupAction(groupName);
+    }
   }, [setExpandedAfterEdit, setExpandedAfterGroupAction]);
 
   return {
+    // State
     expandedLayerAfterDataSource,
     expandedLayerAfterCreation,
     expandedLayerAfterEdit,
     expandedGroupAfterAction,
+    
+    // Actions
     setExpandedAfterDataSource,
     setExpandedAfterCreation,
     setExpandedAfterEdit,

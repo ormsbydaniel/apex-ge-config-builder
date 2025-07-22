@@ -82,6 +82,33 @@ const LayerHierarchy = ({
     confirmRename
   } = useInterfaceGroupManagement(config.interfaceGroups, config.sources, updateConfig);
 
+  // Handle group rename with expansion state preservation
+  const handleGroupRename = (oldName: string, newName: string) => {
+    const updatedGroups = config.interfaceGroups.map(group => 
+      group === oldName ? newName : group
+    );
+
+    // Update sources that use the old interface group name
+    const updatedSources = config.sources.map(source => 
+      source.layout?.interfaceGroup === oldName
+        ? { ...source, layout: { ...source.layout, interfaceGroup: newName } }
+        : source
+    );
+
+    updateConfig({
+      interfaceGroups: updatedGroups,
+      sources: updatedSources
+    });
+
+    // Preserve expansion state by updating the expanded groups set
+    if (expandedGroups.has(oldName)) {
+      const newExpanded = new Set(expandedGroups);
+      newExpanded.delete(oldName);
+      newExpanded.add(newName);
+      setExpandedGroups(newExpanded);
+    }
+  };
+
   // Handle expanding group after layer creation or data source addition
   useEffect(() => {
     if (expandedGroupAfterAction) {
@@ -183,6 +210,7 @@ const LayerHierarchy = ({
           onRemoveInterfaceGroup={handleDeleteGroup}
           onAddLayer={onAddLayer}
           onMoveGroup={moveInterfaceGroup}
+          onRenameGroup={handleGroupRename}
           isExpanded={expandedGroups.has(groupName)}
           onToggleGroup={() => toggleGroup(groupName)}
           canMoveUp={groupIndex > 0}

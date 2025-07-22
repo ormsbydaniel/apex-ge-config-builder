@@ -13,13 +13,22 @@ export const useLayerFormState = () => {
     }
   };
 
+  const handleCancelDataSource = () => {
+    dataSourceForm.handleCancelDataSource();
+    // When canceling data source, we only want to restore the layer card state
+    // but NOT trigger Interface Group expansion changes
+  };
+
   return {
     // Data source form state
     showDataSourceForm: dataSourceForm.showDataSourceForm,
     selectedLayerIndex: dataSourceForm.selectedLayerIndex,
+    canceledLayerIndex: dataSourceForm.canceledLayerIndex,
     handleStartDataSourceForm,
-    handleCancelDataSource: dataSourceForm.handleCancelDataSource,
+    handleCancelDataSource,
     handleDataSourceComplete: dataSourceForm.handleDataSourceComplete,
+    clearDataSourceForm: dataSourceForm.clearDataSourceForm,
+    clearCanceledLayerIndex: dataSourceForm.clearCanceledLayerIndex,
 
     // Expansion state
     expandedLayerAfterDataSource: expansionState.expandedLayerAfterDataSource,

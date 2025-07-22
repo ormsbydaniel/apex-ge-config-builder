@@ -14,10 +14,24 @@ export const useLayerCardState = () => {
     setExpandedCards(newExpanded);
   };
 
+  const expandCard = (cardId: string) => {
+    const newExpanded = new Set(expandedCards);
+    newExpanded.add(cardId);
+    setExpandedCards(newExpanded);
+  };
+
+  const collapseCard = (cardId: string) => {
+    const newExpanded = new Set(expandedCards);
+    newExpanded.delete(cardId);
+    setExpandedCards(newExpanded);
+  };
+
   const isExpanded = (cardId: string) => expandedCards.has(cardId);
 
   return {
     toggleCard,
+    expandCard,
+    collapseCard,
     isExpanded,
     expandedCards
   };

@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { createFormFieldHandler, validateFormField } from '@/utils/formUtils';
+import { createFormFieldHandler, validateFormFieldLegacy } from '@/utils/formUtils';
 
 interface BaseFieldProps {
   id: string;
@@ -40,7 +40,7 @@ type FormFieldProps = TextFieldProps | TextareaFieldProps | SelectFieldProps;
 const FormField = (props: FormFieldProps) => {
   const { id, name, label, placeholder, required = false, className, autoComplete } = props;
   
-  const isValid = validateFormField(props.value, required);
+  const isValid = validateFormFieldLegacy(props.value, required);
   const fieldClass = `${className || ''} ${!isValid && required ? 'border-destructive' : ''}`;
 
   const handleChange = createFormFieldHandler(

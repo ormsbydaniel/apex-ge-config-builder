@@ -1,78 +1,123 @@
 
 /**
+ * Color utility functions for consistent color handling across the application
+ * Phase 1 Refactoring: Enhanced color utilities with better error handling
+ */
+
+// Named colors mapping for consistent color handling
+const NAMED_COLORS: Record<string, string> = {
+  'black': '#000000',
+  'white': '#FFFFFF',
+  'red': '#FF0000',
+  'green': '#008000',
+  'blue': '#0000FF',
+  'yellow': '#FFFF00',
+  'cyan': '#00FFFF',
+  'magenta': '#FF00FF',
+  'silver': '#C0C0C0',
+  'gray': '#808080',
+  'maroon': '#800000',
+  'olive': '#808000',
+  'lime': '#00FF00',
+  'aqua': '#00FFFF',
+  'teal': '#008080',
+  'navy': '#000080',
+  'fuchsia': '#FF00FF',
+  'purple': '#800080'
+} as const;
+
+// Default fallback color
+const DEFAULT_COLOR = '#000000';
+
+/**
+ * Validates if a string is a valid hex color
+ */
+export const isValidHexColor = (color: string): boolean => {
+  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(color);
+};
+
+/**
+ * Converts 3-digit hex to 6-digit hex
+ */
+export const normalizeHexColor = (hex: string): string => {
+  if (hex.length === 4) { // #abc -> #aabbcc
+    const shortHex = hex.slice(1);
+    return `#${shortHex[0]}${shortHex[0]}${shortHex[1]}${shortHex[1]}${shortHex[2]}${shortHex[2]}`;
+  }
+  return hex.toUpperCase();
+};
+
+/**
+ * Converts RGB values to hex
+ */
+export const rgbToHex = (r: number, g: number, b: number): string => {
+  const clamp = (value: number) => Math.max(0, Math.min(255, Math.floor(value)));
+  const toHex = (n: number) => {
+    const hex = clamp(n).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  };
+  
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+};
+
+/**
+ * Parses RGB/RGBA color string and returns RGB values
+ */
+export const parseRgbColor = (color: string): { r: number; g: number; b: number } | null => {
+  const rgbMatch = color.match(/rgba?\(\s*([^)]+)\s*\)/);
+  if (!rgbMatch) return null;
+  
+  const values = rgbMatch[1].split(',').map(v => parseInt(v.trim()) || 0);
+  if (values.length < 3) return null;
+  
+  return {
+    r: values[0],
+    g: values[1],
+    b: values[2]
+  };
+};
+
+/**
  * Converts RGB/RGBA color strings to hex format
- * Supports formats: rgb(r,g,b), rgba(r,g,b,a), and already hex colors
+ * Supports formats: rgb(r,g,b), rgba(r,g,b,a), hex colors, and named colors
  */
 export const convertColorToHex = (color: string): string => {
   if (!color || typeof color !== 'string') {
-    return '#000000';
+    return DEFAULT_COLOR;
   }
 
-  // Clean up the color string
   const cleanColor = color.trim();
+  
+  if (!cleanColor) {
+    return DEFAULT_COLOR;
+  }
 
-  // If already hex, validate and return
+  // Handle hex colors
   if (cleanColor.startsWith('#')) {
-    // Ensure it's a valid hex color
-    const hexMatch = cleanColor.match(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/);
-    if (hexMatch) {
-      // Convert 3-digit hex to 6-digit
-      if (hexMatch[1].length === 3) {
-        const shortHex = hexMatch[1];
-        return `#${shortHex[0]}${shortHex[0]}${shortHex[1]}${shortHex[1]}${shortHex[2]}${shortHex[2]}`;
-      }
-      return cleanColor.toUpperCase();
+    if (isValidHexColor(cleanColor)) {
+      return normalizeHexColor(cleanColor);
     }
-    return '#000000'; // Invalid hex format
+    return DEFAULT_COLOR;
   }
 
-  // Handle rgb() and rgba() formats
-  const rgbMatch = cleanColor.match(/rgba?\(\s*([^)]+)\s*\)/);
-  if (rgbMatch) {
-    const values = rgbMatch[1].split(',').map(v => v.trim());
-    const r = Math.max(0, Math.min(255, parseInt(values[0]) || 0));
-    const g = Math.max(0, Math.min(255, parseInt(values[1]) || 0));
-    const b = Math.max(0, Math.min(255, parseInt(values[2]) || 0));
-
-    // Convert to hex
-    const toHex = (n: number) => {
-      const hex = n.toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
-    };
-
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+  // Handle RGB/RGBA colors
+  if (cleanColor.startsWith('rgb')) {
+    const rgb = parseRgbColor(cleanColor);
+    if (rgb) {
+      return rgbToHex(rgb.r, rgb.g, rgb.b);
+    }
+    return DEFAULT_COLOR;
   }
 
-  // Handle named colors (basic ones)
-  const namedColors: { [key: string]: string } = {
-    'black': '#000000',
-    'white': '#FFFFFF',
-    'red': '#FF0000',
-    'green': '#008000',
-    'blue': '#0000FF',
-    'yellow': '#FFFF00',
-    'cyan': '#00FFFF',
-    'magenta': '#FF00FF',
-    'silver': '#C0C0C0',
-    'gray': '#808080',
-    'maroon': '#800000',
-    'olive': '#808000',
-    'lime': '#00FF00',
-    'aqua': '#00FFFF',
-    'teal': '#008080',
-    'navy': '#000080',
-    'fuchsia': '#FF00FF',
-    'purple': '#800080'
-  };
-
-  const lowerColor = cleanColor.toLowerCase();
-  if (namedColors[lowerColor]) {
-    return namedColors[lowerColor];
+  // Handle named colors
+  const namedColor = NAMED_COLORS[cleanColor.toLowerCase()];
+  if (namedColor) {
+    return namedColor;
   }
 
-  // If we can't parse it, return default black
-  console.warn(`Unable to parse color: ${color}, defaulting to black`);
-  return '#000000';
+  // If we can't parse it, log warning and return default
+  console.warn(`Unable to parse color: ${color}, defaulting to ${DEFAULT_COLOR}`);
+  return DEFAULT_COLOR;
 };
 
 /**

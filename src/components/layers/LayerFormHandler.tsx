@@ -59,13 +59,18 @@ const LayerFormHandler = ({
     );
   }
 
+  console.log('LayerFormHandler render - showDataSourceForm:', showDataSourceForm, 'selectedLayerIndex:', selectedLayerIndex);
+  
   if (showDataSourceForm && selectedLayerIndex !== null) {
+    console.log('LayerFormHandler: showDataSourceForm=true, selectedLayerIndex=', selectedLayerIndex);
+    console.log('LayerFormHandler: config.sources.length=', config.sources.length);
     const currentLayer = config.sources[selectedLayerIndex];
     
     if (!currentLayer) {
-      console.error('No layer found at index:', selectedLayerIndex);
+      console.error('No layer found at index:', selectedLayerIndex, 'Available sources:', config.sources.map(s => s.name));
       return null;
     }
+    console.log('LayerFormHandler: Found current layer:', currentLayer.name);
     
     // Determine layer type from flags
     let layerType: LayerTypeOption = 'standard';
