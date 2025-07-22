@@ -310,7 +310,7 @@ export const useLayerOperations = ({
     }
   }, [dispatch]);
 
-  return {
+  const result = {
     // State
     ...state,
     
@@ -348,4 +348,10 @@ export const useLayerOperations = ({
     // Layer actions (from utility)
     ...layerActionHandlers
   };
+  
+  // Debug logging to verify handlers are present
+  console.log('useLayerOperations result includes handleEditLayer:', !!result.handleEditLayer);
+  console.log('useLayerOperations result includes handleEditBaseLayer:', !!result.handleEditBaseLayer);
+  
+  return result;
 };

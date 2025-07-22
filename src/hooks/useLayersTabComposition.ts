@@ -69,7 +69,7 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     updateConfig
   });
 
-  return {
+  const result = {
     // Layer state management (consolidated)
     ...layerState,
     
@@ -90,4 +90,10 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
       layerState.handleStartDataSourceForm(layerIndex, cardId);
     }
   };
+  
+  // Debug logging to verify handlers are present in composition
+  console.log('useLayersTabComposition result includes handleEditLayer:', !!result.handleEditLayer);
+  console.log('useLayersTabComposition result includes handleEditBaseLayer:', !!result.handleEditBaseLayer);
+  
+  return result;
 };

@@ -171,7 +171,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     clearExpandedGroup,
     // Layer type handlers
     ...layerTypeHandlers,
-    // Spread all other logic from the composed hook
+    // Spread all other logic from the composed hook (includes layer operations)
     ...restLogic
   };
 };
