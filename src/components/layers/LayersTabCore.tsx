@@ -69,6 +69,11 @@ const LayersTabCore = ({
       const groupName = layer.layout?.interfaceGroup || 'ungrouped';
       layersLogic.handleLayerEdited?.(groupName, editingLayerIndex);
       
+      // Clear any stale data source form state when editing a layer
+      if (layersLogic.clearDataSourceForm) {
+        layersLogic.clearDataSourceForm();
+      }
+      
       setEditingLayerIndex(null);
     } else {
       addLayer(layer);

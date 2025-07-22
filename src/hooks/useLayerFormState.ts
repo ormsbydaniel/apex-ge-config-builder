@@ -20,6 +20,7 @@ export const useLayerFormState = () => {
     handleStartDataSourceForm,
     handleCancelDataSource: dataSourceForm.handleCancelDataSource,
     handleDataSourceComplete: dataSourceForm.handleDataSourceComplete,
+    clearDataSourceForm: dataSourceForm.clearDataSourceForm,
 
     // Expansion state
     expandedLayerAfterDataSource: expansionState.expandedLayerAfterDataSource,

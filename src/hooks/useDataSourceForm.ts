@@ -20,11 +20,17 @@ export const useDataSourceForm = () => {
     setSelectedLayerIndex(null);
   }, []);
 
+  const clearDataSourceForm = useCallback(() => {
+    setShowDataSourceForm(false);
+    setSelectedLayerIndex(null);
+  }, []);
+
   return {
     showDataSourceForm,
     selectedLayerIndex,
     handleStartDataSourceForm,
     handleCancelDataSource,
-    handleDataSourceComplete
+    handleDataSourceComplete,
+    clearDataSourceForm
   };
 };
