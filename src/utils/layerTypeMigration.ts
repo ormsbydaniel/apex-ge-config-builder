@@ -1,6 +1,6 @@
 
 import { DataSource, DataSourceItem } from '@/types/config';
-import { LayerTypeOption } from '@/hooks/useLayerTypeManagement';
+import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
 
 export interface LayerTypeMigrationResult {

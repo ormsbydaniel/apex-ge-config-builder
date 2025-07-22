@@ -13,7 +13,7 @@ import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
-import { LayerTypeOption } from '@/hooks/useLayerTypeManagement';
+import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
 
 interface DataSourceFormProps {

@@ -3,7 +3,7 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PositionValue, getPositionDisplayName, requiresPosition } from '@/utils/positionUtils';
-import { LayerTypeOption } from '@/hooks/useLayerTypeManagement';
+import { LayerTypeOption } from '@/hooks/useLayerOperations';
 
 interface DataSourcePositionProps {
   position?: PositionValue;

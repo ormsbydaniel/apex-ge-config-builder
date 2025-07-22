@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { DataSource, Category } from '@/types/config';
-import { LayerTypeOption } from '@/hooks/useLayerTypeManagement';
+import { LayerTypeOption } from '@/hooks/useLayerOperations';
 
 interface LayerCardFormData {
   name: string;

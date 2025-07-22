@@ -1,8 +1,8 @@
 
+import { useCallback } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import { useLayerStateManagement } from '@/hooks/useLayerStateManagement';
-import { useLayerActions } from '@/hooks/useLayerActions';
-import { useDataSourceActions } from '@/hooks/useDataSourceActions';
+import { useLayerOperations } from '@/hooks/useLayerOperations';
 import { useInterfaceGroupActions } from '@/hooks/useInterfaceGroupActions';
 import { useCompositeHook } from '@/hooks/useCompositeHook';
 
@@ -41,21 +41,29 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
 
   // Get consolidated layer state management
   const layerState = useLayerStateManagement();
-  const layerActions = useLayerActions({
+  
+  // Get consolidated layer operations (replaces useLayerActions, useDataSourceActions, useLayerManagement)
+  const layerOperations = useLayerOperations({
     config,
-    updateLayer,
-    addLayer,
-    setEditingLayerIndex,
-    setSelectedLayerType,
-    setShowLayerForm
-  });
-  const dataSourceActions = useDataSourceActions({
-    config,
-    updateLayer,
+    dispatch: (action: any) => {
+      // Handle different dispatch action types
+      if (action.type === 'ADD_SOURCE') {
+        addLayer(action.payload);
+      } else if (action.type === 'UPDATE_SOURCES') {
+        updateConfig({ sources: action.payload });
+      } else if (action.type === 'REMOVE_SOURCE') {
+        const updatedSources = [...config.sources];
+        updatedSources.splice(action.payload, 1);
+        updateConfig({ sources: updatedSources });
+      } else if (action.type === 'UPDATE_INTERFACE_GROUPS') {
+        updateConfig({ interfaceGroups: action.payload });
+      }
+    },
     selectedLayerIndex: layerState.selectedLayerIndex,
     handleLayerCreated: layerState.handleLayerCreated,
     handleDataSourceComplete: layerState.handleDataSourceComplete
   });
+  
   const interfaceGroupActions = useInterfaceGroupActions({
     config,
     updateConfig
@@ -65,18 +73,8 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     // Layer state management (consolidated)
     ...layerState,
     
-    // Layer actions - expose all handler functions
-    handleEditLayer: layerActions.handleEditLayer,
-    handleEditBaseLayer: layerActions.handleEditBaseLayer,
-    handleDuplicateLayer: layerActions.handleDuplicateLayer,
-    handleRemoveDataSource: layerActions.handleRemoveDataSource,
-    handleRemoveStatisticsSource: layerActions.handleRemoveStatisticsSource,
-    handleEditDataSource: layerActions.handleEditDataSource,
-    handleEditStatisticsSource: layerActions.handleEditStatisticsSource,
-    
-    // Data source actions
-    handleDataSourceAdded: dataSourceActions.handleDataSourceAdded,
-    handleStatisticsLayerAdded: dataSourceActions.handleStatisticsLayerAdded,
+    // Layer operations (consolidated)
+    ...layerOperations,
     
     // Interface group actions
     handleAddInterfaceGroup: interfaceGroupActions.handleAddInterfaceGroup,

@@ -2,7 +2,7 @@
 import React from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { LayerTypeOption } from '@/hooks/useLayerTypeManagement';
+import { LayerTypeOption } from '@/hooks/useLayerOperations';
 
 interface LayerTypeRadioGroupProps {
   value: LayerTypeOption;
