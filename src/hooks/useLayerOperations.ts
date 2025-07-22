@@ -34,6 +34,11 @@ interface UseLayerOperationsProps {
   selectedLayerIndex?: number | null;
   handleLayerCreated?: (groupName: string, layerIndex: number) => void;
   handleDataSourceComplete?: () => void;
+  // External state setters (optional - if not provided, will use internal state)
+  setShowLayerForm?: (show: boolean) => void;
+  setSelectedLayerType?: (type: LayerType | null) => void;
+  setEditingLayerIndex?: (index: number | null) => void;
+  setDefaultInterfaceGroup?: (group: string | undefined) => void;
 }
 
 export const useLayerOperations = ({
@@ -45,7 +50,12 @@ export const useLayerOperations = ({
   onDataSourcesChange = () => {},
   selectedLayerIndex = null,
   handleLayerCreated = () => {},
-  handleDataSourceComplete = () => {}
+  handleDataSourceComplete = () => {},
+  // External state setters
+  setShowLayerForm: externalSetShowLayerForm,
+  setSelectedLayerType: externalSetSelectedLayerType,
+  setEditingLayerIndex: externalSetEditingLayerIndex,
+  setDefaultInterfaceGroup: externalSetDefaultInterfaceGroup
 }: UseLayerOperationsProps) => {
   const { toast } = useToast();
 
@@ -109,36 +119,50 @@ export const useLayerOperations = ({
   }, [config.sources, dispatch, toast]);
 
   // === FORM MANAGEMENT ===
+  // Use external setters if provided, otherwise use internal state
 
   const setShowLayerForm = useCallback((show: boolean) => {
-    setState(prev => ({ ...prev, showLayerForm: show }));
-  }, []);
+    if (externalSetShowLayerForm) {
+      externalSetShowLayerForm(show);
+    } else {
+      setState(prev => ({ ...prev, showLayerForm: show }));
+    }
+  }, [externalSetShowLayerForm]);
 
   const setSelectedLayerType = useCallback((type: LayerType | null) => {
-    setState(prev => ({ ...prev, selectedLayerType: type }));
-  }, []);
+    if (externalSetSelectedLayerType) {
+      externalSetSelectedLayerType(type);
+    } else {
+      setState(prev => ({ ...prev, selectedLayerType: type }));
+    }
+  }, [externalSetSelectedLayerType]);
 
   const setEditingLayerIndex = useCallback((index: number | null) => {
-    setState(prev => ({ ...prev, editingLayerIndex: index }));
-  }, []);
+    if (externalSetEditingLayerIndex) {
+      externalSetEditingLayerIndex(index);
+    } else {
+      setState(prev => ({ ...prev, editingLayerIndex: index }));
+    }
+  }, [externalSetEditingLayerIndex]);
 
   const setDefaultInterfaceGroup = useCallback((group: string | undefined) => {
-    setState(prev => ({ ...prev, defaultInterfaceGroup: group }));
-  }, []);
+    if (externalSetDefaultInterfaceGroup) {
+      externalSetDefaultInterfaceGroup(group);
+    } else {
+      setState(prev => ({ ...prev, defaultInterfaceGroup: group }));
+    }
+  }, [externalSetDefaultInterfaceGroup]);
 
   const handleLayerTypeSelect = useCallback((type: LayerType) => {
     setSelectedLayerType(type);
   }, [setSelectedLayerType]);
 
   const handleCancelLayerForm = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      showLayerForm: false,
-      selectedLayerType: null,
-      editingLayerIndex: null,
-      defaultInterfaceGroup: undefined
-    }));
-  }, []);
+    setShowLayerForm(false);
+    setSelectedLayerType(null);
+    setEditingLayerIndex(null);
+    setDefaultInterfaceGroup(undefined);
+  }, [setShowLayerForm, setSelectedLayerType, setEditingLayerIndex, setDefaultInterfaceGroup]);
 
   // === LAYER TYPE MANAGEMENT ===
 
@@ -348,10 +372,6 @@ export const useLayerOperations = ({
     // Layer actions (from utility)
     ...layerActionHandlers
   };
-  
-  // Debug logging to verify handlers are present
-  console.log('useLayerOperations result includes handleEditLayer:', !!result.handleEditLayer);
-  console.log('useLayerOperations result includes handleEditBaseLayer:', !!result.handleEditBaseLayer);
   
   return result;
 };

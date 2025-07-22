@@ -48,24 +48,10 @@ const LayerCard = ({
   const isSpotlightLayer = (source as any).isSpotlightLayer;
 
   const handleEdit = () => {
-    console.log('LayerCard handleEdit called for index:', index, 'isBaseLayer:', isBaseLayer);
-    console.log('onEdit handler present:', !!onEdit);
-    console.log('onEditBaseLayer handler present:', !!onEditBaseLayer);
-    
     if (isBaseLayer) {
-      if (onEditBaseLayer) {
-        console.log('Calling onEditBaseLayer with index:', index);
-        onEditBaseLayer(index);
-      } else {
-        console.error('onEditBaseLayer handler is undefined!');
-      }
+      onEditBaseLayer(index);
     } else {
-      if (onEdit) {
-        console.log('Calling onEdit with index:', index);
-        onEdit(index);
-      } else {
-        console.error('onEdit handler is undefined!');
-      }
+      onEdit(index);
     }
   };
 

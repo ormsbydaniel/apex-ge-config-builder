@@ -61,7 +61,12 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     },
     selectedLayerIndex: layerState.selectedLayerIndex,
     handleLayerCreated: layerState.handleLayerCreated,
-    handleDataSourceComplete: layerState.handleDataSourceComplete
+    handleDataSourceComplete: layerState.handleDataSourceComplete,
+    // Pass through the actual state setters from props instead of using internal state
+    setShowLayerForm: setShowLayerForm,
+    setSelectedLayerType: setSelectedLayerType,
+    setEditingLayerIndex: setEditingLayerIndex,
+    setDefaultInterfaceGroup: props.setDefaultInterfaceGroup
   });
   
   const interfaceGroupActions = useInterfaceGroupActions({
@@ -90,10 +95,6 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
       layerState.handleStartDataSourceForm(layerIndex, cardId);
     }
   };
-  
-  // Debug logging to verify handlers are present in composition
-  console.log('useLayersTabComposition result includes handleEditLayer:', !!result.handleEditLayer);
-  console.log('useLayersTabComposition result includes handleEditBaseLayer:', !!result.handleEditBaseLayer);
   
   return result;
 };
