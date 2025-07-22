@@ -1,7 +1,6 @@
 
 import { DataSource, LayerType, Service } from '@/types/config';
-import { useLayerFormState } from '@/hooks/useLayerFormState';
-import { useLayerCardState } from '@/hooks/useLayerCardState';
+import { useLayerStateManagement } from '@/hooks/useLayerStateManagement';
 import { useLayerActions } from '@/hooks/useLayerActions';
 import { useDataSourceActions } from '@/hooks/useDataSourceActions';
 import { useInterfaceGroupActions } from '@/hooks/useInterfaceGroupActions';
@@ -40,9 +39,8 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     updateConfig
   } = props;
 
-  // Get individual hook results
-  const layerFormState = useLayerFormState();
-  const layerCardState = useLayerCardState();
+  // Get consolidated layer state management
+  const layerState = useLayerStateManagement();
   const layerActions = useLayerActions({
     config,
     updateLayer,
@@ -54,9 +52,9 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
   const dataSourceActions = useDataSourceActions({
     config,
     updateLayer,
-    selectedLayerIndex: layerFormState.selectedLayerIndex,
-    handleLayerCreated: layerFormState.handleLayerCreated,
-    handleDataSourceComplete: layerFormState.handleDataSourceComplete
+    selectedLayerIndex: layerState.selectedLayerIndex,
+    handleLayerCreated: layerState.handleLayerCreated,
+    handleDataSourceComplete: layerState.handleDataSourceComplete
   });
   const interfaceGroupActions = useInterfaceGroupActions({
     config,
@@ -64,11 +62,8 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
   });
 
   return {
-    // Layer form state
-    ...layerFormState,
-    
-    // Layer card state
-    toggleCard: layerCardState.toggleCard,
+    // Layer state management (consolidated)
+    ...layerState,
     
     // Layer actions - expose all handler functions
     handleEditLayer: layerActions.handleEditLayer,
@@ -94,7 +89,7 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
       
-      layerFormState.handleStartDataSourceForm(layerIndex, cardId);
+      layerState.handleStartDataSourceForm(layerIndex, cardId);
     }
   };
 };

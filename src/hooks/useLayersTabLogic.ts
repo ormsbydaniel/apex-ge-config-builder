@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import { useLayersTabComposition } from '@/hooks/useLayersTabComposition';
 import { useLayerTypeHandlers } from './useLayerTypeHandlers';
-import { useLayerCardState } from './useLayerCardState';
+// useLayerCardState functionality is now integrated into useLayersTabComposition
 import { useScrollToLayer } from './useScrollToLayer';
 
 interface UseLayersTabLogicProps {
@@ -28,14 +28,14 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   const { setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm, setEditingLayerIndex } = props;
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
 
-  // Use layer card state for expanded layers
-  const { toggleCard, expandCard, expandedCards, isExpanded } = useLayerCardState();
+  // Use the composed hook for all layers tab logic
+  const composedLogic = useLayersTabComposition(props);
   
   // Use scroll to layer functionality
   const { scrollToLayer } = useScrollToLayer();
 
-  // Use the composed hook for all layers tab logic
-  const composedLogic = useLayersTabComposition(props);
+  // Extract layer card state functions
+  const { toggleCard, expandCard, expandedCards, isExpanded } = composedLogic;
 
   // Use layer type handlers
   const layerTypeHandlers = useLayerTypeHandlers({
