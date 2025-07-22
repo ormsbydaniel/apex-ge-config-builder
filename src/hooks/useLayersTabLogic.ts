@@ -65,6 +65,14 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     }
   }, [expandedLayerAfterDataSource, showDataSourceForm, toggleCard, clearExpandedLayer]);
 
+  // Handle expansion after layer creation
+  useEffect(() => {
+    if (expandedLayerAfterCreation) {
+      toggleCard(expandedLayerAfterCreation);
+      clearExpandedLayerAfterCreation();
+    }
+  }, [expandedLayerAfterCreation, toggleCard, clearExpandedLayerAfterCreation]);
+
   // Handle expansion after layer editing
   useEffect(() => {
     if (expandedLayerAfterEdit) {

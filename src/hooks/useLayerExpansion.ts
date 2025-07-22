@@ -40,13 +40,13 @@ export const useLayerExpansion = () => {
   }, []);
 
   const handleLayerCreated = useCallback((groupName: string, layerIndex: number) => {
-    const cardId = `${groupName}-${layerIndex}`;
+    const cardId = `layer-${layerIndex}`;
     setExpandedAfterCreation(cardId);
     setExpandedAfterGroupAction(groupName);
   }, [setExpandedAfterCreation, setExpandedAfterGroupAction]);
 
   const handleLayerEdited = useCallback((groupName: string, layerIndex: number) => {
-    const cardId = `${groupName}-${layerIndex}`;
+    const cardId = `layer-${layerIndex}`;
     setExpandedAfterEdit(cardId);
     setExpandedAfterGroupAction(groupName);
   }, [setExpandedAfterEdit, setExpandedAfterGroupAction]);
