@@ -59,6 +59,8 @@ const LayerFormHandler = ({
     );
   }
 
+  console.log('LayerFormHandler render - showDataSourceForm:', showDataSourceForm, 'selectedLayerIndex:', selectedLayerIndex);
+  
   if (showDataSourceForm && selectedLayerIndex !== null) {
     console.log('LayerFormHandler: showDataSourceForm=true, selectedLayerIndex=', selectedLayerIndex);
     console.log('LayerFormHandler: config.sources.length=', config.sources.length);
