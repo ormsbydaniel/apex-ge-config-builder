@@ -21,6 +21,7 @@ interface LayerGroupProps {
   onRemoveInterfaceGroup: (groupName: string) => void;
   onAddLayer: (groupName: string) => void;
   onMoveGroup: (groupIndex: number, direction: 'up' | 'down') => void;
+  onRenameGroup: (oldName: string, newName: string) => void;
   isExpanded: boolean;
   onToggleGroup: () => void;
   canMoveUp: boolean;
@@ -37,6 +38,7 @@ const LayerGroup = ({
   onRemoveInterfaceGroup,
   onAddLayer,
   onMoveGroup,
+  onRenameGroup,
   isExpanded,
   onToggleGroup,
   canMoveUp,
@@ -86,21 +88,7 @@ const LayerGroup = ({
 
   const handleConfirmEdit = () => {
     if (editValue.trim() && editValue.trim() !== groupName && !config.interfaceGroups.includes(editValue.trim())) {
-      const updatedGroups = config.interfaceGroups.map((group, i) => 
-        i === groupIndex ? editValue.trim() : group
-      );
-
-      // Update sources that use the old interface group name
-      const updatedSources = config.sources.map(source => 
-        source.layout?.interfaceGroup === groupName
-          ? { ...source, layout: { ...source.layout, interfaceGroup: editValue.trim() } }
-          : source
-      );
-
-      onUpdateConfig({
-        interfaceGroups: updatedGroups,
-        sources: updatedSources
-      });
+      onRenameGroup(groupName, editValue.trim());
     }
     setIsEditing(false);
   };
