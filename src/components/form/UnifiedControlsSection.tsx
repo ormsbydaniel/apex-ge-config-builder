@@ -61,7 +61,7 @@ const UnifiedControlsSection = ({
         </div>
         
         <div className="flex items-center space-x-2 min-w-[200px]">
-          <Label htmlFor="timeframe">Time picker:</Label>
+          <Label htmlFor="timeframe" className="whitespace-nowrap">Time picker:</Label>
           <Select value={timeframe} onValueChange={handleTimeframeChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select time dimension" />
