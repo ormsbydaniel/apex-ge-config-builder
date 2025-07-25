@@ -75,39 +75,37 @@ const LayerJsonEditorDialog = ({ isOpen, onClose, layer, onSave }: LayerJsonEdit
           </DialogDescription>
         </DialogHeader>
         
-        <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex-1 overflow-hidden">
           {!isEditMode ? (
-            <div className="flex flex-col h-full space-y-4">
-              <div className="flex justify-between items-center flex-shrink-0">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Read-only view</span>
                 <Button onClick={handleEditModeToggle} variant="outline">
                   Enable Editing
                 </Button>
               </div>
-              <div className="flex-1 min-h-0">
+              <div className="overflow-auto" style={{ height: 'calc(80vh - 250px)' }}>
                 <MonacoJsonEditor
                   value={layerJson}
                   readOnly={true}
-                  height="100%"
+                  height="calc(80vh - 250px)"
                 />
               </div>
             </div>
           ) : (
-            <div className="flex flex-col h-full space-y-4">
-              <div className="flex-shrink-0">
-                <JsonEditorToolbar
-                  hasUnsavedChanges={hasUnsavedChanges}
-                  onApplyChanges={handleApplyChanges}
-                  onReset={handleReset}
-                  onFormatJson={formatJson}
-                />
-              </div>
-              <div className="flex-1 min-h-0">
+            <div className="space-y-4">
+              <JsonEditorToolbar
+                hasUnsavedChanges={hasUnsavedChanges}
+                onApplyChanges={handleApplyChanges}
+                onReset={handleReset}
+                onFormatJson={formatJson}
+              />
+              <div className="overflow-auto" style={{ height: 'calc(80vh - 290px)' }}>
                 <MonacoJsonEditor
                   value={editedJson}
                   onChange={handleJsonChange}
                   readOnly={false}
-                  height="100%"
+                  height="calc(80vh - 290px)"
                 />
               </div>
             </div>
