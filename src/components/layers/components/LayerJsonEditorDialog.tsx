@@ -75,35 +75,41 @@ const LayerJsonEditorDialog = ({ isOpen, onClose, layer, onSave }: LayerJsonEdit
           </DialogDescription>
         </DialogHeader>
         
-        <div className="flex-1 overflow-y-auto max-h-[calc(80vh-180px)]">
+        <div className="flex-1 min-h-0 flex flex-col">
           {!isEditMode ? (
-            <div className="space-y-4 pb-6">
-              <div className="flex justify-between items-center">
+            <div className="flex flex-col h-full space-y-4">
+              <div className="flex justify-between items-center flex-shrink-0">
                 <span className="text-sm text-muted-foreground">Read-only view</span>
                 <Button onClick={handleEditModeToggle} variant="outline">
                   Enable Editing
                 </Button>
               </div>
-              <MonacoJsonEditor
-                value={layerJson}
-                readOnly={true}
-                height="500px"
-              />
+              <div className="flex-1 min-h-0">
+                <MonacoJsonEditor
+                  value={layerJson}
+                  readOnly={true}
+                  height="100%"
+                />
+              </div>
             </div>
           ) : (
-            <div className="space-y-4 pb-6">
-              <JsonEditorToolbar
-                hasUnsavedChanges={hasUnsavedChanges}
-                onApplyChanges={handleApplyChanges}
-                onReset={handleReset}
-                onFormatJson={formatJson}
-              />
-              <MonacoJsonEditor
-                value={editedJson}
-                onChange={handleJsonChange}
-                readOnly={false}
-                height="450px"
-              />
+            <div className="flex flex-col h-full space-y-4">
+              <div className="flex-shrink-0">
+                <JsonEditorToolbar
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  onApplyChanges={handleApplyChanges}
+                  onReset={handleReset}
+                  onFormatJson={formatJson}
+                />
+              </div>
+              <div className="flex-1 min-h-0">
+                <MonacoJsonEditor
+                  value={editedJson}
+                  onChange={handleJsonChange}
+                  readOnly={false}
+                  height="100%"
+                />
+              </div>
             </div>
           )}
         </div>
