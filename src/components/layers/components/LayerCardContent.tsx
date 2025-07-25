@@ -29,7 +29,7 @@ const LayerCardContent = ({
   const isSwipeLayer = source.meta?.swipeConfig !== undefined;
 
   return (
-    <CardContent className="space-y-4 pl-[14px]">
+    <CardContent className="space-y-4 pl-[38px]">
       <LayerMetadata source={source} />
       
       {/* Legend Display */}
