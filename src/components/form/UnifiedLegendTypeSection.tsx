@@ -27,7 +27,6 @@ const UnifiedLegendTypeSection = ({
       <h4 className="font-medium">Legend Type</h4>
       
       <div className="space-y-2">
-        <Label htmlFor="legendType">Legend Type</Label>
         <Select value={legendType} onValueChange={(value: 'swatch' | 'gradient' | 'image') => onUpdate('legendType', value)}>
           <SelectTrigger>
             <SelectValue />
