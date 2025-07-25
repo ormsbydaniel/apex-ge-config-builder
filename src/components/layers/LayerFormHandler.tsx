@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { DataSource } from '@/types/config';
-import { LayerTypeOption } from '@/hooks/useLayerTypeManagement';
+import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import LayerFormContainer from './LayerFormContainer';
 import DataSourceForm from './DataSourceForm';
 

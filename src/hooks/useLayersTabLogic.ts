@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import { useLayersTabComposition } from '@/hooks/useLayersTabComposition';
 import { useLayerTypeHandlers } from './useLayerTypeHandlers';
-import { useLayerCardState } from './useLayerCardState';
+// useLayerCardState functionality is now integrated into useLayersTabComposition
 import { useScrollToLayer } from './useScrollToLayer';
 
 interface UseLayersTabLogicProps {
@@ -28,21 +28,22 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   const { setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm, setEditingLayerIndex } = props;
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
 
-  // Use layer card state for expanded layers
-  const { toggleCard, expandCard, expandedCards, isExpanded } = useLayerCardState();
+  // Use the composed hook for all layers tab logic
+  const composedLogic = useLayersTabComposition(props);
   
   // Use scroll to layer functionality
   const { scrollToLayer } = useScrollToLayer();
 
-  // Use the composed hook for all layers tab logic
-  const composedLogic = useLayersTabComposition(props);
+  // Extract layer card state functions
+  const { toggleCard, expandCard, expandedCards, isExpanded } = composedLogic;
 
   // Use layer type handlers
   const layerTypeHandlers = useLayerTypeHandlers({
     setDefaultInterfaceGroup,
     setSelectedLayerType,
     setShowLayerForm,
-    setEditingLayerIndex
+    setEditingLayerIndex,
+    setExpandedGroupAfterAction: composedLogic.setExpandedGroupAfterAction
   });
 
   const {
@@ -107,9 +108,26 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
       const cardId = `layer-${canceledLayerIndex}`;
       expandCard(cardId);
       scrollToLayer(canceledLayerIndex, cardId);
+      
+      // Also expand the appropriate group
+      const layer = props.config.sources[canceledLayerIndex];
+      if (layer) {
+        if (layer.isBaseLayer) {
+          // For base layers, we need to handle this differently as it's not in a named interface group
+          // Base layers are handled by LayerHierarchy's expandedBaseLayers state
+          // We'll use a special group name to trigger base layer expansion
+          composedLogic.setExpandedGroupAfterAction('__BASE_LAYERS__');
+        } else if (layer.layout?.interfaceGroup) {
+          composedLogic.setExpandedGroupAfterAction(layer.layout.interfaceGroup);
+        } else {
+          // For ungrouped layers
+          composedLogic.setExpandedGroupAfterAction('__UNGROUPED__');
+        }
+      }
+      
       clearCanceledLayerIndex();
     }
-  }, [canceledLayerIndex, showDataSourceForm, expandCard, clearCanceledLayerIndex, scrollToLayer]);
+  }, [canceledLayerIndex, showDataSourceForm, expandCard, clearCanceledLayerIndex, scrollToLayer, props.config.sources, composedLogic.setExpandedGroupAfterAction]);
 
   // Convert expanded cards to a Set for compatibility
   const expandedLayers = new Set(
@@ -153,7 +171,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     clearExpandedGroup,
     // Layer type handlers
     ...layerTypeHandlers,
-    // Spread all other logic from the composed hook
+    // Spread all other logic from the composed hook (includes layer operations)
     ...restLogic
   };
 };

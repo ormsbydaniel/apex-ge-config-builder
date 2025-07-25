@@ -8,8 +8,7 @@ import { DataSource } from '@/types/config';
 import { useLayerCardFormPersistence } from '@/hooks/useLayerCardFormPersistence';
 import { useLayerCardFormValidation } from '@/hooks/useLayerCardFormValidation';
 import { useLayerCardFormSubmission } from '@/hooks/useLayerCardFormSubmission';
-import { useLayerTypeManagement } from '@/hooks/useLayerTypeManagement';
-import { usePositionManagement } from '@/hooks/usePositionManagement';
+import { useLayerOperations, LayerTypeOption } from '@/hooks/useLayerOperations';
 import { analyzeLayerTypeMigration, applyLayerTypeMigration } from '@/utils/layerTypeMigration';
 import UnifiedBasicInfoSection from '@/components/form/UnifiedBasicInfoSection';
 import UnifiedAttributionSection from '@/components/form/UnifiedAttributionSection';
@@ -45,13 +44,15 @@ const LayerCardForm = ({
   const { validateForm } = useLayerCardFormValidation();
   const { createLayerFromFormData, handleSuccessfulSubmission } = useLayerCardFormSubmission(editingLayer, isEditing);
 
-  const {
-    selectedLayerType,
-    handleLayerTypeChange,
-    getLayerTypeFlags,
-    isComparisonLayerType
-  } = useLayerTypeManagement({
+  // Use consolidated layer operations for layer type and position management
+  const layerOperations = useLayerOperations({
+    config: { sources: [] },
+    dispatch: () => {},
     initialLayer: editingLayer,
+    dataSources: editingLayer?.data || [],
+    onDataSourcesChange: (updatedDataSources) => {
+      console.log('Data sources updated:', updatedDataSources);
+    },
     onLayerTypeChange: (newType) => {
       // Handle layer type migration
       if (editingLayer && editingLayer.data?.length > 0) {
@@ -61,30 +62,27 @@ const LayerCardForm = ({
         }
         if (migration.needsPositionAssignment) {
           // Positions will be handled by the position management hook
-          ensureDataSourcesHavePositions();
+          layerOperations.ensureDataSourcesHavePositions();
         }
       }
     }
   });
 
-  // Mock data sources for position management (in real implementation, this would come from form data)
-  const dataSources = editingLayer?.data || [];
-  
   const {
+    selectedLayerTypeOption: selectedLayerType,
+    handleLayerTypeChange,
+    getLayerTypeFlags,
+    isComparisonLayerType,
     isPositionModalOpen,
     editingDataSourceIndex,
     updateDataSourcePosition,
     openPositionEditor,
     closePositionEditor,
     ensureDataSourcesHavePositions
-  } = usePositionManagement({
-    layerType: selectedLayerType,
-    dataSources,
-    onDataSourcesChange: (updatedDataSources) => {
-      // In real implementation, update the form data with new data sources
-      console.log('Data sources updated:', updatedDataSources);
-    }
-  });
+  } = layerOperations;
+
+  // Get data sources for position management
+  const dataSources = editingLayer?.data || [];
 
   // Process categories to ensure they have the required value property
   const processedCategories = formData.categories?.map((cat, index) => ({

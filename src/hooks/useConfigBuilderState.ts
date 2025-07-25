@@ -3,7 +3,7 @@ import { useValidatedConfig } from '@/hooks/useValidatedConfig';
 import { useLayoutState } from './useLayoutState';
 import { useExclusivitySets } from './useExclusivitySets';
 import { useServiceManagement } from './useServiceManagement';
-import { useLayerManagement } from './useLayerManagement';
+import { useLayerOperations } from './useLayerOperations';
 
 export const useConfigBuilderState = () => {
   const { config, dispatch } = useValidatedConfig();
@@ -18,7 +18,7 @@ export const useConfigBuilderState = () => {
   const layoutState = useLayoutState({ dispatch });
   const exclusivitySets = useExclusivitySets({ config: configWithExclusivitySets, dispatch });
   const serviceManagement = useServiceManagement({ config, dispatch });
-  const layerManagement = useLayerManagement({ config, dispatch });
+  const layerOperations = useLayerOperations({ config, dispatch });
 
   return {
     config,
@@ -29,6 +29,6 @@ export const useConfigBuilderState = () => {
     // Service management
     ...serviceManagement,
     // Layer management
-    ...layerManagement
+    ...layerOperations
   };
 };

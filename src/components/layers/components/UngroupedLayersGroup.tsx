@@ -7,7 +7,7 @@ import { ChevronDown, ChevronRight, Check, AlertTriangle, Triangle } from 'lucid
 import { DataSource } from '@/types/config';
 import { calculateQAStats } from '@/utils/qaUtils';
 import LayerCard from '../LayerCard';
-import { useLayerCardState } from '@/hooks/useLayerCardState';
+import { useLayerStateManagement } from '@/hooks/useLayerStateManagement';
 
 interface UngroupedLayersGroupProps {
   ungroupedLayers: Array<{ layer: DataSource; originalIndex: number }>;
@@ -40,7 +40,7 @@ const UngroupedLayersGroup = ({
   isExpanded = false,
   onToggle
 }: UngroupedLayersGroupProps) => {
-  const { toggleCard, isExpanded: isCardExpanded } = useLayerCardState();
+  const { toggleCard, isExpanded: isCardExpanded } = useLayerStateManagement();
 
   // Calculate QA stats for ungrouped layers
   const qaStats = calculateQAStats(ungroupedLayers.map(item => item.layer));

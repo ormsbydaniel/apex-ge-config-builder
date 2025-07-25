@@ -1,5 +1,5 @@
 
-import { LayerTypeOption } from '@/hooks/useLayerTypeManagement';
+import { LayerTypeOption } from '@/hooks/useLayerOperations';
 
 export type PositionValue = 'left' | 'right' | 'background' | 'spotlight';
 

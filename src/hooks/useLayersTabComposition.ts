@@ -1,9 +1,8 @@
 
+import { useCallback } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
-import { useLayerFormState } from '@/hooks/useLayerFormState';
-import { useLayerCardState } from '@/hooks/useLayerCardState';
-import { useLayerActions } from '@/hooks/useLayerActions';
-import { useDataSourceActions } from '@/hooks/useDataSourceActions';
+import { useLayerStateManagement } from '@/hooks/useLayerStateManagement';
+import { useLayerOperations } from '@/hooks/useLayerOperations';
 import { useInterfaceGroupActions } from '@/hooks/useInterfaceGroupActions';
 import { useCompositeHook } from '@/hooks/useCompositeHook';
 
@@ -40,48 +39,47 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     updateConfig
   } = props;
 
-  // Get individual hook results
-  const layerFormState = useLayerFormState();
-  const layerCardState = useLayerCardState();
-  const layerActions = useLayerActions({
+  // Get consolidated layer state management
+  const layerState = useLayerStateManagement();
+  
+  // Get consolidated layer operations (replaces useLayerActions, useDataSourceActions, useLayerManagement)
+  const layerOperations = useLayerOperations({
     config,
-    updateLayer,
-    addLayer,
-    setEditingLayerIndex,
-    setSelectedLayerType,
-    setShowLayerForm
+    dispatch: (action: any) => {
+      // Handle different dispatch action types
+      if (action.type === 'ADD_SOURCE') {
+        addLayer(action.payload);
+      } else if (action.type === 'UPDATE_SOURCES') {
+        updateConfig({ sources: action.payload });
+      } else if (action.type === 'REMOVE_SOURCE') {
+        const updatedSources = [...config.sources];
+        updatedSources.splice(action.payload, 1);
+        updateConfig({ sources: updatedSources });
+      } else if (action.type === 'UPDATE_INTERFACE_GROUPS') {
+        updateConfig({ interfaceGroups: action.payload });
+      }
+    },
+    selectedLayerIndex: layerState.selectedLayerIndex,
+    handleLayerCreated: layerState.handleLayerCreated,
+    handleDataSourceComplete: layerState.handleDataSourceComplete,
+    // Pass through the actual state setters from props instead of using internal state
+    setShowLayerForm: setShowLayerForm,
+    setSelectedLayerType: setSelectedLayerType,
+    setEditingLayerIndex: setEditingLayerIndex,
+    setDefaultInterfaceGroup: props.setDefaultInterfaceGroup
   });
-  const dataSourceActions = useDataSourceActions({
-    config,
-    updateLayer,
-    selectedLayerIndex: layerFormState.selectedLayerIndex,
-    handleLayerCreated: layerFormState.handleLayerCreated,
-    handleDataSourceComplete: layerFormState.handleDataSourceComplete
-  });
+  
   const interfaceGroupActions = useInterfaceGroupActions({
     config,
     updateConfig
   });
 
-  return {
-    // Layer form state
-    ...layerFormState,
+  const result = {
+    // Layer state management (consolidated)
+    ...layerState,
     
-    // Layer card state
-    toggleCard: layerCardState.toggleCard,
-    
-    // Layer actions - expose all handler functions
-    handleEditLayer: layerActions.handleEditLayer,
-    handleEditBaseLayer: layerActions.handleEditBaseLayer,
-    handleDuplicateLayer: layerActions.handleDuplicateLayer,
-    handleRemoveDataSource: layerActions.handleRemoveDataSource,
-    handleRemoveStatisticsSource: layerActions.handleRemoveStatisticsSource,
-    handleEditDataSource: layerActions.handleEditDataSource,
-    handleEditStatisticsSource: layerActions.handleEditStatisticsSource,
-    
-    // Data source actions
-    handleDataSourceAdded: dataSourceActions.handleDataSourceAdded,
-    handleStatisticsLayerAdded: dataSourceActions.handleStatisticsLayerAdded,
+    // Layer operations (consolidated)
+    ...layerOperations,
     
     // Interface group actions
     handleAddInterfaceGroup: interfaceGroupActions.handleAddInterfaceGroup,
@@ -94,7 +92,9 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
       
-      layerFormState.handleStartDataSourceForm(layerIndex, cardId);
+      layerState.handleStartDataSourceForm(layerIndex, cardId);
     }
   };
+  
+  return result;
 };

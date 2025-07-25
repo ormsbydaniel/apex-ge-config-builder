@@ -8,7 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { DataSource } from '@/types/config';
 import { calculateQAStats } from '@/utils/qaUtils';
 import LayerCard from '../LayerCard';
-import { useLayerCardState } from '@/hooks/useLayerCardState';
+import { useLayerStateManagement } from '@/hooks/useLayerStateManagement';
 
 interface BaseLayerGroupProps {
   baseLayers: Array<{ layer: DataSource; originalIndex: number }>;
@@ -45,7 +45,7 @@ const BaseLayerGroup = ({
   onMoveLayer,
   onAddBaseLayer
 }: BaseLayerGroupProps) => {
-  const { toggleCard, isExpanded: isCardExpanded } = useLayerCardState();
+  const { toggleCard, isExpanded: isCardExpanded } = useLayerStateManagement();
 
   // Calculate QA stats for base layers
   const qaStats = calculateQAStats(baseLayers.map(item => item.layer));

@@ -90,7 +90,17 @@ const LayersTabCore = ({
       
       // Find the index where the new layer will be added
       const newLayerIndex = config.sources.length;
-      const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+      
+      // Determine the appropriate group name for expansion
+      let groupName: string;
+      if (layer.isBaseLayer) {
+        groupName = '__BASE_LAYERS__';
+      } else if (layer.layout?.interfaceGroup) {
+        groupName = layer.layout.interfaceGroup;
+      } else {
+        groupName = '__UNGROUPED__';
+      }
+      
       layersLogic.handleLayerCreated?.(groupName, newLayerIndex);
     }
     

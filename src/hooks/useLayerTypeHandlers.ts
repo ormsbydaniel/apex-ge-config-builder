@@ -7,13 +7,15 @@ interface UseLayerTypeHandlersProps {
   setSelectedLayerType: (type: LayerType | null) => void;
   setShowLayerForm: (show: boolean) => void;
   setEditingLayerIndex: (index: number | null) => void;
+  setExpandedGroupAfterAction: (groupName: string | null) => void;
 }
 
 export const useLayerTypeHandlers = ({
   setDefaultInterfaceGroup,
   setSelectedLayerType,
   setShowLayerForm,
-  setEditingLayerIndex
+  setEditingLayerIndex,
+  setExpandedGroupAfterAction
 }: UseLayerTypeHandlersProps) => {
   const handleAddLayerForGroup = useCallback((groupName: string) => {
     setDefaultInterfaceGroup(groupName);
