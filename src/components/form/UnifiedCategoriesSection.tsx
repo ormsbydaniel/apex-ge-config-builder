@@ -1,5 +1,7 @@
 import React from 'react';
 import { Category } from '@/types/config';
+import { Button } from '@/components/ui/button';
+import { Edit3 } from 'lucide-react';
 import CategoryEditorDialog from './CategoryEditorDialog';
 import CategoryPreview from './CategoryPreview';
 
@@ -20,14 +22,7 @@ const UnifiedCategoriesSection = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="font-medium">Categories</h4>
-        <CategoryEditorDialog
-          categories={categories}
-          onUpdate={handleCategoriesUpdate}
-          layerName={layerName}
-        />
-      </div>
+      <h4 className="font-medium">Categories</h4>
       
       {categories.length > 0 && (
         <CategoryPreview 
@@ -35,6 +30,18 @@ const UnifiedCategoriesSection = ({
           useValues={true}
         />
       )}
+      
+      <CategoryEditorDialog
+        categories={categories}
+        onUpdate={handleCategoriesUpdate}
+        layerName={layerName}
+        trigger={
+          <Button type="button" variant="outline" size="sm">
+            <Edit3 className="h-4 w-4 mr-2" />
+            {categories.length > 0 ? `Edit Categories (${categories.length})` : "Add Categories"}
+          </Button>
+        }
+      />
     </div>
   );
 };
