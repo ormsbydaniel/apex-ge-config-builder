@@ -75,39 +75,35 @@ const LayerJsonEditorDialog = ({ isOpen, onClose, layer, onSave }: LayerJsonEdit
           </DialogDescription>
         </DialogHeader>
         
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto max-h-[calc(80vh-180px)]">
           {!isEditMode ? (
-            <div className="space-y-4 pb-4">
+            <div className="space-y-4 pb-6">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Read-only view</span>
                 <Button onClick={handleEditModeToggle} variant="outline">
                   Enable Editing
                 </Button>
               </div>
-              <div className="min-h-[400px]">
-                <MonacoJsonEditor
-                  value={layerJson}
-                  readOnly={true}
-                  height="100%"
-                />
-              </div>
+              <MonacoJsonEditor
+                value={layerJson}
+                readOnly={true}
+                height="500px"
+              />
             </div>
           ) : (
-            <div className="space-y-4 pb-4">
+            <div className="space-y-4 pb-6">
               <JsonEditorToolbar
                 hasUnsavedChanges={hasUnsavedChanges}
                 onApplyChanges={handleApplyChanges}
                 onReset={handleReset}
                 onFormatJson={formatJson}
               />
-              <div className="min-h-[400px]">
-                <MonacoJsonEditor
-                  value={editedJson}
-                  onChange={handleJsonChange}
-                  readOnly={false}
-                  height="100%"
-                />
-              </div>
+              <MonacoJsonEditor
+                value={editedJson}
+                onChange={handleJsonChange}
+                readOnly={false}
+                height="450px"
+              />
             </div>
           )}
         </div>
