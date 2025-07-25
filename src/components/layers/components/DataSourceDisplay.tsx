@@ -24,6 +24,8 @@ const DataSourceDisplay = ({
 }: DataSourceDisplayProps) => {
   // Check if this is a swipe layer that needs position display
   const isSwipeLayer = (source as any).isSwipeLayer === true || source.meta?.swipeConfig !== undefined;
+  // Get timeframe for temporal display
+  const timeframe = source.meta?.timeframe;
 
   const hasDataSources = source.data && isDataSourceItemArray(source.data) && source.data.length > 0;
   const hasStatistics = source.statistics && source.statistics.length > 0;
@@ -56,6 +58,7 @@ const DataSourceDisplay = ({
                 index={index}
                 onRemove={onRemoveDataSource}
                 showPosition={isSwipeLayer}
+                timeframe={timeframe}
               />
             ))}
           </div>
@@ -82,6 +85,7 @@ const DataSourceDisplay = ({
                 onRemove={onRemoveStatisticsSource || (() => {})}
                 showPosition={isSwipeLayer}
                 showStatsLevel={true}
+                timeframe={timeframe}
               />
             ))}
           </div>
