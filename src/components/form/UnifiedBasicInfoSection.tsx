@@ -53,6 +53,17 @@ const UnifiedBasicInfoSection = ({
 }: UnifiedBasicInfoSectionProps) => {
   return (
     <div className="space-y-4">
+      {showIsActive && (
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="isActive"
+            checked={isActive}
+            onCheckedChange={(checked) => onUpdate('isActive', checked)}
+          />
+          <Label htmlFor="isActive">Active by default</Label>
+        </div>
+      )}
+      
       <h3 className="text-lg font-medium">Basic Information</h3>
       
       <div className="grid grid-cols-2 gap-4">
@@ -115,16 +126,6 @@ const UnifiedBasicInfoSection = ({
         </div>
       )}
 
-      {showIsActive && (
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="isActive"
-            checked={isActive}
-            onCheckedChange={(checked) => onUpdate('isActive', checked)}
-          />
-          <Label htmlFor="isActive">Active by default</Label>
-        </div>
-      )}
 
     </div>
   );
