@@ -43,20 +43,20 @@ const UnifiedControlsSection = ({
         </div>
         
         <div className="flex items-center justify-between space-x-2 min-w-[140px]">
-          <Label htmlFor="opacitySlider">Opacity Slider:</Label>
-          <Switch
-            id="opacitySlider"
-            checked={opacitySlider}
-            onCheckedChange={(value) => onUpdate('opacitySlider', value)}
-          />
-        </div>
-        
-        <div className="flex items-center justify-between space-x-2 min-w-[140px]">
           <Label htmlFor="zoomToCenter">Zoom to layer:</Label>
           <Switch
             id="zoomToCenter"
             checked={zoomToCenter}
             onCheckedChange={(value) => onUpdate('zoomToCenter', value)}
+          />
+        </div>
+        
+        <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+          <Label htmlFor="opacitySlider">Opacity Slider:</Label>
+          <Switch
+            id="opacitySlider"
+            checked={opacitySlider}
+            onCheckedChange={(value) => onUpdate('opacitySlider', value)}
           />
         </div>
         
