@@ -48,7 +48,7 @@ const LayerCardHeader = ({
           </div>
           <div className="text-left">
             <h3 className="text-sm font-bold">{source.name}</h3>
-            {source.meta?.description && <p className="text-xs text-muted-foreground mt-1 mr-8">{source.meta.description}</p>}
+            {isExpanded && source.meta?.description && <p className="text-xs text-muted-foreground mt-1 mr-8">{source.meta.description}</p>}
           </div>
         </CollapsibleTrigger>
       </div>
