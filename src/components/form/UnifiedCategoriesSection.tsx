@@ -36,7 +36,7 @@ const UnifiedCategoriesSection = ({
         onUpdate={handleCategoriesUpdate}
         layerName={layerName}
         trigger={
-          <Button type="button" variant="outline" size="sm">
+          <Button type="button" variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 h-7">
             <Edit3 className="h-4 w-4 mr-2" />
             {categories.length > 0 ? `Edit Categories (${categories.length})` : "Add Categories"}
           </Button>
