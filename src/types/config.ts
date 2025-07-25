@@ -49,6 +49,8 @@ export interface DataSourceItem {
   // Zoom level constraints
   minZoom?: number;
   maxZoom?: number;
+  // Temporal support
+  timestamps?: number[]; // Array of Unix timestamps
 }
 
 // Simplified - data is always an array
@@ -63,6 +65,14 @@ export function isDataSourceItemArray(data: DataField): data is DataSourceItem[]
 export interface SwipeConfig {
   clippedSourceName: string;
   baseSourceNames: string[]; // Changed from baseSourceName to array
+}
+
+// Temporal configuration
+export type TimeframeType = 'None' | 'Days' | 'Months' | 'Years';
+
+export interface TemporalConfig {
+  timeframe: TimeframeType;
+  defaultTimestamp?: number; // Default timestamp when timeframe is not 'None'
 }
 
 // Enhanced meta interface
@@ -81,6 +91,8 @@ export interface DataSourceMeta {
   endColor?: string;
   // Swipe layer configuration
   swipeConfig?: SwipeConfig;
+  // Temporal configuration
+  temporal?: TemporalConfig;
 }
 
 // Enhanced layout interface

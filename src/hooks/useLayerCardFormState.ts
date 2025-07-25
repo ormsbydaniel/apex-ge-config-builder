@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { DataSource, Category } from '@/types/config';
+import { DataSource, Category, TimeframeType } from '@/types/config';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 
 interface LayerCardFormData {
@@ -22,6 +22,8 @@ interface LayerCardFormData {
   hasFeatureStatistics: boolean;
   isActive: boolean;
   layerType: LayerTypeOption;
+  timeframe: TimeframeType;
+  defaultTimestamp?: number;
 }
 
 interface UseLayerCardFormStateProps {
@@ -61,7 +63,9 @@ export const useLayerCardFormState = ({
         units: editingLayer.meta?.units || '',
         hasFeatureStatistics: editingLayer.hasFeatureStatistics || false,
         isActive: editingLayer.isActive || false,
-        layerType
+        layerType,
+        timeframe: editingLayer.meta?.temporal?.timeframe || 'None',
+        defaultTimestamp: editingLayer.meta?.temporal?.defaultTimestamp
       };
     }
 
@@ -83,7 +87,8 @@ export const useLayerCardFormState = ({
       units: '',
       hasFeatureStatistics: false,
       isActive: false,
-      layerType: 'standard'
+      layerType: 'standard',
+      timeframe: 'None'
     };
   };
 

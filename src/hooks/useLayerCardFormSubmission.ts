@@ -2,6 +2,8 @@
 import { DataSource } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
+import { TimeframeType } from '@/types/config';
+
 interface SubmissionFormData {
   name: string;
   description: string;
@@ -20,6 +22,8 @@ interface SubmissionFormData {
   minValue: string;
   maxValue: string;
   categories: Array<{ label: string; color: string; value: number }>;
+  timeframe: TimeframeType;
+  defaultTimestamp?: number;
 }
 
 export const useLayerCardFormSubmission = (
@@ -63,6 +67,15 @@ export const useLayerCardFormSubmission = (
         endColor: formData.endColor.trim(),
         min: parseFloat(formData.minValue),
         max: parseFloat(formData.maxValue)
+      }),
+      // Add temporal configuration if timeframe is not 'None'
+      ...(formData.timeframe !== 'None' && {
+        temporal: {
+          timeframe: formData.timeframe,
+          ...(formData.defaultTimestamp !== undefined && { 
+            defaultTimestamp: formData.defaultTimestamp 
+          })
+        }
       })
     };
 

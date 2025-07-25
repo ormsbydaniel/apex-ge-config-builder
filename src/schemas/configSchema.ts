@@ -102,7 +102,13 @@ const SwipeConfigSchema = z.object({
     ),
 });
 
-// Enhanced meta schema with additional fields including swipe config
+// Temporal configuration schema
+const TemporalConfigSchema = z.object({
+  timeframe: z.enum(['None', 'Days', 'Months', 'Years']),
+  defaultTimestamp: z.number().optional(),
+});
+
+// Enhanced meta schema with additional fields including swipe config and temporal
 const MetaSchema = z.object({
   description: z.string(),
   attribution: z.object({
@@ -118,6 +124,8 @@ const MetaSchema = z.object({
   endColor: z.string().optional(),
   // Swipe layer configuration
   swipeConfig: SwipeConfigSchema.optional(),
+  // Temporal configuration
+  temporal: TemporalConfigSchema.optional(),
 });
 
 // Enhanced layout schema with proper controls validation

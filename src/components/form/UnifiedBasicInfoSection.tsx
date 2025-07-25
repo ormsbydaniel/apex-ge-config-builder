@@ -5,6 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import TemporalConfigSection from './TemporalConfigSection';
+import { TimeframeType } from '@/types/config';
 
 interface UnifiedBasicInfoSectionProps {
   // Basic fields
@@ -17,6 +19,8 @@ interface UnifiedBasicInfoSectionProps {
   hasFeatureStatistics?: boolean;
   units?: string;
   isActive?: boolean;
+  timeframe?: TimeframeType;
+  defaultTimestamp?: number;
   
   // Update handler that supports both flat and nested field paths
   onUpdate: (field: string, value: any) => void;
@@ -39,6 +43,8 @@ const UnifiedBasicInfoSection = ({
   hasFeatureStatistics = false,
   units = '',
   isActive = false,
+  timeframe,
+  defaultTimestamp,
   onUpdate,
   showFeatureStatistics = false,
   showUnits = false,
@@ -118,6 +124,14 @@ const UnifiedBasicInfoSection = ({
           />
           <Label htmlFor="isActive">Active by default</Label>
         </div>
+      )}
+
+      {(timeframe !== undefined) && (
+        <TemporalConfigSection
+          timeframe={timeframe || 'None'}
+          defaultTimestamp={defaultTimestamp}
+          onUpdate={onUpdate}
+        />
       )}
     </div>
   );

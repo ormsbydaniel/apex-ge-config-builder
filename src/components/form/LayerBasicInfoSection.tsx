@@ -5,6 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import TemporalConfigSection from './TemporalConfigSection';
+import { TimeframeType } from '@/types/config';
 
 interface LayerBasicInfoSectionProps {
   name: string;
@@ -12,6 +14,8 @@ interface LayerBasicInfoSectionProps {
   interfaceGroup: string;
   hasFeatureStatistics: boolean;
   units: string;
+  timeframe: TimeframeType;
+  defaultTimestamp?: number;
   interfaceGroups: string[];
   onUpdate: (field: string, value: any) => void;
 }
@@ -22,6 +26,8 @@ const LayerBasicInfoSection = ({
   interfaceGroup,
   hasFeatureStatistics,
   units,
+  timeframe,
+  defaultTimestamp,
   interfaceGroups,
   onUpdate
 }: LayerBasicInfoSectionProps) => {
@@ -83,6 +89,12 @@ const LayerBasicInfoSection = ({
           placeholder="e.g., km², %"
         />
       </div>
+
+      <TemporalConfigSection
+        timeframe={timeframe}
+        defaultTimestamp={defaultTimestamp}
+        onUpdate={onUpdate}
+      />
     </div>
   );
 };

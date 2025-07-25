@@ -101,7 +101,9 @@ const LayerCardForm = ({
     // Create layer with layer type flags
     let layerCard = createLayerFromFormData({
       ...formData,
-      categories: processedCategories || []
+      categories: processedCategories || [],
+      timeframe: formData.timeframe,
+      defaultTimestamp: formData.defaultTimestamp
     });
 
     // Apply layer type flags
@@ -170,6 +172,8 @@ const LayerCardForm = ({
               interfaceGroup={formData.interfaceGroup}
               interfaceGroups={interfaceGroups}
               units={formData.units}
+              timeframe={(formData as any).timeframe || 'None'}
+              defaultTimestamp={(formData as any).defaultTimestamp}
               isActive={(formData as any).isActive || false}
               onUpdate={updateFormData}
               showUnits={true}

@@ -93,6 +93,15 @@ export const useValidatedConfig = () => {
                 baseSourceNames: source.meta.swipeConfig.baseSourceNames || 
                   ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
               }
+            }),
+            // Handle temporal configuration
+            ...(source.meta.temporal && {
+              temporal: {
+                timeframe: source.meta.temporal.timeframe || 'None',
+                ...(source.meta.temporal.defaultTimestamp !== undefined && { 
+                  defaultTimestamp: source.meta.temporal.defaultTimestamp 
+                })
+              }
             })
           }
         }),
@@ -147,6 +156,15 @@ export const useValidatedConfig = () => {
           // Handle backward compatibility: convert single baseSourceName to array
           baseSourceNames: source.meta.swipeConfig.baseSourceNames || 
             ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
+        }
+      }),
+      // Handle temporal configuration
+      ...(source.meta?.temporal && {
+        temporal: {
+          timeframe: source.meta.temporal.timeframe || 'None',
+          ...(source.meta.temporal.defaultTimestamp !== undefined && { 
+            defaultTimestamp: source.meta.temporal.defaultTimestamp 
+          })
         }
       })
     };
