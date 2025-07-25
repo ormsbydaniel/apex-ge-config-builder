@@ -13,7 +13,7 @@ interface LayerTypeRadioGroupProps {
 const LayerTypeRadioGroup = ({ value, onChange, disabled = false }: LayerTypeRadioGroupProps) => {
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium">Layer Type</Label>
+      <Label className="text-lg font-medium">Layer Type</Label>
       <RadioGroup 
         value={value} 
         onValueChange={onChange}
