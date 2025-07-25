@@ -152,7 +152,7 @@ const LayerGroup = ({
               </div>
             </CardHeader>
             <CollapsibleContent>
-              <CardContent className="pt-0 bg-slate-200">
+              <CardContent className="pt-3 bg-slate-200">
                 <div className="space-y-3">
                   {sources.map((source, idx) => {
                   const actualIndex = sourceIndices[idx];
