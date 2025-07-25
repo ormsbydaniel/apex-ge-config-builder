@@ -94,11 +94,11 @@ export const useValidatedConfig = () => {
                   ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
               }
             }),
-            // Handle temporal configuration
-            ...(source.meta.temporal?.timeframe && source.meta.temporal.timeframe !== 'None' && {
-              timeframe: source.meta.temporal.timeframe,
-              ...(source.meta.temporal.defaultTimestamp !== undefined && { 
-                defaultTimestamp: source.meta.temporal.defaultTimestamp 
+            // Handle temporal configuration - preserve flat fields if they exist
+            ...((source.meta as any).timeframe && (source.meta as any).timeframe !== 'None' && {
+              timeframe: (source.meta as any).timeframe,
+              ...((source.meta as any).defaultTimestamp !== undefined && { 
+                defaultTimestamp: (source.meta as any).defaultTimestamp 
               })
             })
           }
@@ -156,11 +156,11 @@ export const useValidatedConfig = () => {
             ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
         }
       }),
-      // Handle temporal configuration
-      ...(source.meta?.temporal?.timeframe && source.meta.temporal.timeframe !== 'None' && {
-        timeframe: source.meta.temporal.timeframe,
-        ...(source.meta.temporal.defaultTimestamp !== undefined && { 
-          defaultTimestamp: source.meta.temporal.defaultTimestamp 
+      // Handle temporal configuration - preserve flat fields if they exist
+      ...((source.meta as any)?.timeframe && (source.meta as any).timeframe !== 'None' && {
+        timeframe: (source.meta as any).timeframe,
+        ...((source.meta as any).defaultTimestamp !== undefined && { 
+          defaultTimestamp: (source.meta as any).defaultTimestamp 
         })
       })
     };

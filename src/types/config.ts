@@ -94,8 +94,6 @@ export interface DataSourceMeta {
   // Temporal configuration - flat structure
   timeframe?: TimeframeType;
   defaultTimestamp?: number;
-  // Legacy temporal support for backward compatibility
-  temporal?: TemporalConfig;
 }
 
 // Enhanced layout interface

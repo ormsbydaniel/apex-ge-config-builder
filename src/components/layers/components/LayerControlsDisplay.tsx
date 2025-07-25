@@ -9,7 +9,7 @@ interface LayerControlsDisplayProps {
 const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const controls = source.layout?.layerCard?.controls;
   const toggleable = source.layout?.layerCard?.toggleable;
-  const timeframe = source.meta?.timeframe || source.meta?.temporal?.timeframe;
+  const timeframe = source.meta?.timeframe;
   
   const hasControls = controls && (controls.opacitySlider || controls.zoomToCenter);
   const hasTimeframe = timeframe && timeframe !== 'None';
