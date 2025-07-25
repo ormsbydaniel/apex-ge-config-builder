@@ -59,8 +59,8 @@ export const useLayerCardFormPersistence = (
         units: editingLayer.meta?.units || '',
         hasFeatureStatistics: editingLayer.hasFeatureStatistics || false,
         isActive: editingLayer.isActive || false,
-        timeframe: editingLayer.meta?.temporal?.timeframe || 'None',
-        defaultTimestamp: editingLayer.meta?.temporal?.defaultTimestamp
+        timeframe: editingLayer.meta?.timeframe || editingLayer.meta?.temporal?.timeframe || 'None',
+        defaultTimestamp: editingLayer.meta?.defaultTimestamp || editingLayer.meta?.temporal?.defaultTimestamp
       };
     }
 

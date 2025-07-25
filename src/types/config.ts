@@ -91,7 +91,10 @@ export interface DataSourceMeta {
   endColor?: string;
   // Swipe layer configuration
   swipeConfig?: SwipeConfig;
-  // Temporal configuration
+  // Temporal configuration - flat structure
+  timeframe?: TimeframeType;
+  defaultTimestamp?: number;
+  // Legacy temporal support for backward compatibility
   temporal?: TemporalConfig;
 }
 

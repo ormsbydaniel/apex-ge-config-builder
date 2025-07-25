@@ -70,12 +70,10 @@ export const useLayerCardFormSubmission = (
       }),
       // Add temporal configuration if timeframe is not 'None'
       ...(formData.timeframe !== 'None' && {
-        temporal: {
-          timeframe: formData.timeframe,
-          ...(formData.defaultTimestamp !== undefined && { 
-            defaultTimestamp: formData.defaultTimestamp 
-          })
-        }
+        timeframe: formData.timeframe,
+        ...(formData.defaultTimestamp !== undefined && { 
+          defaultTimestamp: formData.defaultTimestamp 
+        })
       })
     };
 

@@ -95,13 +95,11 @@ export const useValidatedConfig = () => {
               }
             }),
             // Handle temporal configuration
-            ...(source.meta.temporal && {
-              temporal: {
-                timeframe: source.meta.temporal.timeframe || 'None',
-                ...(source.meta.temporal.defaultTimestamp !== undefined && { 
-                  defaultTimestamp: source.meta.temporal.defaultTimestamp 
-                })
-              }
+            ...(source.meta.temporal?.timeframe && source.meta.temporal.timeframe !== 'None' && {
+              timeframe: source.meta.temporal.timeframe,
+              ...(source.meta.temporal.defaultTimestamp !== undefined && { 
+                defaultTimestamp: source.meta.temporal.defaultTimestamp 
+              })
             })
           }
         }),
@@ -159,13 +157,11 @@ export const useValidatedConfig = () => {
         }
       }),
       // Handle temporal configuration
-      ...(source.meta?.temporal && {
-        temporal: {
-          timeframe: source.meta.temporal.timeframe || 'None',
-          ...(source.meta.temporal.defaultTimestamp !== undefined && { 
-            defaultTimestamp: source.meta.temporal.defaultTimestamp 
-          })
-        }
+      ...(source.meta?.temporal?.timeframe && source.meta.temporal.timeframe !== 'None' && {
+        timeframe: source.meta.temporal.timeframe,
+        ...(source.meta.temporal.defaultTimestamp !== undefined && { 
+          defaultTimestamp: source.meta.temporal.defaultTimestamp 
+        })
       })
     };
 
