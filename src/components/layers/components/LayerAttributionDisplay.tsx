@@ -12,8 +12,8 @@ const LayerAttributionDisplay = ({ source }: LayerAttributionDisplayProps) => {
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700">Attribution</h4>
-      <div className="text-sm space-y-1">
+      <h4 className="text-xs text-muted-foreground">Attribution</h4>
+      <div className="text-xs text-muted-foreground space-y-1">
         <div>
           <span className="font-medium">Source:</span> {source.meta.attribution.text}
         </div>
