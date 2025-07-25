@@ -6,20 +6,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Save, X, Database, Globe, Plus, ArrowLeft } from 'lucide-react';
-import { Service, DataSourceFormat, DataSourceItem } from '@/types/config';
+import { Save, X, Database, Globe, Plus, ArrowLeft, CalendarIcon } from 'lucide-react';
+import { Service, DataSourceFormat, DataSourceItem, TimeframeType } from '@/types/config';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface DataSourceFormProps {
   services: Service[];
   currentLayerStatistics?: DataSourceItem[];
   layerType?: LayerTypeOption;
+  timeframe?: TimeframeType;
   onAddDataSource: (dataSource: DataSourceItem) => void;
   onAddStatisticsLayer: (statisticsItem: DataSourceItem) => void;
   onAddService: (service: Service) => void;
@@ -30,6 +35,7 @@ const DataSourceForm = ({
   services, 
   currentLayerStatistics = [],
   layerType = 'standard',
+  timeframe = 'None',
   onAddDataSource, 
   onAddStatisticsLayer,
   onAddService, 
@@ -63,6 +69,10 @@ const DataSourceForm = ({
   const [showNewServiceForm, setShowNewServiceForm] = useState(false);
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceUrl, setNewServiceUrl] = useState('');
+  
+  // Date picker state for temporal layers
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const requiresTimestamp = timeframe && timeframe !== 'None';
 
   const config_format = FORMAT_CONFIGS[selectedFormat];
   const needsPosition = requiresPosition(layerType);
@@ -178,6 +188,16 @@ const DataSourceForm = ({
       return;
     }
 
+    // Validate timestamp for temporal layers
+    if (requiresTimestamp && !selectedDate) {
+      toast({
+        title: "Missing Timestamp",
+        description: "Please select a timestamp for this temporal layer.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const dataSourceItem: DataSourceItem = {
       url,
       format: sourceType === 'service' ? selectedService!.format : selectedFormat,
@@ -185,7 +205,8 @@ const DataSourceForm = ({
       ...(layers && { layers }),
       ...(serviceId && { serviceId }),
       ...(needsPosition && selectedPosition && { position: selectedPosition }),
-      ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel })
+      ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel }),
+      ...(requiresTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] })
     };
 
     // Call appropriate callback based on statistics layer flag
@@ -508,6 +529,41 @@ const DataSourceForm = ({
                         )}
                       </div>
                     )}
+                    
+                    {/* Timestamp Picker for Temporal Layers */}
+                    {requiresTimestamp && (
+                      <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                        <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                          Timestamp *
+                        </Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
+                                !selectedDate && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={selectedDate}
+                              onSelect={setSelectedDate}
+                              initialFocus
+                              className={cn("p-3 pointer-events-auto")}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <p className="text-xs text-blue-600 dark:text-blue-400">
+                          This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                        </p>
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <Label htmlFor="serviceZIndex">Z-Index</Label>
@@ -596,6 +652,41 @@ const DataSourceForm = ({
                     placeholder={config_format.layersPlaceholder}
                     autoComplete="off"
                   />
+                </div>
+              )}
+              
+              {/* Timestamp Picker for Temporal Layers */}
+              {requiresTimestamp && (
+                <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                  <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                    Timestamp *
+                  </Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">
+                    This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                  </p>
                 </div>
               )}
 
