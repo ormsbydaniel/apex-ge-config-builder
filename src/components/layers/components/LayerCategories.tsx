@@ -14,7 +14,7 @@ const LayerCategories = ({ categories }: LayerCategoriesProps) => {
 
   return (
     <div className="space-y-2">
-      <h4 className="text-xs text-muted-foreground">Categories</h4>
+      <h4 className="text-sm font-medium text-gray-700">Categories</h4>
       <div className="flex flex-wrap gap-1">
         {categories.map((cat, catIndex) => (
           <Badge key={catIndex} variant="outline" className="text-xs border-primary/30">
