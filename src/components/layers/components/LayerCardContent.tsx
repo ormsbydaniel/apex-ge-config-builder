@@ -6,6 +6,7 @@ import LayerMetadata from './LayerMetadata';
 import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
 import LayerLegendDisplay from './LayerLegendDisplay';
+import LayerControlsDisplay from './LayerControlsDisplay';
 import RegularLayerContent from './RegularLayerContent';
 import LayerAttributionDisplay from './LayerAttributionDisplay';
 
@@ -42,6 +43,9 @@ const LayerCardContent = ({
       
       {/* Legend Display */}
       <LayerLegendDisplay source={source} />
+
+      {/* Controls Display */}
+      <LayerControlsDisplay source={source} />
 
       {/* Only show data source display for non-swipe layers */}
       {!isSwipeLayer && (
