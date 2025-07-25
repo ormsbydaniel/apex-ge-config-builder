@@ -32,16 +32,16 @@ const LayerCardContent = ({
     <CardContent className="space-y-4 pl-[46px]">
       <LayerMetadata source={source} />
       
-      {/* Legend Display */}
-      <LayerLegendDisplay source={source} />
+      {/* Attribution Display */}
+      <LayerAttributionDisplay source={source} />
 
       {/* Categories */}
       {source.meta?.categories && source.meta.categories.length > 0 && (
         <LayerCategories categories={source.meta.categories} />
       )}
       
-      {/* Attribution Display */}
-      <LayerAttributionDisplay source={source} />
+      {/* Legend Display */}
+      <LayerLegendDisplay source={source} />
 
       {/* Only show data source display for non-swipe layers */}
       {!isSwipeLayer && (
