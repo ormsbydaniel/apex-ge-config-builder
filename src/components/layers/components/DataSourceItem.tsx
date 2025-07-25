@@ -103,6 +103,13 @@ const DataSourceItem = ({
           </Tooltip>
         </TooltipProvider>
         
+        {/* Date pill for temporal layers */}
+        {hasTimestamps && timeframe !== 'None' && dataSource.timestamps && dataSource.timestamps[0] && (
+          <Badge variant="secondary" className="text-xs flex-shrink-0 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+            {formatTimestampForTimeframe(dataSource.timestamps[0], timeframe)}
+          </Badge>
+        )}
+        
         <span className="text-xs text-gray-500 flex-shrink-0">
           Z: {getZIndex()}
         </span>
