@@ -29,8 +29,8 @@ const LayerCardHeader = ({
   handleEdit
 }: LayerCardHeaderProps) => {
   return <CardHeader className="py-3 relative">
-      {/* Badge and Actions positioned to align with layer name only */}
-      <div className="absolute top-[18px] -translate-y-1/2 right-2 z-10 flex items-center gap-2">
+      {/* Badge and Actions positioned to align with layer name */}
+      <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
         <LayerBadge source={source} />
         <LayerActions index={index} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
       </div>
