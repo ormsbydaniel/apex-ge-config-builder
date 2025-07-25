@@ -8,12 +8,17 @@ interface LayerControlsDisplayProps {
 
 const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const controls = source.layout?.layerCard?.controls;
+  const timeframe = source.meta?.temporal?.timeframe;
   
-  if (!controls || (!controls.opacitySlider && !controls.zoomToCenter)) return null;
+  const hasControls = controls && (controls.opacitySlider || controls.zoomToCenter);
+  const hasTimeframe = timeframe && timeframe !== 'None';
+  
+  if (!hasControls && !hasTimeframe) return null;
 
   const controlsList = [];
-  if (controls.opacitySlider) controlsList.push('Opacity Slider');
-  if (controls.zoomToCenter) controlsList.push('Zoom to Center');
+  if (controls?.opacitySlider) controlsList.push('Opacity Slider');
+  if (controls?.zoomToCenter) controlsList.push('Zoom to Center');
+  if (hasTimeframe) controlsList.push(`Time: ${timeframe}`);
 
   return (
     <div className="space-y-2">
