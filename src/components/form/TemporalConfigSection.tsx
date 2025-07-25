@@ -26,17 +26,17 @@ const TemporalConfigSection = ({
   );
 
   const handleTimeframeChange = (newTimeframe: TimeframeType) => {
-    onUpdate('temporal.timeframe', newTimeframe);
+    onUpdate('timeframe', newTimeframe);
     
     // If switching to 'None', clear the default timestamp
     if (newTimeframe === 'None') {
-      onUpdate('temporal.defaultTimestamp', undefined);
+      onUpdate('defaultTimestamp', undefined);
       setSelectedDate(undefined);
     } else if (!defaultTimestamp) {
       // If switching from 'None' to a temporal timeframe, set current date
       const now = new Date();
       const representativeTimestamp = getRepresentativeTimestamp(now, newTimeframe);
-      onUpdate('temporal.defaultTimestamp', representativeTimestamp);
+      onUpdate('defaultTimestamp', representativeTimestamp);
       setSelectedDate(timestampToDate(representativeTimestamp));
     }
   };
@@ -44,11 +44,11 @@ const TemporalConfigSection = ({
   const handleDateSelect = (date: Date | undefined) => {
     if (date && timeframe !== 'None') {
       const representativeTimestamp = getRepresentativeTimestamp(date, timeframe);
-      onUpdate('temporal.defaultTimestamp', representativeTimestamp);
+      onUpdate('defaultTimestamp', representativeTimestamp);
       setSelectedDate(timestampToDate(representativeTimestamp));
     } else {
       setSelectedDate(date);
-      onUpdate('temporal.defaultTimestamp', date ? dateToTimestamp(date) : undefined);
+      onUpdate('defaultTimestamp', date ? dateToTimestamp(date) : undefined);
     }
   };
 
