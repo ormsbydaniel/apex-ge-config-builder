@@ -126,13 +126,6 @@ const UnifiedBasicInfoSection = ({
         </div>
       )}
 
-      {(timeframe !== undefined) && (
-        <TemporalConfigSection
-          timeframe={timeframe || 'None'}
-          defaultTimestamp={defaultTimestamp}
-          onUpdate={onUpdate}
-        />
-      )}
     </div>
   );
 };

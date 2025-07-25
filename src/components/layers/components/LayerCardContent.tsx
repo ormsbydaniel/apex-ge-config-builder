@@ -7,6 +7,7 @@ import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
 import LayerLegendDisplay from './LayerLegendDisplay';
 import LayerControlsDisplay from './LayerControlsDisplay';
+import TimeDimensionDisplay from './TimeDimensionDisplay';
 import RegularLayerContent from './RegularLayerContent';
 import LayerAttributionDisplay from './LayerAttributionDisplay';
 
@@ -46,6 +47,9 @@ const LayerCardContent = ({
 
       {/* Controls Display */}
       <LayerControlsDisplay source={source} />
+
+      {/* Time Dimension Display */}
+      <TimeDimensionDisplay source={source} />
 
       {/* Only show data source display for non-swipe layers */}
       {!isSwipeLayer && (

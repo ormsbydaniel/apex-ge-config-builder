@@ -15,6 +15,7 @@ import UnifiedAttributionSection from '@/components/form/UnifiedAttributionSecti
 import UnifiedCategoriesSection from '@/components/form/UnifiedCategoriesSection';
 import UnifiedLegendTypeSection from '@/components/form/UnifiedLegendTypeSection';
 import UnifiedControlsSection from '@/components/form/UnifiedControlsSection';
+import UnifiedTimePeriodSection from '@/components/form/UnifiedTimePeriodSection';
 import LayerTypeRadioGroup from '@/components/form/LayerTypeRadioGroup';
 import PositionEditor from '@/components/form/PositionEditor';
 
@@ -208,6 +209,13 @@ const LayerCardForm = ({
               toggleable={formData.toggleable}
               opacitySlider={formData.opacitySlider}
               zoomToCenter={(formData as any).zoomToCenter || false}
+              timeframe={formData.timeframe || 'None'}
+              onUpdate={updateFormData}
+            />
+
+            <UnifiedTimePeriodSection
+              timeframe={formData.timeframe || 'None'}
+              defaultTimestamp={formData.defaultTimestamp}
               onUpdate={updateFormData}
             />
 
