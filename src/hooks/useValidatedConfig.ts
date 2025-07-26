@@ -115,8 +115,11 @@ export const useValidatedConfig = () => {
                 } : undefined,
                 controls: source.layout.layerCard.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
                   ? {
-                      opacitySlider: source.layout.layerCard.controls.opacitySlider,
-                      zoomToCenter: source.layout.layerCard.controls.zoomToCenter
+                      opacitySlider: (source.layout.layerCard.controls as any).opacitySlider,
+                      zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
+                      ...((source.layout.layerCard.controls as any).download && {
+                        download: (source.layout.layerCard.controls as any).download
+                      })
                     }
                   : { opacitySlider: true },
                 showStatistics: source.layout.layerCard.showStatistics
@@ -178,8 +181,11 @@ export const useValidatedConfig = () => {
           } : undefined,
           controls: source.layout?.layerCard?.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
             ? {
-                opacitySlider: source.layout.layerCard.controls.opacitySlider,
-                zoomToCenter: source.layout.layerCard.controls.zoomToCenter
+                opacitySlider: (source.layout.layerCard.controls as any).opacitySlider,
+                zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
+                ...((source.layout.layerCard.controls as any).download && {
+                  download: (source.layout.layerCard.controls as any).download
+                })
               }
             : { opacitySlider: true },
           showStatistics: source.layout?.layerCard?.showStatistics
