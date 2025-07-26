@@ -224,6 +224,8 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         })
       };
       console.log('Adding source with sanitized URLs:', sanitizedSource);
+      console.log('Source layout:', sanitizedSource.layout);
+      console.log('LayerCard controls:', sanitizedSource.layout?.layerCard?.controls);
       return {
         ...state,
         sources: [...state.sources, sanitizedSource],
