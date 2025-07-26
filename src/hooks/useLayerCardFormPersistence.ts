@@ -12,6 +12,7 @@ interface LayerCardFormData {
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
+  download?: string;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -49,6 +50,7 @@ export const useLayerCardFormPersistence = (
         toggleable: editingLayer.layout?.layerCard?.toggleable || false,
         opacitySlider: editingLayer.layout?.layerCard?.controls?.opacitySlider || false,
         zoomToCenter: (editingLayer.layout?.layerCard?.controls as any)?.zoomToCenter || false,
+        download: (editingLayer.layout?.layerCard?.controls as any)?.download || '',
         legendType: editingLayer.layout?.layerCard?.legend?.type || 'swatch',
         legendUrl: editingLayer.layout?.layerCard?.legend?.url || '',
         startColor: editingLayer.meta?.startColor || '#000000',
@@ -89,6 +91,7 @@ export const useLayerCardFormPersistence = (
       toggleable: false,
       opacitySlider: false,
       zoomToCenter: false,
+      download: '',
       legendType: 'swatch',
       legendUrl: '',
       startColor: '#000000',
