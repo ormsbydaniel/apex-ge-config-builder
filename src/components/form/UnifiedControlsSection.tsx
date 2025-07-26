@@ -36,8 +36,8 @@ const UnifiedControlsSection = ({
       <h4 className="font-medium">Layer Card Controls</h4>
       
       <div className="flex items-center gap-6">
-        <div className="flex items-center justify-between space-x-2 min-w-[160px]">
-          <Label htmlFor="toggleable" className="min-w-[110px]">Toggleable:</Label>
+        <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+          <Label htmlFor="toggleable" className="min-w-[90px]">Toggleable:</Label>
           <Switch
             id="toggleable"
             checked={toggleable}
@@ -45,8 +45,8 @@ const UnifiedControlsSection = ({
           />
         </div>
         
-        <div className="flex items-center justify-between space-x-2 min-w-[160px]">
-          <Label htmlFor="zoomToCenter" className="min-w-[110px]">Zoom to layer:</Label>
+        <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+          <Label htmlFor="zoomToCenter" className="min-w-[90px]">Zoom to layer:</Label>
           <Switch
             id="zoomToCenter"
             checked={zoomToCenter}
@@ -54,8 +54,8 @@ const UnifiedControlsSection = ({
           />
         </div>
         
-        <div className="flex items-center justify-between space-x-2 min-w-[160px]">
-          <Label htmlFor="download" className="min-w-[110px]">Download:</Label>
+        <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+          <Label htmlFor="download" className="min-w-[90px]">Download:</Label>
           <Switch
             id="download"
             checked={!!download}
@@ -63,8 +63,8 @@ const UnifiedControlsSection = ({
           />
         </div>
         
-        <div className="flex items-center justify-between space-x-2 min-w-[160px]">
-          <Label htmlFor="opacitySlider" className="min-w-[110px]">Opacity Slider:</Label>
+        <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+          <Label htmlFor="opacitySlider" className="min-w-[90px]">Opacity Slider:</Label>
           <Switch
             id="opacitySlider"
             checked={opacitySlider}
