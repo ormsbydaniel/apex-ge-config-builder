@@ -195,13 +195,26 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       };
     }
     case 'ADD_SOURCE': {
-      // Sanitize URLs and ensure data is array, preserve statistics
+      // Sanitize URLs and ensure data is array, preserve statistics and controls
       const sanitizedSource = {
         ...action.payload,
         data: action.payload.data.map(item => ({
           ...item,
           url: item.url ? sanitizeUrl(item.url) : item.url
         })),
+        // Sanitize download URL in controls if it exists
+        ...(action.payload.layout?.layerCard?.controls?.download && {
+          layout: {
+            ...action.payload.layout,
+            layerCard: {
+              ...action.payload.layout.layerCard,
+              controls: {
+                ...action.payload.layout.layerCard.controls,
+                download: sanitizeUrl(action.payload.layout.layerCard.controls.download)
+              }
+            }
+          }
+        }),
         // Sanitize statistics URLs if they exist
         ...(action.payload.statistics && {
           statistics: action.payload.statistics.map(item => ({
