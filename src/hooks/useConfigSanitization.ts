@@ -16,11 +16,10 @@ export const useConfigSanitization = (config: any) => {
       url: sanitizeUrl(service.url)
     })) || [],
     sources: config.sources?.map((source: any) => {
-      console.log('Processing source:', source.name);
-      console.log('Source layout:', source.layout);
-      console.log('LayerCard controls:', source.layout?.layerCard?.controls);
+      console.log('Processing source in sanitization hook:', source.name);
+      console.log('Source controls before sanitization:', source.layout?.layerCard?.controls);
       
-      return {
+      const result = {
         ...source,
         layout: {
           ...source.layout,
@@ -49,6 +48,9 @@ export const useConfigSanitization = (config: any) => {
           url: item.url ? sanitizeUrl(item.url) : item.url
         }))
       };
+      
+      console.log('Result after sanitization:', result.layout?.layerCard?.controls);
+      return result;
     }) || [],
     };
   }, [config]);
