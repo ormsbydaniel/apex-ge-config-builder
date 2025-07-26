@@ -97,6 +97,9 @@ const LayerCardForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submission - formData:', formData);
+    console.log('Form submission - download field:', (formData as any).download);
+    
     if (!validateForm(formData)) {
       return;
     }
@@ -104,6 +107,7 @@ const LayerCardForm = ({
     // Create layer with layer type flags
     let layerCard = createLayerFromFormData({
       ...formData,
+      download: (formData as any).download,
       categories: processedCategories || [],
       timeframe: formData.timeframe,
       defaultTimestamp: formData.defaultTimestamp

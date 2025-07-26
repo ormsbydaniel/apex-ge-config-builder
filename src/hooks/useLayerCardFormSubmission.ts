@@ -34,6 +34,8 @@ export const useLayerCardFormSubmission = (
   const { toast } = useToast();
 
   const createLayerFromFormData = (formData: SubmissionFormData): DataSource => {
+    console.log('Form data received in submission:', formData);
+    console.log('Download field:', formData.download);
     // Process categories to ensure they have the required value property
     const processedCategories = formData.categories?.map((cat, index) => ({
       label: cat.label || '',
@@ -53,6 +55,8 @@ export const useLayerCardFormSubmission = (
       zoomToCenter: formData.zoomToCenter,
       ...(formData.download && formData.download.trim() && { download: formData.download.trim() })
     };
+    
+    console.log('Controls object:', controlsObject);
 
     // Prepare meta object with gradient fields if needed
     const metaObject = {
@@ -96,6 +100,8 @@ export const useLayerCardFormSubmission = (
       statistics: editingLayer?.statistics
     };
 
+    console.log('Final layer card:', layerCard);
+    
     return layerCard;
   };
 
