@@ -4,8 +4,10 @@ import { sanitizeUrl } from '@/utils/urlSanitizer';
 
 export const useConfigSanitization = (config: any) => {
   const sanitizedConfig = useMemo(() => {
+    console.log('=== SANITIZATION HOOK RUNNING ===');
     console.log('useConfigSanitization running with config:', config);
     console.log('Config sources:', config.sources);
+    console.log('First source controls:', config.sources?.[0]?.layout?.layerCard?.controls);
     return {
     version: '1.0.0',
     layout: config.layout,
