@@ -37,7 +37,7 @@ const UnifiedControlsSection = ({
       
       <div className="flex items-center gap-6">
         <div className="flex items-center justify-between space-x-2 min-w-[140px]">
-          <Label htmlFor="toggleable" className="min-w-[90px]">Toggleable:</Label>
+          <Label htmlFor="toggleable" className="min-w-[70px]">Toggleable:</Label>
           <Switch
             id="toggleable"
             checked={toggleable}
@@ -55,7 +55,7 @@ const UnifiedControlsSection = ({
         </div>
         
         <div className="flex items-center justify-between space-x-2 min-w-[140px]">
-          <Label htmlFor="download" className="min-w-[90px]">Download:</Label>
+          <Label htmlFor="download" className="min-w-[65px]">Download:</Label>
           <Switch
             id="download"
             checked={!!download}
