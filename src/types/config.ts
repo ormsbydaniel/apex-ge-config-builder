@@ -108,6 +108,7 @@ export interface DataSourceLayout {
     controls?: {
       opacitySlider?: boolean;
       zoomToCenter?: boolean;
+      download?: string;
     };
     showStatistics?: boolean;
   };

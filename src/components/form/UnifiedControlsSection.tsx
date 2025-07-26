@@ -2,12 +2,14 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { TimeframeType } from '@/types/config';
 
 interface UnifiedControlsSectionProps {
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
+  download: string;
   timeframe: TimeframeType;
   onUpdate: (field: string, value: any) => void;
 }
@@ -16,6 +18,7 @@ const UnifiedControlsSection = ({
   toggleable,
   opacitySlider,
   zoomToCenter,
+  download,
   timeframe,
   onUpdate
 }: UnifiedControlsSectionProps) => {
@@ -52,6 +55,15 @@ const UnifiedControlsSection = ({
         </div>
         
         <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+          <Label htmlFor="download">Download:</Label>
+          <Switch
+            id="download"
+            checked={!!download}
+            onCheckedChange={(value) => onUpdate('download', value ? '' : undefined)}
+          />
+        </div>
+        
+        <div className="flex items-center justify-between space-x-2 min-w-[140px]">
           <Label htmlFor="opacitySlider">Opacity Slider:</Label>
           <Switch
             id="opacitySlider"
@@ -75,6 +87,18 @@ const UnifiedControlsSection = ({
           </Select>
         </div>
       </div>
+      
+      {download !== undefined && (
+        <div className="space-y-2">
+          <Label htmlFor="downloadUrl">Download URL</Label>
+          <Input
+            id="downloadUrl"
+            value={download}
+            onChange={(e) => onUpdate('download', e.target.value)}
+            placeholder="https://example.com/download-file.csv"
+          />
+        </div>
+      )}
     </div>
   );
 };

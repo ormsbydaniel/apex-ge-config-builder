@@ -209,6 +209,7 @@ const LayerCardForm = ({
               toggleable={formData.toggleable}
               opacitySlider={formData.opacitySlider}
               zoomToCenter={(formData as any).zoomToCenter || false}
+              download={(formData as any).download || ''}
               timeframe={formData.timeframe || 'None'}
               onUpdate={updateFormData}
             />
