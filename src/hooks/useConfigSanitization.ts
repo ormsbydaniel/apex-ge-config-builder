@@ -20,12 +20,18 @@ export const useConfigSanitization = (config: any) => {
           layerCard: {
             ...source.layout.layerCard,
             ...(source.layout.layerCard.controls && {
-              controls: {
-                ...source.layout.layerCard.controls,
-                ...(source.layout.layerCard.controls.download && {
-                  download: sanitizeUrl(source.layout.layerCard.controls.download)
-                })
-              }
+              controls: (() => {
+                const originalControls = source.layout.layerCard.controls;
+                console.log('Sanitizing controls for', source.name, ':', originalControls);
+                const sanitizedControls = {
+                  ...originalControls,
+                  ...(originalControls.download && {
+                    download: sanitizeUrl(originalControls.download)
+                  })
+                };
+                console.log('Sanitized controls:', sanitizedControls);
+                return sanitizedControls;
+              })()
             })
           }
         })
