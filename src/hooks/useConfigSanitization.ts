@@ -3,7 +3,10 @@ import { useMemo } from 'react';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
 
 export const useConfigSanitization = (config: any) => {
-  const sanitizedConfig = useMemo(() => ({
+  const sanitizedConfig = useMemo(() => {
+    console.log('useConfigSanitization running with config:', config);
+    console.log('Config sources:', config.sources);
+    return {
     version: '1.0.0',
     layout: config.layout,
     interfaceGroups: config.interfaceGroups,
@@ -47,7 +50,8 @@ export const useConfigSanitization = (config: any) => {
         }))
       };
     }) || [],
-  }), [config]);
+    };
+  }, [config]);
 
   const configJson = useMemo(() => 
     JSON.stringify(sanitizedConfig, null, 2), 
