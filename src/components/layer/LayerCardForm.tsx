@@ -97,9 +97,6 @@ const LayerCardForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Form submission - formData:', formData);
-    console.log('Form submission - download field:', (formData as any).download);
-    
     if (!validateForm(formData)) {
       return;
     }
