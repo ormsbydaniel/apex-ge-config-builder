@@ -43,7 +43,7 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="max-w-xs break-all">{controls.download}</p>
+                <p className="max-w-xs break-all">{controls?.download || '?'}</p>
               </TooltipContent>
             </Tooltip>
           )}
