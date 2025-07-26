@@ -202,19 +202,21 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           ...item,
           url: item.url ? sanitizeUrl(item.url) : item.url
         })),
-        // Sanitize download URL in controls if it exists
-        ...(action.payload.layout?.layerCard?.controls?.download && {
-          layout: {
-            ...action.payload.layout,
+        // Preserve layout structure completely, including controls
+        layout: {
+          ...action.payload.layout,
+          ...(action.payload.layout?.layerCard && {
             layerCard: {
               ...action.payload.layout.layerCard,
               controls: {
                 ...action.payload.layout.layerCard.controls,
-                download: sanitizeUrl(action.payload.layout.layerCard.controls.download)
+                ...(action.payload.layout.layerCard.controls?.download && {
+                  download: sanitizeUrl(action.payload.layout.layerCard.controls.download)
+                })
               }
             }
-          }
-        }),
+          })
+        },
         // Sanitize statistics URLs if they exist
         ...(action.payload.statistics && {
           statistics: action.payload.statistics.map(item => ({
