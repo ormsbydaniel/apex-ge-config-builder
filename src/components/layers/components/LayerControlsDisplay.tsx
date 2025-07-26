@@ -12,6 +12,10 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const toggleable = source.layout?.layerCard?.toggleable;
   const timeframe = source.meta?.timeframe;
   
+  console.log('LayerControlsDisplay - source name:', source.name);
+  console.log('LayerControlsDisplay - controls:', controls);
+  console.log('LayerControlsDisplay - download value:', controls?.download);
+  
   const hasControls = controls && (controls.opacitySlider || controls.zoomToCenter || controls.download);
   const hasTimeframe = timeframe && timeframe !== 'None';
   const hasToggleable = toggleable;
