@@ -58,7 +58,7 @@ const UnifiedControlsSection = ({
           <Label htmlFor="download" className="min-w-[65px]">Download:</Label>
           <Switch
             id="download"
-            checked={!!download}
+            checked={download !== undefined}
             onCheckedChange={(value) => onUpdate('download', value ? '' : undefined)}
           />
         </div>
@@ -90,12 +90,13 @@ const UnifiedControlsSection = ({
       
       {download !== undefined && (
         <div className="space-y-2">
-          <Label htmlFor="downloadUrl">Download URL</Label>
+          <Label htmlFor="downloadUrl">Download URL *</Label>
           <Input
             id="downloadUrl"
-            value={download}
+            value={download || ''}
             onChange={(e) => onUpdate('download', e.target.value)}
             placeholder="https://example.com/download-file.csv"
+            required
           />
         </div>
       )}
