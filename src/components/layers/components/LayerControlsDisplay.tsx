@@ -44,15 +44,15 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
           </Badge>
         ))}
         {hasDownload && (
-          <TooltipProvider>
+          <TooltipProvider delayDuration={100}>
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <Badge variant="outline" className="text-xs border-green-500/30 text-green-600 cursor-help">
                   Download
                 </Badge>
               </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs break-all">
+              <TooltipContent side="top">
+                <p className="max-w-xs break-all text-sm">
                   {controls?.download || 'No URL configured'}
                 </p>
               </TooltipContent>
