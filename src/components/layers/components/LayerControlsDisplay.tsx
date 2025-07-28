@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DataSource } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -20,6 +20,11 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const hasTimeframe = timeframe && timeframe !== 'None';
   const hasToggleable = toggleable;
   const hasDownload = controls?.download !== undefined;
+  
+  useEffect(() => {
+    console.log('LayerControlsDisplay - hasDownload:', hasDownload);
+    console.log('LayerControlsDisplay - download URL for tooltip:', controls?.download);
+  }, [hasDownload, controls?.download]);
   
   if (!hasControls && !hasTimeframe && !hasToggleable) return null;
 
@@ -47,7 +52,9 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="max-w-xs break-all">{controls?.download || 'No URL configured'}</p>
+                <p className="max-w-xs break-all">
+                  {controls?.download || 'No URL configured'}
+                </p>
               </TooltipContent>
             </Tooltip>
           )}
