@@ -60,9 +60,13 @@ const UnifiedControlsSection = ({
             id="download"
             checked={download !== undefined}
             onCheckedChange={(value) => {
+              console.log('Download toggle clicked:', value);
+              console.log('Current download value:', download);
               if (value) {
+                console.log('Setting download to empty string');
                 onUpdate('download', '');
               } else {
+                console.log('Setting download to undefined');
                 onUpdate('download', undefined);
               }
             }}
