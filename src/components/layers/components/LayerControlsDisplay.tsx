@@ -35,16 +35,16 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   if (hasTimeframe) controlsList.push(`Time: ${timeframe}`);
 
   return (
-    <TooltipProvider>
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium text-gray-700">Controls</h4>
-        <div className="flex flex-wrap gap-1">
-          {controlsList.map((control, index) => (
-            <Badge key={index} variant="outline" className="text-xs border-blue-500/30 text-blue-600">
-              {control}
-            </Badge>
-          ))}
-          {hasDownload && (
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-gray-700">Controls</h4>
+      <div className="flex flex-wrap gap-1">
+        {controlsList.map((control, index) => (
+          <Badge key={index} variant="outline" className="text-xs border-blue-500/30 text-blue-600">
+            {control}
+          </Badge>
+        ))}
+        {hasDownload && (
+          <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge variant="outline" className="text-xs border-green-500/30 text-green-600 cursor-help">
@@ -57,10 +57,10 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
                 </p>
               </TooltipContent>
             </Tooltip>
-          )}
-        </div>
+          </TooltipProvider>
+        )}
       </div>
-    </TooltipProvider>
+    </div>
   );
 };
 
