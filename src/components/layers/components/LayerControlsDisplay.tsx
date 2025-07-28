@@ -19,7 +19,7 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const hasControls = controls && (controls.opacitySlider || controls.zoomToCenter || controls.download);
   const hasTimeframe = timeframe && timeframe !== 'None';
   const hasToggleable = toggleable;
-  const hasDownload = controls?.download;
+  const hasDownload = controls?.download !== undefined;
   
   if (!hasControls && !hasTimeframe && !hasToggleable) return null;
 
@@ -47,7 +47,7 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="max-w-xs break-all">{controls?.download || '?'}</p>
+                <p className="max-w-xs break-all">{controls?.download || 'No URL configured'}</p>
               </TooltipContent>
             </Tooltip>
           )}
