@@ -59,7 +59,13 @@ const UnifiedControlsSection = ({
           <Switch
             id="download"
             checked={download !== undefined}
-            onCheckedChange={(value) => onUpdate('download', value ? '' : undefined)}
+            onCheckedChange={(value) => {
+              if (value) {
+                onUpdate('download', '');
+              } else {
+                onUpdate('download', undefined);
+              }
+            }}
           />
         </div>
         
