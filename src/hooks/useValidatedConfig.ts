@@ -94,13 +94,7 @@ export const useValidatedConfig = () => {
                   ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
               }
             }),
-            // Handle temporal configuration - preserve flat fields if they exist
-            ...((source.meta as any).timeframe && (source.meta as any).timeframe !== 'None' && {
-              timeframe: (source.meta as any).timeframe,
-              ...((source.meta as any).defaultTimestamp !== undefined && { 
-                defaultTimestamp: (source.meta as any).defaultTimestamp 
-              })
-            })
+            // Temporal configuration is now at top level - no need to move from meta
           }
         }),
         ...(source.layout && {
@@ -159,13 +153,7 @@ export const useValidatedConfig = () => {
             ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
         }
       }),
-      // Handle temporal configuration - preserve flat fields if they exist
-      ...((source.meta as any)?.timeframe && (source.meta as any).timeframe !== 'None' && {
-        timeframe: (source.meta as any).timeframe,
-        ...((source.meta as any).defaultTimestamp !== undefined && { 
-          defaultTimestamp: (source.meta as any).defaultTimestamp 
-        })
-      })
+      // Temporal configuration is now at top level - no need to move from meta
     };
 
     return {

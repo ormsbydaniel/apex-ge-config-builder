@@ -70,19 +70,20 @@ export const useLayerCardFormSubmission = (
         min: parseFloat(formData.minValue),
         max: parseFloat(formData.maxValue)
       }),
-      // Add temporal configuration if timeframe is not 'None'
-      ...(formData.timeframe !== 'None' && {
-        timeframe: formData.timeframe,
-        ...(formData.defaultTimestamp !== undefined && { 
-          defaultTimestamp: formData.defaultTimestamp 
-        })
-      })
+      // Remove temporal configuration from meta - it's now at top level
     };
 
     const layerCard: DataSource = {
       name: formData.name.trim(),
       isActive: (formData as any).isActive || editingLayer?.isActive || false,
       hasFeatureStatistics: formData.hasFeatureStatistics || undefined,
+      // Add temporal configuration at top level if timeframe is not 'None'
+      ...(formData.timeframe !== 'None' && {
+        timeframe: formData.timeframe,
+        ...(formData.defaultTimestamp !== undefined && { 
+          defaultTimestamp: formData.defaultTimestamp 
+        })
+      }),
       meta: metaObject,
       layout: {
         interfaceGroup: formData.interfaceGroup || undefined,

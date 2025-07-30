@@ -10,7 +10,7 @@ interface LayerControlsDisplayProps {
 const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const controls = source.layout?.layerCard?.controls;
   const toggleable = source.layout?.layerCard?.toggleable;
-  const timeframe = source.meta?.timeframe;
+  const timeframe = source.timeframe;
   
   console.log('LayerControlsDisplay - source name:', source.name);
   console.log('LayerControlsDisplay - controls:', controls);

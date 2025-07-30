@@ -64,8 +64,8 @@ export const useLayerCardFormState = ({
         hasFeatureStatistics: editingLayer.hasFeatureStatistics || false,
         isActive: editingLayer.isActive || false,
         layerType,
-        timeframe: editingLayer.meta?.timeframe || 'None',
-        defaultTimestamp: editingLayer.meta?.defaultTimestamp
+        timeframe: editingLayer.timeframe || 'None',
+        defaultTimestamp: editingLayer.defaultTimestamp
       };
     }
 

@@ -8,7 +8,7 @@ interface TimeDimensionDisplayProps {
 }
 
 const TimeDimensionDisplay = ({ source }: TimeDimensionDisplayProps) => {
-  const timeframe = source.meta?.timeframe;
+  const timeframe = source.timeframe;
   
   if (!timeframe || timeframe === 'None') return null;
 

@@ -122,6 +122,9 @@ interface BaseDataSource {
   statistics?: DataSourceItem[]; // Add statistics array
   hasFeatureStatistics?: boolean;
   isBaseLayer?: boolean; // Add isBaseLayer as optional to base interface
+  // Temporal configuration at top level
+  timeframe?: TimeframeType;
+  defaultTimestamp?: number;
 }
 
 // Base layer type (meta and layout are optional, isBaseLayer is required)
