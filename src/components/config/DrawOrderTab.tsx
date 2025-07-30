@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowUpDown } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { useDrawOrderData } from '@/hooks/useDrawOrderData';
 import { useTableSelection } from '@/hooks/useTableSelection';
@@ -63,7 +64,10 @@ const DrawOrderTab = ({ config, updateConfig }: DrawOrderTabProps) => {
     <div className="space-y-6">
       <Card className="border-primary/20">
         <CardHeader>
-          <CardTitle className="text-primary">Draw Order Configuration</CardTitle>
+          <CardTitle className="text-primary flex items-center gap-2">
+            <ArrowUpDown className="h-5 w-5" />
+            Draw Order Configuration
+          </CardTitle>
           <CardDescription>
             Data is drawn on the map in "Z" level order with the lowest numbers drawn first and higher numbers drawn on top and appearing in front. A continuous sequence (0, 1, 2, 3 etc) is not necessary and sequences with gaps (e.g. 5, 10, 20, 21, 22, 50) is fine and allows other layers to be added in the middle of the drawing sequence.
           </CardDescription>

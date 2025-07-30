@@ -58,7 +58,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
         <CardHeader>
           <CardTitle className="flex items-center justify-between text-primary">
             <div className="flex items-center gap-2">
-              <Server className="h-5 w-5" />
+              <Globe className="h-5 w-5" />
               Configured Services
             </div>
             <Button 
