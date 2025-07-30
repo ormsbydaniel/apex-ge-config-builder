@@ -278,18 +278,6 @@ const DataSourceForm = ({
             <div className="grid grid-cols-2 gap-4">
               <Card 
                 className={`cursor-pointer transition-colors ${
-                  sourceType === 'service' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                }`}
-                onClick={() => setSourceType('service')}
-              >
-                <CardContent className="p-4 text-center">
-                  <Globe className="h-6 w-6 mx-auto mb-2" />
-                  <div className="font-medium">From Service</div>
-                  <div className="text-sm text-muted-foreground">Use configured service</div>
-                </CardContent>
-              </Card>
-              <Card 
-                className={`cursor-pointer transition-colors ${
                   sourceType === 'direct' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
                 }`}
                 onClick={() => setSourceType('direct')}
@@ -298,6 +286,18 @@ const DataSourceForm = ({
                   <Database className="h-6 w-6 mx-auto mb-2" />
                   <div className="font-medium">Direct Connection</div>
                   <div className="text-sm text-muted-foreground">Provide URL directly</div>
+                </CardContent>
+              </Card>
+              <Card 
+                className={`cursor-pointer transition-colors ${
+                  sourceType === 'service' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                }`}
+                onClick={() => setSourceType('service')}
+              >
+                <CardContent className="p-4 text-center">
+                  <Globe className="h-6 w-6 mx-auto mb-2" />
+                  <div className="font-medium">From Service</div>
+                  <div className="text-sm text-muted-foreground">Use configured service</div>
                 </CardContent>
               </Card>
             </div>
