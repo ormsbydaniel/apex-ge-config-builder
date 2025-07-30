@@ -44,8 +44,8 @@ const DataSourceForm = ({
   const { toast } = useToast();
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct'>('service');
-  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('wms');
+  const [sourceType, setSourceType] = useState<'service' | 'direct'>('direct');
+  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('cog');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedLayer, setSelectedLayer] = useState('');
   const [directUrl, setDirectUrl] = useState('');
