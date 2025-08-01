@@ -73,6 +73,8 @@ export const DataSourceItemSchema = z.object({
   // Zoom level constraints
   minZoom: z.number().optional(),
   maxZoom: z.number().optional(),
+  // Temporal fields for data items
+  timestamps: z.array(z.number()).optional(),
 }).refine(
   (data) => {
     // Either url or images array must be present
@@ -172,6 +174,9 @@ const BaseDataSourceObjectSchema = z.object({
   isSwipeLayer: z.boolean().optional(),
   isMirrorLayer: z.boolean().optional(),
   isSpotlightLayer: z.boolean().optional(),
+  // Temporal configuration fields
+  timeframe: z.enum(['None', 'Days', 'Months', 'Years']).optional(),
+  defaultTimestamp: z.number().optional(),
 });
 
 // Apply refinement to create the actual BaseDataSourceSchema
