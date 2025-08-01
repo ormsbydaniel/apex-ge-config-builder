@@ -2,11 +2,12 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { DataSource, isDataSourceItemArray } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service } from '@/types/config';
 import DataSourceItem from './DataSourceItem';
 
 interface DataSourceDisplayProps {
   source: DataSource;
+  services?: Service[];
   onAddDataSource?: () => void;
   onRemoveDataSource: (dataSourceIndex: number) => void;
   onRemoveStatisticsSource?: (statsIndex: number) => void;
@@ -16,6 +17,7 @@ interface DataSourceDisplayProps {
 
 const DataSourceDisplay = ({
   source,
+  services = [],
   onAddDataSource,
   onRemoveDataSource,
   onRemoveStatisticsSource,
@@ -59,6 +61,7 @@ const DataSourceDisplay = ({
                 onRemove={onRemoveDataSource}
                 showPosition={isSwipeLayer}
                 timeframe={timeframe}
+                services={services}
               />
             ))}
           </div>
@@ -86,6 +89,7 @@ const DataSourceDisplay = ({
                 showPosition={isSwipeLayer}
                 showStatsLevel={true}
                 timeframe={timeframe}
+                services={services}
               />
             ))}
           </div>

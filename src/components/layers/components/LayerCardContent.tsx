@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { CardContent } from '@/components/ui/card';
-import { DataSource, isDataSourceItemArray } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service } from '@/types/config';
+import { useConfig } from '@/contexts/ConfigContext';
 import LayerMetadata from './LayerMetadata';
 import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
@@ -27,6 +28,7 @@ const LayerCardContent = ({
   onEditDataSource,
   onEditStatisticsSource
 }: LayerCardContentProps) => {
+  const { config } = useConfig();
   const isSwipeLayer = source.meta?.swipeConfig !== undefined;
 
   return (
@@ -52,6 +54,7 @@ const LayerCardContent = ({
       {!isSwipeLayer && (
         <RegularLayerContent
           source={source}
+          services={(config.services || []) as Service[]}
           onAddDataSource={onAddDataSource}
           onRemoveDataSource={onRemoveDataSource}
           onRemoveStatisticsSource={onRemoveStatisticsSource}
