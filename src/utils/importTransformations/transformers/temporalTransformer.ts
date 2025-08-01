@@ -94,7 +94,19 @@ export const preserveTemporalFields = (config: any, apply: boolean = false): any
     });
   }
   
-  console.log('Temporal fields preservation complete');
+  
+  console.log('🕐 TEMPORAL TRANSFORMER: Final result - source 49 after transformation:');
+  const source49 = transformedConfig.sources?.find((s: any) => s.name?.includes('TIMEFRAME & TIMESTAMPS'));
+  if (source49) {
+    console.log('🕐 TEMPORAL TRANSFORMER: Final source 49:', {
+      name: source49.name,
+      timeframe: source49.timeframe,
+      data: source49.data,
+      metaTemporal: source49.meta?.temporal
+    });
+  }
+  
+  console.log('🕐 TEMPORAL TRANSFORMER: Temporal fields preservation complete');
   return transformedConfig;
 };
 
