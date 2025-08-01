@@ -49,6 +49,17 @@ export const preserveTemporalFields = (config: any, apply: boolean = false): any
         preservedSource.defaultTimestamp = defaultTimestamp;
       }
       
+      // Handle timestamps in data array items
+      if (preservedSource.data && Array.isArray(preservedSource.data)) {
+        preservedSource.data = preservedSource.data.map((dataItem: any) => {
+          if (dataItem.timestamps) {
+            // Preserve timestamps in data items
+            return { ...dataItem };
+          }
+          return dataItem;
+        });
+      }
+      
       // Also ensure meta.temporal structure for schema compliance
       if (timeframe || defaultTimestamp !== undefined) {
         if (!preservedSource.meta) {
