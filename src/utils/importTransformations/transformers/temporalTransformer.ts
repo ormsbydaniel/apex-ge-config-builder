@@ -4,16 +4,24 @@
  */
 
 export const preserveTemporalFields = (config: any, apply: boolean = false): any => {
-  if (!apply) return config;
+  if (!apply) {
+    console.log('❌ TEMPORAL TRANSFORMER: Not applying transformation (apply=false)');
+    return config;
+  }
   
-  console.log('Preserving temporal fields during import...');
+  console.log('🕐 TEMPORAL TRANSFORMER: Starting temporal field preservation...');
+  console.log('🕐 TEMPORAL TRANSFORMER: Input config sources count:', config.sources?.length);
   
   // Create a deep copy to avoid mutation
   const transformedConfig = JSON.parse(JSON.stringify(config));
   
   // Ensure temporal fields are preserved at source level and in meta.temporal
   if (transformedConfig.sources && Array.isArray(transformedConfig.sources)) {
-    transformedConfig.sources = transformedConfig.sources.map((source: any) => {
+    transformedConfig.sources = transformedConfig.sources.map((source: any, index: number) => {
+      console.log(`🕐 TEMPORAL TRANSFORMER: Processing source ${index + 1}: "${source.name}"`);
+      console.log(`🕐 TEMPORAL TRANSFORMER: Original source timeframe:`, source.timeframe);
+      console.log(`🕐 TEMPORAL TRANSFORMER: Original source data:`, source.data);
+      
       const preservedSource = { ...source };
       
       // Extract temporal fields from various locations
