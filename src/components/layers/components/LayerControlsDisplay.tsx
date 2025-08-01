@@ -32,7 +32,6 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   if (hasToggleable) controlsList.push('Toggleable');
   if (controls?.zoomToCenter) controlsList.push('Zoom to Center');
   if (controls?.opacitySlider) controlsList.push('Opacity Slider');
-  if (hasTimeframe) controlsList.push(`Time: ${timeframe}`);
 
   return (
     <div className="space-y-2">
@@ -43,6 +42,11 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
             {control}
           </Badge>
         ))}
+        {hasTimeframe && (
+          <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
+            Time: {timeframe}
+          </Badge>
+        )}
         {hasDownload && (
           <TooltipProvider delayDuration={100}>
             <Tooltip>
