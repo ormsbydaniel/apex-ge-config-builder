@@ -73,6 +73,10 @@ const DataSourceForm = ({
   // Date picker state for temporal layers
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const requiresTimestamp = timeframe && timeframe !== 'None';
+  
+  // Check if selected layer has TIME dimension
+  const selectedLayerInfo = selectedService?.capabilities?.layers.find(layer => layer.name === selectedLayer);
+  const hasServiceTimeDimension = selectedLayerInfo?.hasTimeDimension;
 
   const config_format = FORMAT_CONFIGS[selectedFormat];
   const needsPosition = requiresPosition(layerType);
@@ -188,8 +192,8 @@ const DataSourceForm = ({
       return;
     }
 
-    // Validate timestamp for temporal layers
-    if (requiresTimestamp && !selectedDate) {
+    // Validate timestamp for temporal layers (only if no service TIME dimension)
+    if (requiresTimestamp && !hasServiceTimeDimension && !selectedDate) {
       toast({
         title: "Missing Timestamp",
         description: "Please select a timestamp for this temporal layer.",
@@ -206,7 +210,7 @@ const DataSourceForm = ({
       ...(serviceId && { serviceId }),
       ...(needsPosition && selectedPosition && { position: selectedPosition }),
       ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel }),
-      ...(requiresTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] })
+      ...(requiresTimestamp && !hasServiceTimeDimension && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] })
     };
 
     // Call appropriate callback based on statistics layer flag
@@ -533,35 +537,52 @@ const DataSourceForm = ({
                     {/* Timestamp Picker for Temporal Layers */}
                     {requiresTimestamp && (
                       <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                        <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                          Timestamp *
-                        </Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
-                                !selectedDate && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={selectedDate}
-                              onSelect={setSelectedDate}
-                              initialFocus
-                              className={cn("p-3 pointer-events-auto")}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <p className="text-xs text-blue-600 dark:text-blue-400">
-                          This timestamp will be used for temporal data visualization ({timeframe} timeframe).
-                        </p>
+                        {hasServiceTimeDimension ? (
+                          // Show informational message when service layer has TIME dimension
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                              Time Configuration
+                            </Label>
+                            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
+                              <p className="text-sm text-blue-800 dark:text-blue-200">
+                                ✓ Timestamps will be determined from TIME parameter on the source data
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          // Show date picker when no TIME dimension
+                          <div className="space-y-2">
+                            <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                              Timestamp *
+                            </Label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
+                                    !selectedDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={selectedDate}
+                                  onSelect={setSelectedDate}
+                                  initialFocus
+                                  className={cn("p-3 pointer-events-auto")}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <p className="text-xs text-blue-600 dark:text-blue-400">
+                              This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -658,35 +679,38 @@ const DataSourceForm = ({
               {/* Timestamp Picker for Temporal Layers */}
               {requiresTimestamp && (
                 <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                  <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                    Timestamp *
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
-                          !selectedDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">
-                    This timestamp will be used for temporal data visualization ({timeframe} timeframe).
-                  </p>
+                  {/* Direct connections always show date picker since they don't have service TIME dimensions */}
+                  <div className="space-y-2">
+                    <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      Timestamp *
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
+                            !selectedDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                    </p>
+                  </div>
                 </div>
               )}
 

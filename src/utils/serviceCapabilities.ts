@@ -29,39 +29,49 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
 
     const layers: any[] = [];
     
-    if (format === 'wms') {
-      // Fix: Use a more specific selector to avoid duplicates
-      const layerElements = xmlDoc.querySelectorAll('Layer');
-      layerElements.forEach(layer => {
-        const nameElement = layer.querySelector('Name');
-        const titleElement = layer.querySelector('Title');
-        const abstractElement = layer.querySelector('Abstract');
-        
-        // Only add layers that have a Name element (actual layers, not layer groups)
-        if (nameElement?.textContent) {
-          layers.push({
-            name: nameElement.textContent,
-            title: titleElement?.textContent || nameElement.textContent,
-            abstract: abstractElement?.textContent
-          });
-        }
-      });
-    } else if (format === 'wmts') {
-      const layerElements = xmlDoc.querySelectorAll('Layer');
-      layerElements.forEach(layer => {
-        const identifier = layer.querySelector('ows\\:Identifier, Identifier');
-        const title = layer.querySelector('ows\\:Title, Title');
-        const abstract = layer.querySelector('ows\\:Abstract, Abstract');
-        
-        if (identifier?.textContent) {
-          layers.push({
-            name: identifier.textContent,
-            title: title?.textContent || identifier.textContent,
-            abstract: abstract?.textContent
-          });
-        }
-      });
-    }
+      if (format === 'wms') {
+        // Fix: Use a more specific selector to avoid duplicates
+        const layerElements = xmlDoc.querySelectorAll('Layer');
+        layerElements.forEach(layer => {
+          const nameElement = layer.querySelector('Name');
+          const titleElement = layer.querySelector('Title');
+          const abstractElement = layer.querySelector('Abstract');
+          
+          // Check for TIME dimension
+          const timeDimension = layer.querySelector('Dimension[name="time"], Dimension[name="TIME"]');
+          const hasTimeDimension = !!timeDimension;
+          
+          // Only add layers that have a Name element (actual layers, not layer groups)
+          if (nameElement?.textContent) {
+            layers.push({
+              name: nameElement.textContent,
+              title: titleElement?.textContent || nameElement.textContent,
+              abstract: abstractElement?.textContent,
+              hasTimeDimension
+            });
+          }
+        });
+      } else if (format === 'wmts') {
+        const layerElements = xmlDoc.querySelectorAll('Layer');
+        layerElements.forEach(layer => {
+          const identifier = layer.querySelector('ows\\:Identifier, Identifier');
+          const title = layer.querySelector('ows\\:Title, Title');
+          const abstract = layer.querySelector('ows\\:Abstract, Abstract');
+          
+          // Check for TIME dimension in WMTS
+          const timeDimension = layer.querySelector('Dimension[ows\\:Identifier="time"], Dimension[ows\\:Identifier="TIME"], Dimension > ows\\:Identifier');
+          const hasTimeDimension = timeDimension?.textContent?.toLowerCase() === 'time';
+          
+          if (identifier?.textContent) {
+            layers.push({
+              name: identifier.textContent,
+              title: title?.textContent || identifier.textContent,
+              abstract: abstract?.textContent,
+              hasTimeDimension
+            });
+          }
+        });
+      }
 
     return {
       layers: layers, // Remove the .slice(0, 50) limitation

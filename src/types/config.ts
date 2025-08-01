@@ -23,6 +23,7 @@ export interface LayerInfo {
   name: string;
   title?: string;
   abstract?: string;
+  hasTimeDimension?: boolean;
   boundingBox?: {
     minX: number;
     minY: number;
