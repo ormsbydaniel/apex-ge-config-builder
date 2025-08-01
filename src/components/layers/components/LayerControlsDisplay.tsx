@@ -50,7 +50,7 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
         {hasDownload && (
           <TooltipProvider delayDuration={100}>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Badge variant="outline" className="text-xs border-green-500/30 text-green-600 cursor-help">
                   Download
                 </Badge>
