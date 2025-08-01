@@ -41,22 +41,33 @@ export const preserveTemporalFields = (config: any, apply: boolean = false): any
         }
       }
       
-      // Preserve temporal fields at top level for UI compatibility
+      // ALWAYS preserve timeframe field at source level if it exists anywhere
       if (timeframe) {
         preservedSource.timeframe = timeframe;
+        console.log('Preserved timeframe:', timeframe);
       }
       if (defaultTimestamp !== undefined) {
         preservedSource.defaultTimestamp = defaultTimestamp;
+        console.log('Preserved defaultTimestamp:', defaultTimestamp);
       }
       
-      // Handle timestamps in data array items
+      // Handle timestamps in data array items - CRITICAL FIX
       if (preservedSource.data && Array.isArray(preservedSource.data)) {
         preservedSource.data = preservedSource.data.map((dataItem: any) => {
-          if (dataItem.timestamps) {
-            // Preserve timestamps in data items
-            return { ...dataItem };
+          // Create a copy and preserve ALL fields including timestamps
+          const preservedDataItem = { ...dataItem };
+          
+          // Explicitly check for timestamps in original source data
+          const originalDataItem = source.data?.find((orig: any) => 
+            orig.url === dataItem.url && orig.format === dataItem.format
+          );
+          
+          if (originalDataItem && originalDataItem.timestamps) {
+            preservedDataItem.timestamps = originalDataItem.timestamps;
+            console.log('Preserved timestamps in data item:', originalDataItem.timestamps);
           }
-          return dataItem;
+          
+          return preservedDataItem;
         });
       }
       
