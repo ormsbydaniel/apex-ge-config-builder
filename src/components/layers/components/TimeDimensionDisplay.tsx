@@ -16,7 +16,7 @@ const TimeDimensionDisplay = ({ source }: TimeDimensionDisplayProps) => {
     <div className="space-y-2">
       <h4 className="text-sm font-medium text-gray-700">Time Dimension</h4>
       <div className="flex items-center gap-2">
-        <Badge variant="outline" className="text-xs border-green-500/30 text-green-600">
+        <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
           <Clock className="h-3 w-3 mr-1" />
           {timeframe}
         </Badge>
