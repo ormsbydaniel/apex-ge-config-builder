@@ -58,9 +58,9 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
           const title = layer.querySelector('ows\\:Title, Title');
           const abstract = layer.querySelector('ows\\:Abstract, Abstract');
           
-          // Check for TIME dimension in WMTS
-          const timeDimension = layer.querySelector('Dimension[ows\\:Identifier="time"], Dimension[ows\\:Identifier="TIME"], Dimension > ows\\:Identifier');
-          const hasTimeDimension = timeDimension?.textContent?.toLowerCase() === 'time';
+          // Check for TIME dimension in WMTS - improved detection
+          const timeDimension = layer.querySelector('Dimension > ows\\:Identifier, Dimension > Identifier');
+          const hasTimeDimension = timeDimension?.textContent?.toUpperCase() === 'TIME';
           
           if (identifier?.textContent) {
             layers.push({
