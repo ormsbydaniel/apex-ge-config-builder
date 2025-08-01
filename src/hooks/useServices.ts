@@ -40,12 +40,17 @@ export const useServices = (services: Service[], onAddService: (service: Service
           const titleElement = layer.querySelector('Title');
           const abstractElement = layer.querySelector('Abstract');
           
+          // Check for TIME dimension
+          const timeDimension = layer.querySelector('Dimension[name="time"], Dimension[name="TIME"]');
+          const hasTimeDimension = !!timeDimension;
+          
           // Only add layers that have a Name element (actual layers, not layer groups)
           if (nameElement?.textContent) {
             layers.push({
               name: nameElement.textContent,
               title: titleElement?.textContent || nameElement.textContent,
-              abstract: abstractElement?.textContent
+              abstract: abstractElement?.textContent,
+              hasTimeDimension
             });
           }
         });
@@ -56,11 +61,16 @@ export const useServices = (services: Service[], onAddService: (service: Service
           const title = layer.querySelector('ows\\:Title, Title');
           const abstract = layer.querySelector('ows\\:Abstract, Abstract');
           
+          // Check for TIME dimension in WMTS - improved detection
+          const timeDimension = layer.querySelector('Dimension > ows\\:Identifier, Dimension > Identifier');
+          const hasTimeDimension = timeDimension?.textContent?.toUpperCase() === 'TIME';
+          
           if (identifier?.textContent) {
             layers.push({
               name: identifier.textContent,
               title: title?.textContent || identifier.textContent,
-              abstract: abstract?.textContent
+              abstract: abstract?.textContent,
+              hasTimeDimension
             });
           }
         });

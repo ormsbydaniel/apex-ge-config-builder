@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { DataSource, Category } from '@/types/config';
+import { DataSource, Category, TimeframeType } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
 interface LayerCardFormData {
@@ -12,6 +12,7 @@ interface LayerCardFormData {
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
+  download?: string;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -22,6 +23,8 @@ interface LayerCardFormData {
   units: string;
   hasFeatureStatistics: boolean;
   isActive: boolean;
+  timeframe: TimeframeType;
+  defaultTimestamp?: number;
 }
 
 const STORAGE_KEY = 'layer-card-form-draft';
@@ -47,6 +50,7 @@ export const useLayerCardFormPersistence = (
         toggleable: editingLayer.layout?.layerCard?.toggleable || false,
         opacitySlider: editingLayer.layout?.layerCard?.controls?.opacitySlider || false,
         zoomToCenter: (editingLayer.layout?.layerCard?.controls as any)?.zoomToCenter || false,
+        download: (editingLayer.layout?.layerCard?.controls as any)?.download,
         legendType: editingLayer.layout?.layerCard?.legend?.type || 'swatch',
         legendUrl: editingLayer.layout?.layerCard?.legend?.url || '',
         startColor: editingLayer.meta?.startColor || '#000000',
@@ -56,7 +60,9 @@ export const useLayerCardFormPersistence = (
         categories: editingLayer.meta?.categories || [],
         units: editingLayer.meta?.units || '',
         hasFeatureStatistics: editingLayer.hasFeatureStatistics || false,
-        isActive: editingLayer.isActive || false
+        isActive: editingLayer.isActive || false,
+        timeframe: editingLayer.timeframe || 'None',
+        defaultTimestamp: editingLayer.defaultTimestamp
       };
     }
 
@@ -85,6 +91,7 @@ export const useLayerCardFormPersistence = (
       toggleable: false,
       opacitySlider: false,
       zoomToCenter: false,
+      download: undefined,
       legendType: 'swatch',
       legendUrl: '',
       startColor: '#000000',
@@ -94,7 +101,8 @@ export const useLayerCardFormPersistence = (
       categories: [],
       units: '',
       hasFeatureStatistics: false,
-      isActive: false
+      isActive: false,
+      timeframe: 'None'
     };
   };
 

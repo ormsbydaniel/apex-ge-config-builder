@@ -2,6 +2,8 @@
 import { DataSource } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
+import { TimeframeType } from '@/types/config';
+
 interface SubmissionFormData {
   name: string;
   description: string;
@@ -13,6 +15,7 @@ interface SubmissionFormData {
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
+  download?: string;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -20,6 +23,8 @@ interface SubmissionFormData {
   minValue: string;
   maxValue: string;
   categories: Array<{ label: string; color: string; value: number }>;
+  timeframe: TimeframeType;
+  defaultTimestamp?: number;
 }
 
 export const useLayerCardFormSubmission = (
@@ -42,10 +47,11 @@ export const useLayerCardFormSubmission = (
       ...(formData.legendType === 'image' && formData.legendUrl.trim() && { url: formData.legendUrl.trim() })
     };
 
-    // Prepare controls object with zoomToCenter
+    // Prepare controls object with zoomToCenter and download
     const controlsObject = {
       opacitySlider: formData.opacitySlider,
-      zoomToCenter: formData.zoomToCenter
+      zoomToCenter: formData.zoomToCenter,
+      ...(formData.download && formData.download.trim() && { download: formData.download.trim() })
     };
 
     // Prepare meta object with gradient fields if needed
@@ -63,13 +69,21 @@ export const useLayerCardFormSubmission = (
         endColor: formData.endColor.trim(),
         min: parseFloat(formData.minValue),
         max: parseFloat(formData.maxValue)
-      })
+      }),
+      // Remove temporal configuration from meta - it's now at top level
     };
 
     const layerCard: DataSource = {
       name: formData.name.trim(),
       isActive: (formData as any).isActive || editingLayer?.isActive || false,
       hasFeatureStatistics: formData.hasFeatureStatistics || undefined,
+      // Add temporal configuration at top level if timeframe is not 'None'
+      ...(formData.timeframe !== 'None' && {
+        timeframe: formData.timeframe,
+        ...(formData.defaultTimestamp !== undefined && { 
+          defaultTimestamp: formData.defaultTimestamp 
+        })
+      }),
       meta: metaObject,
       layout: {
         interfaceGroup: formData.interfaceGroup || undefined,

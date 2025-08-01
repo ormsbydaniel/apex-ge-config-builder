@@ -3,10 +3,11 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Copy, Trash2 } from 'lucide-react';
-import { DataSourceItem as DataSourceItemType } from '@/types/config';
+import { Copy, Trash2, Clock } from 'lucide-react';
+import { DataSourceItem as DataSourceItemType, TimeframeType, Service } from '@/types/config';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
+import { formatTimestampForTimeframe } from '@/utils/dateUtils';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
@@ -14,9 +15,21 @@ interface DataSourceItemProps {
   onRemove: (index: number) => void;
   showPosition?: boolean;
   showStatsLevel?: boolean;
+  timeframe?: TimeframeType;
+  onManageTimestamps?: () => void;
+  services?: Service[];
 }
 
-const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, showStatsLevel = false }: DataSourceItemProps) => {
+const DataSourceItem = ({ 
+  dataSource, 
+  index, 
+  onRemove, 
+  showPosition = false, 
+  showStatsLevel = false,
+  timeframe = 'None',
+  onManageTimestamps,
+  services = []
+}: DataSourceItemProps) => {
   const { toast } = useToast();
 
   const handleCopyUrl = () => {
@@ -69,6 +82,19 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, sho
   };
 
   const hasZoomLevels = dataSource.minZoom !== undefined || dataSource.maxZoom !== undefined;
+  const hasTimestamps = dataSource.timestamps && dataSource.timestamps.length > 0;
+  const showTemporalInfo = timeframe !== 'None' && (hasTimestamps || onManageTimestamps);
+  
+  // Check if this data source uses TIME parameter from service capabilities
+  const hasTimeParameter = React.useMemo(() => {
+    if (!dataSource.serviceId || !dataSource.layers) return false;
+    
+    const service = services.find(s => s.id === dataSource.serviceId);
+    if (!service?.capabilities) return false;
+    
+    const layerCapabilities = service.capabilities.layers.find(l => l.name === dataSource.layers);
+    return layerCapabilities?.hasTimeDimension || false;
+  }, [dataSource.serviceId, dataSource.layers, services]);
 
   return (
     <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50">
@@ -90,10 +116,24 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, sho
           </Tooltip>
         </TooltipProvider>
         
+        {/* Date pill for temporal layers */}
+        {hasTimestamps && timeframe !== 'None' && dataSource.timestamps && dataSource.timestamps[0] && (
+          <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+            {formatTimestampForTimeframe(dataSource.timestamps[0], timeframe)}
+          </Badge>
+        )}
+        
         <span className="text-xs text-gray-500 flex-shrink-0">
           Z: {getZIndex()}
         </span>
-
+        
+        {/* TIME parameter pill for WMS/WMTS layers */}
+        {hasTimeParameter && (
+          <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+            TIME param
+          </Badge>
+        )}
+        
         {showStatsLevel && (
           <span className="text-xs text-gray-500 flex-shrink-0">
             L: {getLevel()}
@@ -114,9 +154,33 @@ const DataSourceItem = ({ dataSource, index, onRemove, showPosition = false, sho
             </span>
           </div>
         )}
+
+        {showTemporalInfo && (
+          <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
+            <Clock className="h-3 w-3" />
+            <span>
+              {hasTimestamps 
+                ? `${dataSource.timestamps!.length} timestamp${dataSource.timestamps!.length !== 1 ? 's' : ''}`
+                : 'No timestamps'
+              }
+            </span>
+          </div>
+        )}
       </div>
       
       <div className="flex items-center gap-1 flex-shrink-0">
+        {showTemporalInfo && onManageTimestamps && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onManageTimestamps}
+            className="h-8 w-8 p-0"
+            title="Manage Timestamps"
+          >
+            <Clock className="h-3 w-3" />
+          </Button>
+        )}
+
         {dataSource.url && (
           <Button
             size="sm"

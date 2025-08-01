@@ -61,10 +61,6 @@ const ConfigBuilderContent = () => {
                 <Home className="h-4 w-4" />
                 Home
               </TabsTrigger>
-              <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Globe className="h-4 w-4" />
-                Services
-              </TabsTrigger>
               <TabsTrigger value="layers" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Layers className="h-4 w-4" />
                 Layers
@@ -72,6 +68,10 @@ const ConfigBuilderContent = () => {
               <TabsTrigger value="draworder" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <ArrowUpDown className="h-4 w-4" />
                 Draw Order
+              </TabsTrigger>
+              <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Globe className="h-4 w-4" />
+                Services
               </TabsTrigger>
               <TabsTrigger value="preview" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <FileJson className="h-4 w-4" />
@@ -81,10 +81,6 @@ const ConfigBuilderContent = () => {
 
             <TabsContent value="home">
               <HomeTab config={config} />
-            </TabsContent>
-
-            <TabsContent value="services">
-              <ServicesManager services={config.services} onAddService={addService} onRemoveService={removeService} />
             </TabsContent>
 
             <TabsContent value="layers">
@@ -121,6 +117,10 @@ const ConfigBuilderContent = () => {
                 }} 
                 updateConfig={updateConfig}
               />
+            </TabsContent>
+
+            <TabsContent value="services">
+              <ServicesManager services={config.services} onAddService={addService} onRemoveService={removeService} />
             </TabsContent>
 
             <TabsContent value="preview">

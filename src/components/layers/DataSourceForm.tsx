@@ -6,20 +6,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Save, X, Database, Globe, Plus, ArrowLeft } from 'lucide-react';
-import { Service, DataSourceFormat, DataSourceItem } from '@/types/config';
+import { Save, X, Database, Globe, Plus, ArrowLeft, CalendarIcon } from 'lucide-react';
+import { Service, DataSourceFormat, DataSourceItem, TimeframeType } from '@/types/config';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface DataSourceFormProps {
   services: Service[];
   currentLayerStatistics?: DataSourceItem[];
   layerType?: LayerTypeOption;
+  timeframe?: TimeframeType;
   onAddDataSource: (dataSource: DataSourceItem) => void;
   onAddStatisticsLayer: (statisticsItem: DataSourceItem) => void;
   onAddService: (service: Service) => void;
@@ -30,6 +35,7 @@ const DataSourceForm = ({
   services, 
   currentLayerStatistics = [],
   layerType = 'standard',
+  timeframe = 'None',
   onAddDataSource, 
   onAddStatisticsLayer,
   onAddService, 
@@ -38,8 +44,8 @@ const DataSourceForm = ({
   const { toast } = useToast();
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct'>('service');
-  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('wms');
+  const [sourceType, setSourceType] = useState<'service' | 'direct'>('direct');
+  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('cog');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedLayer, setSelectedLayer] = useState('');
   const [directUrl, setDirectUrl] = useState('');
@@ -63,6 +69,14 @@ const DataSourceForm = ({
   const [showNewServiceForm, setShowNewServiceForm] = useState(false);
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceUrl, setNewServiceUrl] = useState('');
+  
+  // Date picker state for temporal layers
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const requiresTimestamp = timeframe && timeframe !== 'None';
+  
+  // Check if selected layer has TIME dimension
+  const selectedLayerInfo = selectedService?.capabilities?.layers.find(layer => layer.name === selectedLayer);
+  const hasServiceTimeDimension = selectedLayerInfo?.hasTimeDimension;
 
   const config_format = FORMAT_CONFIGS[selectedFormat];
   const needsPosition = requiresPosition(layerType);
@@ -178,6 +192,16 @@ const DataSourceForm = ({
       return;
     }
 
+    // Validate timestamp for temporal layers (only if no service TIME dimension)
+    if (requiresTimestamp && !hasServiceTimeDimension && !selectedDate) {
+      toast({
+        title: "Missing Timestamp",
+        description: "Please select a timestamp for this temporal layer.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const dataSourceItem: DataSourceItem = {
       url,
       format: sourceType === 'service' ? selectedService!.format : selectedFormat,
@@ -185,7 +209,8 @@ const DataSourceForm = ({
       ...(layers && { layers }),
       ...(serviceId && { serviceId }),
       ...(needsPosition && selectedPosition && { position: selectedPosition }),
-      ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel })
+      ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel }),
+      ...(requiresTimestamp && !hasServiceTimeDimension && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] })
     };
 
     // Call appropriate callback based on statistics layer flag
@@ -257,18 +282,6 @@ const DataSourceForm = ({
             <div className="grid grid-cols-2 gap-4">
               <Card 
                 className={`cursor-pointer transition-colors ${
-                  sourceType === 'service' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                }`}
-                onClick={() => setSourceType('service')}
-              >
-                <CardContent className="p-4 text-center">
-                  <Globe className="h-6 w-6 mx-auto mb-2" />
-                  <div className="font-medium">From Service</div>
-                  <div className="text-sm text-muted-foreground">Use configured service</div>
-                </CardContent>
-              </Card>
-              <Card 
-                className={`cursor-pointer transition-colors ${
                   sourceType === 'direct' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
                 }`}
                 onClick={() => setSourceType('direct')}
@@ -277,6 +290,18 @@ const DataSourceForm = ({
                   <Database className="h-6 w-6 mx-auto mb-2" />
                   <div className="font-medium">Direct Connection</div>
                   <div className="text-sm text-muted-foreground">Provide URL directly</div>
+                </CardContent>
+              </Card>
+              <Card 
+                className={`cursor-pointer transition-colors ${
+                  sourceType === 'service' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                }`}
+                onClick={() => setSourceType('service')}
+              >
+                <CardContent className="p-4 text-center">
+                  <Globe className="h-6 w-6 mx-auto mb-2" />
+                  <div className="font-medium">From Service</div>
+                  <div className="text-sm text-muted-foreground">Use configured service</div>
                 </CardContent>
               </Card>
             </div>
@@ -508,6 +533,58 @@ const DataSourceForm = ({
                         )}
                       </div>
                     )}
+                    
+                    {/* Timestamp Picker for Temporal Layers */}
+                    {requiresTimestamp && (
+                      <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                        {hasServiceTimeDimension ? (
+                          // Show informational message when service layer has TIME dimension
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                              Time Configuration
+                            </Label>
+                            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
+                              <p className="text-sm text-blue-800 dark:text-blue-200">
+                                ✓ Timestamps will be determined from TIME parameter on the source data
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          // Show date picker when no TIME dimension
+                          <div className="space-y-2">
+                            <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                              Timestamp *
+                            </Label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
+                                    !selectedDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={selectedDate}
+                                  onSelect={setSelectedDate}
+                                  initialFocus
+                                  className={cn("p-3 pointer-events-auto")}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <p className="text-xs text-blue-600 dark:text-blue-400">
+                              This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <Label htmlFor="serviceZIndex">Z-Index</Label>
@@ -596,6 +673,44 @@ const DataSourceForm = ({
                     placeholder={config_format.layersPlaceholder}
                     autoComplete="off"
                   />
+                </div>
+              )}
+              
+              {/* Timestamp Picker for Temporal Layers */}
+              {requiresTimestamp && (
+                <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                  {/* Direct connections always show date picker since they don't have service TIME dimensions */}
+                  <div className="space-y-2">
+                    <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      Timestamp *
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
+                            !selectedDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                    </p>
+                  </div>
                 </div>
               )}
 

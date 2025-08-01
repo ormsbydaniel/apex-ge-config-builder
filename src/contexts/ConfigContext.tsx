@@ -195,13 +195,28 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       };
     }
     case 'ADD_SOURCE': {
-      // Sanitize URLs and ensure data is array, preserve statistics
+      // Sanitize URLs and ensure data is array, preserve statistics and controls
       const sanitizedSource = {
         ...action.payload,
         data: action.payload.data.map(item => ({
           ...item,
           url: item.url ? sanitizeUrl(item.url) : item.url
         })),
+        // Preserve layout structure completely, including controls
+        layout: {
+          ...action.payload.layout,
+          ...(action.payload.layout?.layerCard && {
+            layerCard: {
+              ...action.payload.layout.layerCard,
+              controls: {
+                ...action.payload.layout.layerCard.controls,
+                ...(action.payload.layout.layerCard.controls?.download && {
+                  download: sanitizeUrl(action.payload.layout.layerCard.controls.download)
+                })
+              }
+            }
+          })
+        },
         // Sanitize statistics URLs if they exist
         ...(action.payload.statistics && {
           statistics: action.payload.statistics.map(item => ({
@@ -230,13 +245,26 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       };
     }
     case 'UPDATE_SOURCES': {
-      // Sanitize URLs in all sources before updating, including statistics
+      // Sanitize URLs in all sources before updating, including statistics and controls
       const sanitizedSources = action.payload.map(source => ({
         ...source,
         data: source.data.map(item => ({
           ...item,
           url: item.url ? sanitizeUrl(item.url) : item.url
         })),
+        // Sanitize download URL in controls if it exists
+        ...(source.layout?.layerCard?.controls?.download && {
+          layout: {
+            ...source.layout,
+            layerCard: {
+              ...source.layout.layerCard,
+              controls: {
+                ...source.layout.layerCard.controls,
+                download: sanitizeUrl(source.layout.layerCard.controls.download)
+              }
+            }
+          }
+        }),
         // Sanitize statistics URLs if they exist
         ...(source.statistics && {
           statistics: source.statistics.map(item => ({

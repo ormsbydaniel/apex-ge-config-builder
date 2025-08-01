@@ -46,3 +46,4 @@ export { reverseSingleItemTransformation } from './transformers/singleItemTransf
 export { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 export { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
 export { reverseFormatToTypeTransformation } from './transformers/formatToTypeTransformer';
+export { preserveTemporalFields } from './transformers/temporalTransformer';

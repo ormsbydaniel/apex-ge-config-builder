@@ -73,6 +73,8 @@ export const DataSourceItemSchema = z.object({
   // Zoom level constraints
   minZoom: z.number().optional(),
   maxZoom: z.number().optional(),
+  // Temporal fields for data items
+  timestamps: z.array(z.number()).optional(),
 }).refine(
   (data) => {
     // Either url or images array must be present
@@ -102,7 +104,13 @@ const SwipeConfigSchema = z.object({
     ),
 });
 
-// Enhanced meta schema with additional fields including swipe config
+// Temporal configuration schema
+const TemporalConfigSchema = z.object({
+  timeframe: z.enum(['None', 'Days', 'Months', 'Years']),
+  defaultTimestamp: z.number().optional(),
+});
+
+// Enhanced meta schema with additional fields including swipe config and temporal
 const MetaSchema = z.object({
   description: z.string(),
   attribution: z.object({
@@ -118,6 +126,8 @@ const MetaSchema = z.object({
   endColor: z.string().optional(),
   // Swipe layer configuration
   swipeConfig: SwipeConfigSchema.optional(),
+  // Temporal configuration
+  temporal: TemporalConfigSchema.optional(),
 });
 
 // Enhanced layout schema with proper controls validation
@@ -164,6 +174,9 @@ const BaseDataSourceObjectSchema = z.object({
   isSwipeLayer: z.boolean().optional(),
   isMirrorLayer: z.boolean().optional(),
   isSpotlightLayer: z.boolean().optional(),
+  // Temporal configuration fields
+  timeframe: z.enum(['None', 'Days', 'Months', 'Years']).optional(),
+  defaultTimestamp: z.number().optional(),
 });
 
 // Apply refinement to create the actual BaseDataSourceSchema

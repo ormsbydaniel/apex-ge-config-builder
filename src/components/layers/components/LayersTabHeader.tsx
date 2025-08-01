@@ -2,7 +2,7 @@
 import React from 'react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Layers } from 'lucide-react';
 
 interface LayersTabHeaderProps {
   layerCount: number;
@@ -14,7 +14,8 @@ const LayersTabHeader = ({ layerCount, onAddGroup }: LayersTabHeaderProps) => {
     <CardHeader>
       <div className="flex items-center justify-between">
         <div>
-          <CardTitle className="text-primary">
+          <CardTitle className="text-primary flex items-center gap-2">
+            <Layers className="h-5 w-5" />
             Map Layers
           </CardTitle>
           <CardDescription>

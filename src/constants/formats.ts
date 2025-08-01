@@ -3,6 +3,34 @@ import { FormatConfig, DataSourceFormat } from '@/types/config';
 
 // Removed s3 from FORMAT_CONFIGS - S3 is just a source location, not a format
 export const FORMAT_CONFIGS: Record<DataSourceFormat, FormatConfig> = {
+  cog: {
+    label: 'COG (Cloud Optimized GeoTIFF)',
+    urlPlaceholder: 'https://example.com/data.tif',
+    layersPlaceholder: '',
+    requiresLayers: false,
+    supportsGetCapabilities: false,
+  },
+  flatgeobuf: {
+    label: 'FlatGeoBuf',
+    urlPlaceholder: '/worldcover-stats-nuts.level00.fgb',
+    layersPlaceholder: '',
+    requiresLayers: false,
+    supportsGetCapabilities: false,
+  },
+  geojson: {
+    label: 'GeoJSON',
+    urlPlaceholder: 'https://example.com/data.geojson',
+    layersPlaceholder: '',
+    requiresLayers: false,
+    supportsGetCapabilities: false,
+  },
+  wfs: {
+    label: 'WFS (Web Feature Service)',
+    urlPlaceholder: 'https://services.terrascope.be/wfs/v2',
+    layersPlaceholder: 'WORLDCOVER_FEATURES',
+    requiresLayers: true,
+    supportsGetCapabilities: true,
+  },
   wms: {
     label: 'WMS (Web Map Service)',
     urlPlaceholder: 'https://services.terrascope.be/wms/v2',
@@ -20,34 +48,6 @@ export const FORMAT_CONFIGS: Record<DataSourceFormat, FormatConfig> = {
   xyz: {
     label: 'XYZ (Tile Service)',
     urlPlaceholder: 'https://example.com/tiles/{z}/{x}/{y}.png',
-    layersPlaceholder: '',
-    requiresLayers: false,
-    supportsGetCapabilities: false,
-  },
-  wfs: {
-    label: 'WFS (Web Feature Service)',
-    urlPlaceholder: 'https://services.terrascope.be/wfs/v2',
-    layersPlaceholder: 'WORLDCOVER_FEATURES',
-    requiresLayers: true,
-    supportsGetCapabilities: true,
-  },
-  cog: {
-    label: 'COG (Cloud Optimized GeoTIFF)',
-    urlPlaceholder: 'https://example.com/data.tif',
-    layersPlaceholder: '',
-    requiresLayers: false,
-    supportsGetCapabilities: false,
-  },
-  geojson: {
-    label: 'GeoJSON',
-    urlPlaceholder: 'https://example.com/data.geojson',
-    layersPlaceholder: '',
-    requiresLayers: false,
-    supportsGetCapabilities: false,
-  },
-  flatgeobuf: {
-    label: 'FlatGeoBuf',
-    urlPlaceholder: '/worldcover-stats-nuts.level00.fgb',
     layersPlaceholder: '',
     requiresLayers: false,
     supportsGetCapabilities: false,

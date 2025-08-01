@@ -2,11 +2,12 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { DataSource, isDataSourceItemArray } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service } from '@/types/config';
 import DataSourceItem from './DataSourceItem';
 
 interface DataSourceDisplayProps {
   source: DataSource;
+  services?: Service[];
   onAddDataSource?: () => void;
   onRemoveDataSource: (dataSourceIndex: number) => void;
   onRemoveStatisticsSource?: (statsIndex: number) => void;
@@ -16,6 +17,7 @@ interface DataSourceDisplayProps {
 
 const DataSourceDisplay = ({
   source,
+  services = [],
   onAddDataSource,
   onRemoveDataSource,
   onRemoveStatisticsSource,
@@ -24,6 +26,8 @@ const DataSourceDisplay = ({
 }: DataSourceDisplayProps) => {
   // Check if this is a swipe layer that needs position display
   const isSwipeLayer = (source as any).isSwipeLayer === true || source.meta?.swipeConfig !== undefined;
+  // Get timeframe for temporal display
+  const timeframe = source.timeframe;
 
   const hasDataSources = source.data && isDataSourceItemArray(source.data) && source.data.length > 0;
   const hasStatistics = source.statistics && source.statistics.length > 0;
@@ -56,6 +60,8 @@ const DataSourceDisplay = ({
                 index={index}
                 onRemove={onRemoveDataSource}
                 showPosition={isSwipeLayer}
+                timeframe={timeframe}
+                services={services}
               />
             ))}
           </div>
@@ -82,6 +88,8 @@ const DataSourceDisplay = ({
                 onRemove={onRemoveStatisticsSource || (() => {})}
                 showPosition={isSwipeLayer}
                 showStatsLevel={true}
+                timeframe={timeframe}
+                services={services}
               />
             ))}
           </div>

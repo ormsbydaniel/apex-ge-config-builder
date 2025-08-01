@@ -12,7 +12,10 @@ import { useLayerOperations, LayerTypeOption } from '@/hooks/useLayerOperations'
 import { analyzeLayerTypeMigration, applyLayerTypeMigration } from '@/utils/layerTypeMigration';
 import UnifiedBasicInfoSection from '@/components/form/UnifiedBasicInfoSection';
 import UnifiedAttributionSection from '@/components/form/UnifiedAttributionSection';
-import UnifiedLegendSection from '@/components/form/UnifiedLegendSection';
+import UnifiedCategoriesSection from '@/components/form/UnifiedCategoriesSection';
+import UnifiedLegendTypeSection from '@/components/form/UnifiedLegendTypeSection';
+import UnifiedControlsSection from '@/components/form/UnifiedControlsSection';
+import UnifiedTimePeriodSection from '@/components/form/UnifiedTimePeriodSection';
 import LayerTypeRadioGroup from '@/components/form/LayerTypeRadioGroup';
 import PositionEditor from '@/components/form/PositionEditor';
 
@@ -101,7 +104,10 @@ const LayerCardForm = ({
     // Create layer with layer type flags
     let layerCard = createLayerFromFormData({
       ...formData,
-      categories: processedCategories || []
+      download: (formData as any).download,
+      categories: processedCategories || [],
+      timeframe: formData.timeframe,
+      defaultTimestamp: formData.defaultTimestamp
     });
 
     // Apply layer type flags
@@ -170,7 +176,9 @@ const LayerCardForm = ({
               interfaceGroup={formData.interfaceGroup}
               interfaceGroups={interfaceGroups}
               units={formData.units}
-              isActive={(formData as any).isActive || false}
+              timeframe={formData.timeframe}
+              defaultTimestamp={formData.defaultTimestamp}
+              isActive={formData.isActive}
               onUpdate={updateFormData}
               showUnits={true}
               showIsActive={true}
@@ -182,20 +190,31 @@ const LayerCardForm = ({
               onUpdate={updateFormData}
             />
 
-            <UnifiedLegendSection
-              toggleable={formData.toggleable}
-              opacitySlider={formData.opacitySlider}
-              zoomToCenter={(formData as any).zoomToCenter || false}
+            <UnifiedCategoriesSection
+              categories={processedCategories || []}
+              onUpdate={updateFormData}
+              layerName={formData.name || ''}
+            />
+
+            <UnifiedLegendTypeSection
               legendType={formData.legendType}
               legendUrl={formData.legendUrl}
               startColor={formData.startColor}
               endColor={formData.endColor}
               minValue={formData.minValue}
               maxValue={formData.maxValue}
-              categories={processedCategories || []}
               onUpdate={updateFormData}
-              layerName={formData.name || ''}
             />
+
+            <UnifiedControlsSection
+              toggleable={formData.toggleable}
+              opacitySlider={formData.opacitySlider}
+              zoomToCenter={(formData as any).zoomToCenter || false}
+              download={(formData as any).download}
+              timeframe={formData.timeframe || 'None'}
+              onUpdate={updateFormData}
+            />
+
 
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={handleCancel}>

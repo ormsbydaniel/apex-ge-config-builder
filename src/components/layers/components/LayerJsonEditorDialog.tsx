@@ -84,11 +84,13 @@ const LayerJsonEditorDialog = ({ isOpen, onClose, layer, onSave }: LayerJsonEdit
                   Enable Editing
                 </Button>
               </div>
-              <MonacoJsonEditor
-                value={layerJson}
-                readOnly={true}
-                height="500px"
-              />
+              <div className="overflow-auto" style={{ height: 'calc(80vh - 250px)' }}>
+                <MonacoJsonEditor
+                  value={layerJson}
+                  readOnly={true}
+                  height="calc(80vh - 250px)"
+                />
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -98,12 +100,14 @@ const LayerJsonEditorDialog = ({ isOpen, onClose, layer, onSave }: LayerJsonEdit
                 onReset={handleReset}
                 onFormatJson={formatJson}
               />
-              <MonacoJsonEditor
-                value={editedJson}
-                onChange={handleJsonChange}
-                readOnly={false}
-                height="450px"
-              />
+              <div className="overflow-auto" style={{ height: 'calc(80vh - 290px)' }}>
+                <MonacoJsonEditor
+                  value={editedJson}
+                  onChange={handleJsonChange}
+                  readOnly={false}
+                  height="calc(80vh - 290px)"
+                />
+              </div>
             </div>
           )}
         </div>

@@ -7,6 +7,7 @@ import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
 import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 import { reverseFormatToTypeTransformation } from './transformers/formatToTypeTransformer';
+import { preserveTemporalFields } from './transformers/temporalTransformer';
 
 /**
  * Apply all reverse transformations in the correct order
@@ -55,6 +56,9 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
   if (detectedTransforms.configureCogsAsImages) {
     normalizedConfig = reverseCogTransformation(normalizedConfig, true);
   }
+  
+  // Always preserve temporal fields (timeframe and defaultTimestamp)
+  normalizedConfig = preserveTemporalFields(normalizedConfig, true);
   
   return normalizedConfig;
 };

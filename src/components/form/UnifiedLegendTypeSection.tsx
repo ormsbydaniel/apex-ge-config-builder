@@ -1,14 +1,9 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-interface LayerControlsSectionProps {
-  toggleable: boolean;
-  opacitySlider: boolean;
-  zoomToCenter: boolean;
+interface UnifiedLegendTypeSectionProps {
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -18,10 +13,7 @@ interface LayerControlsSectionProps {
   onUpdate: (field: string, value: any) => void;
 }
 
-const LayerControlsSection = ({
-  toggleable,
-  opacitySlider,
-  zoomToCenter,
+const UnifiedLegendTypeSection = ({
   legendType,
   legendUrl,
   startColor,
@@ -29,42 +21,12 @@ const LayerControlsSection = ({
   minValue,
   maxValue,
   onUpdate
-}: LayerControlsSectionProps) => {
+}: UnifiedLegendTypeSectionProps) => {
   return (
     <div className="space-y-4">
-      <h4 className="font-medium">Layer Card Controls</h4>
-      
-      <div className="flex items-center gap-6">
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="toggleable"
-            checked={toggleable}
-            onCheckedChange={(value) => onUpdate('toggleable', value)}
-          />
-          <Label htmlFor="toggleable">Toggleable</Label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="opacitySlider"
-            checked={opacitySlider}
-            onCheckedChange={(value) => onUpdate('opacitySlider', value)}
-          />
-          <Label htmlFor="opacitySlider">Opacity Slider</Label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="zoomToCenter"
-            checked={zoomToCenter}
-            onCheckedChange={(value) => onUpdate('zoomToCenter', value)}
-          />
-          <Label htmlFor="zoomToCenter">Zoom to layer</Label>
-        </div>
-      </div>
+      <h4 className="font-medium">Legend Type</h4>
       
       <div className="space-y-2">
-        <Label htmlFor="legendType">Legend Type</Label>
         <Select value={legendType} onValueChange={(value: 'swatch' | 'gradient' | 'image') => onUpdate('legendType', value)}>
           <SelectTrigger>
             <SelectValue />
@@ -133,16 +95,15 @@ const LayerControlsSection = ({
               </div>
             </div>
           </div>
+          
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="minValue">Min Value *</Label>
               <Input
                 id="minValue"
-                type="number"
-                step="any"
                 value={minValue}
                 onChange={(e) => onUpdate('minValue', e.target.value)}
-                placeholder="e.g., 0.01"
+                placeholder="e.g., 0"
                 required={legendType === 'gradient'}
               />
             </div>
@@ -150,11 +111,9 @@ const LayerControlsSection = ({
               <Label htmlFor="maxValue">Max Value *</Label>
               <Input
                 id="maxValue"
-                type="number"
-                step="any"
                 value={maxValue}
                 onChange={(e) => onUpdate('maxValue', e.target.value)}
-                placeholder="e.g., 0.42"
+                placeholder="e.g., 100"
                 required={legendType === 'gradient'}
               />
             </div>
@@ -165,4 +124,4 @@ const LayerControlsSection = ({
   );
 };
 
-export default LayerControlsSection;
+export default UnifiedLegendTypeSection;

@@ -23,6 +23,7 @@ export interface LayerInfo {
   name: string;
   title?: string;
   abstract?: string;
+  hasTimeDimension?: boolean;
   boundingBox?: {
     minX: number;
     minY: number;
@@ -49,6 +50,8 @@ export interface DataSourceItem {
   // Zoom level constraints
   minZoom?: number;
   maxZoom?: number;
+  // Temporal support
+  timestamps?: number[]; // Array of Unix timestamps
 }
 
 // Simplified - data is always an array
@@ -63,6 +66,14 @@ export function isDataSourceItemArray(data: DataField): data is DataSourceItem[]
 export interface SwipeConfig {
   clippedSourceName: string;
   baseSourceNames: string[]; // Changed from baseSourceName to array
+}
+
+// Temporal configuration
+export type TimeframeType = 'None' | 'Days' | 'Months' | 'Years';
+
+export interface TemporalConfig {
+  timeframe: TimeframeType;
+  defaultTimestamp?: number; // Default timestamp when timeframe is not 'None'
 }
 
 // Enhanced meta interface
@@ -81,6 +92,9 @@ export interface DataSourceMeta {
   endColor?: string;
   // Swipe layer configuration
   swipeConfig?: SwipeConfig;
+  // Temporal configuration - flat structure
+  timeframe?: TimeframeType;
+  defaultTimestamp?: number;
 }
 
 // Enhanced layout interface
@@ -95,6 +109,7 @@ export interface DataSourceLayout {
     controls?: {
       opacitySlider?: boolean;
       zoomToCenter?: boolean;
+      download?: string;
     };
     showStatistics?: boolean;
   };
@@ -108,6 +123,9 @@ interface BaseDataSource {
   statistics?: DataSourceItem[]; // Add statistics array
   hasFeatureStatistics?: boolean;
   isBaseLayer?: boolean; // Add isBaseLayer as optional to base interface
+  // Temporal configuration at top level
+  timeframe?: TimeframeType;
+  defaultTimestamp?: number;
 }
 
 // Base layer type (meta and layout are optional, isBaseLayer is required)

@@ -83,6 +83,7 @@ const LayerFormHandler = ({
         services={services}
         currentLayerStatistics={currentLayer?.statistics || []}
         layerType={layerType}
+        timeframe={currentLayer?.timeframe}
         onAddDataSource={onDataSourceAdded}
         onAddStatisticsLayer={onStatisticsLayerAdded}
         onAddService={onAddService}
