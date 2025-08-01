@@ -11,27 +11,53 @@ export const preserveTemporalFields = (config: any, apply: boolean = false): any
   // Create a deep copy to avoid mutation
   const transformedConfig = JSON.parse(JSON.stringify(config));
   
-  // Ensure temporal fields are preserved at source level
+  // Ensure temporal fields are preserved at source level and in meta.temporal
   if (transformedConfig.sources && Array.isArray(transformedConfig.sources)) {
     transformedConfig.sources = transformedConfig.sources.map((source: any) => {
       const preservedSource = { ...source };
       
-      // Preserve timeframe and defaultTimestamp if they exist
-      if (source.timeframe) {
-        preservedSource.timeframe = source.timeframe;
-      }
-      if (source.defaultTimestamp !== undefined) {
-        preservedSource.defaultTimestamp = source.defaultTimestamp;
+      // Extract temporal fields from various locations
+      let timeframe = source.timeframe;
+      let defaultTimestamp = source.defaultTimestamp;
+      
+      // Check meta object for temporal fields
+      if (source.meta) {
+        // Check flat structure in meta
+        if (source.meta.timeframe && !timeframe) {
+          timeframe = source.meta.timeframe;
+        }
+        if (source.meta.defaultTimestamp !== undefined && defaultTimestamp === undefined) {
+          defaultTimestamp = source.meta.defaultTimestamp;
+        }
+        
+        // Check nested temporal object structure
+        if (source.meta.temporal) {
+          if (source.meta.temporal.timeframe && !timeframe) {
+            timeframe = source.meta.temporal.timeframe;
+          }
+          if (source.meta.temporal.defaultTimestamp !== undefined && defaultTimestamp === undefined) {
+            defaultTimestamp = source.meta.temporal.defaultTimestamp;
+          }
+        }
       }
       
-      // Also check meta object for temporal fields and move them to top level
-      if (source.meta) {
-        if (source.meta.timeframe && !preservedSource.timeframe) {
-          preservedSource.timeframe = source.meta.timeframe;
+      // Preserve temporal fields at top level for UI compatibility
+      if (timeframe) {
+        preservedSource.timeframe = timeframe;
+      }
+      if (defaultTimestamp !== undefined) {
+        preservedSource.defaultTimestamp = defaultTimestamp;
+      }
+      
+      // Also ensure meta.temporal structure for schema compliance
+      if (timeframe || defaultTimestamp !== undefined) {
+        if (!preservedSource.meta) {
+          preservedSource.meta = {};
         }
-        if (source.meta.defaultTimestamp !== undefined && preservedSource.defaultTimestamp === undefined) {
-          preservedSource.defaultTimestamp = source.meta.defaultTimestamp;
-        }
+        preservedSource.meta.temporal = {
+          ...(timeframe && { timeframe }),
+          ...(defaultTimestamp !== undefined && { defaultTimestamp })
+        };
       }
       
       return preservedSource;
