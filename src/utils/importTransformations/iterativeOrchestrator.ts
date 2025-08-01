@@ -10,6 +10,7 @@ import { reverseSwipeLayerTransformation } from './transformers/swipeLayerTransf
 import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 import { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
+import { preserveTemporalFields } from './transformers/temporalTransformer';
 
 /**
  * Enhanced iterative orchestrator with deep transformation tracking
@@ -147,6 +148,10 @@ export const normalizeImportedConfig = (config: any): any => {
       break;
     }
   }
+  
+  // Always preserve temporal fields at the end
+  console.log('Preserving temporal fields...');
+  currentConfig = preserveTemporalFields(currentConfig, true);
   
   console.log(`=== ITERATIVE ORCHESTRATOR COMPLETE (${iteration} iterations) ===`);
   
