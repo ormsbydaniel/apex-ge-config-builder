@@ -58,17 +58,6 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
   const effectiveFormat = detectedS3Format || (selectedFormat === 's3' ? null : selectedFormat as DataSourceFormat);
   const supportsStatistics = effectiveFormat === 'flatgeobuf' || effectiveFormat === 'geojson';
 
-  // Enhanced debugging console logs
-  console.log('=== SourceForm Debug Info ===');
-  console.log('selectedFormat:', selectedFormat);
-  console.log('selectedFormat type:', typeof selectedFormat);
-  console.log('effectiveFormat:', effectiveFormat);
-  console.log('supportsStatistics:', supportsStatistics);
-  console.log('isStatisticsLayer:', isStatisticsLayer);
-  console.log('FORMAT_CONFIGS keys:', Object.keys(FORMAT_CONFIGS));
-  console.log('formData.data[0]?.format:', formData.data[0]?.format);
-  console.log('Component rendered at:', new Date().toISOString());
-  console.log('=============================');
 
   const handleS3ObjectSelect = (object: S3Object, detectedFormat: DataSourceFormat) => {
     setSelectedS3Object(object);
@@ -124,7 +113,7 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
   };
 
   const handleStatisticsToggle = (checked: boolean) => {
-    console.log('Statistics toggle changed to:', checked);
+    
     setIsStatisticsLayer(checked);
   };
 
