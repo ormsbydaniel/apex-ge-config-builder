@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { Database, Globe, Server } from 'lucide-react';
 import { Service, DataSourceFormat } from '@/types/config';
 import { validateS3Url, S3Object } from '@/utils/s3Utils';
 import S3LayerSelector from '@/components/form/S3LayerSelector';
+import StacBrowser from './StacBrowser';
 
 interface ServiceSelectionModalProps {
   service: Service | null;
@@ -61,6 +62,13 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+        <DialogHeader>
+          <DialogTitle>Select Data Source</DialogTitle>
+          <DialogDescription>
+            Select a data source from the {getServiceTypeLabel()} service
+          </DialogDescription>
+        </DialogHeader>
+        
         <div className="space-y-4">
           {/* Service Info Card */}
           <Card className={`border-l-4 ${
@@ -102,40 +110,13 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
               onObjectSelect={handleS3ObjectSelect}
             />
           ) : isStacService ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Search Collections</label>
-                <input
-                  type="text"
-                  placeholder="Search by name..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full p-2 border border-input rounded-md"
-                />
-              </div>
-              <div className="grid gap-2 max-h-60 overflow-auto">
-                {filteredLayers.map((layer) => (
-                  <div key={layer.name} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50">
-                    <div>
-                      <div className="font-medium">{layer.title || layer.name}</div>
-                      {layer.title !== layer.name && (
-                        <div className="text-xs text-muted-foreground">{layer.name}</div>
-                      )}
-                    </div>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => {
-                        onSelect(service.url, layer.name, service.format as DataSourceFormat);
-                        handleClose();
-                      }}
-                    >
-                      Select
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <StacBrowser
+              serviceUrl={service.url}
+              onAssetSelect={(assetUrl, format) => {
+                onSelect(assetUrl, '', format);
+                handleClose();
+              }}
+            />
           ) : (
             <div className="space-y-4">
               <div className="space-y-2">
