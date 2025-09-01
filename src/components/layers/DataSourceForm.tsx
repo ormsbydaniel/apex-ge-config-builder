@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Save, X, Database, Globe, Plus, ArrowLeft, CalendarIcon } from 'lucide-react';
+import { Save, X, Database, Globe, Plus, ArrowLeft, CalendarIcon, Server } from 'lucide-react';
 import { Service, DataSourceFormat, DataSourceItem, TimeframeType } from '@/types/config';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
@@ -467,18 +467,43 @@ const DataSourceForm = ({
 
                     <div className="grid gap-4">
                       {services.map((service) => (
-                        <Card key={service.id} className="border-primary/20 hover:border-primary/40 transition-colors">
+                        <Card key={service.id} className={`border-l-4 ${
+                          service.sourceType === 's3' ? 'border-l-green-500' : 
+                          service.sourceType === 'stac' ? 'border-l-purple-500' : 
+                          'border-l-blue-500'
+                        }`}>
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <h3 className="font-medium">{service.name}</h3>
-                                  <Badge variant="outline">
-                                    {service.sourceType === 's3' || validateS3Url(service.url) ? 'S3 Bucket' : service.format.toUpperCase()}
+                                   {service.sourceType === 's3' ? (
+                                     <Database className="h-4 w-4 text-green-600" />
+                                   ) : service.sourceType === 'stac' ? (
+                                     <Server className="h-4 w-4 text-purple-600" />
+                                   ) : (
+                                     <Globe className="h-4 w-4 text-blue-600" />
+                                   )}
+                                  <h3 className={`font-medium ${
+                                    service.sourceType === 's3' ? 'text-green-700' : 
+                                    service.sourceType === 'stac' ? 'text-purple-700' : 
+                                    'text-blue-700'
+                                  }`}>{service.name}</h3>
+                                  <Badge variant="outline" className={`${
+                                    service.sourceType === 's3' ? 'border-green-300 text-green-700' : 
+                                    service.sourceType === 'stac' ? 'border-purple-300 text-purple-700' : 
+                                    'border-blue-300 text-blue-700'
+                                  }`}>
+                                    {service.sourceType === 's3' ? 'S3 Bucket' : 
+                                     service.sourceType === 'stac' ? 'STAC' : 
+                                     service.format.toUpperCase()}
                                   </Badge>
                                   {service.capabilities?.layers.length && (
-                                    <Badge variant="secondary">
-                                      {service.capabilities.layers.length} layers
+                                    <Badge variant="outline" className="border-green-300 text-green-700">
+                                      {service.capabilities.layers.length} {
+                                        service.sourceType === 's3' ? 'objects' : 
+                                        service.sourceType === 'stac' ? 'collections' : 
+                                        'layers'
+                                      } available
                                     </Badge>
                                   )}
                                 </div>
@@ -490,7 +515,7 @@ const DataSourceForm = ({
                                 size="sm"
                                 className="ml-4"
                               >
-                                Add Layer
+                                Select
                               </Button>
                             </div>
                           </CardContent>
@@ -811,7 +836,7 @@ const DataSourceForm = ({
             {(sourceType === 'direct' || (sourceType === 'service' && showLayerSelection && (!isS3Service || selectedS3Object))) && (
               <Button type="submit" className="bg-primary hover:bg-primary/90">
                 <Save className="h-4 w-4 mr-2" />
-                Add {isStatisticsLayer ? 'Statistics Layer' : 'Data Source'}
+                Select
               </Button>
             )}
           </div>

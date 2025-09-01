@@ -2,6 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Database, Globe, Server } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import LayerQAStatus from './LayerQAStatus';
 
@@ -23,26 +24,41 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
   const getBadgeStyles = () => {
     switch (layerType) {
       case 'swipe':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'border-purple-300 text-purple-700';
       case 'base':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'border-green-300 text-green-700';
       case 'standard':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'border-green-300 text-green-700';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'border-gray-300 text-gray-700';
+    }
+  };
+
+  const getBadgeIcon = () => {
+    switch (layerType) {
+      case 'swipe':
+        return <Server className="h-3 w-3" />;
+      case 'base':
+      case 'standard':
+        return <Database className="h-3 w-3" />;
+      default:
+        return <Globe className="h-3 w-3" />;
     }
   };
 
   return (
     <div className="flex items-center gap-2">
       <Badge variant="outline" className={getBadgeStyles()}>
-        {layerType}
+        <div className="flex items-center gap-1">
+          {getBadgeIcon()}
+          {layerType}
+        </div>
       </Badge>
       {source.isActive && (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+              <Badge variant="outline" className="border-blue-300 text-blue-700">
                 active
               </Badge>
             </TooltipTrigger>
