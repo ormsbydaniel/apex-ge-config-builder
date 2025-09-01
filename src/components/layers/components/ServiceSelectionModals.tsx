@@ -138,51 +138,54 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Search Layers</label>
-                  <input
-                    type="text"
-                    placeholder="Search by name..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-2 border border-input rounded-md"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Layer</label>
-                  {service.capabilities?.layers.length ? (
-                    <div className="grid gap-2 max-h-60 overflow-auto">
-                      {filteredLayers.map((layer) => (
-                        <div key={layer.name} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50">
-                          <div>
-                            <div className="font-medium">{layer.title || layer.name}</div>
-                            {layer.title !== layer.name && (
-                              <div className="text-xs text-muted-foreground">{layer.name}</div>
-                            )}
-                          </div>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              onSelect(service.url, layer.name, service.format as DataSourceFormat);
-                              handleClose();
-                            }}
-                          >
-                            Select
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                      <p className="text-sm text-orange-700">
-                        No layers found. Manual configuration available in next step.
-                      </p>
-                    </div>
-                  )}
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Search Layers</label>
+                <input
+                  type="text"
+                  placeholder="Search by name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full p-2 border border-input rounded-md"
+                />
               </div>
+              {service.capabilities?.layers.length ? (
+                <div className="max-h-96 overflow-y-auto border rounded-md">
+                  <div className="grid gap-2 p-2">
+                    {filteredLayers.map((layer) => (
+                      <div key={layer.name} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                        <div className="flex-1 min-w-0 pr-2">
+                          <div className="font-medium text-sm">{layer.title || layer.name}</div>
+                          {layer.title !== layer.name && (
+                            <div className="text-xs text-muted-foreground mt-1">{layer.name}</div>
+                          )}
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="flex-shrink-0"
+                          onClick={() => {
+                            onSelect(service.url, layer.name, service.format as DataSourceFormat);
+                            handleClose();
+                          }}
+                        >
+                          Select
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                  <p className="text-sm text-orange-700">
+                    No layers found via GetCapabilities. You can proceed and manually configure the layer name in the next step.
+                  </p>
+                </div>
+              )}
+              {service.capabilities?.layers.length && (
+                <div className="text-xs text-muted-foreground">
+                  Showing {filteredLayers.length} of {service.capabilities.layers.length} layers
+                </div>
+              )}
             </div>
           )}
         </div>
