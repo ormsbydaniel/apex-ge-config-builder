@@ -609,8 +609,8 @@ const DataSourceForm = ({
                       </div>
                     )}
                     
-                    {/* Timestamp Picker for Temporal Layers */}
-                    {requiresTimestamp && (
+                    {/* Timestamp Picker for Temporal Layers - Hidden for S3 services */}
+                    {requiresTimestamp && !isS3Service && (
                       <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
                         {hasServiceTimeDimension ? (
                           // Show informational message when service layer has TIME dimension
@@ -661,19 +661,22 @@ const DataSourceForm = ({
                       </div>
                     )}
 
-                    <div className="space-y-2">
-                      <Label htmlFor="serviceZIndex">Z-Index</Label>
-                      <Input
-                        id="serviceZIndex"
-                        name="serviceZIndex"
-                        type="number"
-                        value={zIndex}
-                        onChange={(e) => setZIndex(parseInt(e.target.value) || 2)}
-                        min="0"
-                        max="100"
-                        autoComplete="off"
-                      />
-                    </div>
+                    {/* Z-Index - Hidden for S3 services */}
+                    {!isS3Service && (
+                      <div className="space-y-2">
+                        <Label htmlFor="serviceZIndex">Z-Index</Label>
+                        <Input
+                          id="serviceZIndex"
+                          name="serviceZIndex"
+                          type="number"
+                          value={zIndex}
+                          onChange={(e) => setZIndex(parseInt(e.target.value) || 2)}
+                          min="0"
+                          max="100"
+                          autoComplete="off"
+                        />
+                      </div>
+                    )}
                   </div>
                 </>
               )}
