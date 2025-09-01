@@ -12,9 +12,6 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const toggleable = source.layout?.layerCard?.toggleable;
   const timeframe = source.timeframe;
   
-  console.log('LayerControlsDisplay - source name:', source.name);
-  console.log('LayerControlsDisplay - controls:', controls);
-  console.log('LayerControlsDisplay - download value:', controls?.download);
   
   const hasControls = controls && (controls.opacitySlider || controls.zoomToCenter || controls.download);
   const hasTimeframe = timeframe && timeframe !== 'None';
@@ -22,8 +19,6 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const hasDownload = controls?.download !== undefined;
   
   useEffect(() => {
-    console.log('LayerControlsDisplay - hasDownload:', hasDownload);
-    console.log('LayerControlsDisplay - download URL for tooltip:', controls?.download);
   }, [hasDownload, controls?.download]);
   
   if (!hasControls && !hasTimeframe && !hasToggleable) return null;

@@ -54,14 +54,14 @@ const LayerCardForm = ({
     initialLayer: editingLayer,
     dataSources: editingLayer?.data || [],
     onDataSourcesChange: (updatedDataSources) => {
-      console.log('Data sources updated:', updatedDataSources);
+      
     },
     onLayerTypeChange: (newType) => {
       // Handle layer type migration
       if (editingLayer && editingLayer.data?.length > 0) {
         const migration = analyzeLayerTypeMigration(editingLayer, newType);
         if (migration.warningMessage) {
-          console.log('Migration warning:', migration.warningMessage);
+          // Show migration warning if needed
         }
         if (migration.needsPositionAssignment) {
           // Positions will be handled by the position management hook

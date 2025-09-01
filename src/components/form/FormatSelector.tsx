@@ -12,18 +12,12 @@ interface FormatSelectorProps {
 
 const FormatSelector = ({ selectedFormat, onFormatChange }: FormatSelectorProps) => {
   const handleFormatChange = (value: string) => {
-    console.log('=== FormatSelector Debug ===');
-    console.log('Format changed from:', selectedFormat);
-    console.log('Format changed to:', value);
-    console.log('Value type:', typeof value);
-    console.log('Available formats:', Object.keys(FORMAT_CONFIGS));
-    console.log('===========================');
     
     onFormatChange(value as SourceConfigType);
   };
 
   // Log current state
-  console.log('FormatSelector render - selectedFormat:', selectedFormat);
+  
 
   return (
     <div className="space-y-4">

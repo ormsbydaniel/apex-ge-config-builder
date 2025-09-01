@@ -36,7 +36,7 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
   });
 
   const onSubmit = (data: ExportOptions) => {
-    console.log('Form submitted with data:', data);
+    
     onExport(data);
     onOpenChange(false);
   };

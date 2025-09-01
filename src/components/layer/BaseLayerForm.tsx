@@ -39,7 +39,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false }
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawUrl = e.target.value;
-    console.log(`URL input change: "${rawUrl}"`);
+    
     setUrl(rawUrl);
   };
 
@@ -47,7 +47,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false }
     e.preventDefault();
     
     const sanitizedUrl = sanitizeUrl(url);
-    console.log(`Form submission - Original URL: "${url}", Sanitized: "${sanitizedUrl}"`);
+    
     
     if (!name.trim() || !sanitizedUrl.trim()) {
       toast({
@@ -84,7 +84,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false }
       ...(editingLayer?.meta && { meta: editingLayer.meta })
     };
 
-    console.log(`Submitting base layer with URL: "${sanitizedUrl}"`);
+    
     onAddLayer(baseLayer);
     toast({
       title: isEditing ? "Base Layer Updated" : "Base Layer Added",

@@ -10,6 +10,48 @@ import DrawOrderTab from './config/DrawOrderTab';
 import PreviewTab from './config/PreviewTab';
 import HomeTab from './config/HomeTab';
 
+// Error boundary component to catch context errors
+class ConfigErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(_: Error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('ConfigBuilder Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-red-50">
+          <div className="text-center p-8">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Configuration Error</h1>
+            <p className="text-red-700 mb-4">
+              There was an error loading the configuration builder.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 const ConfigBuilderContent = () => {
   const {
     config,
@@ -135,9 +177,11 @@ const ConfigBuilderContent = () => {
 
 const ConfigBuilder = () => {
   return (
-    <ConfigProvider>
-      <ConfigBuilderContent />
-    </ConfigProvider>
+    <ConfigErrorBoundary>
+      <ConfigProvider>
+        <ConfigBuilderContent />
+      </ConfigProvider>
+    </ConfigErrorBoundary>
   );
 };
 

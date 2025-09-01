@@ -33,21 +33,11 @@ export const useValidatedConfig = () => {
       })
     }));
 
-    // Enhanced base layer detection with debugging
+    // Enhanced base layer detection
     const isBaseLayer = source.isBaseLayer === true;
-    console.log(`useValidatedConfig processing "${source.name}":`, {
-      originalIsBaseLayer: source.isBaseLayer,
-      detectedIsBaseLayer: isBaseLayer,
-      hasLegacyBaseLayerInData: source.data.some(d => d.isBaseLayer === true)
-    });
 
-    // Check for legacy base layer format and transform if needed
     const hasLegacyBaseLayer = source.data.some(d => d.isBaseLayer === true);
     const shouldBeBaseLayer = isBaseLayer || hasLegacyBaseLayer;
-
-    if (hasLegacyBaseLayer && !isBaseLayer) {
-      console.log(`Transforming legacy base layer "${source.name}" to new format`);
-    }
     
     const baseSource = {
       ...source,
@@ -62,7 +52,6 @@ export const useValidatedConfig = () => {
 
     // For base layers (now detected at top level), meta and layout are optional
     if (shouldBeBaseLayer) {
-      console.log(`Processing as base layer: "${source.name}"`);
       return {
         ...baseSource,
         isBaseLayer: true, // Ensure it's explicitly set
@@ -125,7 +114,6 @@ export const useValidatedConfig = () => {
     }
 
     // For layer cards (non-base layers), ensure meta and layout are present
-    console.log(`Processing as layer card: "${source.name}"`);
     const meta = {
       description: source.meta?.description || '',
       attribution: {

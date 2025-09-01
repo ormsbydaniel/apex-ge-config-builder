@@ -50,44 +50,28 @@ const getEnhancedUnionErrorMessage = (error: any, path: (string | number)[], con
 };
 
 const detectSwipeLayerFromInput = (sourceData: any): boolean => {
-  console.log('🔍 SWIPE DETECTION DEBUG: Starting detectSwipeLayerFromInput');
-  console.log('🔍 SWIPE DETECTION DEBUG: Input sourceData:', JSON.stringify(sourceData, null, 2));
   
   // Check for swipe layer indicators in input format (before transformation)
   if (sourceData.data && typeof sourceData.data === 'object' && !Array.isArray(sourceData.data)) {
-    console.log('🔍 SWIPE DETECTION DEBUG: Found data object (not array)');
-    console.log('🔍 SWIPE DETECTION DEBUG: data.type =', sourceData.data.type);
     
     // Direct swipe type indicator
     if (sourceData.data.type === 'swipe') {
-      console.log('🔍 SWIPE DETECTION DEBUG: ✅ Found data.type === "swipe" - SWIPE LAYER DETECTED');
       return true;
     }
     
-    console.log('🔍 SWIPE DETECTION DEBUG: data.clippedSource =', sourceData.data.clippedSource);
-    console.log('🔍 SWIPE DETECTION DEBUG: data.baseSources =', sourceData.data.baseSources);
     
     // Swipe-specific fields
     if (sourceData.data.clippedSource && sourceData.data.baseSources) {
-      console.log('🔍 SWIPE DETECTION DEBUG: ✅ Found clippedSource and baseSources - SWIPE LAYER DETECTED');
       return true;
     }
-  } else {
-    console.log('🔍 SWIPE DETECTION DEBUG: No data object found or data is array/not object');
-    console.log('🔍 SWIPE DETECTION DEBUG: sourceData.data type:', typeof sourceData.data);
-    console.log('🔍 SWIPE DETECTION DEBUG: sourceData.data isArray:', Array.isArray(sourceData.data));
   }
   
   // Check for already transformed swipe layer
-  console.log('🔍 SWIPE DETECTION DEBUG: Checking meta.swipeConfig...');
-  console.log('🔍 SWIPE DETECTION DEBUG: sourceData.meta =', sourceData.meta);
   
   if (sourceData.meta?.swipeConfig) {
-    console.log('🔍 SWIPE DETECTION DEBUG: ✅ Found meta.swipeConfig - TRANSFORMED SWIPE LAYER DETECTED');
     return true;
   }
   
-  console.log('🔍 SWIPE DETECTION DEBUG: ❌ NO SWIPE INDICATORS FOUND - NOT A SWIPE LAYER');
   return false;
 };
 

@@ -225,7 +225,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           }))
         })
       };
-      console.log('Adding source with sanitized URLs:', sanitizedSource);
+      
       return {
         ...state,
         sources: [...state.sources, sanitizedSource],
@@ -273,7 +273,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           }))
         })
       }));
-      console.log('Updating sources with sanitized URLs');
+      
       return {
         ...state,
         sources: sanitizedSources,

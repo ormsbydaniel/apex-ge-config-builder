@@ -41,16 +41,16 @@ export const useConfigImport = () => {
       
       // Detect transformations before normalization for better user feedback
       const detectedTransforms = detectTransformations(jsonData);
-      console.log('Import: Detected transformations:', detectedTransforms);
+      
       
       // IMPORTANT: Normalize imported config BEFORE validation
       // This converts external format (e.g., swipe data objects) to internal format
       const normalizedData = normalizeImportedConfig(jsonData);
-      console.log('Import: Data normalized, now validating with Zod schema');
+      
       
       // Validate the normalized configuration using Zod schema
       const validatedConfig = ConfigurationSchema.parse(normalizedData);
-      console.log('Import: Zod validation successful');
+      
       
       // Fetch capabilities for all services if they exist
       const servicesWithCapabilities = await Promise.all(

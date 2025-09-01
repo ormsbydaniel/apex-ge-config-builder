@@ -20,8 +20,6 @@ export const useConfigExport = () => {
     changeFormatToType: false
   }) => {
     try {
-      console.log('Starting config export with options:', options);
-      console.log('Original config sources:', config.sources);
       
       // Create a clean config object without internal state and capabilities
       const exportData = {
@@ -67,13 +65,11 @@ export const useConfigExport = () => {
         })),
       };
 
-      console.log('Export data before transformations:', exportData);
+      
 
       // Apply export transformations
       const transformedConfig = applyExportTransformations(exportData, options);
 
-      console.log('Export data after transformations:', transformedConfig);
-      console.log('Exporting config with transformations:', options);
       
       const configJson = JSON.stringify(transformedConfig, null, 2);
       const blob = new Blob([configJson], { type: 'application/json' });
