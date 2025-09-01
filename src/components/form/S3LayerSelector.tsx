@@ -186,16 +186,16 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
                         <File className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
                           <span className="font-medium text-sm break-words line-clamp-2 block">{object.key}</span>
-                          {detectedFormat && (
-                            <Badge variant="secondary" className="text-xs mt-1 inline-block">
-                              {detectedFormat.toUpperCase()}
-                            </Badge>
-                          )}
+                          <div className="flex items-center gap-2 mt-1">
+                            {detectedFormat && (
+                              <Badge variant="secondary" className="text-xs">
+                                {detectedFormat.toUpperCase()}
+                              </Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">{formatSize(object.size)}</span>
+                            <span className="text-xs text-muted-foreground">{new Date(object.lastModified).toLocaleDateString()}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground ml-6">
-                        <span>{formatSize(object.size)}</span>
-                        <span>{new Date(object.lastModified).toLocaleDateString()}</span>
                       </div>
                     </div>
                     <Button size="sm" variant="outline" className="flex-shrink-0 self-center">
