@@ -27,8 +27,8 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
   const isStacService = service.sourceType === 'stac';
 
   const handleS3ObjectSelect = (object: S3Object, detectedFormat: DataSourceFormat) => {
-    setSelectedS3Object(object);
-    setDetectedS3Format(detectedFormat);
+    onSelect(object.url, '', detectedFormat);
+    handleClose();
   };
 
   const handleConfirmSelection = () => {
@@ -123,21 +123,10 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
 
           {/* Selection Interface */}
           {isS3Service ? (
-            <div className="space-y-4">
-              {selectedS3Object && detectedS3Format && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center gap-2 text-green-700">
-                    <span className="font-medium">Selected:</span>
-                    <span>{selectedS3Object.key}</span>
-                    <span className="text-sm">({detectedS3Format.toUpperCase()})</span>
-                  </div>
-                </div>
-              )}
-              <S3LayerSelector
-                bucketUrl={service.url}
-                onObjectSelect={handleS3ObjectSelect}
-              />
-            </div>
+            <S3LayerSelector
+              bucketUrl={service.url}
+              onObjectSelect={handleS3ObjectSelect}
+            />
           ) : isStacService ? (
             <div className="space-y-4">
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
@@ -195,19 +184,21 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
           )}
         </div>
 
-        <div className="flex justify-end gap-2 pt-4">
-          <Button variant="outline" onClick={handleClose}>
-            <X className="h-4 w-4 mr-2" />
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleConfirmSelection}
-            disabled={!canConfirm()}
-            className="bg-primary hover:bg-primary/90"
-          >
-            Select & Configure
-          </Button>
-        </div>
+        {!isS3Service && (
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={handleClose}>
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleConfirmSelection}
+              disabled={!canConfirm()}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Select & Configure
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
