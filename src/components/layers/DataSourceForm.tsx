@@ -144,11 +144,6 @@ const DataSourceForm = ({
     setSelectedS3Object(null);
     setDetectedS3Format(null);
     setShowLayerSelection(false);
-    
-    toast({
-      title: "S3 Object Selected",
-      description: `Switched to Direct Connection with ${object.key} (${detectedFormat.toUpperCase()})`,
-    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
