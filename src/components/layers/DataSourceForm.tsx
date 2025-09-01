@@ -19,6 +19,8 @@ import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { validateS3Url, S3Object, getFormatFromExtension } from '@/utils/s3Utils';
+import S3LayerSelector from '@/components/form/S3LayerSelector';
 
 interface DataSourceFormProps {
   services: Service[];
@@ -74,6 +76,10 @@ const DataSourceForm = ({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const requiresTimestamp = timeframe && timeframe !== 'None';
   
+  // S3 object selection state
+  const [selectedS3Object, setSelectedS3Object] = useState<S3Object | null>(null);
+  const [detectedS3Format, setDetectedS3Format] = useState<DataSourceFormat | null>(null);
+  
   // Check if selected layer has TIME dimension
   const selectedLayerInfo = selectedService?.capabilities?.layers.find(layer => layer.name === selectedLayer);
   const hasServiceTimeDimension = selectedLayerInfo?.hasTimeDimension;
@@ -83,7 +89,11 @@ const DataSourceForm = ({
   const validPositions = getValidPositions(layerType);
 
   // Check if current format supports statistics
-  const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
+  const effectiveFormat = detectedS3Format || selectedFormat;
+  const supportsStatistics = effectiveFormat === 'flatgeobuf' || effectiveFormat === 'geojson';
+  
+  // Check if selected service is S3
+  const isS3Service = selectedService && (selectedService.sourceType === 's3' || validateS3Url(selectedService.url));
 
   const handleFormatChange = (format: DataSourceFormat) => {
     setSelectedFormat(format);
@@ -118,6 +128,19 @@ const DataSourceForm = ({
     setShowLayerSelection(false);
     setSelectedService(null);
     setSelectedLayer('');
+    setSelectedS3Object(null);
+    setDetectedS3Format(null);
+  };
+
+  const handleS3ObjectSelect = (object: S3Object, detectedFormat: DataSourceFormat) => {
+    setSelectedS3Object(object);
+    setDetectedS3Format(detectedFormat);
+    setDirectUrl(object.url);
+    
+    toast({
+      title: "S3 Object Selected",
+      description: `Selected ${object.key} (detected as ${detectedFormat.toUpperCase()})`,
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -137,11 +160,18 @@ const DataSourceForm = ({
         return;
       }
       
-      url = selectedService.url;
-      serviceId = selectedService.id;
+      // For S3 services, use the selected object URL if available
+      if (isS3Service && selectedS3Object) {
+        url = selectedS3Object.url;
+        // Don't set serviceId for S3 objects, as they're direct file URLs
+      } else {
+        url = selectedService.url;
+        serviceId = selectedService.id;
+      }
       
       const serviceConfig = FORMAT_CONFIGS[selectedService.format as DataSourceFormat];
-      if (serviceConfig.requiresLayers && !selectedLayer) {
+      // Skip layer validation for S3 services
+      if (!isS3Service && serviceConfig.requiresLayers && !selectedLayer) {
         toast({
           title: "Missing Layer",
           description: "Please select a layer.",
@@ -149,6 +179,17 @@ const DataSourceForm = ({
         });
         return;
       }
+      
+      // For S3 services, validate that an object is selected
+      if (isS3Service && !selectedS3Object) {
+        toast({
+          title: "Missing S3 Object",
+          description: "Please select a file from the S3 bucket.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
       layers = selectedLayer;
     } else {
       if (!directUrl.trim()) {
@@ -202,9 +243,13 @@ const DataSourceForm = ({
       return;
     }
 
+    const finalFormat = sourceType === 'service' && isS3Service && detectedS3Format 
+      ? detectedS3Format 
+      : (sourceType === 'service' ? selectedService!.format : selectedFormat);
+
     const dataSourceItem: DataSourceItem = {
       url,
-      format: sourceType === 'service' ? selectedService!.format : selectedFormat,
+      format: finalFormat,
       zIndex,
       ...(layers && { layers }),
       ...(serviceId && { serviceId }),
@@ -471,10 +516,31 @@ const DataSourceForm = ({
                           <Badge variant="outline">{selectedService?.format.toUpperCase()}</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">{selectedService?.url}</p>
+                        {isS3Service && (
+                          <Badge variant="secondary" className="mt-2">S3 Bucket</Badge>
+                        )}
                       </CardContent>
                     </Card>
 
-                    {selectedService && FORMAT_CONFIGS[selectedService.format as DataSourceFormat].requiresLayers && (
+                    {/* S3 File Browser */}
+                    {isS3Service ? (
+                      <div className="space-y-4">
+                        {selectedS3Object && detectedS3Format && (
+                          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center gap-2 text-green-700">
+                              <span className="font-medium">Selected:</span>
+                              <span>{selectedS3Object.key}</span>
+                              <span className="text-sm">({detectedS3Format.toUpperCase()})</span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <S3LayerSelector
+                          bucketUrl={selectedService.url}
+                          onObjectSelect={handleS3ObjectSelect}
+                        />
+                      </div>
+                    ) : selectedService && FORMAT_CONFIGS[selectedService.format as DataSourceFormat].requiresLayers && (
                       <div className="space-y-2">
                         <Label htmlFor="selectedLayer">Select Layer *</Label>
                         {selectedService.capabilities?.layers.length ? (
@@ -735,7 +801,7 @@ const DataSourceForm = ({
               <X className="h-4 w-4 mr-2" />
               Cancel
             </Button>
-            {(sourceType === 'direct' || (sourceType === 'service' && showLayerSelection)) && (
+            {(sourceType === 'direct' || (sourceType === 'service' && showLayerSelection && (!isS3Service || selectedS3Object))) && (
               <Button type="submit" className="bg-primary hover:bg-primary/90">
                 <Save className="h-4 w-4 mr-2" />
                 Add {isStatisticsLayer ? 'Statistics Layer' : 'Data Source'}
