@@ -127,13 +127,7 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
 
   return (
     <Card className="border-primary/20">
-      <CardHeader>
-        <h3 className="text-lg font-medium text-primary">Select S3 Object</h3>
-        <CardDescription>
-          Choose a file from the S3 bucket. The file format will be automatically detected.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-6">
         {/* Search and Filter Controls */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
