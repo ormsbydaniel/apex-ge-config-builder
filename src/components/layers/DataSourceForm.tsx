@@ -720,7 +720,7 @@ const DataSourceForm = ({
               {((sourceType === 'direct' && directUrl) || (sourceType === 'service' && directUrl)) && (
                 <Button type="submit" className="bg-primary hover:bg-primary/90">
                   <Save className="h-4 w-4 mr-2" />
-                  Add Data Source
+                  Finish
                 </Button>
               )}
             </div>
