@@ -18,11 +18,13 @@ export const normalizeServices = (config: any): any => {
 
     // Infer sourceType based on URL and format
     const isS3Service = service.url && validateS3Url(service.url);
+    const isStacService = service.format === 'stac' || (service.url && service.url.includes('/stac/'));
     
     return {
       ...service,
-      sourceType: isS3Service ? 's3' : 'service',
+      sourceType: isS3Service ? 's3' : isStacService ? 'stac' : 'service',
       // For S3 services, format might be 'cog' but that's ok for backward compatibility
+      // For STAC services, format should be 'stac'
       // The actual format will be determined by file extensions when browsing
     };
   });

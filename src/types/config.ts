@@ -9,8 +9,8 @@ export interface Service {
   id: string;
   name: string;
   url: string;
-  sourceType?: 's3' | 'service'; // Optional, defaults to 'service'
-  format?: DataSourceFormat | 's3'; // Optional for S3 services, required for others
+  sourceType?: 's3' | 'service' | 'stac'; // Optional, defaults to 'service'
+  format?: DataSourceFormat | 's3' | 'stac'; // Optional for S3/STAC services, required for others
   capabilities?: ServiceCapabilities;
 }
 
@@ -156,8 +156,8 @@ export type DataSource = BaseLayer | LayerCard | FlexibleLayer;
 // DataSourceFormat no longer includes 's3'
 export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf';
 
-// New type for source configuration (includes S3)
-export type SourceConfigType = DataSourceFormat | 's3';
+// New type for source configuration (includes S3 and STAC)
+export type SourceConfigType = DataSourceFormat | 's3' | 'stac';
 
 export type LayerType = 'base' | 'layerCard';
 

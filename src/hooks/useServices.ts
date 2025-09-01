@@ -125,14 +125,64 @@ export const useServices = (services: Service[], onAddService: (service: Service
     }
   };
 
-  const addService = async (name: string, url: string, format: DataSourceFormat, sourceType?: 's3' | 'service') => {
+  const fetchStacCatalogue = async (url: string): Promise<{ capabilities: ServiceCapabilities | null; title?: string }> => {
+    try {
+      setIsLoadingCapabilities(true);
+      
+      const response = await fetch(url);
+      const catalogue = await response.json();
+      
+      // Extract title from STAC catalogue
+      const title = catalogue.title || catalogue.id || 'STAC Catalogue';
+      
+      // STAC catalogues don't have "layers" like WMS/WMTS, but they have collections
+      // For now, we'll treat collections as layers
+      const layers = catalogue.links
+        ?.filter((link: any) => link.rel === 'child' || link.rel === 'collection')
+        ?.map((link: any) => ({
+          name: link.href,
+          title: link.title || link.href.split('/').pop() || link.href,
+          abstract: `STAC ${link.rel === 'collection' ? 'Collection' : 'Child Catalogue'}`
+        })) || [];
+
+      return {
+        capabilities: {
+          layers,
+          title: catalogue.title,
+          abstract: catalogue.description
+        },
+        title
+      };
+    } catch (error) {
+      console.error('Error fetching STAC catalogue:', error);
+      toast({
+        title: "STAC Catalogue Error",
+        description: "Failed to fetch catalogue metadata. Please check the catalogue URL.",
+        variant: "destructive"
+      });
+      return { capabilities: null };
+    } finally {
+      setIsLoadingCapabilities(false);
+    }
+  };
+
+  const addService = async (name: string, url: string, format: DataSourceFormat, sourceType?: 's3' | 'service' | 'stac') => {
     // Generate a unique service ID
-    const serviceId = `${sourceType === 's3' ? 's3' : format}-service-${Date.now()}`;
+    const serviceId = `${sourceType === 's3' ? 's3' : sourceType === 'stac' ? 'stac' : format}-service-${Date.now()}`;
     
-    // For S3 sources, fetch bucket contents instead of capabilities
+    // For different source types, fetch appropriate metadata
     let capabilities: ServiceCapabilities | undefined;
+    let serviceName = name.trim();
+    
     if (sourceType === 's3') {
       capabilities = await fetchS3Objects(url) || undefined;
+    } else if (sourceType === 'stac') {
+      const stacResult = await fetchStacCatalogue(url);
+      capabilities = stacResult.capabilities || undefined;
+      // Auto-populate service name from STAC catalogue title if not provided or empty
+      if (!serviceName || serviceName === '') {
+        serviceName = stacResult.title || 'STAC Catalogue';
+      }
     } else if (format !== 'xyz') {
       // For formats that support capabilities, try to fetch them
       capabilities = await parseGetCapabilities(url, format) || undefined;
@@ -140,7 +190,7 @@ export const useServices = (services: Service[], onAddService: (service: Service
 
     const service: Service = {
       id: serviceId,
-      name: name.trim(),
+      name: serviceName,
       url: url.trim(),
       format,
       sourceType,
@@ -150,15 +200,15 @@ export const useServices = (services: Service[], onAddService: (service: Service
     onAddService(service);
     
     if (capabilities?.layers.length) {
-      const itemType = sourceType === 's3' ? 'objects' : 'layers';
+      const itemType = sourceType === 's3' ? 'objects' : sourceType === 'stac' ? 'collections' : 'layers';
       toast({
         title: "Service Added",
-        description: `${name} added with ${capabilities.layers.length} ${itemType} discovered.`,
+        description: `${serviceName} added with ${capabilities.layers.length} ${itemType} discovered.`,
       });
     } else {
       toast({
         title: "Service Added",
-        description: `${name} added. Configure layers manually.`,
+        description: `${serviceName} added. Configure layers manually.`,
       });
     }
 
