@@ -4,13 +4,14 @@ export interface Category {
   value: number;
 }
 
+// Service interface - simplified to avoid discriminated union issues
 export interface Service {
   id: string;
   name: string;
   url: string;
-  format: DataSourceFormat;
-  sourceType?: 's3' | 'service'; // New field to distinguish S3 sources
-  capabilities?: ServiceCapabilities; // Add back the capabilities property
+  sourceType?: 's3' | 'service'; // Optional, defaults to 'service'
+  format?: DataSourceFormat | 's3'; // Optional for S3 services, required for others
+  capabilities?: ServiceCapabilities;
 }
 
 export interface ServiceCapabilities {

@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ConfigurationSchema } from '@/schemas/configSchema';
 import { useConfig } from '@/contexts/ConfigContext';
 import { formatValidationErrors, parseJSONWithLineNumbers } from '@/utils/validationUtils';
-import { ValidationErrorDetails } from '@/types/config';
+import { ValidationErrorDetails, DataSourceFormat } from '@/types/config';
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
 import { normalizeImportedConfig, detectTransformations } from '@/utils/importTransformations';
 
@@ -83,11 +83,17 @@ export const useConfigImport = () => {
             }
           } else {
             // For non-S3 services, fetch normal capabilities
-            const capabilities = await fetchServiceCapabilities(service.url, service.format);
-            return {
-              ...service,
-              ...(capabilities && { capabilities })
-            };
+            // Only if format is a valid DataSourceFormat (not 's3')
+            if (service.format && service.format !== 's3') {
+              const capabilities = await fetchServiceCapabilities(service.url, service.format as DataSourceFormat);
+              return {
+                ...service,
+                ...(capabilities && { capabilities })
+              };
+            } else {
+              // Service has no valid format for GetCapabilities
+              return service;
+            }
           }
         })
       );

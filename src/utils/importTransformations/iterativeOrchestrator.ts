@@ -11,6 +11,7 @@ import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 import { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
 import { preserveTemporalFields } from './transformers/temporalTransformer';
+import { normalizeServices } from './transformers/serviceNormalizer';
 
 /**
  * Enhanced iterative orchestrator with deep transformation tracking
@@ -19,6 +20,9 @@ export const normalizeImportedConfig = (config: any): any => {
   let currentConfig = { ...config };
   let iteration = 0;
   const maxIterations = 10;
+
+  // First, normalize services for backward compatibility
+  currentConfig = normalizeServices(currentConfig);
   
   while (iteration < maxIterations) {
     iteration++;

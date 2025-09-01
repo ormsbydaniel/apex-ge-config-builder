@@ -43,14 +43,14 @@ const urlOrRelativePathSchema = z.string().refine(
   }
 );
 
-// Service schema for serialization (without capabilities)
+// Simplified service schema that allows optional sourceType and format
 export const ServiceSchema = z.object({
   id: z.string(),
   name: z.string(),
   url: urlOrRelativePathSchema,
-  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf']),
   sourceType: z.enum(['s3', 'service']).optional(),
-  // capabilities are not included in serialized config
+  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 's3']).optional(),
+  capabilities: ServiceCapabilitiesSchema.optional(),
 });
 
 // Enhanced DataSourceItem schema with position field and zoom levels

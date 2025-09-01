@@ -171,13 +171,16 @@ export const useValidatedConfig = () => {
   });
 
   // Ensure services have required fields with defaults
-  const validatedServices: Service[] = (config.services || []).map(service => ({
+  const validatedServices = (config.services || []).map(service => ({
     ...service,
     id: service.id || '',
     name: service.name || '',
     url: service.url || '',
-    format: service.format || ('wms' as DataSourceFormat)
-  }));
+    // Handle format - only set if it's a valid format or omit for S3
+    ...(service.format && service.format !== 's3' && { format: service.format as DataSourceFormat }),
+    // Ensure sourceType is set
+    sourceType: service.sourceType || ('service' as const)
+  })) as Service[];
 
   return {
     config: {
