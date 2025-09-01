@@ -34,10 +34,20 @@ const S3ServiceConfigSection = ({
   const [newServiceUrl, setNewServiceUrl] = useState('');
   const [showNewServiceForm, setShowNewServiceForm] = useState(false);
 
-  // Filter services to show only S3 services
-  const s3Services = services.filter(s => s.sourceType === 's3');
+  // Filter services to show only S3 services (allow both 's3' sourceType and 'cog' format for backwards compatibility)
+  const s3Services = services.filter(s => s.sourceType === 's3' || (s.url && validateS3Url(s.url)));
   const selectedService = services.find(s => s.id === formData.data[0]?.serviceId);
   const isValidUrl = formData.data[0]?.url ? validateS3Url(formData.data[0].url) : true;
+
+  // Debug logging to understand the state
+  console.log('S3ServiceConfigSection Debug:', {
+    s3Services: s3Services.map(s => ({ id: s.id, name: s.name, url: s.url, sourceType: s.sourceType })),
+    selectedServiceId: formData.data[0]?.serviceId,
+    selectedService: selectedService ? { id: selectedService.id, name: selectedService.name, url: selectedService.url, sourceType: selectedService.sourceType } : null,
+    formDataUrl: formData.data[0]?.url,
+    isValidUrl,
+    shouldShowBrowser: !!(selectedService && selectedService.url && validateS3Url(selectedService.url))
+  });
 
   const handleAddService = async () => {
     if (newServiceName.trim() && newServiceUrl.trim()) {
