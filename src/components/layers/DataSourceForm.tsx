@@ -470,7 +470,9 @@ const DataSourceForm = ({
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
                                   <h3 className="font-medium">{service.name}</h3>
-                                  <Badge variant="outline">{service.format.toUpperCase()}</Badge>
+                                  <Badge variant="outline">
+                                    {service.sourceType === 's3' || validateS3Url(service.url) ? 'S3 Bucket' : service.format.toUpperCase()}
+                                  </Badge>
                                   {service.capabilities?.layers.length && (
                                     <Badge variant="secondary">
                                       {service.capabilities.layers.length} layers
@@ -513,7 +515,9 @@ const DataSourceForm = ({
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-medium">{selectedService?.name}</h3>
-                          <Badge variant="outline">{selectedService?.format.toUpperCase()}</Badge>
+                          <Badge variant="outline">
+                            {isS3Service ? 'S3 Bucket' : selectedService?.format.toUpperCase()}
+                          </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">{selectedService?.url}</p>
                         {isS3Service && (
