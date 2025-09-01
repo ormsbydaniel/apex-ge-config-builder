@@ -184,25 +184,27 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
                 return (
                   <div
                     key={index}
-                    className="flex items-start gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
+                    className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleObjectSelect(object)}
                   >
-                    <div className="flex-1 min-w-0 max-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <File className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="font-medium text-sm break-all line-clamp-2">{object.key}</span>
-                        {detectedFormat && (
-                          <Badge variant="secondary" className="text-xs flex-shrink-0">
-                            {detectedFormat.toUpperCase()}
-                          </Badge>
-                        )}
+                    <div className="flex-1 min-w-0 pr-2">
+                      <div className="flex items-start gap-2 mb-1">
+                        <File className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium text-sm break-words line-clamp-2 block">{object.key}</span>
+                          {detectedFormat && (
+                            <Badge variant="secondary" className="text-xs mt-1 inline-block">
+                              {detectedFormat.toUpperCase()}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground ml-6">
                         <span>{formatSize(object.size)}</span>
                         <span>{new Date(object.lastModified).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" className="flex-shrink-0">
+                    <Button size="sm" variant="outline" className="flex-shrink-0 self-center">
                       Select
                     </Button>
                   </div>
