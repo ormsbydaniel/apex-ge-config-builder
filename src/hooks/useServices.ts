@@ -100,10 +100,9 @@ export const useServices = (services: Service[], onAddService: (service: Service
       
       const objects = await fetchS3BucketContents(url);
       
-      // Convert S3 objects to layer-like structure for compatibility
       const layers = objects.map(object => ({
         name: object.key,
-        title: object.key.split('/').pop() || object.key, // Use filename as title
+        title: object.key.split('/').pop() || object.key,
         abstract: `S3 Object - Size: ${Math.round(object.size / 1024)}KB, Modified: ${new Date(object.lastModified).toLocaleDateString()}`
       }));
 
@@ -128,22 +127,31 @@ export const useServices = (services: Service[], onAddService: (service: Service
   const fetchStacCatalogue = async (url: string): Promise<{ capabilities: ServiceCapabilities | null; title?: string }> => {
     try {
       setIsLoadingCapabilities(true);
-      
-      const response = await fetch(url);
-      const catalogue = await response.json();
-      
-      // Extract title from STAC catalogue
+
+      const ensureSlash = (u: string) => (u.endsWith('/') ? u : u + '/');
+      const rootUrl = url;
+      const collectionsUrl = ensureSlash(url) + 'collections';
+
+      // Fetch root catalogue for title/description
+      const [rootRes, collRes] = await Promise.all([
+        fetch(rootUrl),
+        fetch(collectionsUrl)
+      ]);
+
+      const catalogue = await rootRes.json();
+      const collectionsJson = await collRes.json();
+
       const title = catalogue.title || catalogue.id || 'STAC Catalogue';
-      
-      // STAC catalogues don't have "layers" like WMS/WMTS, but they have collections
-      // For now, we'll treat collections as layers
-      const layers = catalogue.links
-        ?.filter((link: any) => link.rel === 'child' || link.rel === 'collection')
-        ?.map((link: any) => ({
-          name: link.href,
-          title: link.title || link.href.split('/').pop() || link.href,
-          abstract: `STAC ${link.rel === 'collection' ? 'Collection' : 'Child Catalogue'}`
-        })) || [];
+
+      let layers: any[] = [];
+      const collections = collectionsJson.collections || collectionsJson; // some servers may return array directly
+      if (Array.isArray(collections)) {
+        layers = collections.map((c: any) => ({
+          name: c.id || c.title,
+          title: c.title || c.id,
+          abstract: c.description || 'STAC Collection'
+        }));
+      }
 
       return {
         capabilities: {
@@ -166,7 +174,7 @@ export const useServices = (services: Service[], onAddService: (service: Service
     }
   };
 
-  const addService = async (name: string, url: string, format: DataSourceFormat, sourceType?: 's3' | 'service' | 'stac') => {
+  const addService = async (name: string, url: string, format: DataSourceFormat | 'stac', sourceType?: 's3' | 'service' | 'stac') => {
     // Generate a unique service ID
     const serviceId = `${sourceType === 's3' ? 's3' : sourceType === 'stac' ? 'stac' : format}-service-${Date.now()}`;
     
@@ -183,9 +191,9 @@ export const useServices = (services: Service[], onAddService: (service: Service
       if (!serviceName || serviceName === '') {
         serviceName = stacResult.title || 'STAC Catalogue';
       }
-    } else if (format !== 'xyz') {
+    } else if (format !== 'xyz' && format !== 'stac') {
       // For formats that support capabilities, try to fetch them
-      capabilities = await parseGetCapabilities(url, format) || undefined;
+      capabilities = await parseGetCapabilities(url, format as DataSourceFormat) || undefined;
     }
 
     const service: Service = {

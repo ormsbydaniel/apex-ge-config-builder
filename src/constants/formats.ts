@@ -65,7 +65,7 @@ export const S3_CONFIG = {
 // Add special handling for STAC catalogues
 export const STAC_CONFIG = {
   label: 'STAC Catalogue',
-  urlPlaceholder: 'https://planetarycomputer.microsoft.com/api/stac/v1/',
+  urlPlaceholder: 'https://eoresults.esa.int/stac/',
   description: 'Connect to a STAC (Spatio Temporal Asset Catalogue) endpoint. Service name will be auto-populated from catalogue.',
   supportsGetCapabilities: true // We'll fetch catalogue metadata
 };

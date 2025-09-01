@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,8 +22,37 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
   const [newServiceUrl, setNewServiceUrl] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<SourceConfigType>('wms');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [autoNameLoading, setAutoNameLoading] = useState(false);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
+
+  // Auto-populate STAC service name after user pauses typing URL
+  useEffect(() => {
+    if (selectedFormat !== 'stac') return;
+    const url = newServiceUrl.trim();
+    if (!url) return;
+    const controller = new AbortController();
+    const handle = setTimeout(async () => {
+      try {
+        setAutoNameLoading(true);
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) return;
+        const json = await res.json();
+        const title = json.title || json.id;
+        if (title && !newServiceName.trim()) {
+          setNewServiceName(title);
+        }
+      } catch (_) {
+        // ignore typing cancellations/errors
+      } finally {
+        setAutoNameLoading(false);
+      }
+    }, 600);
+    return () => {
+      controller.abort();
+      clearTimeout(handle);
+    };
+  }, [newServiceUrl, selectedFormat]);
 
   const handleAddService = async () => {
     if (newServiceUrl.trim()) {
@@ -32,7 +61,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
         await addService(newServiceName, newServiceUrl, 'cog', 's3');
       } else if (selectedFormat === 'stac') {
         // For STAC, the service name will be auto-populated from catalogue title
-        await addService(newServiceName, newServiceUrl, 'stac' as any, 'stac');
+        await addService(newServiceName, newServiceUrl, 'stac', 'stac');
       } else {
         await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat, 'service');
       }
@@ -150,7 +179,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                         selectedFormat === 'stac' ? 'Will be auto-populated...' :
                         'e.g., Terrascope WMS'
                       }
-                      disabled={selectedFormat === 'stac' && isLoadingCapabilities}
+                      disabled={selectedFormat === 'stac' && autoNameLoading}
                     />
                   </div>
                 </div>
