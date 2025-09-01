@@ -49,6 +49,7 @@ export const ServiceSchema = z.object({
   name: z.string(),
   url: urlOrRelativePathSchema,
   format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf']),
+  sourceType: z.enum(['s3', 'service']).optional(),
   // capabilities are not included in serialized config
 });
 
