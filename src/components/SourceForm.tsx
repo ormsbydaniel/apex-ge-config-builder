@@ -31,6 +31,14 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
     handleFormatChange,
   } = useSourceForm();
 
+  // Debug logging for SourceForm
+  console.log('SourceForm Debug:', {
+    selectedFormat,
+    formDataServiceId: formData.data[0]?.serviceId,
+    formDataUrl: formData.data[0]?.url,
+    services: services.map(s => ({ id: s.id, name: s.name, format: s.format, sourceType: s.sourceType }))
+  });
+
   const [selectedS3Object, setSelectedS3Object] = useState<S3Object | null>(null);
   const [detectedS3Format, setDetectedS3Format] = useState<DataSourceFormat | null>(null);
 
