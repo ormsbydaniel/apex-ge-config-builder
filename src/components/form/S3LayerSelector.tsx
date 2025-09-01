@@ -128,7 +128,7 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
   return (
     <Card className="border-primary/20">
       <CardHeader>
-        <CardTitle className="text-primary">Select S3 Object</CardTitle>
+        <h3 className="text-lg font-medium text-primary">Select S3 Object</h3>
         <CardDescription>
           Choose a file from the S3 bucket. The file format will be automatically detected.
         </CardDescription>
@@ -184,15 +184,15 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
                 return (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
+                    className="flex items-start gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleObjectSelect(object)}
                   >
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 max-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <File className="h-4 w-4 text-primary" />
-                        <span className="font-medium truncate">{object.key}</span>
+                        <File className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="font-medium text-sm break-all line-clamp-2">{object.key}</span>
                         {detectedFormat && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs flex-shrink-0">
                             {detectedFormat.toUpperCase()}
                           </Badge>
                         )}
@@ -202,7 +202,7 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
                         <span>{new Date(object.lastModified).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className="flex-shrink-0">
                       Select
                     </Button>
                   </div>
