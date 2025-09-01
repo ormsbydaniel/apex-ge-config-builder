@@ -133,13 +133,21 @@ const DataSourceForm = ({
   };
 
   const handleS3ObjectSelect = (object: S3Object, detectedFormat: DataSourceFormat) => {
-    setSelectedS3Object(object);
-    setDetectedS3Format(detectedFormat);
+    // Switch to Direct Connection mode and populate the form
+    setSourceType('direct');
+    setSelectedFormat(detectedFormat);
     setDirectUrl(object.url);
+    
+    // Clear service-related state
+    setSelectedService(null);
+    setSelectedLayer('');
+    setSelectedS3Object(null);
+    setDetectedS3Format(null);
+    setShowLayerSelection(false);
     
     toast({
       title: "S3 Object Selected",
-      description: `Selected ${object.key} (detected as ${detectedFormat.toUpperCase()})`,
+      description: `Switched to Direct Connection with ${object.key} (${detectedFormat.toUpperCase()})`,
     });
   };
 
