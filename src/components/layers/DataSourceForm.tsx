@@ -520,9 +520,6 @@ const DataSourceForm = ({
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">{selectedService?.url}</p>
-                        {isS3Service && (
-                          <Badge variant="secondary" className="mt-2">S3 Bucket</Badge>
-                        )}
                       </CardContent>
                     </Card>
 
