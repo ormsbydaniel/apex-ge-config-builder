@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Plus, Loader2, Globe } from 'lucide-react';
 import { DataSource, DataSourceFormat, Service, SourceConfigType } from '@/types/config';
-import { S3Object } from '@/utils/s3Utils';
+import { S3Object, validateS3Url } from '@/utils/s3Utils';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import S3ServiceConfigSection from './S3ServiceConfigSection';
@@ -30,8 +30,12 @@ const ServiceConfigSection = ({
   onAddService,
   onObjectSelect
 }: ServiceConfigSectionProps) => {
-  // If S3 format is selected, use the specialized S3 component
-  if (selectedFormat === 's3') {
+  // Check if selected service is an S3 service or if S3 format is selected
+  const selectedService = services.find(s => s.id === formData.data[0]?.serviceId);
+  const isS3Service = selectedService && (selectedService.sourceType === 's3' || (selectedService.url && validateS3Url(selectedService.url)));
+  
+  // If S3 format is selected OR selected service is S3, use the specialized S3 component
+  if (selectedFormat === 's3' || isS3Service) {
     return (
       <S3ServiceConfigSection
         formData={formData}
@@ -51,7 +55,7 @@ const ServiceConfigSection = ({
   const [showNewServiceForm, setShowNewServiceForm] = useState(false);
 
   const formatServices = services.filter(s => s.format === selectedFormat);
-  const selectedService = services.find(s => s.id === formData.data[0]?.serviceId);
+  // selectedService is already defined above
 
   const handleAddService = async () => {
     if (newServiceName.trim() && newServiceUrl.trim()) {

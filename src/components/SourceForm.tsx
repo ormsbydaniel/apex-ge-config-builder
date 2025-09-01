@@ -264,7 +264,7 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
               services={services}
               onUpdateFormData={updateFormData}
               onAddService={onAddService}
-              onObjectSelect={selectedFormat === 's3' ? handleS3ObjectSelect : undefined}
+              onObjectSelect={handleS3ObjectSelect}
             />
 
             {/* Only show layer card config if we have a valid configuration */}
