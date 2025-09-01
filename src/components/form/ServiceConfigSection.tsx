@@ -34,8 +34,8 @@ const ServiceConfigSection = ({
   const selectedService = services.find(s => s.id === formData.data[0]?.serviceId);
   const isS3Service = selectedService && (selectedService.sourceType === 's3' || (selectedService.url && validateS3Url(selectedService.url)));
   
-  // Debug logging to understand service detection
-  console.log('ServiceConfigSection Debug:', {
+  // ALWAYS log this - more visible logging
+  console.log('🔍 ServiceConfigSection Analysis:', {
     selectedFormat,
     selectedServiceId: formData.data[0]?.serviceId,
     selectedService: selectedService ? {
@@ -43,7 +43,8 @@ const ServiceConfigSection = ({
       name: selectedService.name,
       url: selectedService.url,
       sourceType: selectedService.sourceType,
-      format: selectedService.format
+      format: selectedService.format,
+      isValidS3Url: selectedService.url ? validateS3Url(selectedService.url) : false
     } : null,
     isS3Service,
     willShowS3Browser: selectedFormat === 's3' || isS3Service
@@ -51,6 +52,7 @@ const ServiceConfigSection = ({
   
   // If S3 format is selected OR selected service is S3, use the specialized S3 component
   if (selectedFormat === 's3' || isS3Service) {
+    console.log('✅ Rendering S3ServiceConfigSection');
     return (
       <S3ServiceConfigSection
         formData={formData}
@@ -61,6 +63,8 @@ const ServiceConfigSection = ({
       />
     );
   }
+  
+  console.log('❌ Rendering regular ServiceConfigSection (not S3)');
 
   const config = FORMAT_CONFIGS[selectedFormat as DataSourceFormat];
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
