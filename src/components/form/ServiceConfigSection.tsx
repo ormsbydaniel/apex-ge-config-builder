@@ -34,6 +34,21 @@ const ServiceConfigSection = ({
   const selectedService = services.find(s => s.id === formData.data[0]?.serviceId);
   const isS3Service = selectedService && (selectedService.sourceType === 's3' || (selectedService.url && validateS3Url(selectedService.url)));
   
+  // Debug logging to understand service detection
+  console.log('ServiceConfigSection Debug:', {
+    selectedFormat,
+    selectedServiceId: formData.data[0]?.serviceId,
+    selectedService: selectedService ? {
+      id: selectedService.id,
+      name: selectedService.name,
+      url: selectedService.url,
+      sourceType: selectedService.sourceType,
+      format: selectedService.format
+    } : null,
+    isS3Service,
+    willShowS3Browser: selectedFormat === 's3' || isS3Service
+  });
+  
   // If S3 format is selected OR selected service is S3, use the specialized S3 component
   if (selectedFormat === 's3' || isS3Service) {
     return (
