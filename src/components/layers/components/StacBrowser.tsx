@@ -208,27 +208,35 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
 
   const getFilteredData = () => {
     const term = searchTerm.toLowerCase();
+    console.log(`Filtering ${currentStep} with term: "${term}"`);
     
     if (currentStep === 'collections') {
-      return collections.filter(c => 
+      const filtered = collections.filter(c => 
         !term || 
         (c.title && c.title.toLowerCase().includes(term)) ||
         c.id.toLowerCase().includes(term) ||
         (c.description && c.description.toLowerCase().includes(term))
       );
+      console.log(`Collections: ${collections.length} total, ${filtered.length} filtered`);
+      return filtered;
     } else if (currentStep === 'items') {
-      return items.filter(i => 
+      const filtered = items.filter(i => 
         !term ||
         i.id.toLowerCase().includes(term) ||
         (i.properties?.title && i.properties.title.toLowerCase().includes(term))
       );
+      console.log(`Items: ${items.length} total, ${filtered.length} filtered`);
+      console.log('Sample item for debugging:', items[0]);
+      return filtered;
     } else if (currentStep === 'assets') {
-      return assets.filter(([key, asset]) =>
+      const filtered = assets.filter(([key, asset]) =>
         !term ||
         key.toLowerCase().includes(term) ||
         (asset.title && asset.title.toLowerCase().includes(term)) ||
         asset.href.toLowerCase().includes(term)
       );
+      console.log(`Assets: ${assets.length} total, ${filtered.length} filtered`);
+      return filtered;
     }
     
     return [];
