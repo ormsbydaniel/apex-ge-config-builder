@@ -183,9 +183,23 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     }
   };
 
+  // Helper to resolve STAC asset URLs (absolute, root-relative, or relative)
+  const resolveAssetUrl = (href: string) => {
+    try {
+      if (/^https?:\/\//i.test(href) || href.startsWith('data:')) return href;
+      const origin = new URL(serviceUrl).origin;
+      if (href.startsWith('/')) return origin + href;
+      return new URL(href, ensureSlash(serviceUrl)).toString();
+    } catch (e) {
+      console.warn('Failed to resolve asset URL, returning original href', href, e);
+      return href;
+    }
+  };
+
   const selectAsset = (assetKey: string, asset: StacAsset) => {
     const format = detectAssetFormat(asset);
-    onAssetSelect(asset.href, format);
+    const resolved = resolveAssetUrl(asset.href);
+    onAssetSelect(resolved, format);
   };
 
   const goBack = () => {
