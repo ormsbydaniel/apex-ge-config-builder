@@ -5,11 +5,19 @@ import { ChevronLeft, Search, Folder, FileText, Download } from 'lucide-react';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
+interface StacLink {
+  rel: string;
+  href: string;
+  type?: string;
+  method?: string;
+}
+
 interface StacCollection {
   id: string;
   title?: string;
   description?: string;
   extent?: any;
+  links?: StacLink[];
 }
 
 interface StacItem {
@@ -55,6 +63,21 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   const [assets, setAssets] = useState<[string, StacAsset][]>([]);
 
   const ensureSlash = (url: string) => url.endsWith('/') ? url : url + '/';
+
+  const appendQueryParam = (url: string, key: string, value: string | number) => {
+    const hasQuery = url.includes('?');
+    const separator = hasQuery ? '&' : '?';
+    return `${url}${separator}${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`;
+  };
+
+  const getItemsUrl = (collection: StacCollection) => {
+    const link = collection.links?.find((l) => l.rel === 'items');
+    let url = link?.href || (ensureSlash(serviceUrl) + `collections/${collection.id}/items`);
+    if (!/[?&]limit=/.test(url)) {
+      url = appendQueryParam(url, 'limit', 100);
+    }
+    return url;
+  };
 
   const detectAssetFormat = (asset: StacAsset): DataSourceFormat => {
     const href = asset.href.toLowerCase();
@@ -105,7 +128,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   const fetchItems = async (collection: StacCollection) => {
     try {
       setLoading(true);
-      const itemsUrl = ensureSlash(serviceUrl) + `collections/${collection.id}/items`;
+      const itemsUrl = getItemsUrl(collection);
       const response = await fetch(itemsUrl);
       
       if (!response.ok) throw new Error('Failed to fetch items');
