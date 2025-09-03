@@ -77,7 +77,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   const fetchCollections = async () => {
     try {
       setLoading(true);
-      const collectionsUrl = ensureSlash(serviceUrl) + 'collections';
+      const collectionsUrl = ensureSlash(serviceUrl) + 'collections?limit=100';
       const response = await fetch(collectionsUrl);
       
       if (!response.ok) throw new Error('Failed to fetch collections');
