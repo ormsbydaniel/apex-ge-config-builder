@@ -167,6 +167,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   };
 
   const selectItem = (item: StacItem) => {
+    setSearchTerm(''); // Clear search when moving to assets step
     if (item.assets) {
       const assetEntries = Object.entries(item.assets);
       setAssets(assetEntries);
