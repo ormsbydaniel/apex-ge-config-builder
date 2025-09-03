@@ -129,18 +129,29 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     try {
       setLoading(true);
       const itemsUrl = getItemsUrl(collection);
+      console.log('Fetching items from URL:', itemsUrl);
       const response = await fetch(itemsUrl);
       
       if (!response.ok) throw new Error('Failed to fetch items');
       
       const data = await response.json();
+      console.log('Raw items response:', data);
+      console.log('Response type:', data.type);
+      console.log('Features array:', data.features);
+      console.log('Items array:', data.items);
+      
       const itemsList = data.features || data.items || data;
+      console.log('Processed items list:', itemsList);
+      console.log('Items list is array:', Array.isArray(itemsList));
+      console.log('Items list length:', itemsList?.length);
       
       if (Array.isArray(itemsList)) {
         setItems(itemsList);
         setSelectedCollection(collection);
         setCurrentStep('items');
+        console.log('Successfully set items, moving to items step');
       } else {
+        console.error('Items list is not an array:', itemsList);
         throw new Error('Invalid items response');
       }
     } catch (error) {
