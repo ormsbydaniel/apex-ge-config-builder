@@ -149,6 +149,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         setItems(itemsList);
         setSelectedCollection(collection);
         setCurrentStep('items');
+        setSearchTerm(''); // Clear search after setting items step
         console.log('Successfully set items, moving to items step');
       } else {
         console.error('Items list is not an array:', itemsList);
