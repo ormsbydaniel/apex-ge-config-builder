@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
@@ -70,4 +70,4 @@ const CategoryItem = ({
   );
 };
 
-export default CategoryItem;
+export default memo(CategoryItem);

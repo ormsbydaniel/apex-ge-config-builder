@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Category } from '@/types/config';
 import { convertColorToHex } from '@/utils/colorUtils';
 import CategoryPreview from './CategoryPreview';
@@ -57,7 +57,7 @@ const CategoryManualEditor = ({
     }
   };
 
-  const handleUpdateCategory = (index: number, field: keyof Category, value: any) => {
+  const handleUpdateCategory = useCallback((index: number, field: keyof Category, value: any) => {
     const updated = localCategories.map((cat, i) => {
       if (i === index) {
         if (field === 'value' && !useValues) {
@@ -70,11 +70,11 @@ const CategoryManualEditor = ({
       return cat;
     });
     setLocalCategories(updated);
-  };
+  }, [localCategories, useValues, setLocalCategories]);
 
-  const handleRemoveCategory = (index: number) => {
+  const handleRemoveCategory = useCallback((index: number) => {
     setLocalCategories(localCategories.filter((_, i) => i !== index));
-  };
+  }, [localCategories, setLocalCategories]);
 
   const handleUseValuesToggle = (checked: boolean) => {
     setUseValues(checked);

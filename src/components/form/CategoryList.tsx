@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Category } from '@/types/config';
 import CategoryItem from './CategoryItem';
@@ -52,4 +52,4 @@ const CategoryList = ({
   );
 };
 
-export default CategoryList;
+export default memo(CategoryList);
