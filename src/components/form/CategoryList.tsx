@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Category } from '@/types/config';
 import CategoryItem from './CategoryItem';
@@ -39,7 +39,7 @@ const CategoryList = ({
       <div className="bg-muted/20 rounded-lg overflow-hidden">
         {categories.map((category, index) => (
           <CategoryItem
-            key={index}
+            key={`${category.label}-${category.color}-${category.value}-${index}`}
             category={category}
             index={index}
             useValues={useValues}
@@ -52,4 +52,4 @@ const CategoryList = ({
   );
 };
 
-export default CategoryList;
+export default memo(CategoryList);

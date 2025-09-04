@@ -4,13 +4,14 @@ export interface Category {
   value: number;
 }
 
+// Service interface - simplified to avoid discriminated union issues
 export interface Service {
   id: string;
   name: string;
   url: string;
-  format: DataSourceFormat;
-  sourceType?: 's3' | 'service'; // New field to distinguish S3 sources
-  capabilities?: ServiceCapabilities; // Add back the capabilities property
+  sourceType?: 's3' | 'service' | 'stac'; // Optional, defaults to 'service'
+  format?: DataSourceFormat | 's3' | 'stac'; // Optional for S3/STAC services, required for others
+  capabilities?: ServiceCapabilities;
 }
 
 export interface ServiceCapabilities {
@@ -155,8 +156,8 @@ export type DataSource = BaseLayer | LayerCard | FlexibleLayer;
 // DataSourceFormat no longer includes 's3'
 export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf';
 
-// New type for source configuration (includes S3)
-export type SourceConfigType = DataSourceFormat | 's3';
+// New type for source configuration (includes S3 and STAC)
+export type SourceConfigType = DataSourceFormat | 's3' | 'stac';
 
 export type LayerType = 'base' | 'layerCard';
 

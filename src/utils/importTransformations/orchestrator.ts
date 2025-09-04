@@ -8,12 +8,16 @@ import { reverseSingleItemTransformation } from './transformers/singleItemTransf
 import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 import { reverseFormatToTypeTransformation } from './transformers/formatToTypeTransformer';
 import { preserveTemporalFields } from './transformers/temporalTransformer';
+import { normalizeServices } from './transformers/serviceNormalizer';
 
 /**
  * Apply all reverse transformations in the correct order
  */
 export const reverseTransformations = (config: any, detectedTransforms: DetectedTransformations): any => {
   let normalizedConfig = { ...config };
+  
+  // First, normalize services for backward compatibility
+  normalizedConfig = normalizeServices(normalizedConfig);
   
   // Remove export metadata if it exists
   if (normalizedConfig._exportMeta) {

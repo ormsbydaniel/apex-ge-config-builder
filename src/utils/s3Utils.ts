@@ -156,5 +156,7 @@ export const fetchS3BucketContents = async (bucketUrl: string): Promise<S3Object
 
 // Validate S3 URL format
 export const validateS3Url = (url: string): boolean => {
-  return parseS3Url(url) !== null;
+  const result = parseS3Url(url) !== null;
+  console.log('🧪 validateS3Url test:', { url, result });
+  return result;
 };

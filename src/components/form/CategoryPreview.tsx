@@ -18,13 +18,19 @@ const CategoryPreview = ({
   return <div className={`space-y-2 pr-4 py-2 pt-2 bg-muted/30 rounded-lg ${className}`}>
       
       <div className="flex flex-wrap gap-1">
-        {categories.map((category, index) => <Badge key={index} variant="outline" className="flex items-center gap-1">
+        {categories.map((category, index) => (
+          <Badge 
+            key={`${category.color}-${category.label || `cat-${index}`}-${category.value}`} 
+            variant="outline" 
+            className="flex items-center gap-1"
+          >
             <div className="w-3 h-3 rounded-full" style={{
           backgroundColor: category.color
         }} />
             {category.label || `Category ${index + 1}`}
             {useValues && category.value !== undefined && <span className="text-xs text-muted-foreground ml-1">({category.value})</span>}
-          </Badge>)}
+          </Badge>
+        ))}
       </div>
     </div>;
 };

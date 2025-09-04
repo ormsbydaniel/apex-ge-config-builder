@@ -64,7 +64,6 @@ const CategoryEditorTabs = ({
 
       <TabsContent value="manual">
         <CategoryManualEditor
-          key={`manual-editor-${localCategories.length}-${localCategories.map(c => c.label).join('-')}`}
           localCategories={localCategories}
           setLocalCategories={onSetLocalCategories}
           useValues={useValues}

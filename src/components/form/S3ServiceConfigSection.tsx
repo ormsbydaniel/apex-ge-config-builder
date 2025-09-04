@@ -1,23 +1,110 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info, Database } from 'lucide-react';
-import { validateS3Url } from '@/utils/s3Utils';
-import { DataSource } from '@/types/config';
+import { Badge } from '@/components/ui/badge';
+import { Info, Database, Plus, Loader2 } from 'lucide-react';
+import { validateS3Url, S3Object, getFormatFromExtension } from '@/utils/s3Utils';
+import { DataSource, Service, DataSourceFormat } from '@/types/config';
+import { useToast } from '@/hooks/use-toast';
+import S3LayerSelector from './S3LayerSelector';
 
 interface S3ServiceConfigSectionProps {
   formData: DataSource;
+  services: Service[];
   onUpdateFormData: (path: string, value: any) => void;
+  onAddService: (service: Service) => void;
+  onObjectSelect?: (object: S3Object, detectedFormat: DataSourceFormat) => void;
 }
 
 const S3ServiceConfigSection = ({
   formData,
-  onUpdateFormData
+  services,
+  onUpdateFormData,
+  onAddService,
+  onObjectSelect
 }: S3ServiceConfigSectionProps) => {
+  const { toast } = useToast();
+  
+  const [newServiceName, setNewServiceName] = useState('');
+  const [newServiceUrl, setNewServiceUrl] = useState('');
+  const [showNewServiceForm, setShowNewServiceForm] = useState(false);
+
+  // Filter services to show only S3 services (allow both 's3' sourceType and 'cog' format for backwards compatibility)
+  const s3Services = services.filter(s => s.sourceType === 's3' || (s.url && validateS3Url(s.url)));
+  const selectedService = services.find(s => s.id === formData.data[0]?.serviceId);
   const isValidUrl = formData.data[0]?.url ? validateS3Url(formData.data[0].url) : true;
+
+  // Debug logging to understand the state
+  console.log('S3ServiceConfigSection Debug:', {
+    s3Services: s3Services.map(s => ({ id: s.id, name: s.name, url: s.url, sourceType: s.sourceType })),
+    selectedServiceId: formData.data[0]?.serviceId,
+    selectedService: selectedService ? { id: selectedService.id, name: selectedService.name, url: selectedService.url, sourceType: selectedService.sourceType } : null,
+    formDataUrl: formData.data[0]?.url,
+    isValidUrl,
+    shouldShowBrowser: !!(selectedService && selectedService.url && validateS3Url(selectedService.url))
+  });
+
+  const handleAddService = async () => {
+    if (newServiceName.trim() && newServiceUrl.trim()) {
+      if (!validateS3Url(newServiceUrl)) {
+        toast({
+          title: "Invalid S3 URL",
+          description: "Please enter a valid S3 bucket URL",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Create S3 service with appropriate format and sourceType
+      const s3Service: Service = {
+        id: crypto.randomUUID(),
+        name: newServiceName,
+        url: newServiceUrl,
+        format: 'cog' as DataSourceFormat, // Default format, will be overridden by file detection
+        sourceType: 's3'
+      };
+      
+      onAddService(s3Service);
+      setNewServiceName('');
+      setNewServiceUrl('');
+      setShowNewServiceForm(false);
+      
+      toast({
+        title: "S3 Service Added",
+        description: `Service "${newServiceName}" has been added successfully.`,
+      });
+    }
+  };
+
+  const handleServiceSelect = (serviceId: string) => {
+    const service = services.find(s => s.id === serviceId);
+    if (service) {
+      onUpdateFormData('data.0.serviceId', serviceId);
+      onUpdateFormData('data.0.url', service.url);
+      // Don't set a format yet - it will be determined when a file is selected
+    }
+  };
+
+  const handleS3ObjectSelect = (object: S3Object, detectedFormat: DataSourceFormat) => {
+    // Update form data with the selected object's URL and detected format
+    onUpdateFormData('data.0.url', object.url);
+    onUpdateFormData('data.0.format', detectedFormat);
+    
+    // Call parent callback if provided
+    if (onObjectSelect) {
+      onObjectSelect(object, detectedFormat);
+    }
+
+    toast({
+      title: "S3 Object Selected",
+      description: `Selected ${object.key} (detected as ${detectedFormat.toUpperCase()})`,
+    });
+  };
 
   return (
     <Card className="border-primary/20">
@@ -38,38 +125,114 @@ const S3ServiceConfigSection = ({
             <ul className="mt-2 space-y-1 text-sm">
               <li>• <strong>Public Read Access:</strong> Bucket policy must allow public read access for the objects you want to use</li>
               <li>• <strong>CORS Configuration:</strong> Must allow GET requests from your domain</li>
-              <li>• <strong>Static Website Hosting:</strong> Not required, but may simplify access</li>
+              <li>• <strong>List Objects Permission:</strong> Bucket must allow listing objects for browsing</li>
             </ul>
-            <div className="mt-3 p-2 bg-muted rounded text-xs">
-              <strong>Example CORS Configuration:</strong><br/>
-              <code>{`[{
-  "AllowedHeaders": ["*"],
-  "AllowedMethods": ["GET"],
-  "AllowedOrigins": ["*"],
-  "ExposeHeaders": []
-}]`}</code>
-            </div>
           </AlertDescription>
         </Alert>
 
         <div className="space-y-2">
-          <Label htmlFor="s3Url">S3 Bucket URL *</Label>
-          <Input
-            id="s3Url"
-            value={formData.data[0]?.url || ''}
-            onChange={(e) => onUpdateFormData('data.0.url', e.target.value)}
-            placeholder="https://esa-apex.s3.eu-west-1.amazonaws.com/"
-            className={!isValidUrl ? 'border-red-300' : ''}
-          />
-          {!isValidUrl && (
-            <p className="text-sm text-red-500">
-              Please enter a valid S3 bucket URL
-            </p>
-          )}
-          <p className="text-xs text-muted-foreground">
-            Supported formats: https://bucket-name.s3.region.amazonaws.com/ or https://s3.region.amazonaws.com/bucket-name/
-          </p>
+          <Label htmlFor="service">Select S3 Service</Label>
+          <div className="flex gap-2">
+            <Select
+              value={formData.data[0]?.serviceId || ''}
+              onValueChange={handleServiceSelect}
+            >
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Select S3 service or add new" />
+              </SelectTrigger>
+              <SelectContent>
+                {s3Services.map((service) => (
+                  <SelectItem key={service.id} value={service.id}>
+                    <div className="flex items-center justify-between w-full">
+                      <span>{service.name}</span>
+                      <Badge variant="secondary" className="ml-2">
+                        S3 Bucket
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowNewServiceForm(!showNewServiceForm)}
+              className="border-primary/30"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+
+        {showNewServiceForm && (
+          <Card className="border-primary/30">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Add New S3 Service</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="newServiceName">Service Name</Label>
+                  <Input
+                    id="newServiceName"
+                    value={newServiceName}
+                    onChange={(e) => setNewServiceName(e.target.value)}
+                    placeholder="e.g., ESA APEX Data"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newServiceUrl">S3 Bucket URL</Label>
+                  <Input
+                    id="newServiceUrl"
+                    value={newServiceUrl}
+                    onChange={(e) => setNewServiceUrl(e.target.value)}
+                    placeholder="https://esa-apex.s3.eu-west-1.amazonaws.com/"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  onClick={handleAddService}
+                  disabled={!newServiceName.trim() || !newServiceUrl.trim()}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Service
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowNewServiceForm(false);
+                    setNewServiceName('');
+                    setNewServiceUrl('');
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* S3 File Browser - Show when service is selected */}
+        {selectedService && selectedService.url && validateS3Url(selectedService.url) && (
+          <Card className="border-green-200 bg-green-50/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base text-green-700">Browse S3 Files</CardTitle>
+              <CardDescription>
+                Select a file from the S3 bucket: {selectedService.name}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <S3LayerSelector
+                bucketUrl={selectedService.url}
+                onObjectSelect={handleS3ObjectSelect}
+              />
+            </CardContent>
+          </Card>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="zIndex">Z-Index</Label>

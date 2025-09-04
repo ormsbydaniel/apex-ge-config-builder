@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Plus, Loader2, Globe } from 'lucide-react';
 import { DataSource, DataSourceFormat, Service, SourceConfigType } from '@/types/config';
+import { S3Object, validateS3Url } from '@/utils/s3Utils';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import S3ServiceConfigSection from './S3ServiceConfigSection';
@@ -18,6 +19,7 @@ interface ServiceConfigSectionProps {
   services: Service[];
   onUpdateFormData: (path: string, value: any) => void;
   onAddService: (service: Service) => void;
+  onObjectSelect?: (object: S3Object, detectedFormat: DataSourceFormat) => void;
 }
 
 const ServiceConfigSection = ({
@@ -25,17 +27,44 @@ const ServiceConfigSection = ({
   selectedFormat,
   services,
   onUpdateFormData,
-  onAddService
+  onAddService,
+  onObjectSelect
 }: ServiceConfigSectionProps) => {
-  // If S3 format is selected, use the specialized S3 component
-  if (selectedFormat === 's3') {
+  // Check if selected service is an S3 service or if S3 format is selected
+  const selectedService = services.find(s => s.id === formData.data[0]?.serviceId);
+  const isS3Service = selectedService && (selectedService.sourceType === 's3' || (selectedService.url && validateS3Url(selectedService.url)));
+  
+  // ALWAYS log this - more visible logging
+  console.log('🔍 ServiceConfigSection Analysis:', {
+    selectedFormat,
+    selectedServiceId: formData.data[0]?.serviceId,
+    selectedService: selectedService ? {
+      id: selectedService.id,
+      name: selectedService.name,
+      url: selectedService.url,
+      sourceType: selectedService.sourceType,
+      format: selectedService.format,
+      isValidS3Url: selectedService.url ? validateS3Url(selectedService.url) : false
+    } : null,
+    isS3Service,
+    willShowS3Browser: selectedFormat === 's3' || isS3Service
+  });
+  
+  // If S3 format is selected OR selected service is S3, use the specialized S3 component
+  if (selectedFormat === 's3' || isS3Service) {
+    console.log('✅ Rendering S3ServiceConfigSection');
     return (
       <S3ServiceConfigSection
         formData={formData}
+        services={services}
         onUpdateFormData={onUpdateFormData}
+        onAddService={onAddService}
+        onObjectSelect={onObjectSelect}
       />
     );
   }
+  
+  console.log('❌ Rendering regular ServiceConfigSection (not S3)');
 
   const config = FORMAT_CONFIGS[selectedFormat as DataSourceFormat];
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
@@ -45,7 +74,7 @@ const ServiceConfigSection = ({
   const [showNewServiceForm, setShowNewServiceForm] = useState(false);
 
   const formatServices = services.filter(s => s.format === selectedFormat);
-  const selectedService = services.find(s => s.id === formData.data[0]?.serviceId);
+  // selectedService is already defined above
 
   const handleAddService = async () => {
     if (newServiceName.trim() && newServiceUrl.trim()) {

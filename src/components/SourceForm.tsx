@@ -17,7 +17,6 @@ import { validateS3Url, S3Object, getFormatFromExtension } from '@/utils/s3Utils
 import FormatSelector from './form/FormatSelector';
 import ServiceConfigSection from './form/ServiceConfigSection';
 import LayerCardConfigSection from './form/LayerCardConfigSection';
-import S3LayerSelector from './form/S3LayerSelector';
 
 const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCancel }: SourceFormProps) => {
   const { toast } = useToast();
@@ -31,6 +30,14 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
     updateFormData,
     handleFormatChange,
   } = useSourceForm();
+
+  // Debug logging for SourceForm
+  console.log('SourceForm Debug:', {
+    selectedFormat,
+    formDataServiceId: formData.data[0]?.serviceId,
+    formDataUrl: formData.data[0]?.url,
+    services: services.map(s => ({ id: s.id, name: s.name, format: s.format, sourceType: s.sourceType }))
+  });
 
   const [selectedS3Object, setSelectedS3Object] = useState<S3Object | null>(null);
   const [detectedS3Format, setDetectedS3Format] = useState<DataSourceFormat | null>(null);
@@ -216,14 +223,6 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
               onFormatChange={handleFormatChange}
             />
 
-            {/* S3 Object Selection */}
-            {selectedFormat === 's3' && formData.data[0]?.url && validateS3Url(formData.data[0].url) && (
-              <S3LayerSelector
-                bucketUrl={formData.data[0].url}
-                onObjectSelect={handleS3ObjectSelect}
-              />
-            )}
-
             {/* Show detected format info for S3 */}
             {selectedS3Object && detectedS3Format && (
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -273,10 +272,11 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
               services={services}
               onUpdateFormData={updateFormData}
               onAddService={onAddService}
+              onObjectSelect={handleS3ObjectSelect}
             />
 
             {/* Only show layer card config if we have a valid configuration */}
-            {(selectedFormat !== 's3' || selectedS3Object) && (
+            {(selectedFormat !== 's3' || (selectedFormat === 's3' && detectedS3Format)) && (
               <LayerCardConfigSection
                 formData={formData}
                 interfaceGroups={interfaceGroups}

@@ -61,3 +61,11 @@ export const S3_CONFIG = {
   description: 'Browse and select files from an S3 bucket. File format will be automatically detected.',
   supportsGetCapabilities: true // We'll fetch bucket contents
 };
+
+// Add special handling for STAC catalogues
+export const STAC_CONFIG = {
+  label: 'STAC Catalogue',
+  urlPlaceholder: 'https://eoresults.esa.int/stac/',
+  description: 'Connect to a STAC (Spatio Temporal Asset Catalogue) endpoint. Service name will be auto-populated from catalogue.',
+  supportsGetCapabilities: true // We'll fetch catalogue metadata
+};

@@ -127,13 +127,7 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
 
   return (
     <Card className="border-primary/20">
-      <CardHeader>
-        <CardTitle className="text-primary">Select S3 Object</CardTitle>
-        <CardDescription>
-          Choose a file from the S3 bucket. The file format will be automatically detected.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-6">
         {/* Search and Filter Controls */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -184,25 +178,27 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
                 return (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
+                    className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleObjectSelect(object)}
                   >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <File className="h-4 w-4 text-primary" />
-                        <span className="font-medium truncate">{object.key}</span>
-                        {detectedFormat && (
-                          <Badge variant="secondary" className="text-xs">
-                            {detectedFormat.toUpperCase()}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>{formatSize(object.size)}</span>
-                        <span>{new Date(object.lastModified).toLocaleDateString()}</span>
+                    <div className="flex-1 min-w-0 pr-2">
+                      <div className="flex items-start gap-2 mb-1">
+                        <File className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium text-sm break-words line-clamp-2 block">{object.key}</span>
+                          <div className="flex items-center gap-2 mt-1">
+                            {detectedFormat && (
+                              <Badge variant="secondary" className="text-xs">
+                                {detectedFormat.toUpperCase()}
+                              </Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">{formatSize(object.size)}</span>
+                            <span className="text-xs text-muted-foreground">{new Date(object.lastModified).toLocaleDateString()}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className="flex-shrink-0 self-center">
                       Select
                     </Button>
                   </div>

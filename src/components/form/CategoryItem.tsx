@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
@@ -23,8 +23,29 @@ const CategoryItem = ({
 }: CategoryItemProps) => {
   const isEvenRow = index % 2 === 0;
   
+  // Local state for label to prevent immediate updates and focus loss
+  const [localLabel, setLocalLabel] = useState(category.label);
+  
+  // Sync local state when category changes from parent
+  useEffect(() => {
+    setLocalLabel(category.label);
+  }, [category.label]);
+  
   // Ensure color is in hex format for the color picker
   const displayColor = convertColorToHex(category.color);
+
+  const handleLabelBlur = () => {
+    if (localLabel !== category.label) {
+      onUpdate(index, 'label', localLabel);
+    }
+  };
+
+  const handleLabelKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      (e.target as HTMLInputElement).blur();
+    }
+  };
 
   return (
     <div 
@@ -41,8 +62,10 @@ const CategoryItem = ({
       />
       
       <Input
-        value={category.label}
-        onChange={(e) => onUpdate(index, 'label', e.target.value)}
+        value={localLabel}
+        onChange={(e) => setLocalLabel(e.target.value)}
+        onBlur={handleLabelBlur}
+        onKeyDown={handleLabelKeyDown}
         placeholder="Category label"
         className="flex-1 h-8 text-sm"
       />
@@ -70,4 +93,4 @@ const CategoryItem = ({
   );
 };
 
-export default CategoryItem;
+export default memo(CategoryItem);
