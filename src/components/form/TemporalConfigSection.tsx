@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,6 +24,9 @@ const TemporalConfigSection = ({
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     defaultTimestamp ? timestampToDate(defaultTimestamp) : undefined
   );
+  
+  // State for calendar navigation
+  const [month, setMonth] = React.useState<Date>(selectedDate || new Date());
 
   const handleTimeframeChange = (newTimeframe: TimeframeType) => {
     onUpdate('timeframe', newTimeframe);
@@ -78,6 +81,78 @@ const TemporalConfigSection = ({
     }
   };
 
+  // Generate year options (1900 to 2050)
+  const yearOptions = Array.from({ length: 151 }, (_, i) => 1900 + i);
+  
+  // Month names
+  const monthOptions = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const handleMonthChange = (monthIndex: string) => {
+    const newMonth = new Date(month.getFullYear(), parseInt(monthIndex), 1);
+    setMonth(newMonth);
+  };
+
+  const handleYearChange = (year: string) => {
+    const newMonth = new Date(parseInt(year), month.getMonth(), 1);
+    setMonth(newMonth);
+  };
+
+  const CustomCaption = ({ displayMonth }: { displayMonth: Date }) => {
+    return (
+      <div className="flex items-center justify-between px-3 py-2">
+        <div className="flex items-center gap-2">
+          <Select value={displayMonth.getMonth().toString()} onValueChange={handleMonthChange}>
+            <SelectTrigger className="w-32 h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {monthOptions.map((monthName, index) => (
+                <SelectItem key={index} value={index.toString()}>
+                  {monthName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select value={displayMonth.getFullYear().toString()} onValueChange={handleYearChange}>
+            <SelectTrigger className="w-20 h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {yearOptions.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() - 1, 1))}
+            className="h-8 w-8 p-0"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 1))}
+            className="h-8 w-8 p-0"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -120,8 +195,13 @@ const TemporalConfigSection = ({
                 mode="single"
                 selected={selectedDate}
                 onSelect={handleDateSelect}
+                month={month}
+                onMonthChange={setMonth}
                 initialFocus
-                className={cn("p-3 pointer-events-auto")}
+                className={cn("p-0 pointer-events-auto")}
+                components={{
+                  Caption: CustomCaption
+                }}
               />
             </PopoverContent>
           </Popover>
