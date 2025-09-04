@@ -182,13 +182,27 @@ const DataSourceForm = ({
     setShowServiceModal(true);
   };
 
-  const handleServiceModalSelection = (url: string, layers: string = '', format?: DataSourceFormat) => {
+  const handleServiceModalSelection = (url: string, layers: string = '', format?: DataSourceFormat, datetime?: string) => {
     // Populate the direct connection form with the selected data
     setDirectUrl(url);
     setDirectLayers(layers);
     if (format) {
       setSelectedFormat(format);
     }
+    
+    // If datetime is provided from STAC and temporal configuration is enabled, set the selected date
+    if (datetime && requiresTimestamp) {
+      try {
+        const parsedDate = new Date(datetime);
+        if (!isNaN(parsedDate.getTime())) {
+          setSelectedDate(parsedDate);
+          setMonth(parsedDate); // Also update the calendar month view
+        }
+      } catch (error) {
+        console.warn('Failed to parse datetime from STAC asset:', datetime, error);
+      }
+    }
+    
     setShowServiceModal(false);
     setSelectedServiceForModal(null);
   };

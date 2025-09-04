@@ -14,7 +14,7 @@ interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (url: string, layers?: string, format?: DataSourceFormat) => void;
+  onSelect: (url: string, layers?: string, format?: DataSourceFormat, datetime?: string) => void;
 }
 
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: ServiceSelectionModalProps) => {
@@ -112,8 +112,8 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
           ) : isStacService ? (
             <StacBrowser
               serviceUrl={service.url}
-              onAssetSelect={(assetUrl, format) => {
-                onSelect(assetUrl, '', format);
+              onAssetSelect={(assetUrl, format, datetime) => {
+                onSelect(assetUrl, '', format, datetime);
                 handleClose();
               }}
             />

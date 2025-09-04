@@ -40,7 +40,7 @@ interface StacAsset {
 
 interface StacBrowserProps {
   serviceUrl: string;
-  onAssetSelect: (assetUrl: string, format: DataSourceFormat) => void;
+  onAssetSelect: (assetUrl: string, format: DataSourceFormat, datetime?: string) => void;
 }
 
 type BrowserStep = 'collections' | 'items' | 'assets';
@@ -199,7 +199,8 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   const selectAsset = (assetKey: string, asset: StacAsset) => {
     const format = detectAssetFormat(asset);
     const resolved = resolveAssetUrl(asset.href);
-    onAssetSelect(resolved, format);
+    const datetime = selectedItem?.properties?.datetime;
+    onAssetSelect(resolved, format, datetime);
   };
 
   const goBack = () => {
