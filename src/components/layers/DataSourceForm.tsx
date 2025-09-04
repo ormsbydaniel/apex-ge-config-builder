@@ -66,10 +66,7 @@ const DataSourceForm = ({
     statisticsLevel
   } = useStatisticsLayer(currentLayerStatistics);
   
-  // New service form
-  const [showNewServiceForm, setShowNewServiceForm] = useState(false);
-  const [newServiceName, setNewServiceName] = useState('');
-  const [newServiceUrl, setNewServiceUrl] = useState('');
+  // Removed new service form state - services should be added via Services menu
   
   // Date picker state for temporal layers
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -168,14 +165,7 @@ const DataSourceForm = ({
     setIsStatisticsLayer(checked);
   };
 
-  const handleAddNewService = async () => {
-    if (newServiceName.trim() && newServiceUrl.trim()) {
-      await addService(newServiceName, newServiceUrl, selectedFormat);
-      setNewServiceName('');
-      setNewServiceUrl('');
-      setShowNewServiceForm(false);
-    }
-  };
+  // Removed handleAddNewService - services should be added via Services menu
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
@@ -381,167 +371,73 @@ const DataSourceForm = ({
             {/* Service Selection */}
             {sourceType === 'service' && !directUrl && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Select Service</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowNewServiceForm(!showNewServiceForm)}
-                    size="sm"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Service
-                  </Button>
-                </div>
+                <Label>Select Service</Label>
 
-                {showNewServiceForm && (
-                  <Card className="border-primary/30">
-                    <CardContent className="p-4 space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="newServiceFormat">Data Format</Label>
-                        <Select value={selectedFormat} onValueChange={handleFormatChange}>
-                          <SelectTrigger id="newServiceFormat">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.entries(FORMAT_CONFIGS).map(([key, config]) => (
-                              <SelectItem key={key} value={key}>
-                                {config.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Statistics Layer Toggle for New Service */}
-                      {supportsStatistics && (
-                        <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="newServiceStatisticsLayer"
-                              name="newServiceStatisticsLayer"
-                              checked={isStatisticsLayer}
-                              onCheckedChange={handleStatisticsToggle}
-                            />
-                            <Label htmlFor="newServiceStatisticsLayer" className="font-medium">
-                              Statistics Layer
-                            </Label>
-                          </div>
-                          
-                          {isStatisticsLayer && (
-                            <div className="space-y-2">
-                              <Label>Level (Auto-assigned)</Label>
-                              <div className="p-2 bg-muted/50 border rounded text-sm">
-                                Level {statisticsLevel}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="newServiceName">Service Name</Label>
-                          <Input
-                            id="newServiceName"
-                            name="newServiceName"
-                            value={newServiceName}
-                            onChange={(e) => setNewServiceName(e.target.value)}
-                            placeholder="e.g., My WMS Service"
-                            autoComplete="organization"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="newServiceUrl">Service URL</Label>
-                          <Input
-                            id="newServiceUrl"
-                            name="newServiceUrl"
-                            value={newServiceUrl}
-                            onChange={(e) => setNewServiceUrl(e.target.value)}
-                            placeholder={FORMAT_CONFIGS[selectedFormat].urlPlaceholder}
-                            autoComplete="url"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          onClick={handleAddNewService}
-                          disabled={!newServiceName.trim() || !newServiceUrl.trim() || isLoadingCapabilities}
-                          size="sm"
-                        >
-                          Add Service
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setShowNewServiceForm(false)}
-                          size="sm"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                <div className="grid gap-4">
-                  {services.map((service) => (
-                    <Card key={service.id} className={`border-l-4 ${
-                      service.sourceType === 's3' ? 'border-l-green-500' : 
-                      service.sourceType === 'stac' ? 'border-l-purple-500' : 
-                      'border-l-blue-500'
-                    }`}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              {service.sourceType === 's3' ? (
-                                <Database className="h-4 w-4 text-green-600" />
-                              ) : service.sourceType === 'stac' ? (
-                                <Server className="h-4 w-4 text-purple-600" />
-                              ) : (
-                                <Globe className="h-4 w-4 text-blue-600" />
-                              )}
-                              <h3 className={`font-medium ${
-                                service.sourceType === 's3' ? 'text-green-700' : 
-                                service.sourceType === 'stac' ? 'text-purple-700' : 
-                                'text-blue-700'
-                              }`}>{service.name}</h3>
-                              <Badge variant="outline" className={`${
-                                service.sourceType === 's3' ? 'border-green-300 text-green-700' : 
-                                service.sourceType === 'stac' ? 'border-purple-300 text-purple-700' : 
-                                'border-blue-300 text-blue-700'
-                              }`}>
-                                {service.sourceType === 's3' ? 'S3 Bucket' : 
-                                 service.sourceType === 'stac' ? 'STAC' : 
-                                 service.format?.toUpperCase()}
-                              </Badge>
-                              {service.capabilities?.layers.length && (
-                                <Badge variant="outline" className="border-green-300 text-green-700">
-                                  {service.capabilities.layers.length} {
-                                    service.sourceType === 's3' ? 'objects' : 
-                                    service.sourceType === 'stac' ? 'collections' : 
-                                    'layers'
-                                  } available
+                {services.length > 0 ? (
+                  <div className="grid gap-4">
+                    {services.map((service) => (
+                      <Card key={service.id} className={`border-l-4 ${
+                        service.sourceType === 's3' ? 'border-l-green-500' : 
+                        service.sourceType === 'stac' ? 'border-l-purple-500' : 
+                        'border-l-blue-500'
+                      }`}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                {service.sourceType === 's3' ? (
+                                  <Database className="h-4 w-4 text-green-600" />
+                                ) : service.sourceType === 'stac' ? (
+                                  <Server className="h-4 w-4 text-purple-600" />
+                                ) : (
+                                  <Globe className="h-4 w-4 text-blue-600" />
+                                )}
+                                <h3 className={`font-medium ${
+                                  service.sourceType === 's3' ? 'text-green-700' : 
+                                  service.sourceType === 'stac' ? 'text-purple-700' : 
+                                  'text-blue-700'
+                                }`}>{service.name}</h3>
+                                <Badge variant="outline" className={`${
+                                  service.sourceType === 's3' ? 'border-green-300 text-green-700' : 
+                                  service.sourceType === 'stac' ? 'border-purple-300 text-purple-700' : 
+                                  'border-blue-300 text-blue-700'
+                                }`}>
+                                  {service.sourceType === 's3' ? 'S3 Bucket' : 
+                                   service.sourceType === 'stac' ? 'STAC' : 
+                                   service.format?.toUpperCase()}
                                 </Badge>
-                              )}
+                                {service.capabilities?.layers.length && (
+                                  <Badge variant="outline" className="border-green-300 text-green-700">
+                                    {service.capabilities.layers.length} {
+                                      service.sourceType === 's3' ? 'objects' : 
+                                      service.sourceType === 'stac' ? 'collections' : 
+                                      'layers'
+                                    } available
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground truncate">{service.url}</p>
                             </div>
-                            <p className="text-sm text-muted-foreground truncate">{service.url}</p>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleServiceSelect(service)}
+                            >
+                              Select
+                            </Button>
                           </div>
-                          <Button
-                            type="button"
-                            onClick={() => handleServiceSelect(service)}
-                            size="sm"
-                            className="ml-4"
-                          >
-                            Select
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 bg-muted/50 border rounded-lg text-center">
+                    <p className="text-muted-foreground">
+                      No services configured. Add new services via the Services menu above.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
