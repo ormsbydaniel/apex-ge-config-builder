@@ -10,6 +10,7 @@ interface LayerFormContainerProps {
   selectedLayerType: LayerType | null;
   interfaceGroups: string[];
   availableSources: DataSource[];
+  availableExclusivitySets?: string[];
   defaultInterfaceGroup?: string;
   onSelectType: (type: LayerType) => void;
   onAddLayer: (layer: DataSource) => void;
@@ -23,6 +24,7 @@ const LayerFormContainer = ({
   selectedLayerType,
   interfaceGroups,
   availableSources,
+  availableExclusivitySets = [],
   defaultInterfaceGroup,
   onSelectType,
   onAddLayer,
@@ -56,6 +58,7 @@ const LayerFormContainer = ({
     return (
       <LayerCardForm
         interfaceGroups={interfaceGroups}
+        availableExclusivitySets={availableExclusivitySets}
         defaultInterfaceGroup={defaultInterfaceGroup}
         onAddLayer={onAddLayer}
         onCancel={onCancel}

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Save, X, Layers, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DataSource } from '@/types/config';
+import UnifiedExclusivitySetsSection from '@/components/form/UnifiedExclusivitySetsSection';
 import { useLayerCardFormPersistence } from '@/hooks/useLayerCardFormPersistence';
 import { useLayerCardFormValidation } from '@/hooks/useLayerCardFormValidation';
 import { useLayerCardFormSubmission } from '@/hooks/useLayerCardFormSubmission';
@@ -21,6 +22,7 @@ import PositionEditor from '@/components/form/PositionEditor';
 
 interface LayerCardFormProps {
   interfaceGroups: string[];
+  availableExclusivitySets?: string[];
   defaultInterfaceGroup?: string;
   onAddLayer: (layer: DataSource) => void;
   onCancel: () => void;
@@ -30,6 +32,7 @@ interface LayerCardFormProps {
 
 const LayerCardForm = ({ 
   interfaceGroups, 
+  availableExclusivitySets = [],
   defaultInterfaceGroup, 
   onAddLayer, 
   onCancel, 
@@ -214,6 +217,14 @@ const LayerCardForm = ({
               timeframe={formData.timeframe || 'None'}
               onUpdate={updateFormData}
             />
+
+            {availableExclusivitySets.length > 0 && (
+              <UnifiedExclusivitySetsSection
+                availableExclusivitySets={availableExclusivitySets}
+                selectedExclusivitySets={formData.exclusivitySets}
+                onUpdateExclusivitySets={(exclusivitySets) => updateFormData('exclusivitySets', exclusivitySets)}
+              />
+            )}
 
 
             <div className="flex justify-end gap-2 pt-4">

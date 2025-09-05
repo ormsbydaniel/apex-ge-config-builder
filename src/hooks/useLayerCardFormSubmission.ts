@@ -12,6 +12,7 @@ interface SubmissionFormData {
   attributionUrl: string;
   hasFeatureStatistics: boolean;
   isActive: boolean;
+  exclusivitySets: string[];
   units: string;
   toggleable: boolean;
   opacitySlider: boolean;
@@ -77,6 +78,7 @@ export const useLayerCardFormSubmission = (
     const layerCard: DataSource = {
       name: formData.name.trim(),
       isActive: formData.isActive,
+      exclusivitySets: formData.exclusivitySets.length > 0 ? formData.exclusivitySets : undefined,
       hasFeatureStatistics: formData.hasFeatureStatistics || undefined,
       // Add temporal configuration at top level if timeframe is not 'None'
       ...(formData.timeframe !== 'None' && {

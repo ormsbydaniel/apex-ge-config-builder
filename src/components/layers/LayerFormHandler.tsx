@@ -13,7 +13,7 @@ interface LayerFormHandlerProps {
   interfaceGroups: string[];
   services: any[];
   editingLayerIndex: number | null;
-  config: { sources: DataSource[] };
+  config: { sources: DataSource[]; exclusivitySets?: string[] };
   defaultInterfaceGroup?: string;
   onSelectType: (type: any) => void;
   onLayerSaved: (layer: DataSource) => void;
@@ -44,18 +44,19 @@ const LayerFormHandler = ({
 }: LayerFormHandlerProps) => {
   if (showLayerForm) {
     return (
-      <LayerFormContainer
-        showLayerForm={showLayerForm}
-        selectedLayerType={selectedLayerType}
-        interfaceGroups={interfaceGroups}
-        availableSources={config.sources}
-        defaultInterfaceGroup={defaultInterfaceGroup}
-        onSelectType={onSelectType}
-        onAddLayer={onLayerSaved}
-        onCancel={onLayerFormCancel}
-        editingLayer={editingLayerIndex !== null ? config.sources[editingLayerIndex] : undefined}
-        isEditing={editingLayerIndex !== null}
-      />
+        <LayerFormContainer
+          showLayerForm={showLayerForm}
+          selectedLayerType={selectedLayerType}
+          interfaceGroups={interfaceGroups}
+          availableSources={config.sources}
+          availableExclusivitySets={config.exclusivitySets || []}
+          defaultInterfaceGroup={defaultInterfaceGroup}
+          onSelectType={onSelectType}
+          onAddLayer={onLayerSaved}
+          onCancel={onLayerFormCancel}
+          editingLayer={editingLayerIndex !== null ? config.sources[editingLayerIndex] : undefined}
+          isEditing={editingLayerIndex !== null}
+        />
     );
   }
 

@@ -171,6 +171,7 @@ const BaseDataSourceObjectSchema = z.object({
   statistics: StatisticsFieldSchema.optional(), // Add optional statistics array
   hasFeatureStatistics: z.boolean().optional(),
   isBaseLayer: z.boolean().optional(), // Add optional isBaseLayer for new format
+  exclusivitySets: z.array(z.string()).optional(), // Array of exclusivity set names
   // New layer type flags
   isSwipeLayer: z.boolean().optional(),
   isMirrorLayer: z.boolean().optional(),

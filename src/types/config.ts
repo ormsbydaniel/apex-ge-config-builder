@@ -124,6 +124,7 @@ interface BaseDataSource {
   statistics?: DataSourceItem[]; // Add statistics array
   hasFeatureStatistics?: boolean;
   isBaseLayer?: boolean; // Add isBaseLayer as optional to base interface
+  exclusivitySets?: string[]; // Array of exclusivity set names this layer belongs to
   // Temporal configuration at top level
   timeframe?: TimeframeType;
   defaultTimestamp?: number;

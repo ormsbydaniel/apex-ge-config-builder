@@ -9,6 +9,7 @@ interface LayerCardFormData {
   interfaceGroup: string;
   attributionText: string;
   attributionUrl: string;
+  exclusivitySets: string[];
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
@@ -47,6 +48,7 @@ export const useLayerCardFormPersistence = (
         interfaceGroup: editingLayer.layout?.interfaceGroup || defaultInterfaceGroup || '',
         attributionText: editingLayer.meta?.attribution?.text || '',
         attributionUrl: editingLayer.meta?.attribution?.url || '',
+        exclusivitySets: editingLayer.exclusivitySets || [],
         toggleable: editingLayer.layout?.layerCard?.toggleable || false,
         opacitySlider: editingLayer.layout?.layerCard?.controls?.opacitySlider || false,
         zoomToCenter: (editingLayer.layout?.layerCard?.controls as any)?.zoomToCenter || false,
@@ -88,6 +90,7 @@ export const useLayerCardFormPersistence = (
       interfaceGroup: defaultInterfaceGroup || '',
       attributionText: '',
       attributionUrl: '',
+      exclusivitySets: [],
       toggleable: false,
       opacitySlider: false,
       zoomToCenter: false,
