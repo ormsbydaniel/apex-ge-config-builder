@@ -53,6 +53,8 @@ export interface DataSourceItem {
   maxZoom?: number;
   // Temporal support
   timestamps?: number[]; // Array of Unix timestamps
+  // Opacity support (0-1 range)
+  opacity?: number;
 }
 
 // Simplified - data is always an array

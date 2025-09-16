@@ -76,6 +76,8 @@ export const DataSourceItemSchema = z.object({
   maxZoom: z.number().optional(),
   // Temporal fields for data items
   timestamps: z.array(z.number()).optional(),
+  // Opacity support (0-1 range)  
+  opacity: z.number().min(0).max(1).optional(),
 }).refine(
   (data) => {
     // Either url or images array must be present
