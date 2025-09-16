@@ -186,7 +186,11 @@ export const useValidatedConfig = () => {
     config: {
       ...config,
       sources: validatedSources,
-      services: validatedServices
+      services: validatedServices,
+      mapConstraints: config.mapConstraints || {
+        zoom: 7,
+        center: [14.0, 47.0]
+      }
     },
     dispatch
   };

@@ -291,6 +291,10 @@ export const ConfigurationSchema = z.object({
   exclusivitySets: z.array(z.string()),
   services: z.array(ServiceSchema).optional().default([]), // Make services optional for backwards compatibility
   sources: z.array(DataSourceSchema),
+  mapConstraints: z.object({
+    zoom: z.number().min(0).max(28),
+    center: z.array(z.number()).length(2), // [longitude, latitude]
+  }).optional(),
 });
 
 export type ValidatedConfiguration = z.infer<typeof ConfigurationSchema>;

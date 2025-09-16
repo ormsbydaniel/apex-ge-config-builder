@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home } from 'lucide-react';
+import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings } from 'lucide-react';
 import { ConfigProvider } from '@/contexts/ConfigContext';
 import { useConfigBuilderState } from '@/hooks/useConfigBuilderState';
 import ServicesManager from './ServicesManager';
@@ -9,6 +9,7 @@ import LayersTab from './config/LayersTab';
 import DrawOrderTab from './config/DrawOrderTab';
 import PreviewTab from './config/PreviewTab';
 import HomeTab from './config/HomeTab';
+import SettingsTab from './config/SettingsTab';
 
 // Error boundary component to catch context errors
 class ConfigErrorBoundary extends React.Component<
@@ -98,7 +99,7 @@ const ConfigBuilderContent = () => {
 
         <div className="w-full">
           <Tabs defaultValue="home" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-6 bg-white border border-primary/20">
+            <TabsList className="grid w-full grid-cols-6 mb-6 bg-white border border-primary/20">
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
                 Home
@@ -114,6 +115,10 @@ const ConfigBuilderContent = () => {
               <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Globe className="h-4 w-4" />
                 Services
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Settings className="h-4 w-4" />
+                Settings
               </TabsTrigger>
               <TabsTrigger value="preview" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <FileJson className="h-4 w-4" />
@@ -163,6 +168,10 @@ const ConfigBuilderContent = () => {
 
             <TabsContent value="services">
               <ServicesManager services={config.services} onAddService={addService} onRemoveService={removeService} />
+            </TabsContent>
+
+            <TabsContent value="settings">
+              <SettingsTab config={config} />
             </TabsContent>
 
             <TabsContent value="preview">
