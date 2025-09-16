@@ -16,7 +16,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const handleLatitudeChange = (value: string) => {
     const latitude = parseFloat(value);
     if (!isNaN(latitude) && latitude >= -90 && latitude <= 90) {
-      const currentCenter = config.mapConstraints?.center || [14.0, 47.0];
+      const currentCenter = config.mapConstraints?.center || [0, 0];
       dispatch({
         type: 'UPDATE_MAP_CONSTRAINTS',
         payload: { center: [currentCenter[0], latitude] }
@@ -27,7 +27,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const handleLongitudeChange = (value: string) => {
     const longitude = parseFloat(value);
     if (!isNaN(longitude) && longitude >= -180 && longitude <= 180) {
-      const currentCenter = config.mapConstraints?.center || [14.0, 47.0];
+      const currentCenter = config.mapConstraints?.center || [0, 0];
       dispatch({
         type: 'UPDATE_MAP_CONSTRAINTS',
         payload: { center: [longitude, currentCenter[1]] }
@@ -43,16 +43,18 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   };
 
   const getZoomTooltip = (zoom: number): string => {
-    if (zoom <= 1) return 'Global';
-    if (zoom >= 3 && zoom <= 5) return 'Continent';
-    if (zoom >= 10 && zoom <= 13) return 'City';
-    if (zoom >= 14 && zoom <= 17) return 'Street';
-    if (zoom === 18) return 'Buildings';
-    return `Zoom ${zoom}`;
+    let label = '';
+    if (zoom <= 1) label = ' (Global)';
+    else if (zoom >= 3 && zoom <= 5) label = ' (Continent)';
+    else if (zoom >= 10 && zoom <= 13) label = ' (City)';
+    else if (zoom >= 14 && zoom <= 17) label = ' (Street)';
+    else if (zoom === 18) label = ' (Buildings)';
+    
+    return `Zoom ${zoom}${label}`;
   };
 
-  const currentZoom = config.mapConstraints?.zoom || 7;
-  const currentCenter = config.mapConstraints?.center || [14.0, 47.0];
+  const currentZoom = config.mapConstraints?.zoom || 0;
+  const currentCenter = config.mapConstraints?.center || [0, 0];
 
   return (
     <div className="space-y-6">
@@ -77,7 +79,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   max="90"
                   value={currentCenter[1].toFixed(6)}
                   onChange={(e) => handleLatitudeChange(e.target.value)}
-                  placeholder="47.0"
+                  placeholder="0"
                 />
               </div>
               <div className="space-y-2">
@@ -90,7 +92,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   max="180"
                   value={currentCenter[0].toFixed(6)}
                   onChange={(e) => handleLongitudeChange(e.target.value)}
-                  placeholder="14.0"
+                  placeholder="0"
                 />
               </div>
             </div>

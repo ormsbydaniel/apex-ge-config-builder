@@ -188,8 +188,8 @@ export const useValidatedConfig = () => {
       sources: validatedSources,
       services: validatedServices,
       mapConstraints: config.mapConstraints || {
-        zoom: 7,
-        center: [14.0, 47.0]
+        zoom: 0,
+        center: [0, 0]
       }
     },
     dispatch

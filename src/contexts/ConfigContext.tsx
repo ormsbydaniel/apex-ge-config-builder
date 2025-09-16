@@ -37,8 +37,8 @@ const initialState: ConfigState = {
   services: [],
   sources: [],
   mapConstraints: {
-    zoom: 7,
-    center: [14.0, 47.0]
+    zoom: 0,
+    center: [0, 0]
   },
   isLoading: false,
   lastSaved: null,
@@ -92,8 +92,8 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...action.payload,
         services: action.payload.services || [],
         mapConstraints: action.payload.mapConstraints || {
-          zoom: 7,
-          center: [14.0, 47.0]
+          zoom: 0,
+          center: [0, 0]
         },
         sources: action.payload.sources.map(source => ({
           ...source,
