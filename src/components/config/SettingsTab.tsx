@@ -47,14 +47,24 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
     }
   };
 
-  const handleLatitudeChange = (value: string) => {
-    setLatitudeInput(value);
-    validateAndUpdateLatitude(value);
+  const handleLatitudeBlur = () => {
+    validateAndUpdateLatitude(latitudeInput);
   };
 
-  const handleLongitudeChange = (value: string) => {
-    setLongitudeInput(value);
-    validateAndUpdateLongitude(value);
+  const handleLongitudeBlur = () => {
+    validateAndUpdateLongitude(longitudeInput);
+  };
+
+  const handleLatitudeKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      validateAndUpdateLatitude(latitudeInput);
+    }
+  };
+
+  const handleLongitudeKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      validateAndUpdateLongitude(longitudeInput);
+    }
   };
 
   const isValidLatitude = (value: string): boolean => {
@@ -109,7 +119,9 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         id="latitude"
                         type="text"
                         value={latitudeInput}
-                        onChange={(e) => handleLatitudeChange(e.target.value)}
+                        onChange={(e) => setLatitudeInput(e.target.value)}
+                        onBlur={handleLatitudeBlur}
+                        onKeyPress={handleLatitudeKeyPress}
                         placeholder="0"
                         className={!isValidLatitude(latitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
                       />
@@ -131,7 +143,9 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         id="longitude"
                         type="text"
                         value={longitudeInput}
-                        onChange={(e) => handleLongitudeChange(e.target.value)}
+                        onChange={(e) => setLongitudeInput(e.target.value)}
+                        onBlur={handleLongitudeBlur}
+                        onKeyPress={handleLongitudeKeyPress}
                         placeholder="0"
                         className={!isValidLongitude(longitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
                       />
