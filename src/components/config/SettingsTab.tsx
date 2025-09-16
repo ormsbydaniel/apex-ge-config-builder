@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -12,12 +12,20 @@ interface SettingsTabProps {
 
 const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const { dispatch } = useConfig();
+  
+  // Local state for input values to allow free typing
+  const currentCenter = config.mapConstraints?.center || [0, 0];
+  const [latitudeInput, setLatitudeInput] = useState(currentCenter[1].toFixed(6));
+  const [longitudeInput, setLongitudeInput] = useState(currentCenter[0].toFixed(6));
+  
+  // Update local state when config changes
+  useEffect(() => {
+    const center = config.mapConstraints?.center || [0, 0];
+    setLatitudeInput(center[1].toFixed(6));
+    setLongitudeInput(center[0].toFixed(6));
+  }, [config.mapConstraints?.center]);
 
-  const handleLatitudeChange = (value: string) => {
-    // Allow only numeric input with optional decimal and sign
-    const numericRegex = /^-?\d*\.?\d*$/;
-    if (!numericRegex.test(value)) return;
-    
+  const validateAndUpdateLatitude = (value: string) => {
     const latitude = parseFloat(value);
     if (!isNaN(latitude) && latitude >= -90 && latitude <= 90) {
       const currentCenter = config.mapConstraints?.center || [0, 0];
@@ -28,11 +36,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
     }
   };
 
-  const handleLongitudeChange = (value: string) => {
-    // Allow only numeric input with optional decimal and sign
-    const numericRegex = /^-?\d*\.?\d*$/;
-    if (!numericRegex.test(value)) return;
-    
+  const validateAndUpdateLongitude = (value: string) => {
     const longitude = parseFloat(value);
     if (!isNaN(longitude) && longitude >= -180 && longitude <= 180) {
       const currentCenter = config.mapConstraints?.center || [0, 0];
@@ -41,6 +45,26 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
         payload: { center: [longitude, currentCenter[1]] }
       });
     }
+  };
+
+  const handleLatitudeChange = (value: string) => {
+    setLatitudeInput(value);
+    validateAndUpdateLatitude(value);
+  };
+
+  const handleLongitudeChange = (value: string) => {
+    setLongitudeInput(value);
+    validateAndUpdateLongitude(value);
+  };
+
+  const isValidLatitude = (value: string): boolean => {
+    const num = parseFloat(value);
+    return !isNaN(num) && num >= -90 && num <= 90;
+  };
+
+  const isValidLongitude = (value: string): boolean => {
+    const num = parseFloat(value);
+    return !isNaN(num) && num >= -180 && num <= 180;
   };
 
   const handleZoomChange = (value: number[]) => {
@@ -62,7 +86,6 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   };
 
   const currentZoom = config.mapConstraints?.zoom || 0;
-  const currentCenter = config.mapConstraints?.center || [0, 0];
 
   return (
     <div className="space-y-6">
@@ -79,23 +102,47 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="latitude" className="text-sm">Latitude</Label>
-                <Input
-                  id="latitude"
-                  type="text"
-                  value={currentCenter[1].toFixed(6)}
-                  onChange={(e) => handleLatitudeChange(e.target.value)}
-                  placeholder="0"
-                />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Input
+                        id="latitude"
+                        type="text"
+                        value={latitudeInput}
+                        onChange={(e) => handleLatitudeChange(e.target.value)}
+                        placeholder="0"
+                        className={!isValidLatitude(latitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
+                      />
+                    </TooltipTrigger>
+                    {!isValidLatitude(latitudeInput) && (
+                      <TooltipContent>
+                        <p>Please enter a valid latitude between -90 and 90</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="longitude" className="text-sm">Longitude</Label>
-                <Input
-                  id="longitude"
-                  type="text"
-                  value={currentCenter[0].toFixed(6)}
-                  onChange={(e) => handleLongitudeChange(e.target.value)}
-                  placeholder="0"
-                />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Input
+                        id="longitude"
+                        type="text"
+                        value={longitudeInput}
+                        onChange={(e) => handleLongitudeChange(e.target.value)}
+                        placeholder="0"
+                        className={!isValidLongitude(longitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
+                      />
+                    </TooltipTrigger>
+                    {!isValidLongitude(longitudeInput) && (
+                      <TooltipContent>
+                        <p>Please enter a valid longitude between -180 and 180</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </div>
