@@ -14,6 +14,10 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const { dispatch } = useConfig();
 
   const handleLatitudeChange = (value: string) => {
+    // Allow only numeric input with optional decimal and sign
+    const numericRegex = /^-?\d*\.?\d*$/;
+    if (!numericRegex.test(value)) return;
+    
     const latitude = parseFloat(value);
     if (!isNaN(latitude) && latitude >= -90 && latitude <= 90) {
       const currentCenter = config.mapConstraints?.center || [0, 0];
@@ -25,6 +29,10 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   };
 
   const handleLongitudeChange = (value: string) => {
+    // Allow only numeric input with optional decimal and sign
+    const numericRegex = /^-?\d*\.?\d*$/;
+    if (!numericRegex.test(value)) return;
+    
     const longitude = parseFloat(value);
     if (!isNaN(longitude) && longitude >= -180 && longitude <= 180) {
       const currentCenter = config.mapConstraints?.center || [0, 0];
@@ -73,10 +81,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                 <Label htmlFor="latitude" className="text-sm">Latitude</Label>
                 <Input
                   id="latitude"
-                  type="number"
-                  step="0.000001"
-                  min="-90"
-                  max="90"
+                  type="text"
                   value={currentCenter[1].toFixed(6)}
                   onChange={(e) => handleLatitudeChange(e.target.value)}
                   placeholder="0"
@@ -86,10 +91,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                 <Label htmlFor="longitude" className="text-sm">Longitude</Label>
                 <Input
                   id="longitude"
-                  type="number"
-                  step="0.000001"
-                  min="-180"
-                  max="180"
+                  type="text"
                   value={currentCenter[0].toFixed(6)}
                   onChange={(e) => handleLongitudeChange(e.target.value)}
                   placeholder="0"
