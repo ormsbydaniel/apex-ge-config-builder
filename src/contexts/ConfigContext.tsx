@@ -91,10 +91,13 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       const normalizedPayload = {
         ...action.payload,
         services: action.payload.services || [],
-        mapConstraints: action.payload.mapConstraints || {
-          zoom: 0,
-          center: [0, 0]
-        },
+        // Only add default mapConstraints if none exist in the imported config
+        mapConstraints: action.payload.mapConstraints !== undefined 
+          ? action.payload.mapConstraints 
+          : {
+              zoom: 0,
+              center: [0, 0]
+            },
         sources: action.payload.sources.map(source => ({
           ...source,
           data: normalizeDataToArray(source.data),
