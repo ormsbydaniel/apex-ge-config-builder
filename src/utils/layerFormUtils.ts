@@ -6,9 +6,16 @@ export const createEmptyLayer = (interfaceGroup?: string): Partial<DataSource> =
     name: '',
     isActive: false,
     data: [],
-    layout: interfaceGroup ? {
-      interfaceGroup
-    } : undefined,
+    layout: {
+      interfaceGroup,
+      layerCard: {
+        toggleable: true, // Default to on
+        controls: {
+          opacitySlider: true, // Default to on
+          zoomToCenter: true   // Default to on
+        }
+      }
+    },
     meta: {
       description: '', // Add required description field
       attribution: {
