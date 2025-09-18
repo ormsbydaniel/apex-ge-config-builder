@@ -33,7 +33,7 @@ const initialState: ConfigState = {
     }
   },
   interfaceGroups: ["Interface group 1", "Interface group 2", "Interface group 3"],
-  exclusivitySets: ["labels"],
+  exclusivitySets: ["basemaps"],
   services: [],
   sources: [],
   mapConstraints: {
