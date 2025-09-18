@@ -16,7 +16,11 @@ const initialFormState: DataSource = {
   layout: {
     interfaceGroup: '',
     layerCard: {
-      toggleable: true
+      toggleable: true,
+      controls: {
+        opacitySlider: true,
+        zoomToCenter: true
+      }
     }
   },
   data: [
