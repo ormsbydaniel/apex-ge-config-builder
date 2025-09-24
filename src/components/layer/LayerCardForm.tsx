@@ -19,6 +19,8 @@ import UnifiedControlsSection from '@/components/form/UnifiedControlsSection';
 import UnifiedTimePeriodSection from '@/components/form/UnifiedTimePeriodSection';
 import LayerTypeRadioGroup from '@/components/form/LayerTypeRadioGroup';
 import PositionEditor from '@/components/form/PositionEditor';
+import ColormapsSection from '@/components/form/ColormapsSection';
+import { useColormaps } from '@/hooks/useColormaps';
 
 interface LayerCardFormProps {
   interfaceGroups: string[];
@@ -87,6 +89,35 @@ const LayerCardForm = ({
     ensureDataSourcesHavePositions
   } = layerOperations;
 
+  // Add colormap management - create a temp layerCard object for useColormaps
+  const layerCardData = {
+    name: formData.name,
+    isActive: formData.isActive,
+    data: [],
+    meta: {
+      description: formData.description,
+      attribution: {
+        text: formData.attributionText,
+        url: formData.attributionUrl
+      },
+      categories: formData.categories,
+      colormaps: formData.colormaps || []
+    }
+  } as DataSource;
+
+  const {
+    newColormap,
+    setNewColormap,
+    showColormaps,
+    setShowColormaps,
+    editingIndex,
+    addColormap,
+    updateColormap,
+    removeColormap,
+    startEditing,
+    cancelEditing
+  } = useColormaps(layerCardData, updateFormData);
+
   // Get data sources for position management
   const dataSources = editingLayer?.data || [];
 
@@ -109,6 +140,7 @@ const LayerCardForm = ({
       ...formData,
       download: (formData as any).download,
       categories: processedCategories || [],
+      colormaps: formData.colormaps || [],
       timeframe: formData.timeframe,
       defaultTimestamp: formData.defaultTimestamp
     });
@@ -197,6 +229,20 @@ const LayerCardForm = ({
               categories={processedCategories || []}
               onUpdate={updateFormData}
               layerName={formData.name || ''}
+            />
+
+            <ColormapsSection
+              formData={layerCardData}
+              newColormap={newColormap}
+              showColormaps={showColormaps}
+              editingIndex={editingIndex}
+              onSetNewColormap={setNewColormap}
+              onSetShowColormaps={setShowColormaps}
+              onAddColormap={addColormap}
+              onUpdateColormap={updateColormap}
+              onRemoveColormap={removeColormap}
+              onStartEditing={startEditing}
+              onCancelEditing={cancelEditing}
             />
 
             <UnifiedLegendTypeSection

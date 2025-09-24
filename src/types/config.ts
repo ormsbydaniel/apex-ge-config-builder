@@ -4,6 +4,14 @@ export interface Category {
   value: number;
 }
 
+export interface Colormap {
+  min: number;
+  max: number;
+  steps: number;
+  name: string;
+  reverse: boolean;
+}
+
 // Service interface - simplified to avoid discriminated union issues
 export interface Service {
   id: string;
@@ -87,6 +95,7 @@ export interface DataSourceMeta {
     url?: string;
   };
   categories?: Category[];
+  colormaps?: Colormap[];
   units?: string;
   // Additional fields for color ramps and statistics
   min?: number;

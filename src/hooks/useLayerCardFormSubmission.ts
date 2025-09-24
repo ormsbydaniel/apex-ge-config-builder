@@ -1,8 +1,6 @@
 
-import { DataSource } from '@/types/config';
+import { DataSource, Colormap, TimeframeType } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
-
-import { TimeframeType } from '@/types/config';
 
 interface SubmissionFormData {
   name: string;
@@ -25,6 +23,7 @@ interface SubmissionFormData {
   minValue: string;
   maxValue: string;
   categories: Array<{ label: string; color: string; value: number }>;
+  colormaps: Colormap[];
   timeframe: TimeframeType;
   defaultTimestamp?: number;
 }
@@ -64,6 +63,7 @@ export const useLayerCardFormSubmission = (
         url: formData.attributionUrl.trim() || undefined,
       },
       categories: processedCategories && processedCategories.length > 0 ? processedCategories : undefined,
+      colormaps: formData.colormaps && formData.colormaps.length > 0 ? formData.colormaps : undefined,
       units: formData.units.trim() || undefined,
       // Add gradient fields if legend type is gradient
       ...(formData.legendType === 'gradient' && {

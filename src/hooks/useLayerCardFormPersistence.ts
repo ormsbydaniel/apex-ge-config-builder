@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { DataSource, Category, TimeframeType } from '@/types/config';
+import { DataSource, Category, Colormap, TimeframeType } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
 interface LayerCardFormData {
@@ -21,6 +21,7 @@ interface LayerCardFormData {
   minValue: string;
   maxValue: string;
   categories: Category[];
+  colormaps: Colormap[];
   units: string;
   hasFeatureStatistics: boolean;
   isActive: boolean;
@@ -60,6 +61,7 @@ export const useLayerCardFormPersistence = (
         minValue: editingLayer.meta?.min?.toString() || '',
         maxValue: editingLayer.meta?.max?.toString() || '',
         categories: editingLayer.meta?.categories || [],
+        colormaps: editingLayer.meta?.colormaps || [],
         units: editingLayer.meta?.units || '',
         hasFeatureStatistics: editingLayer.hasFeatureStatistics || false,
         isActive: editingLayer.isActive || false,
@@ -102,6 +104,7 @@ export const useLayerCardFormPersistence = (
       minValue: '',
       maxValue: '',
       categories: [],
+      colormaps: [],
       units: '',
       hasFeatureStatistics: false,
       isActive: false,
