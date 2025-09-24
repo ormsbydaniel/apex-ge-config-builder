@@ -16,6 +16,7 @@ const ColormapsSection = ({
 }: ColormapsSectionProps) => {
 
   const handleColormapsUpdate = (updatedColormaps: Colormap[]) => {
+    console.log('ColormapsSection: Updating colormaps:', updatedColormaps);
     if (typeof onUpdate === 'function') {
       onUpdate('colormaps', updatedColormaps);
     }

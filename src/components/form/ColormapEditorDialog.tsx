@@ -40,7 +40,7 @@ const ColormapEditorDialog = ({
   const [currentColormap, setCurrentColormap] = useState<Colormap>({
     min: 0,
     max: 1,
-    steps: 10,
+    steps: 50,
     name: 'jet',
     reverse: false
   });
@@ -49,7 +49,7 @@ const ColormapEditorDialog = ({
     setCurrentColormap({
       min: 0,
       max: 1,
-      steps: 10,
+      steps: 50,
       name: 'jet',
       reverse: false
     });
@@ -72,6 +72,9 @@ const ColormapEditorDialog = ({
       return;
     }
 
+    console.log('ColormapEditorDialog: Saving colormap:', currentColormap);
+    console.log('ColormapEditorDialog: Current colormaps:', colormaps);
+    
     const updatedColormaps = [...colormaps];
     
     if (editingIndex !== null) {
@@ -88,6 +91,7 @@ const ColormapEditorDialog = ({
       });
     }
 
+    console.log('ColormapEditorDialog: Updated colormaps:', updatedColormaps);
     onUpdate(updatedColormaps);
     setOpen(false);
     resetColormap();

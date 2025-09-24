@@ -132,6 +132,7 @@ export const useLayerCardFormPersistence = (
   }, [formData, isDirty, isEditing]);
 
   const updateFormData = useCallback((field: string, value: any) => {
+    console.log('useLayerCardFormPersistence: Updating field:', field, 'with value:', value);
     setFormData(prev => {
       const keys = field.split('.');
       const updated = { ...prev };
@@ -146,6 +147,7 @@ export const useLayerCardFormPersistence = (
       }
       
       current[keys[keys.length - 1]] = value;
+      console.log('useLayerCardFormPersistence: Updated form data:', updated);
       return updated;
     });
     setIsDirty(true);

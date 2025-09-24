@@ -26,7 +26,7 @@ export const COLORMAP_OPTIONS = [
   'magma',
   'plasma',
   'warm',
-  'cool',
+  'cool-water',
   'rainbow-soft',
   'bathymetry',
   'cdom',

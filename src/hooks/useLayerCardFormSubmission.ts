@@ -35,6 +35,8 @@ export const useLayerCardFormSubmission = (
   const { toast } = useToast();
 
   const createLayerFromFormData = (formData: SubmissionFormData): DataSource => {
+    console.log('useLayerCardFormSubmission: Creating layer from form data:', formData);
+    
     // Process categories to ensure they have the required value property
     const processedCategories = formData.categories?.map((cat, index) => ({
       label: cat.label || '',
@@ -75,6 +77,8 @@ export const useLayerCardFormSubmission = (
       // Remove temporal configuration from meta - it's now at top level
     };
 
+    console.log('useLayerCardFormSubmission: Meta object:', metaObject);
+
     const layerCard: DataSource = {
       name: formData.name.trim(),
       isActive: formData.isActive,
@@ -100,6 +104,7 @@ export const useLayerCardFormSubmission = (
       statistics: editingLayer?.statistics
     };
 
+    console.log('useLayerCardFormSubmission: Final layer card:', layerCard);
     return layerCard;
   };
 
