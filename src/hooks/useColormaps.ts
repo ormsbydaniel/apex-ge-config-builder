@@ -10,7 +10,7 @@ export const useColormaps = (
   const [newColormap, setNewColormap] = useState<Colormap>({ 
     min: 0,
     max: 1,
-    steps: 10,
+    steps: 50,
     name: 'jet',
     reverse: false
   });
@@ -19,12 +19,18 @@ export const useColormaps = (
   const addColormap = () => {
     if (newColormap.min < newColormap.max && newColormap.steps > 0) {
       const colormapToAdd: Colormap = { ...newColormap };
+      const existingColormaps = formData.meta?.colormaps || [];
       
-      updateFormData('meta.colormaps', [...(formData.meta?.colormaps || []), colormapToAdd]);
+      updateFormData('meta.colormaps', [...existingColormaps, colormapToAdd]);
+      
+      // Set the next colormap's min to current max, and increment max
+      const nextMin = newColormap.max;
+      const nextMax = nextMin + 1;
+      
       setNewColormap({ 
-        min: 0,
-        max: 1,
-        steps: 10,
+        min: nextMin,
+        max: nextMax,
+        steps: 50,
         name: 'jet',
         reverse: false
       });
@@ -45,7 +51,7 @@ export const useColormaps = (
       setNewColormap({ 
         min: 0,
         max: 1,
-        steps: 10,
+        steps: 50,
         name: 'jet',
         reverse: false
       });
@@ -65,7 +71,7 @@ export const useColormaps = (
       setNewColormap({ 
         min: 0,
         max: 1,
-        steps: 10,
+        steps: 50,
         name: 'jet',
         reverse: false
       });
@@ -85,7 +91,7 @@ export const useColormaps = (
     setNewColormap({ 
       min: 0,
       max: 1,
-      steps: 10,
+      steps: 50,
       name: 'jet',
       reverse: false
     });
