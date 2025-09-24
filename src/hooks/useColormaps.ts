@@ -14,7 +14,6 @@ export const useColormaps = (
     name: 'jet',
     reverse: false
   });
-  const [showColormaps, setShowColormaps] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const addColormap = () => {
@@ -95,8 +94,6 @@ export const useColormaps = (
   return {
     newColormap,
     setNewColormap,
-    showColormaps,
-    setShowColormaps,
     editingIndex,
     addColormap,
     updateColormap,

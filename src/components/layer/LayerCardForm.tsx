@@ -20,7 +20,6 @@ import UnifiedTimePeriodSection from '@/components/form/UnifiedTimePeriodSection
 import LayerTypeRadioGroup from '@/components/form/LayerTypeRadioGroup';
 import PositionEditor from '@/components/form/PositionEditor';
 import ColormapsSection from '@/components/form/ColormapsSection';
-import { useColormaps } from '@/hooks/useColormaps';
 
 interface LayerCardFormProps {
   interfaceGroups: string[];
@@ -104,19 +103,6 @@ const LayerCardForm = ({
       colormaps: formData.colormaps || []
     }
   } as DataSource;
-
-  const {
-    newColormap,
-    setNewColormap,
-    showColormaps,
-    setShowColormaps,
-    editingIndex,
-    addColormap,
-    updateColormap,
-    removeColormap,
-    startEditing,
-    cancelEditing
-  } = useColormaps(layerCardData, updateFormData);
 
   // Get data sources for position management
   const dataSources = editingLayer?.data || [];
@@ -233,16 +219,7 @@ const LayerCardForm = ({
 
             <ColormapsSection
               formData={layerCardData}
-              newColormap={newColormap}
-              showColormaps={showColormaps}
-              editingIndex={editingIndex}
-              onSetNewColormap={setNewColormap}
-              onSetShowColormaps={setShowColormaps}
-              onAddColormap={addColormap}
-              onUpdateColormap={updateColormap}
-              onRemoveColormap={removeColormap}
-              onStartEditing={startEditing}
-              onCancelEditing={cancelEditing}
+              onUpdate={updateFormData}
             />
 
             <UnifiedLegendTypeSection

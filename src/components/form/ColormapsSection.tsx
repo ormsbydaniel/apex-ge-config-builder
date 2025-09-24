@@ -1,129 +1,78 @@
 import React from 'react';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Edit3, Trash2 } from 'lucide-react';
 import { DataSource, Colormap } from '@/types/config';
 import ColormapEditorDialog from './ColormapEditorDialog';
 
 interface ColormapsSectionProps {
   formData: DataSource;
-  newColormap: Colormap;
-  showColormaps: boolean;
-  editingIndex: number | null;
-  onSetNewColormap: (colormap: Colormap) => void;
-  onSetShowColormaps: (show: boolean) => void;
-  onAddColormap: () => void;
-  onUpdateColormap: (index: number) => void;
-  onRemoveColormap: (index: number) => void;
-  onStartEditing: (index: number) => void;
-  onCancelEditing: () => void;
+  onUpdate?: (field: string, value: any) => void;
 }
 
 const ColormapsSection = ({
   formData,
-  newColormap,
-  showColormaps,
-  editingIndex,
-  onSetNewColormap,
-  onSetShowColormaps,
-  onAddColormap,
-  onUpdateColormap,
-  onRemoveColormap,
-  onStartEditing,
-  onCancelEditing
+  onUpdate
 }: ColormapsSectionProps) => {
-  const [showEditor, setShowEditor] = React.useState(false);
+  const colormaps = formData.meta?.colormaps || [];
 
-  const handleAddClick = () => {
-    setShowEditor(true);
-  };
-
-  const handleEditClick = (index: number) => {
-    onStartEditing(index);
-    setShowEditor(true);
-  };
-
-  const handleSave = () => {
-    if (editingIndex !== null) {
-      onUpdateColormap(editingIndex);
-    } else {
-      onAddColormap();
+  const handleColormapsUpdate = (updatedColormaps: Colormap[]) => {
+    // Update the colormaps in formData through the parent's update function
+    const currentMeta = formData.meta || {
+      description: formData.meta?.description || '',
+      attribution: formData.meta?.attribution || { text: '', url: '' }
+    };
+    
+    const updatedMeta = {
+      ...currentMeta,
+      colormaps: updatedColormaps
+    };
+    
+    // Update the formData properly (assuming updateFormData is available)
+    if (typeof onUpdate === 'function') {
+      onUpdate('meta.colormaps', updatedColormaps);
     }
-    setShowEditor(false);
-  };
-
-  const handleCancel = () => {
-    onCancelEditing();
-    setShowEditor(false);
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Colormaps (Optional)</h3>
-        <Switch
-          checked={showColormaps}
-          onCheckedChange={onSetShowColormaps}
-        />
-      </div>
+      <h4 className="font-medium">Colormaps</h4>
       
-      {showColormaps && (
-        <div className="space-y-4 p-4 border rounded-lg bg-slate-50">
-          <p className="text-sm text-slate-600">
-            Define color mappings for data visualization
-          </p>
-          
-          <div className="flex justify-between items-center">
-            <h4 className="text-sm font-medium">Current Colormaps</h4>
-            <Button type="button" onClick={handleAddClick} size="sm">
-              <Plus className="h-4 w-4 mr-1" />
-              Add Colormap
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {formData.meta?.colormaps?.map((colormap, index) => (
-              <Badge key={index} variant="secondary" className="flex items-center gap-2 px-3 py-1">
-                <div className="flex flex-col text-xs">
-                  <span className="font-medium">{colormap.name}</span>
-                  <span className="text-muted-foreground">
-                    {colormap.min}-{colormap.max} ({colormap.steps} steps)
-                    {colormap.reverse && ' • reversed'}
-                  </span>
-                </div>
-                <div className="flex gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleEditClick(index)}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <Edit2 className="h-3 w-3" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onRemoveColormap(index)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
-                </div>
-              </Badge>
-            ))}
-            {(!formData.meta?.colormaps || formData.meta.colormaps.length === 0) && (
-              <span className="text-sm text-muted-foreground">No colormaps added yet</span>
-            )}
-          </div>
+      {colormaps.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {colormaps.map((colormap, index) => (
+            <Badge key={index} variant="secondary" className="flex items-center gap-2 px-3 py-1">
+              <div className="flex flex-col text-xs">
+                <span className="font-medium">{colormap.name}</span>
+                <span className="text-muted-foreground">
+                  {colormap.min}-{colormap.max} ({colormap.steps} steps)
+                  {colormap.reverse && ' • reversed'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const updatedColormaps = colormaps.filter((_, i) => i !== index);
+                  onUpdate?.('colormaps', updatedColormaps);
+                }}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
         </div>
       )}
-
+      
       <ColormapEditorDialog
-        open={showEditor}
-        onClose={handleCancel}
-        onSave={handleSave}
-        colormap={newColormap}
-        onColormapChange={onSetNewColormap}
-        isEditing={editingIndex !== null}
+        colormaps={colormaps}
+        onUpdate={handleColormapsUpdate}
+        trigger={
+          <Button type="button" variant="outline" size="sm" className="bg-white border-transparent text-blue-600 hover:bg-blue-50 text-xs px-2 py-1 h-7">
+            <Edit3 className="h-4 w-4 mr-2" />
+            {colormaps.length > 0 ? `Edit Colormaps (${colormaps.length})` : "Add Colormaps"}
+          </Button>
+        }
       />
     </div>
   );
