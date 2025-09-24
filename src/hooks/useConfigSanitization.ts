@@ -7,6 +7,7 @@ export const useConfigSanitization = (config: any) => {
     layout: config.layout,
     interfaceGroups: config.interfaceGroups,
     exclusivitySets: config.exclusivitySets,
+    ...(config.mapConstraints && { mapConstraints: config.mapConstraints }),
     services: config.services?.map((service: any) => ({
       ...service,
       url: sanitizeUrl(service.url)

@@ -68,6 +68,24 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
           </Tooltip>
         </TooltipProvider>
       )}
+      {source.exclusivitySets && source.exclusivitySets.length > 0 && (
+        <div className="flex items-center gap-1">
+          {source.exclusivitySets.map((exclusivitySet) => (
+            <TooltipProvider key={exclusivitySet}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="border-orange-300 text-orange-700 text-xs px-1.5 py-0.5">
+                    {exclusivitySet}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Exclusivity Set: {exclusivitySet}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
+        </div>
+      )}
       <LayerQAStatus source={source} />
     </div>
   );

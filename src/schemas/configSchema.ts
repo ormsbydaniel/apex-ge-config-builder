@@ -76,6 +76,8 @@ export const DataSourceItemSchema = z.object({
   maxZoom: z.number().optional(),
   // Temporal fields for data items
   timestamps: z.array(z.number()).optional(),
+  // Opacity support (0-1 range)  
+  opacity: z.number().min(0).max(1).optional(),
 }).refine(
   (data) => {
     // Either url or images array must be present
@@ -171,6 +173,7 @@ const BaseDataSourceObjectSchema = z.object({
   statistics: StatisticsFieldSchema.optional(), // Add optional statistics array
   hasFeatureStatistics: z.boolean().optional(),
   isBaseLayer: z.boolean().optional(), // Add optional isBaseLayer for new format
+  exclusivitySets: z.array(z.string()).optional(), // Array of exclusivity set names
   // New layer type flags
   isSwipeLayer: z.boolean().optional(),
   isMirrorLayer: z.boolean().optional(),
@@ -290,6 +293,10 @@ export const ConfigurationSchema = z.object({
   exclusivitySets: z.array(z.string()),
   services: z.array(ServiceSchema).optional().default([]), // Make services optional for backwards compatibility
   sources: z.array(DataSourceSchema),
+  mapConstraints: z.object({
+    zoom: z.number().min(0).max(28),
+    center: z.array(z.number()).length(2), // [longitude, latitude]
+  }).optional(),
 });
 
 export type ValidatedConfiguration = z.infer<typeof ConfigurationSchema>;

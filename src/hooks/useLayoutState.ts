@@ -14,8 +14,13 @@ export const useLayoutState = ({ dispatch }: UseLayoutStateProps) => {
     dispatch({ type: 'UPDATE_INTERFACE_GROUPS', payload: interfaceGroups });
   }, [dispatch]);
 
+  const updateMapConstraints = useCallback((constraints: { zoom?: number; center?: [number, number] }) => {
+    dispatch({ type: 'UPDATE_MAP_CONSTRAINTS', payload: constraints });
+  }, [dispatch]);
+
   return {
     updateLayout,
-    updateInterfaceGroups
+    updateInterfaceGroups,
+    updateMapConstraints
   };
 };

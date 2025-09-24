@@ -16,6 +16,7 @@ type ConfigAction =
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
   | { type: 'UPDATE_INTERFACE_GROUPS'; payload: string[] }
   | { type: 'UPDATE_EXCLUSIVITY_SETS'; payload: string[] }
+  | { type: 'UPDATE_MAP_CONSTRAINTS'; payload: { zoom?: number; center?: [number, number] } }
   | { type: 'ADD_SERVICE'; payload: Service }
   | { type: 'REMOVE_SERVICE'; payload: number }
   | { type: 'ADD_SOURCE'; payload: DataSource }
@@ -32,9 +33,13 @@ const initialState: ConfigState = {
     }
   },
   interfaceGroups: ["Interface group 1", "Interface group 2", "Interface group 3"],
-  exclusivitySets: ["labels"],
+  exclusivitySets: ["basemaps"],
   services: [],
   sources: [],
+  mapConstraints: {
+    zoom: 0,
+    center: [0, 0]
+  },
   isLoading: false,
   lastSaved: null,
 };
@@ -86,6 +91,13 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       const normalizedPayload = {
         ...action.payload,
         services: action.payload.services || [],
+        // Only add default mapConstraints if none exist in the imported config
+        mapConstraints: action.payload.mapConstraints !== undefined 
+          ? action.payload.mapConstraints 
+          : {
+              zoom: 0,
+              center: [0, 0]
+            },
         sources: action.payload.sources.map(source => ({
           ...source,
           data: normalizeDataToArray(source.data),
@@ -129,6 +141,14 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       return {
         ...state,
         exclusivitySets: action.payload,
+      };
+    case 'UPDATE_MAP_CONSTRAINTS':
+      return {
+        ...state,
+        mapConstraints: {
+          ...state.mapConstraints,
+          ...action.payload,
+        },
       };
     case 'ADD_SERVICE':
       return {

@@ -127,6 +127,12 @@ const DataSourceItem = ({
           Z: {getZIndex()}
         </span>
         
+        {dataSource.opacity !== undefined && (
+          <span className="text-xs text-gray-500 flex-shrink-0">
+            Opacity: {Math.round(dataSource.opacity * 100)}%
+          </span>
+        )}
+        
         {/* TIME parameter pill for WMS/WMTS layers */}
         {hasTimeParameter && (
           <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">

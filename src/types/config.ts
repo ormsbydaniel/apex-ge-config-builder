@@ -53,6 +53,8 @@ export interface DataSourceItem {
   maxZoom?: number;
   // Temporal support
   timestamps?: number[]; // Array of Unix timestamps
+  // Opacity support (0-1 range)
+  opacity?: number;
 }
 
 // Simplified - data is always an array
@@ -124,6 +126,7 @@ interface BaseDataSource {
   statistics?: DataSourceItem[]; // Add statistics array
   hasFeatureStatistics?: boolean;
   isBaseLayer?: boolean; // Add isBaseLayer as optional to base interface
+  exclusivitySets?: string[]; // Array of exclusivity set names this layer belongs to
   // Temporal configuration at top level
   timeframe?: TimeframeType;
   defaultTimestamp?: number;

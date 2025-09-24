@@ -186,7 +186,14 @@ export const useValidatedConfig = () => {
     config: {
       ...config,
       sources: validatedSources,
-      services: validatedServices
+      services: validatedServices,
+      // Only add default mapConstraints if none exist
+      mapConstraints: config.mapConstraints !== undefined 
+        ? config.mapConstraints 
+        : {
+            zoom: 0,
+            center: [0, 0]
+          }
     },
     dispatch
   };
