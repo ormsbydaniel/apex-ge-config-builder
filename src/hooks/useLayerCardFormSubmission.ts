@@ -62,11 +62,11 @@ export const useLayerCardFormSubmission = (
       description: formData.description.trim(),
       attribution: {
         text: formData.attributionText.trim(),
-        url: formData.attributionUrl.trim() || undefined,
+        ...(formData.attributionUrl.trim() && { url: formData.attributionUrl.trim() }),
       },
-      categories: processedCategories && processedCategories.length > 0 ? processedCategories : undefined,
-      colormaps: formData.colormaps && formData.colormaps.length > 0 ? formData.colormaps : undefined,
-      units: formData.units.trim() || undefined,
+      ...(processedCategories && processedCategories.length > 0 && { categories: processedCategories }),
+      ...(formData.colormaps && formData.colormaps.length > 0 && { colormaps: formData.colormaps }),
+      ...(formData.units.trim() && { units: formData.units.trim() }),
       // Add gradient fields if legend type is gradient
       ...(formData.legendType === 'gradient' && {
         startColor: formData.startColor.trim(),
@@ -74,7 +74,6 @@ export const useLayerCardFormSubmission = (
         min: parseFloat(formData.minValue),
         max: parseFloat(formData.maxValue)
       }),
-      // Remove temporal configuration from meta - it's now at top level
     };
 
     console.log('useLayerCardFormSubmission: Meta object:', metaObject);
@@ -82,8 +81,8 @@ export const useLayerCardFormSubmission = (
     const layerCard: DataSource = {
       name: formData.name.trim(),
       isActive: formData.isActive,
-      exclusivitySets: formData.exclusivitySets.length > 0 ? formData.exclusivitySets : undefined,
-      hasFeatureStatistics: formData.hasFeatureStatistics || undefined,
+      ...(formData.exclusivitySets.length > 0 && { exclusivitySets: formData.exclusivitySets }),
+      ...(formData.hasFeatureStatistics && { hasFeatureStatistics: formData.hasFeatureStatistics }),
       // Add temporal configuration at top level if timeframe is not 'None'
       ...(formData.timeframe !== 'None' && {
         timeframe: formData.timeframe,
@@ -93,7 +92,7 @@ export const useLayerCardFormSubmission = (
       }),
       meta: metaObject,
       layout: {
-        interfaceGroup: formData.interfaceGroup || undefined,
+        ...(formData.interfaceGroup && { interfaceGroup: formData.interfaceGroup }),
         layerCard: {
           toggleable: formData.toggleable,
           legend: legendObject,
@@ -101,7 +100,7 @@ export const useLayerCardFormSubmission = (
         },
       },
       data: editingLayer?.data || [],
-      statistics: editingLayer?.statistics
+      ...(editingLayer?.statistics && { statistics: editingLayer.statistics })
     };
 
     console.log('useLayerCardFormSubmission: Final layer card:', layerCard);
