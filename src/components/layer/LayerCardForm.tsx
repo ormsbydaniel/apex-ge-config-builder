@@ -218,7 +218,7 @@ const LayerCardForm = ({
             />
 
             <ColormapsSection
-              formData={layerCardData}
+              colormaps={formData.colormaps || []}
               onUpdate={updateFormData}
             />
 

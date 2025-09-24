@@ -2,35 +2,22 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit3, Trash2 } from 'lucide-react';
-import { DataSource, Colormap } from '@/types/config';
+import { Colormap } from '@/types/config';
 import ColormapEditorDialog from './ColormapEditorDialog';
 
 interface ColormapsSectionProps {
-  formData: DataSource;
+  colormaps: Colormap[];
   onUpdate?: (field: string, value: any) => void;
 }
 
 const ColormapsSection = ({
-  formData,
+  colormaps,
   onUpdate
 }: ColormapsSectionProps) => {
-  const colormaps = formData.meta?.colormaps || [];
 
   const handleColormapsUpdate = (updatedColormaps: Colormap[]) => {
-    // Update the colormaps in formData through the parent's update function
-    const currentMeta = formData.meta || {
-      description: formData.meta?.description || '',
-      attribution: formData.meta?.attribution || { text: '', url: '' }
-    };
-    
-    const updatedMeta = {
-      ...currentMeta,
-      colormaps: updatedColormaps
-    };
-    
-    // Update the formData properly (assuming updateFormData is available)
     if (typeof onUpdate === 'function') {
-      onUpdate('meta.colormaps', updatedColormaps);
+      onUpdate('colormaps', updatedColormaps);
     }
   };
 
