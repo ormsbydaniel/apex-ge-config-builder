@@ -215,6 +215,10 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       };
     }
     case 'ADD_SOURCE': {
+      // Debug: Track colormaps in ADD_SOURCE action
+      console.log('ConfigContext ADD_SOURCE: Original payload meta:', action.payload.meta);
+      console.log('ConfigContext ADD_SOURCE: Original payload meta colormaps:', action.payload.meta?.colormaps);
+      
       // Sanitize URLs and ensure data is array, preserve meta, statistics and controls
       const sanitizedSource = {
         ...action.payload,
@@ -254,6 +258,10 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         })
       };
       
+      // Debug: Track colormaps after sanitization
+      console.log('ConfigContext ADD_SOURCE: Sanitized source meta:', sanitizedSource.meta);
+      console.log('ConfigContext ADD_SOURCE: Sanitized source meta colormaps:', sanitizedSource.meta?.colormaps);
+      
       return {
         ...state,
         sources: [...state.sources, sanitizedSource],
@@ -273,6 +281,9 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       };
     }
     case 'UPDATE_SOURCES': {
+      // Debug: Track colormaps in UPDATE_SOURCES action
+      console.log('ConfigContext UPDATE_SOURCES: Original payload sources with colormaps:', action.payload.map(s => ({ name: s.name, meta: s.meta, colormaps: s.meta?.colormaps })));
+      
       // Sanitize URLs in all sources before updating, including statistics and controls
       const sanitizedSources = action.payload.map(source => ({
         ...source,

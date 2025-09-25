@@ -28,6 +28,9 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
   
   const { configJson } = useConfigSanitization(config);
   
+  // Debug: Track colormaps through the entire process
+  console.log('PreviewTab: Original config sources with meta:', config.sources?.map(s => ({ name: s.name, meta: s.meta, colormaps: s.meta?.colormaps })));
+  
   const { editorTheme, toggleTheme } = useEditorTheme();
   const {
     isEditMode,

@@ -98,6 +98,8 @@ export const useLayerOperations = ({
   }, [dispatch]);
 
   const updateLayer = useCallback((index: number, layer: DataSource) => {
+    console.log('useLayerOperations: Updating layer at index', index, 'with layer:', layer);
+    console.log('useLayerOperations: Layer meta colormaps:', layer.meta?.colormaps);
     const updatedSources = [...config.sources];
     updatedSources[index] = layer;
     dispatch({ type: 'UPDATE_SOURCES', payload: updatedSources });
