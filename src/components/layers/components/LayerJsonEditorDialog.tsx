@@ -20,6 +20,10 @@ const LayerJsonEditorDialog = ({ isOpen, onClose, layer, onSave }: LayerJsonEdit
   const { toast } = useToast();
   const layerJson = JSON.stringify(layer, null, 2);
   
+  // Debug: Log the layer data
+  console.log('LayerJsonEditorDialog: Layer data:', layer);
+  console.log('LayerJsonEditorDialog: Layer JSON:', layerJson);
+  
   const {
     isEditMode,
     editedJson,
