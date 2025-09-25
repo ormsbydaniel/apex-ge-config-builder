@@ -83,8 +83,8 @@ const LayerQAStatus = ({ source }: LayerQAStatusProps) => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className={`${color} flex-shrink-0`}>
-            <Icon className="h-3 w-3" />
+          <div className={`${color} flex-shrink-0 ml-2`}>
+            <Icon className="h-4 w-4" />
           </div>
         </TooltipTrigger>
         <TooltipContent>
