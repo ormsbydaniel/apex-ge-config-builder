@@ -22,6 +22,7 @@ import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { Colormap } from '@/types/config';
 import { COLORMAP_OPTIONS } from '@/constants/colormaps';
 import { useToast } from '@/hooks/use-toast';
+import ColorRampPreview from '@/components/ui/ColorRampPreview';
 
 interface ColormapEditorDialogProps {
   colormaps: Colormap[];
@@ -131,15 +132,23 @@ const ColormapEditorDialog = ({
               <div className="space-y-3">
                 <h4 className="text-sm font-medium">Current Colormaps</h4>
                 <div className="space-y-2">
-                  {colormaps.map((colormap, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex flex-col">
-                        <span className="font-medium">{colormap.name}</span>
-                        <span className="text-sm text-muted-foreground">
-                          Range: {colormap.min} - {colormap.max} • {colormap.steps} steps
-                          {colormap.reverse && ' • reversed'}
-                        </span>
-                      </div>
+                   {colormaps.map((colormap, index) => (
+                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                       <div className="flex items-center gap-3 flex-1">
+                         <ColorRampPreview 
+                           colormap={colormap.name} 
+                           reverse={colormap.reverse}
+                           width={80}
+                           height={20}
+                         />
+                         <div className="flex flex-col">
+                           <span className="font-medium">{colormap.name}</span>
+                           <span className="text-sm text-muted-foreground">
+                             Range: {colormap.min} - {colormap.max} • {colormap.steps} steps
+                             {colormap.reverse && ' • reversed'}
+                           </span>
+                         </div>
+                       </div>
                       <div className="flex gap-2">
                         <Button
                           type="button"
@@ -228,13 +237,20 @@ const ColormapEditorDialog = ({
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    {COLORMAP_OPTIONS.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+                   <SelectContent>
+                     {COLORMAP_OPTIONS.map((option) => (
+                       <SelectItem key={option} value={option}>
+                         <div className="flex items-center justify-between w-full">
+                           <span>{option}</span>
+                           <ColorRampPreview 
+                             colormap={option} 
+                             width={60} 
+                             height={16}
+                           />
+                         </div>
+                       </SelectItem>
+                     ))}
+                   </SelectContent>
                 </Select>
               </div>
 

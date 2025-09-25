@@ -1,6 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Colormap } from '@/types/config';
+import ColorRampPreview from '@/components/ui/ColorRampPreview';
 
 interface LayerColormapsDisplayProps {
   colormaps: Colormap[];
@@ -17,6 +18,12 @@ const LayerColormapsDisplay = ({ colormaps }: LayerColormapsDisplayProps) => {
       <div className="flex flex-wrap gap-2">
         {colormaps.map((colormap, index) => (
           <Badge key={index} variant="secondary" className="flex items-center gap-2 px-3 py-1">
+            <ColorRampPreview 
+              colormap={colormap.name} 
+              reverse={colormap.reverse}
+              width={60}
+              height={16}
+            />
             <div className="flex flex-col text-xs">
               <span className="font-medium">{colormap.name}</span>
               <span className="text-muted-foreground">
