@@ -191,6 +191,13 @@ const LayerHierarchy = ({
   })));
   
   config.sources.forEach((source, index) => {
+    console.log(`LayerHierarchy: Processing source ${index}:`, {
+      name: source.name,
+      meta: source.meta,
+      colormaps: source.meta?.colormaps,
+      metaKeys: source.meta ? Object.keys(source.meta) : 'no meta'
+    });
+    
     const isBaseLayer = source.isBaseLayer === true;
     
     if (isBaseLayer) {
@@ -198,8 +205,18 @@ const LayerHierarchy = ({
     } else {
       const group = source.layout?.interfaceGroup;
       if (group && groupedLayers[group]) {
+        console.log(`LayerHierarchy: Adding to group "${group}":`, {
+          name: source.name,
+          meta: source.meta,
+          colormaps: source.meta?.colormaps
+        });
         groupedLayers[group].push({ layer: source, originalIndex: index });
       } else {
+        console.log(`LayerHierarchy: Adding to ungrouped:`, {
+          name: source.name,
+          meta: source.meta,
+          colormaps: source.meta?.colormaps
+        });
         ungroupedLayers.push({ layer: source, originalIndex: index });
       }
     }
@@ -218,7 +235,14 @@ const LayerHierarchy = ({
           key={groupName}
           groupName={groupName}
           groupIndex={groupIndex}
-          sources={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.layer) : []}
+          sources={groupedLayers[groupName] ? groupedLayers[groupName].map(item => {
+            console.log(`LayerHierarchy: Mapping layer for group "${groupName}":`, {
+              name: item.layer.name,
+              meta: item.layer.meta,
+              colormaps: item.layer.meta?.colormaps
+            });
+            return item.layer;
+          }) : []}
           sourceIndices={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.originalIndex) : []}
           expandedLayers={expandedLayers}
           onToggleLayer={onToggleLayer}
