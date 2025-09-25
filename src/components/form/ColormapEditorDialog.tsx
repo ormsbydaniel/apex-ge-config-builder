@@ -194,6 +194,42 @@ const ColormapEditorDialog = ({
                 )}
               </div>
 
+              <div>
+                <Label htmlFor="name">Color Ramp Name</Label>
+                <Select
+                  value={currentColormap.name}
+                  onValueChange={(value) => handleFieldChange('name', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                    <SelectContent>
+                      {COLORMAP_OPTIONS.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          <div className="flex items-center gap-3 w-full">
+                            <ColorRampPreview 
+                              colormap={option} 
+                              reverse={currentColormap.reverse}
+                              width={180} 
+                              height={16}
+                            />
+                            <span>{option}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="reverse"
+                  checked={currentColormap.reverse}
+                  onCheckedChange={(checked) => handleFieldChange('reverse', checked)}
+                />
+                <Label htmlFor="reverse">Reverse Colors</Label>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="min">Minimum Value</Label>
@@ -226,41 +262,6 @@ const ColormapEditorDialog = ({
                   value={currentColormap.steps}
                   onChange={(e) => handleFieldChange('steps', parseInt(e.target.value) || 10)}
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="name">Color Ramp Name</Label>
-                <Select
-                  value={currentColormap.name}
-                  onValueChange={(value) => handleFieldChange('name', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                    <SelectContent>
-                      {COLORMAP_OPTIONS.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          <div className="flex items-center gap-3 w-full">
-                            <ColorRampPreview 
-                              colormap={option} 
-                              width={180} 
-                              height={16}
-                            />
-                            <span>{option}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="reverse"
-                  checked={currentColormap.reverse}
-                  onCheckedChange={(checked) => handleFieldChange('reverse', checked)}
-                />
-                <Label htmlFor="reverse">Reverse Colors</Label>
               </div>
 
               {!isValid && (

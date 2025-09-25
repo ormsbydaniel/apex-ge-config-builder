@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Edit3, Trash2 } from 'lucide-react';
 import { Colormap } from '@/types/config';
 import ColormapEditorDialog from './ColormapEditorDialog';
+import ColorRampPreview from '@/components/ui/ColorRampPreview';
 
 interface ColormapsSectionProps {
   colormaps: Colormap[];
@@ -30,6 +31,12 @@ const ColormapsSection = ({
         <div className="flex flex-wrap gap-2">
           {colormaps.map((colormap, index) => (
             <Badge key={index} variant="secondary" className="flex items-center gap-2 px-3 py-1">
+              <ColorRampPreview 
+                colormap={colormap.name} 
+                reverse={colormap.reverse}
+                width={60}
+                height={16}
+              />
               <div className="flex flex-col text-xs">
                 <span className="font-medium">{colormap.name}</span>
                 <span className="text-muted-foreground">
