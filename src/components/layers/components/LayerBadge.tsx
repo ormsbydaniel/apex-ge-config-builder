@@ -2,7 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Database, Globe, Server } from 'lucide-react';
+import { Database, Globe, Server, Clock } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import LayerQAStatus from './LayerQAStatus';
 
@@ -85,6 +85,23 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
             </TooltipProvider>
           ))}
         </div>
+      )}
+      {source.timeframe && source.timeframe !== 'None' && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="border-cyan-300 text-cyan-700">
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  time series
+                </div>
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">This layer has temporal data configured ({source.timeframe})</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
       <LayerQAStatus source={source} />
     </div>
