@@ -40,8 +40,6 @@ const LayerCard = ({
   isExpanded,
   onToggle
 }: LayerCardProps) => {
-  console.log('LayerCard: source received:', { name: source.name, meta: source.meta, colormaps: source.meta?.colormaps });
-  
   const [isJsonEditorOpen, setIsJsonEditorOpen] = useState(false);
   
   const isBaseLayer = source.isBaseLayer === true;

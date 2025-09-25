@@ -74,6 +74,16 @@ export const useValidatedConfig = () => {
             ...(source.meta.max !== undefined && { max: source.meta.max }),
             ...(source.meta.startColor && { startColor: source.meta.startColor }),
             ...(source.meta.endColor && { endColor: source.meta.endColor }),
+            // Include colormaps if present
+            ...(source.meta.colormaps && { 
+              colormaps: source.meta.colormaps.map(colormap => ({
+                min: colormap.min ?? 0,
+                max: colormap.max ?? 1,
+                steps: colormap.steps ?? 50,
+                name: colormap.name ?? 'default',
+                reverse: colormap.reverse ?? false
+              }))
+            }),
             // Handle swipeConfig with backward compatibility
             ...(source.meta.swipeConfig && {
               swipeConfig: {
@@ -132,6 +142,16 @@ export const useValidatedConfig = () => {
       ...(source.meta?.max !== undefined && { max: source.meta.max }),
       ...(source.meta?.startColor && { startColor: source.meta.startColor }),
       ...(source.meta?.endColor && { endColor: source.meta.endColor }),
+      // Include colormaps if present
+      ...(source.meta?.colormaps && { 
+        colormaps: source.meta.colormaps.map(colormap => ({
+          min: colormap.min ?? 0,
+          max: colormap.max ?? 1,
+          steps: colormap.steps ?? 50,
+          name: colormap.name ?? 'default',
+          reverse: colormap.reverse ?? false
+        }))
+      }),
       // Handle swipeConfig with backward compatibility
       ...(source.meta?.swipeConfig && {
         swipeConfig: {

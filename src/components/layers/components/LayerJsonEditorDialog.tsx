@@ -19,13 +19,6 @@ interface LayerJsonEditorDialogProps {
 const LayerJsonEditorDialog = ({ isOpen, onClose, layer, onSave }: LayerJsonEditorDialogProps) => {
   const { toast } = useToast();
   
-  // Debug: Comprehensive logging for colormaps tracking
-  console.log('LayerJsonEditorDialog: Full layer object:', layer);
-  console.log('LayerJsonEditorDialog: Layer meta:', layer.meta);
-  console.log('LayerJsonEditorDialog: Layer meta colormaps:', layer.meta?.colormaps);
-  console.log('LayerJsonEditorDialog: typeof layer.meta:', typeof layer.meta);
-  console.log('LayerJsonEditorDialog: Object.keys(layer.meta):', layer.meta ? Object.keys(layer.meta) : 'no meta');
-  
   const layerJson = JSON.stringify(layer, null, 2);
   
   const {

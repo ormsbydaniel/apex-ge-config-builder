@@ -121,6 +121,13 @@ const MetaSchema = z.object({
     url: z.string().optional(),
   }),
   categories: z.array(CategorySchema).optional(),
+  colormaps: z.array(z.object({
+    min: z.number(),
+    max: z.number(),
+    steps: z.number(),
+    name: z.string(),
+    reverse: z.boolean(),
+  })).optional(),
   units: z.string().optional(),
   // Additional fields for color ramps and statistics
   min: z.number().optional(),
