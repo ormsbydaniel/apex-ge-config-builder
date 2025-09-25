@@ -28,9 +28,6 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
   
   const { configJson } = useConfigSanitization(config);
   
-  // Debug: Log the config and sanitized config
-  console.log('PreviewTab: Original config:', config);
-  console.log('PreviewTab: Sanitized configJson:', configJson);
   const { editorTheme, toggleTheme } = useEditorTheme();
   const {
     isEditMode,
