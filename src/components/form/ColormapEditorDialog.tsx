@@ -237,20 +237,20 @@ const ColormapEditorDialog = ({
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                   <SelectContent>
-                     {COLORMAP_OPTIONS.map((option) => (
-                       <SelectItem key={option} value={option}>
-                         <div className="flex items-center justify-between w-full">
-                           <span>{option}</span>
-                           <ColorRampPreview 
-                             colormap={option} 
-                             width={60} 
-                             height={16}
-                           />
-                         </div>
-                       </SelectItem>
-                     ))}
-                   </SelectContent>
+                    <SelectContent>
+                      {COLORMAP_OPTIONS.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          <div className="flex items-center gap-3 w-full">
+                            <ColorRampPreview 
+                              colormap={option} 
+                              width={180} 
+                              height={16}
+                            />
+                            <span>{option}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                 </Select>
               </div>
 
