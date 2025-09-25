@@ -70,7 +70,7 @@ export const COLORMAP_DATA: ColormapDefinition = {
     {"index": 0, "rgb": [0, 0, 0]},
     {"index": 1, "rgb": [255, 255, 255]}
   ],
-  "YIGnBu": [
+  "yignbu": [
     {"index": 0, "rgb": [8, 29, 88]},
     {"index": 0.125, "rgb": [37, 52, 148]},
     {"index": 0.25, "rgb": [34, 94, 168]},
@@ -92,7 +92,7 @@ export const COLORMAP_DATA: ColormapDefinition = {
     {"index": 0.875, "rgb": [229, 245, 224]},
     {"index": 1, "rgb": [247, 252, 245]}
   ],
-  "YIOrRd": [
+  "yiorrd": [
     {"index": 0, "rgb": [128, 0, 38]},
     {"index": 0.125, "rgb": [189, 0, 38]},
     {"index": 0.25, "rgb": [227, 26, 28]},
@@ -107,7 +107,7 @@ export const COLORMAP_DATA: ColormapDefinition = {
     {"index": 0, "rgb": [0, 0, 255]},
     {"index": 1, "rgb": [255, 0, 0]}
   ],
-  "RdYlBu": [
+  "rdbu": [
     {"index": 0, "rgb": [5, 10, 172]},
     {"index": 0.35, "rgb": [106, 137, 247]},
     {"index": 0.5, "rgb": [190, 190, 190]},
