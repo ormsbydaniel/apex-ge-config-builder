@@ -40,7 +40,7 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     name: s.name, 
     meta: s.meta, 
     colormaps: s.meta?.colormaps,
-    fullMeta: s.meta
+    fullMeta: JSON.stringify(s.meta)
   })));
   
   const layersLogic = useLayersTabLogic(props);
@@ -69,7 +69,8 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
   console.log('LayersTabContainer: contextValue.config.sources:', contextValue.config.sources.map(s => ({ 
     name: s.name, 
     meta: s.meta, 
-    colormaps: s.meta?.colormaps 
+    colormaps: s.meta?.colormaps,
+    fullMeta: JSON.stringify(s.meta)
   })));
 
   return (

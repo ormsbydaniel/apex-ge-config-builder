@@ -187,7 +187,7 @@ const LayerHierarchy = ({
     name: s.name, 
     meta: s.meta, 
     colormaps: s.meta?.colormaps,
-    fullMeta: s.meta
+    fullMeta: JSON.stringify(s.meta)
   })));
   
   config.sources.forEach((source, index) => {

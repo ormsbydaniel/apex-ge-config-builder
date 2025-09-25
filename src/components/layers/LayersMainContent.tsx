@@ -44,7 +44,8 @@ const LayersMainContent = ({
   console.log('LayersMainContent: config.sources from context:', config.sources.map(s => ({ 
     name: s.name, 
     meta: s.meta, 
-    colormaps: s.meta?.colormaps 
+    colormaps: s.meta?.colormaps,
+    fullMeta: JSON.stringify(s.meta)
   })));
 
   return (

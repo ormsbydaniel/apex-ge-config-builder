@@ -66,7 +66,8 @@ const LayersTabContent = ({
   console.log('LayersTabContent: config.sources received:', config.sources.map(s => ({ 
     name: s.name, 
     meta: s.meta, 
-    colormaps: s.meta?.colormaps 
+    colormaps: s.meta?.colormaps,
+    fullMeta: JSON.stringify(s.meta)
   })));
   
   return (
