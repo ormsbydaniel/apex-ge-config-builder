@@ -35,6 +35,14 @@ interface LayersTabContainerProps {
 }
 
 const LayersTabContainer = (props: LayersTabContainerProps) => {
+  // Debug: Check what config is received
+  console.log('LayersTabContainer: config.sources received:', props.config.sources.map(s => ({ 
+    name: s.name, 
+    meta: s.meta, 
+    colormaps: s.meta?.colormaps,
+    fullMeta: s.meta
+  })));
+  
   const layersLogic = useLayersTabLogic(props);
 
   // Create context value with all required properties
@@ -56,6 +64,13 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onEditDataSource: layersLogic.handleEditDataSource,
     onEditStatisticsSource: layersLogic.handleEditStatisticsSource
   };
+
+  // Debug: Check what config is in context value
+  console.log('LayersTabContainer: contextValue.config.sources:', contextValue.config.sources.map(s => ({ 
+    name: s.name, 
+    meta: s.meta, 
+    colormaps: s.meta?.colormaps 
+  })));
 
   return (
     <LayersTabProvider value={contextValue}>

@@ -40,6 +40,13 @@ const LayersMainContent = ({
     onEditStatisticsSource
   } = useLayersTabContext();
 
+  // Debug: Check what config is received from context
+  console.log('LayersMainContent: config.sources from context:', config.sources.map(s => ({ 
+    name: s.name, 
+    meta: s.meta, 
+    colormaps: s.meta?.colormaps 
+  })));
+
   return (
     <div className="space-y-6">
       <LayersTabContent
