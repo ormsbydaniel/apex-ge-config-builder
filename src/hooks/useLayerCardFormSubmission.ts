@@ -77,6 +77,7 @@ export const useLayerCardFormSubmission = (
     };
 
     console.log('useLayerCardFormSubmission: Meta object:', metaObject);
+    console.log('useLayerCardFormSubmission: Meta colormaps specifically:', metaObject.colormaps);
 
     const layerCard: DataSource = {
       name: formData.name.trim(),
