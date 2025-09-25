@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Database, Globe, Server, Clock, BarChart } from 'lucide-react';
 import { DataSource } from '@/types/config';
-import LayerQAStatus from './LayerQAStatus';
 
 interface LayerBadgeProps {
   source: DataSource;
@@ -120,7 +119,6 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
           </Tooltip>
         </TooltipProvider>
       )}
-      <LayerQAStatus source={source} />
     </div>
   );
 };

@@ -3,9 +3,12 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Trash2, Edit, Copy, FileJson } from 'lucide-react';
+import { DataSource } from '@/types/config';
+import LayerQAStatus from './LayerQAStatus';
 
 interface LayerActionsProps {
   index: number;
+  source: DataSource;
   onRemove: (index: number) => void;
   onEdit: (index: number) => void;
   onDuplicate: (index: number) => void;
@@ -13,7 +16,7 @@ interface LayerActionsProps {
   handleEdit: () => void;
 }
 
-const LayerActions = ({ index, onRemove, onDuplicate, onEditJson, handleEdit }: LayerActionsProps) => {
+const LayerActions = ({ index, source, onRemove, onDuplicate, onEditJson, handleEdit }: LayerActionsProps) => {
   return (
     <TooltipProvider>
       <div className="flex items-center gap-1 justify-end">
@@ -80,6 +83,8 @@ const LayerActions = ({ index, onRemove, onDuplicate, onEditJson, handleEdit }: 
             <p>Delete layer</p>
           </TooltipContent>
         </Tooltip>
+        
+        <LayerQAStatus source={source} />
       </div>
     </TooltipProvider>
   );

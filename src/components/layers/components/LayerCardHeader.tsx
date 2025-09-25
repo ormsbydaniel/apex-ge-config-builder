@@ -32,7 +32,7 @@ const LayerCardHeader = ({
       {/* Badge and Actions positioned to align with layer name */}
       <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
         <LayerBadge source={source} />
-        <LayerActions index={index} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
+        <LayerActions index={index} source={source} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
       </div>
       
       <div className="flex pr-40">
