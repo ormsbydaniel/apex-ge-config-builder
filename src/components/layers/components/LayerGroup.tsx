@@ -155,6 +155,7 @@ const LayerGroup = ({
               <CardContent className="pt-3 bg-slate-200">
                 <div className="space-y-3">
                   {sources.map((source, idx) => {
+                  console.log('LayerGroup: source being passed to LayerCard:', { name: source.name, meta: source.meta, colormaps: source.meta?.colormaps });
                   const actualIndex = sourceIndices[idx];
                   return <div key={actualIndex} className="flex items-start gap-2">
                         <div className="flex-1">

@@ -182,6 +182,13 @@ const LayerHierarchy = ({
   const baseLayers: Array<{ layer: DataSource; originalIndex: number }> = [];
   const ungroupedLayers: Array<{ layer: DataSource; originalIndex: number }> = [];
 
+  // Debug: Check what sources are received in LayerHierarchy
+  console.log('LayerHierarchy: config.sources received:', config.sources.map(s => ({ 
+    name: s.name, 
+    meta: s.meta, 
+    colormaps: s.meta?.colormaps 
+  })));
+  
   config.sources.forEach((source, index) => {
     const isBaseLayer = source.isBaseLayer === true;
     
