@@ -47,8 +47,10 @@ const LayerCardHeader = ({
           ) : (
             <>
               <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="1" y="2" width="14" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                <rect x="2" y="4" width="4" height="8" rx="0.5" fill="currentColor"/>
+                <rect x="1" y="4" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                <line x1="3" y1="6" x2="6" y2="6" stroke="currentColor" strokeWidth="1"/>
+                <line x1="3" y1="8" x2="6" y2="8" stroke="currentColor" strokeWidth="1"/>
+                <line x1="3" y1="10" x2="6" y2="10" stroke="currentColor" strokeWidth="1"/>
               </svg>
               <span>Layer Card</span>
             </>
