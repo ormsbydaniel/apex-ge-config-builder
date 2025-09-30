@@ -110,11 +110,13 @@ export interface DataSourceMeta {
 }
 
 // Enhanced layout interface with support for both layerCard and infoPanel
+// NOTE: layerCard is REQUIRED and always contains toggleable
+// Only legend and controls move between layerCard and infoPanel based on contentLocation
 export interface DataSourceLayout {
   interfaceGroup?: string;
-  contentLocation?: 'layerCard' | 'infoPanel'; // NEW: Track where content is stored
-  layerCard?: {
-    toggleable?: boolean;
+  contentLocation?: 'layerCard' | 'infoPanel'; // Track where legend/controls are stored
+  layerCard: { // REQUIRED - always exists
+    toggleable?: boolean; // Always lives here
     legend?: {
       type: 'swatch' | 'gradient' | 'image';
       url?: string;

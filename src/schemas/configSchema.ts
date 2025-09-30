@@ -171,22 +171,24 @@ const ControlsSchema = z.union([
 ]);
 
 // Enhanced layout schema with support for both layerCard and infoPanel
+// NOTE: layerCard is REQUIRED and always contains toggleable
+// Only legend and controls move between layerCard and infoPanel based on contentLocation
 const LayoutSchema = z.object({
   interfaceGroup: z.string().optional(),
   contentLocation: z.enum(['layerCard', 'infoPanel']).optional(),
   layerCard: z.object({
-    toggleable: z.boolean().optional(),
+    toggleable: z.boolean().optional(), // Always lives here
     legend: LegendSchema.optional(),
     controls: ControlsSchema.optional(),
     showStatistics: z.boolean().optional(),
-  }).optional(),
+  }), // REQUIRED - not optional
   infoPanel: z.object({
     legend: LegendSchema.optional(),
     controls: ControlsSchema.optional(),
   }).optional(),
 }).refine(
   (data) => {
-    // Validation: Cannot have both layerCard and infoPanel with content simultaneously
+    // Validation: Only legend and controls cannot be in both locations simultaneously
     const hasLayerCardContent = data.layerCard && (data.layerCard.legend || data.layerCard.controls);
     const hasInfoPanelContent = data.infoPanel && (data.infoPanel.legend || data.infoPanel.controls);
     
@@ -196,7 +198,7 @@ const LayoutSchema = z.object({
     return true;
   },
   {
-    message: "Cannot have content in both layerCard and infoPanel simultaneously",
+    message: "Legend and controls cannot be in both layerCard and infoPanel simultaneously",
   }
 );
 
