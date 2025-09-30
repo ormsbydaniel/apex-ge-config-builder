@@ -192,6 +192,11 @@ const LayerCardForm = ({
               </Alert>
             )}
 
+            <ContentLocationRadioGroup
+              value={formData.contentLocation}
+              onChange={(value) => updateFormData('contentLocation', value)}
+            />
+
             <UnifiedBasicInfoSection
               name={formData.name}
               description={formData.description}
@@ -223,11 +228,6 @@ const LayerCardForm = ({
             <ColormapsSection
               colormaps={formData.colormaps || []}
               onUpdate={updateFormData}
-            />
-
-            <ContentLocationRadioGroup
-              value={formData.contentLocation}
-              onChange={(value) => updateFormData('contentLocation', value)}
             />
 
             <UnifiedLegendTypeSection
