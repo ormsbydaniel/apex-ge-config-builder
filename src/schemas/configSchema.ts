@@ -165,6 +165,9 @@ const LayoutSchema = z.object({
       z.object({
         opacitySlider: z.boolean().optional(),
         zoomToCenter: z.boolean().optional(),
+        download: z.string().optional(),
+        temporalControls: z.boolean().optional(),
+        constraintSlider: z.boolean().optional(),
       }),
       z.array(z.string()), // Support controls as array of strings for backward compatibility
     ]).optional(),

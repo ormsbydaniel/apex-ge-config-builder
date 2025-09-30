@@ -112,6 +112,12 @@ export const useValidatedConfig = () => {
                       zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
                       ...((source.layout.layerCard.controls as any).download && {
                         download: (source.layout.layerCard.controls as any).download
+                      }),
+                      ...((source.layout.layerCard.controls as any).temporalControls !== undefined && {
+                        temporalControls: (source.layout.layerCard.controls as any).temporalControls
+                      }),
+                      ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
+                        constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
                       })
                     }
                   : { opacitySlider: true },
@@ -181,6 +187,12 @@ export const useValidatedConfig = () => {
                 zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
                 ...((source.layout.layerCard.controls as any).download && {
                   download: (source.layout.layerCard.controls as any).download
+                }),
+                ...((source.layout.layerCard.controls as any).temporalControls !== undefined && {
+                  temporalControls: (source.layout.layerCard.controls as any).temporalControls
+                }),
+                ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
+                  constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
                 })
               }
             : { opacitySlider: true },
