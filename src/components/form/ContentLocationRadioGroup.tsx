@@ -32,21 +32,17 @@ const ContentLocationRadioGroup = ({
       </div>
       
       <RadioGroup value={value} onValueChange={newValue => onChange(newValue as ContentLocation)} className="space-y-2">
-        <div className="flex items-center space-x-2 p-1 cursor-pointer">
+        <div className="flex items-center space-x-2">
           <RadioGroupItem value="layerCard" id="layerCard" />
-          <Label htmlFor="layerCard" className="cursor-pointer flex-1">
-            <div className="font-medium">Content and controls in layer menu</div>
-            
+          <Label htmlFor="layerCard" className="cursor-pointer font-normal">
+            Content and controls in layer menu
           </Label>
         </div>
         
-        <div className="flex items-center space-x-2 p-1 cursor-pointer">
+        <div className="flex items-center space-x-2">
           <RadioGroupItem value="infoPanel" id="infoPanel" />
-          <Label htmlFor="infoPanel" className="cursor-pointer flex-1">
-            <div className="font-medium">Content and controls on map panel
-
-          </div>
-            
+          <Label htmlFor="infoPanel" className="cursor-pointer font-normal">
+            Content and controls on map panel
           </Label>
         </div>
       </RadioGroup>
