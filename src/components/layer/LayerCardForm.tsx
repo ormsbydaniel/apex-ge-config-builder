@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Save, X, Layers, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { DataSource } from '@/types/config';
 import UnifiedExclusivitySetsSection from '@/components/form/UnifiedExclusivitySetsSection';
 import { useLayerCardFormPersistence } from '@/hooks/useLayerCardFormPersistence';
@@ -192,6 +194,26 @@ const LayerCardForm = ({
               </Alert>
             )}
 
+            <div className="flex items-center gap-6">
+              <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+                <Label htmlFor="toggleable" className="min-w-[70px]">Toggleable:</Label>
+                <Switch
+                  id="toggleable"
+                  checked={formData.toggleable}
+                  onCheckedChange={(checked) => updateFormData('toggleable', checked)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between space-x-2 min-w-[160px]">
+                <Label htmlFor="isActive">Active by default:</Label>
+                <Switch
+                  id="isActive"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => updateFormData('isActive', checked)}
+                />
+              </div>
+            </div>
+
             <ContentLocationRadioGroup
               value={formData.contentLocation}
               onChange={(value) => updateFormData('contentLocation', value)}
@@ -205,12 +227,8 @@ const LayerCardForm = ({
               units={formData.units}
               timeframe={formData.timeframe}
               defaultTimestamp={formData.defaultTimestamp}
-              isActive={formData.isActive}
-              toggleable={formData.toggleable}
               onUpdate={updateFormData}
               showUnits={true}
-              showIsActive={true}
-              showToggleable={true}
             />
 
             <UnifiedAttributionSection
