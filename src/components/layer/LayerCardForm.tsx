@@ -20,6 +20,7 @@ import UnifiedTimePeriodSection from '@/components/form/UnifiedTimePeriodSection
 import LayerTypeRadioGroup from '@/components/form/LayerTypeRadioGroup';
 import PositionEditor from '@/components/form/PositionEditor';
 import ColormapsSection from '@/components/form/ColormapsSection';
+import ContentLocationRadioGroup from '@/components/form/ContentLocationRadioGroup';
 
 interface LayerCardFormProps {
   interfaceGroups: string[];
@@ -220,6 +221,11 @@ const LayerCardForm = ({
             <ColormapsSection
               colormaps={formData.colormaps || []}
               onUpdate={updateFormData}
+            />
+
+            <ContentLocationRadioGroup
+              value={formData.contentLocation}
+              onChange={(value) => updateFormData('contentLocation', value)}
             />
 
             <UnifiedLegendTypeSection

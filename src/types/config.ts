@@ -109,9 +109,10 @@ export interface DataSourceMeta {
   defaultTimestamp?: number;
 }
 
-// Enhanced layout interface
+// Enhanced layout interface with support for both layerCard and infoPanel
 export interface DataSourceLayout {
   interfaceGroup?: string;
+  contentLocation?: 'layerCard' | 'infoPanel'; // NEW: Track where content is stored
   layerCard?: {
     toggleable?: boolean;
     legend?: {
@@ -126,6 +127,19 @@ export interface DataSourceLayout {
       constraintSlider?: boolean;
     };
     showStatistics?: boolean;
+  };
+  infoPanel?: {
+    legend?: {
+      type?: 'swatch' | 'gradient' | 'image';
+      url?: string;
+    };
+    controls?: {
+      opacitySlider?: boolean;
+      zoomToCenter?: boolean;
+      download?: string;
+      temporalControls?: boolean;
+      constraintSlider?: boolean;
+    } | string[]; // Support both object and array for backward compatibility
   };
 }
 

@@ -12,6 +12,7 @@ interface SubmissionFormData {
   isActive: boolean;
   exclusivitySets: string[];
   units: string;
+  contentLocation: 'layerCard' | 'infoPanel'; // NEW: Content location
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
@@ -82,6 +83,30 @@ export const useLayerCardFormSubmission = (
 
     console.log('useLayerCardFormSubmission: Meta object:', metaObject);
 
+    // Create layout structure based on contentLocation
+    const layoutObject: any = {
+      ...(formData.interfaceGroup && { interfaceGroup: formData.interfaceGroup }),
+      contentLocation: formData.contentLocation, // Store content location
+    };
+
+    // Place legend and controls in the correct location
+    if (formData.contentLocation === 'infoPanel') {
+      layoutObject.infoPanel = {
+        legend: legendObject,
+        controls: controlsObject
+      };
+      // Keep toggleable in layerCard even when content is in infoPanel
+      layoutObject.layerCard = {
+        toggleable: formData.toggleable
+      };
+    } else {
+      layoutObject.layerCard = {
+        toggleable: formData.toggleable,
+        legend: legendObject,
+        controls: controlsObject
+      };
+    }
+
     const layerCard: DataSource = {
       name: formData.name.trim(),
       isActive: formData.isActive,
@@ -95,14 +120,7 @@ export const useLayerCardFormSubmission = (
         })
       }),
       meta: metaObject,
-      layout: {
-        ...(formData.interfaceGroup && { interfaceGroup: formData.interfaceGroup }),
-        layerCard: {
-          toggleable: formData.toggleable,
-          legend: legendObject,
-          controls: controlsObject,
-        },
-      },
+      layout: layoutObject,
       data: editingLayer?.data || [],
       ...(editingLayer?.statistics && { statistics: editingLayer.statistics })
     };
