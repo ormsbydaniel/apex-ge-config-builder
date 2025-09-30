@@ -15,7 +15,7 @@ const ContentLocationRadioGroup = ({ value, onChange }: ContentLocationRadioGrou
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Label className="text-lg font-medium">Content and Controls</Label>
+        <Label className="text-lg font-medium">Layout Style</Label>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
