@@ -99,6 +99,8 @@ export const useValidatedConfig = () => {
         ...(source.layout && {
           layout: {
             ...source.layout,
+            // Preserve contentLocation if it exists
+            ...(source.layout.contentLocation && { contentLocation: source.layout.contentLocation }),
             ...(source.layout.layerCard && {
               layerCard: {
                 toggleable: source.layout.layerCard.toggleable ?? true,
@@ -122,6 +124,29 @@ export const useValidatedConfig = () => {
                     }
                   : { opacitySlider: true },
                 showStatistics: source.layout.layerCard.showStatistics
+              }
+            }),
+            ...(source.layout.infoPanel && {
+              infoPanel: {
+                legend: source.layout.infoPanel.legend ? {
+                  type: source.layout.infoPanel.legend.type || 'swatch',
+                  ...(source.layout.infoPanel.legend.url && { url: source.layout.infoPanel.legend.url })
+                } : undefined,
+                controls: source.layout.infoPanel.controls && typeof source.layout.infoPanel.controls === 'object' && !Array.isArray(source.layout.infoPanel.controls)
+                  ? {
+                      opacitySlider: (source.layout.infoPanel.controls as any).opacitySlider,
+                      zoomToCenter: (source.layout.infoPanel.controls as any).zoomToCenter,
+                      ...((source.layout.infoPanel.controls as any).download && {
+                        download: (source.layout.infoPanel.controls as any).download
+                      }),
+                      ...((source.layout.infoPanel.controls as any).temporalControls !== undefined && {
+                        temporalControls: (source.layout.infoPanel.controls as any).temporalControls
+                      }),
+                      ...((source.layout.infoPanel.controls as any).constraintSlider !== undefined && {
+                        constraintSlider: (source.layout.infoPanel.controls as any).constraintSlider
+                      })
+                    }
+                  : { opacitySlider: true }
               }
             })
           }
@@ -170,35 +195,71 @@ export const useValidatedConfig = () => {
       // Temporal configuration is now at top level - no need to move from meta
     };
 
+    // Determine content location
+    const contentLocation = source.layout?.contentLocation || 'layerCard';
+    
+    // Build layout based on content location
+    const layout: any = {
+      interfaceGroup: source.layout?.interfaceGroup,
+      contentLocation
+    };
+
+    // Only create layerCard if content is in layer menu
+    if (contentLocation === 'layerCard') {
+      layout.layerCard = {
+        toggleable: source.layout?.layerCard?.toggleable ?? true,
+        legend: source.layout?.layerCard?.legend ? {
+          type: source.layout.layerCard.legend.type || 'swatch',
+          ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
+        } : undefined,
+        controls: source.layout?.layerCard?.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
+          ? {
+              opacitySlider: (source.layout.layerCard.controls as any).opacitySlider,
+              zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
+              ...((source.layout.layerCard.controls as any).download && {
+                download: (source.layout.layerCard.controls as any).download
+              }),
+              ...((source.layout.layerCard.controls as any).temporalControls !== undefined && {
+                temporalControls: (source.layout.layerCard.controls as any).temporalControls
+              }),
+              ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
+                constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
+              })
+            }
+          : { opacitySlider: true },
+        showStatistics: source.layout?.layerCard?.showStatistics
+      };
+    }
+
+    // Only create infoPanel if content is on info panel
+    if (contentLocation === 'infoPanel') {
+      layout.infoPanel = {
+        legend: source.layout?.infoPanel?.legend ? {
+          type: source.layout.infoPanel.legend.type || 'swatch',
+          ...(source.layout.infoPanel.legend.url && { url: source.layout.infoPanel.legend.url })
+        } : undefined,
+        controls: source.layout?.infoPanel?.controls && typeof source.layout.infoPanel.controls === 'object' && !Array.isArray(source.layout.infoPanel.controls)
+          ? {
+              opacitySlider: (source.layout.infoPanel.controls as any).opacitySlider,
+              zoomToCenter: (source.layout.infoPanel.controls as any).zoomToCenter,
+              ...((source.layout.infoPanel.controls as any).download && {
+                download: (source.layout.infoPanel.controls as any).download
+              }),
+              ...((source.layout.infoPanel.controls as any).temporalControls !== undefined && {
+                temporalControls: (source.layout.infoPanel.controls as any).temporalControls
+              }),
+              ...((source.layout.infoPanel.controls as any).constraintSlider !== undefined && {
+                constraintSlider: (source.layout.infoPanel.controls as any).constraintSlider
+              })
+            }
+          : { opacitySlider: true }
+      };
+    }
+
     return {
       ...baseSource,
       meta,
-      layout: {
-        interfaceGroup: source.layout?.interfaceGroup,
-        layerCard: {
-          toggleable: source.layout?.layerCard?.toggleable ?? true,
-          legend: source.layout?.layerCard?.legend ? {
-            type: source.layout.layerCard.legend.type || 'swatch',
-            ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
-          } : undefined,
-          controls: source.layout?.layerCard?.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
-            ? {
-                opacitySlider: (source.layout.layerCard.controls as any).opacitySlider,
-                zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
-                ...((source.layout.layerCard.controls as any).download && {
-                  download: (source.layout.layerCard.controls as any).download
-                }),
-                ...((source.layout.layerCard.controls as any).temporalControls !== undefined && {
-                  temporalControls: (source.layout.layerCard.controls as any).temporalControls
-                }),
-                ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
-                  constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
-                })
-              }
-            : { opacitySlider: true },
-          showStatistics: source.layout?.layerCard?.showStatistics
-        }
-      }
+      layout
     };
   });
 
