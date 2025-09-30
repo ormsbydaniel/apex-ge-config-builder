@@ -27,7 +27,7 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
       case 'base':
         return 'border-green-300 text-green-700';
       case 'standard':
-        return 'border-green-300 text-green-700';
+        return 'border-blue-300 text-blue-700';
       default:
         return 'border-gray-300 text-gray-700';
     }
