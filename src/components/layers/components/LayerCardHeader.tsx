@@ -2,8 +2,9 @@
 import React from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, LayoutPanelLeft, Menu } from 'lucide-react';
 import { DataSource } from '@/types/config';
+import { Badge } from '@/components/ui/badge';
 import LayerBadge from './LayerBadge';
 import LayerActions from './LayerActions';
 interface LayerCardHeaderProps {
@@ -28,9 +29,24 @@ const LayerCardHeader = ({
   onEditJson,
   handleEdit
 }: LayerCardHeaderProps) => {
+  const contentLocation = source.layout?.contentLocation || 'layerCard';
+  
   return <CardHeader className="py-3 relative">
       {/* Badge and Actions positioned to align with layer name */}
       <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
+        <Badge variant="outline" className="flex items-center gap-1 text-xs">
+          {contentLocation === 'infoPanel' ? (
+            <>
+              <LayoutPanelLeft className="h-3 w-3" />
+              <span>Info Panel</span>
+            </>
+          ) : (
+            <>
+              <Menu className="h-3 w-3" />
+              <span>Layer Card</span>
+            </>
+          )}
+        </Badge>
         <LayerBadge source={source} />
         <LayerActions index={index} source={source} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
       </div>
