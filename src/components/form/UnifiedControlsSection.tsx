@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { TimeframeType } from '@/types/config';
 
 interface UnifiedControlsSectionProps {
-  toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
   download: string;
@@ -17,7 +16,6 @@ interface UnifiedControlsSectionProps {
 }
 
 const UnifiedControlsSection = ({
-  toggleable,
   opacitySlider,
   zoomToCenter,
   download,
@@ -40,15 +38,6 @@ const UnifiedControlsSection = ({
       <h4 className="font-medium">Layer Card Controls</h4>
       
       <div className="flex items-center gap-6">
-        <div className="flex items-center justify-between space-x-2 min-w-[140px]">
-          <Label htmlFor="toggleable" className="min-w-[70px]">Toggleable:</Label>
-          <Switch
-            id="toggleable"
-            checked={toggleable}
-            onCheckedChange={(value) => onUpdate('toggleable', value)}
-          />
-        </div>
-        
         <div className="flex items-center justify-between space-x-2 min-w-[140px]">
           <Label htmlFor="zoomToCenter" className="min-w-[90px]">Zoom to layer:</Label>
           <Switch

@@ -201,9 +201,11 @@ const LayerCardForm = ({
               timeframe={formData.timeframe}
               defaultTimestamp={formData.defaultTimestamp}
               isActive={formData.isActive}
+              toggleable={formData.toggleable}
               onUpdate={updateFormData}
               showUnits={true}
               showIsActive={true}
+              showToggleable={true}
             />
 
             <UnifiedAttributionSection
@@ -239,7 +241,6 @@ const LayerCardForm = ({
             />
 
             <UnifiedControlsSection
-              toggleable={formData.toggleable}
               opacitySlider={formData.opacitySlider}
               zoomToCenter={(formData as any).zoomToCenter || false}
               download={(formData as any).download}
