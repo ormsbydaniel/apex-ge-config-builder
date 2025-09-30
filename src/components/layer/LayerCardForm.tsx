@@ -180,31 +180,33 @@ const LayerCardForm = ({
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
 
-            <div className="flex items-center gap-6">
-              <div className="flex items-center justify-between space-x-2 min-w-[140px]">
-                <Label htmlFor="toggleable" className="min-w-[70px]">Toggleable:</Label>
-                <Switch
-                  id="toggleable"
-                  checked={formData.toggleable}
-                  onCheckedChange={(checked) => updateFormData('toggleable', checked)}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between space-x-2 min-w-[160px]">
-                <Label htmlFor="isActive">Active by default:</Label>
-                <Switch
-                  id="isActive"
-                  checked={formData.isActive}
-                  onCheckedChange={(checked) => updateFormData('isActive', checked)}
-                />
-              </div>
-            </div>
-
             <div className="grid grid-cols-2 gap-6">
-              <LayerTypeRadioGroup
-                value={selectedLayerType}
-                onChange={handleLayerTypeChange}
-              />
+              <div className="space-y-4">
+                <LayerTypeRadioGroup
+                  value={selectedLayerType}
+                  onChange={handleLayerTypeChange}
+                />
+                
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+                    <Label htmlFor="toggleable" className="min-w-[70px]">Toggleable:</Label>
+                    <Switch
+                      id="toggleable"
+                      checked={formData.toggleable}
+                      onCheckedChange={(checked) => updateFormData('toggleable', checked)}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between space-x-2 min-w-[160px]">
+                    <Label htmlFor="isActive">Active by default:</Label>
+                    <Switch
+                      id="isActive"
+                      checked={formData.isActive}
+                      onCheckedChange={(checked) => updateFormData('isActive', checked)}
+                    />
+                  </div>
+                </div>
+              </div>
 
               <ContentLocationRadioGroup
                 value={formData.contentLocation}
