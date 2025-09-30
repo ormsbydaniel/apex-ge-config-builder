@@ -237,6 +237,8 @@ const LayerCardForm = ({
               opacitySlider={formData.opacitySlider}
               zoomToCenter={(formData as any).zoomToCenter || false}
               download={(formData as any).download}
+              temporalControls={(formData as any).temporalControls || false}
+              constraintSlider={(formData as any).constraintSlider || false}
               timeframe={formData.timeframe || 'None'}
               onUpdate={updateFormData}
             />

@@ -122,6 +122,8 @@ export interface DataSourceLayout {
       opacitySlider?: boolean;
       zoomToCenter?: boolean;
       download?: string;
+      temporalControls?: boolean;
+      constraintSlider?: boolean;
     };
     showStatistics?: boolean;
   };
