@@ -38,7 +38,7 @@ const LayerCardHeader = ({
         <Badge variant="outline" className="flex items-center gap-1 text-xs">
           {contentLocation === 'infoPanel' ? (
             <>
-              <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="1" y="2" width="14" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
                 <rect x="10" y="4" width="4" height="8" rx="0.5" fill="currentColor"/>
               </svg>
@@ -46,7 +46,7 @@ const LayerCardHeader = ({
             </>
           ) : (
             <>
-              <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="1" y="4" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
                 <line x1="3" y1="6" x2="6" y2="6" stroke="currentColor" strokeWidth="1"/>
                 <line x1="3" y1="8" x2="6" y2="8" stroke="currentColor" strokeWidth="1"/>
