@@ -38,12 +38,18 @@ const LayerCardHeader = ({
         <Badge variant="outline" className="flex items-center gap-1 text-xs">
           {contentLocation === 'infoPanel' ? (
             <>
-              <LayoutPanelLeft className="h-3 w-3" />
+              <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="2" width="14" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                <rect x="10" y="4" width="4" height="8" rx="0.5" fill="currentColor"/>
+              </svg>
               <span>Info Panel</span>
             </>
           ) : (
             <>
-              <Menu className="h-3 w-3" />
+              <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="2" width="14" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                <rect x="2" y="4" width="4" height="8" rx="0.5" fill="currentColor"/>
+              </svg>
               <span>Layer Card</span>
             </>
           )}
