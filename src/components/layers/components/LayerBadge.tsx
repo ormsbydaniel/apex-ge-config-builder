@@ -36,7 +36,12 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
   const getBadgeIcon = () => {
     switch (layerType) {
       case 'swipe':
-        return <Server className="h-3 w-3" />;
+        return (
+          <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="4" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+            <line x1="8" y1="4" x2="8" y2="12" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+        );
       case 'base':
       case 'standard':
         return <Database className="h-3 w-3" />;
