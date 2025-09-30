@@ -20,6 +20,7 @@ const LayerActions = ({ index, source, onRemove, onDuplicate, onEditJson, handle
   return (
     <TooltipProvider>
       <div className="flex items-center gap-1 justify-end ml-3">
+        <div className="h-6 w-px bg-border mr-2"></div>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
