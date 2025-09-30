@@ -48,8 +48,8 @@ const LayerCardHeader = ({
             <>
               <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="1" y="4" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                <line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" strokeWidth="1.5"/>
-                <line x1="2.5" y1="9" x2="8.5" y2="9" stroke="currentColor" strokeWidth="1.5"/>
+                <line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" strokeWidth="1"/>
+                <line x1="2.5" y1="9" x2="8.5" y2="9" stroke="currentColor" strokeWidth="1"/>
               </svg>
               <span>Layer Card</span>
             </>
