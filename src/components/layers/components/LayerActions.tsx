@@ -85,6 +85,8 @@ const LayerActions = ({ index, source, onRemove, onDuplicate, onEditJson, handle
           </TooltipContent>
         </Tooltip>
         
+        <div className="h-6 w-px bg-border mx-2"></div>
+        
         <LayerQAStatus source={source} />
       </div>
     </TooltipProvider>
