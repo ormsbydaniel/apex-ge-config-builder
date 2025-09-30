@@ -14,6 +14,8 @@ interface LayerCardFormData {
   opacitySlider: boolean;
   zoomToCenter: boolean;
   download?: string;
+  temporalControls: boolean;
+  constraintSlider: boolean;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -54,6 +56,8 @@ export const useLayerCardFormPersistence = (
         opacitySlider: editingLayer.layout?.layerCard?.controls?.opacitySlider || false,
         zoomToCenter: (editingLayer.layout?.layerCard?.controls as any)?.zoomToCenter || false,
         download: (editingLayer.layout?.layerCard?.controls as any)?.download,
+        temporalControls: (editingLayer.layout?.layerCard?.controls as any)?.temporalControls || false,
+        constraintSlider: (editingLayer.layout?.layerCard?.controls as any)?.constraintSlider || false,
         legendType: editingLayer.layout?.layerCard?.legend?.type || 'swatch',
         legendUrl: editingLayer.layout?.layerCard?.legend?.url || '',
         startColor: editingLayer.meta?.startColor || '#000000',
@@ -97,6 +101,8 @@ export const useLayerCardFormPersistence = (
       opacitySlider: true,
       zoomToCenter: true,
       download: undefined,
+      temporalControls: false,
+      constraintSlider: false,
       legendType: 'swatch',
       legendUrl: '',
       startColor: '#000000',

@@ -16,6 +16,8 @@ interface SubmissionFormData {
   opacitySlider: boolean;
   zoomToCenter: boolean;
   download?: string;
+  temporalControls: boolean;
+  constraintSlider: boolean;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -50,10 +52,12 @@ export const useLayerCardFormSubmission = (
       ...(formData.legendType === 'image' && formData.legendUrl.trim() && { url: formData.legendUrl.trim() })
     };
 
-    // Prepare controls object with zoomToCenter and download
+    // Prepare controls object with all control fields
     const controlsObject = {
       opacitySlider: formData.opacitySlider,
       zoomToCenter: formData.zoomToCenter,
+      temporalControls: formData.temporalControls,
+      constraintSlider: formData.constraintSlider,
       ...(formData.download && formData.download.trim() && { download: formData.download.trim() })
     };
 
