@@ -43,7 +43,9 @@ const ContentLocationRadioGroup = ({
         <div className="flex items-center space-x-2 p-1 cursor-pointer">
           <RadioGroupItem value="infoPanel" id="infoPanel" />
           <Label htmlFor="infoPanel" className="cursor-pointer flex-1">
-            <div className="font-medium">Content and controls on info panel on map</div>
+            <div className="font-medium">Content and controls on map panel
+
+          </div>
             
           </Label>
         </div>
