@@ -19,7 +19,7 @@ interface LayerActionsProps {
 const LayerActions = ({ index, source, onRemove, onDuplicate, onEditJson, handleEdit }: LayerActionsProps) => {
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-1 justify-end">
+      <div className="flex items-center gap-1 justify-end ml-3">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
