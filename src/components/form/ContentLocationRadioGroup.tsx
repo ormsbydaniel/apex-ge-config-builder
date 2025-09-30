@@ -3,17 +3,16 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
 export type ContentLocation = 'layerCard' | 'infoPanel';
-
 interface ContentLocationRadioGroupProps {
   value: ContentLocation;
   onChange: (value: ContentLocation) => void;
 }
-
-const ContentLocationRadioGroup = ({ value, onChange }: ContentLocationRadioGroupProps) => {
-  return (
-    <div className="space-y-3">
+const ContentLocationRadioGroup = ({
+  value,
+  onChange
+}: ContentLocationRadioGroupProps) => {
+  return <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Label className="text-lg font-medium">Layout Style</Label>
         <TooltipProvider>
@@ -32,29 +31,23 @@ const ContentLocationRadioGroup = ({ value, onChange }: ContentLocationRadioGrou
         </TooltipProvider>
       </div>
       
-      <RadioGroup
-        value={value}
-        onValueChange={(newValue) => onChange(newValue as ContentLocation)}
-        className="space-y-3"
-      >
+      <RadioGroup value={value} onValueChange={newValue => onChange(newValue as ContentLocation)} className="space-y-3">
         <div className="flex items-center space-x-2 border rounded-lg p-4 hover:bg-accent/50 cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-accent">
           <RadioGroupItem value="layerCard" id="layerCard" />
           <Label htmlFor="layerCard" className="cursor-pointer flex-1">
-            <div className="font-medium">In layer menu</div>
-            <div className="text-xs text-muted-foreground">Display in layer card</div>
+            <div className="font-medium">Content and controls in layer menu</div>
+            
           </Label>
         </div>
         
         <div className="flex items-center space-x-2 border rounded-lg p-4 hover:bg-accent/50 cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-accent">
           <RadioGroupItem value="infoPanel" id="infoPanel" />
           <Label htmlFor="infoPanel" className="cursor-pointer flex-1">
-            <div className="font-medium">On info panel</div>
-            <div className="text-xs text-muted-foreground">Display in info panel</div>
+            <div className="font-medium">Content and controls on info panel on map</div>
+            
           </Label>
         </div>
       </RadioGroup>
-    </div>
-  );
+    </div>;
 };
-
 export default ContentLocationRadioGroup;
