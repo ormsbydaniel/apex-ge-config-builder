@@ -35,7 +35,7 @@ const ContentLocationRadioGroup = ({ value, onChange }: ContentLocationRadioGrou
       <RadioGroup
         value={value}
         onValueChange={(newValue) => onChange(newValue as ContentLocation)}
-        className="grid grid-cols-2 gap-4"
+        className="space-y-3"
       >
         <div className="flex items-center space-x-2 border rounded-lg p-4 hover:bg-accent/50 cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-accent">
           <RadioGroupItem value="layerCard" id="layerCard" />

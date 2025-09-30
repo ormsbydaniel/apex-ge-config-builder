@@ -179,20 +179,6 @@ const LayerCardForm = ({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <LayerTypeRadioGroup
-              value={selectedLayerType}
-              onChange={handleLayerTypeChange}
-            />
-
-            {showMigrationWarning && (
-              <Alert>
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  Changing to {selectedLayerType} layer will require position settings for existing data sources.
-                  You can set these after saving the layer.
-                </AlertDescription>
-              </Alert>
-            )}
 
             <div className="flex items-center gap-6">
               <div className="flex items-center justify-between space-x-2 min-w-[140px]">
@@ -214,10 +200,27 @@ const LayerCardForm = ({
               </div>
             </div>
 
-            <ContentLocationRadioGroup
-              value={formData.contentLocation}
-              onChange={(value) => updateFormData('contentLocation', value)}
-            />
+            <div className="grid grid-cols-2 gap-6">
+              <LayerTypeRadioGroup
+                value={selectedLayerType}
+                onChange={handleLayerTypeChange}
+              />
+
+              <ContentLocationRadioGroup
+                value={formData.contentLocation}
+                onChange={(value) => updateFormData('contentLocation', value)}
+              />
+            </div>
+
+            {showMigrationWarning && (
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Changing to {selectedLayerType} layer will require position settings for existing data sources.
+                  You can set these after saving the layer.
+                </AlertDescription>
+              </Alert>
+            )}
 
             <UnifiedBasicInfoSection
               name={formData.name}
