@@ -27,6 +27,7 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
   const { toast } = useToast();
   
   const { configJson } = useConfigSanitization(config);
+  
   const { editorTheme, toggleTheme } = useEditorTheme();
   const {
     isEditMode,

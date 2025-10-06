@@ -19,6 +19,7 @@ interface UnifiedBasicInfoSectionProps {
   hasFeatureStatistics?: boolean;
   units?: string;
   isActive?: boolean;
+  toggleable?: boolean;
   timeframe?: TimeframeType;
   defaultTimestamp?: number;
   
@@ -29,6 +30,7 @@ interface UnifiedBasicInfoSectionProps {
   showFeatureStatistics?: boolean;
   showUnits?: boolean;
   showIsActive?: boolean;
+  showToggleable?: boolean;
   required?: {
     name?: boolean;
     interfaceGroup?: boolean;
@@ -43,24 +45,41 @@ const UnifiedBasicInfoSection = ({
   hasFeatureStatistics = false,
   units = '',
   isActive = false,
+  toggleable = false,
   timeframe,
   defaultTimestamp,
   onUpdate,
   showFeatureStatistics = false,
   showUnits = false,
   showIsActive = false,
+  showToggleable = false,
   required = { name: true, interfaceGroup: true }
 }: UnifiedBasicInfoSectionProps) => {
   return (
     <div className="space-y-4">
-      {showIsActive && (
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="isActive"
-            checked={isActive}
-            onCheckedChange={(checked) => onUpdate('isActive', checked)}
-          />
-          <Label htmlFor="isActive">Active by default</Label>
+      {(showToggleable || showIsActive) && (
+        <div className="flex items-center gap-6">
+          {showToggleable && (
+            <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+              <Label htmlFor="toggleable" className="min-w-[70px]">Toggleable:</Label>
+              <Switch
+                id="toggleable"
+                checked={toggleable}
+                onCheckedChange={(checked) => onUpdate('toggleable', checked)}
+              />
+            </div>
+          )}
+          
+          {showIsActive && (
+            <div className="flex items-center justify-between space-x-2 min-w-[160px]">
+              <Label htmlFor="isActive">Active by default:</Label>
+              <Switch
+                id="isActive"
+                checked={isActive}
+                onCheckedChange={(checked) => onUpdate('isActive', checked)}
+              />
+            </div>
+          )}
         </div>
       )}
       

@@ -215,28 +215,36 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       };
     }
     case 'ADD_SOURCE': {
-      // Sanitize URLs and ensure data is array, preserve statistics and controls
+      // Sanitize URLs and ensure data is array, preserve meta, statistics and controls
       const sanitizedSource = {
         ...action.payload,
         data: action.payload.data.map(item => ({
           ...item,
           url: item.url ? sanitizeUrl(item.url) : item.url
         })),
+        // Preserve meta field completely
+        ...(action.payload.meta && {
+          meta: action.payload.meta
+        }),
         // Preserve layout structure completely, including controls
-        layout: {
-          ...action.payload.layout,
-          ...(action.payload.layout?.layerCard && {
-            layerCard: {
-              ...action.payload.layout.layerCard,
-              controls: {
-                ...action.payload.layout.layerCard.controls,
-                ...(action.payload.layout.layerCard.controls?.download && {
-                  download: sanitizeUrl(action.payload.layout.layerCard.controls.download)
+        ...(action.payload.layout && {
+          layout: {
+            ...action.payload.layout,
+            ...(action.payload.layout.layerCard && {
+              layerCard: {
+                ...action.payload.layout.layerCard,
+                ...(action.payload.layout.layerCard.controls && {
+                  controls: {
+                    ...action.payload.layout.layerCard.controls,
+                    ...(action.payload.layout.layerCard.controls.download && {
+                      download: sanitizeUrl(action.payload.layout.layerCard.controls.download)
+                    })
+                  }
                 })
               }
-            }
-          })
-        },
+            })
+          }
+        }),
         // Sanitize statistics URLs if they exist
         ...(action.payload.statistics && {
           statistics: action.payload.statistics.map(item => ({
@@ -272,18 +280,28 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           ...item,
           url: item.url ? sanitizeUrl(item.url) : item.url
         })),
-        // Sanitize download URL in controls if it exists
-        ...(source.layout?.layerCard?.controls?.download && {
+        // Always preserve layout structure completely
+        ...(source.layout && {
           layout: {
             ...source.layout,
-            layerCard: {
-              ...source.layout.layerCard,
-              controls: {
-                ...source.layout.layerCard.controls,
-                download: sanitizeUrl(source.layout.layerCard.controls.download)
+            ...(source.layout.layerCard && {
+              layerCard: {
+                ...source.layout.layerCard,
+                ...(source.layout.layerCard.controls && {
+                  controls: {
+                    ...source.layout.layerCard.controls,
+                    ...(source.layout.layerCard.controls.download && {
+                      download: sanitizeUrl(source.layout.layerCard.controls.download)
+                    })
+                  }
+                })
               }
-            }
+            })
           }
+        }),
+        // Always preserve meta field completely
+        ...(source.meta && {
+          meta: source.meta
         }),
         // Sanitize statistics URLs if they exist
         ...(source.statistics && {

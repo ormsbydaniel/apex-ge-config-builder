@@ -4,6 +4,14 @@ export interface Category {
   value: number;
 }
 
+export interface Colormap {
+  min: number;
+  max: number;
+  steps: number;
+  name: string;
+  reverse: boolean;
+}
+
 // Service interface - simplified to avoid discriminated union issues
 export interface Service {
   id: string;
@@ -87,6 +95,7 @@ export interface DataSourceMeta {
     url?: string;
   };
   categories?: Category[];
+  colormaps?: Colormap[];
   units?: string;
   // Additional fields for color ramps and statistics
   min?: number;
@@ -100,11 +109,14 @@ export interface DataSourceMeta {
   defaultTimestamp?: number;
 }
 
-// Enhanced layout interface
+// Enhanced layout interface with support for both layerCard and infoPanel
+// NOTE: layerCard is REQUIRED and always contains toggleable
+// Only legend and controls move between layerCard and infoPanel based on contentLocation
 export interface DataSourceLayout {
   interfaceGroup?: string;
-  layerCard?: {
-    toggleable?: boolean;
+  contentLocation?: 'layerCard' | 'infoPanel'; // Track where legend/controls are stored
+  layerCard: { // REQUIRED - always exists
+    toggleable?: boolean; // Always lives here
     legend?: {
       type: 'swatch' | 'gradient' | 'image';
       url?: string;
@@ -113,8 +125,23 @@ export interface DataSourceLayout {
       opacitySlider?: boolean;
       zoomToCenter?: boolean;
       download?: string;
+      temporalControls?: boolean;
+      constraintSlider?: boolean;
     };
     showStatistics?: boolean;
+  };
+  infoPanel?: {
+    legend?: {
+      type?: 'swatch' | 'gradient' | 'image';
+      url?: string;
+    };
+    controls?: {
+      opacitySlider?: boolean;
+      zoomToCenter?: boolean;
+      download?: string;
+      temporalControls?: boolean;
+      constraintSlider?: boolean;
+    } | string[]; // Support both object and array for backward compatibility
   };
 }
 

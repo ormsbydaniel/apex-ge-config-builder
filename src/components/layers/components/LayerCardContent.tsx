@@ -10,6 +10,7 @@ import LayerLegendDisplay from './LayerLegendDisplay';
 import LayerControlsDisplay from './LayerControlsDisplay';
 import RegularLayerContent from './RegularLayerContent';
 import LayerAttributionDisplay from './LayerAttributionDisplay';
+import LayerColormapsDisplay from './LayerColormapsDisplay';
 
 interface LayerCardContentProps {
   source: DataSource;
@@ -41,6 +42,11 @@ const LayerCardContent = ({
       {/* Categories */}
       {source.meta?.categories && source.meta.categories.length > 0 && (
         <LayerCategories categories={source.meta.categories} />
+      )}
+
+      {/* Colormaps */}
+      {source.meta?.colormaps && source.meta.colormaps.length > 0 && (
+        <LayerColormapsDisplay colormaps={source.meta.colormaps} />
       )}
       
       {/* Legend Display */}

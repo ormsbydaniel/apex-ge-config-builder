@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Save, X, Layers, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { DataSource } from '@/types/config';
 import UnifiedExclusivitySetsSection from '@/components/form/UnifiedExclusivitySetsSection';
 import { useLayerCardFormPersistence } from '@/hooks/useLayerCardFormPersistence';
@@ -19,6 +21,8 @@ import UnifiedControlsSection from '@/components/form/UnifiedControlsSection';
 import UnifiedTimePeriodSection from '@/components/form/UnifiedTimePeriodSection';
 import LayerTypeRadioGroup from '@/components/form/LayerTypeRadioGroup';
 import PositionEditor from '@/components/form/PositionEditor';
+import ColormapsSection from '@/components/form/ColormapsSection';
+import ContentLocationRadioGroup from '@/components/form/ContentLocationRadioGroup';
 
 interface LayerCardFormProps {
   interfaceGroups: string[];
@@ -87,6 +91,22 @@ const LayerCardForm = ({
     ensureDataSourcesHavePositions
   } = layerOperations;
 
+  // Add colormap management - create a temp layerCard object for useColormaps
+  const layerCardData = {
+    name: formData.name,
+    isActive: formData.isActive,
+    data: [],
+    meta: {
+      description: formData.description,
+      attribution: {
+        text: formData.attributionText,
+        url: formData.attributionUrl
+      },
+      categories: formData.categories,
+      colormaps: formData.colormaps || []
+    }
+  } as DataSource;
+
   // Get data sources for position management
   const dataSources = editingLayer?.data || [];
 
@@ -109,6 +129,7 @@ const LayerCardForm = ({
       ...formData,
       download: (formData as any).download,
       categories: processedCategories || [],
+      colormaps: formData.colormaps || [],
       timeframe: formData.timeframe,
       defaultTimestamp: formData.defaultTimestamp
     });
@@ -158,10 +179,40 @@ const LayerCardForm = ({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <LayerTypeRadioGroup
-              value={selectedLayerType}
-              onChange={handleLayerTypeChange}
-            />
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <LayerTypeRadioGroup
+                  value={selectedLayerType}
+                  onChange={handleLayerTypeChange}
+                />
+                
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center justify-between space-x-2 min-w-[140px]">
+                    <Label htmlFor="toggleable" className="min-w-[70px]">Toggleable:</Label>
+                    <Switch
+                      id="toggleable"
+                      checked={formData.toggleable}
+                      onCheckedChange={(checked) => updateFormData('toggleable', checked)}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between space-x-2 min-w-[160px]">
+                    <Label htmlFor="isActive">Active by default:</Label>
+                    <Switch
+                      id="isActive"
+                      checked={formData.isActive}
+                      onCheckedChange={(checked) => updateFormData('isActive', checked)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <ContentLocationRadioGroup
+                value={formData.contentLocation}
+                onChange={(value) => updateFormData('contentLocation', value)}
+              />
+            </div>
 
             {showMigrationWarning && (
               <Alert>
@@ -181,10 +232,8 @@ const LayerCardForm = ({
               units={formData.units}
               timeframe={formData.timeframe}
               defaultTimestamp={formData.defaultTimestamp}
-              isActive={formData.isActive}
               onUpdate={updateFormData}
               showUnits={true}
-              showIsActive={true}
             />
 
             <UnifiedAttributionSection
@@ -199,6 +248,11 @@ const LayerCardForm = ({
               layerName={formData.name || ''}
             />
 
+            <ColormapsSection
+              colormaps={formData.colormaps || []}
+              onUpdate={updateFormData}
+            />
+
             <UnifiedLegendTypeSection
               legendType={formData.legendType}
               legendUrl={formData.legendUrl}
@@ -210,10 +264,11 @@ const LayerCardForm = ({
             />
 
             <UnifiedControlsSection
-              toggleable={formData.toggleable}
               opacitySlider={formData.opacitySlider}
               zoomToCenter={(formData as any).zoomToCenter || false}
               download={(formData as any).download}
+              temporalControls={(formData as any).temporalControls || false}
+              constraintSlider={(formData as any).constraintSlider || false}
               timeframe={formData.timeframe || 'None'}
               onUpdate={updateFormData}
             />

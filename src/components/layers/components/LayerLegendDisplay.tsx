@@ -8,9 +8,10 @@ interface LayerLegendDisplayProps {
 }
 
 const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
-  if (!source.layout?.layerCard?.legend) return null;
-
-  const legend = source.layout.layerCard.legend;
+  // Check both layerCard and infoPanel for legend (backward compatibility)
+  const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
+  
+  if (!legend) return null;
 
   return (
     <div className="space-y-2">

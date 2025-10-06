@@ -74,6 +74,16 @@ export const useValidatedConfig = () => {
             ...(source.meta.max !== undefined && { max: source.meta.max }),
             ...(source.meta.startColor && { startColor: source.meta.startColor }),
             ...(source.meta.endColor && { endColor: source.meta.endColor }),
+            // Include colormaps if present
+            ...(source.meta.colormaps && { 
+              colormaps: source.meta.colormaps.map(colormap => ({
+                min: colormap.min ?? 0,
+                max: colormap.max ?? 1,
+                steps: colormap.steps ?? 50,
+                name: colormap.name ?? 'default',
+                reverse: colormap.reverse ?? false
+              }))
+            }),
             // Handle swipeConfig with backward compatibility
             ...(source.meta.swipeConfig && {
               swipeConfig: {
@@ -87,28 +97,70 @@ export const useValidatedConfig = () => {
           }
         }),
         ...(source.layout && {
-          layout: {
-            ...source.layout,
-            ...(source.layout.layerCard && {
+          layout: (() => {
+            const contentLocation = source.layout.contentLocation || 'layerCard';
+            const layoutObj: any = {
+              ...source.layout,
+              contentLocation,
+              // ALWAYS create layerCard with toggleable
               layerCard: {
-                toggleable: source.layout.layerCard.toggleable ?? true,
-                legend: source.layout.layerCard.legend ? {
-                  type: source.layout.layerCard.legend.type || 'swatch',
-                  ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
+                toggleable: source.layout.layerCard?.toggleable ?? true,
+              }
+            };
+            
+            // Add legend and controls to layerCard ONLY if content is in layer menu
+            if (contentLocation === 'layerCard' && source.layout.layerCard) {
+              layoutObj.layerCard.legend = source.layout.layerCard.legend ? {
+                type: source.layout.layerCard.legend.type || 'swatch',
+                ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
+              } : undefined;
+              
+              layoutObj.layerCard.controls = source.layout.layerCard.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
+                ? {
+                    opacitySlider: (source.layout.layerCard.controls as any).opacitySlider,
+                    zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
+                    ...((source.layout.layerCard.controls as any).download && {
+                      download: (source.layout.layerCard.controls as any).download
+                    }),
+                    ...((source.layout.layerCard.controls as any).temporalControls !== undefined && {
+                      temporalControls: (source.layout.layerCard.controls as any).temporalControls
+                    }),
+                    ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
+                      constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
+                    })
+                  }
+                : { opacitySlider: true };
+              
+              layoutObj.layerCard.showStatistics = source.layout.layerCard.showStatistics;
+            }
+            
+            // Add infoPanel ONLY if content is on info panel
+            if (contentLocation === 'infoPanel' && source.layout.infoPanel) {
+              layoutObj.infoPanel = {
+                legend: source.layout.infoPanel.legend ? {
+                  type: source.layout.infoPanel.legend.type || 'swatch',
+                  ...(source.layout.infoPanel.legend.url && { url: source.layout.infoPanel.legend.url })
                 } : undefined,
-                controls: source.layout.layerCard.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
+                controls: source.layout.infoPanel.controls && typeof source.layout.infoPanel.controls === 'object' && !Array.isArray(source.layout.infoPanel.controls)
                   ? {
-                      opacitySlider: (source.layout.layerCard.controls as any).opacitySlider,
-                      zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
-                      ...((source.layout.layerCard.controls as any).download && {
-                        download: (source.layout.layerCard.controls as any).download
+                      opacitySlider: (source.layout.infoPanel.controls as any).opacitySlider,
+                      zoomToCenter: (source.layout.infoPanel.controls as any).zoomToCenter,
+                      ...((source.layout.infoPanel.controls as any).download && {
+                        download: (source.layout.infoPanel.controls as any).download
+                      }),
+                      ...((source.layout.infoPanel.controls as any).temporalControls !== undefined && {
+                        temporalControls: (source.layout.infoPanel.controls as any).temporalControls
+                      }),
+                      ...((source.layout.infoPanel.controls as any).constraintSlider !== undefined && {
+                        constraintSlider: (source.layout.infoPanel.controls as any).constraintSlider
                       })
                     }
-                  : { opacitySlider: true },
-                showStatistics: source.layout.layerCard.showStatistics
-              }
-            })
-          }
+                  : { opacitySlider: true }
+              };
+            }
+            
+            return layoutObj;
+          })()
         })
       };
     }
@@ -132,6 +184,16 @@ export const useValidatedConfig = () => {
       ...(source.meta?.max !== undefined && { max: source.meta.max }),
       ...(source.meta?.startColor && { startColor: source.meta.startColor }),
       ...(source.meta?.endColor && { endColor: source.meta.endColor }),
+      // Include colormaps if present
+      ...(source.meta?.colormaps && { 
+        colormaps: source.meta.colormaps.map(colormap => ({
+          min: colormap.min ?? 0,
+          max: colormap.max ?? 1,
+          steps: colormap.steps ?? 50,
+          name: colormap.name ?? 'default',
+          reverse: colormap.reverse ?? false
+        }))
+      }),
       // Handle swipeConfig with backward compatibility
       ...(source.meta?.swipeConfig && {
         swipeConfig: {
@@ -144,29 +206,75 @@ export const useValidatedConfig = () => {
       // Temporal configuration is now at top level - no need to move from meta
     };
 
+    // Determine content location
+    const contentLocation = source.layout?.contentLocation || 'layerCard';
+    
+    // Build layout based on content location
+    const layout: any = {
+      interfaceGroup: source.layout?.interfaceGroup,
+      contentLocation
+    };
+
+    // ALWAYS create layerCard with toggleable (required regardless of content location)
+    layout.layerCard = {
+      toggleable: source.layout?.layerCard?.toggleable ?? true,
+    };
+
+    // Add legend and controls to layerCard ONLY if content is in layer menu
+    if (contentLocation === 'layerCard') {
+      layout.layerCard.legend = source.layout?.layerCard?.legend ? {
+        type: source.layout.layerCard.legend.type || 'swatch',
+        ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
+      } : undefined;
+      
+      layout.layerCard.controls = source.layout?.layerCard?.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
+        ? {
+            opacitySlider: (source.layout.layerCard.controls as any).opacitySlider,
+            zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
+            ...((source.layout.layerCard.controls as any).download && {
+              download: (source.layout.layerCard.controls as any).download
+            }),
+            ...((source.layout.layerCard.controls as any).temporalControls !== undefined && {
+              temporalControls: (source.layout.layerCard.controls as any).temporalControls
+            }),
+            ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
+              constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
+            })
+          }
+        : { opacitySlider: true };
+      
+      layout.layerCard.showStatistics = source.layout?.layerCard?.showStatistics;
+    }
+
+    // Create infoPanel ONLY if content is on info panel
+    if (contentLocation === 'infoPanel') {
+      layout.infoPanel = {
+        legend: source.layout?.infoPanel?.legend ? {
+          type: source.layout.infoPanel.legend.type || 'swatch',
+          ...(source.layout.infoPanel.legend.url && { url: source.layout.infoPanel.legend.url })
+        } : undefined,
+        controls: source.layout?.infoPanel?.controls && typeof source.layout.infoPanel.controls === 'object' && !Array.isArray(source.layout.infoPanel.controls)
+          ? {
+              opacitySlider: (source.layout.infoPanel.controls as any).opacitySlider,
+              zoomToCenter: (source.layout.infoPanel.controls as any).zoomToCenter,
+              ...((source.layout.infoPanel.controls as any).download && {
+                download: (source.layout.infoPanel.controls as any).download
+              }),
+              ...((source.layout.infoPanel.controls as any).temporalControls !== undefined && {
+                temporalControls: (source.layout.infoPanel.controls as any).temporalControls
+              }),
+              ...((source.layout.infoPanel.controls as any).constraintSlider !== undefined && {
+                constraintSlider: (source.layout.infoPanel.controls as any).constraintSlider
+              })
+            }
+          : { opacitySlider: true }
+      };
+    }
+
     return {
       ...baseSource,
       meta,
-      layout: {
-        interfaceGroup: source.layout?.interfaceGroup,
-        layerCard: {
-          toggleable: source.layout?.layerCard?.toggleable ?? true,
-          legend: source.layout?.layerCard?.legend ? {
-            type: source.layout.layerCard.legend.type || 'swatch',
-            ...(source.layout.layerCard.legend.url && { url: source.layout.layerCard.legend.url })
-          } : undefined,
-          controls: source.layout?.layerCard?.controls && typeof source.layout.layerCard.controls === 'object' && !Array.isArray(source.layout.layerCard.controls)
-            ? {
-                opacitySlider: (source.layout.layerCard.controls as any).opacitySlider,
-                zoomToCenter: (source.layout.layerCard.controls as any).zoomToCenter,
-                ...((source.layout.layerCard.controls as any).download && {
-                  download: (source.layout.layerCard.controls as any).download
-                })
-              }
-            : { opacitySlider: true },
-          showStatistics: source.layout?.layerCard?.showStatistics
-        }
-      }
+      layout
     };
   });
 

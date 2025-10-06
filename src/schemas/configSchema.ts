@@ -121,6 +121,13 @@ const MetaSchema = z.object({
     url: z.string().optional(),
   }),
   categories: z.array(CategorySchema).optional(),
+  colormaps: z.array(z.object({
+    min: z.number(),
+    max: z.number(),
+    steps: z.number(),
+    name: z.string(),
+    reverse: z.boolean(),
+  })).optional(),
   units: z.string().optional(),
   // Additional fields for color ramps and statistics
   min: z.number().optional(),
@@ -133,37 +140,67 @@ const MetaSchema = z.object({
   temporal: TemporalConfigSchema.optional(),
 });
 
-// Enhanced layout schema with proper controls validation
+// Legend schema (reusable)
+const LegendSchema = z.object({
+  type: z.enum(['swatch', 'gradient', 'image']),
+  url: z.string().optional(),
+}).refine(
+  (data) => {
+    // If type is 'image', url is required
+    if (data.type === 'image') {
+      return data.url && data.url.trim().length > 0;
+    }
+    return true;
+  },
+  {
+    message: "URL is required when legend type is 'image'",
+    path: ['url'],
+  }
+);
+
+// Controls schema (reusable)
+const ControlsSchema = z.union([
+  z.object({
+    opacitySlider: z.boolean().optional(),
+    zoomToCenter: z.boolean().optional(),
+    download: z.string().optional(),
+    temporalControls: z.boolean().optional(),
+    constraintSlider: z.boolean().optional(),
+  }),
+  z.array(z.string()), // Support controls as array of strings for backward compatibility
+]);
+
+// Enhanced layout schema with support for both layerCard and infoPanel
+// NOTE: layerCard is REQUIRED and always contains toggleable
+// Only legend and controls move between layerCard and infoPanel based on contentLocation
 const LayoutSchema = z.object({
   interfaceGroup: z.string().optional(),
+  contentLocation: z.enum(['layerCard', 'infoPanel']).optional(),
   layerCard: z.object({
-    toggleable: z.boolean().optional(),
-    legend: z.object({
-      type: z.enum(['swatch', 'gradient', 'image']),
-      url: z.string().optional(),
-    }).refine(
-      (data) => {
-        // If type is 'image', url is required
-        if (data.type === 'image') {
-          return data.url && data.url.trim().length > 0;
-        }
-        return true;
-      },
-      {
-        message: "URL is required when legend type is 'image'",
-        path: ['url'],
-      }
-    ).optional(),
-    controls: z.union([
-      z.object({
-        opacitySlider: z.boolean().optional(),
-        zoomToCenter: z.boolean().optional(),
-      }),
-      z.array(z.string()), // Support controls as array of strings for backward compatibility
-    ]).optional(),
+    toggleable: z.boolean().optional(), // Always lives here
+    legend: LegendSchema.optional(),
+    controls: ControlsSchema.optional(),
     showStatistics: z.boolean().optional(),
+  }), // REQUIRED - not optional
+  infoPanel: z.object({
+    legend: LegendSchema.optional(),
+    controls: ControlsSchema.optional(),
   }).optional(),
-});
+}).refine(
+  (data) => {
+    // Validation: Only legend and controls cannot be in both locations simultaneously
+    const hasLayerCardContent = data.layerCard && (data.layerCard.legend || data.layerCard.controls);
+    const hasInfoPanelContent = data.infoPanel && (data.infoPanel.legend || data.infoPanel.controls);
+    
+    if (hasLayerCardContent && hasInfoPanelContent) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "Legend and controls cannot be in both layerCard and infoPanel simultaneously",
+  }
+);
 
 // Base object schema without refinements (so it can be extended)
 const BaseDataSourceObjectSchema = z.object({

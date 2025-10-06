@@ -2,8 +2,9 @@
 import React from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, LayoutPanelLeft, Menu } from 'lucide-react';
 import { DataSource } from '@/types/config';
+import { Badge } from '@/components/ui/badge';
 import LayerBadge from './LayerBadge';
 import LayerActions from './LayerActions';
 interface LayerCardHeaderProps {
@@ -28,11 +29,33 @@ const LayerCardHeader = ({
   onEditJson,
   handleEdit
 }: LayerCardHeaderProps) => {
+  const contentLocation = source.layout?.contentLocation || 'layerCard';
+  
   return <CardHeader className="py-3 relative">
       {/* Badge and Actions positioned to align with layer name */}
       <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
         <LayerBadge source={source} />
-        <LayerActions index={index} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
+        <Badge variant="outline" className="flex items-center gap-1 text-xs border-teal-500 text-teal-600">
+          {contentLocation === 'infoPanel' ? (
+            <>
+              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="2" width="14" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                <rect x="10" y="4" width="4" height="8" rx="0.5" fill="currentColor"/>
+              </svg>
+              <span>info panel</span>
+            </>
+          ) : (
+            <>
+              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="4" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                <line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" strokeWidth="1"/>
+                <line x1="2.5" y1="9" x2="8.5" y2="9" stroke="currentColor" strokeWidth="1"/>
+              </svg>
+              <span>layer card</span>
+            </>
+          )}
+        </Badge>
+        <LayerActions index={index} source={source} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
       </div>
       
       <div className="flex pr-40">

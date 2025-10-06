@@ -2,6 +2,8 @@
 import React from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 
 interface LayerTypeRadioGroupProps {
@@ -13,7 +15,20 @@ interface LayerTypeRadioGroupProps {
 const LayerTypeRadioGroup = ({ value, onChange, disabled = false }: LayerTypeRadioGroupProps) => {
   return (
     <div className="space-y-2">
-      <Label className="text-lg font-medium">Layer Type</Label>
+      <div className="flex items-center gap-2">
+        <Label className="text-lg font-medium">Layer Type</Label>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              <p>Choose the layer type. Comparison layers (Swipe, Mirror, Spotlight) require position settings for data sources.</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      
       <RadioGroup 
         value={value} 
         onValueChange={onChange}
@@ -45,9 +60,6 @@ const LayerTypeRadioGroup = ({ value, onChange, disabled = false }: LayerTypeRad
           </Label>
         </div>
       </RadioGroup>
-      <p className="text-sm text-muted-foreground">
-        Choose the layer type. Comparison layers (Swipe, Mirror, Spotlight) require position settings for data sources.
-      </p>
     </div>
   );
 };

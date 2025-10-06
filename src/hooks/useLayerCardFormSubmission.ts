@@ -1,8 +1,6 @@
 
-import { DataSource } from '@/types/config';
+import { DataSource, Colormap, TimeframeType } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
-
-import { TimeframeType } from '@/types/config';
 
 interface SubmissionFormData {
   name: string;
@@ -14,10 +12,13 @@ interface SubmissionFormData {
   isActive: boolean;
   exclusivitySets: string[];
   units: string;
+  contentLocation: 'layerCard' | 'infoPanel'; // NEW: Content location
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
   download?: string;
+  temporalControls: boolean;
+  constraintSlider: boolean;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -25,6 +26,7 @@ interface SubmissionFormData {
   minValue: string;
   maxValue: string;
   categories: Array<{ label: string; color: string; value: number }>;
+  colormaps: Colormap[];
   timeframe: TimeframeType;
   defaultTimestamp?: number;
 }
@@ -36,6 +38,8 @@ export const useLayerCardFormSubmission = (
   const { toast } = useToast();
 
   const createLayerFromFormData = (formData: SubmissionFormData): DataSource => {
+    console.log('useLayerCardFormSubmission: Creating layer from form data:', formData);
+    
     // Process categories to ensure they have the required value property
     const processedCategories = formData.categories?.map((cat, index) => ({
       label: cat.label || '',
@@ -49,10 +53,12 @@ export const useLayerCardFormSubmission = (
       ...(formData.legendType === 'image' && formData.legendUrl.trim() && { url: formData.legendUrl.trim() })
     };
 
-    // Prepare controls object with zoomToCenter and download
+    // Prepare controls object with all control fields
     const controlsObject = {
       opacitySlider: formData.opacitySlider,
       zoomToCenter: formData.zoomToCenter,
+      temporalControls: formData.temporalControls,
+      constraintSlider: formData.constraintSlider,
       ...(formData.download && formData.download.trim() && { download: formData.download.trim() })
     };
 
@@ -61,10 +67,11 @@ export const useLayerCardFormSubmission = (
       description: formData.description.trim(),
       attribution: {
         text: formData.attributionText.trim(),
-        url: formData.attributionUrl.trim() || undefined,
+        ...(formData.attributionUrl.trim() && { url: formData.attributionUrl.trim() }),
       },
-      categories: processedCategories && processedCategories.length > 0 ? processedCategories : undefined,
-      units: formData.units.trim() || undefined,
+      ...(processedCategories && processedCategories.length > 0 && { categories: processedCategories }),
+      ...(formData.colormaps && formData.colormaps.length > 0 && { colormaps: formData.colormaps }),
+      ...(formData.units.trim() && { units: formData.units.trim() }),
       // Add gradient fields if legend type is gradient
       ...(formData.legendType === 'gradient' && {
         startColor: formData.startColor.trim(),
@@ -72,14 +79,39 @@ export const useLayerCardFormSubmission = (
         min: parseFloat(formData.minValue),
         max: parseFloat(formData.maxValue)
       }),
-      // Remove temporal configuration from meta - it's now at top level
     };
+
+    console.log('useLayerCardFormSubmission: Meta object:', metaObject);
+
+    // Create layout structure based on contentLocation
+    const layoutObject: any = {
+      ...(formData.interfaceGroup && { interfaceGroup: formData.interfaceGroup }),
+      contentLocation: formData.contentLocation, // Store content location
+    };
+
+    // Place legend and controls in the correct location
+    if (formData.contentLocation === 'infoPanel') {
+      layoutObject.infoPanel = {
+        legend: legendObject,
+        controls: controlsObject
+      };
+      // Keep toggleable in layerCard even when content is in infoPanel
+      layoutObject.layerCard = {
+        toggleable: formData.toggleable
+      };
+    } else {
+      layoutObject.layerCard = {
+        toggleable: formData.toggleable,
+        legend: legendObject,
+        controls: controlsObject
+      };
+    }
 
     const layerCard: DataSource = {
       name: formData.name.trim(),
       isActive: formData.isActive,
-      exclusivitySets: formData.exclusivitySets.length > 0 ? formData.exclusivitySets : undefined,
-      hasFeatureStatistics: formData.hasFeatureStatistics || undefined,
+      ...(formData.exclusivitySets.length > 0 && { exclusivitySets: formData.exclusivitySets }),
+      ...(formData.hasFeatureStatistics && { hasFeatureStatistics: formData.hasFeatureStatistics }),
       // Add temporal configuration at top level if timeframe is not 'None'
       ...(formData.timeframe !== 'None' && {
         timeframe: formData.timeframe,
@@ -88,18 +120,12 @@ export const useLayerCardFormSubmission = (
         })
       }),
       meta: metaObject,
-      layout: {
-        interfaceGroup: formData.interfaceGroup || undefined,
-        layerCard: {
-          toggleable: formData.toggleable,
-          legend: legendObject,
-          controls: controlsObject,
-        },
-      },
+      layout: layoutObject,
       data: editingLayer?.data || [],
-      statistics: editingLayer?.statistics
+      ...(editingLayer?.statistics && { statistics: editingLayer.statistics })
     };
 
+    console.log('useLayerCardFormSubmission: Final layer card:', layerCard);
     return layerCard;
   };
 

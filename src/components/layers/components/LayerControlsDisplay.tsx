@@ -8,12 +8,16 @@ interface LayerControlsDisplayProps {
 }
 
 const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
-  const controls = source.layout?.layerCard?.controls;
+  // Check both layerCard and infoPanel for controls (backward compatibility)
+  const rawControls = source.layout?.layerCard?.controls || source.layout?.infoPanel?.controls;
   const toggleable = source.layout?.layerCard?.toggleable;
   const timeframe = source.timeframe;
   
+  // Type guard: check if controls is an object (not a string array)
+  const isControlsObject = rawControls && typeof rawControls === 'object' && !Array.isArray(rawControls);
+  const controls = isControlsObject ? rawControls : undefined;
   
-  const hasControls = controls && (controls.opacitySlider || controls.zoomToCenter || controls.download);
+  const hasControls = controls && (controls.opacitySlider || controls.zoomToCenter || controls.download || controls.temporalControls || controls.constraintSlider);
   const hasTimeframe = timeframe && timeframe !== 'None';
   const hasToggleable = toggleable;
   const hasDownload = controls?.download !== undefined;
@@ -27,6 +31,8 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   if (hasToggleable) controlsList.push('Toggleable');
   if (controls?.zoomToCenter) controlsList.push('Zoom to Center');
   if (controls?.opacitySlider) controlsList.push('Opacity Slider');
+  if (controls?.temporalControls) controlsList.push('Temporal Control');
+  if (controls?.constraintSlider) controlsList.push('Constraint Slider');
 
   return (
     <div className="space-y-2">

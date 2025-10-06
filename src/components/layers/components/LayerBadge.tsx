@@ -2,9 +2,8 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Database, Globe, Server } from 'lucide-react';
+import { Database, Globe, Server, Clock, BarChart } from 'lucide-react';
 import { DataSource } from '@/types/config';
-import LayerQAStatus from './LayerQAStatus';
 
 interface LayerBadgeProps {
   source: DataSource;
@@ -28,7 +27,7 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
       case 'base':
         return 'border-green-300 text-green-700';
       case 'standard':
-        return 'border-green-300 text-green-700';
+        return 'border-blue-300 text-blue-700';
       default:
         return 'border-gray-300 text-gray-700';
     }
@@ -37,7 +36,12 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
   const getBadgeIcon = () => {
     switch (layerType) {
       case 'swipe':
-        return <Server className="h-3 w-3" />;
+        return (
+          <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="4" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+            <line x1="8" y1="4" x2="8" y2="12" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+        );
       case 'base':
       case 'standard':
         return <Database className="h-3 w-3" />;
@@ -86,7 +90,40 @@ const LayerBadge = ({ source }: LayerBadgeProps) => {
           ))}
         </div>
       )}
-      <LayerQAStatus source={source} />
+      {source.timeframe && source.timeframe !== 'None' && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="border-cyan-300 text-cyan-700">
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  time series
+                </div>
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">This layer has temporal data configured ({source.timeframe})</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+      {((source.statistics && source.statistics.length > 0) || source.hasFeatureStatistics) && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="border-indigo-300 text-indigo-700">
+                <div className="flex items-center gap-1">
+                  <BarChart className="h-3 w-3" />
+                  statistics
+                </div>
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">This layer has statistical data available</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
     </div>
   );
 };

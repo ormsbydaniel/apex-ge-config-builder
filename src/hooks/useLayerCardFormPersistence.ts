@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { DataSource, Category, TimeframeType } from '@/types/config';
+import { DataSource, Category, Colormap, TimeframeType } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
 interface LayerCardFormData {
@@ -10,10 +10,13 @@ interface LayerCardFormData {
   attributionText: string;
   attributionUrl: string;
   exclusivitySets: string[];
+  contentLocation: 'layerCard' | 'infoPanel'; // NEW: Content location
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
   download?: string;
+  temporalControls: boolean;
+  constraintSlider: boolean;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -21,6 +24,7 @@ interface LayerCardFormData {
   minValue: string;
   maxValue: string;
   categories: Category[];
+  colormaps: Colormap[];
   units: string;
   hasFeatureStatistics: boolean;
   isActive: boolean;
@@ -42,6 +46,20 @@ export const useLayerCardFormPersistence = (
 
   const getInitialFormData = (): LayerCardFormData => {
     if (isEditing && editingLayer) {
+      // Detect content location based on where legend/controls are stored
+      const hasLayerCardContent = editingLayer.layout?.layerCard && 
+        (editingLayer.layout.layerCard.legend || editingLayer.layout.layerCard.controls);
+      const hasInfoPanelContent = editingLayer.layout?.infoPanel &&
+        (editingLayer.layout.infoPanel.legend || editingLayer.layout.infoPanel.controls);
+      
+      const detectedLocation = hasInfoPanelContent ? 'infoPanel' : 'layerCard';
+      const contentLocation = editingLayer.layout?.contentLocation || detectedLocation;
+      
+      // Read from the correct location based on contentLocation
+      const sourceObj = contentLocation === 'infoPanel' 
+        ? editingLayer.layout?.infoPanel 
+        : editingLayer.layout?.layerCard;
+      
       return {
         name: editingLayer.name || '',
         description: editingLayer.meta?.description || '',
@@ -49,17 +67,21 @@ export const useLayerCardFormPersistence = (
         attributionText: editingLayer.meta?.attribution?.text || '',
         attributionUrl: editingLayer.meta?.attribution?.url || '',
         exclusivitySets: editingLayer.exclusivitySets || [],
+        contentLocation, // NEW: Track content location
         toggleable: editingLayer.layout?.layerCard?.toggleable || false,
-        opacitySlider: editingLayer.layout?.layerCard?.controls?.opacitySlider || false,
-        zoomToCenter: (editingLayer.layout?.layerCard?.controls as any)?.zoomToCenter || false,
-        download: (editingLayer.layout?.layerCard?.controls as any)?.download,
-        legendType: editingLayer.layout?.layerCard?.legend?.type || 'swatch',
-        legendUrl: editingLayer.layout?.layerCard?.legend?.url || '',
+        opacitySlider: (sourceObj?.controls as any)?.opacitySlider || false,
+        zoomToCenter: (sourceObj?.controls as any)?.zoomToCenter || false,
+        download: (sourceObj?.controls as any)?.download,
+        temporalControls: (sourceObj?.controls as any)?.temporalControls || false,
+        constraintSlider: (sourceObj?.controls as any)?.constraintSlider || false,
+        legendType: sourceObj?.legend?.type || 'swatch',
+        legendUrl: sourceObj?.legend?.url || '',
         startColor: editingLayer.meta?.startColor || '#000000',
         endColor: editingLayer.meta?.endColor || '#ffffff',
         minValue: editingLayer.meta?.min?.toString() || '',
         maxValue: editingLayer.meta?.max?.toString() || '',
         categories: editingLayer.meta?.categories || [],
+        colormaps: editingLayer.meta?.colormaps || [],
         units: editingLayer.meta?.units || '',
         hasFeatureStatistics: editingLayer.hasFeatureStatistics || false,
         isActive: editingLayer.isActive || false,
@@ -91,10 +113,13 @@ export const useLayerCardFormPersistence = (
       attributionText: '',
       attributionUrl: '',
       exclusivitySets: [],
+      contentLocation: 'layerCard', // NEW: Default to layerCard
       toggleable: true,
       opacitySlider: true,
       zoomToCenter: true,
       download: undefined,
+      temporalControls: false,
+      constraintSlider: false,
       legendType: 'swatch',
       legendUrl: '',
       startColor: '#000000',
@@ -102,6 +127,7 @@ export const useLayerCardFormPersistence = (
       minValue: '',
       maxValue: '',
       categories: [],
+      colormaps: [],
       units: '',
       hasFeatureStatistics: false,
       isActive: false,
@@ -129,6 +155,7 @@ export const useLayerCardFormPersistence = (
   }, [formData, isDirty, isEditing]);
 
   const updateFormData = useCallback((field: string, value: any) => {
+    console.log('useLayerCardFormPersistence: Updating field:', field, 'with value:', value);
     setFormData(prev => {
       const keys = field.split('.');
       const updated = { ...prev };
@@ -143,6 +170,7 @@ export const useLayerCardFormPersistence = (
       }
       
       current[keys[keys.length - 1]] = value;
+      console.log('useLayerCardFormPersistence: Updated form data:', updated);
       return updated;
     });
     setIsDirty(true);

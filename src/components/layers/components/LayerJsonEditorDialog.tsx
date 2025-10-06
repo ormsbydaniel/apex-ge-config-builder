@@ -18,6 +18,7 @@ interface LayerJsonEditorDialogProps {
 
 const LayerJsonEditorDialog = ({ isOpen, onClose, layer, onSave }: LayerJsonEditorDialogProps) => {
   const { toast } = useToast();
+  
   const layerJson = JSON.stringify(layer, null, 2);
   
   const {
