@@ -5,6 +5,7 @@ export const useJsonEditor = (initialJson: string) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedJson, setEditedJson] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSplitView, setIsSplitView] = useState(false);
 
   const handleEditModeToggle = useCallback(() => {
     if (!isEditMode) {
@@ -36,13 +37,19 @@ export const useJsonEditor = (initialJson: string) => {
     }
   }, [editedJson]);
 
+  const toggleSplitView = useCallback(() => {
+    setIsSplitView(!isSplitView);
+  }, [isSplitView]);
+
   return {
     isEditMode,
     editedJson,
     hasUnsavedChanges,
+    isSplitView,
     handleEditModeToggle,
     handleJsonChange,
     handleReset,
-    formatJson
+    formatJson,
+    toggleSplitView,
   };
 };
