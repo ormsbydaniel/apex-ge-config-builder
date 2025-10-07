@@ -204,11 +204,13 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
               <Label>Data Sources ({dataSources.length})</Label>
 
               {dataSources.length === 0 ? (
-                <div className="p-8 border-2 border-dashed rounded-lg text-center">
-                  <Globe className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground mb-4">
-                    No data sources added yet. Click the button below to add your first data source.
-                  </p>
+                <div className="p-6 border-2 border-dashed rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <Globe className="h-8 w-8 text-muted-foreground flex-shrink-0" />
+                    <p className="text-muted-foreground">
+                      No data sources added yet. Click the button below to add your first data source.
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3">
