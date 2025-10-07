@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Download, RotateCcw, AlertTriangle, Settings, Home, Check, Triangle } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Settings, Home, Check, Triangle } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
@@ -27,6 +27,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [errorFileName, setErrorFileName] = useState<string>('');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [title, setTitle] = useState(config.layout.navigation.title);
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -66,6 +68,23 @@ const HomeTab = ({ config }: HomeTabProps) => {
       fileInputRef.current.value = '';
     }
   };
+
+  const handleSaveTitle = () => {
+    dispatch({
+      type: 'UPDATE_LAYOUT',
+      payload: { field: 'title', value: title }
+    });
+    setIsEditingTitle(false);
+  };
+
+  const handleCancelTitle = () => {
+    setTitle(config.layout.navigation.title);
+    setIsEditingTitle(false);
+  };
+
+  React.useEffect(() => {
+    setTitle(config.layout.navigation.title);
+  }, [config.layout.navigation.title]);
 
   const handleAttributionUpdates = (updates: Array<{ index: number; attribution: { text: string; url?: string } }>) => {
     const updatedSources = [...config.sources];
@@ -189,7 +208,36 @@ const HomeTab = ({ config }: HomeTabProps) => {
             
             {config.lastSaved && (
               <>
-                <Separator />
+            <Separator />
+
+            {/* Title Section */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Application Title:</span>
+                <Button size="sm" variant="ghost" onClick={() => setIsEditingTitle(true)} className="h-6 w-6 p-0">
+                  <Edit className="h-3 w-3" />
+                </Button>
+              </div>
+              {isEditingTitle ? (
+                <div className="space-y-2">
+                  <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Geospatial Explorer" />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleSaveTitle}>
+                      Save
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleCancelTitle}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
+                  <span className="text-lg font-medium">{config.layout.navigation.title}</span>
+                </div>
+              )}
+            </div>
+
+            <Separator />
                 <div className="text-sm text-slate-600">
                   <span className="font-medium">Last saved: </span> 
                   {config.lastSaved.toLocaleString()}
