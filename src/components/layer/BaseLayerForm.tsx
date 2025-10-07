@@ -167,29 +167,30 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
             {currentStep === 'basic' ? (
               // Step 1: Basic Info
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Layer Name *</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., OpenStreetMap"
-                    required
-                  />
-                </div>
-
-                <div className="flex items-center justify-between space-x-2 p-4 border rounded-lg">
-                  <div className="space-y-0.5">
+                <div className="flex items-start gap-4">
+                  <div className="w-2/3 space-y-2">
+                    <Label htmlFor="name">Layer Name *</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g., OpenStreetMap"
+                      required
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
                     <Label htmlFor="isActive">Display on Load</Label>
-                    <div className="text-sm text-muted-foreground">
-                      Toggle this layer on when the map first loads
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="isActive"
+                        checked={isActive}
+                        onCheckedChange={setIsActive}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        Toggle on when map loads
+                      </span>
                     </div>
                   </div>
-                  <Switch
-                    id="isActive"
-                    checked={isActive}
-                    onCheckedChange={setIsActive}
-                  />
                 </div>
 
                 <div className="space-y-2">
