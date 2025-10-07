@@ -310,7 +310,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                     </Button>
                     <Button type="submit" disabled={dataSources.length === 0}>
                       <Save className="h-4 w-4 mr-2" />
-                      {isEditing ? 'Update Base Layer' : 'Add Base Layer'}
+                      Finish
                     </Button>
                   </div>
                 </div>
