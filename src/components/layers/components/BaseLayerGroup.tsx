@@ -115,22 +115,6 @@ const BaseLayerGroup = ({
             <div className="space-y-3">
               {baseLayers.map(({ layer, originalIndex }, indexInGroup) => (
                 <div key={originalIndex} className="flex gap-2 items-start">
-                  <LayerMoveControls
-                    onMoveUp={() => {
-                      const prevLayer = baseLayers[indexInGroup - 1];
-                      if (prevLayer) {
-                        onMoveLayer(originalIndex, prevLayer.originalIndex);
-                      }
-                    }}
-                    onMoveDown={() => {
-                      const nextLayer = baseLayers[indexInGroup + 1];
-                      if (nextLayer) {
-                        onMoveLayer(originalIndex, nextLayer.originalIndex);
-                      }
-                    }}
-                    canMoveUp={indexInGroup > 0}
-                    canMoveDown={indexInGroup < baseLayers.length - 1}
-                  />
                   <div className="flex-1">
                     <LayerCard
                       source={layer}
@@ -149,6 +133,22 @@ const BaseLayerGroup = ({
                       onToggle={() => toggleCard(`base-${originalIndex}`)}
                     />
                   </div>
+                  <LayerMoveControls
+                    onMoveUp={() => {
+                      const prevLayer = baseLayers[indexInGroup - 1];
+                      if (prevLayer) {
+                        onMoveLayer(originalIndex, prevLayer.originalIndex);
+                      }
+                    }}
+                    onMoveDown={() => {
+                      const nextLayer = baseLayers[indexInGroup + 1];
+                      if (nextLayer) {
+                        onMoveLayer(originalIndex, nextLayer.originalIndex);
+                      }
+                    }}
+                    canMoveUp={indexInGroup > 0}
+                    canMoveDown={indexInGroup < baseLayers.length - 1}
+                  />
                 </div>
               ))}
             </div>
