@@ -16,6 +16,7 @@ type ConfigAction =
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
   | { type: 'UPDATE_INTERFACE_GROUPS'; payload: string[] }
   | { type: 'UPDATE_EXCLUSIVITY_SETS'; payload: string[] }
+  | { type: 'REMOVE_EXCLUSIVITY_SET'; payload: { index: number; setName: string } }
   | { type: 'UPDATE_MAP_CONSTRAINTS'; payload: { zoom?: number; center?: [number, number] } }
   | { type: 'ADD_SERVICE'; payload: Service }
   | { type: 'REMOVE_SERVICE'; payload: number }
@@ -142,6 +143,27 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...state,
         exclusivitySets: action.payload,
       };
+    case 'REMOVE_EXCLUSIVITY_SET': {
+      const { index, setName } = action.payload;
+      const updatedExclusivitySets = state.exclusivitySets.filter((_, i) => i !== index);
+      
+      // Remove the exclusivity set from all layers that reference it
+      const updatedSources = state.sources.map(source => {
+        if (source.exclusivitySets && source.exclusivitySets.includes(setName)) {
+          return {
+            ...source,
+            exclusivitySets: source.exclusivitySets.filter(set => set !== setName)
+          };
+        }
+        return source;
+      });
+      
+      return {
+        ...state,
+        exclusivitySets: updatedExclusivitySets,
+        sources: updatedSources,
+      };
+    }
     case 'UPDATE_MAP_CONSTRAINTS':
       return {
         ...state,
