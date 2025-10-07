@@ -3,88 +3,116 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Save, X, Globe } from 'lucide-react';
-import { DataSource } from '@/types/config';
+import { Switch } from '@/components/ui/switch';
+import { Save, X, Globe, Plus, Trash2 } from 'lucide-react';
+import { DataSource, DataSourceItem, Service } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
-import { sanitizeUrl, isValidUrl } from '@/utils/urlSanitizer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import DataSourceForm from '@/components/layers/DataSourceForm';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface BaseLayerFormProps {
   onAddLayer: (layer: DataSource) => void;
   onCancel: () => void;
   editingLayer?: DataSource;
   isEditing?: boolean;
+  services: Service[];
+  onAddService: (service: Service) => void;
+  allSources?: DataSource[];
 }
 
-const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false }: BaseLayerFormProps) => {
+const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, services, onAddService, allSources = [] }: BaseLayerFormProps) => {
   const { toast } = useToast();
+  
+  // Form state
   const [name, setName] = useState('');
-  const [url, setUrl] = useState('');
-  const [format, setFormat] = useState<string>('xyz');
-  const [zIndex, setZIndex] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+  const [attributionText, setAttributionText] = useState('');
+  const [attributionUrl, setAttributionUrl] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [dataSources, setDataSources] = useState<DataSourceItem[]>([]);
+  
+  // Modal state
+  const [showDataSourceModal, setShowDataSourceModal] = useState(false);
+  const [showActiveWarning, setShowActiveWarning] = useState(false);
+  const [existingActiveLayer, setExistingActiveLayer] = useState<string | null>(null);
 
   useEffect(() => {
     if (isEditing && editingLayer) {
       setName(editingLayer.name);
-      // Data is always an array now
-      if (editingLayer.data.length > 0) {
-        const firstDataSource = editingLayer.data[0];
-        const sanitizedUrl = sanitizeUrl(firstDataSource.url || '');
-        setUrl(sanitizedUrl);
-        setFormat(firstDataSource.format);
-        setZIndex(firstDataSource.zIndex || 0);
+      setIsActive(editingLayer.isActive ?? false);
+      setDataSources(editingLayer.data || []);
+      setPreviewUrl((editingLayer as any).preview || '');
+      
+      if (editingLayer.meta) {
+        setAttributionText(editingLayer.meta.attribution?.text || '');
+        setAttributionUrl(editingLayer.meta.attribution?.url || '');
       }
     }
   }, [isEditing, editingLayer]);
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawUrl = e.target.value;
-    
-    setUrl(rawUrl);
+  const handleAddDataSource = (dataSource: DataSourceItem) => {
+    setDataSources(prev => [...prev, dataSource]);
+    setShowDataSourceModal(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const sanitizedUrl = sanitizeUrl(url);
-    
-    
-    if (!name.trim() || !sanitizedUrl.trim()) {
+  const handleRemoveDataSource = (index: number) => {
+    setDataSources(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const findExistingActiveBaseLayer = (): string | null => {
+    // Find any active base layer that isn't the one being edited
+    const activeBaseLayer = allSources.find(source => 
+      source.isBaseLayer && 
+      source.isActive && 
+      source.name !== editingLayer?.name
+    );
+    return activeBaseLayer?.name || null;
+  };
+
+  const performSubmit = () => {
+    if (!name.trim()) {
       toast({
         title: "Missing Required Fields",
-        description: "Please fill in name and URL.",
+        description: "Please provide a layer name.",
         variant: "destructive"
       });
       return;
     }
 
-    if (!isValidUrl(sanitizedUrl)) {
+    if (dataSources.length === 0) {
       toast({
-        title: "Invalid URL",
-        description: "Please enter a valid URL or relative path.",
+        title: "Missing Data Sources",
+        description: "Please add at least one data source.",
         variant: "destructive"
       });
       return;
     }
 
-    // NEW FORMAT: isBaseLayer is now at the top level of the source
-    const baseLayer: DataSource = {
+    // Build the base layer object
+    const baseLayer: any = {
       name: name.trim(),
-      isActive: editingLayer?.isActive ?? true,
-      isBaseLayer: true, // NEW: Set at top level instead of in data items
-      data: [
-        {
-          url: sanitizedUrl,
-          format,
-          zIndex,
-          // REMOVED: isBaseLayer: true (no longer needed in data items)
-        }
-      ],
-      statistics: editingLayer?.statistics, // Preserve existing statistics when editing
-      ...(editingLayer?.meta && { meta: editingLayer.meta })
+      isActive,
+      isBaseLayer: true,
+      data: dataSources,
+      exclusivitySets: editingLayer?.exclusivitySets || [],
+      statistics: editingLayer?.statistics,
+      ...(previewUrl.trim() && { preview: previewUrl.trim() })
     };
 
-    
+    // Add meta if any meta fields are provided
+    if (attributionText) {
+      baseLayer.meta = {
+        description: '',
+        attribution: {
+          text: attributionText.trim(),
+          ...(attributionUrl.trim() && { url: attributionUrl.trim() })
+        }
+      };
+    }
+
     onAddLayer(baseLayer);
     toast({
       title: isEditing ? "Base Layer Updated" : "Base Layer Added",
@@ -92,80 +120,224 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false }
     });
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    performSubmit();
+  };
+
+  const handleActiveToggle = (checked: boolean) => {
+    if (checked) {
+      const existingActive = findExistingActiveBaseLayer();
+      if (existingActive) {
+        setExistingActiveLayer(existingActive);
+        setShowActiveWarning(true);
+        // Don't set isActive yet - wait for confirmation
+        return;
+      }
+    }
+    setIsActive(checked);
+  };
+
+  const handleConfirmActivation = () => {
+    setShowActiveWarning(false);
+    setIsActive(true);
+    setExistingActiveLayer(null);
+  };
+
+  const handleCancelActivation = () => {
+    setShowActiveWarning(false);
+    setIsActive(false);
+    setExistingActiveLayer(null);
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-primary">
-          <Globe className="h-5 w-5" />
-          {isEditing ? 'Edit Base Layer' : 'Add Base Layer'}
-        </CardTitle>
-        <CardDescription>
-          Configure a background map layer for your geospatial explorer.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Layer Name *</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., OpenStreetMap"
-              required
-            />
-          </div>
+    <>
+      {/* Active Base Layer Warning Dialog */}
+      <AlertDialog open={showActiveWarning} onOpenChange={setShowActiveWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace Active Base Layer?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{name}" will replace "{existingActiveLayer}" as the default base layer as only one base layer can be active.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelActivation}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmActivation}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-          <div className="space-y-2">
-            <Label htmlFor="url">Tile URL *</Label>
-            <Input
-              id="url"
-              value={url}
-              onChange={handleUrlChange}
-              placeholder="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-              required
-            />
-          </div>
+      {/* Data Source Modal */}
+      <Dialog open={showDataSourceModal} onOpenChange={setShowDataSourceModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Data Source to Base Layer</DialogTitle>
+          </DialogHeader>
+          <DataSourceForm
+            services={services}
+            onAddDataSource={handleAddDataSource}
+            onAddStatisticsLayer={handleAddDataSource}
+            onAddService={onAddService}
+            onCancel={() => setShowDataSourceModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
-          <div className="space-y-2">
-            <Label htmlFor="format">Format</Label>
-            <Select value={format} onValueChange={setFormat}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="xyz">XYZ Tiles</SelectItem>
-                <SelectItem value="wms">WMS</SelectItem>
-                <SelectItem value="wmts">WMTS</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-primary">
+            <Globe className="h-5 w-5" />
+            {isEditing ? 'Edit Base Layer' : 'Add Base Layer'}
+          </CardTitle>
+          <CardDescription>
+            Configure your base layer information and add data sources. Multiple sources will be displayed together.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic Info */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
+              <div className="flex items-end gap-4">
+                <div className="w-2/3 space-y-2">
+                  <Label htmlFor="name">Layer Name *</Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g., OpenStreetMap"
+                    required
+                  />
+                </div>
+                <div className="flex-1 flex items-center gap-2 pb-2">
+                  <Switch
+                    id="isActive"
+                    checked={isActive}
+                    onCheckedChange={handleActiveToggle}
+                  />
+                  <Label htmlFor="isActive" className="text-sm cursor-pointer">
+                    Display on Load
+                  </Label>
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="zIndex">Z-Index</Label>
-            <Input
-              id="zIndex"
-              type="number"
-              value={zIndex}
-              onChange={(e) => setZIndex(parseInt(e.target.value) || 0)}
-              min="0"
-              max="100"
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="attributionText">Attribution Text</Label>
+                <Input
+                  id="attributionText"
+                  value={attributionText}
+                  onChange={(e) => setAttributionText(e.target.value)}
+                  placeholder="e.g., © OpenStreetMap contributors"
+                />
+              </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-primary hover:bg-primary/90">
-              <Save className="h-4 w-4 mr-2" />
-              {isEditing ? 'Update Base Layer' : 'Add Base Layer'}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+              <div className="space-y-2">
+                <Label htmlFor="attributionUrl">Attribution URL</Label>
+                <Input
+                  id="attributionUrl"
+                  type="url"
+                  value={attributionUrl}
+                  onChange={(e) => setAttributionUrl(e.target.value)}
+                  placeholder="https://www.openstreetmap.org/copyright"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="previewUrl">Preview Image URL (Optional)</Label>
+                <Input
+                  id="previewUrl"
+                  type="url"
+                  value={previewUrl}
+                  onChange={(e) => setPreviewUrl(e.target.value)}
+                  placeholder="https://example.com/preview.png"
+                />
+                <p className="text-xs text-muted-foreground">
+                  A thumbnail image shown in the base layer selector
+                </p>
+              </div>
+            </div>
+
+            {/* Data Sources */}
+            <div className="space-y-4">
+              <Label>Data Sources ({dataSources.length})</Label>
+
+              {dataSources.length === 0 ? (
+                <div className="p-6 border-2 border-dashed rounded-lg">
+                  <div className="flex items-center justify-center gap-4">
+                    <Globe className="h-8 w-8 text-muted-foreground flex-shrink-0" />
+                    <p className="text-muted-foreground">
+                      No data sources added yet. Click the button below to add your first data source.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {dataSources.map((source, index) => (
+                    <Card key={index} className="border-l-4 border-l-primary">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="secondary">{source.format.toUpperCase()}</Badge>
+                              <Badge variant="outline">Z-Index: {source.zIndex}</Badge>
+                              {source.layers && (
+                                <Badge variant="outline" className="truncate max-w-[200px]">
+                                  {source.layers}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {source.url || 'No URL specified'}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveDataSource(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-3">
+                <p className="flex-[0.8] text-sm text-muted-foreground">
+                  A Geospatial Explorer base map can include multiple data sources that are both displayed when the base map is selected.
+                </p>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDataSourceModal(true)}
+                  className="flex-[0.2] min-w-fit"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {dataSources.length === 0 ? 'Add Data Source' : 'Add Another Source'}
+                </Button>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+              <Button type="submit" disabled={dataSources.length === 0}>
+                <Save className="h-4 w-4 mr-2" />
+                Finish
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 

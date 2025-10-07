@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle, Download } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
 import { calculateQAStats } from '@/utils/qaUtils';
 import LayerCard from '../LayerCard';
+import LayerMoveControls from './LayerMoveControls';
 import { useLayerStateManagement } from '@/hooks/useLayerStateManagement';
 
 interface BaseLayerGroupProps {
@@ -26,6 +27,8 @@ interface BaseLayerGroupProps {
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddBaseLayer: () => void;
+  onAddRecommendedBaseLayers: () => void;
+  isLoadingRecommended?: boolean;
 }
 
 const BaseLayerGroup = ({
@@ -43,7 +46,9 @@ const BaseLayerGroup = ({
   onEditDataSource,
   onEditStatisticsSource,
   onMoveLayer,
-  onAddBaseLayer
+  onAddBaseLayer,
+  onAddRecommendedBaseLayers,
+  isLoadingRecommended
 }: BaseLayerGroupProps) => {
   const { toggleCard, isExpanded: isCardExpanded } = useLayerStateManagement();
 
@@ -100,6 +105,16 @@ const BaseLayerGroup = ({
               <Button
                 variant="outline"
                 size="sm"
+                onClick={onAddRecommendedBaseLayers}
+                disabled={isLoadingRecommended}
+                className="text-primary hover:bg-primary/10 border-primary/30"
+              >
+                <Download className="h-3 w-3 mr-1" />
+                {isLoadingRecommended ? 'Loading...' : 'Add Recommended Base Layers'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={onAddBaseLayer}
                 className="text-primary hover:bg-primary/10 border-primary/30"
               >
@@ -110,26 +125,59 @@ const BaseLayerGroup = ({
           </div>
         </CardHeader>
         <CollapsibleContent>
-          <CardContent className="pt-0">
+          <CardContent className="pt-3 bg-slate-200">
             <div className="space-y-3">
-              {baseLayers.map(({ layer, originalIndex }) => (
-                <LayerCard
-                  key={originalIndex}
-                  source={layer}
-                  index={originalIndex}
-                  onRemove={onRemove}
-                  onEdit={onEdit}
-                  onEditBaseLayer={onEditBaseLayer}
-                  onDuplicate={onDuplicate}
-                  onUpdateLayer={onUpdateLayer}
-                  onAddDataSource={() => onAddDataSource(originalIndex)}
-                  onRemoveDataSource={(dataSourceIndex) => onRemoveDataSource(originalIndex, dataSourceIndex)}
-                  onRemoveStatisticsSource={(statsIndex) => onRemoveStatisticsSource(originalIndex, statsIndex)}
-                  onEditDataSource={(dataIndex) => onEditDataSource(originalIndex, dataIndex)}
-                  onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
-                  isExpanded={isCardExpanded(`base-${originalIndex}`)}
-                  onToggle={() => toggleCard(`base-${originalIndex}`)}
-                />
+              {baseLayers.map(({ layer, originalIndex }, indexInGroup) => (
+                <div key={originalIndex} className="flex gap-2 items-center">
+                  <div className="flex-1">
+                    <LayerCard
+                      source={layer}
+                      index={originalIndex}
+                      onRemove={onRemove}
+                      onEdit={onEdit}
+                      onEditBaseLayer={onEditBaseLayer}
+                      onDuplicate={onDuplicate}
+                      onUpdateLayer={onUpdateLayer}
+                      onAddDataSource={() => onAddDataSource(originalIndex)}
+                      onRemoveDataSource={(dataSourceIndex) => onRemoveDataSource(originalIndex, dataSourceIndex)}
+                      onRemoveStatisticsSource={(statsIndex) => onRemoveStatisticsSource(originalIndex, statsIndex)}
+                      onEditDataSource={(dataIndex) => onEditDataSource(originalIndex, dataIndex)}
+                      onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
+                      isExpanded={isCardExpanded(`base-${originalIndex}`)}
+                      onToggle={() => toggleCard(`base-${originalIndex}`)}
+                    />
+                  </div>
+                  <LayerMoveControls
+                    onMoveUp={() => {
+                      const prevLayer = baseLayers[indexInGroup - 1];
+                      if (prevLayer) {
+                        onMoveLayer(originalIndex, prevLayer.originalIndex);
+                      }
+                    }}
+                    onMoveDown={() => {
+                      const nextLayer = baseLayers[indexInGroup + 1];
+                      if (nextLayer) {
+                        onMoveLayer(originalIndex, nextLayer.originalIndex);
+                      }
+                    }}
+                    onMoveToTop={() => {
+                      const firstLayer = baseLayers[0];
+                      if (firstLayer && originalIndex !== firstLayer.originalIndex) {
+                        onMoveLayer(originalIndex, firstLayer.originalIndex);
+                      }
+                    }}
+                    onMoveToBottom={() => {
+                      const lastLayer = baseLayers[baseLayers.length - 1];
+                      if (lastLayer && originalIndex !== lastLayer.originalIndex) {
+                        onMoveLayer(originalIndex, lastLayer.originalIndex);
+                      }
+                    }}
+                    canMoveUp={indexInGroup > 0}
+                    canMoveDown={indexInGroup < baseLayers.length - 1}
+                    canMoveToTop={indexInGroup > 0}
+                    canMoveToBottom={indexInGroup < baseLayers.length - 1}
+                  />
+                </div>
               ))}
             </div>
           </CardContent>

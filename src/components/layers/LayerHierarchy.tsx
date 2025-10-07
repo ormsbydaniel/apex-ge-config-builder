@@ -25,6 +25,8 @@ interface LayerHierarchyProps {
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddLayer: (groupName: string) => void;
   onAddBaseLayer: () => void;
+  onAddRecommendedBaseLayers: () => void;
+  isLoadingRecommended?: boolean;
   updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
   expandedLayerAfterCreation?: string | null;
   expandedLayerAfterEdit?: string | null;
@@ -51,6 +53,8 @@ const LayerHierarchy = ({
   onMoveLayer,
   onAddLayer,
   onAddBaseLayer,
+  onAddRecommendedBaseLayers,
+  isLoadingRecommended,
   updateConfig,
   expandedLayerAfterCreation,
   expandedLayerAfterEdit,
@@ -136,9 +140,18 @@ const LayerHierarchy = ({
     setExpandedGroups(newExpanded);
   };
 
-  const moveInterfaceGroup = (groupIndex: number, direction: 'up' | 'down') => {
-    const newIndex = direction === 'up' ? groupIndex - 1 : groupIndex + 1;
-    if (newIndex >= 0 && newIndex < config.interfaceGroups.length) {
+  const moveInterfaceGroup = (groupIndex: number, direction: 'up' | 'down' | 'top' | 'bottom') => {
+    let newIndex: number;
+    
+    if (direction === 'top') {
+      newIndex = 0;
+    } else if (direction === 'bottom') {
+      newIndex = config.interfaceGroups.length - 1;
+    } else {
+      newIndex = direction === 'up' ? groupIndex - 1 : groupIndex + 1;
+    }
+    
+    if (newIndex >= 0 && newIndex < config.interfaceGroups.length && newIndex !== groupIndex) {
       const updatedGroups = [...config.interfaceGroups];
       const [movedGroup] = updatedGroups.splice(groupIndex, 1);
       updatedGroups.splice(newIndex, 0, movedGroup);
@@ -242,6 +255,8 @@ const LayerHierarchy = ({
         onEditStatisticsSource={onEditStatisticsSource}
         onMoveLayer={onMoveLayer}
         onAddBaseLayer={onAddBaseLayer}
+        onAddRecommendedBaseLayers={onAddRecommendedBaseLayers}
+        isLoadingRecommended={isLoadingRecommended}
       />
 
       {/* Ungrouped Layers - moved to the end */}

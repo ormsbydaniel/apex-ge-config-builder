@@ -27,9 +27,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [errorFileName, setErrorFileName] = useState<string>('');
-  const [isEditingLogo, setIsEditingLogo] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   const [title, setTitle] = useState(config.layout.navigation.title);
 
   const handleImportClick = () => {
@@ -71,19 +69,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
     }
   };
 
-  const handleSaveLogo = () => {
-    dispatch({
-      type: 'UPDATE_LAYOUT',
-      payload: { field: 'logo', value: logoUrl }
-    });
-    setIsEditingLogo(false);
-  };
-
-  const handleCancelLogo = () => {
-    setLogoUrl(config.layout.navigation.logo);
-    setIsEditingLogo(false);
-  };
-
   const handleSaveTitle = () => {
     dispatch({
       type: 'UPDATE_LAYOUT',
@@ -98,9 +83,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
   };
 
   React.useEffect(() => {
-    setLogoUrl(config.layout.navigation.logo);
     setTitle(config.layout.navigation.title);
-  }, [config.layout.navigation.logo, config.layout.navigation.title]);
+  }, [config.layout.navigation.title]);
 
   const handleAttributionUpdates = (updates: Array<{ index: number; attribution: { text: string; url?: string } }>) => {
     const updatedSources = [...config.sources];
@@ -162,74 +146,32 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
             <Separator />
 
-            {/* Logo Section */}
-            <div className="space-y-4">
+            {/* Title Section */}
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Application Branding</h3>
+                <h3 className="text-lg font-medium">Application Title</h3>
+                <Button size="sm" variant="ghost" onClick={() => setIsEditingTitle(true)} className="h-8 w-8 p-0">
+                  <Edit className="h-4 w-4" />
+                </Button>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Logo:</span>
-                    <Button size="sm" variant="ghost" onClick={() => setIsEditingLogo(true)} className="h-6 w-6 p-0">
-                      <Edit className="h-3 w-3" />
+              {isEditingTitle ? (
+                <div className="space-y-2">
+                  <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Geospatial Explorer" />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleSaveTitle}>
+                      Save
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleCancelTitle}>
+                      Cancel
                     </Button>
                   </div>
-                  {isEditingLogo ? (
-                    <div className="space-y-2">
-                      <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://example.com/logo.svg" />
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={handleSaveLogo}>
-                          Save
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={handleCancelLogo}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex justify-center border rounded-lg p-4 min-h-[80px] bg-[#2d5f72]">
-                      {config.layout.navigation.logo ? (
-                        <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
-                          e.currentTarget.style.display = 'none';
-                        }} />
-                      ) : (
-                        <div className="text-sm text-slate-500 italic flex items-center">No logo set</div>
-                      )}
-                    </div>
-                  )}
                 </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Title:</span>
-                    <Button size="sm" variant="ghost" onClick={() => setIsEditingTitle(true)} className="h-6 w-6 p-0">
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  {isEditingTitle ? (
-                    <div className="space-y-2">
-                      <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Geospatial Explorer" />
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={handleSaveTitle}>
-                          Save
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={handleCancelTitle}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
-                      <span className="text-lg font-medium">{config.layout.navigation.title}</span>
-                    </div>
-                  )}
+              ) : (
+                <div className="flex items-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
+                  <span className="text-lg font-medium">{config.layout.navigation.title}</span>
                 </div>
-              </div>
+              )}
             </div>
-
-            <Separator />
 
             {/* Configuration Statistics */}
             <div className="space-y-3">
@@ -240,6 +182,10 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   <div className="text-sm text-slate-600">Interface Groups</div>
                 </div>
                 <div className="text-center p-3 border rounded-lg">
+                  <div className="text-2xl font-bold text-primary">{config.sources.length}</div>
+                  <div className="text-sm text-slate-600">Layers</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
                   <div className="text-2xl font-bold text-primary">{config.exclusivitySets.length}</div>
                   <div className="text-sm text-slate-600">Exclusivity Sets</div>
                 </div>
@@ -247,14 +193,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   <div className="text-2xl font-bold text-primary">{config.services.length}</div>
                   <div className="text-sm text-slate-600">Services</div>
                 </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.sources.length}</div>
-                  <div className="text-sm text-slate-600">Layers</div>
-                </div>
               </div>
             </div>
-
-            <Separator />
 
             {/* Layer Quality Assurance Statistics */}
             <div className="space-y-3">
@@ -292,22 +232,16 @@ const HomeTab = ({ config }: HomeTabProps) => {
             </div>
             
             {config.lastSaved && (
-              <>
-                <Separator />
                 <div className="text-sm text-slate-600">
                   <span className="font-medium">Last saved: </span> 
                   {config.lastSaved.toLocaleString()}
                 </div>
-              </>
             )}
             
             {config.isLoading && (
-              <>
-                <Separator />
                 <div className="text-sm text-blue-600">
                   Loading configuration...
                 </div>
-              </>
             )}
           </CardContent>
         </Card>

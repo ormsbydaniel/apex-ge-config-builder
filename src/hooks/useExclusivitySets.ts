@@ -26,9 +26,10 @@ export const useExclusivitySets = ({ config, dispatch }: UseExclusivitySetsProps
   }, [newExclusivitySet, config.exclusivitySets, dispatch, toast]);
 
   const removeExclusivitySet = useCallback((index: number) => {
+    const setToRemove = config.exclusivitySets[index];
     dispatch({ 
-      type: 'UPDATE_EXCLUSIVITY_SETS', 
-      payload: config.exclusivitySets.filter((_, i) => i !== index) 
+      type: 'REMOVE_EXCLUSIVITY_SET', 
+      payload: { index, setName: setToRemove }
     });
   }, [config.exclusivitySets, dispatch]);
 

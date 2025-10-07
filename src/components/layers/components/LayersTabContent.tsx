@@ -24,6 +24,8 @@ interface LayersTabContentProps {
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddLayer: (groupName: string) => void;
   onAddBaseLayer: () => void;
+  onAddRecommendedBaseLayers: () => void;
+  isLoadingRecommended?: boolean;
   updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
   expandedLayerAfterCreation: string | null;
   expandedLayerAfterEdit?: string | null;
@@ -51,6 +53,8 @@ const LayersTabContent = ({
   onMoveLayer,
   onAddLayer,
   onAddBaseLayer,
+  onAddRecommendedBaseLayers,
+  isLoadingRecommended,
   updateConfig,
   expandedLayerAfterCreation,
   expandedLayerAfterEdit,
@@ -86,6 +90,8 @@ const LayersTabContent = ({
             onMoveLayer={onMoveLayer}
             onAddLayer={onAddLayer}
             onAddBaseLayer={onAddBaseLayer}
+            onAddRecommendedBaseLayers={onAddRecommendedBaseLayers}
+            isLoadingRecommended={isLoadingRecommended}
             updateConfig={updateConfig}
             expandedLayerAfterCreation={expandedLayerAfterCreation}
             expandedLayerAfterEdit={expandedLayerAfterEdit}

@@ -61,7 +61,14 @@ const LayersTabCore = ({
     if (editingLayerIndex !== null) {
       const editingLayer = config.sources[editingLayerIndex];
       if (editingLayer) {
-        const groupName = editingLayer.layout?.interfaceGroup || 'ungrouped';
+        let groupName: string;
+        if (editingLayer.isBaseLayer) {
+          groupName = '__BASE_LAYERS__';
+        } else if (editingLayer.layout?.interfaceGroup) {
+          groupName = editingLayer.layout.interfaceGroup;
+        } else {
+          groupName = '__UNGROUPED__';
+        }
         layersLogic.handleLayerEdited?.(groupName, editingLayerIndex);
       }
     }
@@ -75,7 +82,14 @@ const LayersTabCore = ({
       updateLayer(editingLayerIndex, layer);
       
       // Trigger expansion for the edited layer
-      const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+      let groupName: string;
+      if (layer.isBaseLayer) {
+        groupName = '__BASE_LAYERS__';
+      } else if (layer.layout?.interfaceGroup) {
+        groupName = layer.layout.interfaceGroup;
+      } else {
+        groupName = '__UNGROUPED__';
+      }
       layersLogic.handleLayerEdited?.(groupName, editingLayerIndex);
       
       // Clear any stale data source form state when editing a layer

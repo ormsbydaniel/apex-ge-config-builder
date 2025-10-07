@@ -118,6 +118,24 @@ export const useLayerOperations = ({
     });
   }, [config.sources, dispatch, toast]);
 
+  const moveLayerToTop = useCallback((layerIndex: number, groupIndices: number[]) => {
+    if (groupIndices.length === 0) return;
+    
+    const firstIndexInGroup = Math.min(...groupIndices);
+    if (layerIndex === firstIndexInGroup) return;
+    
+    moveLayer(layerIndex, firstIndexInGroup);
+  }, [moveLayer]);
+
+  const moveLayerToBottom = useCallback((layerIndex: number, groupIndices: number[]) => {
+    if (groupIndices.length === 0) return;
+    
+    const lastIndexInGroup = Math.max(...groupIndices);
+    if (layerIndex === lastIndexInGroup) return;
+    
+    moveLayer(layerIndex, lastIndexInGroup);
+  }, [moveLayer]);
+
   // === FORM MANAGEMENT ===
   // Use external setters if provided, otherwise use internal state
 
@@ -343,6 +361,8 @@ export const useLayerOperations = ({
     removeLayer,
     updateLayer,
     moveLayer,
+    moveLayerToTop,
+    moveLayerToBottom,
     updateConfig,
     
     // Form management

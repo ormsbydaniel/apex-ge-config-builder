@@ -16,6 +16,7 @@ type ConfigAction =
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
   | { type: 'UPDATE_INTERFACE_GROUPS'; payload: string[] }
   | { type: 'UPDATE_EXCLUSIVITY_SETS'; payload: string[] }
+  | { type: 'REMOVE_EXCLUSIVITY_SET'; payload: { index: number; setName: string } }
   | { type: 'UPDATE_MAP_CONSTRAINTS'; payload: { zoom?: number; center?: [number, number] } }
   | { type: 'ADD_SERVICE'; payload: Service }
   | { type: 'REMOVE_SERVICE'; payload: number }
@@ -33,7 +34,7 @@ const initialState: ConfigState = {
     }
   },
   interfaceGroups: ["Interface group 1", "Interface group 2", "Interface group 3"],
-  exclusivitySets: ["basemaps"],
+  exclusivitySets: [],
   services: [],
   sources: [],
   mapConstraints: {
@@ -142,6 +143,27 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...state,
         exclusivitySets: action.payload,
       };
+    case 'REMOVE_EXCLUSIVITY_SET': {
+      const { index, setName } = action.payload;
+      const updatedExclusivitySets = state.exclusivitySets.filter((_, i) => i !== index);
+      
+      // Remove the exclusivity set from all layers that reference it
+      const updatedSources = state.sources.map(source => {
+        if (source.exclusivitySets && source.exclusivitySets.includes(setName)) {
+          return {
+            ...source,
+            exclusivitySets: source.exclusivitySets.filter(set => set !== setName)
+          };
+        }
+        return source;
+      });
+      
+      return {
+        ...state,
+        exclusivitySets: updatedExclusivitySets,
+        sources: updatedSources,
+      };
+    }
     case 'UPDATE_MAP_CONSTRAINTS':
       return {
         ...state,
@@ -253,10 +275,26 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           }))
         })
       };
+
+      // If adding an active base layer, deactivate all other base layers
+      let updatedSources = state.sources;
+      if (sanitizedSource.isBaseLayer && sanitizedSource.isActive) {
+        console.log('[ADD_SOURCE] Deactivating other active base layers for new layer:', sanitizedSource.name);
+        const activeBaseLayers = state.sources.filter(s => s.isBaseLayer && s.isActive);
+        console.log('[ADD_SOURCE] Found active base layers:', activeBaseLayers.map(s => s.name));
+        
+        updatedSources = state.sources.map(source => {
+          if (source.isBaseLayer && source.isActive) {
+            console.log('[ADD_SOURCE] Deactivating:', source.name);
+            return { ...source, isActive: false };
+          }
+          return source;
+        });
+      }
       
       return {
         ...state,
-        sources: [...state.sources, sanitizedSource],
+        sources: [...updatedSources, sanitizedSource],
       };
     }
     case 'REMOVE_SOURCE':
@@ -265,8 +303,28 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         sources: state.sources.filter((_, i) => i !== action.payload),
       };
     case 'UPDATE_SOURCE': {
-      const updatedSources = [...state.sources];
-      updatedSources[action.payload.index] = action.payload.source;
+      const updatedSource = action.payload.source;
+      
+      // If the updated source is an active base layer, deactivate all other active base layers
+      let updatedSources = [...state.sources];
+      if (updatedSource.isBaseLayer && updatedSource.isActive) {
+        console.log('[UPDATE_SOURCE] Deactivating other active base layers for:', updatedSource.name);
+        const activeBaseLayers = state.sources.filter((s, idx) => idx !== action.payload.index && s.isBaseLayer && s.isActive);
+        console.log('[UPDATE_SOURCE] Found active base layers to deactivate:', activeBaseLayers.map(s => s.name));
+        
+        updatedSources = updatedSources.map((source, idx) => {
+          // Deactivate other base layers (not the one being updated)
+          if (idx !== action.payload.index && source.isBaseLayer && source.isActive) {
+            console.log('[UPDATE_SOURCE] Deactivating:', source.name);
+            return { ...source, isActive: false };
+          }
+          return source;
+        });
+      }
+      
+      // Now update the target source
+      updatedSources[action.payload.index] = updatedSource;
+      
       return {
         ...state,
         sources: updatedSources,

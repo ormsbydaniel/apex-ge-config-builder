@@ -43,7 +43,8 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     setSelectedLayerType,
     setShowLayerForm,
     setEditingLayerIndex,
-    setExpandedGroupAfterAction: composedLogic.setExpandedGroupAfterAction
+    setExpandedGroupAfterAction: composedLogic.setExpandedGroupAfterAction,
+    addLayer: props.addLayer
   });
 
   const {

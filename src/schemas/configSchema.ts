@@ -236,6 +236,7 @@ const BaseDataSourceSchema = BaseDataSourceObjectSchema.refine(
 // Schema for base layers (isBaseLayer: true at top level, meta and layout are optional)
 const BaseLayerSchema = BaseDataSourceObjectSchema.extend({
   isBaseLayer: z.literal(true), // Must be true for base layers
+  preview: z.string().url().optional(), // Preview image URL for base layers
   meta: MetaSchema.optional(),
   layout: LayoutSchema.optional(),
 }).refine(

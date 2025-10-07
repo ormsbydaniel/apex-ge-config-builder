@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -16,6 +16,8 @@ import { Edit, AlertTriangle, FileText, Sun, Moon } from 'lucide-react';
 import MonacoJsonEditor from './components/MonacoJsonEditor';
 import JsonEditorToolbar from './components/JsonEditorToolbar';
 import ValidationErrorDialog from './components/ValidationErrorDialog';
+import JsonBreadcrumb from './components/JsonBreadcrumb';
+import FindReplaceBar from './components/FindReplaceBar';
 
 interface PreviewTabProps {
   config: any;
@@ -33,10 +35,19 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
     isEditMode,
     editedJson,
     hasUnsavedChanges,
+    showFindReplace,
+    searchValue,
+    replaceValue,
     handleEditModeToggle,
     handleJsonChange,
     handleReset,
-    formatJson
+    formatJson,
+    toggleFindReplace,
+    setSearchValue,
+    setReplaceValue,
+    handleFind,
+    handleReplace,
+    handleReplaceAll,
   } = useJsonEditor(configJson);
   
   const {
@@ -46,6 +57,8 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
     setShowErrorDialog,
     showErrors
   } = useValidationErrors();
+
+  const [currentPath, setCurrentPath] = useState('');
 
   const handleApplyChanges = useCallback(async () => {
     try {
@@ -139,12 +152,32 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
                   onApplyChanges={handleApplyChanges}
                   onReset={handleReset}
                   onFormatJson={handleFormatJson}
+                  onToggleFindReplace={toggleFindReplace}
                 />
+
+                {showFindReplace && (
+                  <FindReplaceBar
+                    searchValue={searchValue}
+                    replaceValue={replaceValue}
+                    onSearchChange={setSearchValue}
+                    onReplaceChange={setReplaceValue}
+                    onFind={handleFind}
+                    onReplace={handleReplace}
+                    onReplaceAll={handleReplaceAll}
+                    onClose={toggleFindReplace}
+                  />
+                )}
+
+                {currentPath && (
+                  <JsonBreadcrumb path={currentPath} />
+                )}
                 
                 <MonacoJsonEditor
                   value={editedJson}
                   onChange={handleJsonChange}
                   theme={editorTheme}
+                  onCursorPositionChange={setCurrentPath}
+                  searchQuery={searchValue}
                 />
                 
                 {hasUnsavedChanges && (
