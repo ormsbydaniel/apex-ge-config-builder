@@ -172,25 +172,25 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
             {/* Zoom at Start */}
             <div className="flex items-start gap-6">
-              <div className="flex items-center gap-2 pt-2">
-                <ZoomIn className="h-5 w-5 text-muted-foreground" />
-                <Label className="text-base font-medium whitespace-nowrap">Zoom at Start</Label>
-              </div>
-              <div className="flex-1 space-y-4">
-                <div className="flex items-center justify-end">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
-                          {getZoomTooltip(currentZoom)}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Current zoom level: {currentZoom}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <ZoomIn className="h-5 w-5 text-muted-foreground" />
+                  <Label className="text-base font-medium whitespace-nowrap">Zoom at Start</Label>
                 </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded inline-block">
+                        {getZoomTooltip(currentZoom)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Current zoom level: {currentZoom}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex-1 space-y-4 pt-2">
                 <div className="px-2">
                   <Slider
                     value={[currentZoom]}
