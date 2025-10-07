@@ -179,7 +179,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <ZoomIn className="h-5 w-5 text-muted-foreground" />
-                  <Label className="text-base font-medium whitespace-nowrap">Zoom at Start</Label>
+                  <Label className="text-base font-medium whitespace-nowrap">Zoom at start</Label>
                 </div>
                 <TooltipProvider>
                   <Tooltip>
