@@ -182,16 +182,16 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   <div className="text-sm text-slate-600">Interface Groups</div>
                 </div>
                 <div className="text-center p-3 border rounded-lg">
+                  <div className="text-2xl font-bold text-primary">{config.sources.length}</div>
+                  <div className="text-sm text-slate-600">Layers</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
                   <div className="text-2xl font-bold text-primary">{config.exclusivitySets.length}</div>
                   <div className="text-sm text-slate-600">Exclusivity Sets</div>
                 </div>
                 <div className="text-center p-3 border rounded-lg">
                   <div className="text-2xl font-bold text-primary">{config.services.length}</div>
                   <div className="text-sm text-slate-600">Services</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.sources.length}</div>
-                  <div className="text-sm text-slate-600">Layers</div>
                 </div>
               </div>
             </div>
