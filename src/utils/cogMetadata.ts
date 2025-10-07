@@ -305,9 +305,15 @@ export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ categor
   // Data Statistics
   const dataProps = [];
   if (metadata.sampleCount !== undefined) {
+    let sampleValue = metadata.sampleCount.toString();
+    if (metadata.width && metadata.height) {
+      const totalPixels = metadata.width * metadata.height;
+      const percentage = ((metadata.sampleCount / totalPixels) * 100).toFixed(2);
+      sampleValue += ` (${percentage}%)`;
+    }
     dataProps.push({ 
       label: 'Num pixels sampled', 
-      value: metadata.sampleCount.toString() 
+      value: sampleValue
     });
   }
   if (metadata.dataNature) {
