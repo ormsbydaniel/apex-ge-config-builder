@@ -275,10 +275,21 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           }))
         })
       };
+
+      // If adding an active base layer, deactivate all other base layers
+      let updatedSources = state.sources;
+      if (sanitizedSource.isBaseLayer && sanitizedSource.isActive) {
+        updatedSources = state.sources.map(source => {
+          if (source.isBaseLayer && source.isActive) {
+            return { ...source, isActive: false };
+          }
+          return source;
+        });
+      }
       
       return {
         ...state,
-        sources: [...state.sources, sanitizedSource],
+        sources: [...updatedSources, sanitizedSource],
       };
     }
     case 'REMOVE_SOURCE':
@@ -287,8 +298,20 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         sources: state.sources.filter((_, i) => i !== action.payload),
       };
     case 'UPDATE_SOURCE': {
-      const updatedSources = [...state.sources];
-      updatedSources[action.payload.index] = action.payload.source;
+      const updatedSource = action.payload.source;
+      
+      // If updating to an active base layer, deactivate all other base layers
+      let updatedSources = [...state.sources];
+      if (updatedSource.isBaseLayer && updatedSource.isActive) {
+        updatedSources = updatedSources.map((source, idx) => {
+          if (idx !== action.payload.index && source.isBaseLayer && source.isActive) {
+            return { ...source, isActive: false };
+          }
+          return source;
+        });
+      }
+      
+      updatedSources[action.payload.index] = updatedSource;
       return {
         ...state,
         sources: updatedSources,

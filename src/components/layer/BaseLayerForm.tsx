@@ -37,7 +37,6 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
   // Modal state
   const [showDataSourceModal, setShowDataSourceModal] = useState(false);
   const [showActiveWarning, setShowActiveWarning] = useState(false);
-  const [pendingSubmit, setPendingSubmit] = useState(false);
   const [existingActiveLayer, setExistingActiveLayer] = useState<string | null>(null);
 
   useEffect(() => {
@@ -123,18 +122,6 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Check if trying to activate a base layer when another is already active
-    if (isActive) {
-      const existingActive = findExistingActiveBaseLayer();
-      if (existingActive) {
-        setExistingActiveLayer(existingActive);
-        setShowActiveWarning(true);
-        setPendingSubmit(true);
-        return;
-      }
-    }
-
     performSubmit();
   };
 
@@ -154,19 +141,12 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
   const handleConfirmActivation = () => {
     setShowActiveWarning(false);
     setIsActive(true);
-    if (pendingSubmit) {
-      setPendingSubmit(false);
-      setExistingActiveLayer(null);
-      performSubmit();
-    } else {
-      setExistingActiveLayer(null);
-    }
+    setExistingActiveLayer(null);
   };
 
   const handleCancelActivation = () => {
     setShowActiveWarning(false);
     setIsActive(false);
-    setPendingSubmit(false);
     setExistingActiveLayer(null);
   };
 
