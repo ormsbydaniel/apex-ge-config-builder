@@ -114,7 +114,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             
             {/* Map Centre */}
             <div className="flex items-start gap-6">
-              <div className="flex items-center gap-2 pt-8">
+              <div className="flex items-center gap-2 pt-8 w-[180px]">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
                 <Label className="text-base font-medium whitespace-nowrap">Map centre at start</Label>
               </div>
@@ -176,7 +176,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
             {/* Zoom at Start */}
             <div className="flex items-start gap-6">
-              <div className="space-y-2">
+              <div className="space-y-2 w-[180px]">
                 <div className="flex items-center gap-2">
                   <ZoomIn className="h-5 w-5 text-muted-foreground" />
                   <Label className="text-base font-medium whitespace-nowrap">Zoom at start</Label>
