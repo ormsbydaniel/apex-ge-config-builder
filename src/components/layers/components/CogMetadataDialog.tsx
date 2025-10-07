@@ -131,10 +131,10 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose }: CogMetadataDialog
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        console.log('Copy Categories to config');
+                        console.log('Copy unique values to config categories');
                       }}
                     >
-                      Copy Categories to config
+                      Copy unique values to config categories
                     </Button>
                   </div>
                 )}
