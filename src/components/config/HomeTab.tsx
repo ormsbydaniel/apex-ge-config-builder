@@ -149,7 +149,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
             {/* Title Section */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-medium">Application Title:</span>
+                <h3 className="text-lg font-medium">Application Title</h3>
                 <Button size="sm" variant="ghost" onClick={() => setIsEditingTitle(true)} className="h-6 w-6 p-0">
                   <Edit className="h-3 w-3" />
                 </Button>
