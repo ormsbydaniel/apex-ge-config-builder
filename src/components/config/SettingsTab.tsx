@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings } from 'lucide-react';
+import { Settings, MapPin } from 'lucide-react';
 
 interface SettingsTabProps {
   config: any;
@@ -113,9 +113,12 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             <h3 className="text-lg font-semibold">Navigation Settings</h3>
             
             {/* Map Centre */}
-            <div className="space-y-4">
-              <Label className="text-base font-medium">Map Centre</Label>
-              <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-start gap-6">
+              <div className="flex items-center gap-2 pt-8">
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+                <Label className="text-base font-medium whitespace-nowrap">Map Centre</Label>
+              </div>
+              <div className="flex-1 grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="latitude" className="text-sm">Latitude</Label>
                   <TooltipProvider>
