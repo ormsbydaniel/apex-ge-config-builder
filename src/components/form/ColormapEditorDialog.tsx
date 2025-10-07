@@ -8,6 +8,12 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Colormap, DataSource } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useColormapEditorState } from '@/hooks/useColormapEditorState';
@@ -82,6 +88,10 @@ const ColormapEditorDialog = ({
     }
   };
 
+  // Check if there are any changes to save
+  const hasChanges = JSON.stringify(localColormaps) !== JSON.stringify(colormaps);
+  const canSave = hasChanges && localColormaps.length > 0;
+
   return (
     <>
       <div onClick={() => handleAdd()}>
@@ -114,9 +124,26 @@ const ColormapEditorDialog = ({
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
-              Save Changes
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span tabIndex={0}>
+                    <Button onClick={handleSave} disabled={!canSave}>
+                      Save Changes
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {!canSave && (
+                  <TooltipContent>
+                    <p>
+                      {localColormaps.length === 0 
+                        ? "Add or copy a colormap to save changes"
+                        : "No changes to save"}
+                    </p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </DialogFooter>
         </DialogContent>
       </Dialog>
