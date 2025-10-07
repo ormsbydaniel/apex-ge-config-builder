@@ -9,8 +9,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { fetchCogMetadata, formatMetadataForDisplay, CogMetadata } from '@/utils/cogMetadata';
-import { DataSourceMeta } from '@/types/config';
+import { DataSourceMeta, Category } from '@/types/config';
 import MinMaxUpdateDialog from './MinMaxUpdateDialog';
+import { generateDivergentColors } from '@/utils/colorUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface CogMetadataDialogProps {
   url: string;
@@ -22,6 +24,7 @@ interface CogMetadataDialogProps {
 }
 
 const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpdateMeta }: CogMetadataDialogProps) => {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<ReturnType<typeof formatMetadataForDisplay> | null>(null);
@@ -106,6 +109,26 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
     loadMetadata();
   };
 
+  const handleCopyCategories = () => {
+    if (!rawMetadata?.uniqueValues || !onUpdateMeta) return;
+
+    const uniqueValues = rawMetadata.uniqueValues;
+    const colors = generateDivergentColors(uniqueValues.length);
+
+    const newCategories: Category[] = uniqueValues.map((value, index) => ({
+      value,
+      label: value.toString(),
+      color: colors[index]
+    }));
+
+    onUpdateMeta({ categories: newCategories });
+
+    toast({
+      title: "Categories Created",
+      description: `${newCategories.length} categories created from unique values.`,
+    });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -188,9 +211,8 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          console.log('Copy unique values to config categories');
-                        }}
+                        onClick={handleCopyCategories}
+                        disabled={!rawMetadata?.uniqueValues || !onUpdateMeta}
                       >
                         Copy unique values to config categories
                       </Button>
