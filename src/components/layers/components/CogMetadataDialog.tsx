@@ -116,6 +116,28 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose }: CogMetadataDialog
                     </tbody>
                   </table>
                 </div>
+                {section.category === 'Data Statistics' && (
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        console.log('Copy min/max to config');
+                      }}
+                    >
+                      Copy min/max to config
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        console.log('Copy Categories to config');
+                      }}
+                    >
+                      Copy Categories to config
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
