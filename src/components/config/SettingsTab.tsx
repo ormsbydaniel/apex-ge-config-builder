@@ -116,7 +116,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             <div className="flex items-start gap-6">
               <div className="flex items-center gap-2 pt-8">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
-                <Label className="text-base font-medium whitespace-nowrap">Map Centre</Label>
+                <Label className="text-base font-medium whitespace-nowrap">Map centre at start</Label>
               </div>
               <div className="flex-1">
                 <div className="px-2">
