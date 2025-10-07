@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -12,12 +12,12 @@ import { useConfigSanitization } from '@/hooks/useConfigSanitization';
 import { useJsonEditor } from '@/hooks/useJsonEditor';
 import { useValidationErrors } from '@/hooks/useValidationErrors';
 import { useEditorTheme } from '@/hooks/useEditorTheme';
-import { useJsonNavigation } from '@/hooks/useJsonNavigation';
 import { Edit, AlertTriangle, FileText, Sun, Moon } from 'lucide-react';
 import MonacoJsonEditor from './components/MonacoJsonEditor';
 import JsonEditorToolbar from './components/JsonEditorToolbar';
 import ValidationErrorDialog from './components/ValidationErrorDialog';
 import JsonBreadcrumb from './components/JsonBreadcrumb';
+import FindReplaceBar from './components/FindReplaceBar';
 
 interface PreviewTabProps {
   config: any;
@@ -35,12 +35,19 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
     isEditMode,
     editedJson,
     hasUnsavedChanges,
+    showFindReplace,
+    searchValue,
+    replaceValue,
     handleEditModeToggle,
     handleJsonChange,
     handleReset,
     formatJson,
+    toggleFindReplace,
+    setSearchValue,
+    setReplaceValue,
     handleFind,
     handleReplace,
+    handleReplaceAll,
   } = useJsonEditor(configJson);
   
   const {
@@ -51,15 +58,7 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
     showErrors
   } = useValidationErrors();
 
-  const {
-    currentPath,
-    searchQuery,
-    matchCount,
-    updatePath,
-    updateSearch,
-    clearSearch,
-    updateMatchCount,
-  } = useJsonNavigation();
+  const [currentPath, setCurrentPath] = useState('');
 
   const handleApplyChanges = useCallback(async () => {
     try {
@@ -153,9 +152,21 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
                   onApplyChanges={handleApplyChanges}
                   onReset={handleReset}
                   onFormatJson={handleFormatJson}
-                  onFind={handleFind}
-                  onReplace={handleReplace}
+                  onToggleFindReplace={toggleFindReplace}
                 />
+
+                {showFindReplace && (
+                  <FindReplaceBar
+                    searchValue={searchValue}
+                    replaceValue={replaceValue}
+                    onSearchChange={setSearchValue}
+                    onReplaceChange={setReplaceValue}
+                    onFind={handleFind}
+                    onReplace={handleReplace}
+                    onReplaceAll={handleReplaceAll}
+                    onClose={toggleFindReplace}
+                  />
+                )}
 
                 {currentPath && (
                   <JsonBreadcrumb path={currentPath} />
@@ -165,9 +176,8 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
                   value={editedJson}
                   onChange={handleJsonChange}
                   theme={editorTheme}
-                  onCursorPositionChange={updatePath}
-                  searchQuery={searchQuery}
-                  onMatchCountChange={updateMatchCount}
+                  onCursorPositionChange={setCurrentPath}
+                  searchQuery={searchValue}
                 />
                 
                 {hasUnsavedChanges && (
