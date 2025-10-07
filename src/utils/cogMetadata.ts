@@ -297,6 +297,12 @@ export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ categor
   
   // Data Statistics
   const dataProps = [];
+  if (metadata.sampleCount !== undefined) {
+    dataProps.push({ 
+      label: 'Num pixels sampled', 
+      value: metadata.sampleCount.toString() 
+    });
+  }
   if (metadata.dataNature) {
     dataProps.push({ 
       label: 'Data Nature', 
@@ -316,12 +322,6 @@ export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ categor
     dataProps.push({ 
       label: 'Unique Values', 
       value: metadata.uniqueValues.map(v => formatNumber(v)).join(', ') 
-    });
-  }
-  if (metadata.sampleCount !== undefined) {
-    dataProps.push({ 
-      label: 'Sample Count', 
-      value: metadata.sampleCount.toLocaleString() 
     });
   }
   
