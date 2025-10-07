@@ -299,10 +299,16 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       };
     case 'UPDATE_SOURCE': {
       const updatedSource = action.payload.source;
+      const oldSource = state.sources[action.payload.index];
       
-      // If updating to an active base layer, deactivate all other base layers
+      // Check if this base layer is becoming active (was inactive, now active)
+      const isBecomingActive = updatedSource.isBaseLayer && 
+                               updatedSource.isActive && 
+                               (!oldSource || !oldSource.isActive);
+      
+      // If a base layer is becoming active, deactivate all other base layers
       let updatedSources = [...state.sources];
-      if (updatedSource.isBaseLayer && updatedSource.isActive) {
+      if (isBecomingActive || (updatedSource.isBaseLayer && updatedSource.isActive)) {
         updatedSources = updatedSources.map((source, idx) => {
           if (idx !== action.payload.index && source.isBaseLayer && source.isActive) {
             return { ...source, isActive: false };
