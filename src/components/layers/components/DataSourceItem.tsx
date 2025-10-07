@@ -1,13 +1,14 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Copy, Trash2, Clock } from 'lucide-react';
+import { Copy, Trash2, Clock, Info } from 'lucide-react';
 import { DataSourceItem as DataSourceItemType, TimeframeType, Service } from '@/types/config';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
+import CogMetadataDialog from './CogMetadataDialog';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
@@ -31,6 +32,7 @@ const DataSourceItem = ({
   services = []
 }: DataSourceItemProps) => {
   const { toast } = useToast();
+  const [showMetadataDialog, setShowMetadataDialog] = useState(false);
 
   const handleCopyUrl = () => {
     if (dataSource.url) {
@@ -115,6 +117,19 @@ const DataSourceItem = ({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        
+        {/* Info icon for COG files */}
+        {dataSource.format?.toLowerCase() === 'cog' && dataSource.url && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowMetadataDialog(true)}
+            className="h-6 w-6 p-0 flex-shrink-0"
+            title="View COG Metadata"
+          >
+            <Info className="h-3 w-3" />
+          </Button>
+        )}
         
         {/* Date pill for temporal layers */}
         {hasTimestamps && timeframe !== 'None' && dataSource.timestamps && dataSource.timestamps[0] && (
@@ -209,6 +224,16 @@ const DataSourceItem = ({
           <Trash2 className="h-3 w-3" />
         </Button>
       </div>
+      
+      {/* COG Metadata Dialog */}
+      {dataSource.format?.toLowerCase() === 'cog' && dataSource.url && (
+        <CogMetadataDialog
+          url={dataSource.url}
+          filename={getDisplayName()}
+          isOpen={showMetadataDialog}
+          onClose={() => setShowMetadataDialog(false)}
+        />
+      )}
     </div>
   );
 };
