@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowUp, ArrowDown, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowUpToLine, ArrowDownToLine } from 'lucide-react';
 
 interface LayerMoveControlsProps {
   onMoveUp: () => void;
@@ -57,7 +57,7 @@ const LayerMoveControls = ({
           className="h-6 w-6 p-0 bg-white border border-muted hover:bg-muted"
           title="Move to top"
         >
-          <ChevronsUp className="h-3 w-3" />
+          <ArrowUpToLine className="h-3 w-3" />
         </Button>
         <Button
           size="sm"
@@ -67,7 +67,7 @@ const LayerMoveControls = ({
           className="h-6 w-6 p-0 bg-white border border-muted hover:bg-muted"
           title="Move to bottom"
         >
-          <ChevronsDown className="h-3 w-3" />
+          <ArrowDownToLine className="h-3 w-3" />
         </Button>
       </div>
     </div>

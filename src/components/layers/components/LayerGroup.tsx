@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Edit2, Check, X, AlertTriangle, Triangle } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, ArrowUpToLine, ArrowDownToLine, Edit2, Check, X, AlertTriangle, Triangle } from 'lucide-react';
 import LayerMoveControls from './LayerMoveControls';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
@@ -194,10 +194,10 @@ const LayerGroup = ({
         </div>
         <div className="flex flex-col gap-1">
           <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'top')} disabled={!canMoveUp} className="h-6 w-6 p-0" title="Move group to top">
-            <ChevronsUp className="h-3 w-3" />
+            <ArrowUpToLine className="h-3 w-3" />
           </Button>
           <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'bottom')} disabled={!canMoveDown} className="h-6 w-6 p-0" title="Move group to bottom">
-            <ChevronsDown className="h-3 w-3" />
+            <ArrowDownToLine className="h-3 w-3" />
           </Button>
         </div>
       </div>
