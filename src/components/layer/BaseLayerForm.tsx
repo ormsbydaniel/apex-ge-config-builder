@@ -316,7 +316,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
 
                   <div className="flex items-center gap-3">
                     <p className="flex-[0.8] text-sm text-muted-foreground">
-                      Add one or more data sources to this base layer. Multiple sources will be combined into the same base map layer.
+                      A Geospatial Explorer base map can include multiple sources that are both displayed.
                     </p>
 
                     <Button
