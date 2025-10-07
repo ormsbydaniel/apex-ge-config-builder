@@ -316,7 +316,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
 
                   <div className="flex items-center gap-3">
                     <p className="flex-[0.8] text-sm text-muted-foreground">
-                      A Geospatial Explorer base map can include multiple sources that are both displayed.
+                      A Geospatial Explorer base map can include multiple data sources that are both displayed when the base map is selected.
                     </p>
 
                     <Button
