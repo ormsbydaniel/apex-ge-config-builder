@@ -269,12 +269,6 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                   )}
                 </div>
 
-                <Alert>
-                  <AlertDescription>
-                    Add one or more data sources to this base layer. Multiple sources will be combined into the same base map layer.
-                  </AlertDescription>
-                </Alert>
-
                 <div className="space-y-4">
                   <Label>Data Sources ({dataSources.length})</Label>
 
@@ -320,16 +314,24 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                     </div>
                   )}
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowDataSourceModal(true)}
-                    className="w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    {dataSources.length === 0 ? 'Add Data Source' : 'Add Another Source'}
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Alert className="flex-[0.8]">
+                      <AlertDescription>
+                        Add one or more data sources to this base layer. Multiple sources will be combined into the same base map layer.
+                      </AlertDescription>
+                    </Alert>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowDataSourceModal(true)}
+                      className="flex-[0.2] min-w-fit"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      {dataSources.length === 0 ? 'Add Data Source' : 'Add Another Source'}
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="flex justify-between gap-2 pt-4">
