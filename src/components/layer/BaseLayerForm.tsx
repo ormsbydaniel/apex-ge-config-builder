@@ -315,11 +315,9 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                   )}
 
                   <div className="flex items-center gap-3">
-                    <Alert className="flex-[0.8]">
-                      <AlertDescription>
-                        Add one or more data sources to this base layer. Multiple sources will be combined into the same base map layer.
-                      </AlertDescription>
-                    </Alert>
+                    <p className="flex-[0.8] text-sm text-muted-foreground">
+                      Add one or more data sources to this base layer. Multiple sources will be combined into the same base map layer.
+                    </p>
 
                     <Button
                       type="button"
