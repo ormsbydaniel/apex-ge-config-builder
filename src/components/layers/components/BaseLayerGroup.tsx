@@ -111,7 +111,7 @@ const BaseLayerGroup = ({
           </div>
         </CardHeader>
         <CollapsibleContent>
-          <CardContent className="pt-0 bg-slate-200">
+          <CardContent className="pt-3 bg-slate-200">
             <div className="space-y-3">
               {baseLayers.map(({ layer, originalIndex }, indexInGroup) => (
                 <div key={originalIndex} className="flex gap-2 items-start">
