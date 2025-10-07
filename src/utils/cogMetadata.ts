@@ -269,40 +269,7 @@ function getSampleFormatName(sampleFormat: number, bitsPerSample?: number): stri
 export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ category: string; items: Array<{ label: string; value: string }> }> {
   const sections = [];
   
-  // File Properties
-  const fileProps = [];
-  if (metadata.fileSize !== undefined) {
-    fileProps.push({ label: 'File Size', value: formatFileSize(metadata.fileSize) });
-  }
-  if (metadata.overviewCount !== undefined) {
-    fileProps.push({ 
-      label: 'Has Overviews', 
-      value: metadata.overviewCount > 0 ? 'Yes' : 'No' 
-    });
-    fileProps.push({ 
-      label: 'Overview Levels', 
-      value: metadata.overviewCount.toString() 
-    });
-  }
-  if (fileProps.length > 0) {
-    sections.push({ category: 'File Properties', items: fileProps });
-  }
-  
-  // Image Properties
-  const imageProps = [];
-  if (metadata.width !== undefined) imageProps.push({ label: 'Width', value: `${metadata.width.toLocaleString()} px` });
-  if (metadata.height !== undefined) imageProps.push({ label: 'Height', value: `${metadata.height.toLocaleString()} px` });
-  if (metadata.samplesPerPixel !== undefined) imageProps.push({ label: 'Bands', value: metadata.samplesPerPixel.toString() });
-  if (metadata.dataType) imageProps.push({ label: 'Data Type', value: metadata.dataType });
-  if (metadata.bitsPerSample) imageProps.push({ label: 'Bits per Sample', value: metadata.bitsPerSample.join(', ') });
-  if (metadata.compression !== undefined) imageProps.push({ label: 'Compression', value: getCompressionName(metadata.compression) });
-  if (metadata.tileWidth) imageProps.push({ label: 'Tile Size', value: `${metadata.tileWidth} × ${metadata.tileLength || metadata.tileWidth}` });
-  
-  if (imageProps.length > 0) {
-    sections.push({ category: 'Image Properties', items: imageProps });
-  }
-  
-  // Data Statistics
+  // Data Statistics (moved to top)
   const dataProps = [];
   if (metadata.sampleCount !== undefined) {
     let sampleValue = metadata.sampleCount.toString();
@@ -340,6 +307,39 @@ export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ categor
   
   if (dataProps.length > 0) {
     sections.push({ category: 'Data Statistics', items: dataProps });
+  }
+  
+  // File Properties
+  const fileProps = [];
+  if (metadata.fileSize !== undefined) {
+    fileProps.push({ label: 'File Size', value: formatFileSize(metadata.fileSize) });
+  }
+  if (metadata.overviewCount !== undefined) {
+    fileProps.push({ 
+      label: 'Has Overviews', 
+      value: metadata.overviewCount > 0 ? 'Yes' : 'No' 
+    });
+    fileProps.push({ 
+      label: 'Overview Levels', 
+      value: metadata.overviewCount.toString() 
+    });
+  }
+  if (fileProps.length > 0) {
+    sections.push({ category: 'File Properties', items: fileProps });
+  }
+  
+  // Image Properties
+  const imageProps = [];
+  if (metadata.width !== undefined) imageProps.push({ label: 'Width', value: `${metadata.width.toLocaleString()} px` });
+  if (metadata.height !== undefined) imageProps.push({ label: 'Height', value: `${metadata.height.toLocaleString()} px` });
+  if (metadata.samplesPerPixel !== undefined) imageProps.push({ label: 'Bands', value: metadata.samplesPerPixel.toString() });
+  if (metadata.dataType) imageProps.push({ label: 'Data Type', value: metadata.dataType });
+  if (metadata.bitsPerSample) imageProps.push({ label: 'Bits per Sample', value: metadata.bitsPerSample.join(', ') });
+  if (metadata.compression !== undefined) imageProps.push({ label: 'Compression', value: getCompressionName(metadata.compression) });
+  if (metadata.tileWidth) imageProps.push({ label: 'Tile Size', value: `${metadata.tileWidth} × ${metadata.tileLength || metadata.tileWidth}` });
+  
+  if (imageProps.length > 0) {
+    sections.push({ category: 'Image Properties', items: imageProps });
   }
   
   // Geospatial
