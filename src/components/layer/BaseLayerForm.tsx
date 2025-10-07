@@ -236,6 +236,39 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
             ) : (
               // Step 2: Data Sources
               <>
+                {/* Summary of Step 1 Info */}
+                <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <Label className="text-sm text-muted-foreground">Layer Name</Label>
+                      <p className="font-medium">{name}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-sm text-muted-foreground">Display on Load</Label>
+                      <Badge variant={isActive ? "default" : "secondary"}>
+                        {isActive ? "On" : "Off"}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  {(attributionText || attributionUrl) && (
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Attribution</Label>
+                      <p className="text-sm">{attributionText || "—"}</p>
+                      {attributionUrl && (
+                        <p className="text-xs text-muted-foreground truncate">{attributionUrl}</p>
+                      )}
+                    </div>
+                  )}
+                  
+                  {previewUrl && (
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Preview URL</Label>
+                      <p className="text-xs text-muted-foreground truncate">{previewUrl}</p>
+                    </div>
+                  )}
+                </div>
+
                 <Alert>
                   <AlertDescription>
                     Add one or more data sources to this base layer. Multiple sources will be combined into the same base map layer.
