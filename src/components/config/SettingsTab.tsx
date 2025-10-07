@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin } from 'lucide-react';
+import { Settings, MapPin, ZoomIn } from 'lucide-react';
 
 interface SettingsTabProps {
   config: any;
@@ -171,35 +171,40 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             </div>
 
             {/* Zoom at Start */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label className="text-base font-medium">Zoom at Start</Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
-                        {getZoomTooltip(currentZoom)}
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Current zoom level: {currentZoom}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+            <div className="flex items-start gap-6">
+              <div className="flex items-center gap-2 pt-2">
+                <ZoomIn className="h-5 w-5 text-muted-foreground" />
+                <Label className="text-base font-medium whitespace-nowrap">Zoom at Start</Label>
               </div>
-              <div className="px-2">
-                <Slider
-                  value={[currentZoom]}
-                  onValueChange={handleZoomChange}
-                  max={28}
-                  min={0}
-                  step={1}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>0</span>
-                  <span>14</span>
-                  <span>28</span>
+              <div className="flex-1 space-y-4">
+                <div className="flex items-center justify-end">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+                          {getZoomTooltip(currentZoom)}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Current zoom level: {currentZoom}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="px-2">
+                  <Slider
+                    value={[currentZoom]}
+                    onValueChange={handleZoomChange}
+                    max={28}
+                    min={0}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span>0</span>
+                    <span>14</span>
+                    <span>28</span>
+                  </div>
                 </div>
               </div>
             </div>
