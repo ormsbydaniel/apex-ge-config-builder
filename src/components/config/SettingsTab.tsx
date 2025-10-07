@@ -118,54 +118,56 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                 <MapPin className="h-5 w-5 text-muted-foreground" />
                 <Label className="text-base font-medium whitespace-nowrap">Map Centre</Label>
               </div>
-              <div className="flex-1 grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="latitude" className="text-sm">Latitude</Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Input
-                          id="latitude"
-                          type="text"
-                          value={latitudeInput}
-                          onChange={(e) => setLatitudeInput(e.target.value)}
-                          onBlur={handleLatitudeBlur}
-                          onKeyPress={handleLatitudeKeyPress}
-                          placeholder="0"
-                          className={!isValidLatitude(latitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
-                        />
-                      </TooltipTrigger>
-                      {!isValidLatitude(latitudeInput) && (
-                        <TooltipContent>
-                          <p>Please enter a valid latitude between -90 and 90</p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="longitude" className="text-sm">Longitude</Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Input
-                          id="longitude"
-                          type="text"
-                          value={longitudeInput}
-                          onChange={(e) => setLongitudeInput(e.target.value)}
-                          onBlur={handleLongitudeBlur}
-                          onKeyPress={handleLongitudeKeyPress}
-                          placeholder="0"
-                          className={!isValidLongitude(longitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
-                        />
-                      </TooltipTrigger>
-                      {!isValidLongitude(longitudeInput) && (
-                        <TooltipContent>
-                          <p>Please enter a valid longitude between -180 and 180</p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
+              <div className="flex-1 px-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="latitude" className="text-sm">Latitude</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Input
+                            id="latitude"
+                            type="text"
+                            value={latitudeInput}
+                            onChange={(e) => setLatitudeInput(e.target.value)}
+                            onBlur={handleLatitudeBlur}
+                            onKeyPress={handleLatitudeKeyPress}
+                            placeholder="0"
+                            className={!isValidLatitude(latitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
+                          />
+                        </TooltipTrigger>
+                        {!isValidLatitude(latitudeInput) && (
+                          <TooltipContent>
+                            <p>Please enter a valid latitude between -90 and 90</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="longitude" className="text-sm">Longitude</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Input
+                            id="longitude"
+                            type="text"
+                            value={longitudeInput}
+                            onChange={(e) => setLongitudeInput(e.target.value)}
+                            onBlur={handleLongitudeBlur}
+                            onKeyPress={handleLongitudeKeyPress}
+                            placeholder="0"
+                            className={!isValidLongitude(longitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
+                          />
+                        </TooltipTrigger>
+                        {!isValidLongitude(longitudeInput) && (
+                          <TooltipContent>
+                            <p>Please enter a valid longitude between -180 and 180</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </div>
               </div>
             </div>
