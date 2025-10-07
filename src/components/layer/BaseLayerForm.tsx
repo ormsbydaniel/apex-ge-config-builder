@@ -188,29 +188,25 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                   </div>
                 </div>
 
-                <div className="space-y-4 p-4 border rounded-lg">
-                  <h3 className="font-medium">Attribution (Optional)</h3>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="attributionText">Attribution Text</Label>
-                    <Input
-                      id="attributionText"
-                      value={attributionText}
-                      onChange={(e) => setAttributionText(e.target.value)}
-                      placeholder="e.g., © OpenStreetMap contributors"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="attributionText">Attribution Text</Label>
+                  <Input
+                    id="attributionText"
+                    value={attributionText}
+                    onChange={(e) => setAttributionText(e.target.value)}
+                    placeholder="e.g., © OpenStreetMap contributors"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="attributionUrl">Attribution URL</Label>
-                    <Input
-                      id="attributionUrl"
-                      type="url"
-                      value={attributionUrl}
-                      onChange={(e) => setAttributionUrl(e.target.value)}
-                      placeholder="https://www.openstreetmap.org/copyright"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="attributionUrl">Attribution URL</Label>
+                  <Input
+                    id="attributionUrl"
+                    type="url"
+                    value={attributionUrl}
+                    onChange={(e) => setAttributionUrl(e.target.value)}
+                    placeholder="https://www.openstreetmap.org/copyright"
+                  />
                 </div>
 
                 <div className="space-y-2">
