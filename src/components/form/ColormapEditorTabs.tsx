@@ -14,12 +14,14 @@ interface ColormapEditorTabsProps {
   activeTab: string;
   localColormaps: Colormap[];
   editingIndex: number | null;
+  isAddingNew: boolean;
   currentColormap: Colormap;
   availableSourceLayers: AvailableSourceLayer[];
   selectedSourceLayer: string;
   onActiveTabChange: (tab: string) => void;
   onSetLocalColormaps: (colormaps: Colormap[]) => void;
   onSetEditingIndex: (index: number | null) => void;
+  onSetIsAddingNew: (isAdding: boolean) => void;
   onSetCurrentColormap: (colormap: Colormap) => void;
   onResetColormap: () => void;
   onSetSelectedSourceLayer: (layer: string) => void;
@@ -30,12 +32,14 @@ const ColormapEditorTabs = ({
   activeTab,
   localColormaps,
   editingIndex,
+  isAddingNew,
   currentColormap,
   availableSourceLayers,
   selectedSourceLayer,
   onActiveTabChange,
   onSetLocalColormaps,
   onSetEditingIndex,
+  onSetIsAddingNew,
   onSetCurrentColormap,
   onResetColormap,
   onSetSelectedSourceLayer,
@@ -62,17 +66,19 @@ const ColormapEditorTabs = ({
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="define">
-        <ColormapDefineTab
-          localColormaps={localColormaps}
-          editingIndex={editingIndex}
-          currentColormap={currentColormap}
-          onSetLocalColormaps={onSetLocalColormaps}
-          onSetEditingIndex={onSetEditingIndex}
-          onSetCurrentColormap={onSetCurrentColormap}
-          onResetColormap={onResetColormap}
-        />
-      </TabsContent>
+        <TabsContent value="define">
+          <ColormapDefineTab
+            localColormaps={localColormaps}
+            editingIndex={editingIndex}
+            isAddingNew={isAddingNew}
+            currentColormap={currentColormap}
+            onSetLocalColormaps={onSetLocalColormaps}
+            onSetEditingIndex={onSetEditingIndex}
+            onSetIsAddingNew={onSetIsAddingNew}
+            onSetCurrentColormap={onSetCurrentColormap}
+            onResetColormap={onResetColormap}
+          />
+        </TabsContent>
 
       <TabsContent value="copy">
         <ColormapCopyFromLayer

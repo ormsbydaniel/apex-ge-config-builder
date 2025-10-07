@@ -52,6 +52,7 @@ const ColormapEditorDialog = ({
     activeTab,
     localColormaps,
     editingIndex,
+    isAddingNew,
     currentColormap,
     showCopyConfirmation,
     showAppendReplaceDialog,
@@ -60,6 +61,7 @@ const ColormapEditorDialog = ({
     setActiveTab,
     setLocalColormaps,
     setEditingIndex,
+    setIsAddingNew,
     setCurrentColormap,
     setShowCopyConfirmation,
     setShowAppendReplaceDialog,
@@ -112,12 +114,14 @@ const ColormapEditorDialog = ({
             activeTab={activeTab}
             localColormaps={localColormaps}
             editingIndex={editingIndex}
+            isAddingNew={isAddingNew}
             currentColormap={currentColormap}
             availableSourceLayers={availableSourceLayers}
             selectedSourceLayer={selectedSourceLayer}
             onActiveTabChange={setActiveTab}
             onSetLocalColormaps={setLocalColormaps}
             onSetEditingIndex={setEditingIndex}
+            onSetIsAddingNew={setIsAddingNew}
             onSetCurrentColormap={setCurrentColormap}
             onResetColormap={resetColormap}
             onSetSelectedSourceLayer={setSelectedSourceLayer}

@@ -19,9 +19,11 @@ import ColorRampPreview from '@/components/ui/ColorRampPreview';
 interface ColormapDefineTabProps {
   localColormaps: Colormap[];
   editingIndex: number | null;
+  isAddingNew: boolean;
   currentColormap: Colormap;
   onSetLocalColormaps: (colormaps: Colormap[]) => void;
   onSetEditingIndex: (index: number | null) => void;
+  onSetIsAddingNew: (isAdding: boolean) => void;
   onSetCurrentColormap: (colormap: Colormap) => void;
   onResetColormap: () => void;
 }
@@ -29,9 +31,11 @@ interface ColormapDefineTabProps {
 const ColormapDefineTab = ({
   localColormaps,
   editingIndex,
+  isAddingNew,
   currentColormap,
   onSetLocalColormaps,
   onSetEditingIndex,
+  onSetIsAddingNew,
   onSetCurrentColormap,
   onResetColormap
 }: ColormapDefineTabProps) => {
@@ -65,6 +69,7 @@ const ColormapDefineTab = ({
 
     onSetLocalColormaps(updatedColormaps);
     onSetEditingIndex(null);
+    onSetIsAddingNew(false);
     onResetColormap();
   };
 
@@ -86,8 +91,8 @@ const ColormapDefineTab = ({
 
   const isValid = currentColormap.min < currentColormap.max && currentColormap.steps > 0;
   
-  // Show form when there are no colormaps OR when editing an existing one
-  const showForm = localColormaps.length === 0 || editingIndex !== null;
+  // Show form when there are no colormaps OR when editing an existing one OR when adding new
+  const showForm = localColormaps.length === 0 || editingIndex !== null || isAddingNew;
 
   return (
     <div className="space-y-6 mt-4">
@@ -152,6 +157,7 @@ const ColormapDefineTab = ({
                 size="sm"
                 onClick={() => {
                   onSetEditingIndex(null);
+                  onSetIsAddingNew(false);
                   onResetColormap();
                 }}
               >
@@ -252,7 +258,7 @@ const ColormapDefineTab = ({
             type="button"
             variant="outline" 
             onClick={() => {
-              onSetEditingIndex(null);
+              onSetIsAddingNew(true);
               onResetColormap();
             }}
             className="w-full"

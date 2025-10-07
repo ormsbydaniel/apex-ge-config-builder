@@ -20,6 +20,7 @@ export const useColormapEditorState = ({ colormaps, availableSourceLayers, metaM
   const [activeTab, setActiveTab] = useState<string>('');
   const [localColormaps, setLocalColormaps] = useState<Colormap[]>([...colormaps]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [isAddingNew, setIsAddingNew] = useState(false);
   
   // Use meta.min and meta.max as default values if available
   const defaultMin = metaMin !== undefined ? metaMin : 0;
@@ -60,6 +61,7 @@ export const useColormapEditorState = ({ colormaps, availableSourceLayers, metaM
   const handleCancel = () => {
     setLocalColormaps([...colormaps]);
     setEditingIndex(null);
+    setIsAddingNew(false);
     resetColormap();
     setActiveTab('');
     setSelectedSourceLayer('');
@@ -95,6 +97,7 @@ export const useColormapEditorState = ({ colormaps, availableSourceLayers, metaM
     activeTab,
     localColormaps,
     editingIndex,
+    isAddingNew,
     currentColormap,
     showCopyConfirmation,
     showAppendReplaceDialog,
@@ -105,6 +108,7 @@ export const useColormapEditorState = ({ colormaps, availableSourceLayers, metaM
     setActiveTab,
     setLocalColormaps,
     setEditingIndex,
+    setIsAddingNew,
     setCurrentColormap,
     setShowCopyConfirmation,
     setShowAppendReplaceDialog,
