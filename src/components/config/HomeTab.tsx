@@ -173,8 +173,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
               )}
             </div>
 
-            <Separator />
-
             {/* Configuration Statistics */}
             <div className="space-y-3">
               <h3 className="text-lg font-medium">Configuration Statistics</h3>
@@ -197,8 +195,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 </div>
               </div>
             </div>
-
-            <Separator />
 
             {/* Layer Quality Assurance Statistics */}
             <div className="space-y-3">
@@ -236,22 +232,16 @@ const HomeTab = ({ config }: HomeTabProps) => {
             </div>
             
             {config.lastSaved && (
-              <>
-            <Separator />
                 <div className="text-sm text-slate-600">
                   <span className="font-medium">Last saved: </span> 
                   {config.lastSaved.toLocaleString()}
                 </div>
-              </>
             )}
             
             {config.isLoading && (
-              <>
-                <Separator />
                 <div className="text-sm text-blue-600">
                   Loading configuration...
                 </div>
-              </>
             )}
           </CardContent>
         </Card>
