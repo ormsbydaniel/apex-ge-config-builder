@@ -10,17 +10,24 @@ interface AvailableSourceLayer {
 interface UseColormapEditorStateProps {
   colormaps: Colormap[];
   availableSourceLayers: AvailableSourceLayer[];
+  metaMin?: number;
+  metaMax?: number;
 }
 
-export const useColormapEditorState = ({ colormaps, availableSourceLayers }: UseColormapEditorStateProps) => {
+export const useColormapEditorState = ({ colormaps, availableSourceLayers, metaMin, metaMax }: UseColormapEditorStateProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('');
   const [localColormaps, setLocalColormaps] = useState<Colormap[]>([...colormaps]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  
+  // Use meta.min and meta.max as default values if available
+  const defaultMin = metaMin !== undefined ? metaMin : 0;
+  const defaultMax = metaMax !== undefined ? metaMax : 1;
+  
   const [currentColormap, setCurrentColormap] = useState<Colormap>({
-    min: 0,
-    max: 1,
+    min: defaultMin,
+    max: defaultMax,
     steps: 50,
     name: 'jet',
     reverse: false
@@ -35,8 +42,8 @@ export const useColormapEditorState = ({ colormaps, availableSourceLayers }: Use
 
   const resetColormap = () => {
     setCurrentColormap({
-      min: 0,
-      max: 1,
+      min: defaultMin,
+      max: defaultMax,
       steps: 50,
       name: 'jet',
       reverse: false

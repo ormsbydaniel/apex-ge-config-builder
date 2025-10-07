@@ -251,6 +251,8 @@ const LayerCardForm = ({
             <ColormapsSection
               colormaps={formData.colormaps || []}
               onUpdate={updateFormData}
+              metaMin={formData.minValue ? parseFloat(formData.minValue) : undefined}
+              metaMax={formData.maxValue ? parseFloat(formData.maxValue) : undefined}
             />
 
             <UnifiedLegendTypeSection

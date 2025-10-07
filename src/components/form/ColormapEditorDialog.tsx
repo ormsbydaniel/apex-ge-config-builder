@@ -23,12 +23,16 @@ interface ColormapEditorDialogProps {
   colormaps: Colormap[];
   onUpdate: (colormaps: Colormap[]) => void;
   trigger: React.ReactNode;
+  metaMin?: number;
+  metaMax?: number;
 }
 
 const ColormapEditorDialog = ({
   colormaps,
   onUpdate,
-  trigger
+  trigger,
+  metaMin,
+  metaMax
 }: ColormapEditorDialogProps) => {
   const { config } = useConfig();
 
@@ -65,7 +69,7 @@ const ColormapEditorDialog = ({
     handleOpen,
     handleCancel,
     performCopy
-  } = useColormapEditorState({ colormaps, availableSourceLayers });
+  } = useColormapEditorState({ colormaps, availableSourceLayers, metaMin, metaMax });
 
   const handleAdd = () => {
     handleOpen(true);
