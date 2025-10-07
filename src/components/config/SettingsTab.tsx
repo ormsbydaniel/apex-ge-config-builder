@@ -104,97 +104,108 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
-            Navigation Settings
+            Settings
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Map Centre */}
+        <CardContent className="space-y-8">
+          {/* Navigation Settings Subsection */}
           <div className="space-y-4">
-            <Label className="text-base font-medium">Map Centre</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="latitude" className="text-sm">Latitude</Label>
+            <h3 className="text-lg font-semibold border-b pb-2">Navigation Settings</h3>
+            
+            {/* Map Centre */}
+            <div className="space-y-4">
+              <Label className="text-base font-medium">Map Centre</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="latitude" className="text-sm">Latitude</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Input
+                          id="latitude"
+                          type="text"
+                          value={latitudeInput}
+                          onChange={(e) => setLatitudeInput(e.target.value)}
+                          onBlur={handleLatitudeBlur}
+                          onKeyPress={handleLatitudeKeyPress}
+                          placeholder="0"
+                          className={!isValidLatitude(latitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
+                        />
+                      </TooltipTrigger>
+                      {!isValidLatitude(latitudeInput) && (
+                        <TooltipContent>
+                          <p>Please enter a valid latitude between -90 and 90</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="longitude" className="text-sm">Longitude</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Input
+                          id="longitude"
+                          type="text"
+                          value={longitudeInput}
+                          onChange={(e) => setLongitudeInput(e.target.value)}
+                          onBlur={handleLongitudeBlur}
+                          onKeyPress={handleLongitudeKeyPress}
+                          placeholder="0"
+                          className={!isValidLongitude(longitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
+                        />
+                      </TooltipTrigger>
+                      {!isValidLongitude(longitudeInput) && (
+                        <TooltipContent>
+                          <p>Please enter a valid longitude between -180 and 180</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+            </div>
+
+            {/* Zoom at Start */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-medium">Zoom at Start</Label>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Input
-                        id="latitude"
-                        type="text"
-                        value={latitudeInput}
-                        onChange={(e) => setLatitudeInput(e.target.value)}
-                        onBlur={handleLatitudeBlur}
-                        onKeyPress={handleLatitudeKeyPress}
-                        placeholder="0"
-                        className={!isValidLatitude(latitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
-                      />
+                      <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+                        {getZoomTooltip(currentZoom)}
+                      </span>
                     </TooltipTrigger>
-                    {!isValidLatitude(latitudeInput) && (
-                      <TooltipContent>
-                        <p>Please enter a valid latitude between -90 and 90</p>
-                      </TooltipContent>
-                    )}
+                    <TooltipContent>
+                      <p>Current zoom level: {currentZoom}</p>
+                    </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="longitude" className="text-sm">Longitude</Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Input
-                        id="longitude"
-                        type="text"
-                        value={longitudeInput}
-                        onChange={(e) => setLongitudeInput(e.target.value)}
-                        onBlur={handleLongitudeBlur}
-                        onKeyPress={handleLongitudeKeyPress}
-                        placeholder="0"
-                        className={!isValidLongitude(longitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
-                      />
-                    </TooltipTrigger>
-                    {!isValidLongitude(longitudeInput) && (
-                      <TooltipContent>
-                        <p>Please enter a valid longitude between -180 and 180</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
+              <div className="px-2">
+                <Slider
+                  value={[currentZoom]}
+                  onValueChange={handleZoomChange}
+                  max={28}
+                  min={0}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span>0</span>
+                  <span>14</span>
+                  <span>28</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Zoom at Start */}
+          {/* Branding Settings Subsection */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-base font-medium">Zoom at Start</Label>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
-                      {getZoomTooltip(currentZoom)}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Current zoom level: {currentZoom}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="px-2">
-              <Slider
-                value={[currentZoom]}
-                onValueChange={handleZoomChange}
-                max={28}
-                min={0}
-                step={1}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                <span>0</span>
-                <span>14</span>
-                <span>28</span>
-              </div>
-            </div>
+            <h3 className="text-lg font-semibold border-b pb-2">Branding Settings</h3>
+            <p className="text-muted-foreground">Coming soon</p>
           </div>
         </CardContent>
       </Card>
