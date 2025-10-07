@@ -236,37 +236,65 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
             ) : (
               // Step 2: Data Sources
               <>
-                {/* Summary of Step 1 Info */}
+                {/* Editable Basic Info */}
                 <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <Label className="text-sm text-muted-foreground">Layer Name</Label>
-                      <p className="font-medium">{name}</p>
+                  <div className="flex items-end gap-4">
+                    <div className="w-2/3 space-y-2">
+                      <Label htmlFor="name">Layer Name *</Label>
+                      <Input
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g., OpenStreetMap"
+                        required
+                      />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Label className="text-sm text-muted-foreground">Display on Load</Label>
-                      <Badge variant={isActive ? "default" : "secondary"}>
-                        {isActive ? "On" : "Off"}
-                      </Badge>
+                    <div className="flex-1 flex items-center gap-2 pb-2">
+                      <Switch
+                        id="isActive"
+                        checked={isActive}
+                        onCheckedChange={setIsActive}
+                      />
+                      <Label htmlFor="isActive" className="text-sm cursor-pointer">
+                        Display on Load
+                      </Label>
                     </div>
                   </div>
-                  
-                  {(attributionText || attributionUrl) && (
-                    <div>
-                      <Label className="text-sm text-muted-foreground">Attribution</Label>
-                      <p className="text-sm">{attributionText || "—"}</p>
-                      {attributionUrl && (
-                        <p className="text-xs text-muted-foreground truncate">{attributionUrl}</p>
-                      )}
-                    </div>
-                  )}
-                  
-                  {previewUrl && (
-                    <div>
-                      <Label className="text-sm text-muted-foreground">Preview URL</Label>
-                      <p className="text-xs text-muted-foreground truncate">{previewUrl}</p>
-                    </div>
-                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="attributionText">Attribution Text</Label>
+                    <Input
+                      id="attributionText"
+                      value={attributionText}
+                      onChange={(e) => setAttributionText(e.target.value)}
+                      placeholder="e.g., © OpenStreetMap contributors"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="attributionUrl">Attribution URL</Label>
+                    <Input
+                      id="attributionUrl"
+                      type="url"
+                      value={attributionUrl}
+                      onChange={(e) => setAttributionUrl(e.target.value)}
+                      placeholder="https://www.openstreetmap.org/copyright"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="previewUrl">Preview Image URL (Optional)</Label>
+                    <Input
+                      id="previewUrl"
+                      type="url"
+                      value={previewUrl}
+                      onChange={(e) => setPreviewUrl(e.target.value)}
+                      placeholder="https://example.com/preview.png"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      A thumbnail image shown in the base layer selector
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
