@@ -386,18 +386,6 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         />
       </div>
 
-      {/* Add All Button for Items */}
-      {currentStep === 'items' && !loading && filteredData.length > 0 && (
-        <Button
-          variant="default"
-          className="w-full"
-          onClick={handleAddAllItems}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add All Filtered Items ({filteredData.length})
-        </Button>
-      )}
-
       {/* Content */}
       {loading ? (
         <div className="p-4 text-center text-muted-foreground">Loading...</div>
@@ -499,6 +487,18 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
             )}
           </div>
         </div>
+      )}
+
+      {/* Add All Button for Items - placed after the list */}
+      {currentStep === 'items' && !loading && filteredData.length > 0 && (
+        <Button
+          variant="default"
+          className="w-full"
+          onClick={handleAddAllItems}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add All Filtered Items ({filteredData.length})
+        </Button>
       )}
 
       {/* Footer info */}

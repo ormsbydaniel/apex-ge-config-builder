@@ -25,7 +25,7 @@ interface DataSourceFormProps {
   currentLayerStatistics?: DataSourceItem[];
   layerType?: LayerTypeOption;
   timeframe?: TimeframeType;
-  onAddDataSource: (dataSource: DataSourceItem) => void;
+  onAddDataSource: (dataSource: DataSourceItem | DataSourceItem[]) => void;
   onAddStatisticsLayer: (statisticsItem: DataSourceItem) => void;
   onAddService: (service: Service) => void;
   onCancel: () => void;
@@ -180,25 +180,22 @@ const DataSourceForm = ({
   ) => {
     // Handle bulk selection (array of assets)
     if (Array.isArray(selection)) {
-      let addedCount = 0;
+      // Convert all assets to DataSourceItems
+      const dataSourceItems: DataSourceItem[] = selection.map((asset) => ({
+        url: asset.url,
+        format: asset.format,
+        zIndex, // Use the current zIndex from form state
+        ...(asset.datetime && requiresTimestamp && {
+          timestamps: [Math.floor(new Date(asset.datetime).getTime() / 1000)]
+        })
+      }));
       
-      selection.forEach((asset) => {
-        const dataSourceItem: DataSourceItem = {
-          url: asset.url,
-          format: asset.format,
-          zIndex, // Use the current zIndex from form state
-          ...(asset.datetime && requiresTimestamp && {
-            timestamps: [Math.floor(new Date(asset.datetime).getTime() / 1000)]
-          })
-        };
-        
-        onAddDataSource(dataSourceItem);
-        addedCount++;
-      });
+      // Add all data sources in a single batch operation
+      onAddDataSource(dataSourceItems);
       
       toast({
         title: "Data Sources Added",
-        description: `${addedCount} data sources have been added to the layer with Z-index ${zIndex}.`,
+        description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
       });
       
       setShowServiceModal(false);
