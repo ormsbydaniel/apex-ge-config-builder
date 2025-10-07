@@ -46,8 +46,7 @@ export const useColormapEditorState = ({ colormaps, availableSourceLayers }: Use
   const handleOpen = (isOpen: boolean) => {
     setOpen(isOpen);
     if (isOpen && !activeTab) {
-      const defaultTab = localColormaps.length === 0 && availableSourceLayers.length > 0 ? "copy" : "define";
-      setActiveTab(defaultTab);
+      setActiveTab("define");
     }
   };
 
