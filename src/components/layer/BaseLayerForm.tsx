@@ -205,7 +205,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
 
               {dataSources.length === 0 ? (
                 <div className="p-6 border-2 border-dashed rounded-lg">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center gap-4">
                     <Globe className="h-8 w-8 text-muted-foreground flex-shrink-0" />
                     <p className="text-muted-foreground">
                       No data sources added yet. Click the button below to add your first data source.
