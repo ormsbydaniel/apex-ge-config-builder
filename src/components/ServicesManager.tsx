@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server, Database } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
+import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
+import { toast } from '@/hooks/use-toast';
 
 interface ServicesManagerProps {
   services: Service[];
@@ -23,6 +25,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
   const [selectedFormat, setSelectedFormat] = useState<SourceConfigType>('wms');
   const [showAddForm, setShowAddForm] = useState(false);
   const [autoNameLoading, setAutoNameLoading] = useState(false);
+  const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
 
@@ -77,6 +80,54 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
     setShowAddForm(false);
   };
 
+  const handleAddRecommendedServices = async () => {
+    setIsLoadingRecommended(true);
+    try {
+      const recommendedServices = await fetchRecommendedServices();
+      
+      if (recommendedServices.length === 0) {
+        toast({
+          title: "No services found",
+          description: "The recommended config doesn't contain any services.",
+          variant: "default"
+        });
+        return;
+      }
+
+      // Filter out services that already exist (by URL)
+      const existingUrls = new Set(services.map(s => s.url));
+      const newServices = recommendedServices.filter(s => !existingUrls.has(s.url));
+
+      if (newServices.length === 0) {
+        toast({
+          title: "All services already added",
+          description: "All recommended services are already configured.",
+          variant: "default"
+        });
+        return;
+      }
+
+      // Add each service
+      newServices.forEach(service => {
+        onAddService(service);
+      });
+
+      toast({
+        title: "Services added",
+        description: `Successfully added ${newServices.length} recommended service${newServices.length !== 1 ? 's' : ''}.`,
+        variant: "default"
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to load services",
+        description: error instanceof Error ? error.message : "An error occurred while fetching recommended services.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingRecommended(false);
+    }
+  };
+
   const getConfigForType = (type: SourceConfigType) => {
     if (type === 's3') {
       return S3_CONFIG;
@@ -96,14 +147,25 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
               <Globe className="h-5 w-5" />
               Configured Services
             </div>
-            <Button 
-              onClick={() => setShowAddForm(true)} 
-              className="bg-primary hover:bg-primary/90"
-              disabled={showAddForm}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Service
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={handleAddRecommendedServices}
+                variant="outline"
+                disabled={isLoadingRecommended || showAddForm}
+                className="border-primary/30"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isLoadingRecommended ? 'Loading...' : 'Add Recommended Services'}
+              </Button>
+              <Button 
+                onClick={() => setShowAddForm(true)} 
+                className="bg-primary hover:bg-primary/90"
+                disabled={showAddForm}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Service
+              </Button>
+            </div>
           </CardTitle>
           <CardDescription>
             Configure WMS, WMTS, S3, and STAC services that can be used across multiple data sources. Services support automatic discovery via GetCapabilities, bucket listing, or catalogue metadata.

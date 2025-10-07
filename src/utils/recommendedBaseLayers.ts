@@ -1,9 +1,10 @@
-import { DataSource } from '@/types/config';
+import { DataSource, Service } from '@/types/config';
 
 const RECOMMENDED_CONFIG_URL = 'https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/main/resources/recommended-config.json';
 
 export interface RecommendedConfig {
   sources?: DataSource[];
+  services?: Service[];
 }
 
 export async function fetchRecommendedBaseLayers(): Promise<DataSource[]> {
@@ -24,6 +25,23 @@ export async function fetchRecommendedBaseLayers(): Promise<DataSource[]> {
     return baseLayers;
   } catch (error) {
     console.error('Error fetching recommended base layers:', error);
+    throw error;
+  }
+}
+
+export async function fetchRecommendedServices(): Promise<Service[]> {
+  try {
+    const response = await fetch(RECOMMENDED_CONFIG_URL);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch recommended config: ${response.statusText}`);
+    }
+    
+    const config: RecommendedConfig = await response.json();
+    
+    return config.services || [];
+  } catch (error) {
+    console.error('Error fetching recommended services:', error);
     throw error;
   }
 }
