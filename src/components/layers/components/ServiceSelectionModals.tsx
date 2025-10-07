@@ -10,11 +10,13 @@ import { validateS3Url, S3Object } from '@/utils/s3Utils';
 import S3LayerSelector from '@/components/form/S3LayerSelector';
 import StacBrowser from './StacBrowser';
 
+import { AssetSelection } from './StacBrowser';
+
 interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (url: string, layers?: string, format?: DataSourceFormat, datetime?: string) => void;
+  onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat, datetime?: string) => void;
 }
 
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: ServiceSelectionModalProps) => {
@@ -112,8 +114,14 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
           ) : isStacService ? (
             <StacBrowser
               serviceUrl={service.url}
-              onAssetSelect={(assetUrl, format, datetime) => {
-                onSelect(assetUrl, '', format, datetime);
+              onAssetSelect={(selection) => {
+                // Handle both single and bulk selections
+                if (Array.isArray(selection)) {
+                  onSelect(selection);
+                } else {
+                  // Convert single selection to old format for compatibility
+                  onSelect(selection.url, '', selection.format, selection.datetime);
+                }
                 handleClose();
               }}
             />

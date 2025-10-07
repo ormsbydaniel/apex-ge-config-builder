@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, Search, Folder, FileText, Download } from 'lucide-react';
+import { ChevronLeft, Search, Folder, FileText, Download, Plus } from 'lucide-react';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
@@ -38,9 +38,15 @@ interface StacAsset {
   'file:size'?: number;
 }
 
+export interface AssetSelection {
+  url: string;
+  format: DataSourceFormat;
+  datetime?: string;
+}
+
 interface StacBrowserProps {
   serviceUrl: string;
-  onAssetSelect: (assetUrl: string, format: DataSourceFormat, datetime?: string) => void;
+  onAssetSelect: (assets: AssetSelection | AssetSelection[]) => void;
 }
 
 type BrowserStep = 'collections' | 'items' | 'assets';
@@ -200,7 +206,86 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     const format = detectAssetFormat(asset);
     const resolved = resolveAssetUrl(asset.href);
     const datetime = selectedItem?.properties?.datetime;
-    onAssetSelect(resolved, format, datetime);
+    onAssetSelect({ url: resolved, format, datetime });
+  };
+
+  const handleAddAllItems = async () => {
+    const filteredItems = getFilteredData() as StacItem[];
+    
+    if (filteredItems.length === 0) {
+      toast({
+        title: "No Items",
+        description: "No items to add. Please adjust your search filter.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    const assetSelections: AssetSelection[] = [];
+    let processedCount = 0;
+    let failedCount = 0;
+
+    try {
+      for (const item of filteredItems) {
+        processedCount++;
+        
+        if (!item.assets || Object.keys(item.assets).length === 0) {
+          console.warn(`Item ${item.id} has no assets, skipping...`);
+          failedCount++;
+          continue;
+        }
+
+        // Get the first asset from each item
+        const [assetKey, asset] = Object.entries(item.assets)[0];
+        
+        try {
+          const format = detectAssetFormat(asset);
+          const resolved = resolveAssetUrl(asset.href);
+          const datetime = item.properties?.datetime; // Get datetime from item properties
+          
+          assetSelections.push({
+            url: resolved,
+            format,
+            datetime
+          });
+        } catch (error) {
+          console.error(`Failed to process asset ${assetKey} from item ${item.id}:`, error);
+          failedCount++;
+        }
+      }
+
+      if (assetSelections.length > 0) {
+        onAssetSelect(assetSelections);
+        
+        if (failedCount > 0) {
+          toast({
+            title: "Partial Success",
+            description: `Added ${assetSelections.length} of ${processedCount} data sources (${failedCount} failed).`,
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: `Added ${assetSelections.length} data sources from STAC catalogue.`,
+          });
+        }
+      } else {
+        toast({
+          title: "Failed",
+          description: "Failed to process any items. Check console for details.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error during bulk add:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while processing items.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const goBack = () => {
@@ -300,6 +385,18 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
           className="w-full pl-10 p-2 border border-input rounded-md"
         />
       </div>
+
+      {/* Add All Button for Items */}
+      {currentStep === 'items' && !loading && filteredData.length > 0 && (
+        <Button
+          variant="default"
+          className="w-full"
+          onClick={handleAddAllItems}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add All Filtered Items ({filteredData.length})
+        </Button>
+      )}
 
       {/* Content */}
       {loading ? (
