@@ -114,7 +114,7 @@ const BaseLayerGroup = ({
           <CardContent className="pt-3 bg-slate-200">
             <div className="space-y-3">
               {baseLayers.map(({ layer, originalIndex }, indexInGroup) => (
-                <div key={originalIndex} className="flex gap-2 items-start">
+                <div key={originalIndex} className="flex gap-2 items-center">
                   <div className="flex-1">
                     <LayerCard
                       source={layer}

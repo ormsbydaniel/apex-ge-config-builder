@@ -93,7 +93,7 @@ const LayerGroup = ({
       handleCancelEdit();
     }
   };
-  return <div className="flex items-start gap-3">
+  return <div className="flex items-center gap-3">
       <div className="flex-1">
         <Card className="border-primary/20">
           <Collapsible open={isExpanded} onOpenChange={onToggleGroup}>
@@ -156,7 +156,7 @@ const LayerGroup = ({
                 <div className="space-y-3">
                   {sources.map((source, idx) => {
                   const actualIndex = sourceIndices[idx];
-                  return <div key={actualIndex} className="flex items-start gap-2">
+                  return <div key={actualIndex} className="flex items-center gap-2">
                         <div className="flex-1">
                           <LayerCard source={source} index={actualIndex} onRemove={onRemoveLayer} onEdit={onEditLayer} onEditBaseLayer={onEditBaseLayer} onDuplicate={onDuplicateLayer} onUpdateLayer={onUpdateLayer} onAddDataSource={() => onAddDataSource(actualIndex)} onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)} onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)} onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)} onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)} isExpanded={expandedLayers.has(actualIndex)} onToggle={() => onToggleLayer(actualIndex)} />
                         </div>
