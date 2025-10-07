@@ -180,7 +180,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded inline-block">
+                      <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded inline-block w-[140px]">
                         {getZoomTooltip(currentZoom)}
                       </span>
                     </TooltipTrigger>
