@@ -30,7 +30,6 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
   const [attributionText, setAttributionText] = useState('');
   const [attributionUrl, setAttributionUrl] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
-  const [description, setDescription] = useState('');
   const [dataSources, setDataSources] = useState<DataSourceItem[]>([]);
   
   // Modal state
@@ -44,7 +43,6 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
       setDataSources(editingLayer.data || []);
       
       if (editingLayer.meta) {
-        setDescription(editingLayer.meta.description || '');
         setAttributionText(editingLayer.meta.attribution?.text || '');
         setAttributionUrl(editingLayer.meta.attribution?.url || '');
         setPreviewUrl(editingLayer.meta.preview || '');
@@ -98,9 +96,9 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
     };
 
     // Add meta if any meta fields are provided
-    if (description || attributionText || previewUrl) {
+    if (attributionText || previewUrl) {
       baseLayer.meta = {
-        description: description.trim(),
+        description: '',
         attribution: {
           text: attributionText.trim(),
           ...(attributionUrl.trim() && { url: attributionUrl.trim() })
@@ -188,16 +186,6 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                       Display on Load
                     </Label>
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description (Optional)</Label>
-                  <Input
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Brief description of this base layer"
-                  />
                 </div>
 
                 <div className="space-y-4 p-4 border rounded-lg">

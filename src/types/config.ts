@@ -89,7 +89,7 @@ export interface TemporalConfig {
 
 // Enhanced meta interface
 export interface DataSourceMeta {
-  description: string;
+  description?: string;
   attribution: {
     text: string;
     url?: string;
