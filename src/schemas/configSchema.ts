@@ -138,6 +138,8 @@ const MetaSchema = z.object({
   swipeConfig: SwipeConfigSchema.optional(),
   // Temporal configuration
   temporal: TemporalConfigSchema.optional(),
+  // Preview image URL for base layers
+  preview: z.string().url().optional(),
 });
 
 // Legend schema (reusable)

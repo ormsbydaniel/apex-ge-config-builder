@@ -12,8 +12,10 @@ interface LayerFormContainerProps {
   availableSources: DataSource[];
   availableExclusivitySets?: string[];
   defaultInterfaceGroup?: string;
+  services: any[];
   onSelectType: (type: LayerType) => void;
   onAddLayer: (layer: DataSource) => void;
+  onAddService: (service: any) => void;
   onCancel: () => void;
   editingLayer?: DataSource;
   isEditing?: boolean;
@@ -26,8 +28,10 @@ const LayerFormContainer = ({
   availableSources,
   availableExclusivitySets = [],
   defaultInterfaceGroup,
+  services,
   onSelectType,
   onAddLayer,
+  onAddService,
   onCancel,
   editingLayer,
   isEditing = false
@@ -50,6 +54,8 @@ const LayerFormContainer = ({
         onCancel={onCancel}
         editingLayer={editingLayer}
         isEditing={isEditing}
+        services={services}
+        onAddService={onAddService}
       />
     );
   }

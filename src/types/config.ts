@@ -107,6 +107,8 @@ export interface DataSourceMeta {
   // Temporal configuration - flat structure
   timeframe?: TimeframeType;
   defaultTimestamp?: number;
+  // Preview image URL for base layers
+  preview?: string;
 }
 
 // Enhanced layout interface with support for both layerCard and infoPanel

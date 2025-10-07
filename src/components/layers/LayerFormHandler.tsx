@@ -51,8 +51,10 @@ const LayerFormHandler = ({
           availableSources={config.sources}
           availableExclusivitySets={config.exclusivitySets || []}
           defaultInterfaceGroup={defaultInterfaceGroup}
+          services={services}
           onSelectType={onSelectType}
           onAddLayer={onLayerSaved}
+          onAddService={onAddService}
           onCancel={onLayerFormCancel}
           editingLayer={editingLayerIndex !== null ? config.sources[editingLayerIndex] : undefined}
           isEditing={editingLayerIndex !== null}
