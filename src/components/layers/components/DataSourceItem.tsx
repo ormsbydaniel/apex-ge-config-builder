@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Copy, Trash2, Clock, Info } from 'lucide-react';
-import { DataSourceItem as DataSourceItemType, TimeframeType, Service } from '@/types/config';
+import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta } from '@/types/config';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
@@ -19,6 +19,8 @@ interface DataSourceItemProps {
   timeframe?: TimeframeType;
   onManageTimestamps?: () => void;
   services?: Service[];
+  currentMeta?: DataSourceMeta;
+  onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
 }
 
 const DataSourceItem = ({ 
@@ -29,7 +31,9 @@ const DataSourceItem = ({
   showStatsLevel = false,
   timeframe = 'None',
   onManageTimestamps,
-  services = []
+  services = [],
+  currentMeta,
+  onUpdateMeta
 }: DataSourceItemProps) => {
   const { toast } = useToast();
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
@@ -232,6 +236,8 @@ const DataSourceItem = ({
           filename={getDisplayName()}
           isOpen={showMetadataDialog}
           onClose={() => setShowMetadataDialog(false)}
+          currentMeta={currentMeta}
+          onUpdateMeta={onUpdateMeta}
         />
       )}
     </div>

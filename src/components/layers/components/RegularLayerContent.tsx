@@ -1,7 +1,7 @@
 
 import React from 'react';
 import DataSourceDisplay from './DataSourceDisplay';
-import { DataSource, Service } from '@/types/config';
+import { DataSource, Service, DataSourceMeta } from '@/types/config';
 
 interface RegularLayerContentProps {
   source: DataSource;
@@ -11,6 +11,7 @@ interface RegularLayerContentProps {
   onRemoveStatisticsSource?: (statsIndex: number) => void;
   onEditDataSource?: (dataIndex: number) => void;
   onEditStatisticsSource?: (statsIndex: number) => void;
+  onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
 }
 
 const RegularLayerContent = ({
@@ -20,7 +21,8 @@ const RegularLayerContent = ({
   onRemoveDataSource,
   onRemoveStatisticsSource,
   onEditDataSource,
-  onEditStatisticsSource
+  onEditStatisticsSource,
+  onUpdateMeta
 }: RegularLayerContentProps) => {
   return (
     <DataSourceDisplay
@@ -31,6 +33,7 @@ const RegularLayerContent = ({
       onRemoveStatisticsSource={onRemoveStatisticsSource}
       onEditDataSource={onEditDataSource}
       onEditStatisticsSource={onEditStatisticsSource}
+      onUpdateMeta={onUpdateMeta}
     />
   );
 };

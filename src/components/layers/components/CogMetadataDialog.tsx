@@ -8,19 +8,25 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { fetchCogMetadata, formatMetadataForDisplay } from '@/utils/cogMetadata';
+import { fetchCogMetadata, formatMetadataForDisplay, CogMetadata } from '@/utils/cogMetadata';
+import { DataSourceMeta } from '@/types/config';
+import MinMaxUpdateDialog from './MinMaxUpdateDialog';
 
 interface CogMetadataDialogProps {
   url: string;
   filename: string;
   isOpen: boolean;
   onClose: () => void;
+  currentMeta?: DataSourceMeta;
+  onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
 }
 
-const CogMetadataDialog = ({ url, filename, isOpen, onClose }: CogMetadataDialogProps) => {
+const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpdateMeta }: CogMetadataDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<ReturnType<typeof formatMetadataForDisplay> | null>(null);
+  const [rawMetadata, setRawMetadata] = useState<CogMetadata | null>(null);
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
 
   useEffect(() => {
     if (isOpen && url) {
@@ -32,16 +38,68 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose }: CogMetadataDialog
     setLoading(true);
     setError(null);
     setMetadata(null);
+    setRawMetadata(null);
 
     try {
-      const rawMetadata = await fetchCogMetadata(url);
-      const formattedMetadata = formatMetadataForDisplay(rawMetadata);
+      const raw = await fetchCogMetadata(url);
+      const formattedMetadata = formatMetadataForDisplay(raw);
       setMetadata(formattedMetadata);
+      setRawMetadata(raw);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load metadata');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCopyMinMax = () => {
+    if (!rawMetadata || !onUpdateMeta) return;
+
+    const newMin = rawMetadata.minValue;
+    const newMax = rawMetadata.maxValue;
+
+    if (newMin === undefined || newMax === undefined) {
+      return;
+    }
+
+    // Case A: No existing min/max - directly update
+    if (currentMeta?.min === undefined && currentMeta?.max === undefined) {
+      const updates: Partial<DataSourceMeta> = {
+        min: newMin,
+        max: newMax,
+      };
+      onUpdateMeta(updates);
+      return;
+    }
+
+    // Case B: Existing min/max - show comparison dialog
+    setShowUpdateDialog(true);
+  };
+
+  const handleConfirmUpdate = (updateMin: boolean, updateMax: boolean, updateColormaps: boolean) => {
+    if (!rawMetadata || !onUpdateMeta) return;
+
+    const newMin = rawMetadata.minValue;
+    const newMax = rawMetadata.maxValue;
+
+    if (newMin === undefined || newMax === undefined) return;
+
+    const updates: Partial<DataSourceMeta> = {};
+
+    // Update meta min/max
+    if (updateMin) updates.min = newMin;
+    if (updateMax) updates.max = newMax;
+
+    // Update colormap min/max if requested
+    if (updateColormaps && currentMeta?.colormaps) {
+      updates.colormaps = currentMeta.colormaps.map(cm => ({
+        ...cm,
+        ...(updateMin && { min: newMin }),
+        ...(updateMax && { max: newMax })
+      }));
+    }
+
+    onUpdateMeta(updates);
   };
 
   const handleRetry = () => {
@@ -116,14 +174,13 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose }: CogMetadataDialog
                     </tbody>
                   </table>
                 </div>
-                {section.category === 'Data Statistics' && (
+                {section.category === 'Data Statistics' && onUpdateMeta && (
                   <div className="flex gap-2 mt-3">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        console.log('Copy min/max to config');
-                      }}
+                      onClick={handleCopyMinMax}
+                      disabled={!rawMetadata?.minValue || !rawMetadata?.maxValue}
                     >
                       Copy min/max to config
                     </Button>
@@ -151,6 +208,18 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose }: CogMetadataDialog
           </div>
         )}
       </DialogContent>
+
+      {/* Min/Max Update Dialog */}
+      {currentMeta && rawMetadata && (
+        <MinMaxUpdateDialog
+          isOpen={showUpdateDialog}
+          onClose={() => setShowUpdateDialog(false)}
+          currentMeta={currentMeta}
+          newMin={rawMetadata.minValue!}
+          newMax={rawMetadata.maxValue!}
+          onConfirm={handleConfirmUpdate}
+        />
+      )}
     </Dialog>
   );
 };
