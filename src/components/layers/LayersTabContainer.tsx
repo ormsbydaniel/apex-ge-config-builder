@@ -47,6 +47,8 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onEditBaseLayer: layersLogic.handleEditBaseLayer,
     onDuplicateLayer: layersLogic.handleDuplicateLayer,
     onMoveLayer: props.moveLayer,
+    moveLayerToTop: layersLogic.moveLayerToTop,
+    moveLayerToBottom: layersLogic.moveLayerToBottom,
     onUpdateLayer: props.updateLayer,
     onAddLayer: props.addLayer,
     onUpdateConfig: props.updateConfig,

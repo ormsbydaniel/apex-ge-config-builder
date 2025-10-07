@@ -146,8 +146,22 @@ const BaseLayerGroup = ({
                         onMoveLayer(originalIndex, nextLayer.originalIndex);
                       }
                     }}
+                    onMoveToTop={() => {
+                      const firstLayer = baseLayers[0];
+                      if (firstLayer && originalIndex !== firstLayer.originalIndex) {
+                        onMoveLayer(originalIndex, firstLayer.originalIndex);
+                      }
+                    }}
+                    onMoveToBottom={() => {
+                      const lastLayer = baseLayers[baseLayers.length - 1];
+                      if (lastLayer && originalIndex !== lastLayer.originalIndex) {
+                        onMoveLayer(originalIndex, lastLayer.originalIndex);
+                      }
+                    }}
                     canMoveUp={indexInGroup > 0}
                     canMoveDown={indexInGroup < baseLayers.length - 1}
+                    canMoveToTop={indexInGroup > 0}
+                    canMoveToBottom={indexInGroup < baseLayers.length - 1}
                   />
                 </div>
               ))}

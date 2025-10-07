@@ -17,6 +17,8 @@ interface LayersTabContextValue {
   onEditBaseLayer: (index: number) => void;
   onDuplicateLayer: (index: number) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
+  moveLayerToTop: (layerIndex: number, groupIndices: number[]) => void;
+  moveLayerToBottom: (layerIndex: number, groupIndices: number[]) => void;
   onUpdateLayer: (index: number, layer: DataSource) => void;
   onAddLayer: (layer: DataSource) => void;
   onUpdateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;

@@ -136,9 +136,18 @@ const LayerHierarchy = ({
     setExpandedGroups(newExpanded);
   };
 
-  const moveInterfaceGroup = (groupIndex: number, direction: 'up' | 'down') => {
-    const newIndex = direction === 'up' ? groupIndex - 1 : groupIndex + 1;
-    if (newIndex >= 0 && newIndex < config.interfaceGroups.length) {
+  const moveInterfaceGroup = (groupIndex: number, direction: 'up' | 'down' | 'top' | 'bottom') => {
+    let newIndex: number;
+    
+    if (direction === 'top') {
+      newIndex = 0;
+    } else if (direction === 'bottom') {
+      newIndex = config.interfaceGroups.length - 1;
+    } else {
+      newIndex = direction === 'up' ? groupIndex - 1 : groupIndex + 1;
+    }
+    
+    if (newIndex >= 0 && newIndex < config.interfaceGroups.length && newIndex !== groupIndex) {
       const updatedGroups = [...config.interfaceGroups];
       const [movedGroup] = updatedGroups.splice(groupIndex, 1);
       updatedGroups.splice(newIndex, 0, movedGroup);

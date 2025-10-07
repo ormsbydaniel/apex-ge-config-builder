@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, Edit2, Check, X, AlertTriangle, Triangle } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Edit2, Check, X, AlertTriangle, Triangle } from 'lucide-react';
+import LayerMoveControls from './LayerMoveControls';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
@@ -18,7 +19,7 @@ interface LayerGroupProps {
   onToggleLayer: (index: number) => void;
   onRemoveInterfaceGroup: (groupName: string) => void;
   onAddLayer: (groupName: string) => void;
-  onMoveGroup: (groupIndex: number, direction: 'up' | 'down') => void;
+  onMoveGroup: (groupIndex: number, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onRenameGroup: (oldName: string, newName: string) => void;
   isExpanded: boolean;
   onToggleGroup: () => void;
@@ -55,6 +56,8 @@ const LayerGroup = ({
     onEditDataSource,
     onEditStatisticsSource,
     onMoveLayer,
+    moveLayerToTop,
+    moveLayerToBottom,
     config,
     onUpdateConfig
   } = useLayersTabContext();
@@ -160,14 +163,16 @@ const LayerGroup = ({
                         <div className="flex-1">
                           <LayerCard source={source} index={actualIndex} onRemove={onRemoveLayer} onEdit={onEditLayer} onEditBaseLayer={onEditBaseLayer} onDuplicate={onDuplicateLayer} onUpdateLayer={onUpdateLayer} onAddDataSource={() => onAddDataSource(actualIndex)} onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)} onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)} onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)} onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)} isExpanded={expandedLayers.has(actualIndex)} onToggle={() => onToggleLayer(actualIndex)} />
                         </div>
-                        <div className="flex flex-col gap-1 pt-4">
-                          <Button variant="outline" size="sm" onClick={() => handleMoveLayerInGroup(actualIndex, 'up')} disabled={idx === 0} className="h-6 w-6 p-0">
-                            <ArrowUp className="h-3 w-3" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleMoveLayerInGroup(actualIndex, 'down')} disabled={idx === sources.length - 1} className="h-6 w-6 p-0">
-                            <ArrowDown className="h-3 w-3" />
-                          </Button>
-                        </div>
+                        <LayerMoveControls
+                          onMoveUp={() => handleMoveLayerInGroup(actualIndex, 'up')}
+                          onMoveDown={() => handleMoveLayerInGroup(actualIndex, 'down')}
+                          onMoveToTop={() => moveLayerToTop(actualIndex, sourceIndices)}
+                          onMoveToBottom={() => moveLayerToBottom(actualIndex, sourceIndices)}
+                          canMoveUp={idx > 0}
+                          canMoveDown={idx < sources.length - 1}
+                          canMoveToTop={idx > 0}
+                          canMoveToBottom={idx < sources.length - 1}
+                        />
                       </div>;
                 })}
                 </div>
@@ -178,13 +183,23 @@ const LayerGroup = ({
       </div>
       
       {/* Group move controls positioned in the space between card and panel edge */}
-      <div className="flex flex-col gap-1 pt-3">
-        <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'up')} disabled={!canMoveUp} className="h-6 w-6 p-0">
-          <ArrowUp className="h-3 w-3" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'down')} disabled={!canMoveDown} className="h-6 w-6 p-0">
-          <ArrowDown className="h-3 w-3" />
-        </Button>
+      <div className="flex gap-1 pt-3">
+        <div className="flex flex-col gap-1">
+          <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'up')} disabled={!canMoveUp} className="h-6 w-6 p-0" title="Move group up">
+            <ArrowUp className="h-3 w-3" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'down')} disabled={!canMoveDown} className="h-6 w-6 p-0" title="Move group down">
+            <ArrowDown className="h-3 w-3" />
+          </Button>
+        </div>
+        <div className="flex flex-col gap-1">
+          <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'top')} disabled={!canMoveUp} className="h-6 w-6 p-0" title="Move group to top">
+            <ChevronsUp className="h-3 w-3" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'bottom')} disabled={!canMoveDown} className="h-6 w-6 p-0" title="Move group to bottom">
+            <ChevronsDown className="h-3 w-3" />
+          </Button>
+        </div>
       </div>
     </div>;
 };
