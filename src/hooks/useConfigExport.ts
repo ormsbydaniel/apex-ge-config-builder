@@ -49,6 +49,8 @@ export const useConfigExport = () => {
             // Preserve normalize if it exists
             ...(item.normalize !== undefined && { normalize: item.normalize })
           })),
+          // Preserve preview for base layers
+          ...('preview' in source && source.preview ? { preview: source.preview } : {}),
           // Include statistics if they exist
           ...(source.statistics && {
             statistics: source.statistics.map(item => ({
