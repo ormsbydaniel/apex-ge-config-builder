@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle, Download } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
 import { calculateQAStats } from '@/utils/qaUtils';
@@ -27,6 +27,8 @@ interface BaseLayerGroupProps {
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddBaseLayer: () => void;
+  onAddRecommendedBaseLayers: () => void;
+  isLoadingRecommended?: boolean;
 }
 
 const BaseLayerGroup = ({
@@ -44,7 +46,9 @@ const BaseLayerGroup = ({
   onEditDataSource,
   onEditStatisticsSource,
   onMoveLayer,
-  onAddBaseLayer
+  onAddBaseLayer,
+  onAddRecommendedBaseLayers,
+  isLoadingRecommended
 }: BaseLayerGroupProps) => {
   const { toggleCard, isExpanded: isCardExpanded } = useLayerStateManagement();
 
@@ -98,6 +102,16 @@ const BaseLayerGroup = ({
               </div>
             </CollapsibleTrigger>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onAddRecommendedBaseLayers}
+                disabled={isLoadingRecommended}
+                className="text-primary hover:bg-primary/10 border-primary/30"
+              >
+                <Download className="h-3 w-3 mr-1" />
+                {isLoadingRecommended ? 'Loading...' : 'Add Recommended Base Layers'}
+              </Button>
               <Button
                 variant="outline"
                 size="sm"

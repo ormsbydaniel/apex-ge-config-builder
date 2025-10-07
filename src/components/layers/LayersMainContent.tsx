@@ -57,6 +57,8 @@ const LayersMainContent = ({
         onMoveLayer={onMoveLayer}
         onAddLayer={layersLogic.handleAddLayerForGroup || (() => {})}
         onAddBaseLayer={layersLogic.handleAddBaseLayer}
+        onAddRecommendedBaseLayers={layersLogic.handleAddRecommendedBaseLayers}
+        isLoadingRecommended={layersLogic.isLoadingRecommended}
         updateConfig={onUpdateConfig}
         expandedLayerAfterCreation={layersLogic.expandedLayerAfterCreation}
         expandedLayerAfterEdit={layersLogic.expandedLayerAfterEdit}

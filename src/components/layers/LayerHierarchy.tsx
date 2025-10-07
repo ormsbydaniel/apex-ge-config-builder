@@ -25,6 +25,8 @@ interface LayerHierarchyProps {
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddLayer: (groupName: string) => void;
   onAddBaseLayer: () => void;
+  onAddRecommendedBaseLayers: () => void;
+  isLoadingRecommended?: boolean;
   updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
   expandedLayerAfterCreation?: string | null;
   expandedLayerAfterEdit?: string | null;
@@ -51,6 +53,8 @@ const LayerHierarchy = ({
   onMoveLayer,
   onAddLayer,
   onAddBaseLayer,
+  onAddRecommendedBaseLayers,
+  isLoadingRecommended,
   updateConfig,
   expandedLayerAfterCreation,
   expandedLayerAfterEdit,
@@ -251,6 +255,8 @@ const LayerHierarchy = ({
         onEditStatisticsSource={onEditStatisticsSource}
         onMoveLayer={onMoveLayer}
         onAddBaseLayer={onAddBaseLayer}
+        onAddRecommendedBaseLayers={onAddRecommendedBaseLayers}
+        isLoadingRecommended={isLoadingRecommended}
       />
 
       {/* Ungrouped Layers - moved to the end */}
