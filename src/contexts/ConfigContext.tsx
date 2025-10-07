@@ -279,8 +279,13 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       // If adding an active base layer, deactivate all other base layers
       let updatedSources = state.sources;
       if (sanitizedSource.isBaseLayer && sanitizedSource.isActive) {
+        console.log('[ADD_SOURCE] Deactivating other active base layers for new layer:', sanitizedSource.name);
+        const activeBaseLayers = state.sources.filter(s => s.isBaseLayer && s.isActive);
+        console.log('[ADD_SOURCE] Found active base layers:', activeBaseLayers.map(s => s.name));
+        
         updatedSources = state.sources.map(source => {
           if (source.isBaseLayer && source.isActive) {
+            console.log('[ADD_SOURCE] Deactivating:', source.name);
             return { ...source, isActive: false };
           }
           return source;
@@ -299,25 +304,27 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       };
     case 'UPDATE_SOURCE': {
       const updatedSource = action.payload.source;
-      const oldSource = state.sources[action.payload.index];
       
-      // Check if this base layer is becoming active (was inactive, now active)
-      const isBecomingActive = updatedSource.isBaseLayer && 
-                               updatedSource.isActive && 
-                               (!oldSource || !oldSource.isActive);
-      
-      // If a base layer is becoming active, deactivate all other base layers
+      // If the updated source is an active base layer, deactivate all other active base layers
       let updatedSources = [...state.sources];
-      if (isBecomingActive || (updatedSource.isBaseLayer && updatedSource.isActive)) {
+      if (updatedSource.isBaseLayer && updatedSource.isActive) {
+        console.log('[UPDATE_SOURCE] Deactivating other active base layers for:', updatedSource.name);
+        const activeBaseLayers = state.sources.filter((s, idx) => idx !== action.payload.index && s.isBaseLayer && s.isActive);
+        console.log('[UPDATE_SOURCE] Found active base layers to deactivate:', activeBaseLayers.map(s => s.name));
+        
         updatedSources = updatedSources.map((source, idx) => {
+          // Deactivate other base layers (not the one being updated)
           if (idx !== action.payload.index && source.isBaseLayer && source.isActive) {
+            console.log('[UPDATE_SOURCE] Deactivating:', source.name);
             return { ...source, isActive: false };
           }
           return source;
         });
       }
       
+      // Now update the target source
       updatedSources[action.payload.index] = updatedSource;
+      
       return {
         ...state,
         sources: updatedSources,
