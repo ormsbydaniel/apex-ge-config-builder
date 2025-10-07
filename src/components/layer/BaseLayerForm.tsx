@@ -8,6 +8,7 @@ import { Save, X, Globe, Plus, Trash2 } from 'lucide-react';
 import { DataSource, DataSourceItem, Service } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import DataSourceForm from '@/components/layers/DataSourceForm';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -19,9 +20,10 @@ interface BaseLayerFormProps {
   isEditing?: boolean;
   services: Service[];
   onAddService: (service: Service) => void;
+  allSources?: DataSource[];
 }
 
-const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, services, onAddService }: BaseLayerFormProps) => {
+const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, services, onAddService, allSources = [] }: BaseLayerFormProps) => {
   const { toast } = useToast();
   
   // Form state
@@ -34,6 +36,9 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
   
   // Modal state
   const [showDataSourceModal, setShowDataSourceModal] = useState(false);
+  const [showActiveWarning, setShowActiveWarning] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
+  const [existingActiveLayer, setExistingActiveLayer] = useState<string | null>(null);
 
   useEffect(() => {
     if (isEditing && editingLayer) {
@@ -58,9 +63,17 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
     setDataSources(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const findExistingActiveBaseLayer = (): string | null => {
+    // Find any active base layer that isn't the one being edited
+    const activeBaseLayer = allSources.find(source => 
+      source.isBaseLayer && 
+      source.isActive && 
+      source.name !== editingLayer?.name
+    );
+    return activeBaseLayer?.name || null;
+  };
+
+  const performSubmit = () => {
     if (!name.trim()) {
       toast({
         title: "Missing Required Fields",
@@ -108,8 +121,73 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
     });
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Check if trying to activate a base layer when another is already active
+    if (isActive) {
+      const existingActive = findExistingActiveBaseLayer();
+      if (existingActive) {
+        setExistingActiveLayer(existingActive);
+        setShowActiveWarning(true);
+        setPendingSubmit(true);
+        return;
+      }
+    }
+
+    performSubmit();
+  };
+
+  const handleActiveToggle = (checked: boolean) => {
+    if (checked) {
+      const existingActive = findExistingActiveBaseLayer();
+      if (existingActive) {
+        setExistingActiveLayer(existingActive);
+        setShowActiveWarning(true);
+        // Don't set isActive yet - wait for confirmation
+        return;
+      }
+    }
+    setIsActive(checked);
+  };
+
+  const handleConfirmActivation = () => {
+    setShowActiveWarning(false);
+    setIsActive(true);
+    if (pendingSubmit) {
+      setPendingSubmit(false);
+      setExistingActiveLayer(null);
+      performSubmit();
+    } else {
+      setExistingActiveLayer(null);
+    }
+  };
+
+  const handleCancelActivation = () => {
+    setShowActiveWarning(false);
+    setIsActive(false);
+    setPendingSubmit(false);
+    setExistingActiveLayer(null);
+  };
+
   return (
     <>
+      {/* Active Base Layer Warning Dialog */}
+      <AlertDialog open={showActiveWarning} onOpenChange={setShowActiveWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace Active Base Layer?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{name}" will replace "{existingActiveLayer}" as the default base layer as only one base layer can be active.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelActivation}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmActivation}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Data Source Modal */}
       <Dialog open={showDataSourceModal} onOpenChange={setShowDataSourceModal}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -155,7 +233,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                   <Switch
                     id="isActive"
                     checked={isActive}
-                    onCheckedChange={setIsActive}
+                    onCheckedChange={handleActiveToggle}
                   />
                   <Label htmlFor="isActive" className="text-sm cursor-pointer">
                     Display on Load

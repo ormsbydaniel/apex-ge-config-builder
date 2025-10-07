@@ -56,6 +56,7 @@ const LayerFormContainer = ({
         isEditing={isEditing}
         services={services}
         onAddService={onAddService}
+        allSources={availableSources}
       />
     );
   }
