@@ -167,7 +167,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
             {currentStep === 'basic' ? (
               // Step 1: Basic Info
               <>
-                <div className="flex items-start gap-4">
+                <div className="flex items-end gap-4">
                   <div className="w-2/3 space-y-2">
                     <Label htmlFor="name">Layer Name *</Label>
                     <Input
@@ -178,18 +178,15 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                       required
                     />
                   </div>
-                  <div className="flex-1 space-y-2">
-                    <Label htmlFor="isActive">Display on Load</Label>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        id="isActive"
-                        checked={isActive}
-                        onCheckedChange={setIsActive}
-                      />
-                      <span className="text-sm text-muted-foreground">
-                        Toggle on when map loads
-                      </span>
-                    </div>
+                  <div className="flex-1 flex items-center gap-2 pb-2">
+                    <Switch
+                      id="isActive"
+                      checked={isActive}
+                      onCheckedChange={setIsActive}
+                    />
+                    <Label htmlFor="isActive" className="text-sm cursor-pointer">
+                      Display on Load
+                    </Label>
                   </div>
                 </div>
 
