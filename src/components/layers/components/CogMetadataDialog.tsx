@@ -127,15 +127,17 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose }: CogMetadataDialog
                     >
                       Copy min/max to config
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        console.log('Copy unique values to config categories');
-                      }}
-                    >
-                      Copy unique values to config categories
-                    </Button>
+                    {section.items.find(item => item.label === 'Data Nature')?.value === 'Categorical' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          console.log('Copy unique values to config categories');
+                        }}
+                      >
+                        Copy unique values to config categories
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
