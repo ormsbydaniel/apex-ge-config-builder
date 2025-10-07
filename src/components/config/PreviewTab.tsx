@@ -13,12 +13,11 @@ import { useJsonEditor } from '@/hooks/useJsonEditor';
 import { useValidationErrors } from '@/hooks/useValidationErrors';
 import { useEditorTheme } from '@/hooks/useEditorTheme';
 import { useJsonNavigation } from '@/hooks/useJsonNavigation';
-import { Edit, AlertTriangle, FileText, Sun, Moon, Columns2 } from 'lucide-react';
+import { Edit, AlertTriangle, FileText, Sun, Moon } from 'lucide-react';
 import MonacoJsonEditor from './components/MonacoJsonEditor';
 import JsonEditorToolbar from './components/JsonEditorToolbar';
 import ValidationErrorDialog from './components/ValidationErrorDialog';
 import JsonBreadcrumb from './components/JsonBreadcrumb';
-import JsonSearchBar from './components/JsonSearchBar';
 
 interface PreviewTabProps {
   config: any;
@@ -36,12 +35,12 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
     isEditMode,
     editedJson,
     hasUnsavedChanges,
-    isSplitView,
     handleEditModeToggle,
     handleJsonChange,
     handleReset,
     formatJson,
-    toggleSplitView,
+    handleFind,
+    handleReplace,
   } = useJsonEditor(configJson);
   
   const {
@@ -149,39 +148,23 @@ const PreviewTab = ({ config }: PreviewTabProps) => {
           <div className="space-y-4">
             {isEditMode ? (
               <>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <JsonEditorToolbar
-                    hasUnsavedChanges={hasUnsavedChanges}
-                    onApplyChanges={handleApplyChanges}
-                    onReset={handleReset}
-                    onFormatJson={handleFormatJson}
-                  />
-                  <Button
-                    onClick={toggleSplitView}
-                    variant="outline"
-                    size="sm"
-                    className={isSplitView ? 'bg-primary/10' : ''}
-                  >
-                    <Columns2 className="h-4 w-4 mr-2" />
-                    {isSplitView ? 'Single View' : 'Split View'}
-                  </Button>
-                </div>
+                <JsonEditorToolbar
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  onApplyChanges={handleApplyChanges}
+                  onReset={handleReset}
+                  onFormatJson={handleFormatJson}
+                  onFind={handleFind}
+                  onReplace={handleReplace}
+                />
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  <JsonSearchBar
-                    value={searchQuery}
-                    onChange={updateSearch}
-                    onClear={clearSearch}
-                    matchCount={matchCount}
-                  />
+                {currentPath && (
                   <JsonBreadcrumb path={currentPath} />
-                </div>
+                )}
                 
                 <MonacoJsonEditor
                   value={editedJson}
                   onChange={handleJsonChange}
                   theme={editorTheme}
-                  originalValue={isSplitView ? configJson : undefined}
                   onCursorPositionChange={updatePath}
                   searchQuery={searchQuery}
                   onMatchCountChange={updateMatchCount}
