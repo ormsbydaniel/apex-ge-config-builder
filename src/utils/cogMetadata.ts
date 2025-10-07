@@ -275,7 +275,14 @@ export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ categor
     fileProps.push({ label: 'File Size', value: formatFileSize(metadata.fileSize) });
   }
   if (metadata.overviewCount !== undefined) {
-    fileProps.push({ label: 'Overview Levels', value: metadata.overviewCount.toString() });
+    fileProps.push({ 
+      label: 'Has Overviews', 
+      value: metadata.overviewCount > 0 ? 'Yes' : 'No' 
+    });
+    fileProps.push({ 
+      label: 'Overview Levels', 
+      value: metadata.overviewCount.toString() 
+    });
   }
   if (fileProps.length > 0) {
     sections.push({ category: 'File Properties', items: fileProps });
