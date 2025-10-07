@@ -276,24 +276,13 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                 </Alert>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label>Data Sources ({dataSources.length})</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowDataSourceModal(true)}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      {dataSources.length === 0 ? 'Add Data Source' : 'Add Another Source'}
-                    </Button>
-                  </div>
+                  <Label>Data Sources ({dataSources.length})</Label>
 
                   {dataSources.length === 0 ? (
                     <div className="p-8 border-2 border-dashed rounded-lg text-center">
                       <Globe className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <p className="text-muted-foreground mb-4">
-                        No data sources added yet. Click the button above to add your first data source.
+                        No data sources added yet. Click the button below to add your first data source.
                       </p>
                     </div>
                   ) : (
@@ -330,6 +319,17 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
                       ))}
                     </div>
                   )}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowDataSourceModal(true)}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {dataSources.length === 0 ? 'Add Data Source' : 'Add Another Source'}
+                  </Button>
                 </div>
 
                 <div className="flex justify-between gap-2 pt-4">
