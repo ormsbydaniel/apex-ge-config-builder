@@ -110,7 +110,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
         <CardContent className="space-y-8">
           {/* Navigation Settings Subsection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold border-b pb-2">Navigation Settings</h3>
+            <h3 className="text-lg font-semibold">Navigation Settings</h3>
             
             {/* Map Centre */}
             <div className="space-y-4">
@@ -204,7 +204,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
           {/* Branding Settings Subsection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold border-b pb-2">Branding Settings</h3>
+            <h3 className="text-lg font-semibold">Branding Settings</h3>
             <p className="text-muted-foreground">Coming soon</p>
           </div>
         </CardContent>
