@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useConfig } from '@/contexts/ConfigContext';
+import { Settings } from 'lucide-react';
 
 interface SettingsTabProps {
   config: any;
@@ -102,6 +103,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
             Navigation Settings
           </CardTitle>
         </CardHeader>
