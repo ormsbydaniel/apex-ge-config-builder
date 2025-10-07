@@ -180,7 +180,7 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                       variant="outline"
                       size="sm"
                       onClick={handleCopyMinMax}
-                      disabled={!rawMetadata?.minValue || !rawMetadata?.maxValue}
+                      disabled={rawMetadata?.minValue === undefined || rawMetadata?.maxValue === undefined || !onUpdateMeta}
                     >
                       Copy min/max to config
                     </Button>
