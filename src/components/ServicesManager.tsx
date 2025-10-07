@@ -107,14 +107,27 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
         return;
       }
 
-      // Add each service
-      newServices.forEach(service => {
-        onAddService(service);
-      });
+      // Add each service with GetCapabilities calls
+      let addedCount = 0;
+      for (const service of newServices) {
+        try {
+          const sourceType = service.sourceType || (service.format === 'stac' ? 'stac' : 'service');
+          const format = service.format === 's3' ? 'cog' : (service.format || 'wms');
+          await addService(
+            service.name, 
+            service.url, 
+            format as DataSourceFormat | 'stac',
+            sourceType
+          );
+          addedCount++;
+        } catch (error) {
+          console.error(`Failed to add service ${service.name}:`, error);
+        }
+      }
 
       toast({
         title: "Services added",
-        description: `Successfully added ${newServices.length} recommended service${newServices.length !== 1 ? 's' : ''}.`,
+        description: `Successfully added ${addedCount} recommended service${addedCount !== 1 ? 's' : ''} with capabilities.`,
         variant: "default"
       });
     } catch (error) {
