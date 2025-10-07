@@ -40,11 +40,11 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
       setName(editingLayer.name);
       setIsActive(editingLayer.isActive ?? false);
       setDataSources(editingLayer.data || []);
+      setPreviewUrl((editingLayer as any).preview || '');
       
       if (editingLayer.meta) {
-      setAttributionText(editingLayer.meta.attribution?.text || '');
+        setAttributionText(editingLayer.meta.attribution?.text || '');
         setAttributionUrl(editingLayer.meta.attribution?.url || '');
-        setPreviewUrl(editingLayer.meta.preview || '');
       }
     }
   }, [isEditing, editingLayer]);
@@ -80,24 +80,24 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
     }
 
     // Build the base layer object
-    const baseLayer: DataSource = {
+    const baseLayer: any = {
       name: name.trim(),
       isActive,
       isBaseLayer: true,
       data: dataSources,
       exclusivitySets: editingLayer?.exclusivitySets || ['basemaps'],
       statistics: editingLayer?.statistics,
+      ...(previewUrl.trim() && { preview: previewUrl.trim() })
     };
 
     // Add meta if any meta fields are provided
-    if (attributionText || previewUrl) {
+    if (attributionText) {
       baseLayer.meta = {
         description: '',
         attribution: {
           text: attributionText.trim(),
           ...(attributionUrl.trim() && { url: attributionUrl.trim() })
-        },
-        ...(previewUrl.trim() && { preview: previewUrl.trim() })
+        }
       };
     }
 

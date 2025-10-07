@@ -2,6 +2,7 @@
 import { DetectedTransformations } from './types';
 import { reverseTypeToFormatTransformation } from './transformers/typeToFormatTransformer';
 import { reverseBaseLayerTransformation } from './transformers/baseLayerTransformer';
+import { transformBaseLayerPreview } from './transformers/baseLayerPreviewTransformer';
 import { reverseSwipeLayerTransformation } from './transformers/swipeLayerTransformer';
 import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
@@ -49,6 +50,11 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
   // 5. Reverse base layer transformation (old format → new format)
   if (detectedTransforms.baseLayerFormat) {
     normalizedConfig = reverseBaseLayerTransformation(normalizedConfig, true);
+  }
+  
+  // 5b. Transform base layer preview from meta to top level
+  if (detectedTransforms.baseLayerPreviewFormat) {
+    normalizedConfig = transformBaseLayerPreview(normalizedConfig, true);
   }
   
   // 6. Reverse swipe layer transformation (data object → internal format)

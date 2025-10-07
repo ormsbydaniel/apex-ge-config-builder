@@ -2,6 +2,7 @@
 import { detectTypeToFormatConversion } from './detection/typeToFormatDetector';
 import { detectSingleItemArrayToObject } from './detection/singleItemDetector';
 import { detectBaseLayerFormat } from './detection/baseLayerDetector';
+import { detectBaseLayerPreviewFormat } from './detection/baseLayerPreviewDetector';
 import { detectSwipeLayerTransformation } from './detection/swipeLayerDetector';
 import { detectCogTransformation } from './detection/cogDetector';
 import { detectExclusivitySetsTransformation } from './detection/exclusivitySetsDetector';
@@ -17,6 +18,7 @@ export const detectTransformations = (config: any): DetectedTransformations => {
     typeToFormatConversion: detectTypeToFormatConversion(config),
     singleItemArrayToObject: detectSingleItemArrayToObject(config),
     baseLayerFormat: detectBaseLayerFormat(config),
+    baseLayerPreviewFormat: detectBaseLayerPreviewFormat(config),
     transformSwipeLayersToData: detectSwipeLayerTransformation(config),
     configureCogsAsImages: detectCogTransformation(config),
     exclusivitySetsTransformation: detectExclusivitySetsTransformation(config),

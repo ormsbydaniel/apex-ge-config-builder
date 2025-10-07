@@ -107,8 +107,6 @@ export interface DataSourceMeta {
   // Temporal configuration - flat structure
   timeframe?: TimeframeType;
   defaultTimestamp?: number;
-  // Preview image URL for base layers
-  preview?: string;
 }
 
 // Enhanced layout interface with support for both layerCard and infoPanel
@@ -164,6 +162,7 @@ interface BaseDataSource {
 // Base layer type (meta and layout are optional, isBaseLayer is required)
 export interface BaseLayer extends BaseDataSource {
   isBaseLayer: true; // NEW: Base layers now have this at the top level
+  preview?: string; // Preview image URL for base layers
   meta?: DataSourceMeta;
   layout?: DataSourceLayout;
 }
