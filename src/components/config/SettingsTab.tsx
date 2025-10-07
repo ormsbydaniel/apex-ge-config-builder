@@ -120,7 +120,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               </div>
               <div className="flex-1">
                 <div className="px-2">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="flex gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="latitude" className="text-sm">Latitude</Label>
                       <TooltipProvider>
@@ -134,7 +134,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                               onBlur={handleLatitudeBlur}
                               onKeyPress={handleLatitudeKeyPress}
                               placeholder="0"
-                              className={!isValidLatitude(latitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
+                              className={`w-[140px] ${!isValidLatitude(latitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}`}
                             />
                           </TooltipTrigger>
                           {!isValidLatitude(latitudeInput) && (
@@ -158,7 +158,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                               onBlur={handleLongitudeBlur}
                               onKeyPress={handleLongitudeKeyPress}
                               placeholder="0"
-                              className={!isValidLongitude(longitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}
+                              className={`w-[140px] ${!isValidLongitude(longitudeInput) ? "border-destructive focus-visible:ring-destructive" : ""}`}
                             />
                           </TooltipTrigger>
                           {!isValidLongitude(longitudeInput) && (
