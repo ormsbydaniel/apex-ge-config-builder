@@ -34,7 +34,7 @@ const initialState: ConfigState = {
     }
   },
   interfaceGroups: ["Interface group 1", "Interface group 2", "Interface group 3"],
-  exclusivitySets: ["basemaps"],
+  exclusivitySets: [],
   services: [],
   sources: [],
   mapConstraints: {

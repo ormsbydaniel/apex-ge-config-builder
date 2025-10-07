@@ -97,7 +97,7 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
       isActive,
       isBaseLayer: true,
       data: dataSources,
-      exclusivitySets: editingLayer?.exclusivitySets || ['basemaps'],
+      exclusivitySets: editingLayer?.exclusivitySets || [],
       statistics: editingLayer?.statistics,
       ...(previewUrl.trim() && { preview: previewUrl.trim() })
     };
