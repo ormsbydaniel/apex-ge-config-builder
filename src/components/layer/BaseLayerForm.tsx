@@ -34,7 +34,6 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
   
   // Modal state
   const [showDataSourceModal, setShowDataSourceModal] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'basic' | 'datasources'>('basic');
 
   useEffect(() => {
     if (isEditing && editingLayer) {
@@ -43,14 +42,9 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
       setDataSources(editingLayer.data || []);
       
       if (editingLayer.meta) {
-        setAttributionText(editingLayer.meta.attribution?.text || '');
+      setAttributionText(editingLayer.meta.attribution?.text || '');
         setAttributionUrl(editingLayer.meta.attribution?.url || '');
         setPreviewUrl(editingLayer.meta.preview || '');
-      }
-      
-      // Start on datasources step if editing and already has name
-      if (editingLayer.name) {
-        setCurrentStep('datasources');
       }
     }
   }, [isEditing, editingLayer]);
@@ -114,22 +108,6 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
     });
   };
 
-  const handleNext = () => {
-    if (!name.trim()) {
-      toast({
-        title: "Missing Layer Name",
-        description: "Please provide a layer name before proceeding.",
-        variant: "destructive"
-      });
-      return;
-    }
-    setCurrentStep('datasources');
-  };
-
-  const handleBack = () => {
-    setCurrentStep('basic');
-  };
-
   return (
     <>
       {/* Data Source Modal */}
@@ -155,228 +133,147 @@ const BaseLayerForm = ({ onAddLayer, onCancel, editingLayer, isEditing = false, 
             {isEditing ? 'Edit Base Layer' : 'Add Base Layer'}
           </CardTitle>
           <CardDescription>
-            {currentStep === 'basic' 
-              ? 'Configure basic information and metadata for your base layer.'
-              : 'Add data sources to your base layer. You can add multiple sources to the same base map.'}
+            Configure your base layer information and add data sources. Multiple sources will be displayed together.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {currentStep === 'basic' ? (
-              // Step 1: Basic Info
-              <>
-                <div className="flex items-end gap-4">
-                  <div className="w-2/3 space-y-2">
-                    <Label htmlFor="name">Layer Name *</Label>
-                    <Input
-                      id="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g., OpenStreetMap"
-                      required
-                    />
-                  </div>
-                  <div className="flex-1 flex items-center gap-2 pb-2">
-                    <Switch
-                      id="isActive"
-                      checked={isActive}
-                      onCheckedChange={setIsActive}
-                    />
-                    <Label htmlFor="isActive" className="text-sm cursor-pointer">
-                      Display on Load
-                    </Label>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="attributionText">Attribution Text</Label>
+            {/* Basic Info */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
+              <div className="flex items-end gap-4">
+                <div className="w-2/3 space-y-2">
+                  <Label htmlFor="name">Layer Name *</Label>
                   <Input
-                    id="attributionText"
-                    value={attributionText}
-                    onChange={(e) => setAttributionText(e.target.value)}
-                    placeholder="e.g., © OpenStreetMap contributors"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g., OpenStreetMap"
+                    required
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="attributionUrl">Attribution URL</Label>
-                  <Input
-                    id="attributionUrl"
-                    type="url"
-                    value={attributionUrl}
-                    onChange={(e) => setAttributionUrl(e.target.value)}
-                    placeholder="https://www.openstreetmap.org/copyright"
+                <div className="flex-1 flex items-center gap-2 pb-2">
+                  <Switch
+                    id="isActive"
+                    checked={isActive}
+                    onCheckedChange={setIsActive}
                   />
+                  <Label htmlFor="isActive" className="text-sm cursor-pointer">
+                    Display on Load
+                  </Label>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="previewUrl">Preview Image URL (Optional)</Label>
-                  <Input
-                    id="previewUrl"
-                    type="url"
-                    value={previewUrl}
-                    onChange={(e) => setPreviewUrl(e.target.value)}
-                    placeholder="https://example.com/preview.png"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    A thumbnail image shown in the base layer selector
+              <div className="space-y-2">
+                <Label htmlFor="attributionText">Attribution Text</Label>
+                <Input
+                  id="attributionText"
+                  value={attributionText}
+                  onChange={(e) => setAttributionText(e.target.value)}
+                  placeholder="e.g., © OpenStreetMap contributors"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="attributionUrl">Attribution URL</Label>
+                <Input
+                  id="attributionUrl"
+                  type="url"
+                  value={attributionUrl}
+                  onChange={(e) => setAttributionUrl(e.target.value)}
+                  placeholder="https://www.openstreetmap.org/copyright"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="previewUrl">Preview Image URL (Optional)</Label>
+                <Input
+                  id="previewUrl"
+                  type="url"
+                  value={previewUrl}
+                  onChange={(e) => setPreviewUrl(e.target.value)}
+                  placeholder="https://example.com/preview.png"
+                />
+                <p className="text-xs text-muted-foreground">
+                  A thumbnail image shown in the base layer selector
+                </p>
+              </div>
+            </div>
+
+            {/* Data Sources */}
+            <div className="space-y-4">
+              <Label>Data Sources ({dataSources.length})</Label>
+
+              {dataSources.length === 0 ? (
+                <div className="p-8 border-2 border-dashed rounded-lg text-center">
+                  <Globe className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground mb-4">
+                    No data sources added yet. Click the button below to add your first data source.
                   </p>
                 </div>
-
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button type="button" variant="outline" onClick={onCancel}>
-                    <X className="h-4 w-4 mr-2" />
-                    Cancel
-                  </Button>
-                  <Button type="button" onClick={handleNext}>
-                    Next: Add Data Sources
-                  </Button>
-                </div>
-              </>
-            ) : (
-              // Step 2: Data Sources
-              <>
-                {/* Editable Basic Info */}
-                <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
-                  <div className="flex items-end gap-4">
-                    <div className="w-2/3 space-y-2">
-                      <Label htmlFor="name">Layer Name *</Label>
-                      <Input
-                        id="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="e.g., OpenStreetMap"
-                        required
-                      />
-                    </div>
-                    <div className="flex-1 flex items-center gap-2 pb-2">
-                      <Switch
-                        id="isActive"
-                        checked={isActive}
-                        onCheckedChange={setIsActive}
-                      />
-                      <Label htmlFor="isActive" className="text-sm cursor-pointer">
-                        Display on Load
-                      </Label>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="attributionText">Attribution Text</Label>
-                    <Input
-                      id="attributionText"
-                      value={attributionText}
-                      onChange={(e) => setAttributionText(e.target.value)}
-                      placeholder="e.g., © OpenStreetMap contributors"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="attributionUrl">Attribution URL</Label>
-                    <Input
-                      id="attributionUrl"
-                      type="url"
-                      value={attributionUrl}
-                      onChange={(e) => setAttributionUrl(e.target.value)}
-                      placeholder="https://www.openstreetmap.org/copyright"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="previewUrl">Preview Image URL (Optional)</Label>
-                    <Input
-                      id="previewUrl"
-                      type="url"
-                      value={previewUrl}
-                      onChange={(e) => setPreviewUrl(e.target.value)}
-                      placeholder="https://example.com/preview.png"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      A thumbnail image shown in the base layer selector
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <Label>Data Sources ({dataSources.length})</Label>
-
-                  {dataSources.length === 0 ? (
-                    <div className="p-8 border-2 border-dashed rounded-lg text-center">
-                      <Globe className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground mb-4">
-                        No data sources added yet. Click the button below to add your first data source.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {dataSources.map((source, index) => (
-                        <Card key={index} className="border-l-4 border-l-primary">
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Badge variant="secondary">{source.format.toUpperCase()}</Badge>
-                                  <Badge variant="outline">Z-Index: {source.zIndex}</Badge>
-                                  {source.layers && (
-                                    <Badge variant="outline" className="truncate max-w-[200px]">
-                                      {source.layers}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p className="text-sm text-muted-foreground truncate">
-                                  {source.url || 'No URL specified'}
-                                </p>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleRemoveDataSource(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+              ) : (
+                <div className="space-y-3">
+                  {dataSources.map((source, index) => (
+                    <Card key={index} className="border-l-4 border-l-primary">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="secondary">{source.format.toUpperCase()}</Badge>
+                              <Badge variant="outline">Z-Index: {source.zIndex}</Badge>
+                              {source.layers && (
+                                <Badge variant="outline" className="truncate max-w-[200px]">
+                                  {source.layers}
+                                </Badge>
+                              )}
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-3">
-                    <p className="flex-[0.8] text-sm text-muted-foreground">
-                      A Geospatial Explorer base map can include multiple data sources that are both displayed when the base map is selected.
-                    </p>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowDataSourceModal(true)}
-                      className="flex-[0.2] min-w-fit"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      {dataSources.length === 0 ? 'Add Data Source' : 'Add Another Source'}
-                    </Button>
-                  </div>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {source.url || 'No URL specified'}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveDataSource(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
+              )}
 
-                <div className="flex justify-between gap-2 pt-4">
-                  <Button type="button" variant="outline" onClick={handleBack}>
-                    Back
-                  </Button>
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={onCancel}>
-                      <X className="h-4 w-4 mr-2" />
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={dataSources.length === 0}>
-                      <Save className="h-4 w-4 mr-2" />
-                      Finish
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
+              <div className="flex items-center gap-3">
+                <p className="flex-[0.8] text-sm text-muted-foreground">
+                  A Geospatial Explorer base map can include multiple data sources that are both displayed when the base map is selected.
+                </p>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDataSourceModal(true)}
+                  className="flex-[0.2] min-w-fit"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {dataSources.length === 0 ? 'Add Data Source' : 'Add Another Source'}
+                </Button>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+              <Button type="submit" disabled={dataSources.length === 0}>
+                <Save className="h-4 w-4 mr-2" />
+                Finish
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
