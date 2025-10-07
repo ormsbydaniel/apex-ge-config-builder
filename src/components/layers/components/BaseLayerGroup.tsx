@@ -8,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { DataSource } from '@/types/config';
 import { calculateQAStats } from '@/utils/qaUtils';
 import LayerCard from '../LayerCard';
+import LayerMoveControls from './LayerMoveControls';
 import { useLayerStateManagement } from '@/hooks/useLayerStateManagement';
 
 interface BaseLayerGroupProps {
@@ -112,24 +113,43 @@ const BaseLayerGroup = ({
         <CollapsibleContent>
           <CardContent className="pt-0">
             <div className="space-y-3">
-              {baseLayers.map(({ layer, originalIndex }) => (
-                <LayerCard
-                  key={originalIndex}
-                  source={layer}
-                  index={originalIndex}
-                  onRemove={onRemove}
-                  onEdit={onEdit}
-                  onEditBaseLayer={onEditBaseLayer}
-                  onDuplicate={onDuplicate}
-                  onUpdateLayer={onUpdateLayer}
-                  onAddDataSource={() => onAddDataSource(originalIndex)}
-                  onRemoveDataSource={(dataSourceIndex) => onRemoveDataSource(originalIndex, dataSourceIndex)}
-                  onRemoveStatisticsSource={(statsIndex) => onRemoveStatisticsSource(originalIndex, statsIndex)}
-                  onEditDataSource={(dataIndex) => onEditDataSource(originalIndex, dataIndex)}
-                  onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
-                  isExpanded={isCardExpanded(`base-${originalIndex}`)}
-                  onToggle={() => toggleCard(`base-${originalIndex}`)}
-                />
+              {baseLayers.map(({ layer, originalIndex }, indexInGroup) => (
+                <div key={originalIndex} className="flex gap-2 items-start">
+                  <LayerMoveControls
+                    onMoveUp={() => {
+                      const prevLayer = baseLayers[indexInGroup - 1];
+                      if (prevLayer) {
+                        onMoveLayer(originalIndex, prevLayer.originalIndex);
+                      }
+                    }}
+                    onMoveDown={() => {
+                      const nextLayer = baseLayers[indexInGroup + 1];
+                      if (nextLayer) {
+                        onMoveLayer(originalIndex, nextLayer.originalIndex);
+                      }
+                    }}
+                    canMoveUp={indexInGroup > 0}
+                    canMoveDown={indexInGroup < baseLayers.length - 1}
+                  />
+                  <div className="flex-1">
+                    <LayerCard
+                      source={layer}
+                      index={originalIndex}
+                      onRemove={onRemove}
+                      onEdit={onEdit}
+                      onEditBaseLayer={onEditBaseLayer}
+                      onDuplicate={onDuplicate}
+                      onUpdateLayer={onUpdateLayer}
+                      onAddDataSource={() => onAddDataSource(originalIndex)}
+                      onRemoveDataSource={(dataSourceIndex) => onRemoveDataSource(originalIndex, dataSourceIndex)}
+                      onRemoveStatisticsSource={(statsIndex) => onRemoveStatisticsSource(originalIndex, statsIndex)}
+                      onEditDataSource={(dataIndex) => onEditDataSource(originalIndex, dataIndex)}
+                      onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
+                      isExpanded={isCardExpanded(`base-${originalIndex}`)}
+                      onToggle={() => toggleCard(`base-${originalIndex}`)}
+                    />
+                  </div>
+                </div>
               ))}
             </div>
           </CardContent>
