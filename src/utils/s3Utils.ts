@@ -8,6 +8,12 @@ export interface S3Object {
   url: string;
 }
 
+export interface S3Selection {
+  url: string;
+  format: DataSourceFormat;
+  key: string;
+}
+
 export interface S3BucketInfo {
   bucketName: string;
   region: string;

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Info, Database, Plus, Loader2 } from 'lucide-react';
-import { validateS3Url, S3Object, getFormatFromExtension } from '@/utils/s3Utils';
+import { validateS3Url, S3Selection, getFormatFromExtension } from '@/utils/s3Utils';
 import { DataSource, Service, DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 import S3LayerSelector from './S3LayerSelector';
@@ -18,7 +18,7 @@ interface S3ServiceConfigSectionProps {
   services: Service[];
   onUpdateFormData: (path: string, value: any) => void;
   onAddService: (service: Service) => void;
-  onObjectSelect?: (object: S3Object, detectedFormat: DataSourceFormat) => void;
+  onObjectSelect?: (selection: S3Selection | S3Selection[]) => void;
 }
 
 const S3ServiceConfigSection = ({
@@ -90,20 +90,31 @@ const S3ServiceConfigSection = ({
     }
   };
 
-  const handleS3ObjectSelect = (object: S3Object, detectedFormat: DataSourceFormat) => {
-    // Update form data with the selected object's URL and detected format
-    onUpdateFormData('data.0.url', object.url);
-    onUpdateFormData('data.0.format', detectedFormat);
+  const handleS3ObjectSelect = (selection: S3Selection | S3Selection[]) => {
+    // Handle single selection for this component (bulk handled elsewhere)
+    if (Array.isArray(selection)) {
+      // For bulk operations in this context, just use the first one
+      // (actual bulk handling happens in parent components)
+      if (selection.length > 0) {
+        const first = selection[0];
+        onUpdateFormData('data.0.url', first.url);
+        onUpdateFormData('data.0.format', first.format);
+      }
+    } else {
+      // Single selection
+      onUpdateFormData('data.0.url', selection.url);
+      onUpdateFormData('data.0.format', selection.format);
+
+      toast({
+        title: "S3 Object Selected",
+        description: `Selected ${selection.key} (detected as ${selection.format.toUpperCase()})`,
+      });
+    }
     
     // Call parent callback if provided
     if (onObjectSelect) {
-      onObjectSelect(object, detectedFormat);
+      onObjectSelect(selection);
     }
-
-    toast({
-      title: "S3 Object Selected",
-      description: `Selected ${object.key} (detected as ${detectedFormat.toUpperCase()})`,
-    });
   };
 
   return (

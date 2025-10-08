@@ -5,19 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, File, Search, AlertCircle } from 'lucide-react';
-import { fetchS3BucketContents, getFormatFromExtension, S3Object } from '@/utils/s3Utils';
+import { Loader2, File, Search, AlertCircle, ListPlus } from 'lucide-react';
+import { fetchS3BucketContents, getFormatFromExtension, S3Object, S3Selection } from '@/utils/s3Utils';
 import { DataSourceFormat } from '@/types/config';
+import { useToast } from '@/hooks/use-toast';
 
 interface S3LayerSelectorProps {
   bucketUrl: string;
-  onObjectSelect: (object: S3Object, detectedFormat: DataSourceFormat) => void;
+  onObjectSelect: (selection: S3Selection | S3Selection[]) => void;
 }
 
 const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) => {
+  const { toast } = useToast();
   const [objects, setObjects] = useState<S3Object[]>([]);
   const [filteredObjects, setFilteredObjects] = useState<S3Object[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isBulkAdding, setIsBulkAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<string>('all');
@@ -73,7 +76,57 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
   const handleObjectSelect = (object: S3Object) => {
     const detectedFormat = getFormatFromExtension(object.key);
     if (detectedFormat) {
-      onObjectSelect(object, detectedFormat);
+      const selection: S3Selection = {
+        url: object.url,
+        format: detectedFormat,
+        key: object.key
+      };
+      onObjectSelect(selection);
+    }
+  };
+
+  const handleAddAllObjects = async () => {
+    setIsBulkAdding(true);
+    
+    try {
+      const selections: S3Selection[] = [];
+      const skipped: string[] = [];
+
+      filteredObjects.forEach(object => {
+        const detectedFormat = getFormatFromExtension(object.key);
+        if (detectedFormat) {
+          selections.push({
+            url: object.url,
+            format: detectedFormat,
+            key: object.key
+          });
+        } else {
+          skipped.push(object.key);
+        }
+      });
+
+      if (selections.length > 0) {
+        onObjectSelect(selections);
+        
+        toast({
+          title: "Objects Added",
+          description: `Added ${selections.length} data sources${skipped.length > 0 ? ` (${skipped.length} skipped due to unrecognized format)` : ''}.`,
+        });
+      } else {
+        toast({
+          title: "No Objects Added",
+          description: "No objects with recognized formats found.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add objects.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsBulkAdding(false);
     }
   };
 
@@ -160,6 +213,28 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
             </select>
           </div>
         </div>
+
+        {/* Add All Objects Button */}
+        {filteredObjects.length > 0 && (
+          <Button
+            onClick={handleAddAllObjects}
+            disabled={isBulkAdding}
+            className="w-full"
+            variant="default"
+          >
+            {isBulkAdding ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Adding {filteredObjects.length} objects...
+              </>
+            ) : (
+              <>
+                <ListPlus className="h-4 w-4 mr-2" />
+                Add All Objects ({filteredObjects.length})
+              </>
+            )}
+          </Button>
+        )}
 
         {/* Objects List */}
         {filteredObjects.length === 0 ? (
