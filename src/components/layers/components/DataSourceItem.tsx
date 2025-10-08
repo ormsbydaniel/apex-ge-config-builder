@@ -9,6 +9,7 @@ import { extractDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
 import CogMetadataDialog from './CogMetadataDialog';
+import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
@@ -37,6 +38,7 @@ const DataSourceItem = ({
 }: DataSourceItemProps) => {
   const { toast } = useToast();
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
+  const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
 
   const handleCopyUrl = () => {
     if (dataSource.url) {
@@ -130,6 +132,19 @@ const DataSourceItem = ({
             onClick={() => setShowMetadataDialog(true)}
             className="h-6 w-6 p-0 flex-shrink-0"
             title="View COG Metadata"
+          >
+            <Info className="h-3 w-3" />
+          </Button>
+        )}
+        
+        {/* Info icon for FlatGeobuf files */}
+        {dataSource.format?.toLowerCase() === 'flatgeobuf' && dataSource.url && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowFlatGeobufDialog(true)}
+            className="h-6 w-6 p-0 flex-shrink-0"
+            title="View FlatGeobuf Metadata"
           >
             <Info className="h-3 w-3" />
           </Button>
@@ -238,6 +253,15 @@ const DataSourceItem = ({
           onClose={() => setShowMetadataDialog(false)}
           currentMeta={currentMeta}
           onUpdateMeta={onUpdateMeta}
+        />
+      )}
+      
+      {/* FlatGeobuf Metadata Dialog */}
+      {dataSource.format?.toLowerCase() === 'flatgeobuf' && dataSource.url && (
+        <FlatGeobufMetadataDialog
+          url={dataSource.url}
+          open={showFlatGeobufDialog}
+          onOpenChange={setShowFlatGeobufDialog}
         />
       )}
     </div>
