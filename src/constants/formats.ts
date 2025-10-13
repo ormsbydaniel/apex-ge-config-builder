@@ -69,3 +69,11 @@ export const STAC_CONFIG = {
   description: 'Connect to a STAC (Spatio Temporal Asset Catalogue) endpoint. Service name will be auto-populated from catalogue.',
   supportsGetCapabilities: true // We'll fetch catalogue metadata
 };
+
+// Add special handling for JSON file uploads
+export const JSON_UPLOAD_CONFIG = {
+  label: 'JSON File Upload (beta)',
+  urlPlaceholder: 'Upload a JSON file',
+  description: 'Upload a JSON file containing S3 bucket listing, STAC catalog, or service capabilities',
+  supportsGetCapabilities: false,
+};
