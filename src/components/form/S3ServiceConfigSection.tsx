@@ -239,6 +239,7 @@ const S3ServiceConfigSection = ({
             <CardContent>
               <S3LayerSelector
                 bucketUrl={selectedService.url}
+                capabilities={selectedService.capabilities}
                 onObjectSelect={handleS3ObjectSelect}
               />
             </CardContent>

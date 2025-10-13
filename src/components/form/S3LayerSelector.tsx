@@ -5,17 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, File, Search, AlertCircle, ListPlus } from 'lucide-react';
+import { Loader2, File, Search, AlertCircle, ListPlus, FileUp } from 'lucide-react';
 import { fetchS3BucketContents, getFormatFromExtension, S3Object, S3Selection } from '@/utils/s3Utils';
-import { DataSourceFormat } from '@/types/config';
+import { DataSourceFormat, ServiceCapabilities } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
 interface S3LayerSelectorProps {
   bucketUrl: string;
+  capabilities?: ServiceCapabilities | null;
   onObjectSelect: (selection: S3Selection | S3Selection[]) => void;
 }
 
-const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) => {
+const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSelectorProps) => {
   const { toast } = useToast();
   const [objects, setObjects] = useState<S3Object[]>([]);
   const [filteredObjects, setFilteredObjects] = useState<S3Object[]>([]);
@@ -24,12 +25,13 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<string>('all');
+  const [usingCachedData, setUsingCachedData] = useState(false);
 
   useEffect(() => {
     if (bucketUrl) {
       fetchObjects();
     }
-  }, [bucketUrl]);
+  }, [bucketUrl, capabilities]);
 
   useEffect(() => {
     filterObjects();
@@ -38,13 +40,32 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
   const fetchObjects = async () => {
     setIsLoading(true);
     setError(null);
+    setUsingCachedData(false);
+    
     try {
-      const fetchedObjects = await fetchS3BucketContents(bucketUrl);
-      
-      // Filter out folders (keys ending with /)
-      const files = fetchedObjects.filter(obj => !obj.key.endsWith('/'));
-      
-      setObjects(files);
+      // If we have cached capabilities from file upload, use those instead of fetching
+      if (capabilities?.layers && capabilities.layers.length > 0) {
+        console.log('Using cached S3 bucket data from file upload', capabilities);
+        
+        // Transform capabilities layers to S3Object format
+        const cachedObjects: S3Object[] = capabilities.layers.map(layer => ({
+          key: layer.name,
+          lastModified: 'From file upload',
+          size: 0,
+          url: `${bucketUrl}/${layer.name}`
+        }));
+        
+        setObjects(cachedObjects);
+        setUsingCachedData(true);
+      } else {
+        // Fetch live from S3 bucket (requires CORS)
+        const fetchedObjects = await fetchS3BucketContents(bucketUrl);
+        
+        // Filter out folders (keys ending with /)
+        const files = fetchedObjects.filter(obj => !obj.key.endsWith('/'));
+        
+        setObjects(files);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch bucket contents');
     } finally {
@@ -181,6 +202,14 @@ const S3LayerSelector = ({ bucketUrl, onObjectSelect }: S3LayerSelectorProps) =>
   return (
     <Card className="border-primary/20">
       <CardContent className="space-y-4 pt-6">
+        {/* Show indicator if using cached data */}
+        {usingCachedData && (
+          <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md p-2">
+            <FileUp className="h-4 w-4" />
+            <span>Using cached data from file upload (no CORS required)</span>
+          </div>
+        )}
+        
         {/* Search and Filter Controls */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
