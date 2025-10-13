@@ -95,11 +95,25 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
   const handleConfirmUpload = (serviceName: string, serviceType: DetectedServiceType) => {
     if (!detectionResult?.capabilities || !uploadedFile) return;
     
+    // Extract proper URL for S3 services
+    let serviceUrl = `file://${uploadedFile.name}`;
+    if (serviceType === 's3' && detectionResult.rawData) {
+      // Extract bucket name from S3 XML/JSON data
+      const bucketName = detectionResult.rawData.Name || 
+                        detectionResult.rawData.name ||
+                        detectionResult.rawData.ListBucketResult?.Name;
+      
+      if (bucketName) {
+        // Construct proper S3 URL (default to us-east-1 region)
+        serviceUrl = `https://${bucketName}.s3.amazonaws.com`;
+      }
+    }
+    
     // Create service with detected capabilities
     const service: Service = {
       id: `${serviceType}-service-${Date.now()}`,
       name: serviceName,
-      url: `file://${uploadedFile.name}`,
+      url: serviceUrl,
       format: serviceType === 'stac' ? 'stac' : serviceType === 's3' ? 's3' : undefined,
       sourceType: serviceType === 'stac' ? 'stac' : serviceType === 's3' ? 's3' : 'service',
       capabilities: detectionResult.capabilities
