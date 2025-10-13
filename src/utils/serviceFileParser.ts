@@ -1,4 +1,5 @@
 import { ServiceCapabilities, LayerInfo } from '@/types/config';
+import { parseXmlToJson, transformS3XmlToStandardFormat } from './xmlParser';
 
 export type DetectedServiceType = 's3' | 'stac' | 'wms' | 'wmts' | 'unknown';
 
@@ -11,46 +12,99 @@ export interface DetectionResult {
   rawData?: any;
 }
 
+/**
+ * Main entry point for file-based service detection
+ * Handles both JSON and XML files
+ */
+export function detectServiceTypeFromFile(
+  fileContent: string,
+  fileName: string,
+  fileType: 'json' | 'xml'
+): DetectionResult {
+  try {
+    let parsedData: any;
+    
+    if (fileType === 'xml') {
+      // Parse XML and transform to standard format
+      const xmlData = parseXmlToJson(fileContent);
+      parsedData = transformS3XmlToStandardFormat(xmlData);
+      
+      // Store file type in raw data for reference
+      if (parsedData) {
+        parsedData.__fileType = 'XML';
+      }
+    } else {
+      // Parse JSON
+      parsedData = JSON.parse(fileContent);
+      if (parsedData) {
+        parsedData.__fileType = 'JSON';
+      }
+    }
+    
+    return detectServiceTypeFromData(parsedData, fileName);
+  } catch (error) {
+    return {
+      serviceType: 'unknown',
+      serviceName: extractNameFromFilename(fileName),
+      capabilities: null,
+      confidence: 'low',
+      warnings: [
+        `Failed to parse ${fileType.toUpperCase()} file: ${error instanceof Error ? error.message : 'Unknown error'}`
+      ]
+    };
+  }
+}
+
+/**
+ * Legacy function for backward compatibility (JSON only)
+ */
 export function detectServiceTypeFromJson(jsonData: any, fileName: string): DetectionResult {
+  return detectServiceTypeFromData(jsonData, fileName);
+}
+
+/**
+ * Internal function that performs service type detection from parsed data
+ */
+function detectServiceTypeFromData(data: any, fileName: string): DetectionResult {
   const warnings: string[] = [];
 
   // S3 Bucket Listing Detection
-  if (detectS3Structure(jsonData)) {
-    const capabilities = transformS3ListToCapabilities(jsonData);
+  if (detectS3Structure(data)) {
+    const capabilities = transformS3ListToCapabilities(data);
     return {
       serviceType: 's3',
-      serviceName: jsonData.Name || extractNameFromFilename(fileName, 's3'),
+      serviceName: data.Name || extractNameFromFilename(fileName, 's3'),
       capabilities,
       confidence: 'high',
       warnings: capabilities.layers.length === 0 ? ['No objects found in S3 bucket listing'] : undefined,
-      rawData: jsonData
+      rawData: data
     };
   }
 
   // STAC Catalog Detection
-  if (detectStacStructure(jsonData)) {
-    const capabilities = transformStacToCapabilities(jsonData);
+  if (detectStacStructure(data)) {
+    const capabilities = transformStacToCapabilities(data);
     return {
       serviceType: 'stac',
-      serviceName: jsonData.title || jsonData.id || extractNameFromFilename(fileName, 'stac'),
+      serviceName: data.title || data.id || extractNameFromFilename(fileName, 'stac'),
       capabilities,
       confidence: 'high',
       warnings: capabilities.layers.length === 0 ? ['No collections found in STAC catalog'] : undefined,
-      rawData: jsonData
+      rawData: data
     };
   }
 
   // Custom Capabilities Format Detection
-  if (detectCustomFormat(jsonData)) {
-    const capabilities = transformCustomFormatToCapabilities(jsonData);
-    const detectedType = jsonData.serviceType?.toLowerCase();
+  if (detectCustomFormat(data)) {
+    const capabilities = transformCustomFormatToCapabilities(data);
+    const detectedType = data.serviceType?.toLowerCase();
     return {
       serviceType: (['s3', 'stac', 'wms', 'wmts'].includes(detectedType) ? detectedType : 'unknown') as DetectedServiceType,
-      serviceName: jsonData.serviceName || extractNameFromFilename(fileName),
+      serviceName: data.serviceName || extractNameFromFilename(fileName),
       capabilities,
       confidence: 'medium',
       warnings: capabilities.layers.length === 0 ? ['No layers found in capabilities'] : undefined,
-      rawData: jsonData
+      rawData: data
     };
   }
 
@@ -61,7 +115,7 @@ export function detectServiceTypeFromJson(jsonData: any, fileName: string): Dete
     capabilities: null,
     confidence: 'low',
     warnings: ['Could not automatically detect service type. Please select manually.'],
-    rawData: jsonData
+    rawData: data
   };
 }
 
@@ -159,7 +213,7 @@ function transformCustomFormatToCapabilities(data: any): ServiceCapabilities {
 
 function extractNameFromFilename(fileName: string, serviceType?: string): string {
   // Remove extension and clean up
-  const nameWithoutExt = fileName.replace(/\.json$/i, '');
+  const nameWithoutExt = fileName.replace(/\.(json|xml)$/i, '');
   const cleaned = nameWithoutExt
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());

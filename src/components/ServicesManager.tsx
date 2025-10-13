@@ -13,7 +13,7 @@ import { useServices } from '@/hooks/useServices';
 import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
-import { detectServiceTypeFromJson, DetectionResult, DetectedServiceType } from '@/utils/serviceJsonParser';
+import { detectServiceTypeFromFile, DetectionResult, DetectedServiceType } from '@/utils/serviceFileParser';
 
 interface ServicesManagerProps {
   services: Service[];
@@ -69,20 +69,23 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
     setUploadedFile(file);
     
     try {
+      // Determine file type from extension
+      const fileExt = file.name.toLowerCase().split('.').pop();
+      const fileType = fileExt === 'xml' ? 'xml' : 'json';
+      
       // Read file content
       const text = await file.text();
-      const jsonData = JSON.parse(text);
       
-      // Auto-detect service type
-      const result = detectServiceTypeFromJson(jsonData, file.name);
+      // Auto-detect service type based on file type and content
+      const result = detectServiceTypeFromFile(text, file.name, fileType);
       setDetectionResult(result);
       
       // Show confirmation dialog
       setShowConfirmDialog(true);
     } catch (error) {
       toast({
-        title: "Invalid JSON File",
-        description: error instanceof Error ? error.message : "Failed to parse JSON file",
+        title: "Invalid File",
+        description: error instanceof Error ? error.message : "Failed to parse file",
         variant: "destructive"
       });
       setUploadedFile(null);
@@ -309,7 +312,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                       <SelectItem value="json-upload">
                         <div className="flex items-center gap-2">
                           <Upload className="h-4 w-4" />
-                          {JSON_UPLOAD_CONFIG.label}
+                          JSON or XML File Upload (beta)
                         </div>
                       </SelectItem>
                     </SelectContent>
@@ -318,15 +321,19 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
 
                 {selectedFormat === 'json-upload' ? (
                   <div className="space-y-2">
-                    <Label htmlFor="serviceJsonFile">Upload Service JSON</Label>
+                    <Label htmlFor="serviceJsonFile">Upload Service JSON or XML</Label>
                     <Input
                       id="serviceJsonFile"
                       type="file"
-                      accept=".json,application/json"
+                      accept=".json,.xml,application/json,text/xml,application/xml"
                       onChange={handleFileUpload}
+                      className="cursor-pointer"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Upload a JSON or XML file containing S3 bucket listing, STAC catalog, or service capabilities
+                    </p>
                     {uploadedFile && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-2">
                         Selected: {uploadedFile.name} ({Math.round(uploadedFile.size / 1024)}KB)
                       </p>
                     )}

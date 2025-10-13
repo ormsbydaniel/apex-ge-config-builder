@@ -70,10 +70,13 @@ export const STAC_CONFIG = {
   supportsGetCapabilities: true // We'll fetch catalogue metadata
 };
 
-// Add special handling for JSON file uploads
-export const JSON_UPLOAD_CONFIG = {
-  label: 'JSON File Upload (beta)',
-  urlPlaceholder: 'Upload a JSON file',
-  description: 'Upload a JSON file containing S3 bucket listing, STAC catalog, or service capabilities',
+// Add special handling for JSON or XML file uploads
+export const FILE_UPLOAD_CONFIG = {
+  label: 'JSON or XML File Upload (beta)',
+  urlPlaceholder: 'Upload a JSON or XML file',
+  description: 'Upload a file containing S3 bucket listing (XML/JSON), STAC catalog (JSON), or service capabilities',
   supportsGetCapabilities: false,
 };
+
+// Legacy export for backward compatibility
+export const JSON_UPLOAD_CONFIG = FILE_UPLOAD_CONFIG;

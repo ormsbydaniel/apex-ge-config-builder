@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { DetectionResult, DetectedServiceType } from '@/utils/serviceJsonParser';
+import { DetectionResult, DetectedServiceType } from '@/utils/serviceFileParser';
 
 interface ServiceUploadConfirmDialogProps {
   open: boolean;
@@ -79,12 +79,17 @@ export function ServiceUploadConfirmDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Confirm Service Upload</DialogTitle>
-          <DialogDescription>
-            Review the detected service details before adding
-          </DialogDescription>
-        </DialogHeader>
+      <DialogHeader>
+        <DialogTitle>Confirm Service Detection</DialogTitle>
+        <DialogDescription>
+          Review the detected service details before adding it to your configuration.
+          {detectionResult?.rawData?.__fileType && (
+            <span className="block mt-1 text-xs">
+              Source: {detectionResult.rawData.__fileType} file
+            </span>
+          )}
+        </DialogDescription>
+      </DialogHeader>
 
         <div className="space-y-4">
           {/* Detection Summary */}
