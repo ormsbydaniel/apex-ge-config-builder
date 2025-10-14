@@ -140,30 +140,6 @@ const MetaSchema = z.object({
   temporal: TemporalConfigSchema.optional(),
 });
 
-// Meta schema for base layers - description and attribution are optional since base layers don't need full metadata
-const BaseLayerMetaSchema = z.object({
-  description: z.string().optional(),
-  attribution: z.object({
-    text: z.string().optional(),
-    url: z.string().optional(),
-  }).optional(),
-  categories: z.array(CategorySchema).optional(),
-  colormaps: z.array(z.object({
-    min: z.number(),
-    max: z.number(),
-    steps: z.number(),
-    name: z.string(),
-    reverse: z.boolean(),
-  })).optional(),
-  units: z.string().optional(),
-  min: z.number().optional(),
-  max: z.number().optional(),
-  startColor: z.string().optional(),
-  endColor: z.string().optional(),
-  swipeConfig: SwipeConfigSchema.optional(),
-  temporal: TemporalConfigSchema.optional(),
-});
-
 // Legend schema (reusable)
 const LegendSchema = z.object({
   type: z.enum(['swatch', 'gradient', 'image']),
@@ -261,7 +237,7 @@ const BaseDataSourceSchema = BaseDataSourceObjectSchema.refine(
 const BaseLayerSchema = BaseDataSourceObjectSchema.extend({
   isBaseLayer: z.literal(true), // Must be true for base layers
   preview: z.string().url().optional(), // Preview image URL for base layers
-  meta: BaseLayerMetaSchema.optional(),
+  meta: MetaSchema.optional(),
   layout: LayoutSchema.optional(),
 }).refine(
   (data) => {
@@ -338,7 +314,7 @@ export const DataSourceSchema = z.union([
   LayerCardSchema,
   // Flexible schema for backward compatibility
   BaseDataSourceObjectSchema.extend({
-    meta: BaseLayerMetaSchema.optional(),
+    meta: MetaSchema.optional(),
     layout: LayoutSchema.optional(),
   }),
 ]);
