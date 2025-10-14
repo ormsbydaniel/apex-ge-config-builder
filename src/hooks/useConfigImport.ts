@@ -47,14 +47,15 @@ export const useConfigImport = () => {
       // This converts external format (e.g., swipe data objects) to internal format
       const normalizedData = normalizeImportedConfig(jsonData);
       
-      // Debug: Log the base layer data before Zod validation
-      const baseLayerIndex = normalizedData.sources?.findIndex((s: any) => s.name === "Stadia Alidade Smooth Dark");
-      if (baseLayerIndex !== -1) {
-        console.log('[DEBUG] Base layer before Zod validation:', JSON.stringify(normalizedData.sources[baseLayerIndex], null, 2));
-      }
-      
       // Validate the normalized configuration using Zod schema
-      const validatedConfig = ConfigurationSchema.parse(normalizedData);
+      let validatedConfig;
+      try {
+        validatedConfig = ConfigurationSchema.parse(normalizedData);
+      } catch (zodError: any) {
+        console.error('[VALIDATION ERROR] Full Zod error:', JSON.stringify(zodError.errors, null, 2));
+        console.error('[VALIDATION ERROR] Affected sources:', normalizedData.sources?.map((s: any) => ({ name: s.name, isBaseLayer: s.isBaseLayer, hasMeta: !!s.meta, hasLayout: !!s.layout })));
+        throw zodError;
+      }
       
       
       // Fetch capabilities for all services if they exist
