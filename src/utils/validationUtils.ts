@@ -123,20 +123,20 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
       if (!sourceData.meta.swipeConfig.baseSourceNames || !Array.isArray(sourceData.meta.swipeConfig.baseSourceNames)) {
         issues.push('meta.swipeConfig.baseSourceNames must be an array');
       }
-      if (!hasMeta || !sourceData.meta.description) {
+      if (!hasMeta || sourceData.meta.description === undefined) {
         issues.push('meta.description is required for transformed swipe layers');
       }
-      if (!hasMeta || !sourceData.meta.attribution?.text) {
+      if (!hasMeta || sourceData.meta.attribution?.text === undefined) {
         issues.push('meta.attribution.text is required for transformed swipe layers');
       }
     }
   } else if (isBaseLayer) {
     // Base layer validation
     suggestions.push('This appears to be a base layer (isBaseLayer: true)');
-    if (hasMeta && !sourceData.meta.description) {
+    if (hasMeta && sourceData.meta.description === undefined) {
       issues.push('meta.description is required when meta is provided');
     }
-    if (hasMeta && (!sourceData.meta.attribution || !sourceData.meta.attribution.text)) {
+    if (hasMeta && (!sourceData.meta.attribution || sourceData.meta.attribution.text === undefined)) {
       issues.push('meta.attribution.text is required when meta is provided');
     }
   } else {
@@ -145,10 +145,10 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
     if (!hasMeta) {
       issues.push('meta field is required for layer cards');
     } else {
-      if (!sourceData.meta.description) {
+      if (sourceData.meta.description === undefined) {
         issues.push('meta.description is required');
       }
-      if (!sourceData.meta.attribution?.text) {
+      if (sourceData.meta.attribution?.text === undefined) {
         issues.push('meta.attribution.text is required');
       }
     }
