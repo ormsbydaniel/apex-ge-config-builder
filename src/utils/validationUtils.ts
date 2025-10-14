@@ -76,6 +76,16 @@ const detectSwipeLayerFromInput = (sourceData: any): boolean => {
 };
 
 const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string): string => {
+  console.log(`[DEBUG] Analyzing validation failure for "${sourceName}":`, {
+    isBaseLayer: sourceData.isBaseLayer,
+    hasMeta: !!sourceData.meta,
+    metaDescription: sourceData.meta?.description,
+    metaDescriptionType: typeof sourceData.meta?.description,
+    metaAttributionText: sourceData.meta?.attribution?.text,
+    metaAttributionTextType: typeof sourceData.meta?.attribution?.text,
+    hasLayout: !!sourceData.layout,
+  });
+  
   const issues: string[] = [];
   const suggestions: string[] = [];
   
