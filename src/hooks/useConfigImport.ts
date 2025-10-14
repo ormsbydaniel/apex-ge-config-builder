@@ -54,6 +54,25 @@ export const useConfigImport = () => {
       } catch (zodError: any) {
         console.error('[VALIDATION ERROR] Full Zod error:', JSON.stringify(zodError.errors, null, 2));
         console.error('[VALIDATION ERROR] Affected sources:', normalizedData.sources?.map((s: any) => ({ name: s.name, isBaseLayer: s.isBaseLayer, hasMeta: !!s.meta, hasLayout: !!s.layout })));
+        
+        // Log the specific failing sources in detail
+        const failingIndices = zodError.errors
+          .map((err: any) => err.path?.[1])
+          .filter((idx: any) => typeof idx === 'number');
+        
+        failingIndices.forEach((idx: number) => {
+          const source = normalizedData.sources?.[idx];
+          if (source) {
+            console.error(`[VALIDATION ERROR] Source ${idx} (${source.name}):`, {
+              isBaseLayer: source.isBaseLayer,
+              hasMeta: !!source.meta,
+              hasLayout: !!source.layout,
+              layoutKeys: source.layout ? Object.keys(source.layout) : [],
+              layoutContent: source.layout
+            });
+          }
+        });
+        
         throw zodError;
       }
       
