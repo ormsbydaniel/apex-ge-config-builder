@@ -25,6 +25,28 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
     delete normalizedConfig._exportMeta;
   }
   
+  // Clean up empty layout/meta objects on base layers
+  if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
+    normalizedConfig.sources = normalizedConfig.sources.map((source: any) => {
+      if (source.isBaseLayer === true) {
+        const cleanedSource = { ...source };
+        
+        // Remove empty meta objects
+        if (cleanedSource.meta && typeof cleanedSource.meta === 'object' && Object.keys(cleanedSource.meta).length === 0) {
+          delete cleanedSource.meta;
+        }
+        
+        // Remove empty layout objects
+        if (cleanedSource.layout && typeof cleanedSource.layout === 'object' && Object.keys(cleanedSource.layout).length === 0) {
+          delete cleanedSource.layout;
+        }
+        
+        return cleanedSource;
+      }
+      return source;
+    });
+  }
+  
   // Apply transformations in the correct order
   
   // 1. Move exclusivitySets from data items to source level FIRST
