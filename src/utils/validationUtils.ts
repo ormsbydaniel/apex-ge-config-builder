@@ -198,9 +198,9 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
   if (isSwipeLayer) {
     message += ' For swipe layers during import: data.type="swipe", data.clippedSource, and data.baseSources are required. Meta and layout will be auto-generated if missing.';
   } else if (isBaseLayer) {
-    message += ' For base layers: meta and layout are optional, but if provided, meta.description and meta.attribution.text are required.';
+    message += ' For base layers: meta and layout are optional, but if provided, meta.description and meta.attribution.text must be present (empty strings are allowed).';
   } else {
-    message += ' For layer cards: meta (with description and attribution) and layout are required.';
+    message += ' For layer cards: meta (with description and attribution) and layout are required (empty strings are allowed for description and attribution.text).';
   }
   
   return message;
