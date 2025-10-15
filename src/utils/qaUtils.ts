@@ -19,12 +19,6 @@ export const calculateQAStats = (sources: DataSource[]): QAStats => {
     const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
     const hasAnyContent = hasData || hasStatistics;
     
-    // Red: No data or statistics
-    if (!hasAnyContent) {
-      stats.error++;
-      return;
-    }
-    
     // Check for attribution
     const hasAttribution = source.meta?.attribution?.text;
     
@@ -42,20 +36,31 @@ export const calculateQAStats = (sources: DataSource[]): QAStats => {
       swipeComplete = hasClippedSource && hasBaseSources;
     }
     
+    // Count layers with each specific issue (a layer can have multiple issues)
+    let hasIssues = false;
+    
+    // Red: No data or statistics
+    if (!hasAnyContent) {
+      stats.error++;
+      hasIssues = true;
+    }
+    
     // Amber: Missing attribution or incomplete swipe configuration
     if (!hasAttribution || (isSwipeLayer && !swipeComplete)) {
       stats.warning++;
-      return;
+      hasIssues = true;
     }
     
-    // Blue: Has attribution but missing legend
-    if (!hasLegend) {
+    // Blue: Missing legend (only count if layer has content)
+    if (hasAnyContent && !hasLegend) {
       stats.info++;
-      return;
+      hasIssues = true;
     }
     
     // Green: All checks passed
-    stats.success++;
+    if (!hasIssues) {
+      stats.success++;
+    }
   });
 
   return stats;
