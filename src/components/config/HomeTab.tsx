@@ -369,7 +369,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 size="sm"
                 className="w-full"
               >
-                Run Data Source Validation
+                {validationResults.size > 0 ? 'Refresh Data Source Validation' : 'Run Data Source Validation'}
               </Button>
               
               {/* Validation Results Summary */}
