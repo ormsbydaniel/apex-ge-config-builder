@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowUpDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowUpDown, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 import { DataSource } from '@/types/config';
 import { useDrawOrderData } from '@/hooks/useDrawOrderData';
 import { useTableSelection } from '@/hooks/useTableSelection';
@@ -9,6 +11,7 @@ import { useDrawOrderActions } from '@/hooks/useDrawOrderActions';
 import { useTableSorting } from '@/hooks/useTableSorting';
 import BatchActionsPanel from './draworder/BatchActionsPanel';
 import DrawOrderTable from './draworder/DrawOrderTable';
+import AutoTuneDialog from './draworder/AutoTuneDialog';
 
 interface DrawOrderTabProps {
   config: {
@@ -22,6 +25,7 @@ type SortField = 'zIndex' | 'url' | 'layerName' | 'interfaceGroup' | 'sourceType
 
 const DrawOrderTab = ({ config, updateConfig }: DrawOrderTabProps) => {
   const [isMoreDialogOpen, setIsMoreDialogOpen] = useState(false);
+  const [isAutoTuneDialogOpen, setIsAutoTuneDialogOpen] = useState(false);
 
   // Extract data processing logic
   const { dataRows, minZLevel, maxZLevel } = useDrawOrderData({
@@ -54,23 +58,41 @@ const DrawOrderTab = ({ config, updateConfig }: DrawOrderTabProps) => {
     updateZLevel,
     adjustSelectedZLevels,
     setSelectedZLevels,
-    multiplySelectedZLevels
+    multiplySelectedZLevels,
+    autoTuneAllZLevels
   } = useDrawOrderActions({
     config,
     updateConfig
   });
 
+  const handleAutoTune = () => {
+    autoTuneAllZLevels();
+    toast.success('Z-levels auto-tuned successfully');
+  };
+
   return (
     <div className="space-y-6">
       <Card className="border-primary/20">
         <CardHeader>
-          <CardTitle className="text-primary flex items-center gap-2">
-            <ArrowUpDown className="h-5 w-5" />
-            Draw Order Configuration
-          </CardTitle>
-          <CardDescription>
-            Data is drawn on the map in "Z" level order with the lowest numbers drawn first and higher numbers drawn on top and appearing in front. A continuous sequence (0, 1, 2, 3 etc) is not necessary and sequences with gaps (e.g. 5, 10, 20, 21, 22, 50) is fine and allows other layers to be added in the middle of the drawing sequence.
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <CardTitle className="text-primary flex items-center gap-2">
+                <ArrowUpDown className="h-5 w-5" />
+                Draw Order Configuration
+              </CardTitle>
+              <CardDescription className="mt-2">
+                Data is drawn on the map in "Z" level order with the lowest numbers drawn first and higher numbers drawn on top and appearing in front. A continuous sequence (0, 1, 2, 3 etc) is not necessary and sequences with gaps (e.g. 5, 10, 20, 21, 22, 50) is fine and allows other layers to be added in the middle of the drawing sequence.
+              </CardDescription>
+            </div>
+            <Button
+              variant="default"
+              onClick={() => setIsAutoTuneDialogOpen(true)}
+              className="ml-4"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Auto Tune
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {sortedRows.length === 0 ? (
@@ -107,6 +129,13 @@ const DrawOrderTab = ({ config, updateConfig }: DrawOrderTabProps) => {
           )}
         </CardContent>
       </Card>
+
+      <AutoTuneDialog
+        open={isAutoTuneDialogOpen}
+        onOpenChange={setIsAutoTuneDialogOpen}
+        config={config}
+        onApply={handleAutoTune}
+      />
     </div>
   );
 };

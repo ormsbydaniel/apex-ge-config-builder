@@ -1,6 +1,7 @@
 
 import { useCallback } from 'react';
 import { DataSource, isDataSourceItemArray } from '@/types/config';
+import { autoTuneZLevels } from '@/utils/drawOrderUtils';
 
 interface UseDrawOrderActionsProps {
   config: { sources: DataSource[] };
@@ -111,10 +112,16 @@ export const useDrawOrderActions = ({ config, updateConfig }: UseDrawOrderAction
     updateConfig({ sources: newSources });
   }, [config.sources, updateConfig]);
 
+  const autoTuneAllZLevels = useCallback(() => {
+    const tunedSources = autoTuneZLevels(config.sources);
+    updateConfig({ sources: tunedSources });
+  }, [config.sources, updateConfig]);
+
   return {
     updateZLevel,
     adjustSelectedZLevels,
     setSelectedZLevels,
-    multiplySelectedZLevels
+    multiplySelectedZLevels,
+    autoTuneAllZLevels
   };
 };
