@@ -2,16 +2,19 @@ import React, { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Settings, Home, Check, Triangle } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
 import AttributionMissingDialog from './AttributionMissingDialog';
-import { calculateQAStats, QAStats } from '@/utils/qaUtils';
+import { calculateQAStats } from '@/utils/qaUtils';
+import { ConfigStatCard } from './components/ConfigStatCard';
+import { QAStatCard } from './components/QAStatCard';
 
 interface HomeTabProps {
   config: any;
@@ -129,168 +132,245 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
   return (
     <>
-      <div className="space-y-6">
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-primary flex items-center gap-2">
-              <Home className="h-5 w-5" />
-              Configuration Management
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Button onClick={handleImportClick} variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50" disabled={config.isLoading}>
-                <Upload className="h-4 w-4 mr-2" />
-                Load Config
+      <div className="space-y-6 max-w-7xl mx-auto">
+        {/* Hero Action Buttons */}
+        <Card className="border-border/50 shadow-sm">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Button 
+                onClick={handleImportClick} 
+                size="lg"
+                className="h-14 text-base font-medium hover:scale-[1.02] transition-transform"
+                disabled={config.isLoading}
+              >
+                <Upload className="h-5 w-5 mr-2" />
+                Load Configuration
               </Button>
               
-              <Button onClick={handleQuickExport} variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
-                <Download className="h-4 w-4 mr-2" />
-                Quick Export
-              </Button>
-              
-              <Button onClick={() => setShowExportDialog(true)} variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50">
-                <Settings className="h-4 w-4 mr-2" />
-                Export Options
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="h-14 text-base font-medium hover:scale-[1.02] transition-transform"
+                  >
+                    <Download className="h-5 w-5 mr-2" />
+                    Export
+                    <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={handleQuickExport}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Quick Export (Default)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowExportDialog(true)}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export with Options...
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-              <Button onClick={handleNewConfig} variant="outline" className="border-orange-300 text-orange-700 hover:bg-orange-50">
-                <RotateCcw className="h-4 w-4 mr-2" />
-                New Config
+              <Button 
+                onClick={handleNewConfig} 
+                variant="outline"
+                size="lg"
+                className="h-14 text-base font-medium hover:scale-[1.02] transition-transform"
+              >
+                <RotateCcw className="h-5 w-5 mr-2" />
+                New Configuration
               </Button>
             </div>
-
             <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
-
-            <Separator />
-
-            {/* Title Section */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Application Title</h3>
-                <Button size="sm" variant="ghost" onClick={() => setIsEditingTitle(true)} className="h-8 w-8 p-0">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-              {isEditingTitle ? (
-                <div className="space-y-2">
-                  <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Geospatial Explorer" />
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={handleSaveTitle}>
-                      Save
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={handleCancelTitle}>
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
-                  <span className="text-lg font-medium">{config.layout.navigation.title}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Version Section */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Version</h3>
-                <Button size="sm" variant="ghost" onClick={() => setIsEditingVersion(true)} className="h-8 w-8 p-0">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-              {isEditingVersion ? (
-                <div className="space-y-2">
-                  <Input value={version} onChange={e => setVersion(e.target.value)} placeholder="1.0.0" />
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={handleSaveVersion}>
-                      Save
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={handleCancelVersion}>
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center border rounded-lg p-4 bg-gray-50">
-                  <span className="text-base font-mono">{config.version || '1.0.0'}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Configuration Statistics */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-medium">Configuration Statistics</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.interfaceGroups.length}</div>
-                  <div className="text-sm text-slate-600">Interface Groups</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.sources.length}</div>
-                  <div className="text-sm text-slate-600">Layers</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.exclusivitySets.length}</div>
-                  <div className="text-sm text-slate-600">Exclusivity Sets</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.services.length}</div>
-                  <div className="text-sm text-slate-600">Services</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Layer Quality Assurance Statistics */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-medium">Layer Quality Assurance</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Check className="h-5 w-5 text-green-500" />
-                    <div className="text-2xl font-bold text-green-600">{qaStats.success}</div>
-                  </div>
-                  <div className="text-sm text-slate-600">Complete Layers</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Triangle className="h-5 w-5 text-blue-500" />
-                    <div className="text-2xl font-bold text-blue-600">{qaStats.info}</div>
-                  </div>
-                  <div className="text-sm text-slate-600">Missing Legend</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg cursor-pointer hover:bg-muted/50" onClick={() => setShowAttributionDialog(true)}>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <AlertTriangle className="h-5 w-5 text-amber-500" />
-                    <div className="text-2xl font-bold text-amber-600">{qaStats.warning}</div>
-                  </div>
-                  <div className="text-sm text-slate-600">Missing Attribution</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Triangle className="h-5 w-5 text-red-500" />
-                    <div className="text-2xl font-bold text-red-600">{qaStats.error}</div>
-                  </div>
-                  <div className="text-sm text-slate-600">No Data/Statistics</div>
-                </div>
-              </div>
-            </div>
-            
-            {config.lastSaved && (
-                <div className="text-sm text-slate-600">
-                  <span className="font-medium">Last saved: </span> 
-                  {config.lastSaved.toLocaleString()}
-                </div>
-            )}
-            
-            {config.isLoading && (
-                <div className="text-sm text-blue-600">
-                  Loading configuration...
-                </div>
-            )}
           </CardContent>
         </Card>
+
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column: Project Info */}
+          <Card className="border-border/50 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-xl">Project Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Title */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between group">
+                  <label className="text-sm font-medium text-muted-foreground">Application Title</label>
+                  {!isEditingTitle && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setIsEditingTitle(true)} 
+                      className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+                {isEditingTitle ? (
+                  <div className="space-y-2">
+                    <Input 
+                      value={title} 
+                      onChange={e => setTitle(e.target.value)} 
+                      placeholder="My Geospatial Explorer"
+                      className="font-medium"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleSaveTitle}>
+                        <Check className="h-4 w-4 mr-1" />
+                        Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCancelTitle}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xl font-semibold text-foreground p-3 rounded-lg bg-muted/30 border border-border/50">
+                    {config.layout.navigation.title}
+                  </div>
+                )}
+              </div>
+
+              {/* Version */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between group">
+                  <label className="text-sm font-medium text-muted-foreground">Version</label>
+                  {!isEditingVersion && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setIsEditingVersion(true)} 
+                      className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+                {isEditingVersion ? (
+                  <div className="space-y-2">
+                    <Input 
+                      value={version} 
+                      onChange={e => setVersion(e.target.value)} 
+                      placeholder="1.0.0"
+                      className="font-mono"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleSaveVersion}>
+                        <Check className="h-4 w-4 mr-1" />
+                        Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCancelVersion}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Badge variant="secondary" className="text-sm font-mono px-3 py-1.5">
+                    {config.version || '1.0.0'}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Status Info */}
+              {(config.lastSaved || config.isLoading) && (
+                <div className="pt-4 border-t border-border/50 space-y-2">
+                  {config.lastSaved && (
+                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <span>Last saved: {config.lastSaved.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {config.isLoading && (
+                    <div className="text-sm text-blue-600 flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                      <span>Loading configuration...</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Right Column: Statistics */}
+          <div className="space-y-6">
+            {/* Configuration Statistics */}
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-xl">Configuration Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  <ConfigStatCard 
+                    icon={Users} 
+                    value={config.interfaceGroups.length} 
+                    label="Interface Groups"
+                    gradient="from-blue-500/10 to-blue-500/5"
+                  />
+                  <ConfigStatCard 
+                    icon={Layers} 
+                    value={config.sources.length} 
+                    label="Layers"
+                    gradient="from-purple-500/10 to-purple-500/5"
+                  />
+                  <ConfigStatCard 
+                    icon={Lock} 
+                    value={config.exclusivitySets.length} 
+                    label="Exclusivity Sets"
+                    gradient="from-amber-500/10 to-amber-500/5"
+                  />
+                  <ConfigStatCard 
+                    icon={Server} 
+                    value={config.services.length} 
+                    label="Services"
+                    gradient="from-green-500/10 to-green-500/5"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quality Assurance Statistics */}
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-xl">Quality Assurance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  <QAStatCard
+                    icon={Check}
+                    value={qaStats.success}
+                    label="Complete Layers"
+                    colorClass="text-green-600"
+                    bgGradient="from-green-500/20 to-green-500/5"
+                  />
+                  <QAStatCard
+                    icon={Triangle}
+                    value={qaStats.info}
+                    label="Missing Legend"
+                    colorClass="text-blue-600"
+                    bgGradient="from-blue-500/20 to-blue-500/5"
+                  />
+                  <QAStatCard
+                    icon={AlertTriangle}
+                    value={qaStats.warning}
+                    label="Missing Attribution"
+                    colorClass="text-amber-600"
+                    bgGradient="from-amber-500/20 to-amber-500/5"
+                    onClick={() => setShowAttributionDialog(true)}
+                  />
+                  <QAStatCard
+                    icon={Triangle}
+                    value={qaStats.error}
+                    label="No Data/Statistics"
+                    colorClass="text-red-600"
+                    bgGradient="from-red-500/20 to-red-500/5"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
 
       <ExportOptionsDialog open={showExportDialog} onOpenChange={setShowExportDialog} onExport={handleExportWithOptions} />
