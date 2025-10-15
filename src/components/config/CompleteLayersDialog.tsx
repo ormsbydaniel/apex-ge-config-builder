@@ -33,46 +33,25 @@ const CompleteLayersDialog = ({
   const [validationProgress, setValidationProgress] = useState({ completed: 0, total: 0, currentLayer: '' });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
-  // Get complete layers (those with success status in QA)
-  const completeLayers = useMemo(() => {
+  // Get all layers (including base layers, layers with missing legends, etc.)
+  const allLayers = useMemo(() => {
     const layers: LayerWithGroup[] = [];
     
     config.sources.forEach((source: DataSource, index: number) => {
-      const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
-      const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
-      const hasAnyContent = hasData || hasStatistics;
-      const hasAttribution = source.meta?.attribution?.text;
-      const hasLegend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
+      let group = 'Ungrouped';
       
-      // Check swipe configuration completeness
-      const isSwipeLayer = source.meta?.swipeConfig !== undefined;
-      let swipeComplete = true;
-      if (isSwipeLayer) {
-        const swipeConfig = source.meta.swipeConfig;
-        const hasClippedSource = swipeConfig?.clippedSourceName && swipeConfig.clippedSourceName.trim() !== '';
-        const hasBaseSources = swipeConfig?.baseSourceNames && swipeConfig.baseSourceNames.length > 0;
-        swipeComplete = hasClippedSource && hasBaseSources;
+      if (source.isBaseLayer) {
+        group = 'Base Layers';
+      } else if (source.layout?.interfaceGroup) {
+        group = source.layout.interfaceGroup;
       }
       
-      // Only include layers that pass all QA checks (green status)
-      const isComplete = hasAnyContent && hasAttribution && hasLegend && (!isSwipeLayer || swipeComplete);
-      
-      if (isComplete) {
-        let group = 'Ungrouped';
-        
-        if (source.isBaseLayer) {
-          group = 'Base Layers';
-        } else if (source.layout?.interfaceGroup) {
-          group = source.layout.interfaceGroup;
-        }
-        
-        layers.push({
-          layer: source,
-          index,
-          group,
-          validationResult: validationResults.get(index)
-        });
-      }
+      layers.push({
+        layer: source,
+        index,
+        group,
+        validationResult: validationResults.get(index)
+      });
     });
     
     return layers;
@@ -83,7 +62,7 @@ const CompleteLayersDialog = ({
   // 2. Base Layers
   // 3. Ungrouped Layers
   const sortedLayers = useMemo(() => {
-    return [...completeLayers].sort((a, b) => {
+    return [...allLayers].sort((a, b) => {
       // Define group order based on LayerHierarchy.tsx logic
       const getGroupOrder = (group: string) => {
         if (group === 'Base Layers') return 1000; // Base layers come after interface groups
@@ -108,14 +87,14 @@ const CompleteLayersDialog = ({
       // Within same group, maintain source order (by index)
       return a.index - b.index;
     });
-  }, [completeLayers, config.interfaceGroups]);
+  }, [allLayers, config.interfaceGroups]);
 
   const handleRunDetailedReport = async () => {
     setIsValidating(true);
-    setValidationProgress({ completed: 0, total: completeLayers.length, currentLayer: '' });
+    setValidationProgress({ completed: 0, total: allLayers.length, currentLayer: '' });
     
     try {
-      const layersToValidate = completeLayers.map(l => l.layer);
+      const layersToValidate = allLayers.map(l => l.layer);
       
       const results = await validateBatchLayers(
         layersToValidate,
@@ -203,16 +182,16 @@ const CompleteLayersDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Complete Layers Validation</DialogTitle>
+          <DialogTitle>Full Layer Validation</DialogTitle>
           <DialogDescription>
-            Review all complete layers and run a detailed report to validate data sources and statistics URLs.
+            Review all layers (including base layers) and run a detailed report to validate data sources and statistics URLs.
           </DialogDescription>
         </DialogHeader>
         
         <div className="flex-1 overflow-hidden flex flex-col">
-          {completeLayers.length === 0 ? (
+          {allLayers.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No complete layers found. Complete layers have data, attribution, and legend configured.
+              No layers found in configuration.
             </div>
           ) : (
             <>
@@ -346,7 +325,7 @@ const CompleteLayersDialog = ({
               
               <div className="mt-4 flex justify-between items-center border-t pt-4">
                 <div className="text-sm text-muted-foreground">
-                  {completeLayers.length} complete layer{completeLayers.length !== 1 ? 's' : ''} found
+                  {allLayers.length} layer{allLayers.length !== 1 ? 's' : ''} found
                 </div>
                 <div className="flex gap-2">
                   <Button 

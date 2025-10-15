@@ -332,7 +332,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
             <CardHeader className="pb-2">
               <CardTitle className="text-xl">Layer QA</CardTitle>
             </CardHeader>
-            <CardContent className="pt-3">
+            <CardContent className="pt-3 space-y-3">
               <div className="grid grid-cols-1 gap-3">
                   <QAStatCard
                     icon={Check}
@@ -340,7 +340,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     label="Complete Layers"
                     colorClass="text-green-600"
                     bgGradient="from-green-500/20 to-green-500/5"
-                    onClick={() => setShowCompleteLayersDialog(true)}
                   />
                   <QAStatCard
                     icon={Triangle}
@@ -365,6 +364,16 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     bgGradient="from-red-500/20 to-red-500/5"
                   />
               </div>
+              
+              <Button 
+                onClick={() => setShowCompleteLayersDialog(true)}
+                variant="outline"
+                size="sm"
+                className="w-full"
+              >
+                <Check className="h-4 w-4 mr-2" />
+                Run Full Validation
+              </Button>
             </CardContent>
           </Card>
         </div>
