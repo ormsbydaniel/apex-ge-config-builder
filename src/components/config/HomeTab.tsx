@@ -420,6 +420,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
         onOpenChange={setShowCompleteLayersDialog}
         config={config}
         onValidationComplete={handleValidationComplete}
+        existingResults={validationResults}
       />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>

@@ -23,19 +23,28 @@ interface CompleteLayersDialogProps {
   onOpenChange: (open: boolean) => void;
   config: any;
   onValidationComplete?: (results: Map<number, LayerValidationResult>) => void;
+  existingResults?: Map<number, LayerValidationResult>;
 }
 
 const CompleteLayersDialog = ({
   open,
   onOpenChange,
   config,
-  onValidationComplete
+  onValidationComplete,
+  existingResults
 }: CompleteLayersDialogProps) => {
-  const [validationResults, setValidationResults] = useState<Map<number, LayerValidationResult>>(new Map());
+  const [validationResults, setValidationResults] = useState<Map<number, LayerValidationResult>>(existingResults || new Map());
   const [isValidating, setIsValidating] = useState(false);
   const [validationProgress, setValidationProgress] = useState({ completed: 0, total: 0, currentLayer: '' });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [statusFilter, setStatusFilter] = useState<'all' | 'partial' | 'issues'>('all');
+
+  // Update local validation results when existingResults prop changes
+  React.useEffect(() => {
+    if (existingResults) {
+      setValidationResults(existingResults);
+    }
+  }, [existingResults]);
 
   // Get all layers (including base layers, layers with missing legends, etc.)
   const allLayers = useMemo(() => {
