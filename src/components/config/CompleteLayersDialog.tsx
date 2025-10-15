@@ -3,12 +3,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ChevronUp, ChevronDown, ChevronRight, Check, AlertTriangle, Loader2, Info } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronRight, Check, AlertTriangle, Loader2, Info, Filter } from 'lucide-react';
 import { DataSource, LayerValidationResult } from '@/types/config';
 import { useTableSorting } from '@/hooks/useTableSorting';
 import { validateBatchLayers } from '@/utils/layerValidation';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 interface LayerWithGroup {
   layer: DataSource;
@@ -32,6 +33,7 @@ const CompleteLayersDialog = ({
   const [isValidating, setIsValidating] = useState(false);
   const [validationProgress, setValidationProgress] = useState({ completed: 0, total: 0, currentLayer: '' });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<'all' | 'partial' | 'issues'>('all');
 
   // Get all layers (including base layers, layers with missing legends, etc.)
   const allLayers = useMemo(() => {
@@ -57,12 +59,9 @@ const CompleteLayersDialog = ({
     return layers;
   }, [config.sources, validationResults]);
 
-  // Sort layers to match the Layers tab order:
-  // 1. Interface Groups (in config.interfaceGroups order)
-  // 2. Base Layers
-  // 3. Ungrouped Layers
+  // Sort and filter layers
   const sortedLayers = useMemo(() => {
-    return [...allLayers].sort((a, b) => {
+    const sorted = [...allLayers].sort((a, b) => {
       // Define group order based on LayerHierarchy.tsx logic
       const getGroupOrder = (group: string) => {
         if (group === 'Base Layers') return 1000; // Base layers come after interface groups
@@ -87,7 +86,18 @@ const CompleteLayersDialog = ({
       // Within same group, maintain source order (by index)
       return a.index - b.index;
     });
-  }, [allLayers, config.interfaceGroups]);
+
+    // Apply status filter
+    if (statusFilter === 'all') {
+      return sorted;
+    } else if (statusFilter === 'partial') {
+      return sorted.filter(item => item.validationResult?.overallStatus === 'partial');
+    } else if (statusFilter === 'issues') {
+      return sorted.filter(item => item.validationResult?.overallStatus === 'error');
+    }
+    
+    return sorted;
+  }, [allLayers, config.interfaceGroups, statusFilter]);
 
   const handleRunDetailedReport = async () => {
     setIsValidating(true);
@@ -212,20 +222,39 @@ const CompleteLayersDialog = ({
                 </div>
               )}
 
-              {/* Summary after validation */}
+              {/* Summary and Filter after validation */}
               {validationResults.size > 0 && !isValidating && (
-                <div className="mb-4 p-4 bg-muted/50 border rounded-md">
-                  <div className="text-sm font-medium mb-2">Validation Summary</div>
-                  <div className="flex gap-4 text-sm">
-                    <span className="text-green-600">
-                      {Array.from(validationResults.values()).filter(r => r.overallStatus === 'valid').length} Valid
-                    </span>
-                    <span className="text-amber-600">
-                      {Array.from(validationResults.values()).filter(r => r.overallStatus === 'partial').length} Partial
-                    </span>
-                    <span className="text-red-600">
-                      {Array.from(validationResults.values()).filter(r => r.overallStatus === 'error').length} Issues
-                    </span>
+                <div className="mb-4 space-y-3">
+                  <div className="p-4 bg-muted/50 border rounded-md">
+                    <div className="text-sm font-medium mb-2">Validation Summary</div>
+                    <div className="flex gap-4 text-sm">
+                      <span className="text-green-600">
+                        {Array.from(validationResults.values()).filter(r => r.overallStatus === 'valid').length} Valid
+                      </span>
+                      <span className="text-amber-600">
+                        {Array.from(validationResults.values()).filter(r => r.overallStatus === 'partial').length} Partial
+                      </span>
+                      <span className="text-red-600">
+                        {Array.from(validationResults.values()).filter(r => r.overallStatus === 'error').length} Issues
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Filter Toggle */}
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-muted-foreground">Filter:</span>
+                    <ToggleGroup type="single" value={statusFilter} onValueChange={(value) => value && setStatusFilter(value as any)}>
+                      <ToggleGroupItem value="all" aria-label="Show all layers" size="sm">
+                        All
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="partial" aria-label="Show partial issues" size="sm">
+                        Partial
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="issues" aria-label="Show issues found" size="sm">
+                        Issues Found
+                      </ToggleGroupItem>
+                    </ToggleGroup>
                   </div>
                 </div>
               )}
