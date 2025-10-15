@@ -29,6 +29,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [errorFileName, setErrorFileName] = useState<string>('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(config.layout.navigation.title);
+  const [isEditingVersion, setIsEditingVersion] = useState(false);
+  const [version, setVersion] = useState(config.version || '1.0.0');
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -85,6 +87,23 @@ const HomeTab = ({ config }: HomeTabProps) => {
   React.useEffect(() => {
     setTitle(config.layout.navigation.title);
   }, [config.layout.navigation.title]);
+
+  React.useEffect(() => {
+    setVersion(config.version || '1.0.0');
+  }, [config.version]);
+
+  const handleSaveVersion = () => {
+    dispatch({
+      type: 'UPDATE_VERSION',
+      payload: version
+    });
+    setIsEditingVersion(false);
+  };
+
+  const handleCancelVersion = () => {
+    setVersion(config.version || '1.0.0');
+    setIsEditingVersion(false);
+  };
 
   const handleAttributionUpdates = (updates: Array<{ index: number; attribution: { text: string; url?: string } }>) => {
     const updatedSources = [...config.sources];
@@ -172,6 +191,37 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 </div>
               )}
             </div>
+
+            <Separator />
+
+            {/* Version Section */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium">Version</h3>
+                <Button size="sm" variant="ghost" onClick={() => setIsEditingVersion(true)} className="h-8 w-8 p-0">
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </div>
+              {isEditingVersion ? (
+                <div className="space-y-2">
+                  <Input value={version} onChange={e => setVersion(e.target.value)} placeholder="1.0.0" />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleSaveVersion}>
+                      Save
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleCancelVersion}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center border rounded-lg p-4 bg-gray-50">
+                  <span className="text-base font-mono">{config.version || '1.0.0'}</span>
+                </div>
+              )}
+            </div>
+
+            <Separator />
 
             {/* Configuration Statistics */}
             <div className="space-y-3">
