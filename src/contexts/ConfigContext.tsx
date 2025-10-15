@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Service, DataSource, DataSourceItem, DataSourceFormat } from '@/types/config';
+import { Service, DataSource, DataSourceItem, DataSourceFormat, LayerValidationResult } from '@/types/config';
 import { ValidatedConfiguration } from '@/schemas/configSchema';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
 import { validateImages } from '@/utils/imageValidation';
@@ -7,6 +7,7 @@ import { validateImages } from '@/utils/imageValidation';
 interface ConfigState extends ValidatedConfiguration {
   isLoading: boolean;
   lastSaved: Date | null;
+  validationResults: Map<number, LayerValidationResult>;
 }
 
 type ConfigAction =
@@ -24,7 +25,8 @@ type ConfigAction =
   | { type: 'ADD_SOURCE'; payload: DataSource }
   | { type: 'REMOVE_SOURCE'; payload: number }
   | { type: 'UPDATE_SOURCE'; payload: { index: number; source: DataSource } }
-  | { type: 'UPDATE_SOURCES'; payload: DataSource[] };
+  | { type: 'UPDATE_SOURCES'; payload: DataSource[] }
+  | { type: 'UPDATE_VALIDATION_RESULTS'; payload: Map<number, LayerValidationResult> };
 
 const initialState: ConfigState = {
   version: '1.0.0',
@@ -44,6 +46,7 @@ const initialState: ConfigState = {
   },
   isLoading: false,
   lastSaved: null,
+  validationResults: new Map(),
 };
 
 // Helper function to normalize legacy data to always be arrays
@@ -112,6 +115,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...normalizedPayload,
         isLoading: false,
         lastSaved: new Date(),
+        validationResults: new Map(), // Reset validation results when loading new config
       };
     case 'RESET_CONFIG':
       return {
@@ -381,6 +385,11 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         sources: sanitizedSources,
       };
     }
+    case 'UPDATE_VALIDATION_RESULTS':
+      return {
+        ...state,
+        validationResults: action.payload,
+      };
     default:
       return state;
   }

@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
-import { ValidationErrorDetails } from '@/types/config';
+import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
 import AttributionMissingDialog from './AttributionMissingDialog';
@@ -30,8 +30,17 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
   const [showCompleteLayersDialog, setShowCompleteLayersDialog] = useState(false);
-  const [validationResults, setValidationResults] = useState<Map<number, any>>(new Map());
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
+  
+  // Get validation results from context
+  const validationResults = config.validationResults;
+  
+  const handleValidationComplete = (results: Map<number, LayerValidationResult>) => {
+    dispatch({
+      type: 'UPDATE_VALIDATION_RESULTS',
+      payload: results
+    });
+  };
   const [errorFileName, setErrorFileName] = useState<string>('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(config.layout.navigation.title);
@@ -381,13 +390,13 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   <div className="text-xs font-medium text-muted-foreground mb-2">Last Validation Results</div>
                   <div className="flex gap-3 text-xs">
                     <span className="text-green-600 font-medium">
-                      {Array.from(validationResults.values()).filter(r => r.overallStatus === 'valid').length} Valid
+                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'valid').length} Valid
                     </span>
                     <span className="text-amber-600 font-medium">
-                      {Array.from(validationResults.values()).filter(r => r.overallStatus === 'partial').length} Partial
+                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'partial').length} Partial
                     </span>
                     <span className="text-red-600 font-medium">
-                      {Array.from(validationResults.values()).filter(r => r.overallStatus === 'error').length} Errors
+                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'error').length} Errors
                     </span>
                   </div>
                 </button>
@@ -410,7 +419,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
         open={showCompleteLayersDialog}
         onOpenChange={setShowCompleteLayersDialog}
         config={config}
-        onValidationComplete={setValidationResults}
+        onValidationComplete={handleValidationComplete}
       />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
