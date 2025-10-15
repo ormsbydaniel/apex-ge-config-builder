@@ -133,58 +133,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
   return (
     <>
       <div className="space-y-6 max-w-7xl mx-auto">
-        {/* Hero Action Buttons */}
-        <Card className="border-border/50 shadow-sm">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <Button 
-                onClick={handleImportClick} 
-                size="lg"
-                className="h-14 text-base font-medium hover:scale-[1.02] transition-transform"
-                disabled={config.isLoading}
-              >
-                <Upload className="h-5 w-5 mr-2" />
-                Load Configuration
-              </Button>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="lg"
-                    className="h-14 text-base font-medium hover:scale-[1.02] transition-transform"
-                  >
-                    <Download className="h-5 w-5 mr-2" />
-                    Export
-                    <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={handleQuickExport}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Quick Export (Default)
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setShowExportDialog(true)}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Export with Options...
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Button 
-                onClick={handleNewConfig} 
-                variant="outline"
-                size="lg"
-                className="h-14 text-base font-medium hover:scale-[1.02] transition-transform"
-              >
-                <RotateCcw className="h-5 w-5 mr-2" />
-                New Configuration
-              </Button>
-            </div>
-            <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
-          </CardContent>
-        </Card>
-
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column: Project Info */}
@@ -193,6 +141,59 @@ const HomeTab = ({ config }: HomeTabProps) => {
               <CardTitle className="text-xl">Project Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Quick Actions */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-muted-foreground">Quick Actions</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Button 
+                    onClick={handleImportClick} 
+                    size="default"
+                    className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform"
+                    disabled={config.isLoading}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Load
+                  </Button>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="default"
+                        className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Export
+                        <ChevronDown className="h-3.5 w-3.5 ml-2 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={handleQuickExport}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Quick Export (Default)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setShowExportDialog(true)}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Export with Options...
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <Button 
+                    onClick={handleNewConfig} 
+                    variant="outline"
+                    size="default"
+                    className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform"
+                  >
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    New Config
+                  </Button>
+                </div>
+                <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
+              </div>
+
+              {/* Separator */}
+              <div className="border-t border-border/50" />
               {/* Title */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between group">
