@@ -192,8 +192,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
               )}
             </div>
 
-            <Separator />
-
             {/* Version Section */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -220,8 +218,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 </div>
               )}
             </div>
-
-            <Separator />
 
             {/* Configuration Statistics */}
             <div className="space-y-3">
