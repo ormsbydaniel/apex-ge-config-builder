@@ -78,16 +78,32 @@ const CompleteLayersDialog = ({
     return layers;
   }, [config.sources, validationResults]);
 
-  const {
-    sortedData: sortedLayers,
-    sortField,
-    sortDirection,
-    handleSort
-  } = useTableSorting({
-    data: completeLayers,
-    defaultSortField: 'layer' as keyof LayerWithGroup,
-    defaultSortDirection: 'asc'
-  });
+  // Sort layers by interface group (matching main layers UI order), then by layer name
+  const sortedLayers = useMemo(() => {
+    return [...completeLayers].sort((a, b) => {
+      // Define group order: Base Layers, then named groups alphabetically, then Ungrouped
+      const getGroupOrder = (group: string) => {
+        if (group === 'Base Layers') return 0;
+        if (group === 'Ungrouped') return 2;
+        return 1; // Named groups
+      };
+      
+      const orderA = getGroupOrder(a.group);
+      const orderB = getGroupOrder(b.group);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      
+      // Within same order category, sort alphabetically
+      if (a.group !== b.group) {
+        return a.group.localeCompare(b.group);
+      }
+      
+      // Within same group, sort by layer name
+      return a.layer.name.localeCompare(b.layer.name);
+    });
+  }, [completeLayers]);
 
   const handleRunDetailedReport = async () => {
     setIsValidating(true);
@@ -138,14 +154,6 @@ const CompleteLayersDialog = ({
     });
   };
 
-  const getSortIcon = (field: keyof LayerWithGroup) => {
-    if (sortField !== field) return null;
-    return sortDirection === 'asc' ? (
-      <ChevronUp className="h-4 w-4 ml-1" />
-    ) : (
-      <ChevronDown className="h-4 w-4 ml-1" />
-    );
-  };
 
   const getStatusBadge = (result?: LayerValidationResult) => {
     if (!result) {
@@ -243,24 +251,8 @@ const CompleteLayersDialog = ({
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12"></TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => handleSort('layer' as keyof LayerWithGroup)}
-                      >
-                        <div className="flex items-center">
-                          Layer Name
-                          {getSortIcon('layer' as keyof LayerWithGroup)}
-                        </div>
-                      </TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => handleSort('group')}
-                      >
-                        <div className="flex items-center">
-                          Interface Group
-                          {getSortIcon('group')}
-                        </div>
-                      </TableHead>
+                      <TableHead>Interface Group</TableHead>
+                      <TableHead>Layer Name</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -288,10 +280,10 @@ const CompleteLayersDialog = ({
                                 </Button>
                               )}
                             </TableCell>
+                            <TableCell>{item.group}</TableCell>
                             <TableCell className="font-medium">
                               {item.layer.name}
                             </TableCell>
-                            <TableCell>{item.group}</TableCell>
                             <TableCell>{getStatusBadge(item.validationResult)}</TableCell>
                           </TableRow>
                           
