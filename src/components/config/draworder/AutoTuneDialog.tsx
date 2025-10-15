@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import {
@@ -43,11 +45,16 @@ interface AutoTuneDialogProps {
 const AutoTuneDialog = ({ open, onOpenChange, config, onApply }: AutoTuneDialogProps) => {
   const preview = generateAutoTunePreview(config.sources);
   const summary = generateAutoTuneSummary(preview);
+  const [showChangingOnly, setShowChangingOnly] = useState(false);
 
   const handleApply = () => {
     onApply();
     onOpenChange(false);
   };
+
+  const filteredPreview = showChangingOnly 
+    ? preview.filter(item => item.willChange)
+    : preview;
 
   const getZLevelDescription = (zLevel: number): string => {
     switch (zLevel) {
@@ -68,7 +75,7 @@ const AutoTuneDialog = ({ open, onOpenChange, config, onApply }: AutoTuneDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -108,8 +115,20 @@ const AutoTuneDialog = ({ open, onOpenChange, config, onApply }: AutoTuneDialogP
           </div>
         </div>
 
+        {/* Filter Toggle */}
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="show-changing"
+            checked={showChangingOnly}
+            onCheckedChange={setShowChangingOnly}
+          />
+          <Label htmlFor="show-changing" className="cursor-pointer">
+            Show only changing layers ({summary.totalChanges})
+          </Label>
+        </div>
+
         {/* Preview Table */}
-        <ScrollArea className="h-[400px] rounded-md border">
+        <ScrollArea className="flex-1 rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -123,7 +142,14 @@ const AutoTuneDialog = ({ open, onOpenChange, config, onApply }: AutoTuneDialogP
               </TableRow>
             </TableHeader>
             <TableBody>
-              {preview.map((item, index) => (
+              {filteredPreview.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                    {showChangingOnly ? 'No changes detected' : 'No data sources found'}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredPreview.map((item, index) => (
                 <TableRow
                   key={`${item.sourceIndex}-${item.sourceType}-${item.dataIndex}`}
                   className={item.willChange ? 'bg-yellow-500/10' : ''}
@@ -159,18 +185,19 @@ const AutoTuneDialog = ({ open, onOpenChange, config, onApply }: AutoTuneDialogP
                     {getZLevelDescription(item.proposedZLevel)}
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+              )}
             </TableBody>
           </Table>
         </ScrollArea>
 
-        <DialogFooter>
+        <DialogFooter className="mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={handleApply} disabled={summary.totalChanges === 0}>
             <Sparkles className="h-4 w-4 mr-2" />
-            Apply Auto Tune {summary.totalChanges > 0 && `(${summary.totalChanges} changes)`}
+            Update Z Levels {summary.totalChanges > 0 && `(${summary.totalChanges})`}
           </Button>
         </DialogFooter>
       </DialogContent>
