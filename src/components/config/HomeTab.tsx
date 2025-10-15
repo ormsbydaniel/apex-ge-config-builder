@@ -135,10 +135,10 @@ const HomeTab = ({ config }: HomeTabProps) => {
   return (
     <>
       <div className="space-y-4">
-        {/* Three Column Layout: Project 50%, Config Overview 25%, Layer QA 25% */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          {/* Project Card - 50% width (2 columns) */}
-          <Card className="border-border/50 shadow-sm lg:col-span-2">
+        {/* Two Column Layout: Project 50%, Layer QA 50% */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Project Card - 50% width */}
+          <Card className="border-border/50 shadow-sm">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between gap-4">
                 <CardTitle className="text-xl">Project</CardTitle>
@@ -272,33 +272,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 )}
               </div>
 
-              {/* Status Info */}
-              {(config.lastSaved || config.isLoading) && (
-                <div className="pt-3 border-t border-border/50 space-y-2">
-                  {config.lastSaved && (
-                    <div className="text-sm text-muted-foreground flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-green-500" />
-                      <span>Last saved: {config.lastSaved.toLocaleString()}</span>
-                    </div>
-                  )}
-                  {config.isLoading && (
-                    <div className="text-sm text-blue-600 flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-                      <span>Loading configuration...</span>
-                    </div>
-                  )}
-                </div>
-              )}
-          </CardContent>
-        </Card>
-
-          {/* Configuration Statistics - 25% width (1 column) */}
-          <Card className="border-border/50 shadow-sm lg:col-span-1">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Config Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-3">
-              <div className="grid grid-cols-1 gap-3">
+              {/* Config Statistics - in one row */}
+              <div className="pt-3 border-t border-border/50">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <ConfigStatCard 
                     icon={Users} 
                     value={config.interfaceGroups.length} 
@@ -323,48 +299,69 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     label="Exclusivity Sets"
                     gradient="from-amber-500/10 to-amber-500/5"
                   />
+                </div>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Quality Assurance Statistics - 25% width (1 column) */}
-          <Card className="border-border/50 shadow-sm lg:col-span-1">
+              {/* Status Info */}
+              {(config.lastSaved || config.isLoading) && (
+                <div className="pt-3 border-t border-border/50 space-y-2">
+                  {config.lastSaved && (
+                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <span>Last saved: {config.lastSaved.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {config.isLoading && (
+                    <div className="text-sm text-blue-600 flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                      <span>Loading configuration...</span>
+                    </div>
+                  )}
+                </div>
+              )}
+          </CardContent>
+        </Card>
+
+          {/* Layer QA - 50% width */}
+          <Card className="border-border/50 shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-xl">Layer QA</CardTitle>
             </CardHeader>
             <CardContent className="pt-3 space-y-3">
-              <div className="grid grid-cols-1 gap-3">
-                  <QAStatCard
-                    icon={Check}
-                    value={qaStats.success}
-                    label="Complete Layers"
-                    colorClass="text-green-600"
-                    bgGradient="from-green-500/20 to-green-500/5"
-                  />
-                  <QAStatCard
-                    icon={Triangle}
-                    value={qaStats.info}
-                    label="Missing Legend"
-                    colorClass="text-blue-600"
-                    bgGradient="from-blue-500/20 to-blue-500/5"
-                  />
-                  <QAStatCard
-                    icon={AlertTriangle}
-                    value={qaStats.warning}
-                    label="Missing Attribution"
-                    colorClass="text-amber-600"
-                    bgGradient="from-amber-500/20 to-amber-500/5"
-                    onClick={() => setShowAttributionDialog(true)}
-                  />
-                  <QAStatCard
-                    icon={Triangle}
-                    value={qaStats.error}
-                    label="No Data/Statistics"
-                    colorClass="text-red-600"
-                    bgGradient="from-red-500/20 to-red-500/5"
-                  />
+              {/* QA Stats in one row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <QAStatCard
+                  icon={Check}
+                  value={qaStats.success}
+                  label="Complete Layers"
+                  colorClass="text-green-600"
+                  bgGradient="from-green-500/20 to-green-500/5"
+                />
+                <QAStatCard
+                  icon={Triangle}
+                  value={qaStats.info}
+                  label="Missing Legend"
+                  colorClass="text-blue-600"
+                  bgGradient="from-blue-500/20 to-blue-500/5"
+                />
+                <QAStatCard
+                  icon={AlertTriangle}
+                  value={qaStats.warning}
+                  label="Missing Attribution"
+                  colorClass="text-amber-600"
+                  bgGradient="from-amber-500/20 to-amber-500/5"
+                  onClick={() => setShowAttributionDialog(true)}
+                />
+                <QAStatCard
+                  icon={Triangle}
+                  value={qaStats.error}
+                  label="No Data/Statistics"
+                  colorClass="text-red-600"
+                  bgGradient="from-red-500/20 to-red-500/5"
+                />
               </div>
               
+              {/* Validation Button */}
               <Button 
                 onClick={() => setShowCompleteLayersDialog(true)}
                 variant="outline"
@@ -372,7 +369,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 className="w-full"
               >
                 <Check className="h-4 w-4 mr-2" />
-                Run Full Validation
+                Data Source Validation
               </Button>
             </CardContent>
           </Card>
