@@ -132,9 +132,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
   return (
     <>
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="space-y-6">
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
           {/* Left Column: Project Info */}
           <Card className="border-border/50 shadow-sm">
             <CardHeader>
