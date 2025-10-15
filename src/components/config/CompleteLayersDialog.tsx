@@ -108,6 +108,7 @@ const CompleteLayersDialog = ({
       
       const results = await validateBatchLayers(
         layersToValidate,
+        config.services, // Pass services for service URL resolution
         (completed, total, layerName) => {
           setValidationProgress({ completed, total, currentLayer: layerName });
         }
@@ -306,25 +307,38 @@ const CompleteLayersDialog = ({
                               <TableCell colSpan={4} className="bg-muted/30 p-4">
                                 <div className="space-y-2">
                                   <div className="text-sm font-medium mb-2">URL Validation Details</div>
-                                  {item.validationResult!.urlResults.map((urlResult, idx) => (
+                                   {item.validationResult!.urlResults.map((urlResult, idx) => (
                                     <div key={idx} className="flex items-start gap-2 text-sm p-2 bg-background rounded border">
                                       <div className="flex-shrink-0 mt-0.5">
                                         {urlResult.status === 'valid' ? (
                                           <Check className="h-4 w-4 text-green-600" />
                                         ) : urlResult.status === 'error' ? (
                                           <AlertTriangle className="h-4 w-4 text-red-600" />
+                                        ) : urlResult.status === 'skipped' ? (
+                                          <Info className="h-4 w-4 text-muted-foreground" />
                                         ) : (
                                           <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                                         )}
                                       </div>
                                       <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
+                                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                                           <Badge variant="outline" className="text-xs">
                                             {urlResult.type}
                                           </Badge>
+                                          {urlResult.format && (
+                                            <Badge variant="outline" className="text-xs">
+                                              {urlResult.format.toUpperCase()}
+                                            </Badge>
+                                          )}
+                                          {urlResult.validationType && (
+                                            <Badge variant="outline" className="text-xs bg-muted">
+                                              {urlResult.validationType}
+                                            </Badge>
+                                          )}
                                           <span className={`text-xs font-medium ${
                                             urlResult.status === 'valid' ? 'text-green-600' : 
                                             urlResult.status === 'error' ? 'text-red-600' : 
+                                            urlResult.status === 'skipped' ? 'text-muted-foreground' :
                                             'text-blue-600'
                                           }`}>
                                             {urlResult.status}
@@ -333,9 +347,14 @@ const CompleteLayersDialog = ({
                                         <div className="text-xs text-muted-foreground break-all">
                                           {urlResult.url}
                                         </div>
+                                        {urlResult.layers && (
+                                          <div className="text-xs text-muted-foreground mt-1">
+                                            Layer: {urlResult.layers}
+                                          </div>
+                                        )}
                                         {urlResult.error && (
                                           <div className="text-xs text-red-600 mt-1">
-                                            Error: {urlResult.error}
+                                            {urlResult.error}
                                           </div>
                                         )}
                                       </div>
