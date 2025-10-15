@@ -401,7 +401,7 @@ const CompleteLayersDialog = ({
                     ) : (
                       <>
                         <Info className="h-4 w-4 mr-2" />
-                        Run Detailed Report
+                        {validationResults.size > 0 ? 'Re-run Validation Checks' : 'Run Validation Checks'}
                       </>
                     )}
                   </Button>
