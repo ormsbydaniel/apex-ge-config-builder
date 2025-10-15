@@ -132,12 +132,12 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
           {/* Left Column: Project Info */}
           <Card className="border-border/50 shadow-sm">
-            <CardHeader>
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between gap-4">
                 <CardTitle className="text-xl">Project</CardTitle>
                 <div className="flex items-center gap-2">
@@ -188,7 +188,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 pt-4">
               <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
               {/* Title */}
               <div className="space-y-2">
@@ -291,13 +291,13 @@ const HomeTab = ({ config }: HomeTabProps) => {
           </Card>
 
           {/* Right Column: Statistics */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Configuration Statistics */}
             <Card className="border-border/50 shadow-sm">
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="text-xl">Configuration Overview</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-4">
                 <div className="grid grid-cols-2 gap-3">
                   <ConfigStatCard 
                     icon={Users} 
@@ -329,10 +329,10 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
             {/* Quality Assurance Statistics */}
             <Card className="border-border/50 shadow-sm">
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="text-xl">Layer Quality Assurance</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-4">
                 <div className="grid grid-cols-2 gap-3">
                   <QAStatCard
                     icon={Check}
