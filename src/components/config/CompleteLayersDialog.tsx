@@ -78,14 +78,24 @@ const CompleteLayersDialog = ({
     return layers;
   }, [config.sources, validationResults]);
 
-  // Sort layers by interface group (matching main layers UI order), then by layer name
+  // Sort layers to match the Layers tab order:
+  // 1. Interface Groups (in config.interfaceGroups order)
+  // 2. Base Layers
+  // 3. Ungrouped Layers
   const sortedLayers = useMemo(() => {
     return [...completeLayers].sort((a, b) => {
-      // Define group order: Base Layers, then named groups alphabetically, then Ungrouped
+      // Define group order based on LayerHierarchy.tsx logic
       const getGroupOrder = (group: string) => {
-        if (group === 'Base Layers') return 0;
-        if (group === 'Ungrouped') return 2;
-        return 1; // Named groups
+        if (group === 'Base Layers') return 1000; // Base layers come after interface groups
+        if (group === 'Ungrouped') return 2000; // Ungrouped comes last
+        
+        // Interface groups: use their position in config.interfaceGroups
+        const groupIndex = config.interfaceGroups?.indexOf(group);
+        if (groupIndex !== undefined && groupIndex >= 0) {
+          return groupIndex; // 0-based index for interface groups
+        }
+        
+        return 1500; // Unknown groups go between base and ungrouped
       };
       
       const orderA = getGroupOrder(a.group);
@@ -95,15 +105,10 @@ const CompleteLayersDialog = ({
         return orderA - orderB;
       }
       
-      // Within same order category, sort alphabetically
-      if (a.group !== b.group) {
-        return a.group.localeCompare(b.group);
-      }
-      
-      // Within same group, sort by layer name
-      return a.layer.name.localeCompare(b.layer.name);
+      // Within same group, maintain source order (by index)
+      return a.index - b.index;
     });
-  }, [completeLayers]);
+  }, [completeLayers, config.interfaceGroups]);
 
   const handleRunDetailedReport = async () => {
     setIsValidating(true);
