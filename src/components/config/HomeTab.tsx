@@ -133,11 +133,13 @@ const HomeTab = ({ config }: HomeTabProps) => {
   return (
     <>
       <div className="space-y-4">
-        {/* Project Card - Full Width */}
-        <Card className="border-border/50 shadow-sm">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between gap-4">
-              <CardTitle className="text-xl">Project</CardTitle>
+        {/* Three Column Layout: Project 50%, Config Overview 25%, Layer QA 25% */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          {/* Project Card - 50% width (2 columns) */}
+          <Card className="border-border/50 shadow-sm lg:col-span-2">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between gap-4">
+                <CardTitle className="text-xl">Project</CardTitle>
                 <div className="flex items-center gap-2">
                   <Button 
                     onClick={handleImportClick} 
@@ -288,12 +290,10 @@ const HomeTab = ({ config }: HomeTabProps) => {
           </CardContent>
         </Card>
 
-        {/* Statistics Row - Two Columns Side by Side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Configuration Statistics */}
-          <Card className="border-border/50 shadow-sm">
+          {/* Configuration Statistics - 25% width (1 column) */}
+          <Card className="border-border/50 shadow-sm lg:col-span-1">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Configuration Overview</CardTitle>
+              <CardTitle className="text-xl">Config Overview</CardTitle>
             </CardHeader>
             <CardContent className="pt-3">
               <div className="grid grid-cols-1 gap-3">
@@ -325,10 +325,10 @@ const HomeTab = ({ config }: HomeTabProps) => {
             </CardContent>
           </Card>
 
-          {/* Quality Assurance Statistics */}
-          <Card className="border-border/50 shadow-sm">
+          {/* Quality Assurance Statistics - 25% width (1 column) */}
+          <Card className="border-border/50 shadow-sm lg:col-span-1">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Layer Quality Assurance</CardTitle>
+              <CardTitle className="text-xl">Layer QA</CardTitle>
             </CardHeader>
             <CardContent className="pt-3">
               <div className="grid grid-cols-1 gap-3">
