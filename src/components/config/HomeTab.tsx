@@ -227,7 +227,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-xl font-semibold text-foreground p-3 rounded-lg bg-muted/30 border border-border/50">
+                  <div className="text-xl font-semibold text-foreground p-4 rounded-lg bg-muted/50 border border-border/50">
                     {config.layout.navigation.title}
                   </div>
                 )}

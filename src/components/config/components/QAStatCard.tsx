@@ -20,9 +20,9 @@ export const QAStatCard = ({ icon: Icon, value, label, colorClass, bgGradient, o
       )}
       onClick={onClick}
     >
-      <CardContent className="p-4">
-        <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient} opacity-40`} />
-        <div className="relative">
+      <CardContent className="p-4 relative">
+        <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient} opacity-40 pointer-events-none`} />
+        <div className="relative z-10">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Icon className={cn("h-5 w-5", colorClass)} />
             <div className={cn("text-3xl font-bold", colorClass)}>{value}</div>
