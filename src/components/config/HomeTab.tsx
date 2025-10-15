@@ -133,13 +133,11 @@ const HomeTab = ({ config }: HomeTabProps) => {
   return (
     <>
       <div className="space-y-4">
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-          {/* Left Column: Project Info */}
-          <Card className="border-border/50 shadow-sm">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between gap-4">
-                <CardTitle className="text-xl">Project</CardTitle>
+        {/* Project Card - Full Width */}
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between gap-4">
+              <CardTitle className="text-xl">Project</CardTitle>
                 <div className="flex items-center gap-2">
                   <Button 
                     onClick={handleImportClick} 
@@ -187,11 +185,11 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   </Button>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-4">
-              <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
-              {/* Title */}
-              <div className="space-y-2">
+          </CardHeader>
+          <CardContent className="space-y-3 pt-3">
+            <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
+            {/* Title */}
+            <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium text-muted-foreground">Application Title</label>
                   {!isEditingTitle && (
@@ -224,7 +222,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-lg font-semibold text-foreground p-4 rounded-lg bg-muted/50 border border-border/50">
+                  <div className="text-lg font-semibold text-foreground p-3 rounded-lg bg-muted/50 border border-border/50">
                     {config.layout.navigation.title}
                   </div>
                 )}
@@ -272,7 +270,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
               {/* Status Info */}
               {(config.lastSaved || config.isLoading) && (
-                <div className="pt-4 border-t border-border/50 space-y-2">
+                <div className="pt-3 border-t border-border/50 space-y-2">
                   {config.lastSaved && (
                     <div className="text-sm text-muted-foreground flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-green-500" />
@@ -287,18 +285,18 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   )}
                 </div>
               )}
-            </CardContent>
-          </Card>
+          </CardContent>
+        </Card>
 
-          {/* Right Column: Statistics */}
-          <div className="space-y-4">
-            {/* Configuration Statistics */}
-            <Card className="border-border/50 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl">Configuration Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-2 gap-3">
+        {/* Statistics Row - Two Columns Side by Side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Configuration Statistics */}
+          <Card className="border-border/50 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Configuration Overview</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-3">
+              <div className="grid grid-cols-1 gap-3">
                   <ConfigStatCard 
                     icon={Users} 
                     value={config.interfaceGroups.length} 
@@ -323,17 +321,17 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     label="Exclusivity Sets"
                     gradient="from-amber-500/10 to-amber-500/5"
                   />
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Quality Assurance Statistics */}
-            <Card className="border-border/50 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl">Layer Quality Assurance</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-2 gap-3">
+          {/* Quality Assurance Statistics */}
+          <Card className="border-border/50 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Layer Quality Assurance</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-3">
+              <div className="grid grid-cols-1 gap-3">
                   <QAStatCard
                     icon={Check}
                     value={qaStats.success}
@@ -363,10 +361,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     colorClass="text-red-600"
                     bgGradient="from-red-500/20 to-red-500/5"
                   />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
