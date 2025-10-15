@@ -25,7 +25,7 @@ interface DataSourceFormProps {
   currentLayerStatistics?: DataSourceItem[];
   layerType?: LayerTypeOption;
   timeframe?: TimeframeType;
-  onAddDataSource: (dataSource: DataSourceItem) => void;
+  onAddDataSource: (dataSource: DataSourceItem | DataSourceItem[]) => void;
   onAddStatisticsLayer: (statisticsItem: DataSourceItem) => void;
   onAddService: (service: Service) => void;
   onCancel: () => void;
@@ -172,8 +172,40 @@ const DataSourceForm = ({
     setShowServiceModal(true);
   };
 
-  const handleServiceModalSelection = (url: string, layers: string = '', format?: DataSourceFormat, datetime?: string) => {
-    // Populate the direct connection form with the selected data
+  const handleServiceModalSelection = (
+    selection: string | Array<{ url: string; format: DataSourceFormat; datetime?: string }>,
+    layers: string = '',
+    format?: DataSourceFormat,
+    datetime?: string
+  ) => {
+    // Handle bulk selection (array of assets)
+    if (Array.isArray(selection)) {
+      // Convert all assets to DataSourceItems
+      const dataSourceItems: DataSourceItem[] = selection.map((asset) => ({
+        url: asset.url,
+        format: asset.format,
+        zIndex, // Use the current zIndex from form state
+        ...(asset.datetime && requiresTimestamp && {
+          timestamps: [Math.floor(new Date(asset.datetime).getTime() / 1000)]
+        })
+      }));
+      
+      // Add all data sources in a single batch operation
+      onAddDataSource(dataSourceItems);
+      
+      toast({
+        title: "Data Sources Added",
+        description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
+      });
+      
+      setShowServiceModal(false);
+      setSelectedServiceForModal(null);
+      onCancel(); // Close the form after bulk add
+      return;
+    }
+    
+    // Handle single selection (existing behavior)
+    const url = selection;
     setDirectUrl(url);
     setDirectLayers(layers);
     if (format) {

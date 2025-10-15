@@ -13,6 +13,7 @@ type ConfigAction =
   | { type: 'LOAD_CONFIG'; payload: ValidatedConfiguration }
   | { type: 'RESET_CONFIG' }
   | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'UPDATE_VERSION'; payload: string }
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
   | { type: 'UPDATE_INTERFACE_GROUPS'; payload: string[] }
   | { type: 'UPDATE_EXCLUSIVITY_SETS'; payload: string[] }
@@ -121,6 +122,11 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       return {
         ...state,
         isLoading: action.payload,
+      };
+    case 'UPDATE_VERSION':
+      return {
+        ...state,
+        version: action.payload,
       };
     case 'UPDATE_LAYOUT':
       return {

@@ -320,7 +320,7 @@ export const DataSourceSchema = z.union([
 ]);
 
 export const ConfigurationSchema = z.object({
-  version: z.string().optional().default('1.0.0'),
+  version: z.string().optional(),
   layout: z.object({
     navigation: z.object({
       logo: urlOrRelativePathSchema,

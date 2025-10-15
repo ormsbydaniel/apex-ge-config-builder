@@ -296,13 +296,15 @@ export const useLayerOperations = ({
 
   // === DATA SOURCE ACTIONS ===
 
-  const handleDataSourceAdded = useCallback((dataSource: any) => {
+  const handleDataSourceAdded = useCallback((dataSource: any | any[]) => {
     if (selectedLayerIndex !== null) {
       const layer = config.sources[selectedLayerIndex];
       if (isDataSourceItemArray(layer.data)) {
+        // Handle both single data source and array of data sources
+        const dataSourcesToAdd = Array.isArray(dataSource) ? dataSource : [dataSource];
         const updatedLayer = {
           ...layer,
-          data: [...layer.data, dataSource]
+          data: [...layer.data, ...dataSourcesToAdd]
         };
         updateLayer(selectedLayerIndex, updatedLayer);
         

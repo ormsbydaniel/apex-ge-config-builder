@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { DataSource, isDataSourceItemArray, Service } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service, DataSourceMeta } from '@/types/config';
 import DataSourceItem from './DataSourceItem';
 
 interface DataSourceDisplayProps {
@@ -13,6 +13,7 @@ interface DataSourceDisplayProps {
   onRemoveStatisticsSource?: (statsIndex: number) => void;
   onEditDataSource?: (dataIndex: number) => void;
   onEditStatisticsSource?: (statsIndex: number) => void;
+  onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
 }
 
 const DataSourceDisplay = ({
@@ -22,7 +23,8 @@ const DataSourceDisplay = ({
   onRemoveDataSource,
   onRemoveStatisticsSource,
   onEditDataSource,
-  onEditStatisticsSource
+  onEditStatisticsSource,
+  onUpdateMeta
 }: DataSourceDisplayProps) => {
   // Check if this is a swipe layer that needs position display
   const isSwipeLayer = (source as any).isSwipeLayer === true || source.meta?.swipeConfig !== undefined;
@@ -62,6 +64,8 @@ const DataSourceDisplay = ({
                 showPosition={isSwipeLayer}
                 timeframe={timeframe}
                 services={services}
+                currentMeta={source.meta}
+                onUpdateMeta={onUpdateMeta}
               />
             ))}
           </div>

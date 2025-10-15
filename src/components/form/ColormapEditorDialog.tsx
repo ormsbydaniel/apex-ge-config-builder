@@ -8,6 +8,12 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Colormap, DataSource } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useColormapEditorState } from '@/hooks/useColormapEditorState';
@@ -17,12 +23,16 @@ interface ColormapEditorDialogProps {
   colormaps: Colormap[];
   onUpdate: (colormaps: Colormap[]) => void;
   trigger: React.ReactNode;
+  metaMin?: number;
+  metaMax?: number;
 }
 
 const ColormapEditorDialog = ({
   colormaps,
   onUpdate,
-  trigger
+  trigger,
+  metaMin,
+  metaMax
 }: ColormapEditorDialogProps) => {
   const { config } = useConfig();
 
@@ -42,6 +52,7 @@ const ColormapEditorDialog = ({
     activeTab,
     localColormaps,
     editingIndex,
+    isAddingNew,
     currentColormap,
     showCopyConfirmation,
     showAppendReplaceDialog,
@@ -50,6 +61,7 @@ const ColormapEditorDialog = ({
     setActiveTab,
     setLocalColormaps,
     setEditingIndex,
+    setIsAddingNew,
     setCurrentColormap,
     setShowCopyConfirmation,
     setShowAppendReplaceDialog,
@@ -59,7 +71,7 @@ const ColormapEditorDialog = ({
     handleOpen,
     handleCancel,
     performCopy
-  } = useColormapEditorState({ colormaps, availableSourceLayers });
+  } = useColormapEditorState({ colormaps, availableSourceLayers, metaMin, metaMax });
 
   const handleAdd = () => {
     handleOpen(true);
@@ -82,6 +94,10 @@ const ColormapEditorDialog = ({
     }
   };
 
+  // Check if there are any changes to save
+  const hasChanges = JSON.stringify(localColormaps) !== JSON.stringify(colormaps);
+  const canSave = hasChanges && localColormaps.length > 0;
+
   return (
     <>
       <div onClick={() => handleAdd()}>
@@ -98,12 +114,14 @@ const ColormapEditorDialog = ({
             activeTab={activeTab}
             localColormaps={localColormaps}
             editingIndex={editingIndex}
+            isAddingNew={isAddingNew}
             currentColormap={currentColormap}
             availableSourceLayers={availableSourceLayers}
             selectedSourceLayer={selectedSourceLayer}
             onActiveTabChange={setActiveTab}
             onSetLocalColormaps={setLocalColormaps}
             onSetEditingIndex={setEditingIndex}
+            onSetIsAddingNew={setIsAddingNew}
             onSetCurrentColormap={setCurrentColormap}
             onResetColormap={resetColormap}
             onSetSelectedSourceLayer={setSelectedSourceLayer}
@@ -114,9 +132,26 @@ const ColormapEditorDialog = ({
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
-              Save Changes
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span tabIndex={0}>
+                    <Button onClick={handleSave} disabled={!canSave}>
+                      Save Changes
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {!canSave && (
+                  <TooltipContent>
+                    <p>
+                      {localColormaps.length === 0 
+                        ? "Add or copy a colormap to save changes"
+                        : "No changes to save"}
+                    </p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </DialogFooter>
         </DialogContent>
       </Dialog>

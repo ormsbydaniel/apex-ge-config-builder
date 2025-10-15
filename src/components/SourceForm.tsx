@@ -13,7 +13,7 @@ import { useSourceForm } from '@/hooks/useSourceForm';
 import { useCategories } from '@/hooks/useCategories';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useValidatedConfig } from '@/hooks/useValidatedConfig';
-import { validateS3Url, S3Object, getFormatFromExtension } from '@/utils/s3Utils';
+import { validateS3Url, S3Selection, getFormatFromExtension } from '@/utils/s3Utils';
 import FormatSelector from './form/FormatSelector';
 import ServiceConfigSection from './form/ServiceConfigSection';
 import LayerCardConfigSection from './form/LayerCardConfigSection';
@@ -39,7 +39,7 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
     services: services.map(s => ({ id: s.id, name: s.name, format: s.format, sourceType: s.sourceType }))
   });
 
-  const [selectedS3Object, setSelectedS3Object] = useState<S3Object | null>(null);
+  const [selectedS3Object, setSelectedS3Object] = useState<S3Selection | null>(null);
   const [detectedS3Format, setDetectedS3Format] = useState<DataSourceFormat | null>(null);
 
   const {
@@ -66,18 +66,29 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
   const supportsStatistics = effectiveFormat === 'flatgeobuf' || effectiveFormat === 'geojson';
 
 
-  const handleS3ObjectSelect = (object: S3Object, detectedFormat: DataSourceFormat) => {
-    setSelectedS3Object(object);
-    setDetectedS3Format(detectedFormat);
-    
-    // Update form data with the selected object's URL and detected format
-    updateFormData('data.0.url', object.url);
-    updateFormData('data.0.format', detectedFormat);
-    
-    toast({
-      title: "S3 Object Selected",
-      description: `Selected ${object.key} (detected as ${detectedFormat.toUpperCase()})`,
-    });
+  const handleS3ObjectSelect = (selection: S3Selection | S3Selection[]) => {
+    // Handle single selection (bulk handling happens in parent components)
+    if (Array.isArray(selection)) {
+      // For SourceForm, we only handle single selections
+      // Bulk operations are handled by DataSourceForm
+      if (selection.length > 0) {
+        const first = selection[0];
+        setSelectedS3Object(first);
+        setDetectedS3Format(first.format);
+        updateFormData('data.0.url', first.url);
+        updateFormData('data.0.format', first.format);
+      }
+    } else {
+      setSelectedS3Object(selection);
+      setDetectedS3Format(selection.format);
+      updateFormData('data.0.url', selection.url);
+      updateFormData('data.0.format', selection.format);
+      
+      toast({
+        title: "S3 Object Selected",
+        description: `Selected ${selection.key} (detected as ${selection.format.toUpperCase()})`,
+      });
+    }
   };
 
   const validateForm = (): string[] => {

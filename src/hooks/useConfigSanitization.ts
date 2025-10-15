@@ -3,7 +3,7 @@ import { sanitizeUrl } from '@/utils/urlSanitizer';
 
 export const useConfigSanitization = (config: any) => {
   const sanitizedConfig = useMemo(() => ({
-    version: '1.0.0',
+    version: config.version || '1.0.0',
     layout: config.layout,
     interfaceGroups: config.interfaceGroups,
     exclusivitySets: config.exclusivitySets,

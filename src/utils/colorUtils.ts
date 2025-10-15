@@ -130,3 +130,64 @@ export const convertCategoriesToHex = (categories: Array<{ label: string; color:
     value: cat.value ?? index
   }));
 };
+
+/**
+ * Generates divergent colors for categorical data
+ * Uses predefined colors for small sets, HSL distribution for larger sets
+ */
+export const generateDivergentColors = (count: number): string[] => {
+  // Predefined well-contrasting colors for small sets
+  const predefinedColors = [
+    '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00',
+    '#ffff33', '#a65628', '#f781bf', '#999999', '#66c2a5'
+  ];
+  
+  if (count <= predefinedColors.length) {
+    return predefinedColors.slice(0, count);
+  }
+  
+  // For larger sets, generate evenly distributed hues in HSL space
+  const colors: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const hue = (i * 360) / count;
+    const saturation = 65 + (i % 3) * 10; // Vary saturation slightly
+    const lightness = 45 + (i % 2) * 10;  // Vary lightness slightly
+    colors.push(hslToHex(hue, saturation, lightness));
+  }
+  
+  return colors;
+};
+
+/**
+ * Converts HSL to hex color
+ */
+const hslToHex = (h: number, s: number, l: number): string => {
+  const sNorm = s / 100;
+  const lNorm = l / 100;
+  
+  const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = lNorm - c / 2;
+  
+  let r = 0, g = 0, b = 0;
+  
+  if (h >= 0 && h < 60) {
+    r = c; g = x; b = 0;
+  } else if (h >= 60 && h < 120) {
+    r = x; g = c; b = 0;
+  } else if (h >= 120 && h < 180) {
+    r = 0; g = c; b = x;
+  } else if (h >= 180 && h < 240) {
+    r = 0; g = x; b = c;
+  } else if (h >= 240 && h < 300) {
+    r = x; g = 0; b = c;
+  } else {
+    r = c; g = 0; b = x;
+  }
+  
+  return rgbToHex(
+    Math.round((r + m) * 255),
+    Math.round((g + m) * 255),
+    Math.round((b + m) * 255)
+  );
+};

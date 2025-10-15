@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Plus, Loader2, Globe } from 'lucide-react';
 import { DataSource, DataSourceFormat, Service, SourceConfigType } from '@/types/config';
-import { S3Object, validateS3Url } from '@/utils/s3Utils';
+import { S3Selection, validateS3Url } from '@/utils/s3Utils';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import S3ServiceConfigSection from './S3ServiceConfigSection';
@@ -19,7 +19,7 @@ interface ServiceConfigSectionProps {
   services: Service[];
   onUpdateFormData: (path: string, value: any) => void;
   onAddService: (service: Service) => void;
-  onObjectSelect?: (object: S3Object, detectedFormat: DataSourceFormat) => void;
+  onObjectSelect?: (selection: S3Selection | S3Selection[]) => void;
 }
 
 const ServiceConfigSection = ({

@@ -8,6 +8,12 @@ export interface S3Object {
   url: string;
 }
 
+export interface S3Selection {
+  url: string;
+  format: DataSourceFormat;
+  key: string;
+}
+
 export interface S3BucketInfo {
   bucketName: string;
   region: string;
@@ -150,6 +156,17 @@ export const fetchS3BucketContents = async (bucketUrl: string): Promise<S3Object
     return objects;
   } catch (error) {
     console.error('Error fetching S3 bucket contents:', error);
+    
+    // Detect CORS errors (they typically manifest as TypeError with "Failed to fetch")
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new Error(
+        'CORS Error: This S3 bucket does not allow browser access. ' +
+        'The bucket needs CORS policies configured to allow cross-origin requests. ' +
+        'If this is a STAC catalog (note "stac" in URL), try adding it as a STAC service instead with the catalog.json URL.'
+      );
+    }
+    
+    // Re-throw other errors with original message
     throw error;
   }
 };

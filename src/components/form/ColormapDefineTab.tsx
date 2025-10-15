@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Info } from 'lucide-react';
 import { Colormap } from '@/types/config';
 import { COLORMAP_OPTIONS } from '@/constants/colormaps';
 import { useToast } from '@/hooks/use-toast';
@@ -19,9 +19,11 @@ import ColorRampPreview from '@/components/ui/ColorRampPreview';
 interface ColormapDefineTabProps {
   localColormaps: Colormap[];
   editingIndex: number | null;
+  isAddingNew: boolean;
   currentColormap: Colormap;
   onSetLocalColormaps: (colormaps: Colormap[]) => void;
   onSetEditingIndex: (index: number | null) => void;
+  onSetIsAddingNew: (isAdding: boolean) => void;
   onSetCurrentColormap: (colormap: Colormap) => void;
   onResetColormap: () => void;
 }
@@ -29,9 +31,11 @@ interface ColormapDefineTabProps {
 const ColormapDefineTab = ({
   localColormaps,
   editingIndex,
+  isAddingNew,
   currentColormap,
   onSetLocalColormaps,
   onSetEditingIndex,
+  onSetIsAddingNew,
   onSetCurrentColormap,
   onResetColormap
 }: ColormapDefineTabProps) => {
@@ -65,6 +69,7 @@ const ColormapDefineTab = ({
 
     onSetLocalColormaps(updatedColormaps);
     onSetEditingIndex(null);
+    onSetIsAddingNew(false);
     onResetColormap();
   };
 
@@ -85,6 +90,9 @@ const ColormapDefineTab = ({
   };
 
   const isValid = currentColormap.min < currentColormap.max && currentColormap.steps > 0;
+  
+  // Show form when there are no colormaps OR when editing an existing one OR when adding new
+  const showForm = localColormaps.length === 0 || editingIndex !== null || isAddingNew;
 
   return (
     <div className="space-y-6 mt-4">
@@ -134,108 +142,132 @@ const ColormapDefineTab = ({
         </div>
       )}
 
-      {/* Add/Edit Colormap Form */}
-      <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium">
-            {editingIndex !== null ? 'Edit Colormap' : 'Add New Colormap'}
-          </h4>
-          {editingIndex !== null && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                onSetEditingIndex(null);
-                onResetColormap();
-              }}
+      {/* Show collapsed state or full form */}
+      {showForm ? (
+        /* Add/Edit Colormap Form */
+        <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium">
+              {editingIndex !== null ? 'Edit Colormap' : 'Add New Colormap'}
+            </h4>
+            {editingIndex !== null && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onSetEditingIndex(null);
+                  onSetIsAddingNew(false);
+                  onResetColormap();
+                }}
+              >
+                Cancel Edit
+              </Button>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="name">Color Ramp Name</Label>
+            <Select
+              value={currentColormap.name}
+              onValueChange={(value) => handleFieldChange('name', value)}
             >
-              Cancel Edit
-            </Button>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {COLORMAP_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    <div className="flex items-center gap-3 w-full">
+                      <ColorRampPreview 
+                        colormap={option} 
+                        reverse={currentColormap.reverse}
+                        width={180} 
+                        height={16}
+                      />
+                      <span>{option}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="reverse"
+              checked={currentColormap.reverse}
+              onCheckedChange={(checked) => handleFieldChange('reverse', checked)}
+            />
+            <Label htmlFor="reverse">Reverse Colors</Label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="min">Minimum Value</Label>
+              <Input
+                id="min"
+                type="number"
+                step="any"
+                value={currentColormap.min}
+                onChange={(e) => handleFieldChange('min', parseFloat(e.target.value) || 0)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="max">Maximum Value</Label>
+              <Input
+                id="max"
+                type="number"
+                step="any"
+                value={currentColormap.max}
+                onChange={(e) => handleFieldChange('max', parseFloat(e.target.value) || 1)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="steps">Steps</Label>
+            <Input
+              id="steps"
+              type="number"
+              min="1"
+              value={currentColormap.steps}
+              onChange={(e) => handleFieldChange('steps', parseInt(e.target.value) || 10)}
+            />
+          </div>
+
+          {!isValid && (
+            <p className="text-sm text-destructive">
+              Please ensure minimum value is less than maximum value and steps is greater than 0.
+            </p>
           )}
-        </div>
 
-        <div>
-          <Label htmlFor="name">Color Ramp Name</Label>
-          <Select
-            value={currentColormap.name}
-            onValueChange={(value) => handleFieldChange('name', value)}
+          <Button onClick={handleSave} disabled={!isValid} className="w-full">
+            <Plus className="h-4 w-4 mr-2" />
+            {editingIndex !== null ? 'Update Colormap' : 'Add Colormap'}
+          </Button>
+        </div>
+      ) : (
+        /* Collapsed state with help text and button */
+        <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+          <div className="flex items-start gap-2 text-sm text-muted-foreground">
+            <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <p>Multiple colormaps can be used over different ranges of the data.</p>
+          </div>
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={() => {
+              onSetIsAddingNew(true);
+              onResetColormap();
+            }}
+            className="w-full"
           >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {COLORMAP_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
-                  <div className="flex items-center gap-3 w-full">
-                    <ColorRampPreview 
-                      colormap={option} 
-                      reverse={currentColormap.reverse}
-                      width={180} 
-                      height={16}
-                    />
-                    <span>{option}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Plus className="h-4 w-4 mr-2" />
+            Add another colormap
+          </Button>
         </div>
-
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="reverse"
-            checked={currentColormap.reverse}
-            onCheckedChange={(checked) => handleFieldChange('reverse', checked)}
-          />
-          <Label htmlFor="reverse">Reverse Colors</Label>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="min">Minimum Value</Label>
-            <Input
-              id="min"
-              type="number"
-              step="any"
-              value={currentColormap.min}
-              onChange={(e) => handleFieldChange('min', parseFloat(e.target.value) || 0)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="max">Maximum Value</Label>
-            <Input
-              id="max"
-              type="number"
-              step="any"
-              value={currentColormap.max}
-              onChange={(e) => handleFieldChange('max', parseFloat(e.target.value) || 1)}
-            />
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="steps">Steps</Label>
-          <Input
-            id="steps"
-            type="number"
-            min="1"
-            value={currentColormap.steps}
-            onChange={(e) => handleFieldChange('steps', parseInt(e.target.value) || 10)}
-          />
-        </div>
-
-        {!isValid && (
-          <p className="text-sm text-destructive">
-            Please ensure minimum value is less than maximum value and steps is greater than 0.
-          </p>
-        )}
-
-        <Button onClick={handleSave} disabled={!isValid} className="w-full">
-          <Plus className="h-4 w-4 mr-2" />
-          {editingIndex !== null ? 'Update Colormap' : 'Add Colormap'}
-        </Button>
-      </div>
+      )}
     </div>
   );
 };

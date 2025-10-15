@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { CardContent } from '@/components/ui/card';
-import { DataSource, isDataSourceItemArray, Service } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service, DataSourceMeta } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
+import { useToast } from '@/hooks/use-toast';
 import LayerMetadata from './LayerMetadata';
 import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
@@ -29,8 +30,44 @@ const LayerCardContent = ({
   onEditDataSource,
   onEditStatisticsSource
 }: LayerCardContentProps) => {
-  const { config } = useConfig();
+  const { config, dispatch } = useConfig();
+  const { toast } = useToast();
   const isSwipeLayer = source.meta?.swipeConfig !== undefined;
+
+  // Find the index of this source in the config
+  const sourceIndex = config.sources.findIndex(s => s.name === source.name);
+
+  // Handler to update meta fields
+  const handleUpdateMeta = (updates: Partial<DataSourceMeta>) => {
+    if (sourceIndex === -1) return;
+
+    const updatedSource = {
+      ...source,
+      meta: {
+        ...source.meta,
+        ...updates
+      }
+    };
+
+    dispatch({
+      type: 'UPDATE_SOURCE',
+      payload: {
+        index: sourceIndex,
+        source: updatedSource
+      }
+    });
+
+    // Show success toast
+    const updateDescription = [];
+    if (updates.min !== undefined) updateDescription.push('min');
+    if (updates.max !== undefined) updateDescription.push('max');
+    if (updates.colormaps !== undefined) updateDescription.push('colormaps');
+
+    toast({
+      title: "Metadata Updated",
+      description: `Successfully updated ${updateDescription.join(', ')} values from COG metadata`,
+    });
+  };
 
   return (
     <CardContent className="space-y-4 pl-[46px]">
@@ -66,6 +103,7 @@ const LayerCardContent = ({
           onRemoveStatisticsSource={onRemoveStatisticsSource}
           onEditDataSource={onEditDataSource}
           onEditStatisticsSource={onEditStatisticsSource}
+          onUpdateMeta={handleUpdateMeta}
         />
       )}
 

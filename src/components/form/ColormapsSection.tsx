@@ -9,11 +9,15 @@ import ColorRampPreview from '@/components/ui/ColorRampPreview';
 interface ColormapsSectionProps {
   colormaps: Colormap[];
   onUpdate?: (field: string, value: any) => void;
+  metaMin?: number;
+  metaMax?: number;
 }
 
 const ColormapsSection = ({
   colormaps,
-  onUpdate
+  onUpdate,
+  metaMin,
+  metaMax
 }: ColormapsSectionProps) => {
 
   const handleColormapsUpdate = (updatedColormaps: Colormap[]) => {
@@ -62,6 +66,8 @@ const ColormapsSection = ({
       <ColormapEditorDialog
         colormaps={colormaps}
         onUpdate={handleColormapsUpdate}
+        metaMin={metaMin}
+        metaMax={metaMax}
         trigger={
           <Button type="button" variant="outline" size="sm" className="bg-white border-transparent text-blue-600 hover:bg-blue-50 text-xs px-2 py-1 h-7">
             <Edit3 className="h-4 w-4 mr-2" />

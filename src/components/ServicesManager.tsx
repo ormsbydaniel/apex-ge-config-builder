@@ -6,12 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server, Database, Download } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
-import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG } from '@/constants/formats';
+import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
+import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
+import { detectServiceTypeFromFile, DetectionResult, DetectedServiceType } from '@/utils/serviceFileParser';
 
 interface ServicesManagerProps {
   services: Service[];
@@ -22,10 +24,13 @@ interface ServicesManagerProps {
 const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesManagerProps) => {
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceUrl, setNewServiceUrl] = useState('');
-  const [selectedFormat, setSelectedFormat] = useState<SourceConfigType>('wms');
+  const [selectedFormat, setSelectedFormat] = useState<SourceConfigType | 'json-upload'>('wms');
   const [showAddForm, setShowAddForm] = useState(false);
   const [autoNameLoading, setAutoNameLoading] = useState(false);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [detectionResult, setDetectionResult] = useState<DetectionResult | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
 
@@ -57,7 +62,91 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
     };
   }, [newServiceUrl, selectedFormat]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadedFile(file);
+    
+    try {
+      // Determine file type from extension
+      const fileExt = file.name.toLowerCase().split('.').pop();
+      const fileType = fileExt === 'xml' ? 'xml' : 'json';
+      
+      // Read file content
+      const text = await file.text();
+      
+      // Auto-detect service type based on file type and content
+      const result = detectServiceTypeFromFile(text, file.name, fileType);
+      setDetectionResult(result);
+      
+      // Show confirmation dialog
+      setShowConfirmDialog(true);
+    } catch (error) {
+      toast({
+        title: "Invalid File",
+        description: error instanceof Error ? error.message : "Failed to parse file",
+        variant: "destructive"
+      });
+      setUploadedFile(null);
+    }
+  };
+
+  const handleConfirmUpload = (serviceName: string, serviceType: DetectedServiceType) => {
+    if (!detectionResult?.capabilities || !uploadedFile) return;
+    
+    // Extract proper URL for S3 services
+    let serviceUrl = `file://${uploadedFile.name}`;
+    if (serviceType === 's3' && detectionResult.rawData) {
+      // Extract bucket name from S3 XML/JSON data
+      const bucketName = detectionResult.rawData.Name || 
+                        detectionResult.rawData.name ||
+                        detectionResult.rawData.ListBucketResult?.Name;
+      
+      if (bucketName) {
+        // Construct proper S3 URL (default to us-east-1 region)
+        serviceUrl = `https://${bucketName}.s3.amazonaws.com`;
+      }
+    }
+    
+    // Create service with detected capabilities
+    const service: Service = {
+      id: `${serviceType}-service-${Date.now()}`,
+      name: serviceName,
+      url: serviceUrl,
+      format: serviceType === 'stac' ? 'stac' : serviceType === 's3' ? 's3' : undefined,
+      sourceType: serviceType === 'stac' ? 'stac' : serviceType === 's3' ? 's3' : 'service',
+      capabilities: detectionResult.capabilities
+    };
+    
+    onAddService(service);
+    
+    // Reset form
+    setShowConfirmDialog(false);
+    setUploadedFile(null);
+    setDetectionResult(null);
+    setNewServiceName('');
+    setNewServiceUrl('');
+    setShowAddForm(false);
+    
+    toast({
+      title: "Service Added from File",
+      description: `${serviceName} added with ${detectionResult.capabilities.layers.length} items`,
+    });
+  };
+
+  const handleCancelUpload = () => {
+    setShowConfirmDialog(false);
+    setUploadedFile(null);
+    setDetectionResult(null);
+  };
+
   const handleAddService = async () => {
+    if (selectedFormat === 'json-upload') {
+      // File upload is handled separately
+      return;
+    }
+    
     if (newServiceUrl.trim()) {
       if (selectedFormat === 's3') {
         // For S3, create a service with a placeholder format since the actual format will be determined by file extension
@@ -70,6 +159,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
       }
       setNewServiceName('');
       setNewServiceUrl('');
+      setUploadedFile(null);
       setShowAddForm(false);
     }
   };
@@ -77,6 +167,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
   const handleCancel = () => {
     setNewServiceName('');
     setNewServiceUrl('');
+    setUploadedFile(null);
+    setDetectionResult(null);
     setShowAddForm(false);
   };
 
@@ -141,12 +233,15 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
     }
   };
 
-  const getConfigForType = (type: SourceConfigType) => {
+  const getConfigForType = (type: SourceConfigType | 'json-upload') => {
     if (type === 's3') {
       return S3_CONFIG;
     }
     if (type === 'stac') {
       return STAC_CONFIG;
+    }
+    if (type === 'json-upload') {
+      return JSON_UPLOAD_CONFIG;
     }
     return FORMAT_CONFIGS[type as DataSourceFormat];
   };
@@ -198,7 +293,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                   <Label htmlFor="serviceFormat">Service Type</Label>
                   <Select
                     value={selectedFormat}
-                    onValueChange={(value: SourceConfigType) => setSelectedFormat(value)}
+                    onValueChange={(value: SourceConfigType | 'json-upload') => setSelectedFormat(value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select service type" />
@@ -228,40 +323,74 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                           {STAC_CONFIG.label}
                         </div>
                       </SelectItem>
+                      <SelectItem value="json-upload">
+                        <div className="flex items-center gap-2">
+                          <Upload className="h-4 w-4" />
+                          JSON or XML File Upload (beta)
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+
+                {selectedFormat === 'json-upload' ? (
                   <div className="space-y-2">
-                    <Label htmlFor="serviceUrl">Service URL</Label>
+                    <Label htmlFor="serviceJsonFile">Upload Service JSON or XML</Label>
                     <Input
-                      id="serviceUrl"
-                      value={newServiceUrl}
-                      onChange={(e) => setNewServiceUrl(e.target.value)}
-                      placeholder={getConfigForType(selectedFormat).urlPlaceholder}
+                      id="serviceJsonFile"
+                      type="file"
+                      accept=".json,.xml,application/json,text/xml,application/xml"
+                      onChange={handleFileUpload}
+                      className="cursor-pointer"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Upload a JSON or XML file containing S3 bucket listing, STAC catalog, or service capabilities
+                    </p>
+                    {uploadedFile && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Selected: {uploadedFile.name} ({Math.round(uploadedFile.size / 1024)}KB)
+                      </p>
+                    )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="serviceName">
-                      Service Name {selectedFormat === 'stac' && <span className="text-xs text-muted-foreground">(auto-populated from catalogue)</span>}
-                    </Label>
-                    <Input
-                      id="serviceName"
-                      value={newServiceName}
-                      onChange={(e) => setNewServiceName(e.target.value)}
-                      placeholder={
-                        selectedFormat === 's3' ? 'e.g., ESA APEX S3 Bucket' :
-                        selectedFormat === 'stac' ? 'Will be auto-populated...' :
-                        'e.g., Terrascope WMS'
-                      }
-                      disabled={selectedFormat === 'stac' && autoNameLoading}
-                    />
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="serviceUrl">Service URL</Label>
+                        <Input
+                          id="serviceUrl"
+                          value={newServiceUrl}
+                          onChange={(e) => setNewServiceUrl(e.target.value)}
+                          placeholder={getConfigForType(selectedFormat).urlPlaceholder}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="serviceName">
+                          Service Name {selectedFormat === 'stac' && <span className="text-xs text-muted-foreground">(auto-populated from catalogue)</span>}
+                        </Label>
+                        <Input
+                          id="serviceName"
+                          value={newServiceName}
+                          onChange={(e) => setNewServiceName(e.target.value)}
+                          placeholder={
+                            selectedFormat === 's3' ? 'e.g., ESA APEX S3 Bucket' :
+                            selectedFormat === 'stac' ? 'Will be auto-populated...' :
+                            'e.g., Terrascope WMS'
+                          }
+                          disabled={selectedFormat === 'stac' && autoNameLoading}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
                 <div className="flex gap-2">
                   <Button
                     onClick={handleAddService}
-                    disabled={!newServiceUrl.trim() || isLoadingCapabilities}
+                    disabled={
+                      (selectedFormat !== 'json-upload' && !newServiceUrl.trim()) ||
+                      (selectedFormat === 'json-upload' && !uploadedFile) ||
+                      isLoadingCapabilities
+                    }
                     className="bg-primary hover:bg-primary/90"
                   >
                     {isLoadingCapabilities ? (
@@ -363,6 +492,14 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
           )}
         </CardContent>
       </Card>
+
+      <ServiceUploadConfirmDialog
+        open={showConfirmDialog}
+        onOpenChange={setShowConfirmDialog}
+        detectionResult={detectionResult}
+        onConfirm={handleConfirmUpload}
+        onCancel={handleCancelUpload}
+      />
     </div>
   );
 };

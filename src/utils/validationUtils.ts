@@ -76,6 +76,16 @@ const detectSwipeLayerFromInput = (sourceData: any): boolean => {
 };
 
 const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string): string => {
+  console.log(`[DEBUG] Analyzing validation failure for "${sourceName}":`, {
+    isBaseLayer: sourceData.isBaseLayer,
+    hasMeta: !!sourceData.meta,
+    metaDescription: sourceData.meta?.description,
+    metaDescriptionType: typeof sourceData.meta?.description,
+    metaAttributionText: sourceData.meta?.attribution?.text,
+    metaAttributionTextType: typeof sourceData.meta?.attribution?.text,
+    hasLayout: !!sourceData.layout,
+  });
+  
   const issues: string[] = [];
   const suggestions: string[] = [];
   
@@ -123,20 +133,20 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
       if (!sourceData.meta.swipeConfig.baseSourceNames || !Array.isArray(sourceData.meta.swipeConfig.baseSourceNames)) {
         issues.push('meta.swipeConfig.baseSourceNames must be an array');
       }
-      if (!hasMeta || !sourceData.meta.description) {
+      if (!hasMeta || sourceData.meta.description === undefined) {
         issues.push('meta.description is required for transformed swipe layers');
       }
-      if (!hasMeta || !sourceData.meta.attribution?.text) {
+      if (!hasMeta || sourceData.meta.attribution?.text === undefined) {
         issues.push('meta.attribution.text is required for transformed swipe layers');
       }
     }
   } else if (isBaseLayer) {
     // Base layer validation
     suggestions.push('This appears to be a base layer (isBaseLayer: true)');
-    if (hasMeta && !sourceData.meta.description) {
+    if (hasMeta && sourceData.meta.description === undefined) {
       issues.push('meta.description is required when meta is provided');
     }
-    if (hasMeta && (!sourceData.meta.attribution || !sourceData.meta.attribution.text)) {
+    if (hasMeta && (!sourceData.meta.attribution || sourceData.meta.attribution.text === undefined)) {
       issues.push('meta.attribution.text is required when meta is provided');
     }
   } else {
@@ -145,10 +155,10 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
     if (!hasMeta) {
       issues.push('meta field is required for layer cards');
     } else {
-      if (!sourceData.meta.description) {
+      if (sourceData.meta.description === undefined) {
         issues.push('meta.description is required');
       }
-      if (!sourceData.meta.attribution?.text) {
+      if (sourceData.meta.attribution?.text === undefined) {
         issues.push('meta.attribution.text is required');
       }
     }
@@ -198,9 +208,9 @@ const analyzeDataSourceValidationFailure = (sourceData: any, sourceName: string)
   if (isSwipeLayer) {
     message += ' For swipe layers during import: data.type="swipe", data.clippedSource, and data.baseSources are required. Meta and layout will be auto-generated if missing.';
   } else if (isBaseLayer) {
-    message += ' For base layers: meta and layout are optional, but if provided, meta.description and meta.attribution.text are required.';
+    message += ' For base layers: meta and layout are optional, but if provided, meta.description and meta.attribution.text must be present (empty strings are allowed).';
   } else {
-    message += ' For layer cards: meta (with description and attribution) and layout are required.';
+    message += ' For layer cards: meta (with description and attribution) and layout are required (empty strings are allowed for description and attribution.text).';
   }
   
   return message;

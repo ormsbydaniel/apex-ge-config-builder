@@ -6,15 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Database, Globe, Server } from 'lucide-react';
 import { Service, DataSourceFormat } from '@/types/config';
-import { validateS3Url, S3Object } from '@/utils/s3Utils';
+import { validateS3Url, S3Selection } from '@/utils/s3Utils';
 import S3LayerSelector from '@/components/form/S3LayerSelector';
 import StacBrowser from './StacBrowser';
+
+import { AssetSelection } from './StacBrowser';
 
 interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (url: string, layers?: string, format?: DataSourceFormat, datetime?: string) => void;
+  onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat, datetime?: string) => void;
 }
 
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: ServiceSelectionModalProps) => {
@@ -25,8 +27,19 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
   const isS3Service = service.sourceType === 's3' || validateS3Url(service.url);
   const isStacService = service.sourceType === 'stac';
 
-  const handleS3ObjectSelect = (object: S3Object, detectedFormat: DataSourceFormat) => {
-    onSelect(object.url, '', detectedFormat);
+  const handleS3ObjectSelect = (selection: S3Selection | S3Selection[]) => {
+    if (Array.isArray(selection)) {
+      // Bulk selection - map to AssetSelection format
+      const assetSelections: AssetSelection[] = selection.map(s => ({
+        url: s.url,
+        format: s.format,
+        datetime: undefined
+      }));
+      onSelect(assetSelections);
+    } else {
+      // Single selection
+      onSelect(selection.url, '', selection.format);
+    }
     handleClose();
   };
 
@@ -112,8 +125,14 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
           ) : isStacService ? (
             <StacBrowser
               serviceUrl={service.url}
-              onAssetSelect={(assetUrl, format, datetime) => {
-                onSelect(assetUrl, '', format, datetime);
+              onAssetSelect={(selection) => {
+                // Handle both single and bulk selections
+                if (Array.isArray(selection)) {
+                  onSelect(selection);
+                } else {
+                  // Convert single selection to old format for compatibility
+                  onSelect(selection.url, '', selection.format, selection.datetime);
+                }
                 handleClose();
               }}
             />
