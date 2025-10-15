@@ -17,18 +17,23 @@ async function validateUrl(url: string, type: 'data' | 'statistics'): Promise<Ur
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
     try {
-      // Try HEAD request first
+      // Try HEAD request first (without no-cors to read actual status)
       const response = await fetch(url, {
         method: 'HEAD',
-        signal: controller.signal,
-        mode: 'no-cors' // Allow requests to be made even if CORS is not enabled
+        signal: controller.signal
       });
 
       clearTimeout(timeoutId);
 
-      // In no-cors mode, we can't read the status, so we assume success if no error
-      result.status = 'valid';
-      result.statusCode = response.status || 200;
+      // Check actual HTTP status code
+      if (response.ok) {
+        result.status = 'valid';
+        result.statusCode = response.status;
+      } else {
+        result.status = 'error';
+        result.statusCode = response.status;
+        result.error = `HTTP ${response.status} ${response.statusText || 'error'}`;
+      }
       
       return result;
     } catch (headError) {
@@ -44,14 +49,20 @@ async function validateUrl(url: string, type: 'data' | 'statistics'): Promise<Ur
           headers: {
             'Range': 'bytes=0-0'
           },
-          signal: controller2.signal,
-          mode: 'no-cors'
+          signal: controller2.signal
         });
 
         clearTimeout(timeoutId2);
         
-        result.status = 'valid';
-        result.statusCode = response.status || 200;
+        // Check actual HTTP status code
+        if (response.ok || response.status === 206) {
+          result.status = 'valid';
+          result.statusCode = response.status;
+        } else {
+          result.status = 'error';
+          result.statusCode = response.status;
+          result.error = `HTTP ${response.status} ${response.statusText || 'error'}`;
+        }
         
         return result;
       } catch (getError) {
@@ -65,8 +76,14 @@ async function validateUrl(url: string, type: 'data' | 'statistics'): Promise<Ur
         result.status = 'error';
         result.error = 'Request timeout (>10s)';
       } else {
-        result.status = 'error';
-        result.error = error.message;
+        // Better CORS error messaging
+        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+          result.status = 'error';
+          result.error = 'CORS error or network failure - unable to validate URL';
+        } else {
+          result.status = 'error';
+          result.error = error.message;
+        }
       }
     } else {
       result.status = 'error';
