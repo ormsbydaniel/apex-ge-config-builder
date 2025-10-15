@@ -25,7 +25,7 @@ export const QAStatCard = ({ icon: Icon, value, label, colorClass, bgGradient, o
         <div className="relative z-10">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Icon className={cn("h-5 w-5", colorClass)} />
-            <div className={cn("text-3xl font-bold", colorClass)}>{value}</div>
+            <div className={cn("text-2xl font-bold", colorClass)}>{value}</div>
           </div>
           <div className="text-sm text-muted-foreground font-medium text-center">{label}</div>
         </div>

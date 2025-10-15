@@ -16,7 +16,7 @@ export const ConfigStatCard = ({ icon: Icon, value, label, gradient = 'from-prim
         <div className="relative z-10">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Icon className="h-5 w-5 text-primary" />
-            <div className="text-3xl font-bold text-foreground">{value}</div>
+            <div className="text-2xl font-bold text-foreground">{value}</div>
           </div>
           <div className="text-sm text-muted-foreground font-medium text-center">{label}</div>
         </div>

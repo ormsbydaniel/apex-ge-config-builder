@@ -330,7 +330,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
             {/* Quality Assurance Statistics */}
             <Card className="border-border/50 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-xl">Quality Assurance</CardTitle>
+                <CardTitle className="text-xl">Layer Quality Assurance</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
