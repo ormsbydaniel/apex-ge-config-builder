@@ -128,7 +128,7 @@ const AutoTuneDialog = ({ open, onOpenChange, config, onApply }: AutoTuneDialogP
         </div>
 
         {/* Preview Table */}
-        <ScrollArea className="h-[350px] rounded-md border">
+        <ScrollArea className="h-[280px] rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
