@@ -311,6 +311,12 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     gradient="from-blue-500/10 to-blue-500/5"
                   />
                   <ConfigStatCard 
+                    icon={Server} 
+                    value={config.services.length} 
+                    label="Services"
+                    gradient="from-green-500/10 to-green-500/5"
+                  />
+                  <ConfigStatCard 
                     icon={Layers} 
                     value={config.sources.length} 
                     label="Layers"
@@ -321,12 +327,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     value={config.exclusivitySets.length} 
                     label="Exclusivity Sets"
                     gradient="from-amber-500/10 to-amber-500/5"
-                  />
-                  <ConfigStatCard 
-                    icon={Server} 
-                    value={config.services.length} 
-                    label="Services"
-                    gradient="from-green-500/10 to-green-500/5"
                   />
                 </div>
               </CardContent>
