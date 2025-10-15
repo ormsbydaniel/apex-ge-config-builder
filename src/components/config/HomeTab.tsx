@@ -196,14 +196,14 @@ const HomeTab = ({ config }: HomeTabProps) => {
               <div className="border-t border-border/50" />
               {/* Title */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between group">
+                <div className="flex items-center justify-between">
                   <label className="text-sm font-medium text-muted-foreground">Application Title</label>
                   {!isEditingTitle && (
                     <Button 
                       size="sm" 
                       variant="ghost" 
                       onClick={() => setIsEditingTitle(true)} 
-                      className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="h-7 w-7 p-0"
                     >
                       <Edit className="h-3.5 w-3.5" />
                     </Button>
@@ -236,14 +236,14 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
               {/* Version */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between group">
+                <div className="flex items-center justify-between">
                   <label className="text-sm font-medium text-muted-foreground">Version</label>
                   {!isEditingVersion && (
                     <Button 
                       size="sm" 
                       variant="ghost" 
                       onClick={() => setIsEditingVersion(true)} 
-                      className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="h-7 w-7 p-0"
                     >
                       <Edit className="h-3.5 w-3.5" />
                     </Button>
