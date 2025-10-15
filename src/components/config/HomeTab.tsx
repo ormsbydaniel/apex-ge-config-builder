@@ -30,6 +30,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
   const [showCompleteLayersDialog, setShowCompleteLayersDialog] = useState(false);
+  const [validationResults, setValidationResults] = useState<Map<number, any>>(new Map());
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [errorFileName, setErrorFileName] = useState<string>('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -368,9 +369,26 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 size="sm"
                 className="w-full"
               >
-                <Check className="h-4 w-4 mr-2" />
-                Data Source Validation
+                Run Data Source Validation
               </Button>
+              
+              {/* Validation Results Summary */}
+              {validationResults.size > 0 && (
+                <div className="p-3 bg-muted/50 border border-border/50 rounded-lg">
+                  <div className="text-xs font-medium text-muted-foreground mb-2">Last Validation Results</div>
+                  <div className="flex gap-3 text-xs">
+                    <span className="text-green-600 font-medium">
+                      {Array.from(validationResults.values()).filter(r => r.overallStatus === 'valid').length} Valid
+                    </span>
+                    <span className="text-amber-600 font-medium">
+                      {Array.from(validationResults.values()).filter(r => r.overallStatus === 'partial').length} Partial
+                    </span>
+                    <span className="text-red-600 font-medium">
+                      {Array.from(validationResults.values()).filter(r => r.overallStatus === 'error').length} Errors
+                    </span>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -389,6 +407,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
         open={showCompleteLayersDialog}
         onOpenChange={setShowCompleteLayersDialog}
         config={config}
+        onValidationComplete={setValidationResults}
       />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>

@@ -22,12 +22,14 @@ interface CompleteLayersDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   config: any;
+  onValidationComplete?: (results: Map<number, LayerValidationResult>) => void;
 }
 
 const CompleteLayersDialog = ({
   open,
   onOpenChange,
-  config
+  config,
+  onValidationComplete
 }: CompleteLayersDialogProps) => {
   const [validationResults, setValidationResults] = useState<Map<number, LayerValidationResult>>(new Map());
   const [isValidating, setIsValidating] = useState(false);
@@ -115,6 +117,11 @@ const CompleteLayersDialog = ({
       );
       
       setValidationResults(results);
+      
+      // Pass results to parent component
+      if (onValidationComplete) {
+        onValidationComplete(results);
+      }
       
       // Count results
       const errorCount = Array.from(results.values()).filter(r => r.overallStatus === 'error').length;
