@@ -220,3 +220,19 @@ export interface ConfigValidationResult {
   errors: ValidationErrorDetails[];
   config?: any;
 }
+
+// URL and Layer Validation Types
+export interface UrlValidationResult {
+  url: string;
+  type: 'data' | 'statistics';
+  status: 'valid' | 'error' | 'checking' | 'not-validated';
+  statusCode?: number;
+  error?: string;
+}
+
+export interface LayerValidationResult {
+  layerName: string;
+  overallStatus: 'valid' | 'partial' | 'error' | 'checking' | 'not-validated';
+  urlResults: UrlValidationResult[];
+  checkedAt?: Date;
+}

@@ -12,6 +12,7 @@ import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
 import AttributionMissingDialog from './AttributionMissingDialog';
+import CompleteLayersDialog from './CompleteLayersDialog';
 import { calculateQAStats } from '@/utils/qaUtils';
 import { ConfigStatCard } from './components/ConfigStatCard';
 import { QAStatCard } from './components/QAStatCard';
@@ -28,6 +29,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
+  const [showCompleteLayersDialog, setShowCompleteLayersDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [errorFileName, setErrorFileName] = useState<string>('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -338,6 +340,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     label="Complete Layers"
                     colorClass="text-green-600"
                     bgGradient="from-green-500/20 to-green-500/5"
+                    onClick={() => setShowCompleteLayersDialog(true)}
                   />
                   <QAStatCard
                     icon={Triangle}
@@ -374,6 +377,12 @@ const HomeTab = ({ config }: HomeTabProps) => {
         onOpenChange={setShowAttributionDialog}
         config={config}
         onUpdateLayers={handleAttributionUpdates}
+      />
+
+      <CompleteLayersDialog 
+        open={showCompleteLayersDialog}
+        onOpenChange={setShowCompleteLayersDialog}
+        config={config}
       />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
