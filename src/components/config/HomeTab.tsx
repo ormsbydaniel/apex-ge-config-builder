@@ -374,7 +374,10 @@ const HomeTab = ({ config }: HomeTabProps) => {
               
               {/* Validation Results Summary */}
               {validationResults.size > 0 && (
-                <div className="p-3 bg-muted/50 border border-border/50 rounded-lg">
+                <button
+                  onClick={() => setShowCompleteLayersDialog(true)}
+                  className="w-full p-3 bg-muted/50 border border-border/50 rounded-lg hover:bg-muted/70 hover:border-border transition-all cursor-pointer text-left"
+                >
                   <div className="text-xs font-medium text-muted-foreground mb-2">Last Validation Results</div>
                   <div className="flex gap-3 text-xs">
                     <span className="text-green-600 font-medium">
@@ -387,7 +390,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                       {Array.from(validationResults.values()).filter(r => r.overallStatus === 'error').length} Errors
                     </span>
                   </div>
-                </div>
+                </button>
               )}
             </CardContent>
           </Card>
