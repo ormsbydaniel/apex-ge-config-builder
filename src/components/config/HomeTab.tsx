@@ -147,8 +147,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <Button 
                     onClick={handleImportClick} 
+                    variant="outline"
                     size="default"
-                    className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform"
+                    className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform border-blue-500/50 text-blue-600 hover:bg-blue-500/10"
                     disabled={config.isLoading}
                   >
                     <Upload className="h-4 w-4 mr-2" />
@@ -160,7 +161,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                       <Button 
                         variant="outline" 
                         size="default"
-                        className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform"
+                        className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform border-green-500/50 text-green-600 hover:bg-green-500/10"
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Export
@@ -183,7 +184,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     onClick={handleNewConfig} 
                     variant="outline"
                     size="default"
-                    className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform"
+                    className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform border-purple-500/50 text-purple-600 hover:bg-purple-500/10"
                   >
                     <RotateCcw className="h-4 w-4 mr-2" />
                     New Config
