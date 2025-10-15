@@ -75,7 +75,7 @@ const AutoTuneDialog = ({ open, onOpenChange, config, onApply }: AutoTuneDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[85vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -128,7 +128,7 @@ const AutoTuneDialog = ({ open, onOpenChange, config, onApply }: AutoTuneDialogP
         </div>
 
         {/* Preview Table */}
-        <ScrollArea className="flex-1 rounded-md border">
+        <ScrollArea className="h-[350px] rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -191,7 +191,7 @@ const AutoTuneDialog = ({ open, onOpenChange, config, onApply }: AutoTuneDialogP
           </Table>
         </ScrollArea>
 
-        <DialogFooter className="mt-4">
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
