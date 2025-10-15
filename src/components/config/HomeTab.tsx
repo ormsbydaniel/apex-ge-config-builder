@@ -138,18 +138,14 @@ const HomeTab = ({ config }: HomeTabProps) => {
           {/* Left Column: Project Info */}
           <Card className="border-border/50 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl">Project Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Quick Actions */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-muted-foreground">Quick Actions</label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="flex items-center justify-between gap-4">
+                <CardTitle className="text-xl">Project</CardTitle>
+                <div className="flex items-center gap-2">
                   <Button 
                     onClick={handleImportClick} 
                     variant="outline"
-                    size="default"
-                    className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform border-blue-500/50 text-blue-600 hover:bg-blue-500/10"
+                    size="sm"
+                    className="h-9 text-sm font-medium hover:scale-[1.01] transition-transform border-blue-500/50 text-blue-600 hover:bg-blue-500/10"
                     disabled={config.isLoading}
                   >
                     <Upload className="h-4 w-4 mr-2" />
@@ -160,8 +156,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     <DropdownMenuTrigger asChild>
                       <Button 
                         variant="outline" 
-                        size="default"
-                        className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform border-green-500/50 text-green-600 hover:bg-green-500/10"
+                        size="sm"
+                        className="h-9 text-sm font-medium hover:scale-[1.01] transition-transform border-green-500/50 text-green-600 hover:bg-green-500/10"
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Export
@@ -183,18 +179,17 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   <Button 
                     onClick={handleNewConfig} 
                     variant="outline"
-                    size="default"
-                    className="h-10 text-sm font-medium hover:scale-[1.01] transition-transform border-purple-500/50 text-purple-600 hover:bg-purple-500/10"
+                    size="sm"
+                    className="h-9 text-sm font-medium hover:scale-[1.01] transition-transform border-purple-500/50 text-purple-600 hover:bg-purple-500/10"
                   >
                     <RotateCcw className="h-4 w-4 mr-2" />
                     New Config
                   </Button>
                 </div>
-                <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
               </div>
-
-              {/* Separator */}
-              <div className="border-t border-border/50" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
               {/* Title */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
