@@ -164,9 +164,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
   // Helper function to extract layers with missing legend
   const getMissingLegendLayers = () => {
-    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string; groupIndex: number; layerIndex: number }> = [];
+    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string; index: number }> = [];
     
-    config.sources.forEach((source: DataSource) => {
+    config.sources.forEach((source: DataSource, index: number) => {
       const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
       const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
       const hasAnyContent = hasData || hasStatistics;
@@ -176,91 +176,85 @@ const HomeTab = ({ config }: HomeTabProps) => {
                        (source.meta?.startColor && source.meta?.endColor);
       
       if (hasAnyContent && !hasLegend) {
-        const interfaceGroupName = getInterfaceGroupName(source);
-        
-        // Find group index and layer index within that group
-        let groupIndex = 2000; // Default for ungrouped
-        let layerIndex = 0;
-        
-        if (interfaceGroupName === 'Base Layer') {
-          groupIndex = 1000;
-        } else if (interfaceGroupName !== 'Ungrouped') {
-          const groupIdx = config.interfaceGroups?.findIndex((ig: any) => ig.name === interfaceGroupName);
-          if (groupIdx !== undefined && groupIdx >= 0) {
-            groupIndex = groupIdx;
-            const group = config.interfaceGroups[groupIdx] as any;
-            if (group.layers) {
-              layerIndex = group.layers.indexOf(source.name);
-              if (layerIndex === -1) layerIndex = 999; // Layer not found in group
-            }
-          }
-        }
-        
         layers.push({
           source,
-          interfaceGroup: interfaceGroupName,
+          interfaceGroup: getInterfaceGroupName(source),
           layerName: source.name || 'Unnamed Layer',
-          groupIndex,
-          layerIndex
+          index
         });
       }
     });
     
-    // Sort by interface group order, then by layer order within group
+    // Sort by interface group order, then by source index
     return layers.sort((a, b) => {
-      if (a.groupIndex !== b.groupIndex) {
-        return a.groupIndex - b.groupIndex;
+      const getGroupOrder = (group: string) => {
+        if (group === 'Base Layer') return 1000; // Base layers after interface groups
+        if (group === 'Ungrouped') return 2000; // Ungrouped comes last
+        
+        // Interface groups: use their position in config.interfaceGroups array
+        const groupIndex = config.interfaceGroups?.indexOf(group);
+        if (groupIndex !== undefined && groupIndex >= 0) {
+          return groupIndex;
+        }
+        
+        return 1500; // Unknown groups between base and ungrouped
+      };
+      
+      const orderA = getGroupOrder(a.interfaceGroup);
+      const orderB = getGroupOrder(b.interfaceGroup);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
       }
-      return a.layerIndex - b.layerIndex;
+      
+      // Within same group, maintain source order by index
+      return a.index - b.index;
     });
   };
 
   // Helper function to extract layers with no data/statistics
   const getNoDataLayers = () => {
-    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string; groupIndex: number; layerIndex: number }> = [];
+    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string; index: number }> = [];
     
-    config.sources.forEach((source: DataSource) => {
+    config.sources.forEach((source: DataSource, index: number) => {
       const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
       const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
       const hasAnyContent = hasData || hasStatistics;
       
       if (!hasAnyContent) {
-        const interfaceGroupName = getInterfaceGroupName(source);
-        
-        // Find group index and layer index within that group
-        let groupIndex = 2000; // Default for ungrouped
-        let layerIndex = 0;
-        
-        if (interfaceGroupName === 'Base Layer') {
-          groupIndex = 1000;
-        } else if (interfaceGroupName !== 'Ungrouped') {
-          const groupIdx = config.interfaceGroups?.findIndex((ig: any) => ig.name === interfaceGroupName);
-          if (groupIdx !== undefined && groupIdx >= 0) {
-            groupIndex = groupIdx;
-            const group = config.interfaceGroups[groupIdx] as any;
-            if (group.layers) {
-              layerIndex = group.layers.indexOf(source.name);
-              if (layerIndex === -1) layerIndex = 999; // Layer not found in group
-            }
-          }
-        }
-        
         layers.push({
           source,
-          interfaceGroup: interfaceGroupName,
+          interfaceGroup: getInterfaceGroupName(source),
           layerName: source.name || 'Unnamed Layer',
-          groupIndex,
-          layerIndex
+          index
         });
       }
     });
     
-    // Sort by interface group order, then by layer order within group
+    // Sort by interface group order, then by source index
     return layers.sort((a, b) => {
-      if (a.groupIndex !== b.groupIndex) {
-        return a.groupIndex - b.groupIndex;
+      const getGroupOrder = (group: string) => {
+        if (group === 'Base Layer') return 1000; // Base layers after interface groups
+        if (group === 'Ungrouped') return 2000; // Ungrouped comes last
+        
+        // Interface groups: use their position in config.interfaceGroups array
+        const groupIndex = config.interfaceGroups?.indexOf(group);
+        if (groupIndex !== undefined && groupIndex >= 0) {
+          return groupIndex;
+        }
+        
+        return 1500; // Unknown groups between base and ungrouped
+      };
+      
+      const orderA = getGroupOrder(a.interfaceGroup);
+      const orderB = getGroupOrder(b.interfaceGroup);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
       }
-      return a.layerIndex - b.layerIndex;
+      
+      // Within same group, maintain source order by index
+      return a.index - b.index;
     });
   };
 
