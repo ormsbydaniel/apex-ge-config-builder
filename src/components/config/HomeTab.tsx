@@ -164,9 +164,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
   // Helper function to extract layers with missing legend
   const getMissingLegendLayers = () => {
-    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string }> = [];
+    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string; index: number }> = [];
     
-    config.sources.forEach((source: DataSource) => {
+    config.sources.forEach((source: DataSource, index: number) => {
       const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
       const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
       const hasAnyContent = hasData || hasStatistics;
@@ -179,19 +179,44 @@ const HomeTab = ({ config }: HomeTabProps) => {
         layers.push({
           source,
           interfaceGroup: getInterfaceGroupName(source),
-          layerName: source.name || 'Unnamed Layer'
+          layerName: source.name || 'Unnamed Layer',
+          index
         });
       }
     });
     
-    return layers;
+    // Sort by interface group order, then by layer index within group
+    return layers.sort((a, b) => {
+      const getGroupOrder = (group: string) => {
+        if (group === 'Base Layer') return 1000; // Base layers after interface groups
+        if (group === 'Ungrouped') return 2000; // Ungrouped comes last
+        
+        // Interface groups: use their position in config.interfaceGroups
+        const groupIndex = config.interfaceGroups?.findIndex((ig: any) => ig.name === group);
+        if (groupIndex !== undefined && groupIndex >= 0) {
+          return groupIndex;
+        }
+        
+        return 1500; // Unknown groups between base and ungrouped
+      };
+      
+      const orderA = getGroupOrder(a.interfaceGroup);
+      const orderB = getGroupOrder(b.interfaceGroup);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      
+      // Within same group, maintain source order
+      return a.index - b.index;
+    });
   };
 
   // Helper function to extract layers with no data/statistics
   const getNoDataLayers = () => {
-    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string }> = [];
+    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string; index: number }> = [];
     
-    config.sources.forEach((source: DataSource) => {
+    config.sources.forEach((source: DataSource, index: number) => {
       const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
       const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
       const hasAnyContent = hasData || hasStatistics;
@@ -200,12 +225,37 @@ const HomeTab = ({ config }: HomeTabProps) => {
         layers.push({
           source,
           interfaceGroup: getInterfaceGroupName(source),
-          layerName: source.name || 'Unnamed Layer'
+          layerName: source.name || 'Unnamed Layer',
+          index
         });
       }
     });
     
-    return layers;
+    // Sort by interface group order, then by layer index within group
+    return layers.sort((a, b) => {
+      const getGroupOrder = (group: string) => {
+        if (group === 'Base Layer') return 1000; // Base layers after interface groups
+        if (group === 'Ungrouped') return 2000; // Ungrouped comes last
+        
+        // Interface groups: use their position in config.interfaceGroups
+        const groupIndex = config.interfaceGroups?.findIndex((ig: any) => ig.name === group);
+        if (groupIndex !== undefined && groupIndex >= 0) {
+          return groupIndex;
+        }
+        
+        return 1500; // Unknown groups between base and ungrouped
+      };
+      
+      const orderA = getGroupOrder(a.interfaceGroup);
+      const orderB = getGroupOrder(b.interfaceGroup);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      
+      // Within same group, maintain source order
+      return a.index - b.index;
+    });
   };
 
   // Handler for missing legend card click
