@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useViewerLoader } from '@/hooks/useViewerLoader';
+import { useConfig } from '@/contexts/ConfigContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -19,6 +20,7 @@ const VIEWER_CONTAINER_ID = 'apex-viewer-container';
 
 const Preview = () => {
   const navigate = useNavigate();
+  const { config } = useConfig();
   
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
@@ -61,6 +63,7 @@ const Preview = () => {
   const { isLoading, isReady, error, reload } = useViewerLoader({
     version: selectedVersion,
     containerId: VIEWER_CONTAINER_ID,
+    config,
     enabled: selectedVersion !== '', // Only load when we have a version
   });
 

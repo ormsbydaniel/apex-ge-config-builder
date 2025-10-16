@@ -4,6 +4,7 @@ import { ViewerAPI } from '@/types/viewer';
 interface UseViewerLoaderProps {
   version: string;
   containerId: string;
+  config?: any;
   enabled?: boolean;
 }
 
@@ -17,6 +18,7 @@ interface UseViewerLoaderReturn {
 export function useViewerLoader({
   version,
   containerId,
+  config,
   enabled = true,
 }: UseViewerLoaderProps): UseViewerLoaderReturn {
   const [isLoading, setIsLoading] = useState(false);
@@ -72,10 +74,8 @@ export function useViewerLoader({
         try {
           // Check for viewer initialization function
           if (window.initApexViewer) {
-            console.log('[Config Builder] Found window.initApexViewer, initializing with config...');
+            console.log('[Config Builder] Found window.initApexViewer, initializing with config:', config);
             // Pass the current config to the viewer
-            const configData = localStorage.getItem('apexConfig');
-            const config = configData ? JSON.parse(configData) : null;
             (window.initApexViewer as (container: HTMLElement, options?: { config?: any }) => void)(container, { config });
             setIsReady(true);
           } else if (window.ApexViewer?.init) {
@@ -102,7 +102,7 @@ export function useViewerLoader({
 
     scriptRef.current = script;
     document.head.appendChild(script);
-  }, [version, containerId, cleanup]);
+  }, [version, containerId, config, cleanup]);
 
   useEffect(() => {
     if (enabled && version) {
