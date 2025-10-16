@@ -154,12 +154,12 @@ const HomeTab = ({ config }: HomeTabProps) => {
       return 'Base Layer';
     }
     
-    // Check if it's in an interface group
-    const interfaceGroup = config.interfaceGroups.find((ig: any) => 
-      ig.layers && ig.layers.includes(source.name)
-    );
+    // Check layout.interfaceGroup (this is where it's actually stored)
+    if (source.layout?.interfaceGroup) {
+      return source.layout.interfaceGroup;
+    }
     
-    return interfaceGroup?.name || 'Ungrouped';
+    return 'Ungrouped';
   };
 
   // Helper function to extract layers with missing legend
