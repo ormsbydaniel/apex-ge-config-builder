@@ -124,33 +124,33 @@ const Preview = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      <header className="border-b bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button onClick={() => navigate('/')} variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Config Builder
-            </Button>
-            
-            <div className="h-6 w-px bg-border" />
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Viewer Version:</span>
-              <Select value={selectedVersion} onValueChange={handleVersionChange}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {versions.map((v) => (
-                    <SelectItem key={v.version} value={v.version}>
-                      {v.version}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+    <div className="h-screen relative bg-background">
+      <header className="absolute top-4 left-1/2 -translate-x-1/2 z-50 border rounded-lg bg-card/95 backdrop-blur-sm shadow-lg px-4 py-3">
+        <div className="flex items-center gap-4">
+          <Button onClick={() => navigate('/')} variant="outline" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Config Builder
+          </Button>
+          
+          <div className="h-6 w-px bg-border" />
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Viewer Version:</span>
+            <Select value={selectedVersion} onValueChange={handleVersionChange}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {versions.map((v) => (
+                  <SelectItem key={v.version} value={v.version}>
+                    {v.version}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          <div className="h-6 w-px bg-border" />
 
           <div className="flex items-center gap-3">
             {isLoading && (
@@ -174,7 +174,7 @@ const Preview = () => {
         </div>
       </header>
 
-      <div className="flex-1 relative overflow-hidden">
+      <div className="w-full h-full relative overflow-hidden">
         {error ? (
           <div className="absolute inset-0 flex items-center justify-center p-8">
             <Card className="max-w-md">
