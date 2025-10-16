@@ -9,7 +9,8 @@ import { useTableSorting } from '@/hooks/useTableSorting';
 import { validateBatchLayers } from '@/utils/layerValidation';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 interface LayerWithGroup {
   layer: DataSource;
@@ -37,7 +38,9 @@ const CompleteLayersDialog = ({
   const [isValidating, setIsValidating] = useState(false);
   const [validationProgress, setValidationProgress] = useState({ completed: 0, total: 0, currentLayer: '' });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [statusFilter, setStatusFilter] = useState<'all' | 'partial' | 'issues'>('all');
+  const [showValid, setShowValid] = useState(true);
+  const [showPartial, setShowPartial] = useState(true);
+  const [showIssues, setShowIssues] = useState(true);
 
   // Update local validation results when existingResults prop changes
   React.useEffect(() => {
@@ -98,17 +101,21 @@ const CompleteLayersDialog = ({
       return a.index - b.index;
     });
 
-    // Apply status filter
-    if (statusFilter === 'all') {
-      return sorted;
-    } else if (statusFilter === 'partial') {
-      return sorted.filter(item => item.validationResult?.overallStatus === 'partial');
-    } else if (statusFilter === 'issues') {
-      return sorted.filter(item => item.validationResult?.overallStatus === 'error');
-    }
-    
-    return sorted;
-  }, [allLayers, config.interfaceGroups, statusFilter]);
+    // Apply status filters (can show multiple at once)
+    return sorted.filter(item => {
+      const status = item.validationResult?.overallStatus;
+      
+      // If no validation result, show it
+      if (!status) return true;
+      
+      // Check against selected filters
+      if (status === 'valid' && showValid) return true;
+      if (status === 'partial' && showPartial) return true;
+      if (status === 'error' && showIssues) return true;
+      
+      return false;
+    });
+  }, [allLayers, config.interfaceGroups, showValid, showPartial, showIssues]);
 
   const handleRunDetailedReport = async () => {
     setIsValidating(true);
@@ -257,21 +264,44 @@ const CompleteLayersDialog = ({
                     </div>
                   </div>
                   
-                  {/* Filter Toggle */}
-                  <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-muted-foreground">Filter:</span>
-                    <ToggleGroup type="single" value={statusFilter} onValueChange={(value) => value && setStatusFilter(value as any)}>
-                      <ToggleGroupItem value="all" aria-label="Show all layers" size="sm">
-                        All
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="partial" aria-label="Show partial issues" size="sm">
-                        Partial
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="issues" aria-label="Show issues found" size="sm">
-                        Issues Found
-                      </ToggleGroupItem>
-                    </ToggleGroup>
+                  {/* Filter Checkboxes */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium text-muted-foreground">Filter:</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          id="filter-valid" 
+                          checked={showValid}
+                          onCheckedChange={(checked) => setShowValid(checked as boolean)}
+                        />
+                        <Label htmlFor="filter-valid" className="text-sm cursor-pointer">
+                          Valid
+                        </Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          id="filter-partial" 
+                          checked={showPartial}
+                          onCheckedChange={(checked) => setShowPartial(checked as boolean)}
+                        />
+                        <Label htmlFor="filter-partial" className="text-sm cursor-pointer">
+                          Partial
+                        </Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          id="filter-issues" 
+                          checked={showIssues}
+                          onCheckedChange={(checked) => setShowIssues(checked as boolean)}
+                        />
+                        <Label htmlFor="filter-issues" className="text-sm cursor-pointer">
+                          Issues Found
+                        </Label>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
