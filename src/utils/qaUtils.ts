@@ -22,8 +22,9 @@ export const calculateQAStats = (sources: DataSource[]): QAStats => {
     // Check for attribution
     const hasAttribution = source.meta?.attribution?.text;
     
-    // Check for legend
+    // Check for legend (in either layerCard or infoPanel)
     const hasLegend = source.layout?.layerCard?.legend?.url || 
+                     source.layout?.infoPanel?.legend?.url ||
                      (source.meta?.categories && source.meta.categories.length > 0) ||
                      (source.meta?.startColor && source.meta?.endColor);
     
