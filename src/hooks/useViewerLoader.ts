@@ -55,10 +55,11 @@ export function useViewerLoader({
 
     const script = document.createElement('script');
     script.src = `/viewer/${version}/bundle.js`;
+    script.type = 'module';
     script.async = true;
     
     script.onload = () => {
-      // Give the script time to execute and assign window.initApexViewer
+      // Give the module time to execute and assign window.initApexViewer
       setTimeout(() => {
         setIsLoading(false);
         
@@ -90,7 +91,7 @@ export function useViewerLoader({
           console.error('Viewer initialization error:', err);
           setError(err instanceof Error ? err.message : 'Failed to initialize viewer');
         }
-      }, 100);
+      }, 500);
     };
 
     script.onerror = (event) => {
