@@ -23,7 +23,7 @@ export const useConfigExport = () => {
       
       // Create a clean config object without internal state and capabilities
       const exportData = {
-        version: '1.0.0',
+        version: config.version || '1.0.0',
         layout: config.layout,
         interfaceGroups: config.interfaceGroups,
         exclusivitySets: config.exclusivitySets,
