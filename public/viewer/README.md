@@ -8,6 +8,7 @@ Each viewer version should be placed in its own semantic versioned directory:
 
 ```
 public/viewer/
+├── versions.json       # Manifest file listing available versions (REQUIRED)
 ├── 3.2.2/
 │   ├── bundle.js
 │   ├── bundle.css (optional)
@@ -16,6 +17,17 @@ public/viewer/
 │   └── bundle.js
 └── 3.1.0/
     └── bundle.js
+```
+
+## versions.json Manifest
+
+The `versions.json` file is required and lists all available viewer versions:
+
+```json
+{
+  "versions": ["3.2.2", "3.2.1", "3.1.0"],
+  "latest": "3.2.2"
+}
 ```
 
 ## Viewer Bundle Requirements
@@ -77,7 +89,7 @@ Example:
 1. Build your viewer application
 2. Create a new directory with the semantic version number: `public/viewer/X.Y.Z/`
 3. Copy your bundle files into that directory
-4. The config builder will automatically detect the new version
+4. **Update `versions.json`** to include the new version in the `versions` array
 
 ## Version Selection
 

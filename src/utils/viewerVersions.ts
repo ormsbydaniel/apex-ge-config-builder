@@ -1,36 +1,23 @@
 import { ViewerVersion } from '@/types/viewer';
 
 /**
- * Fetch available viewer versions from the public/viewer directory
- * This checks for directories matching semantic versioning pattern
+ * Fetch available viewer versions from the versions.json manifest
  */
 export async function getAvailableViewerVersions(): Promise<ViewerVersion[]> {
   try {
-    // In production, we need to know versions ahead of time or use a manifest
-    // For now, we'll try common version patterns
-    const knownVersions = [
-      '3.2.2',
-      '3.2.1',
-      '3.2.0',
-      '3.1.0',
-      '3.0.0',
-    ];
-    
-    const availableVersions: ViewerVersion[] = [];
-    
-    for (const version of knownVersions) {
-      const path = `/viewer/${version}/bundle.js`;
-      try {
-        const response = await fetch(path, { method: 'HEAD' });
-        if (response.ok) {
-          availableVersions.push({ version, path });
-        }
-      } catch {
-        // Version not available, skip
-      }
+    const response = await fetch('/viewer/versions.json');
+    if (!response.ok) {
+      console.error('Failed to fetch versions manifest');
+      return [];
     }
     
-    return availableVersions;
+    const data = await response.json();
+    const versions: ViewerVersion[] = data.versions.map((version: string) => ({
+      version,
+      path: `/viewer/${version}/bundle.js`
+    }));
+    
+    return versions;
   } catch (error) {
     console.error('Error fetching viewer versions:', error);
     return [];
