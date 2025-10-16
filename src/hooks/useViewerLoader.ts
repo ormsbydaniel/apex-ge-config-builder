@@ -72,8 +72,11 @@ export function useViewerLoader({
         try {
           // Check for viewer initialization function
           if (window.initApexViewer) {
-            console.log('[Config Builder] Found window.initApexViewer, initializing...');
-            (window.initApexViewer as (container: HTMLElement) => void)(container);
+            console.log('[Config Builder] Found window.initApexViewer, initializing with config...');
+            // Pass the current config to the viewer
+            const configData = localStorage.getItem('apexConfig');
+            const config = configData ? JSON.parse(configData) : null;
+            (window.initApexViewer as (container: HTMLElement, options?: { config?: any }) => void)(container, { config });
             setIsReady(true);
           } else if (window.ApexViewer?.init) {
             console.log('[Config Builder] Found window.ApexViewer.init, initializing...');

@@ -22,10 +22,12 @@ const theme = createTheme({
 /**
  * Global viewer initialization function for embedding
  * @param {HTMLElement} container - The container element to render the viewer into
+ * @param {Object} options - Configuration options
+ * @param {Object} options.config - The viewer configuration object (optional, will fetch if not provided)
  * @returns {void}
  */
-window.initApexViewer = (container) => {
-  console.log('[Viewer] initApexViewer called with container:', container);
+window.initApexViewer = (container, options = {}) => {
+  console.log('[Viewer] initApexViewer called with container:', container, 'options:', options);
   
   if (!container) {
     console.error('[Viewer] No container provided to initApexViewer');
@@ -38,7 +40,7 @@ window.initApexViewer = (container) => {
       <React.StrictMode>
         <ThemeProvider theme={theme}>
           <QueryClientProvider client={queryClient}>
-            <ConfigFetcher />
+            <ConfigFetcher config={options.config} />
           </QueryClientProvider>
         </ThemeProvider>
       </React.StrictMode>
