@@ -149,9 +149,16 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
   // Helper function to get interface group name for a source
   const getInterfaceGroupName = (source: DataSource): string => {
+    // Check if it's a base layer first
+    if (source.isBaseLayer) {
+      return 'Base Layer';
+    }
+    
+    // Check if it's in an interface group
     const interfaceGroup = config.interfaceGroups.find((ig: any) => 
       ig.layers && ig.layers.includes(source.name)
     );
+    
     return interfaceGroup?.name || 'Ungrouped';
   };
 
