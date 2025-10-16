@@ -22,8 +22,7 @@ const Preview = () => {
   const navigate = useNavigate();
   const { config } = useConfig();
   
-  // Extract only the config fields needed by the viewer (exclude isLoading, lastSaved, validationResults)
-  // Memoize to prevent unnecessary reloads
+  // Extract only viewer-needed config fields, memoized to prevent unnecessary reloads
   const viewerConfig = useMemo(() => ({
     version: config.version,
     layout: config.layout,
@@ -76,7 +75,7 @@ const Preview = () => {
     version: selectedVersion,
     containerId: VIEWER_CONTAINER_ID,
     config: viewerConfig,
-    enabled: selectedVersion !== '', // Only load when we have a version
+    enabled: selectedVersion !== '',
   });
 
   if (isLoadingVersions) {

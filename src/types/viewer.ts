@@ -11,6 +11,6 @@ export interface ViewerAPI {
 declare global {
   interface Window {
     ApexViewer?: ViewerAPI;
-    initApexViewer?: (container: HTMLElement) => void;
+    initApexViewer?: (container: HTMLElement, options?: { config?: any }) => void;
   }
 }
