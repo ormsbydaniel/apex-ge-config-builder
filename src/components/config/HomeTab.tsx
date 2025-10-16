@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
@@ -417,7 +417,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
               {/* Config Statistics - in one row */}
               <div className="pt-3 border-t border-border/50">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                   <ConfigStatCard 
                     icon={Users} 
                     value={config.interfaceGroups.length} 
@@ -435,6 +435,12 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     value={config.sources.length} 
                     label="Layers"
                     gradient="from-purple-500/10 to-purple-500/5"
+                  />
+                  <ConfigStatCard 
+                    icon={Map} 
+                    value={config.sources.filter((s: DataSource) => s.isBaseLayer).length} 
+                    label="Base Layers"
+                    gradient="from-cyan-500/10 to-cyan-500/5"
                   />
                   <ConfigStatCard 
                     icon={Lock} 
