@@ -172,6 +172,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
       const hasAnyContent = hasData || hasStatistics;
       
       const hasLegend = source.layout?.layerCard?.legend?.url || 
+                       source.layout?.infoPanel?.legend?.url ||
                        (source.meta?.categories && source.meta.categories.length > 0) ||
                        (source.meta?.startColor && source.meta?.endColor);
       
