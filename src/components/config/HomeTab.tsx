@@ -16,6 +16,8 @@ import CompleteLayersDialog from './CompleteLayersDialog';
 import { calculateQAStats } from '@/utils/qaUtils';
 import { ConfigStatCard } from './components/ConfigStatCard';
 import { QAStatCard } from './components/QAStatCard';
+import { LayerIssuesDialog } from './components/LayerIssuesDialog';
+import { DataSource } from '@/types/config';
 
 interface HomeTabProps {
   config: any;
@@ -31,6 +33,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
   const [showCompleteLayersDialog, setShowCompleteLayersDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
+  const [showLayerIssuesDialog, setShowLayerIssuesDialog] = useState(false);
+  const [layerIssuesTitle, setLayerIssuesTitle] = useState('');
+  const [layerIssuesList, setLayerIssuesList] = useState<Array<{ source: DataSource; interfaceGroup: string; layerName: string }>>([]);
   
   // Get validation results from context
   const validationResults = config.validationResults;
@@ -141,6 +146,76 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
   // Calculate QA statistics
   const qaStats = calculateQAStats(config.sources);
+
+  // Helper function to get interface group name for a source
+  const getInterfaceGroupName = (source: DataSource): string => {
+    const interfaceGroup = config.interfaceGroups.find((ig: any) => 
+      ig.layers.includes(source.name)
+    );
+    return interfaceGroup?.name || 'Ungrouped';
+  };
+
+  // Helper function to extract layers with missing legend
+  const getMissingLegendLayers = () => {
+    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string }> = [];
+    
+    config.sources.forEach((source: DataSource) => {
+      const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
+      const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
+      const hasAnyContent = hasData || hasStatistics;
+      
+      const hasLegend = source.layout?.layerCard?.legend?.url || 
+                       (source.meta?.categories && source.meta.categories.length > 0) ||
+                       (source.meta?.startColor && source.meta?.endColor);
+      
+      if (hasAnyContent && !hasLegend) {
+        layers.push({
+          source,
+          interfaceGroup: getInterfaceGroupName(source),
+          layerName: source.name || 'Unnamed Layer'
+        });
+      }
+    });
+    
+    return layers;
+  };
+
+  // Helper function to extract layers with no data/statistics
+  const getNoDataLayers = () => {
+    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string }> = [];
+    
+    config.sources.forEach((source: DataSource) => {
+      const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
+      const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
+      const hasAnyContent = hasData || hasStatistics;
+      
+      if (!hasAnyContent) {
+        layers.push({
+          source,
+          interfaceGroup: getInterfaceGroupName(source),
+          layerName: source.name || 'Unnamed Layer'
+        });
+      }
+    });
+    
+    return layers;
+  };
+
+  // Handler for missing legend card click
+  const handleMissingLegendClick = () => {
+    const layers = getMissingLegendLayers();
+    setLayerIssuesTitle('Missing Legend');
+    setLayerIssuesList(layers);
+    setShowLayerIssuesDialog(true);
+  };
+
+  // Handler for no data/statistics card click
+  const handleNoDataClick = () => {
+    const layers = getNoDataLayers();
+    setLayerIssuesTitle('No Data / Statistics');
+    setLayerIssuesList(layers);
+    setShowLayerIssuesDialog(true);
+  };
 
   return (
     <>
@@ -353,6 +428,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   label="Missing Legend"
                   colorClass="text-blue-600"
                   bgGradient="from-blue-500/20 to-blue-500/5"
+                  onClick={handleMissingLegendClick}
                 />
                 <QAStatCard
                   icon={AlertTriangle}
@@ -368,6 +444,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   label="No Data/Statistics"
                   colorClass="text-red-600"
                   bgGradient="from-red-500/20 to-red-500/5"
+                  onClick={handleNoDataClick}
                 />
               </div>
               
@@ -421,6 +498,13 @@ const HomeTab = ({ config }: HomeTabProps) => {
         config={config}
         onValidationComplete={handleValidationComplete}
         existingResults={validationResults}
+      />
+
+      <LayerIssuesDialog
+        open={showLayerIssuesDialog}
+        onOpenChange={setShowLayerIssuesDialog}
+        title={layerIssuesTitle}
+        layers={layerIssuesList}
       />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
