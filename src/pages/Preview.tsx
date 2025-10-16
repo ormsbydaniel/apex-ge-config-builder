@@ -61,6 +61,7 @@ const Preview = () => {
   const { isLoading, isReady, error, reload } = useViewerLoader({
     version: selectedVersion,
     containerId: VIEWER_CONTAINER_ID,
+    enabled: selectedVersion !== '', // Only load when we have a version
   });
 
   if (isLoadingVersions) {

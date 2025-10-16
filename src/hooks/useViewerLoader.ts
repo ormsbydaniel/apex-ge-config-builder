@@ -4,6 +4,7 @@ import { ViewerAPI } from '@/types/viewer';
 interface UseViewerLoaderProps {
   version: string;
   containerId: string;
+  enabled?: boolean;
 }
 
 interface UseViewerLoaderReturn {
@@ -16,6 +17,7 @@ interface UseViewerLoaderReturn {
 export function useViewerLoader({
   version,
   containerId,
+  enabled = true,
 }: UseViewerLoaderProps): UseViewerLoaderReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -92,9 +94,11 @@ export function useViewerLoader({
   }, [version, containerId, cleanup]);
 
   useEffect(() => {
-    loadViewer();
+    if (enabled && version) {
+      loadViewer();
+    }
     return cleanup;
-  }, [loadViewer, cleanup]);
+  }, [enabled, version, loadViewer, cleanup]);
 
   return {
     isLoading,
