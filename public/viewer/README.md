@@ -10,14 +10,16 @@ Each viewer version should be placed in its own semantic versioned directory:
 public/viewer/
 ├── versions.json       # Manifest file listing available versions (REQUIRED)
 ├── 3.2.2/
-│   ├── bundle.js
-│   ├── bundle.css (optional)
-│   └── assets/ (optional)
+│   ├── bundle.js      # Renamed from index-[hash].js
+│   ├── bundle.css     # Renamed from index-[hash].css (optional)
+│   └── [all other chunk files from build] # Copy ALL files from your build output
 ├── 3.2.1/
 │   └── bundle.js
 └── 3.1.0/
     └── bundle.js
 ```
+
+**IMPORTANT**: If your viewer build uses code splitting (multiple JS chunks), you MUST copy ALL the generated files from your build directory, not just the main index file. The bundle.js will reference these chunks.
 
 ## versions.json Manifest
 
@@ -88,8 +90,28 @@ Example:
 
 1. Build your viewer application
 2. Create a new directory with the semantic version number: `public/viewer/X.Y.Z/`
-3. Copy your bundle files into that directory
-4. **Update `versions.json`** to include the new version in the `versions` array
+3. **Copy ALL files from your build output** into that directory
+4. Rename the main entry file (e.g., `index-[hash].js`) to `bundle.js`
+5. Optionally rename the main CSS file (e.g., `index-[hash].css`) to `bundle.css`
+6. **Keep all other chunk files** with their original names (they're referenced by bundle.js)
+7. **Update `versions.json`** to include the new version in the `versions` array
+
+Example file structure after copying build output:
+```
+public/viewer/3.2.2/
+├── bundle.js              # Renamed from index-C_UgmCje.js
+├── bundle.css             # Renamed from index-DfbRyVGi.css
+├── asedecoder-B2c5_Eok.js
+├── deflate-Dthki0TA.js
+├── decoder-tqM1uIvc.js
+├── jpeg-JhJy4lL1.js
+├── lerc-90F9mSzm.js
+├── lzw-_aCqfs4w.js
+├── packbits-DDWKfGV_.js
+├── pako.esm-BkaqWuDM.js
+├── raw-in9isEBO.js
+└── webimage-DBgUwIbt.js
+```
 
 ## Version Selection
 

@@ -84,9 +84,10 @@ export function useViewerLoader({
       }
     };
 
-    script.onerror = () => {
+    script.onerror = (event) => {
       setIsLoading(false);
-      setError(`Failed to load viewer version ${version}`);
+      console.error('Script load error:', event);
+      setError(`Failed to load viewer version ${version}. Make sure all build files are copied to /viewer/${version}/`);
     };
 
     scriptRef.current = script;
