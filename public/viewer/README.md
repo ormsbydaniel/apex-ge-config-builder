@@ -25,9 +25,14 @@ Your viewer bundle must expose one of the following initialization methods:
 ### Option 1: Global Function (Recommended)
 ```javascript
 // Your viewer bundle should expose:
-window.initApexViewer = function(config, containerElement) {
-  // Initialize your map viewer with the provided config
-  // Render into the containerElement
+window.initApexViewer = function(containerElement) {
+  // Fetch config from /config.json
+  fetch('/config.json')
+    .then(response => response.json())
+    .then(config => {
+      // Initialize your map viewer with the config
+      // Render into the containerElement
+    });
 };
 ```
 
@@ -35,11 +40,13 @@ window.initApexViewer = function(config, containerElement) {
 ```javascript
 // Your viewer bundle should expose:
 window.ApexViewer = {
-  init: function(config, containerElement) {
-    // Initialize your map viewer
-  },
-  loadConfig: function(config) {
-    // Update config on the fly (optional)
+  init: function(containerElement) {
+    // Fetch config from /config.json
+    fetch('/config.json')
+      .then(response => response.json())
+      .then(config => {
+        // Initialize your map viewer
+      });
   },
   destroy: function() {
     // Cleanup when viewer is unmounted (optional)
@@ -47,9 +54,12 @@ window.ApexViewer = {
 };
 ```
 
-## Config Format
+## Config Endpoint
 
-The `config` parameter passed to your viewer will be the sanitized and validated configuration object from the config builder, with URLs properly formatted.
+The configuration is served at `/config.json` and includes:
+- Live, sanitized configuration from the config builder
+- Automatically updated when changes are made in the builder
+- URLs properly formatted and validated
 
 Example:
 ```json

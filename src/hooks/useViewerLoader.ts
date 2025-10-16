@@ -3,7 +3,6 @@ import { ViewerAPI } from '@/types/viewer';
 
 interface UseViewerLoaderProps {
   version: string;
-  config: any;
   containerId: string;
 }
 
@@ -16,7 +15,6 @@ interface UseViewerLoaderReturn {
 
 export function useViewerLoader({
   version,
-  config,
   containerId,
 }: UseViewerLoaderProps): UseViewerLoaderReturn {
   const [isLoading, setIsLoading] = useState(false);
@@ -69,10 +67,10 @@ export function useViewerLoader({
       try {
         // Check for viewer initialization function
         if (window.initApexViewer) {
-          window.initApexViewer(config, container);
+          (window.initApexViewer as (container: HTMLElement) => void)(container);
           setIsReady(true);
         } else if (window.ApexViewer?.init) {
-          window.ApexViewer.init(config, container);
+          (window.ApexViewer.init as (container: HTMLElement) => void)(container);
           viewerApiRef.current = window.ApexViewer;
           setIsReady(true);
         } else {
@@ -91,19 +89,12 @@ export function useViewerLoader({
 
     scriptRef.current = script;
     document.head.appendChild(script);
-  }, [version, config, containerId, cleanup]);
+  }, [version, containerId, cleanup]);
 
   useEffect(() => {
     loadViewer();
     return cleanup;
   }, [loadViewer, cleanup]);
-
-  // Update config when it changes
-  useEffect(() => {
-    if (isReady && viewerApiRef.current?.loadConfig) {
-      viewerApiRef.current.loadConfig(config);
-    }
-  }, [config, isReady]);
 
   return {
     isLoading,

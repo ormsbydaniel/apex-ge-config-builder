@@ -4,14 +4,13 @@ export interface ViewerVersion {
 }
 
 export interface ViewerAPI {
-  init?: (config: any, container: HTMLElement) => void;
-  loadConfig?: (config: any) => void;
+  init?: (container: HTMLElement) => void;
   destroy?: () => void;
 }
 
 declare global {
   interface Window {
     ApexViewer?: ViewerAPI;
-    initApexViewer?: (config: any, container: HTMLElement) => void;
+    initApexViewer?: (container: HTMLElement) => void;
   }
 }

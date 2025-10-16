@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useConfig } from '@/contexts/ConfigContext';
-import { useConfigSanitization } from '@/hooks/useConfigSanitization';
 import { useViewerLoader } from '@/hooks/useViewerLoader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,8 +19,6 @@ const VIEWER_CONTAINER_ID = 'apex-viewer-container';
 
 const Preview = () => {
   const navigate = useNavigate();
-  const { config } = useConfig();
-  const { configJson } = useConfigSanitization(config);
   
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
@@ -62,12 +58,8 @@ const Preview = () => {
     saveViewerVersion(version);
   };
 
-  // Parse config for viewer
-  const viewerConfig = JSON.parse(configJson);
-
   const { isLoading, isReady, error, reload } = useViewerLoader({
     version: selectedVersion,
-    config: viewerConfig,
     containerId: VIEWER_CONTAINER_ID,
   });
 
