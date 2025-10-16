@@ -53,65 +53,45 @@ export function useViewerLoader({
     setIsLoading(true);
     setError(null);
 
-    console.log('[useViewerLoader] Loading viewer version:', version);
-    console.log('[useViewerLoader] Container ID:', containerId);
-    
     const script = document.createElement('script');
-    const scriptPath = `/viewer/${version}/bundle.js`;
-    console.log('[useViewerLoader] Script path:', scriptPath);
-    script.src = scriptPath;
+    script.src = `/viewer/${version}/bundle.js`;
     script.async = true;
     
     script.onload = () => {
-      console.log('[useViewerLoader] Script loaded successfully');
       setIsLoading(false);
       
       const container = document.getElementById(containerId);
       if (!container) {
-        console.error('[useViewerLoader] Container not found:', containerId);
         setError('Viewer container not found');
         return;
       }
-      console.log('[useViewerLoader] Container found:', container);
 
       try {
         // Check for viewer initialization function
-        console.log('[useViewerLoader] window.initApexViewer:', window.initApexViewer);
-        console.log('[useViewerLoader] window.ApexViewer:', window.ApexViewer);
-        
         if (window.initApexViewer) {
-          console.log('[useViewerLoader] Calling initApexViewer');
           (window.initApexViewer as (container: HTMLElement) => void)(container);
           setIsReady(true);
         } else if (window.ApexViewer?.init) {
-          console.log('[useViewerLoader] Calling ApexViewer.init');
           (window.ApexViewer.init as (container: HTMLElement) => void)(container);
           viewerApiRef.current = window.ApexViewer;
           setIsReady(true);
         } else {
-          console.error('[useViewerLoader] No initialization function found');
           setError('Viewer bundle loaded but no initialization function found');
         }
       } catch (err) {
-        console.error('[useViewerLoader] Initialization error:', err);
+        console.error('Viewer initialization error:', err);
         setError(err instanceof Error ? err.message : 'Failed to initialize viewer');
       }
     };
 
     script.onerror = (event) => {
       setIsLoading(false);
-      console.error('[useViewerLoader] Script load error:', event);
-      console.error('[useViewerLoader] Failed to load:', scriptPath);
-      if (event && typeof event !== 'string') {
-        console.error('[useViewerLoader] Event target:', (event.target as HTMLScriptElement)?.src);
-      }
+      console.error('Script load error:', event);
       setError(`Failed to load viewer version ${version}. Make sure all build files are copied to /viewer/${version}/`);
     };
 
-    console.log('[useViewerLoader] Appending script to document.head');
     scriptRef.current = script;
     document.head.appendChild(script);
-    console.log('[useViewerLoader] Script appended, src:', script.src);
   }, [version, containerId, cleanup]);
 
   useEffect(() => {

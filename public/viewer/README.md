@@ -34,6 +34,8 @@ The `versions.json` file is required and lists all available viewer versions:
 
 ## Viewer Bundle Requirements
 
+**IMPORTANT:** Your viewer bundle must be modified to support embedding. See **[EMBEDDING_GUIDE.md](./EMBEDDING_GUIDE.md)** for complete instructions.
+
 Your viewer bundle must expose one of the following initialization methods:
 
 ### Option 1: Global Function (Recommended)
