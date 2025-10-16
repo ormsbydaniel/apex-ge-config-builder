@@ -55,6 +55,7 @@ export function useViewerLoader({
 
     const script = document.createElement('script');
     script.src = `/viewer/${version}/bundle.js`;
+    script.type = 'module'; // Load as ES module
     script.async = true;
     
     script.onload = () => {
