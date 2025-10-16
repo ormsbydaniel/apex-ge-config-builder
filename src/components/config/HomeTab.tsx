@@ -2,16 +2,22 @@ import React, { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Settings, Home, Check, Triangle } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
-import { ValidationErrorDetails } from '@/types/config';
+import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
 import AttributionMissingDialog from './AttributionMissingDialog';
-import { calculateQAStats, QAStats } from '@/utils/qaUtils';
+import CompleteLayersDialog from './CompleteLayersDialog';
+import { calculateQAStats } from '@/utils/qaUtils';
+import { ConfigStatCard } from './components/ConfigStatCard';
+import { QAStatCard } from './components/QAStatCard';
+import { LayerIssuesDialog } from './components/LayerIssuesDialog';
+import { DataSource } from '@/types/config';
 
 interface HomeTabProps {
   config: any;
@@ -25,7 +31,21 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
+  const [showCompleteLayersDialog, setShowCompleteLayersDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
+  const [showLayerIssuesDialog, setShowLayerIssuesDialog] = useState(false);
+  const [layerIssuesTitle, setLayerIssuesTitle] = useState('');
+  const [layerIssuesList, setLayerIssuesList] = useState<Array<{ source: DataSource; interfaceGroup: string; layerName: string }>>([]);
+  
+  // Get validation results from context
+  const validationResults = config.validationResults;
+  
+  const handleValidationComplete = (results: Map<number, LayerValidationResult>) => {
+    dispatch({
+      type: 'UPDATE_VALIDATION_RESULTS',
+      payload: results
+    });
+  };
   const [errorFileName, setErrorFileName] = useState<string>('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(config.layout.navigation.title);
@@ -127,170 +147,404 @@ const HomeTab = ({ config }: HomeTabProps) => {
   // Calculate QA statistics
   const qaStats = calculateQAStats(config.sources);
 
+  // Helper function to get interface group name for a source
+  const getInterfaceGroupName = (source: DataSource): string => {
+    // Check if it's a base layer first
+    if (source.isBaseLayer) {
+      return 'Base Layer';
+    }
+    
+    // Check layout.interfaceGroup (this is where it's actually stored)
+    if (source.layout?.interfaceGroup) {
+      return source.layout.interfaceGroup;
+    }
+    
+    return 'Ungrouped';
+  };
+
+  // Helper function to extract layers with missing legend
+  const getMissingLegendLayers = () => {
+    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string; index: number }> = [];
+    
+    config.sources.forEach((source: DataSource, index: number) => {
+      const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
+      const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
+      const hasAnyContent = hasData || hasStatistics;
+      
+      const hasLegend = source.layout?.layerCard?.legend?.url || 
+                       source.layout?.infoPanel?.legend?.url ||
+                       (source.meta?.categories && source.meta.categories.length > 0) ||
+                       (source.meta?.startColor && source.meta?.endColor);
+      
+      if (hasAnyContent && !hasLegend) {
+        layers.push({
+          source,
+          interfaceGroup: getInterfaceGroupName(source),
+          layerName: source.name || 'Unnamed Layer',
+          index
+        });
+      }
+    });
+    
+    // Sort by interface group order, then by source index
+    return layers.sort((a, b) => {
+      const getGroupOrder = (group: string) => {
+        if (group === 'Base Layer') return 1000; // Base layers after interface groups
+        if (group === 'Ungrouped') return 2000; // Ungrouped comes last
+        
+        // Interface groups: use their position in config.interfaceGroups array
+        const groupIndex = config.interfaceGroups?.indexOf(group);
+        if (groupIndex !== undefined && groupIndex >= 0) {
+          return groupIndex;
+        }
+        
+        return 1500; // Unknown groups between base and ungrouped
+      };
+      
+      const orderA = getGroupOrder(a.interfaceGroup);
+      const orderB = getGroupOrder(b.interfaceGroup);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      
+      // Within same group, maintain source order by index
+      return a.index - b.index;
+    });
+  };
+
+  // Helper function to extract layers with no data/statistics
+  const getNoDataLayers = () => {
+    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string; index: number }> = [];
+    
+    config.sources.forEach((source: DataSource, index: number) => {
+      const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
+      const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
+      const hasAnyContent = hasData || hasStatistics;
+      
+      if (!hasAnyContent) {
+        layers.push({
+          source,
+          interfaceGroup: getInterfaceGroupName(source),
+          layerName: source.name || 'Unnamed Layer',
+          index
+        });
+      }
+    });
+    
+    // Sort by interface group order, then by source index
+    return layers.sort((a, b) => {
+      const getGroupOrder = (group: string) => {
+        if (group === 'Base Layer') return 1000; // Base layers after interface groups
+        if (group === 'Ungrouped') return 2000; // Ungrouped comes last
+        
+        // Interface groups: use their position in config.interfaceGroups array
+        const groupIndex = config.interfaceGroups?.indexOf(group);
+        if (groupIndex !== undefined && groupIndex >= 0) {
+          return groupIndex;
+        }
+        
+        return 1500; // Unknown groups between base and ungrouped
+      };
+      
+      const orderA = getGroupOrder(a.interfaceGroup);
+      const orderB = getGroupOrder(b.interfaceGroup);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      
+      // Within same group, maintain source order by index
+      return a.index - b.index;
+    });
+  };
+
+  // Handler for missing legend card click
+  const handleMissingLegendClick = () => {
+    const layers = getMissingLegendLayers();
+    setLayerIssuesTitle('Missing Legend');
+    setLayerIssuesList(layers);
+    setShowLayerIssuesDialog(true);
+  };
+
+  // Handler for no data/statistics card click
+  const handleNoDataClick = () => {
+    const layers = getNoDataLayers();
+    setLayerIssuesTitle('No Data / Statistics');
+    setLayerIssuesList(layers);
+    setShowLayerIssuesDialog(true);
+  };
+
   return (
     <>
-      <div className="space-y-6">
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-primary flex items-center gap-2">
-              <Home className="h-5 w-5" />
-              Configuration Management
-            </CardTitle>
+      <div className="space-y-4">
+        {/* Two Column Layout: Project 50%, Layer QA 50% */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Project Card - 50% width */}
+          <Card className="border-border/50 shadow-sm">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between gap-4">
+                <CardTitle className="text-xl">Project</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={handleImportClick} 
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-[130px] text-sm font-medium hover:scale-[1.01] transition-transform border-blue-500/50 text-blue-600 hover:bg-blue-500/10"
+                    disabled={config.isLoading}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Load
+                  </Button>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="h-9 w-[130px] text-sm font-medium hover:scale-[1.01] transition-transform border-green-500/50 text-green-600 hover:bg-green-500/10"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Export
+                        <ChevronDown className="h-3.5 w-3.5 ml-2 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={handleQuickExport}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Quick Export (Default)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setShowExportDialog(true)}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Export with Options...
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <Button 
+                    onClick={handleNewConfig} 
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-[130px] text-sm font-medium hover:scale-[1.01] transition-transform border-purple-500/50 text-purple-600 hover:bg-purple-500/10"
+                  >
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    New
+                  </Button>
+                </div>
+              </div>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Button onClick={handleImportClick} variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50" disabled={config.isLoading}>
-                <Upload className="h-4 w-4 mr-2" />
-                Load Config
-              </Button>
-              
-              <Button onClick={handleQuickExport} variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
-                <Download className="h-4 w-4 mr-2" />
-                Quick Export
-              </Button>
-              
-              <Button onClick={() => setShowExportDialog(true)} variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50">
-                <Settings className="h-4 w-4 mr-2" />
-                Export Options
-              </Button>
-
-              <Button onClick={handleNewConfig} variant="outline" className="border-orange-300 text-orange-700 hover:bg-orange-50">
-                <RotateCcw className="h-4 w-4 mr-2" />
-                New Config
-              </Button>
-            </div>
-
+          <CardContent className="space-y-3 pt-3">
             <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
-
-            <Separator />
-
-            {/* Title Section */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Application Title</h3>
-                <Button size="sm" variant="ghost" onClick={() => setIsEditingTitle(true)} className="h-8 w-8 p-0">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-              {isEditingTitle ? (
-                <div className="space-y-2">
-                  <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Geospatial Explorer" />
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={handleSaveTitle}>
-                      Save
+            {/* Title */}
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-muted-foreground">Application Title</label>
+                  {!isEditingTitle && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setIsEditingTitle(true)} 
+                      className="h-7 w-7 p-0"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={handleCancelTitle}>
-                      Cancel
-                    </Button>
-                  </div>
+                  )}
                 </div>
-              ) : (
-                <div className="flex items-center border rounded-lg p-4 bg-gray-50 min-h-[80px]">
-                  <span className="text-lg font-medium">{config.layout.navigation.title}</span>
+                {isEditingTitle ? (
+                  <div className="space-y-2">
+                    <Input 
+                      value={title} 
+                      onChange={e => setTitle(e.target.value)} 
+                      placeholder="My Geospatial Explorer"
+                      className="font-medium"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleSaveTitle}>
+                        <Check className="h-4 w-4 mr-1" />
+                        Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCancelTitle}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-lg font-semibold text-foreground p-3 rounded-lg bg-muted/50 border border-border/50">
+                    {config.layout.navigation.title}
+                  </div>
+                )}
+              </div>
+
+              {/* Version */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-muted-foreground">Version</label>
+                  {!isEditingVersion && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setIsEditingVersion(true)} 
+                      className="h-7 w-7 p-0"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+                {isEditingVersion ? (
+                  <div className="space-y-2">
+                    <Input 
+                      value={version} 
+                      onChange={e => setVersion(e.target.value)} 
+                      placeholder="1.0.0"
+                      className="font-mono"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleSaveVersion}>
+                        <Check className="h-4 w-4 mr-1" />
+                        Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCancelVersion}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Badge variant="secondary" className="text-sm font-mono px-3 py-1.5">
+                    {config.version || '1.0.0'}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Config Statistics - in one row */}
+              <div className="pt-3 border-t border-border/50">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                  <ConfigStatCard 
+                    icon={Users} 
+                    value={config.interfaceGroups.length} 
+                    label="Interface Groups"
+                    gradient="from-blue-500/10 to-blue-500/5"
+                  />
+                  <ConfigStatCard 
+                    icon={Layers} 
+                    value={config.sources.length} 
+                    label="Layers"
+                    gradient="from-purple-500/10 to-purple-500/5"
+                  />
+                  <ConfigStatCard 
+                    icon={Map} 
+                    value={config.sources.filter((s: DataSource) => s.isBaseLayer).length} 
+                    label="Base Layers"
+                    gradient="from-cyan-500/10 to-cyan-500/5"
+                  />
+                  <ConfigStatCard 
+                    icon={Lock} 
+                    value={config.exclusivitySets.length} 
+                    label="Exclusivity Sets"
+                    gradient="from-amber-500/10 to-amber-500/5"
+                  />
+                  <ConfigStatCard 
+                    icon={Server} 
+                    value={config.services.length} 
+                    label="Services"
+                    gradient="from-green-500/10 to-green-500/5"
+                  />
+                </div>
+              </div>
+
+              {/* Status Info */}
+              {(config.lastSaved || config.isLoading) && (
+                <div className="pt-3 border-t border-border/50 space-y-2">
+                  {config.lastSaved && (
+                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <span>Last saved: {config.lastSaved.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {config.isLoading && (
+                    <div className="text-sm text-blue-600 flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                      <span>Loading configuration...</span>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-
-            {/* Version Section */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Version</h3>
-                <Button size="sm" variant="ghost" onClick={() => setIsEditingVersion(true)} className="h-8 w-8 p-0">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-              {isEditingVersion ? (
-                <div className="space-y-2">
-                  <Input value={version} onChange={e => setVersion(e.target.value)} placeholder="1.0.0" />
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={handleSaveVersion}>
-                      Save
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={handleCancelVersion}>
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center border rounded-lg p-4 bg-gray-50">
-                  <span className="text-base font-mono">{config.version || '1.0.0'}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Configuration Statistics */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-medium">Configuration Statistics</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.interfaceGroups.length}</div>
-                  <div className="text-sm text-slate-600">Interface Groups</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.sources.length}</div>
-                  <div className="text-sm text-slate-600">Layers</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.exclusivitySets.length}</div>
-                  <div className="text-sm text-slate-600">Exclusivity Sets</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{config.services.length}</div>
-                  <div className="text-sm text-slate-600">Services</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Layer Quality Assurance Statistics */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-medium">Layer Quality Assurance</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Check className="h-5 w-5 text-green-500" />
-                    <div className="text-2xl font-bold text-green-600">{qaStats.success}</div>
-                  </div>
-                  <div className="text-sm text-slate-600">Complete Layers</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Triangle className="h-5 w-5 text-blue-500" />
-                    <div className="text-2xl font-bold text-blue-600">{qaStats.info}</div>
-                  </div>
-                  <div className="text-sm text-slate-600">Missing Legend</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg cursor-pointer hover:bg-muted/50" onClick={() => setShowAttributionDialog(true)}>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <AlertTriangle className="h-5 w-5 text-amber-500" />
-                    <div className="text-2xl font-bold text-amber-600">{qaStats.warning}</div>
-                  </div>
-                  <div className="text-sm text-slate-600">Missing Attribution</div>
-                </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Triangle className="h-5 w-5 text-red-500" />
-                    <div className="text-2xl font-bold text-red-600">{qaStats.error}</div>
-                  </div>
-                  <div className="text-sm text-slate-600">No Data/Statistics</div>
-                </div>
-              </div>
-            </div>
-            
-            {config.lastSaved && (
-                <div className="text-sm text-slate-600">
-                  <span className="font-medium">Last saved: </span> 
-                  {config.lastSaved.toLocaleString()}
-                </div>
-            )}
-            
-            {config.isLoading && (
-                <div className="text-sm text-blue-600">
-                  Loading configuration...
-                </div>
-            )}
           </CardContent>
         </Card>
+
+          {/* Layer QA - 50% width */}
+          <Card className="border-border/50 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Layer QA</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-3 space-y-3">
+              {/* QA Stats in one row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <QAStatCard
+                  icon={Check}
+                  value={qaStats.success}
+                  label="Complete Layers"
+                  colorClass="text-green-600"
+                  bgGradient="from-green-500/20 to-green-500/5"
+                />
+                <QAStatCard
+                  icon={Triangle}
+                  value={qaStats.info}
+                  label="Missing Legend"
+                  colorClass="text-blue-600"
+                  bgGradient="from-blue-500/20 to-blue-500/5"
+                  onClick={handleMissingLegendClick}
+                />
+                <QAStatCard
+                  icon={AlertTriangle}
+                  value={qaStats.warning}
+                  label="Missing Attribution"
+                  colorClass="text-amber-600"
+                  bgGradient="from-amber-500/20 to-amber-500/5"
+                  onClick={() => setShowAttributionDialog(true)}
+                />
+                <QAStatCard
+                  icon={Triangle}
+                  value={qaStats.error}
+                  label="No Data/Statistics"
+                  colorClass="text-red-600"
+                  bgGradient="from-red-500/20 to-red-500/5"
+                  onClick={handleNoDataClick}
+                />
+              </div>
+              
+              {/* Validation Button */}
+              <Button 
+                onClick={() => setShowCompleteLayersDialog(true)}
+                variant="outline"
+                size="sm"
+                className="w-full"
+              >
+                {validationResults.size > 0 ? 'Refresh Data Source Validation' : 'Run Data Source Validation'}
+              </Button>
+              
+              {/* Validation Results Summary */}
+              {validationResults.size > 0 && (
+                <button
+                  onClick={() => setShowCompleteLayersDialog(true)}
+                  className="w-full p-3 bg-muted/50 border border-border/50 rounded-lg hover:bg-muted/70 hover:border-border transition-all cursor-pointer text-left"
+                >
+                  <div className="text-xs font-medium text-muted-foreground mb-2">Last Validation Results</div>
+                  <div className="flex gap-3 text-xs">
+                    <span className="text-green-600 font-medium">
+                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'valid').length} Valid
+                    </span>
+                    <span className="text-amber-600 font-medium">
+                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'partial').length} Partial
+                    </span>
+                    <span className="text-red-600 font-medium">
+                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'error').length} Errors
+                    </span>
+                  </div>
+                </button>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <ExportOptionsDialog open={showExportDialog} onOpenChange={setShowExportDialog} onExport={handleExportWithOptions} />
@@ -300,6 +554,21 @@ const HomeTab = ({ config }: HomeTabProps) => {
         onOpenChange={setShowAttributionDialog}
         config={config}
         onUpdateLayers={handleAttributionUpdates}
+      />
+
+      <CompleteLayersDialog 
+        open={showCompleteLayersDialog}
+        onOpenChange={setShowCompleteLayersDialog}
+        config={config}
+        onValidationComplete={handleValidationComplete}
+        existingResults={validationResults}
+      />
+
+      <LayerIssuesDialog
+        open={showLayerIssuesDialog}
+        onOpenChange={setShowLayerIssuesDialog}
+        title={layerIssuesTitle}
+        layers={layerIssuesList}
       />
 
       <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>

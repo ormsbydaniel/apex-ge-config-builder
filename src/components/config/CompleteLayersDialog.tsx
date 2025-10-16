@@ -1,0 +1,457 @@
+import React, { useState, useMemo } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { ChevronUp, ChevronDown, ChevronRight, Check, AlertTriangle, Loader2, Info, Filter } from 'lucide-react';
+import { DataSource, LayerValidationResult } from '@/types/config';
+import { useTableSorting } from '@/hooks/useTableSorting';
+import { validateBatchLayers } from '@/utils/layerValidation';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { toast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+
+interface LayerWithGroup {
+  layer: DataSource;
+  index: number;
+  group: string;
+  validationResult?: LayerValidationResult;
+}
+
+interface CompleteLayersDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  config: any;
+  onValidationComplete?: (results: Map<number, LayerValidationResult>) => void;
+  existingResults?: Map<number, LayerValidationResult>;
+}
+
+const CompleteLayersDialog = ({
+  open,
+  onOpenChange,
+  config,
+  onValidationComplete,
+  existingResults
+}: CompleteLayersDialogProps) => {
+  const [validationResults, setValidationResults] = useState<Map<number, LayerValidationResult>>(existingResults || new Map());
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationProgress, setValidationProgress] = useState({ completed: 0, total: 0, currentLayer: '' });
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [showValid, setShowValid] = useState(true);
+  const [showPartial, setShowPartial] = useState(true);
+  const [showIssues, setShowIssues] = useState(true);
+
+  // Update local validation results when existingResults prop changes
+  React.useEffect(() => {
+    if (existingResults) {
+      setValidationResults(existingResults);
+    }
+  }, [existingResults]);
+
+  // Get all layers (including base layers, layers with missing legends, etc.)
+  const allLayers = useMemo(() => {
+    const layers: LayerWithGroup[] = [];
+    
+    config.sources.forEach((source: DataSource, index: number) => {
+      let group = 'Ungrouped';
+      
+      if (source.isBaseLayer) {
+        group = 'Base Layers';
+      } else if (source.layout?.interfaceGroup) {
+        group = source.layout.interfaceGroup;
+      }
+      
+      layers.push({
+        layer: source,
+        index,
+        group,
+        validationResult: validationResults.get(index)
+      });
+    });
+    
+    return layers;
+  }, [config.sources, validationResults]);
+
+  // Sort and filter layers
+  const sortedLayers = useMemo(() => {
+    const sorted = [...allLayers].sort((a, b) => {
+      // Define group order based on LayerHierarchy.tsx logic
+      const getGroupOrder = (group: string) => {
+        if (group === 'Base Layers') return 1000; // Base layers come after interface groups
+        if (group === 'Ungrouped') return 2000; // Ungrouped comes last
+        
+        // Interface groups: use their position in config.interfaceGroups
+        const groupIndex = config.interfaceGroups?.indexOf(group);
+        if (groupIndex !== undefined && groupIndex >= 0) {
+          return groupIndex; // 0-based index for interface groups
+        }
+        
+        return 1500; // Unknown groups go between base and ungrouped
+      };
+      
+      const orderA = getGroupOrder(a.group);
+      const orderB = getGroupOrder(b.group);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      
+      // Within same group, maintain source order (by index)
+      return a.index - b.index;
+    });
+
+    // Apply status filters (can show multiple at once)
+    return sorted.filter(item => {
+      const status = item.validationResult?.overallStatus;
+      
+      // If no validation result, show it
+      if (!status) return true;
+      
+      // Check against selected filters
+      if (status === 'valid' && showValid) return true;
+      if (status === 'partial' && showPartial) return true;
+      if (status === 'error' && showIssues) return true;
+      
+      return false;
+    });
+  }, [allLayers, config.interfaceGroups, showValid, showPartial, showIssues]);
+
+  const handleRunDetailedReport = async () => {
+    setIsValidating(true);
+    setValidationProgress({ completed: 0, total: allLayers.length, currentLayer: '' });
+    
+    try {
+      const layersToValidate = allLayers.map(l => l.layer);
+      
+      const results = await validateBatchLayers(
+        layersToValidate,
+        config.services, // Pass services for service URL resolution
+        (completed, total, layerName) => {
+          setValidationProgress({ completed, total, currentLayer: layerName });
+        }
+      );
+      
+      setValidationResults(results);
+      
+      // Pass results to parent component
+      if (onValidationComplete) {
+        onValidationComplete(results);
+      }
+      
+      // Count results
+      const errorCount = Array.from(results.values()).filter(r => r.overallStatus === 'error').length;
+      const partialCount = Array.from(results.values()).filter(r => r.overallStatus === 'partial').length;
+      const validCount = Array.from(results.values()).filter(r => r.overallStatus === 'valid').length;
+      
+      toast({
+        title: "Validation Complete",
+        description: `${validCount} valid, ${partialCount} partial, ${errorCount} with errors`,
+      });
+    } catch (error) {
+      console.error('Validation error:', error);
+      toast({
+        title: "Validation Failed",
+        description: "An error occurred during validation. Check console for details.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const toggleRowExpansion = (layerKey: string) => {
+    setExpandedRows(prev => {
+      const next = new Set(prev);
+      if (next.has(layerKey)) {
+        next.delete(layerKey);
+      } else {
+        next.add(layerKey);
+      }
+      return next;
+    });
+  };
+
+
+  const getStatusBadge = (result?: LayerValidationResult) => {
+    if (!result) {
+      return <Badge variant="outline" className="text-muted-foreground">Not Validated</Badge>;
+    }
+    
+    switch (result.overallStatus) {
+      case 'valid':
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <Check className="h-3 w-3 mr-1" />
+            Valid
+          </Badge>
+        );
+      case 'partial':
+        return (
+          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            Partial
+          </Badge>
+        );
+      case 'error':
+        return (
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            Issues Found
+          </Badge>
+        );
+      case 'checking':
+        return (
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            Checking...
+          </Badge>
+        );
+      default:
+        return <Badge variant="outline">Not Validated</Badge>;
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-6xl max-h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Full Layer Validation</DialogTitle>
+          <DialogDescription>
+            Review all layers (including base layers) and run a detailed report to validate data sources and statistics URLs.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {allLayers.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No layers found in configuration.
+            </div>
+          ) : (
+            <>
+              {/* Progress indicator */}
+              {isValidating && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-blue-900">
+                      Validating layers... {validationProgress.completed} / {validationProgress.total}
+                    </span>
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                  </div>
+                  {validationProgress.currentLayer && (
+                    <div className="text-xs text-blue-700">
+                      Currently checking: {validationProgress.currentLayer}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Summary and Filter after validation */}
+              {validationResults.size > 0 && !isValidating && (
+                <div className="mb-4 space-y-3">
+                  <div className="p-4 bg-muted/50 border rounded-md">
+                    <div className="text-sm font-medium mb-2">Validation Summary</div>
+                    <div className="flex gap-4 text-sm">
+                      <span className="text-green-600">
+                        {Array.from(validationResults.values()).filter(r => r.overallStatus === 'valid').length} Valid
+                      </span>
+                      <span className="text-amber-600">
+                        {Array.from(validationResults.values()).filter(r => r.overallStatus === 'partial').length} Partial
+                      </span>
+                      <span className="text-red-600">
+                        {Array.from(validationResults.values()).filter(r => r.overallStatus === 'error').length} Issues
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Filter Checkboxes */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium text-muted-foreground">Filter:</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          id="filter-valid" 
+                          checked={showValid}
+                          onCheckedChange={(checked) => setShowValid(checked as boolean)}
+                        />
+                        <Label htmlFor="filter-valid" className="text-sm cursor-pointer">
+                          Valid
+                        </Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          id="filter-partial" 
+                          checked={showPartial}
+                          onCheckedChange={(checked) => setShowPartial(checked as boolean)}
+                        />
+                        <Label htmlFor="filter-partial" className="text-sm cursor-pointer">
+                          Partial
+                        </Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          id="filter-issues" 
+                          checked={showIssues}
+                          onCheckedChange={(checked) => setShowIssues(checked as boolean)}
+                        />
+                        <Label htmlFor="filter-issues" className="text-sm cursor-pointer">
+                          Issues Found
+                        </Label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex-1 overflow-auto border rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12"></TableHead>
+                      <TableHead>Interface Group</TableHead>
+                      <TableHead>Layer Name</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedLayers.map((item) => {
+                      const layerKey = `${item.index}`;
+                      const isExpanded = expandedRows.has(layerKey);
+                      const hasUrlResults = item.validationResult && item.validationResult.urlResults.length > 0;
+                      const hasIssues = item.validationResult && (item.validationResult.overallStatus === 'error' || item.validationResult.overallStatus === 'partial');
+                      
+                      return (
+                        <React.Fragment key={layerKey}>
+                          <TableRow className={hasIssues ? 'bg-red-50/50' : ''}>
+                            <TableCell>
+                              {hasUrlResults && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0"
+                                  onClick={() => toggleRowExpansion(layerKey)}
+                                >
+                                  <ChevronRight 
+                                    className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                                  />
+                                </Button>
+                              )}
+                            </TableCell>
+                            <TableCell>{item.group}</TableCell>
+                            <TableCell className="font-medium">
+                              {item.layer.name}
+                            </TableCell>
+                            <TableCell>{getStatusBadge(item.validationResult)}</TableCell>
+                          </TableRow>
+                          
+                          {/* Expanded details row */}
+                          {isExpanded && hasUrlResults && (
+                            <TableRow>
+                              <TableCell colSpan={4} className="bg-muted/30 p-4">
+                                <div className="space-y-2">
+                                  <div className="text-sm font-medium mb-2">URL Validation Details</div>
+                                   {item.validationResult!.urlResults.map((urlResult, idx) => (
+                                    <div key={idx} className="flex items-start gap-2 text-sm p-2 bg-background rounded border">
+                                      <div className="flex-shrink-0 mt-0.5">
+                                        {urlResult.status === 'valid' ? (
+                                          <Check className="h-4 w-4 text-green-600" />
+                                        ) : urlResult.status === 'error' ? (
+                                          <AlertTriangle className="h-4 w-4 text-red-600" />
+                                        ) : urlResult.status === 'skipped' ? (
+                                          <Info className="h-4 w-4 text-muted-foreground" />
+                                        ) : (
+                                          <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                                        )}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                          <Badge variant="outline" className="text-xs">
+                                            {urlResult.type}
+                                          </Badge>
+                                          {urlResult.format && (
+                                            <Badge variant="outline" className="text-xs">
+                                              {urlResult.format.toUpperCase()}
+                                            </Badge>
+                                          )}
+                                          {urlResult.validationType && (
+                                            <Badge variant="outline" className="text-xs bg-muted">
+                                              {urlResult.validationType}
+                                            </Badge>
+                                          )}
+                                          <span className={`text-xs font-medium ${
+                                            urlResult.status === 'valid' ? 'text-green-600' : 
+                                            urlResult.status === 'error' ? 'text-red-600' : 
+                                            urlResult.status === 'skipped' ? 'text-muted-foreground' :
+                                            'text-blue-600'
+                                          }`}>
+                                            {urlResult.status}
+                                          </span>
+                                        </div>
+                                        <div className="text-xs text-muted-foreground break-all">
+                                          {urlResult.url}
+                                        </div>
+                                        {urlResult.layers && (
+                                          <div className="text-xs text-muted-foreground mt-1">
+                                            Layer: {urlResult.layers}
+                                          </div>
+                                        )}
+                                        {urlResult.error && (
+                                          <div className="text-xs text-red-600 mt-1">
+                                            {urlResult.error}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              <div className="mt-4 flex justify-between items-center border-t pt-4">
+                <div className="text-sm text-muted-foreground">
+                  {allLayers.length} layer{allLayers.length !== 1 ? 's' : ''} found
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => onOpenChange(false)}
+                  >
+                    Close
+                  </Button>
+                  <Button 
+                    onClick={handleRunDetailedReport}
+                    disabled={isValidating}
+                  >
+                    {isValidating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Validating...
+                      </>
+                    ) : (
+                      <>
+                        <Info className="h-4 w-4 mr-2" />
+                        {validationResults.size > 0 ? 'Re-run Validation Checks' : 'Run Validation Checks'}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default CompleteLayersDialog;

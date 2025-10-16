@@ -145,13 +145,14 @@ const AttributionMissingDialog = ({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">
-                        <Checkbox
-                          checked={isAllSelected}
-                          onCheckedChange={handleSelectAll}
-                          aria-label="Select all layers"
-                          {...(isPartiallySelected && { 'data-state': 'indeterminate' })}
-                        />
+                      <TableHead 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleSort('group')}
+                      >
+                        <div className="flex items-center">
+                          Interface Group
+                          {getSortIcon('group')}
+                        </div>
                       </TableHead>
                       <TableHead 
                         className="cursor-pointer hover:bg-muted/50"
@@ -162,14 +163,13 @@ const AttributionMissingDialog = ({
                           {getSortIcon('layer' as keyof LayerWithGroup)}
                         </div>
                       </TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => handleSort('group')}
-                      >
-                        <div className="flex items-center">
-                          Interface Group
-                          {getSortIcon('group')}
-                        </div>
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={isAllSelected}
+                          onCheckedChange={handleSelectAll}
+                          aria-label="Select all layers"
+                          {...(isPartiallySelected && { 'data-state': 'indeterminate' })}
+                        />
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -184,6 +184,10 @@ const AttributionMissingDialog = ({
                           className={`cursor-pointer ${isSelected ? 'bg-muted' : ''}`}
                           onClick={(e) => handleRowClick(e, layerKey)}
                         >
+                          <TableCell>{item.group}</TableCell>
+                          <TableCell className="font-medium">
+                            {item.layer.name}
+                          </TableCell>
                           <TableCell>
                             <Checkbox
                               checked={isSelected}
@@ -193,10 +197,6 @@ const AttributionMissingDialog = ({
                               onClick={(e) => e.stopPropagation()}
                             />
                           </TableCell>
-                          <TableCell className="font-medium">
-                            {item.layer.name}
-                          </TableCell>
-                          <TableCell>{item.group}</TableCell>
                         </TableRow>
                       );
                     })}
