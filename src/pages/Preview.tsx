@@ -135,7 +135,7 @@ const Preview = () => {
           <div className="h-6 w-px bg-border" />
           
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Viewer Version:</span>
+            <span className="text-sm text-muted-foreground">Geospatial Explorer Version:</span>
             <Select value={selectedVersion} onValueChange={handleVersionChange}>
               <SelectTrigger className="w-32">
                 <SelectValue />
