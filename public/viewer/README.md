@@ -88,29 +88,39 @@ Example:
 
 ## Adding New Versions
 
-1. Build your viewer application
+1. Build your viewer application (e.g., `npm run build` or `vite build`)
 2. Create a new directory with the semantic version number: `public/viewer/X.Y.Z/`
-3. **Copy ALL files from your build output** into that directory
-4. Rename the main entry file (e.g., `index-[hash].js`) to `bundle.js`
-5. Optionally rename the main CSS file (e.g., `index-[hash].css`) to `bundle.css`
-6. **Keep all other chunk files** with their original names (they're referenced by bundle.js)
-7. **Update `versions.json`** to include the new version in the `versions` array
+3. **Copy the build output with this structure:**
+   ```bash
+   # Copy main bundle files (rename the index files)
+   cp dist/index-[hash].js public/viewer/X.Y.Z/bundle.js
+   cp dist/index-[hash].css public/viewer/X.Y.Z/bundle.css
+   
+   # Create assets directory and copy all chunk files
+   mkdir -p public/viewer/X.Y.Z/assets
+   cp dist/assets/*.js public/viewer/X.Y.Z/assets/
+   ```
+4. **Update `versions.json`** to include the new version in the `versions` array
+
+**IMPORTANT**: Vite builds use code splitting and output chunk files to an `assets/` subdirectory. 
+You MUST create the `assets/` directory and copy all chunk files into it, or the viewer will fail to load.
 
 Example file structure after copying build output:
 ```
 public/viewer/3.2.2/
 ├── bundle.js              # Renamed from index-C_UgmCje.js
 ├── bundle.css             # Renamed from index-DfbRyVGi.css
-├── asedecoder-B2c5_Eok.js
-├── deflate-Dthki0TA.js
-├── decoder-tqM1uIvc.js
-├── jpeg-JhJy4lL1.js
-├── lerc-90F9mSzm.js
-├── lzw-_aCqfs4w.js
-├── packbits-DDWKfGV_.js
-├── pako.esm-BkaqWuDM.js
-├── raw-in9isEBO.js
-└── webimage-DBgUwIbt.js
+└── assets/                # Chunk files MUST be in assets/ subdirectory
+    ├── basedecoder-B2c5_Eok.js
+    ├── deflate-Dthki0TA.js
+    ├── decoder-tqM1uIvc.js
+    ├── jpeg-JhJy4lL1.js
+    ├── lerc-90F9mSzm.js
+    ├── lzw-_aCqfs4w.js
+    ├── packbits-DDWKfGV_.js
+    ├── pako.esm-BkaqWuDM.js
+    ├── raw-in9isEBO.js
+    └── webimage-DBgUwIbt.js
 ```
 
 ## Version Selection
