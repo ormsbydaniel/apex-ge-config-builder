@@ -125,8 +125,8 @@ const Preview = () => {
 
   return (
     <div className="h-screen relative bg-background">
-      <header className="absolute top-4 left-1/2 -translate-x-1/2 z-50 border rounded-lg bg-card/95 backdrop-blur-sm shadow-lg px-4 py-3">
-        <div className="flex items-center gap-4">
+      <header className="absolute top-2 left-1/2 -translate-x-1/2 z-50 border rounded-lg bg-card/95 backdrop-blur-sm shadow-lg px-3 py-1.5">
+        <div className="flex items-center gap-2">
           <Button onClick={() => navigate('/')} variant="outline" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Config Builder
