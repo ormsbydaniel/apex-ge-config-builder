@@ -1,7 +1,8 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings } from 'lucide-react';
+import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map } from 'lucide-react';
 import { ConfigProvider } from '@/contexts/ConfigContext';
 import { useConfigBuilderState } from '@/hooks/useConfigBuilderState';
 import ServicesManager from './ServicesManager';
@@ -54,6 +55,7 @@ class ConfigErrorBoundary extends React.Component<
 }
 
 const ConfigBuilderContent = () => {
+  const navigate = useNavigate();
   const {
     config,
     newExclusivitySet,
@@ -99,7 +101,7 @@ const ConfigBuilderContent = () => {
 
         <div className="w-full">
           <Tabs defaultValue="home" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 mb-6 bg-white border border-primary/20">
+            <TabsList className="grid w-full grid-cols-7 mb-6 bg-white border border-primary/20">
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
                 Home
@@ -120,9 +122,17 @@ const ConfigBuilderContent = () => {
                 <Settings className="h-4 w-4" />
                 Settings
               </TabsTrigger>
-              <TabsTrigger value="preview" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="jsonconfig" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <FileJson className="h-4 w-4" />
                 JSON Config
+              </TabsTrigger>
+              <TabsTrigger 
+                value="mappreview" 
+                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                onClick={() => navigate('/preview')}
+              >
+                <Map className="h-4 w-4" />
+                Preview
               </TabsTrigger>
             </TabsList>
 
@@ -174,7 +184,7 @@ const ConfigBuilderContent = () => {
               <SettingsTab config={config} />
             </TabsContent>
 
-            <TabsContent value="preview">
+            <TabsContent value="jsonconfig">
               <PreviewTab config={config} />
             </TabsContent>
           </Tabs>

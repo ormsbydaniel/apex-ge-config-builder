@@ -1,0 +1,87 @@
+# Viewer Bundle Integration
+
+This directory contains versioned builds of the map viewer application.
+
+## Directory Structure
+
+Each viewer version should be placed in its own semantic versioned directory:
+
+```
+public/viewer/
+├── 3.2.2/
+│   ├── bundle.js
+│   ├── bundle.css (optional)
+│   └── assets/ (optional)
+├── 3.2.1/
+│   └── bundle.js
+└── 3.1.0/
+    └── bundle.js
+```
+
+## Viewer Bundle Requirements
+
+Your viewer bundle must expose one of the following initialization methods:
+
+### Option 1: Global Function (Recommended)
+```javascript
+// Your viewer bundle should expose:
+window.initApexViewer = function(config, containerElement) {
+  // Initialize your map viewer with the provided config
+  // Render into the containerElement
+};
+```
+
+### Option 2: Global API Object
+```javascript
+// Your viewer bundle should expose:
+window.ApexViewer = {
+  init: function(config, containerElement) {
+    // Initialize your map viewer
+  },
+  loadConfig: function(config) {
+    // Update config on the fly (optional)
+  },
+  destroy: function() {
+    // Cleanup when viewer is unmounted (optional)
+  }
+};
+```
+
+## Config Format
+
+The `config` parameter passed to your viewer will be the sanitized and validated configuration object from the config builder, with URLs properly formatted.
+
+Example:
+```json
+{
+  "version": "1.0.0",
+  "layout": { ... },
+  "interfaceGroups": [ ... ],
+  "services": [ ... ],
+  "sources": [ ... ]
+}
+```
+
+## Adding New Versions
+
+1. Build your viewer application
+2. Create a new directory with the semantic version number: `public/viewer/X.Y.Z/`
+3. Copy your bundle files into that directory
+4. The config builder will automatically detect the new version
+
+## Version Selection
+
+- The most recent version (by semantic versioning) will be selected by default
+- Users can select different versions from the dropdown in the preview page
+- The selected version is saved to localStorage for persistence
+
+## Development Workflow
+
+For local development:
+1. Build your viewer app
+2. Copy the output to `public/viewer/{version}/`
+3. Refresh the preview page to load the new version
+
+For production deployment:
+1. Include versioned viewer bundles in your deployment
+2. Users can preview configurations against different viewer versions
