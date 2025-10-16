@@ -25,6 +25,7 @@ export function useViewerLoader({
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const cssRef = useRef<HTMLLinkElement | null>(null);
   const viewerApiRef = useRef<ViewerAPI | null>(null);
 
   const cleanup = useCallback(() => {
@@ -37,6 +38,12 @@ export function useViewerLoader({
     if (scriptRef.current) {
       document.head.removeChild(scriptRef.current);
       scriptRef.current = null;
+    }
+    
+    // Remove CSS link
+    if (cssRef.current) {
+      document.head.removeChild(cssRef.current);
+      cssRef.current = null;
     }
     
     // Clear global viewer reference
@@ -54,6 +61,13 @@ export function useViewerLoader({
     cleanup();
     setIsLoading(true);
     setError(null);
+
+    // Load CSS first
+    const cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = `/viewer/${version}/bundle.css`;
+    cssRef.current = cssLink;
+    document.head.appendChild(cssLink);
 
     // Check if initApexViewer is already available (script already loaded)
     if (window.initApexViewer) {
