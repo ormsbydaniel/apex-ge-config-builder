@@ -74,7 +74,7 @@ export function useViewerLoader({
         try {
           // Check for viewer initialization function
           if (window.initApexViewer) {
-            console.log('[Config Builder] Found window.initApexViewer, initializing with config:', config);
+            console.log('[Config Builder] Found window.initApexViewer, initializing with config:', JSON.stringify(config, null, 2));
             // Pass the current config to the viewer
             (window.initApexViewer as (container: HTMLElement, options?: { config?: any }) => void)(container, { config });
             setIsReady(true);
@@ -105,11 +105,11 @@ export function useViewerLoader({
   }, [version, containerId, config, cleanup]);
 
   useEffect(() => {
-    if (enabled && version) {
+    if (enabled && version && config) {
       loadViewer();
     }
     return cleanup;
-  }, [enabled, version, loadViewer, cleanup]);
+  }, [enabled, version, config, loadViewer, cleanup]);
 
   return {
     isLoading,

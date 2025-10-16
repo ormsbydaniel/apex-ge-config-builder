@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useViewerLoader } from '@/hooks/useViewerLoader';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -21,6 +21,18 @@ const VIEWER_CONTAINER_ID = 'apex-viewer-container';
 const Preview = () => {
   const navigate = useNavigate();
   const { config } = useConfig();
+  
+  // Extract only the config fields needed by the viewer (exclude isLoading, lastSaved, validationResults)
+  // Memoize to prevent unnecessary reloads
+  const viewerConfig = useMemo(() => ({
+    version: config.version,
+    layout: config.layout,
+    interfaceGroups: config.interfaceGroups,
+    exclusivitySets: config.exclusivitySets,
+    services: config.services,
+    sources: config.sources,
+    mapConstraints: config.mapConstraints,
+  }), [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints]);
   
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
@@ -63,7 +75,7 @@ const Preview = () => {
   const { isLoading, isReady, error, reload } = useViewerLoader({
     version: selectedVersion,
     containerId: VIEWER_CONTAINER_ID,
-    config,
+    config: viewerConfig,
     enabled: selectedVersion !== '', // Only load when we have a version
   });
 
