@@ -3,7 +3,6 @@
 # Configuration
 VIEWER_DIR=~/software/apex_geospatial_explorer
 BUILDER_DIR=~/software/apex-ge-config-builder
-GITHUB_RAW_URL="https://raw.githubusercontent.com/YOUR_USERNAME/apex-ge-config-builder/main/public/viewer"
 VERSION="3.2.2"
 
 # Colors for output
@@ -14,20 +13,20 @@ NC='\033[0m' # No Color
 
 echo -e "${BLUE}=== APEx Viewer Bundle Update Script ===${NC}"
 
-# Step 1: Download updated files from GitHub
-echo -e "\n${BLUE}Step 1: Downloading main.jsx and ConfigFetcher.jsx from GitHub...${NC}"
-curl -o "$VIEWER_DIR/src/main.jsx" "$GITHUB_RAW_URL/main.jsx"
+# Step 1: Copy updated files from config builder to viewer
+echo -e "\n${BLUE}Step 1: Copying main.jsx and ConfigFetcher.jsx to viewer...${NC}"
+cp "$BUILDER_DIR/public/viewer/main.jsx" "$VIEWER_DIR/src/main.jsx"
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Failed to download main.jsx${NC}"
+    echo -e "${RED}Failed to copy main.jsx${NC}"
     exit 1
 fi
 
-curl -o "$VIEWER_DIR/src/ConfigFetcher.jsx" "$GITHUB_RAW_URL/ConfigFetcher.jsx"
+cp "$BUILDER_DIR/public/viewer/ConfigFetcher.jsx" "$VIEWER_DIR/src/ConfigFetcher.jsx"
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Failed to download ConfigFetcher.jsx${NC}"
+    echo -e "${RED}Failed to copy ConfigFetcher.jsx${NC}"
     exit 1
 fi
-echo -e "${GREEN}✓ Files downloaded successfully${NC}"
+echo -e "${GREEN}✓ Files copied successfully${NC}"
 
 # Step 2: Build the viewer
 echo -e "\n${BLUE}Step 2: Building viewer...${NC}"
