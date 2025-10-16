@@ -58,30 +58,36 @@ export function useViewerLoader({
     script.async = true;
     
     script.onload = () => {
-      setIsLoading(false);
-      
-      const container = document.getElementById(containerId);
-      if (!container) {
-        setError('Viewer container not found');
-        return;
-      }
-
-      try {
-        // Check for viewer initialization function
-        if (window.initApexViewer) {
-          (window.initApexViewer as (container: HTMLElement) => void)(container);
-          setIsReady(true);
-        } else if (window.ApexViewer?.init) {
-          (window.ApexViewer.init as (container: HTMLElement) => void)(container);
-          viewerApiRef.current = window.ApexViewer;
-          setIsReady(true);
-        } else {
-          setError('Viewer bundle loaded but no initialization function found');
+      // Give the script time to execute and assign window.initApexViewer
+      setTimeout(() => {
+        setIsLoading(false);
+        
+        const container = document.getElementById(containerId);
+        if (!container) {
+          setError('Viewer container not found');
+          return;
         }
-      } catch (err) {
-        console.error('Viewer initialization error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to initialize viewer');
-      }
+
+        try {
+          // Check for viewer initialization function
+          if (window.initApexViewer) {
+            console.log('[Config Builder] Found window.initApexViewer, initializing...');
+            (window.initApexViewer as (container: HTMLElement) => void)(container);
+            setIsReady(true);
+          } else if (window.ApexViewer?.init) {
+            console.log('[Config Builder] Found window.ApexViewer.init, initializing...');
+            (window.ApexViewer.init as (container: HTMLElement) => void)(container);
+            viewerApiRef.current = window.ApexViewer;
+            setIsReady(true);
+          } else {
+            console.error('[Config Builder] No initialization function found. window.initApexViewer:', window.initApexViewer, 'window.ApexViewer:', window.ApexViewer);
+            setError('Viewer bundle loaded but no initialization function found');
+          }
+        } catch (err) {
+          console.error('Viewer initialization error:', err);
+          setError(err instanceof Error ? err.message : 'Failed to initialize viewer');
+        }
+      }, 100);
     };
 
     script.onerror = (event) => {
