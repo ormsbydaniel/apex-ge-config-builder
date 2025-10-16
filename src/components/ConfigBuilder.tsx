@@ -197,9 +197,7 @@ const ConfigBuilderContent = () => {
 const ConfigBuilder = () => {
   return (
     <ConfigErrorBoundary>
-      <ConfigProvider>
-        <ConfigBuilderContent />
-      </ConfigProvider>
+      <ConfigBuilderContent />
     </ConfigErrorBoundary>
   );
 };
