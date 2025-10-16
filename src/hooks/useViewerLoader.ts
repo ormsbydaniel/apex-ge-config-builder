@@ -55,8 +55,33 @@ export function useViewerLoader({
     setIsLoading(true);
     setError(null);
 
+    // Check if initApexViewer is already available (script already loaded)
+    if (window.initApexViewer) {
+      console.log('[Config Builder] Viewer already loaded, initializing directly');
+      const container = document.getElementById(containerId);
+      if (!container) {
+        setIsLoading(false);
+        setError('Viewer container not found');
+        return;
+      }
+
+      try {
+        (window.initApexViewer as (container: HTMLElement, options?: { config?: any }) => void)(container, { config });
+        setIsLoading(false);
+        setIsReady(true);
+        return;
+      } catch (err) {
+        console.error('Viewer initialization error:', err);
+        setIsLoading(false);
+        setError(err instanceof Error ? err.message : 'Failed to initialize viewer');
+        return;
+      }
+    }
+
+    // Load the script with cache busting to ensure fresh load
     const script = document.createElement('script');
-    script.src = `/viewer/${version}/bundle.js`;
+    const cacheBuster = Date.now();
+    script.src = `/viewer/${version}/bundle.js?v=${cacheBuster}`;
     script.type = 'module';
     script.async = true;
     
