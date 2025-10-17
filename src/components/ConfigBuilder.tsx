@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map } from 'lucide-react';
 import { ConfigProvider } from '@/contexts/ConfigContext';
 import { useConfigBuilderState } from '@/hooks/useConfigBuilderState';
+import { useNavigationState } from '@/hooks/useNavigationState';
 import ServicesManager from './ServicesManager';
 import LayersTab from './config/LayersTab';
 import DrawOrderTab from './config/DrawOrderTab';
@@ -83,6 +84,27 @@ const ConfigBuilderContent = () => {
     updateConfig
   } = useConfigBuilderState();
 
+  // Track navigation state for Preview transitions
+  const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups } = useNavigationState();
+
+  const handleTabChange = (value: string) => {
+    // Don't save state for preview navigation (handled separately)
+    if (value !== 'mappreview') {
+      setActiveTab(value);
+    }
+  };
+
+  const handlePreviewClick = () => {
+    // Save current tab state before navigating
+    navigate('/preview');
+  };
+  
+  // Save expanded layers state (simplified - will be managed by LayerHierarchy)
+  const handleExpansionStateChange = React.useCallback((layers: string[], groups: string[]) => {
+    setExpandedLayers(layers);
+    setExpandedGroups(groups);
+  }, [setExpandedLayers, setExpandedGroups]);
+
   return (
     <div className="min-h-screen" style={{
       backgroundColor: '#043346'
@@ -100,7 +122,11 @@ const ConfigBuilderContent = () => {
         </div>
 
         <div className="w-full">
-          <Tabs defaultValue="home" className="w-full">
+          <Tabs 
+            value={navigationState.activeTab} 
+            onValueChange={handleTabChange} 
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-7 mb-6 bg-white border border-primary/20">
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
@@ -129,7 +155,7 @@ const ConfigBuilderContent = () => {
               <TabsTrigger 
                 value="mappreview" 
                 className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                onClick={() => navigate('/preview')}
+                onClick={handlePreviewClick}
               >
                 <Map className="h-4 w-4" />
                 Preview
@@ -163,6 +189,8 @@ const ConfigBuilderContent = () => {
                 removeExclusivitySet={removeExclusivitySet}
                 newExclusivitySet={newExclusivitySet}
                 setNewExclusivitySet={setNewExclusivitySet}
+                navigationState={navigationState}
+                onExpansionStateChange={handleExpansionStateChange}
               />
             </TabsContent>
 

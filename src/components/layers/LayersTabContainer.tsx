@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
+import { NavigationState } from '@/hooks/useNavigationState';
 import { LayersTabProvider } from '@/contexts/LayersTabContext';
 import { useLayersTabLogic } from '@/hooks/useLayersTabLogic';
 import LayersTabCore from './LayersTabCore';
@@ -32,10 +33,12 @@ interface LayersTabContainerProps {
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
+  navigationState?: NavigationState;
+  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
 }
 
 const LayersTabContainer = (props: LayersTabContainerProps) => {
-  const layersLogic = useLayersTabLogic(props);
+  const layersLogic = useLayersTabLogic({ ...props, navigationState: props.navigationState });
 
   // Create context value with all required properties
   const contextValue = {

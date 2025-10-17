@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
+import { NavigationState } from '@/hooks/useNavigationState';
 import { useLayersTabComposition } from '@/hooks/useLayersTabComposition';
 import { useLayerTypeHandlers } from './useLayerTypeHandlers';
 // useLayerCardState functionality is now integrated into useLayersTabComposition
@@ -22,10 +23,11 @@ interface UseLayersTabLogicProps {
   updateLayer: (index: number, layer: DataSource) => void;
   addLayer: (layer: DataSource) => void;
   updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
+  navigationState?: NavigationState;
 }
 
 export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
-  const { setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm, setEditingLayerIndex } = props;
+  const { setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm, setEditingLayerIndex, navigationState } = props;
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
 
   // Use the composed hook for all layers tab logic
@@ -63,6 +65,16 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     handleStartDataSourceFormWithExpansion,
     ...restLogic
   } = composedLogic;
+
+  // Restore expanded layers from navigationState on mount
+  useEffect(() => {
+    if (navigationState && navigationState.expandedLayers && navigationState.expandedLayers.length > 0) {
+      // Expand all layers that were previously expanded
+      navigationState.expandedLayers.forEach(layerId => {
+        expandCard(layerId);
+      });
+    }
+  }, []); // Only run on mount
 
   useEffect(() => {
     if (expandedLayerAfterDataSource && !showDataSourceForm) {
