@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ConfigProvider } from "@/contexts/ConfigContext";
-import { useEffect } from "react";
 import Index from "./pages/Index";
 import Preview from "./pages/Preview";
 import ConfigJson from "./pages/ConfigJson";
@@ -12,20 +11,7 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'H') {
-        e.preventDefault();
-        window.open('/docs/user-guide/index.md', '_blank');
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
-
-  return (
+const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ConfigProvider>
@@ -43,7 +29,6 @@ const App = () => {
       </ConfigProvider>
     </TooltipProvider>
   </QueryClientProvider>
-  );
-};
+);
 
 export default App;
