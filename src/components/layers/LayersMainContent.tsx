@@ -13,6 +13,8 @@ interface LayersMainContentProps {
   layersLogic: any;
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
+  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
+  navigationState?: { expandedGroups: string[]; expandedLayers: string[] };
 }
 
 const LayersMainContent = ({
@@ -22,7 +24,9 @@ const LayersMainContent = ({
   setNewExclusivitySet,
   layersLogic,
   expandedLayers,
-  onToggleLayer
+  onToggleLayer,
+  onExpansionStateChange,
+  navigationState
 }: LayersMainContentProps) => {
   const {
     config,
@@ -69,6 +73,8 @@ const LayersMainContent = ({
         expandedLayers={expandedLayers}
         onToggleLayer={onToggleLayer}
         onUpdateLayer={onUpdateLayer}
+        onExpansionStateChange={onExpansionStateChange}
+        navigationState={navigationState}
       />
 
       <ExclusivitySetsSection

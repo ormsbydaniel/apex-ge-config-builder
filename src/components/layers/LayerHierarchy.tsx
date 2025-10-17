@@ -36,6 +36,8 @@ interface LayerHierarchyProps {
   onClearExpandedGroup?: () => void;
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
+  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
+  navigationState?: { expandedGroups: string[]; expandedLayers: string[] };
 }
 
 const LayerHierarchy = ({
@@ -63,12 +65,23 @@ const LayerHierarchy = ({
   onClearExpandedLayerAfterEdit,
   onClearExpandedGroup,
   expandedLayers,
-  onToggleLayer
+  onToggleLayer,
+  onExpansionStateChange,
+  navigationState
 }: LayerHierarchyProps) => {
-  // Group expansion state
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
-  const [expandedBaseLayers, setExpandedBaseLayers] = useState(false);
-  const [expandedUngroupedLayers, setExpandedUngroupedLayers] = useState(false);
+  // Group expansion state - restore from navigationState if available
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
+    if (navigationState?.expandedGroups) {
+      return new Set(navigationState.expandedGroups.filter(g => g !== '__BASE_LAYERS__' && g !== '__UNGROUPED__'));
+    }
+    return new Set();
+  });
+  const [expandedBaseLayers, setExpandedBaseLayers] = useState(() => {
+    return navigationState?.expandedGroups?.includes('__BASE_LAYERS__') || false;
+  });
+  const [expandedUngroupedLayers, setExpandedUngroupedLayers] = useState(() => {
+    return navigationState?.expandedGroups?.includes('__UNGROUPED__') || false;
+  });
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
   const [deleteGroupName, setDeleteGroupName] = useState<string | null>(null);
 
@@ -130,6 +143,18 @@ const LayerHierarchy = ({
     }
   }, [expandedGroupAfterAction, expandedGroups, onClearExpandedGroup]);
 
+  // Notify parent when expanded layers change
+  useEffect(() => {
+    if (onExpansionStateChange) {
+      const groupsArray = Array.from(expandedGroups);
+      if (expandedBaseLayers) groupsArray.push('__BASE_LAYERS__');
+      if (expandedUngroupedLayers) groupsArray.push('__UNGROUPED__');
+      
+      const layersArray = Array.from(expandedLayers).map(idx => `layer-${idx}`);
+      onExpansionStateChange(layersArray, groupsArray);
+    }
+  }, [expandedLayers, expandedGroups, expandedBaseLayers, expandedUngroupedLayers, onExpansionStateChange]);
+
   const toggleGroup = (groupName: string) => {
     const newExpanded = new Set(expandedGroups);
     if (newExpanded.has(groupName)) {
@@ -138,6 +163,16 @@ const LayerHierarchy = ({
       newExpanded.add(groupName);
     }
     setExpandedGroups(newExpanded);
+    
+    // Notify parent of expansion state change
+    if (onExpansionStateChange) {
+      const groupsArray = Array.from(newExpanded);
+      if (expandedBaseLayers) groupsArray.push('__BASE_LAYERS__');
+      if (expandedUngroupedLayers) groupsArray.push('__UNGROUPED__');
+      
+      const layersArray = Array.from(expandedLayers).map(idx => `layer-${idx}`);
+      onExpansionStateChange(layersArray, groupsArray);
+    }
   };
 
   const moveInterfaceGroup = (groupIndex: number, direction: 'up' | 'down' | 'top' | 'bottom') => {
@@ -242,7 +277,20 @@ const LayerHierarchy = ({
       <BaseLayerGroup
         baseLayers={baseLayers}
         isExpanded={expandedBaseLayers}
-        onToggle={() => setExpandedBaseLayers(!expandedBaseLayers)}
+        onToggle={() => {
+          const newExpanded = !expandedBaseLayers;
+          setExpandedBaseLayers(newExpanded);
+          
+          // Notify parent of expansion state change
+          if (onExpansionStateChange) {
+            const groupsArray = Array.from(expandedGroups);
+            if (newExpanded) groupsArray.push('__BASE_LAYERS__');
+            if (expandedUngroupedLayers) groupsArray.push('__UNGROUPED__');
+            
+            const layersArray = Array.from(expandedLayers).map(idx => `layer-${idx}`);
+            onExpansionStateChange(layersArray, groupsArray);
+          }
+        }}
         onRemove={onRemove}
         onEdit={onEdit}
         onEditBaseLayer={onEditBaseLayer}
@@ -274,7 +322,20 @@ const LayerHierarchy = ({
           onEditDataSource={onEditDataSource}
           onEditStatisticsSource={onEditStatisticsSource}
           isExpanded={expandedUngroupedLayers}
-          onToggle={() => setExpandedUngroupedLayers(!expandedUngroupedLayers)}
+          onToggle={() => {
+            const newExpanded = !expandedUngroupedLayers;
+            setExpandedUngroupedLayers(newExpanded);
+            
+            // Notify parent of expansion state change
+            if (onExpansionStateChange) {
+              const groupsArray = Array.from(expandedGroups);
+              if (expandedBaseLayers) groupsArray.push('__BASE_LAYERS__');
+              if (newExpanded) groupsArray.push('__UNGROUPED__');
+              
+              const layersArray = Array.from(expandedLayers).map(idx => `layer-${idx}`);
+              onExpansionStateChange(layersArray, groupsArray);
+            }
+          }}
         />
       )}
 

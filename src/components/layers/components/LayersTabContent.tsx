@@ -36,6 +36,8 @@ interface LayersTabContentProps {
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
   onUpdateLayer: (index: number, layer: DataSource) => void;
+  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
+  navigationState?: { expandedGroups: string[]; expandedLayers: string[] };
 }
 
 const LayersTabContent = ({
@@ -64,7 +66,9 @@ const LayersTabContent = ({
   onClearExpandedGroup,
   expandedLayers,
   onToggleLayer,
-  onUpdateLayer
+  onUpdateLayer,
+  onExpansionStateChange,
+  navigationState
 }: LayersTabContentProps) => {
   return (
     <Card className="border-primary/20">
@@ -102,6 +106,8 @@ const LayersTabContent = ({
             expandedLayers={expandedLayers}
             onToggleLayer={onToggleLayer}
             onUpdateLayer={onUpdateLayer}
+            onExpansionStateChange={onExpansionStateChange}
+            navigationState={navigationState}
           />
         )}
       </CardContent>
