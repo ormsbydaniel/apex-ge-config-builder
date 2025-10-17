@@ -39,7 +39,29 @@ const initialState: ConfigState = {
   interfaceGroups: ["Interface group 1", "Interface group 2", "Interface group 3"],
   exclusivitySets: [],
   services: [],
-  sources: [],
+  sources: [
+    {
+      name: "Open StreetMap",
+      isActive: true,
+      isBaseLayer: true,
+      data: [
+        {
+          url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+          format: "xyz",
+          zIndex: 10
+        }
+      ],
+      exclusivitySets: [],
+      meta: {
+        description: "",
+        attribution: {
+          text: "Map data (c) OpenStreetMap",
+          url: "https://www.openstreetmap.org/copyright"
+        },
+        categories: []
+      }
+    }
+  ],
   mapConstraints: {
     zoom: 0,
     center: [0, 0]

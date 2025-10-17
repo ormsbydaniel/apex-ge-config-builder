@@ -1,9 +1,11 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings } from 'lucide-react';
+import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map } from 'lucide-react';
 import { ConfigProvider } from '@/contexts/ConfigContext';
 import { useConfigBuilderState } from '@/hooks/useConfigBuilderState';
+import { useNavigationState } from '@/hooks/useNavigationState';
 import ServicesManager from './ServicesManager';
 import LayersTab from './config/LayersTab';
 import DrawOrderTab from './config/DrawOrderTab';
@@ -54,6 +56,7 @@ class ConfigErrorBoundary extends React.Component<
 }
 
 const ConfigBuilderContent = () => {
+  const navigate = useNavigate();
   const {
     config,
     newExclusivitySet,
@@ -81,6 +84,27 @@ const ConfigBuilderContent = () => {
     updateConfig
   } = useConfigBuilderState();
 
+  // Track navigation state for Preview transitions
+  const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups } = useNavigationState();
+
+  const handleTabChange = (value: string) => {
+    // Don't save state for preview navigation (handled separately)
+    if (value !== 'mappreview') {
+      setActiveTab(value);
+    }
+  };
+
+  const handlePreviewClick = () => {
+    // Save current tab state before navigating
+    navigate('/preview');
+  };
+  
+  // Save expanded layers state (simplified - will be managed by LayerHierarchy)
+  const handleExpansionStateChange = React.useCallback((layers: string[], groups: string[]) => {
+    setExpandedLayers(layers);
+    setExpandedGroups(groups);
+  }, [setExpandedLayers, setExpandedGroups]);
+
   return (
     <div className="min-h-screen" style={{
       backgroundColor: '#043346'
@@ -98,8 +122,12 @@ const ConfigBuilderContent = () => {
         </div>
 
         <div className="w-full">
-          <Tabs defaultValue="home" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 mb-6 bg-white border border-primary/20">
+          <Tabs 
+            value={navigationState.activeTab} 
+            onValueChange={handleTabChange} 
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-7 mb-6 bg-white border border-primary/20">
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
                 Home
@@ -120,9 +148,17 @@ const ConfigBuilderContent = () => {
                 <Settings className="h-4 w-4" />
                 Settings
               </TabsTrigger>
-              <TabsTrigger value="preview" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="jsonconfig" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <FileJson className="h-4 w-4" />
                 JSON Config
+              </TabsTrigger>
+              <TabsTrigger 
+                value="mappreview" 
+                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                onClick={handlePreviewClick}
+              >
+                <Map className="h-4 w-4" />
+                Preview
               </TabsTrigger>
             </TabsList>
 
@@ -153,6 +189,8 @@ const ConfigBuilderContent = () => {
                 removeExclusivitySet={removeExclusivitySet}
                 newExclusivitySet={newExclusivitySet}
                 setNewExclusivitySet={setNewExclusivitySet}
+                navigationState={navigationState}
+                onExpansionStateChange={handleExpansionStateChange}
               />
             </TabsContent>
 
@@ -174,7 +212,7 @@ const ConfigBuilderContent = () => {
               <SettingsTab config={config} />
             </TabsContent>
 
-            <TabsContent value="preview">
+            <TabsContent value="jsonconfig">
               <PreviewTab config={config} />
             </TabsContent>
           </Tabs>
@@ -187,9 +225,7 @@ const ConfigBuilderContent = () => {
 const ConfigBuilder = () => {
   return (
     <ConfigErrorBoundary>
-      <ConfigProvider>
-        <ConfigBuilderContent />
-      </ConfigProvider>
+      <ConfigBuilderContent />
     </ConfigErrorBoundary>
   );
 };

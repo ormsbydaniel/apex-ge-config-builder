@@ -12,6 +12,11 @@ export const calculateQAStats = (sources: DataSource[]): QAStats => {
   const stats = { error: 0, warning: 0, info: 0, success: 0 };
 
   sources.forEach(source => {
+    // Exclude base layers from QA stats
+    if (source.isBaseLayer) {
+      return;
+    }
+    
     const isSwipeLayer = source.meta?.swipeConfig !== undefined;
     
     // Check if layer has data or statistics

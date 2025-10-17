@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
+import { NavigationState } from '@/hooks/useNavigationState';
 import LayersTabContainer from './LayersTabContainer';
 
 interface LayersTabProps {
@@ -30,6 +31,8 @@ interface LayersTabProps {
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
+  navigationState?: NavigationState;
+  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
 }
 
 const LayersTab = (props: LayersTabProps) => {
