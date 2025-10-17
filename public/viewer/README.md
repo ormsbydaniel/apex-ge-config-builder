@@ -12,7 +12,9 @@ public/viewer/
 ├── 3.2.2/
 │   ├── bundle.js      # Renamed from index-[hash].js
 │   ├── bundle.css     # Renamed from index-[hash].css (optional)
-│   └── [all other chunk files from build] # Copy ALL files from your build output
+│   ├── decoder-[hash].js     # All chunk files directly in version folder
+│   ├── lerc-[hash].js
+│   └── [all other chunk files from dist/assets/]
 ├── 3.2.1/
 │   └── bundle.js
 └── 3.1.0/
@@ -95,34 +97,32 @@ Example:
 3. **Copy the build output with this structure:**
    ```bash
    # Copy main bundle files (rename the index files)
-   cp dist/index-[hash].js public/viewer/X.Y.Z/bundle.js
-   cp dist/index-[hash].css public/viewer/X.Y.Z/bundle.css
+   cp dist/assets/index-[hash].js public/viewer/X.Y.Z/bundle.js
+   cp dist/assets/index-[hash].css public/viewer/X.Y.Z/bundle.css
    
-   # Create assets directory and copy all chunk files
-   mkdir -p public/viewer/X.Y.Z/assets
-   cp dist/assets/*.js public/viewer/X.Y.Z/assets/
+   # Copy all chunk files directly to version folder
+   cp dist/assets/*.js public/viewer/X.Y.Z/
    ```
 4. **Update `versions.json`** to include the new version in the `versions` array
 
-**IMPORTANT**: Vite builds use code splitting and output chunk files to an `assets/` subdirectory. 
-You MUST create the `assets/` directory and copy all chunk files into it, or the viewer will fail to load.
+**IMPORTANT**: Vite builds use code splitting and output chunk files. 
+You MUST copy all chunk files directly into the version folder alongside bundle.js, or the viewer will fail to load.
 
 Example file structure after copying build output:
 ```
 public/viewer/3.2.2/
 ├── bundle.js              # Renamed from index-C_UgmCje.js
 ├── bundle.css             # Renamed from index-DfbRyVGi.css
-└── assets/                # Chunk files MUST be in assets/ subdirectory
-    ├── basedecoder-B2c5_Eok.js
-    ├── deflate-Dthki0TA.js
-    ├── decoder-tqM1uIvc.js
-    ├── jpeg-JhJy4lL1.js
-    ├── lerc-90F9mSzm.js
-    ├── lzw-_aCqfs4w.js
-    ├── packbits-DDWKfGV_.js
-    ├── pako.esm-BkaqWuDM.js
-    ├── raw-in9isEBO.js
-    └── webimage-DBgUwIbt.js
+├── basedecoder-B2c5_Eok.js
+├── deflate-Dthki0TA.js
+├── decoder-tqM1uIvc.js
+├── jpeg-JhJy4lL1.js
+├── lerc-90F9mSzm.js
+├── lzw-_aCqfs4w.js
+├── packbits-DDWKfGV_.js
+├── pako.esm-BkaqWuDM.js
+├── raw-in9isEBO.js
+└── webimage-DBgUwIbt.js
 ```
 
 ## Version Selection

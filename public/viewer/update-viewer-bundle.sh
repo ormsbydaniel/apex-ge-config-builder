@@ -65,16 +65,15 @@ else
     echo -e "${BLUE}No CSS bundle found (may not be needed)${NC}"
 fi
 
-# Step 5: Copy all chunk files (assets directory)
+# Step 5: Copy all chunk files directly to version folder
 echo -e "\n${BLUE}Step 5: Copying chunk files...${NC}"
 if [ -d "$VIEWER_DIR/dist/assets" ]; then
-    mkdir -p "$TARGET_DIR/assets"
     # Copy all files except the renamed ones
     for file in "$VIEWER_DIR/dist/assets"/*; do
         filename=$(basename "$file")
         # Skip the files we already renamed
         if [ "$file" != "$MAIN_JS" ] && [ "$file" != "$MAIN_CSS" ]; then
-            cp "$file" "$TARGET_DIR/assets/"
+            cp "$file" "$TARGET_DIR/"
             echo -e "${GREEN}✓ Copied $filename${NC}"
         fi
     done
@@ -91,4 +90,4 @@ echo -e "2. Deploy the config builder to see the updated viewer"
 echo -e "\nFiles updated:"
 echo -e "  - bundle.js"
 echo -e "  - bundle.css (if present)"
-echo -e "  - assets/* (chunk files)"
+echo -e "  - chunk files (*.js directly in version folder)"
