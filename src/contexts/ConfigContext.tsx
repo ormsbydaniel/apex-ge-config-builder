@@ -55,7 +55,7 @@ const initialState: ConfigState = {
       meta: {
         description: "",
         attribution: {
-          text: "OpenStreetMap",
+          text: "Map data (c) OpenStreetMap",
           url: "https://www.openstreetmap.org/copyright"
         },
         categories: []
