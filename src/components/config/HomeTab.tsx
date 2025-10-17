@@ -167,6 +167,11 @@ const HomeTab = ({ config }: HomeTabProps) => {
     const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string; index: number }> = [];
     
     config.sources.forEach((source: DataSource, index: number) => {
+      // Exclude base layers
+      if (source.isBaseLayer) {
+        return;
+      }
+      
       const hasData = source.data && source.data.length > 0 && source.data.some(d => d.url);
       const hasStatistics = source.statistics && source.statistics.length > 0 && source.statistics.some(s => s.url);
       const hasAnyContent = hasData || hasStatistics;
@@ -426,7 +431,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   />
                   <ConfigStatCard 
                     icon={Layers} 
-                    value={config.sources.length} 
+                    value={config.sources.filter((s: DataSource) => !s.isBaseLayer).length} 
                     label="Layers"
                     gradient="from-purple-500/10 to-purple-500/5"
                   />
