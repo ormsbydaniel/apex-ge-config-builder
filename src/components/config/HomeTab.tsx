@@ -457,12 +457,18 @@ const HomeTab = ({ config }: HomeTabProps) => {
               </div>
 
               {/* Status Info */}
-              {(config.lastSaved || config.isLoading) && (
+              {(config.lastLoaded || config.lastExported || config.isLoading) && (
                 <div className="pt-3 border-t border-border/50 space-y-2">
-                  {config.lastSaved && (
+                  {config.lastLoaded && (
                     <div className="text-sm text-muted-foreground flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-green-500" />
-                      <span>Last saved: {config.lastSaved.toLocaleString()}</span>
+                      <span>Last loaded: {config.lastLoaded.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {config.lastExported && (
+                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-blue-500" />
+                      <span>Last exported: {config.lastExported.toLocaleString()}</span>
                     </div>
                   )}
                   {config.isLoading && (
