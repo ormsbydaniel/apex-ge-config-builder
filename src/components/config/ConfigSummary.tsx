@@ -217,13 +217,21 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
             </div>
           </div>
           
-          {config.lastSaved && (
+          {(config.lastLoaded || config.lastExported) && (
             <>
               <Separator />
-              <div className="text-xs text-slate-50">
-                <span className="font-medium">Last saved: </span> 
-                {config.lastSaved.toLocaleString()}
-              </div>
+              {config.lastLoaded && (
+                <div className="text-xs text-slate-50">
+                  <span className="font-medium">Last loaded: </span> 
+                  {config.lastLoaded.toLocaleString()}
+                </div>
+              )}
+              {config.lastExported && (
+                <div className="text-xs text-slate-50">
+                  <span className="font-medium">Last exported: </span> 
+                  {config.lastExported.toLocaleString()}
+                </div>
+              )}
             </>
           )}
           
