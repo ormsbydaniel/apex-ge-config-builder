@@ -92,18 +92,133 @@ Example:
 
 ## Adding New Versions
 
-1. Build your viewer application (e.g., `npm run build` or `vite build`)
-2. Create a new directory with the semantic version number: `public/viewer/X.Y.Z/`
-3. **Copy the build output with this structure:**
-   ```bash
-   # Copy main bundle files (rename the index files)
-   cp dist/assets/index-[hash].js public/viewer/X.Y.Z/bundle.js
-   cp dist/assets/index-[hash].css public/viewer/X.Y.Z/bundle.css
-   
-   # Copy all chunk files directly to version folder
-   cp dist/assets/*.js public/viewer/X.Y.Z/
-   ```
-4. **Update `versions.json`** to include the new version in the `versions` array
+### Prerequisites
+- Viewer repository: `https://github.com/ESA-APEx/apex_geospatial_explorer`
+- Config builder repository: `https://github.com/ormsbydaniel/apex-ge-config-builder`
+- The `update-viewer-bundle.sh` script automates the build and copy process
+
+### Workflow
+
+#### Step 1: Prepare Viewer Repository
+
+```bash
+# Clone or navigate to viewer repository
+cd ~/software/apex_geospatial_explorer
+
+# Ensure you're on the correct branch (replace 'main' with your branch name)
+git checkout main
+git pull origin main
+
+# Or for a named branch:
+git checkout feature-branch-name
+git pull origin feature-branch-name
+
+# Update main.jsx and ConfigFetcher.jsx if needed
+# (The script will copy these from the config builder)
+```
+
+#### Step 2: Prepare Config Builder Repository
+
+```bash
+# Navigate to config builder repository
+cd ~/software/apex-ge-config-builder
+
+# Ensure you're on the correct branch
+git checkout main
+git pull origin main
+
+# Or for a named branch:
+git checkout your-branch-name
+git pull origin your-branch-name
+```
+
+#### Step 3: Run the Update Script
+
+```bash
+# From the config builder directory
+cd ~/software/apex-ge-config-builder/public/viewer
+
+# Edit the script to set the correct version number
+# Update VERSION="3.3.3" to your new version
+
+# Make script executable (first time only)
+chmod +x update-viewer-bundle.sh
+
+# Run the script
+./update-viewer-bundle.sh
+```
+
+The script will:
+1. Copy `main.jsx` and `ConfigFetcher.jsx` to viewer repo
+2. Build the viewer (`npm run build`)
+3. Create the version directory (e.g., `public/viewer/3.3.3/`)
+4. Copy and rename bundle files
+5. Copy all chunk files directly to the version folder
+
+#### Step 4: Update versions.json
+
+```bash
+# In the config builder repo
+cd ~/software/apex-ge-config-builder/public/viewer
+
+# Edit versions.json to add the new version
+# Example:
+{
+  "versions": ["3.3.3", "3.3.2", "3.2.1"],
+  "latest": "3.3.3"
+}
+```
+
+#### Step 5: Commit and Push to Config Builder
+
+```bash
+cd ~/software/apex-ge-config-builder
+
+# Check what changed
+git status
+
+# Add new files
+git add public/viewer/3.3.3/
+git add public/viewer/versions.json
+
+# Commit changes
+git commit -m "Add viewer version 3.3.3"
+
+# Push to your branch
+git push origin main  # or your branch name
+```
+
+#### Step 6: Deploy
+
+Once pushed to GitHub:
+- Changes automatically sync to Lovable (if GitHub integration is enabled)
+- Or deploy via Lovable's Publish button
+- The new viewer version will be available in the preview dropdown
+
+### Manual Copy Method (Alternative)
+
+If not using the script:
+
+```bash
+# Build viewer
+cd ~/software/apex_geospatial_explorer
+npm run build
+
+# Copy files to config builder
+cd ~/software/apex-ge-config-builder
+VERSION="X.Y.Z"
+mkdir -p "public/viewer/$VERSION"
+
+# Copy and rename main bundles
+cp ~/software/apex_geospatial_explorer/dist/assets/index-*.js "public/viewer/$VERSION/bundle.js"
+cp ~/software/apex_geospatial_explorer/dist/assets/index-*.css "public/viewer/$VERSION/bundle.css"
+
+# Copy all chunk files directly to version folder
+cp ~/software/apex_geospatial_explorer/dist/assets/*.js "public/viewer/$VERSION/"
+
+# Update versions.json
+# Then commit and push
+```
 
 **IMPORTANT**: Vite builds use code splitting and output chunk files. 
 You MUST copy all chunk files directly into the version folder alongside bundle.js, or the viewer will fail to load.
