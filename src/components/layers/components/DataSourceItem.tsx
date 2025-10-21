@@ -93,8 +93,9 @@ const DataSourceItem = ({
   const hasTimestamps = dataSource.timestamps && dataSource.timestamps.length > 0;
   const showTemporalInfo = timeframe !== 'None' && (hasTimestamps || onManageTimestamps);
   
-  // Check if this data source uses TIME parameter (stored in data source or from service capabilities)
-  const hasTimeParameter = dataSource.useTimeParameter === true;
+  // Check if this data source uses TIME parameter (WMS/WMTS with temporal control but no timestamps)
+  const isWmsOrWmts = dataSource.format?.toLowerCase() === 'wms' || dataSource.format?.toLowerCase() === 'wmts';
+  const hasTimeParameter = isWmsOrWmts && timeframe !== 'None' && !hasTimestamps;
 
   return (
     <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50">
@@ -159,8 +160,8 @@ const DataSourceItem = ({
           </span>
         )}
         
-        {/* TIME parameter pill for WMS/WMTS layers with temporal control */}
-        {hasTimeParameter && timeframe !== 'None' && (
+        {/* TIME parameter badge for WMS/WMTS layers with temporal control but no timestamps */}
+        {hasTimeParameter && (
           <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
             TIME PARAM
           </Badge>
