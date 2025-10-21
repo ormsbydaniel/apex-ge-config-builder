@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -86,6 +87,9 @@ const DataSourceForm = ({
   const [dateInputValue, setDateInputValue] = useState<string>('');
   const [month, setMonth] = useState<Date>(new Date());
   const requiresTimestamp = timeframe && timeframe !== 'None';
+  
+  // State for WMS/WMTS TIME parameter usage
+  const [useTimeParameter, setUseTimeParameter] = useState<boolean>(true);
 
   // Generate year options (1900 to 2050)
   const yearOptions = Array.from({ length: 151 }, (_, i) => 1900 + i);
@@ -175,6 +179,11 @@ const DataSourceForm = ({
     // Reset statistics state for unsupported formats
     if (format !== 'flatgeobuf' && format !== 'geojson') {
       setIsStatisticsLayer(false);
+    }
+    
+    // Set useTimeParameter to true by default for WMS/WMTS when temporal is enabled
+    if ((format === 'wms' || format === 'wmts') && requiresTimestamp) {
+      setUseTimeParameter(true);
     }
   };
 
@@ -295,8 +304,11 @@ const DataSourceForm = ({
       return;
     }
 
-    // Validate timestamp for temporal layers
-    if (requiresTimestamp && !selectedDate) {
+    // Validate timestamp for temporal layers (skip if using TIME parameter)
+    const isWmsOrWmts = selectedFormat === 'wms' || selectedFormat === 'wmts';
+    const needsManualTimestamp = requiresTimestamp && !useTimeParameter;
+    
+    if (needsManualTimestamp && !selectedDate) {
       toast({
         title: "Missing Timestamp",
         description: "Please select a timestamp for this temporal layer.",
@@ -312,7 +324,7 @@ const DataSourceForm = ({
       ...(layers && { layers }),
       ...(needsPosition && selectedPosition && { position: selectedPosition }),
       ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel }),
-      ...(requiresTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] })
+      ...(needsManualTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] })
     };
 
     // Call appropriate callback based on statistics layer flag
@@ -600,82 +612,111 @@ const DataSourceForm = ({
                   </p>
                 </div>
 
-                {/* Timestamp Picker for Temporal Layers */}
+                {/* Timestamp Configuration for Temporal Layers */}
                 {requiresTimestamp && (
-                  <div className="space-y-2">
-                    <Label htmlFor="timestamp">Timestamp *</Label>
-                    <div className="flex gap-2 items-center">
-                      <Input
-                        id="timestamp"
-                        placeholder="DD/MM/YYYY"
-                        value={dateInputValue}
-                        onChange={(e) => {
-                          let value = e.target.value;
-                          
-                          // Remove any non-digit characters except slashes
-                          value = value.replace(/[^\d/]/g, '');
-                          
-                          // Auto-add slashes
-                          if (value.length === 2 && !value.includes('/')) {
-                            value = value + '/';
-                          } else if (value.length === 5 && value.split('/').length === 2) {
-                            value = value + '/';
-                          }
-                          
-                          // Limit to DD/MM/YYYY format length
-                          if (value.length > 10) {
-                            value = value.substring(0, 10);
-                          }
-                          
-                          setDateInputValue(value);
-                          
-                          // Try to parse the date in DD/MM/YYYY format
-                          if (value.length === 10) {
-                            const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
-                            if (isValid(parsedDate)) {
-                              setSelectedDate(parsedDate);
-                              setMonth(parsedDate);
-                            }
-                          }
-                        }}
-                        autoComplete="off"
-                        className="w-32"
-                      />
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            type="button"
-                          >
-                            <CalendarIcon className="h-4 w-4" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={(date) => {
-                              setSelectedDate(date);
-                              if (date) {
-                                setDateInputValue(format(date, 'dd/MM/yyyy'));
-                                setMonth(date);
+                  <div className="space-y-4">
+                    {/* WMS/WMTS TIME Parameter Option */}
+                    {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="useTimeParameter"
+                          checked={useTimeParameter}
+                          onCheckedChange={(checked) => setUseTimeParameter(checked as boolean)}
+                        />
+                        <Label 
+                          htmlFor="useTimeParameter"
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          Use TIME parameter from service
+                        </Label>
+                      </div>
+                    )}
+                    
+                    {/* Manual Timestamp Input */}
+                    {!useTimeParameter && (
+                      <div className="space-y-2">
+                        <Label htmlFor="timestamp">Timestamp *</Label>
+                        <div className="flex gap-2 items-center">
+                          <Input
+                            id="timestamp"
+                            placeholder="DD/MM/YYYY"
+                            value={dateInputValue}
+                            onChange={(e) => {
+                              let value = e.target.value;
+                              
+                              // Remove any non-digit characters except slashes
+                              value = value.replace(/[^\d/]/g, '');
+                              
+                              // Auto-add slashes
+                              if (value.length === 2 && !value.includes('/')) {
+                                value = value + '/';
+                              } else if (value.length === 5 && value.split('/').length === 2) {
+                                value = value + '/';
+                              }
+                              
+                              // Limit to DD/MM/YYYY format length
+                              if (value.length > 10) {
+                                value = value.substring(0, 10);
+                              }
+                              
+                              setDateInputValue(value);
+                              
+                              // Try to parse the date in DD/MM/YYYY format
+                              if (value.length === 10) {
+                                const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                                if (isValid(parsedDate)) {
+                                  setSelectedDate(parsedDate);
+                                  setMonth(parsedDate);
+                                }
                               }
                             }}
-                            month={month}
-                            onMonthChange={setMonth}
-                            initialFocus
-                            className={cn("p-0 pointer-events-auto")}
-                            components={{
-                              Caption: CustomCaption
-                            }}
+                            autoComplete="off"
+                            className="w-32"
                           />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      This timestamp will be used for temporal data visualization ({timeframe} timeframe).
-                    </p>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                type="button"
+                              >
+                                <CalendarIcon className="h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={selectedDate}
+                                onSelect={(date) => {
+                                  setSelectedDate(date);
+                                  if (date) {
+                                    setDateInputValue(format(date, 'dd/MM/yyyy'));
+                                    setMonth(date);
+                                  }
+                                }}
+                                month={month}
+                                onMonthChange={setMonth}
+                                initialFocus
+                                className={cn("p-0 pointer-events-auto")}
+                                components={{
+                                  Caption: CustomCaption
+                                }}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Help text when using TIME parameter */}
+                    {useTimeParameter && (selectedFormat === 'wms' || selectedFormat === 'wmts') && (
+                      <p className="text-xs text-muted-foreground">
+                        The TIME parameter from the {selectedFormat.toUpperCase()} service will be used for temporal data visualization.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -775,82 +816,111 @@ const DataSourceForm = ({
                   </p>
                 </div>
 
-                {/* Timestamp Picker for Temporal Layers */}
+                {/* Timestamp Configuration for Temporal Layers */}
                 {requiresTimestamp && (
-                  <div className="space-y-2">
-                    <Label htmlFor="serviceTimestamp">Timestamp *</Label>
-                    <div className="flex gap-2 items-center">
-                      <Input
-                        id="serviceTimestamp"
-                        placeholder="DD/MM/YYYY"
-                        value={dateInputValue}
-                        onChange={(e) => {
-                          let value = e.target.value;
-                          
-                          // Remove any non-digit characters except slashes
-                          value = value.replace(/[^\d/]/g, '');
-                          
-                          // Auto-add slashes
-                          if (value.length === 2 && !value.includes('/')) {
-                            value = value + '/';
-                          } else if (value.length === 5 && value.split('/').length === 2) {
-                            value = value + '/';
-                          }
-                          
-                          // Limit to DD/MM/YYYY format length
-                          if (value.length > 10) {
-                            value = value.substring(0, 10);
-                          }
-                          
-                          setDateInputValue(value);
-                          
-                          // Try to parse the date in DD/MM/YYYY format
-                          if (value.length === 10) {
-                            const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
-                            if (isValid(parsedDate)) {
-                              setSelectedDate(parsedDate);
-                              setMonth(parsedDate);
-                            }
-                          }
-                        }}
-                        autoComplete="off"
-                        className="w-32"
-                      />
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            type="button"
-                          >
-                            <CalendarIcon className="h-4 w-4" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={(date) => {
-                              setSelectedDate(date);
-                              if (date) {
-                                setDateInputValue(format(date, 'dd/MM/yyyy'));
-                                setMonth(date);
+                  <div className="space-y-4">
+                    {/* WMS/WMTS TIME Parameter Option */}
+                    {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="serviceUseTimeParameter"
+                          checked={useTimeParameter}
+                          onCheckedChange={(checked) => setUseTimeParameter(checked as boolean)}
+                        />
+                        <Label 
+                          htmlFor="serviceUseTimeParameter"
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          Use TIME parameter from service
+                        </Label>
+                      </div>
+                    )}
+                    
+                    {/* Manual Timestamp Input */}
+                    {!useTimeParameter && (
+                      <div className="space-y-2">
+                        <Label htmlFor="serviceTimestamp">Timestamp *</Label>
+                        <div className="flex gap-2 items-center">
+                          <Input
+                            id="serviceTimestamp"
+                            placeholder="DD/MM/YYYY"
+                            value={dateInputValue}
+                            onChange={(e) => {
+                              let value = e.target.value;
+                              
+                              // Remove any non-digit characters except slashes
+                              value = value.replace(/[^\d/]/g, '');
+                              
+                              // Auto-add slashes
+                              if (value.length === 2 && !value.includes('/')) {
+                                value = value + '/';
+                              } else if (value.length === 5 && value.split('/').length === 2) {
+                                value = value + '/';
+                              }
+                              
+                              // Limit to DD/MM/YYYY format length
+                              if (value.length > 10) {
+                                value = value.substring(0, 10);
+                              }
+                              
+                              setDateInputValue(value);
+                              
+                              // Try to parse the date in DD/MM/YYYY format
+                              if (value.length === 10) {
+                                const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                                if (isValid(parsedDate)) {
+                                  setSelectedDate(parsedDate);
+                                  setMonth(parsedDate);
+                                }
                               }
                             }}
-                            month={month}
-                            onMonthChange={setMonth}
-                            initialFocus
-                            className={cn("p-0 pointer-events-auto")}
-                            components={{
-                              Caption: CustomCaption
-                            }}
+                            autoComplete="off"
+                            className="w-32"
                           />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      This timestamp will be used for temporal data visualization ({timeframe} timeframe).
-                    </p>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                type="button"
+                              >
+                                <CalendarIcon className="h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={selectedDate}
+                                onSelect={(date) => {
+                                  setSelectedDate(date);
+                                  if (date) {
+                                    setDateInputValue(format(date, 'dd/MM/yyyy'));
+                                    setMonth(date);
+                                  }
+                                }}
+                                month={month}
+                                onMonthChange={setMonth}
+                                initialFocus
+                                className={cn("p-0 pointer-events-auto")}
+                                components={{
+                                  Caption: CustomCaption
+                                }}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Help text when using TIME parameter */}
+                    {useTimeParameter && (selectedFormat === 'wms' || selectedFormat === 'wmts') && (
+                      <p className="text-xs text-muted-foreground">
+                        The TIME parameter from the {selectedFormat.toUpperCase()} service will be used for temporal data visualization.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
