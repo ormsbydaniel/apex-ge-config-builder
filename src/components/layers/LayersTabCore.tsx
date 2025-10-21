@@ -31,6 +31,8 @@ interface LayersTabCoreProps {
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
   layersLogic: any; // From useLayersTabLogic
+  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
+  navigationState?: { expandedGroups: string[]; expandedLayers: string[] };
 }
 
 const LayersTabCore = ({
@@ -54,7 +56,9 @@ const LayersTabCore = ({
   setNewExclusivitySet,
   expandedLayers,
   onToggleLayer,
-  layersLogic
+  layersLogic,
+  onExpansionStateChange,
+  navigationState
 }: LayersTabCoreProps) => {
   const handleLayerFormCancel = () => {
     // If we were editing a layer, trigger expansion for that layer
@@ -157,6 +161,8 @@ const LayersTabCore = ({
       expandedLayers={expandedLayers}
       onToggleLayer={onToggleLayer}
       layersLogic={layersLogic}
+      onExpansionStateChange={onExpansionStateChange}
+      navigationState={navigationState}
     />
   );
 };

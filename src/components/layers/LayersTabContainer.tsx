@@ -86,6 +86,8 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
         newExclusivitySet={props.newExclusivitySet}
         setNewExclusivitySet={props.setNewExclusivitySet}
         layersLogic={layersLogic}
+        onExpansionStateChange={props.onExpansionStateChange}
+        navigationState={props.navigationState}
       />
     </LayersTabProvider>
   );

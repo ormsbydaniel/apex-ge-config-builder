@@ -122,9 +122,18 @@ const ConfigManagement = () => {
             className="hidden"
           />
 
-          {config.lastSaved && (
-            <div className="text-sm text-slate-600 pt-2 border-t">
-              <span className="font-medium">Last saved:</span> {config.lastSaved.toLocaleString()}
+          {(config.lastLoaded || config.lastExported) && (
+            <div className="text-sm text-slate-600 pt-2 border-t space-y-1">
+              {config.lastLoaded && (
+                <div>
+                  <span className="font-medium">Last loaded:</span> {config.lastLoaded.toLocaleString()}
+                </div>
+              )}
+              {config.lastExported && (
+                <div>
+                  <span className="font-medium">Last exported:</span> {config.lastExported.toLocaleString()}
+                </div>
+              )}
             </div>
           )}
         </CardContent>

@@ -7,7 +7,7 @@ import { applyExportTransformations } from '@/utils/exportTransformations';
 import { ExportOptions } from '@/components/ExportOptionsDialog';
 
 export const useConfigExport = () => {
-  const { config } = useConfig();
+  const { config, dispatch } = useConfig();
   const { toast } = useToast();
 
   const exportConfig = useCallback((options: ExportOptions = { 
@@ -83,6 +83,9 @@ export const useConfigExport = () => {
       a.click();
       URL.revokeObjectURL(url);
       
+      // Update last exported timestamp
+      dispatch({ type: 'SET_LAST_EXPORTED' });
+      
       const transformationsApplied = Object.values(options).some(value => value);
       const description = transformationsApplied 
         ? "Your config.json file has been downloaded with custom transformations applied."
@@ -100,7 +103,7 @@ export const useConfigExport = () => {
         variant: "destructive",
       });
     }
-  }, [config, toast]);
+  }, [config, dispatch, toast]);
 
   return { exportConfig };
 };

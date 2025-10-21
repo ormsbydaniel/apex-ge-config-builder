@@ -6,7 +6,8 @@ import { validateImages } from '@/utils/imageValidation';
 
 interface ConfigState extends ValidatedConfiguration {
   isLoading: boolean;
-  lastSaved: Date | null;
+  lastLoaded: Date | null;
+  lastExported: Date | null;
   validationResults: Map<number, LayerValidationResult>;
 }
 
@@ -14,6 +15,7 @@ type ConfigAction =
   | { type: 'LOAD_CONFIG'; payload: ValidatedConfiguration }
   | { type: 'RESET_CONFIG' }
   | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_LAST_EXPORTED' }
   | { type: 'UPDATE_VERSION'; payload: string }
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
   | { type: 'UPDATE_INTERFACE_GROUPS'; payload: string[] }
@@ -67,7 +69,8 @@ const initialState: ConfigState = {
     center: [0, 0]
   },
   isLoading: false,
-  lastSaved: null,
+  lastLoaded: null,
+  lastExported: null,
   validationResults: new Map(),
 };
 
@@ -136,18 +139,25 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       return {
         ...normalizedPayload,
         isLoading: false,
-        lastSaved: new Date(),
+        lastLoaded: new Date(),
+        lastExported: state.lastExported, // Preserve last exported time
         validationResults: new Map(), // Reset validation results when loading new config
       };
     case 'RESET_CONFIG':
       return {
         ...initialState,
-        lastSaved: null,
+        lastLoaded: null,
+        lastExported: null,
       };
     case 'SET_LOADING':
       return {
         ...state,
         isLoading: action.payload,
+      };
+    case 'SET_LAST_EXPORTED':
+      return {
+        ...state,
+        lastExported: new Date(),
       };
     case 'UPDATE_VERSION':
       return {

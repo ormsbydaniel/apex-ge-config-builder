@@ -85,9 +85,15 @@ const ConfigBuilderContent = () => {
   } = useConfigBuilderState();
 
   // Track navigation state for Preview transitions
-  const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups } = useNavigationState();
+  const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setScrollPosition } = useNavigationState();
+  const layersScrollRef = React.useRef<HTMLDivElement>(null);
 
   const handleTabChange = (value: string) => {
+    // Save scroll position before changing tabs
+    if (navigationState.activeTab === 'layers' && layersScrollRef.current) {
+      setScrollPosition(layersScrollRef.current.scrollTop);
+    }
+    
     // Don't save state for preview navigation (handled separately)
     if (value !== 'mappreview') {
       setActiveTab(value);
@@ -95,6 +101,10 @@ const ConfigBuilderContent = () => {
   };
 
   const handlePreviewClick = () => {
+    // Save current scroll position before navigating
+    if (navigationState.activeTab === 'layers' && layersScrollRef.current) {
+      setScrollPosition(layersScrollRef.current.scrollTop);
+    }
     // Save current tab state before navigating
     navigate('/preview');
   };
@@ -104,6 +114,18 @@ const ConfigBuilderContent = () => {
     setExpandedLayers(layers);
     setExpandedGroups(groups);
   }, [setExpandedLayers, setExpandedGroups]);
+
+  // Restore scroll position when returning to layers tab
+  React.useEffect(() => {
+    if (navigationState.activeTab === 'layers' && layersScrollRef.current && navigationState.scrollPosition > 0) {
+      // Small delay to allow content to render
+      setTimeout(() => {
+        if (layersScrollRef.current) {
+          layersScrollRef.current.scrollTop = navigationState.scrollPosition;
+        }
+      }, 100);
+    }
+  }, [navigationState.activeTab, navigationState.scrollPosition]);
 
   return (
     <div className="min-h-screen" style={{
@@ -167,15 +189,16 @@ const ConfigBuilderContent = () => {
             </TabsContent>
 
             <TabsContent value="layers">
-              <LayersTab 
-                config={config} 
-                showLayerForm={showLayerForm} 
-                selectedLayerType={selectedLayerType} 
-                defaultInterfaceGroup={defaultInterfaceGroup}
-                setShowLayerForm={setShowLayerForm} 
-                setSelectedLayerType={setSelectedLayerType} 
-                setDefaultInterfaceGroup={setDefaultInterfaceGroup}
-                handleLayerTypeSelect={handleLayerTypeSelect} 
+              <div ref={layersScrollRef} className="max-h-[calc(100vh-200px)] overflow-y-auto">
+                <LayersTab 
+                  config={config} 
+                  showLayerForm={showLayerForm} 
+                  selectedLayerType={selectedLayerType} 
+                  defaultInterfaceGroup={defaultInterfaceGroup}
+                  setShowLayerForm={setShowLayerForm} 
+                  setSelectedLayerType={setSelectedLayerType} 
+                  setDefaultInterfaceGroup={setDefaultInterfaceGroup}
+                  handleLayerTypeSelect={handleLayerTypeSelect}
                 handleCancelLayerForm={handleCancelLayerForm} 
                 addLayer={addLayer} 
                 removeLayer={removeLayer} 
@@ -192,6 +215,7 @@ const ConfigBuilderContent = () => {
                 navigationState={navigationState}
                 onExpansionStateChange={handleExpansionStateChange}
               />
+              </div>
             </TabsContent>
 
             <TabsContent value="draworder">
