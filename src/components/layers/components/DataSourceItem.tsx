@@ -150,6 +150,12 @@ const DataSourceItem = ({
           </Badge>
         )}
         
+        {showStatsLevel && (
+          <span className="text-xs text-gray-500 flex-shrink-0">
+            L: {getLevel()}
+          </span>
+        )}
+        
         <span className="text-xs text-gray-500 flex-shrink-0">
           Z: {getZIndex()}
         </span>
@@ -165,12 +171,6 @@ const DataSourceItem = ({
           <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
             TIME PARAM
           </Badge>
-        )}
-        
-        {showStatsLevel && (
-          <span className="text-xs text-gray-500 flex-shrink-0">
-            L: {getLevel()}
-          </span>
         )}
         
         {showPosition && (
