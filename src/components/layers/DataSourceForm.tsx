@@ -582,24 +582,42 @@ const DataSourceForm = ({
                 {requiresTimestamp && (
                   <div className="space-y-2">
                     <Label htmlFor="timestamp">Timestamp *</Label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                       <Input
                         id="timestamp"
                         placeholder="DD/MM/YYYY"
                         value={dateInputValue}
                         onChange={(e) => {
-                          const value = e.target.value;
+                          let value = e.target.value;
+                          
+                          // Remove any non-digit characters except slashes
+                          value = value.replace(/[^\d/]/g, '');
+                          
+                          // Auto-add slashes
+                          if (value.length === 2 && !value.includes('/')) {
+                            value = value + '/';
+                          } else if (value.length === 5 && value.split('/').length === 2) {
+                            value = value + '/';
+                          }
+                          
+                          // Limit to DD/MM/YYYY format length
+                          if (value.length > 10) {
+                            value = value.substring(0, 10);
+                          }
+                          
                           setDateInputValue(value);
                           
                           // Try to parse the date in DD/MM/YYYY format
-                          const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
-                          if (isValid(parsedDate)) {
-                            setSelectedDate(parsedDate);
-                            setMonth(parsedDate);
+                          if (value.length === 10) {
+                            const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                            if (isValid(parsedDate)) {
+                              setSelectedDate(parsedDate);
+                              setMonth(parsedDate);
+                            }
                           }
                         }}
                         autoComplete="off"
-                        className="flex-1"
+                        className="w-32"
                       />
                       <Popover>
                         <PopoverTrigger asChild>
