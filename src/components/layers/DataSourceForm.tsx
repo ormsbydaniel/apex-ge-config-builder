@@ -560,6 +560,23 @@ const DataSourceForm = ({
                   </div>
                 )}
                 
+                <div className="space-y-2">
+                  <Label htmlFor="directZIndex">Z-Index</Label>
+                  <Input
+                    id="directZIndex"
+                    name="directZIndex"
+                    type="number"
+                    value={zIndex}
+                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
+                    min="0"
+                    max="200"
+                    autoComplete="off"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+                  </p>
+                </div>
+
                 {/* Timestamp Picker for Temporal Layers */}
                 {requiresTimestamp && (
                   <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
@@ -601,23 +618,6 @@ const DataSourceForm = ({
                     </div>
                   </div>
                 )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="directZIndex">Z-Index</Label>
-                  <Input
-                    id="directZIndex"
-                    name="directZIndex"
-                    type="number"
-                    value={zIndex}
-                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
-                    min="0"
-                    max="200"
-                    autoComplete="off"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
-                  </p>
-                </div>
               </div>
             )}
 
