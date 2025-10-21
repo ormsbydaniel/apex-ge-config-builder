@@ -61,6 +61,7 @@ export interface DataSourceItem {
   maxZoom?: number;
   // Temporal support
   timestamps?: number[]; // Array of Unix timestamps
+  useTimeParameter?: boolean; // Use TIME parameter from WMS/WMTS service
   // Opacity support (0-1 range)
   opacity?: number;
 }

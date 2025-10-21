@@ -324,7 +324,8 @@ const DataSourceForm = ({
       ...(layers && { layers }),
       ...(needsPosition && selectedPosition && { position: selectedPosition }),
       ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel }),
-      ...(needsManualTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] })
+      ...(needsManualTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] }),
+      ...(isWmsOrWmts && useTimeParameter && { useTimeParameter: true })
     };
 
     // Call appropriate callback based on statistics layer flag

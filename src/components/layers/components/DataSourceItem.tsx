@@ -93,16 +93,8 @@ const DataSourceItem = ({
   const hasTimestamps = dataSource.timestamps && dataSource.timestamps.length > 0;
   const showTemporalInfo = timeframe !== 'None' && (hasTimestamps || onManageTimestamps);
   
-  // Check if this data source uses TIME parameter from service capabilities
-  const hasTimeParameter = React.useMemo(() => {
-    if (!dataSource.serviceId || !dataSource.layers) return false;
-    
-    const service = services.find(s => s.id === dataSource.serviceId);
-    if (!service?.capabilities) return false;
-    
-    const layerCapabilities = service.capabilities.layers.find(l => l.name === dataSource.layers);
-    return layerCapabilities?.hasTimeDimension || false;
-  }, [dataSource.serviceId, dataSource.layers, services]);
+  // Check if this data source uses TIME parameter (stored in data source or from service capabilities)
+  const hasTimeParameter = dataSource.useTimeParameter === true;
 
   return (
     <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50">
@@ -167,10 +159,10 @@ const DataSourceItem = ({
           </span>
         )}
         
-        {/* TIME parameter pill for WMS/WMTS layers */}
-        {hasTimeParameter && (
+        {/* TIME parameter pill for WMS/WMTS layers with temporal control */}
+        {hasTimeParameter && timeframe !== 'None' && (
           <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-            TIME param
+            TIME PARAM
           </Badge>
         )}
         
