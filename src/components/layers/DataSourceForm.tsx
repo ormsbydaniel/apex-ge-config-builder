@@ -424,7 +424,29 @@ const DataSourceForm = ({
 
                 {services.length > 0 ? (
                   <div className="grid gap-4">
-                    {services.map((service) => (
+                    {services
+                      .slice()
+                      .sort((a, b) => {
+                        // Define priority order
+                        const getPriority = (service: Service) => {
+                          if (service.sourceType === 'stac') return 1;
+                          if (service.format === 'wms' || service.format === 'wmts') return 2;
+                          if (service.sourceType === 's3') return 3;
+                          return 4;
+                        };
+                        
+                        const priorityA = getPriority(a);
+                        const priorityB = getPriority(b);
+                        
+                        // Sort by priority first
+                        if (priorityA !== priorityB) {
+                          return priorityA - priorityB;
+                        }
+                        
+                        // Within same priority, sort alphabetically by name
+                        return a.name.localeCompare(b.name);
+                      })
+                      .map((service) => (
                       <Card key={service.id} className={`border-l-4 ${
                         service.sourceType === 's3' ? 'border-l-green-500' : 
                         service.sourceType === 'stac' ? 'border-l-purple-500' : 
