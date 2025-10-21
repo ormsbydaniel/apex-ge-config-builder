@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext } from 'react';
-import { DataSource, LayerType, Service, LayerValidationResult } from '@/types/config';
+import { DataSource, LayerType, Service } from '@/types/config';
 
 interface LayersTabContextValue {
   config: {
@@ -8,7 +8,6 @@ interface LayersTabContextValue {
     interfaceGroups: string[];
     services: Service[];
     exclusivitySets: string[];
-    validationResults?: Map<number, LayerValidationResult>;
   };
   editingLayerIndex: number | null;
   defaultInterfaceGroup?: string;

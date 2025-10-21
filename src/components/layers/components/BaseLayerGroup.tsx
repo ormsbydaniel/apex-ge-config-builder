@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle, Download } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { DataSource, LayerValidationResult } from '@/types/config';
+import { DataSource } from '@/types/config';
 import { calculateQAStats } from '@/utils/qaUtils';
 import LayerCard from '../LayerCard';
 import LayerMoveControls from './LayerMoveControls';
@@ -29,7 +29,6 @@ interface BaseLayerGroupProps {
   onAddBaseLayer: () => void;
   onAddRecommendedBaseLayers: () => void;
   isLoadingRecommended?: boolean;
-  validationResults?: Map<number, LayerValidationResult>;
 }
 
 const BaseLayerGroup = ({
@@ -49,8 +48,7 @@ const BaseLayerGroup = ({
   onMoveLayer,
   onAddBaseLayer,
   onAddRecommendedBaseLayers,
-  isLoadingRecommended,
-  validationResults
+  isLoadingRecommended
 }: BaseLayerGroupProps) => {
   const { toggleCard, isExpanded: isCardExpanded } = useLayerStateManagement();
 
@@ -147,7 +145,6 @@ const BaseLayerGroup = ({
                       onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
                       isExpanded={isCardExpanded(`base-${originalIndex}`)}
                       onToggle={() => toggleCard(`base-${originalIndex}`)}
-                      validationResult={validationResults?.get(originalIndex)}
                     />
                   </div>
                   <LayerMoveControls

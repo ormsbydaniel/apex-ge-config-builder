@@ -3,12 +3,10 @@ import React from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, LayoutPanelLeft, Menu } from 'lucide-react';
-import { DataSource, LayerValidationResult } from '@/types/config';
+import { DataSource } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import LayerBadge from './LayerBadge';
 import LayerActions from './LayerActions';
-import LayerQAStatus from './LayerQAStatus';
-import LayerValidationStatus from './LayerValidationStatus';
 interface LayerCardHeaderProps {
   source: DataSource;
   index: number;
@@ -19,7 +17,6 @@ interface LayerCardHeaderProps {
   onDuplicate: (index: number) => void;
   onEditJson: (index: number) => void;
   handleEdit: () => void;
-  validationResult?: LayerValidationResult;
 }
 const LayerCardHeader = ({
   source,
@@ -30,21 +27,14 @@ const LayerCardHeader = ({
   onEdit,
   onDuplicate,
   onEditJson,
-  handleEdit,
-  validationResult
+  handleEdit
 }: LayerCardHeaderProps) => {
   const contentLocation = source.layout?.contentLocation || 'layerCard';
   
   return <CardHeader className="py-3 relative">
-      {/* Descriptive badges positioned near layer name */}
-      <div className="absolute top-[21px] left-[65px] z-10 flex items-center gap-2">
-        <LayerBadge source={source} />
-      </div>
-      
-      {/* Status badges and Actions positioned on far right */}
+      {/* Badge and Actions positioned to align with layer name */}
       <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
-        <LayerQAStatus source={source} />
-        <LayerValidationStatus validationResult={validationResult} />
+        <LayerBadge source={source} />
         <Badge variant="outline" className="flex items-center gap-1 text-xs border-teal-500 text-teal-600">
           {contentLocation === 'infoPanel' ? (
             <>

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { DataSource, LayerType, Service, LayerValidationResult } from '@/types/config';
+import { DataSource, LayerType, Service } from '@/types/config';
 import { NavigationState } from '@/hooks/useNavigationState';
 import { LayersTabProvider } from '@/contexts/LayersTabContext';
 import { useLayersTabLogic } from '@/hooks/useLayersTabLogic';
@@ -12,7 +12,6 @@ interface LayersTabContainerProps {
     interfaceGroups: string[];
     services: Service[];
     exclusivitySets: string[];
-    validationResults?: Map<number, LayerValidationResult>;
   };
   showLayerForm: boolean;
   selectedLayerType: LayerType | null;

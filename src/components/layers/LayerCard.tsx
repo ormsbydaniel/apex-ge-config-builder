@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { DataSource, isDataSourceItemArray, LayerValidationResult } from '@/types/config';
+import { DataSource, isDataSourceItemArray } from '@/types/config';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import LayerCardHeader from './components/LayerCardHeader';
 import LayerCardContent from './components/LayerCardContent';
@@ -22,7 +22,6 @@ interface LayerCardProps {
   onEditStatisticsSource?: (statsIndex: number) => void;
   isExpanded: boolean;
   onToggle: () => void;
-  validationResult?: LayerValidationResult;
 }
 
 const LayerCard = ({ 
@@ -39,8 +38,7 @@ const LayerCard = ({
   onEditDataSource,
   onEditStatisticsSource,
   isExpanded,
-  onToggle,
-  validationResult
+  onToggle
 }: LayerCardProps) => {
   const [isJsonEditorOpen, setIsJsonEditorOpen] = useState(false);
   
@@ -96,7 +94,6 @@ const LayerCard = ({
             onDuplicate={onDuplicate}
             onEditJson={handleEditJson}
             handleEdit={handleEdit}
-            validationResult={validationResult}
           />
           <CollapsibleContent>
             <LayerCardContent

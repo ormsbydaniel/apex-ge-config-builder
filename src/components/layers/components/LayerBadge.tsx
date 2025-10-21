@@ -2,7 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Database, Globe, Clock, BarChart } from 'lucide-react';
+import { Database, Globe, Server, Clock, BarChart } from 'lucide-react';
 import { DataSource } from '@/types/config';
 
 interface LayerBadgeProps {

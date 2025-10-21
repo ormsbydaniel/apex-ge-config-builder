@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DataSource, isDataSourceItemArray, LayerValidationResult } from '@/types/config';
+import { DataSource, isDataSourceItemArray } from '@/types/config';
 import LayerGroup from './components/LayerGroup';
 import BaseLayerGroup from './components/BaseLayerGroup';
 import UngroupedLayersGroup from './components/UngroupedLayersGroup';
@@ -11,7 +11,6 @@ interface LayerHierarchyProps {
   config: {
     sources: DataSource[];
     interfaceGroups: string[];
-    validationResults?: Map<number, LayerValidationResult>;
   };
   onRemove: (index: number) => void;
   onEdit: (index: number) => void;
