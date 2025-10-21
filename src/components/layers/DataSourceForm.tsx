@@ -16,7 +16,7 @@ import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
-import { format } from 'date-fns';
+import { format, parse, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ServiceSelectionModal } from './components/ServiceSelectionModals';
 import { determineZLevel } from '@/utils/drawOrderUtils';
@@ -83,6 +83,7 @@ const DataSourceForm = ({
   
   // Date picker state for temporal layers
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [dateInputValue, setDateInputValue] = useState<string>('');
   const [month, setMonth] = useState<Date>(new Date());
   const requiresTimestamp = timeframe && timeframe !== 'None';
 
@@ -581,34 +582,57 @@ const DataSourceForm = ({
                 {requiresTimestamp && (
                   <div className="space-y-2">
                     <Label htmlFor="timestamp">Timestamp *</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !selectedDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={setSelectedDate}
-                          month={month}
-                          onMonthChange={setMonth}
-                          initialFocus
-                          className={cn("p-0 pointer-events-auto")}
-                          components={{
-                            Caption: CustomCaption
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <div className="flex gap-2">
+                      <Input
+                        id="timestamp"
+                        placeholder="DD/MM/YYYY"
+                        value={dateInputValue}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setDateInputValue(value);
+                          
+                          // Try to parse the date in DD/MM/YYYY format
+                          const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                          if (isValid(parsedDate)) {
+                            setSelectedDate(parsedDate);
+                            setMonth(parsedDate);
+                          }
+                        }}
+                        autoComplete="off"
+                        className="flex-1"
+                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            type="button"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(date) => {
+                              setSelectedDate(date);
+                              if (date) {
+                                setDateInputValue(format(date, 'dd/MM/yyyy'));
+                                setMonth(date);
+                              }
+                            }}
+                            month={month}
+                            onMonthChange={setMonth}
+                            initialFocus
+                            className={cn("p-0 pointer-events-auto")}
+                            components={{
+                              Caption: CustomCaption
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       This timestamp will be used for temporal data visualization ({timeframe} timeframe).
                     </p>
