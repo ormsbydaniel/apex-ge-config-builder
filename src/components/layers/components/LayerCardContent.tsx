@@ -118,7 +118,7 @@ const LayerCardContent = ({
               description: "Workflow management will be available soon.",
             });
           }}
-          onRemoveDataSource={onRemoveDataSource}
+          onRemoveDataSource={(_, dataIndex) => onRemoveDataSource(dataIndex)}
           onRemoveStatisticsSource={(_, statsIndex) => onRemoveStatisticsSource?.(statsIndex)}
           onRemoveConstraintSource={() => {
             toast({
