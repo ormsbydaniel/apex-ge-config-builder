@@ -9,9 +9,9 @@ import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
 import LayerLegendDisplay from './LayerLegendDisplay';
 import LayerControlsDisplay from './LayerControlsDisplay';
-import RegularLayerContent from './RegularLayerContent';
 import LayerAttributionDisplay from './LayerAttributionDisplay';
 import LayerColormapsDisplay from './LayerColormapsDisplay';
+import { LayerCardTabs } from './LayerCardTabs';
 
 interface LayerCardContentProps {
   source: DataSource;
@@ -93,17 +93,59 @@ const LayerCardContent = ({
       <LayerControlsDisplay source={source} />
 
 
-      {/* Only show data source display for non-swipe layers */}
+      {/* Tabbed Sources Section - only show for non-swipe layers */}
       {!isSwipeLayer && (
-        <RegularLayerContent
+        <LayerCardTabs
           source={source}
           services={(config.services || []) as Service[]}
-          onAddDataSource={onAddDataSource}
+          layerIndex={sourceIndex}
+          onAddDataSource={() => onAddDataSource?.()}
+          onAddStatisticsSource={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Statistics source management will be available soon.",
+            });
+          }}
+          onAddConstraintSource={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Constraint source management will be available soon.",
+            });
+          }}
+          onAddWorkflow={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Workflow management will be available soon.",
+            });
+          }}
           onRemoveDataSource={onRemoveDataSource}
-          onRemoveStatisticsSource={onRemoveStatisticsSource}
-          onEditDataSource={onEditDataSource}
-          onEditStatisticsSource={onEditStatisticsSource}
-          onUpdateMeta={handleUpdateMeta}
+          onRemoveStatisticsSource={(_, statsIndex) => onRemoveStatisticsSource?.(statsIndex)}
+          onRemoveConstraintSource={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Constraint removal will be available soon.",
+            });
+          }}
+          onRemoveWorkflow={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Workflow removal will be available soon.",
+            });
+          }}
+          onEditDataSource={(_, dataIndex) => onEditDataSource?.(dataIndex)}
+          onEditStatisticsSource={(_, statsIndex) => onEditStatisticsSource?.(statsIndex)}
+          onEditConstraintSource={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Constraint editing will be available soon.",
+            });
+          }}
+          onEditWorkflow={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Workflow editing will be available soon.",
+            });
+          }}
         />
       )}
 
