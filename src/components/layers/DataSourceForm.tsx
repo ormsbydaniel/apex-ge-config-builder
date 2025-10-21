@@ -304,9 +304,9 @@ const DataSourceForm = ({
       return;
     }
 
-    // Validate timestamp for temporal layers (skip if using TIME parameter)
+    // Validate timestamp for temporal layers
     const isWmsOrWmts = selectedFormat === 'wms' || selectedFormat === 'wmts';
-    const needsManualTimestamp = requiresTimestamp && !useTimeParameter;
+    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !useTimeParameter);
     
     if (needsManualTimestamp && !selectedDate) {
       toast({
@@ -616,7 +616,7 @@ const DataSourceForm = ({
                 {requiresTimestamp && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="timestamp">Timestamp {!useTimeParameter ? '*' : ''}</Label>
+                      <Label htmlFor="timestamp">Timestamp {((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
                       
                       {/* WMS/WMTS TIME Parameter Option */}
                       {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
@@ -635,8 +635,8 @@ const DataSourceForm = ({
                         </div>
                       )}
                       
-                      {/* Manual Timestamp Input */}
-                      {!useTimeParameter && (
+                      {/* Manual Timestamp Input - always show for non-WMS/WMTS, conditionally for WMS/WMTS */}
+                      {(selectedFormat !== 'wms' && selectedFormat !== 'wmts') || !useTimeParameter ? (
                         <>
                           <div className="flex gap-2 items-center">
                             <Input
@@ -711,7 +711,7 @@ const DataSourceForm = ({
                             This timestamp will be used for temporal data visualization ({timeframe} timeframe).
                           </p>
                         </>
-                      )}
+                      ) : null}
                       
                       {/* Help text when using TIME parameter */}
                       {useTimeParameter && (selectedFormat === 'wms' || selectedFormat === 'wmts') && (
@@ -823,7 +823,7 @@ const DataSourceForm = ({
                 {requiresTimestamp && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="serviceTimestamp">Timestamp {!useTimeParameter ? '*' : ''}</Label>
+                      <Label htmlFor="serviceTimestamp">Timestamp {((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
                       
                       {/* WMS/WMTS TIME Parameter Option */}
                       {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
@@ -842,8 +842,8 @@ const DataSourceForm = ({
                         </div>
                       )}
                       
-                      {/* Manual Timestamp Input */}
-                      {!useTimeParameter && (
+                      {/* Manual Timestamp Input - always show for non-WMS/WMTS, conditionally for WMS/WMTS */}
+                      {(selectedFormat !== 'wms' && selectedFormat !== 'wmts') || !useTimeParameter ? (
                         <>
                           <div className="flex gap-2 items-center">
                             <Input
@@ -918,7 +918,7 @@ const DataSourceForm = ({
                             This timestamp will be used for temporal data visualization ({timeframe} timeframe).
                           </p>
                         </>
-                      )}
+                      ) : null}
                       
                       {/* Help text when using TIME parameter */}
                       {useTimeParameter && (selectedFormat === 'wms' || selectedFormat === 'wmts') && (
