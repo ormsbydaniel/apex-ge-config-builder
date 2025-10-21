@@ -21,6 +21,7 @@ interface LayersTabContentProps {
   onRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
+  onAddStatisticsSource: (layerIndex: number) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddLayer: (groupName: string) => void;
   onAddBaseLayer: () => void;
@@ -52,6 +53,7 @@ const LayersTabContent = ({
   onRemoveStatisticsSource,
   onEditDataSource,
   onEditStatisticsSource,
+  onAddStatisticsSource,
   onMoveLayer,
   onAddLayer,
   onAddBaseLayer,
@@ -91,6 +93,7 @@ const LayersTabContent = ({
             onRemoveStatisticsSource={onRemoveStatisticsSource}
             onEditDataSource={onEditDataSource}
             onEditStatisticsSource={onEditStatisticsSource}
+            onAddStatisticsSource={onAddStatisticsSource}
             onMoveLayer={onMoveLayer}
             onAddLayer={onAddLayer}
             onAddBaseLayer={onAddBaseLayer}

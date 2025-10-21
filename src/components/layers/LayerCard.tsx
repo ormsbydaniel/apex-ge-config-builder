@@ -20,6 +20,7 @@ interface LayerCardProps {
   onRemoveStatisticsSource?: (statsIndex: number) => void;
   onEditDataSource?: (dataIndex: number) => void;
   onEditStatisticsSource?: (statsIndex: number) => void;
+  onAddStatisticsSource?: () => void;
   isExpanded: boolean;
   onToggle: () => void;
 }
@@ -37,6 +38,7 @@ const LayerCard = ({
   onRemoveStatisticsSource,
   onEditDataSource,
   onEditStatisticsSource,
+  onAddStatisticsSource,
   isExpanded,
   onToggle
 }: LayerCardProps) => {
@@ -103,6 +105,7 @@ const LayerCard = ({
               onRemoveStatisticsSource={onRemoveStatisticsSource}
               onEditDataSource={onEditDataSource}
               onEditStatisticsSource={onEditStatisticsSource}
+              onAddStatisticsSource={onAddStatisticsSource}
             />
           </CollapsibleContent>
         </Collapsible>

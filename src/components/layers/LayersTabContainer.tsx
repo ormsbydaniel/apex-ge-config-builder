@@ -41,6 +41,16 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
   const layersLogic = useLayersTabLogic({ ...props, navigationState: props.navigationState });
 
   // Create context value with all required properties
+  const onAddDataSource = useCallback((layerIndex: number) => {
+    const cardId = `layer-${layerIndex}`;
+    layerOperations.handleStartDataSourceFormWithExpansion?.(layerIndex, cardId);
+  }, [layersLogic]);
+
+  const onAddStatisticsSource = useCallback((layerIndex: number) => {
+    const cardId = `layer-${layerIndex}`;
+    layersLogic.handleStartDataSourceFormWithExpansion?.(layerIndex, cardId, true);
+  }, [layersLogic]);
+
   const contextValue = {
     config: props.config,
     editingLayerIndex: props.editingLayerIndex,
@@ -55,11 +65,12 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onUpdateLayer: props.updateLayer,
     onAddLayer: props.addLayer,
     onUpdateConfig: props.updateConfig,
-    onAddDataSource: layersLogic.handleStartDataSourceFormWithExpansion,
+    onAddDataSource,
     onRemoveDataSource: layersLogic.handleRemoveDataSource,
     onRemoveStatisticsSource: layersLogic.handleRemoveStatisticsSource,
     onEditDataSource: layersLogic.handleEditDataSource,
-    onEditStatisticsSource: layersLogic.handleEditStatisticsSource
+    onEditStatisticsSource: layersLogic.handleEditStatisticsSource,
+    onAddStatisticsSource,
   };
 
   return (
