@@ -3,7 +3,7 @@ import React from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, LayoutPanelLeft, Menu } from 'lucide-react';
-import { DataSource } from '@/types/config';
+import { DataSource, LayerValidationResult } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import LayerBadge from './LayerBadge';
 import LayerActions from './LayerActions';
@@ -17,6 +17,7 @@ interface LayerCardHeaderProps {
   onDuplicate: (index: number) => void;
   onEditJson: (index: number) => void;
   handleEdit: () => void;
+  validationResult?: LayerValidationResult;
 }
 const LayerCardHeader = ({
   source,
@@ -27,14 +28,15 @@ const LayerCardHeader = ({
   onEdit,
   onDuplicate,
   onEditJson,
-  handleEdit
+  handleEdit,
+  validationResult
 }: LayerCardHeaderProps) => {
   const contentLocation = source.layout?.contentLocation || 'layerCard';
   
   return <CardHeader className="py-3 relative">
       {/* Badge and Actions positioned to align with layer name */}
       <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
-        <LayerBadge source={source} />
+        <LayerBadge source={source} validationResult={validationResult} />
         <Badge variant="outline" className="flex items-center gap-1 text-xs border-teal-500 text-teal-600">
           {contentLocation === 'infoPanel' ? (
             <>

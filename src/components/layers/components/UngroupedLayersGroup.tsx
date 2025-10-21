@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, Check, AlertTriangle, Triangle } from 'lucide-react';
-import { DataSource } from '@/types/config';
+import { DataSource, LayerValidationResult } from '@/types/config';
 import { calculateQAStats } from '@/utils/qaUtils';
 import LayerCard from '../LayerCard';
 import { useLayerStateManagement } from '@/hooks/useLayerStateManagement';
@@ -23,6 +23,7 @@ interface UngroupedLayersGroupProps {
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   isExpanded?: boolean;
   onToggle?: () => void;
+  validationResults?: Map<number, LayerValidationResult>;
 }
 
 const UngroupedLayersGroup = ({
@@ -38,7 +39,8 @@ const UngroupedLayersGroup = ({
   onEditDataSource,
   onEditStatisticsSource,
   isExpanded = false,
-  onToggle
+  onToggle,
+  validationResults
 }: UngroupedLayersGroupProps) => {
   const { toggleCard, isExpanded: isCardExpanded } = useLayerStateManagement();
 
@@ -115,6 +117,7 @@ const UngroupedLayersGroup = ({
                   onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
                   isExpanded={isCardExpanded(`ungrouped-${originalIndex}`)}
                   onToggle={() => toggleCard(`ungrouped-${originalIndex}`)}
+                  validationResult={validationResults?.get(originalIndex)}
                 />
               ))}
             </div>
