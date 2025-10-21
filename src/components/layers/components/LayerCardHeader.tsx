@@ -7,6 +7,8 @@ import { DataSource, LayerValidationResult } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import LayerBadge from './LayerBadge';
 import LayerActions from './LayerActions';
+import LayerQAStatus from './LayerQAStatus';
+import LayerValidationStatus from './LayerValidationStatus';
 interface LayerCardHeaderProps {
   source: DataSource;
   index: number;
@@ -34,9 +36,15 @@ const LayerCardHeader = ({
   const contentLocation = source.layout?.contentLocation || 'layerCard';
   
   return <CardHeader className="py-3 relative">
-      {/* Badge and Actions positioned to align with layer name */}
+      {/* Descriptive badges positioned near layer name */}
+      <div className="absolute top-[21px] left-[65px] z-10 flex items-center gap-2">
+        <LayerBadge source={source} />
+      </div>
+      
+      {/* Status badges and Actions positioned on far right */}
       <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
-        <LayerBadge source={source} validationResult={validationResult} />
+        <LayerQAStatus source={source} />
+        <LayerValidationStatus validationResult={validationResult} />
         <Badge variant="outline" className="flex items-center gap-1 text-xs border-teal-500 text-teal-600">
           {contentLocation === 'infoPanel' ? (
             <>

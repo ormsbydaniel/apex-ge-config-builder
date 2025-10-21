@@ -2,17 +2,14 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Database, Globe, Server, Clock, BarChart } from 'lucide-react';
-import { DataSource, LayerValidationResult } from '@/types/config';
-import LayerQAStatus from './LayerQAStatus';
-import LayerValidationStatus from './LayerValidationStatus';
+import { Database, Globe, Clock, BarChart } from 'lucide-react';
+import { DataSource } from '@/types/config';
 
 interface LayerBadgeProps {
   source: DataSource;
-  validationResult?: LayerValidationResult;
 }
 
-const LayerBadge = ({ source, validationResult }: LayerBadgeProps) => {
+const LayerBadge = ({ source }: LayerBadgeProps) => {
   const getLayerType = () => {
     if (source.isBaseLayer === true) return 'base';
     if (source.meta?.swipeConfig !== undefined || (source as any).isSwipeLayer) return 'swipe';
@@ -61,10 +58,6 @@ const LayerBadge = ({ source, validationResult }: LayerBadgeProps) => {
           {layerType}
         </div>
       </Badge>
-      <div className="flex items-center">
-        <LayerQAStatus source={source} />
-        <LayerValidationStatus validationResult={validationResult} />
-      </div>
       {source.isActive && (
         <TooltipProvider>
           <Tooltip>
