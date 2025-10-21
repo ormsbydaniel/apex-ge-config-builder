@@ -87,6 +87,30 @@ export interface TemporalConfig {
   defaultTimestamp?: number; // Default timestamp when timeframe is not 'None'
 }
 
+// Constraint source configuration
+export interface ConstraintSourceItem {
+  url: string;
+  format: 'cog'; // Only COG supported for constraints
+  label: string; // Display name for the constraint
+  type: 'continuous' | 'categorical'; // Constraint type
+  interactive: boolean; // Whether user can control this constraint
+  // For continuous constraints
+  min?: number;
+  max?: number;
+  units?: string;
+  // For categorical constraints
+  constrainTo?: Array<{ label: string; value: number }>;
+}
+
+// Workflow configuration
+export interface WorkflowItem {
+  id: string;
+  name: string;
+  endpoint: string; // Processing endpoint URL
+  parameters: Record<string, any>; // Flexible parameter object
+  enabled: boolean;
+}
+
 // Enhanced meta interface
 export interface DataSourceMeta {
   description?: string;
@@ -151,6 +175,8 @@ interface BaseDataSource {
   isActive: boolean;
   data: DataField;
   statistics?: DataSourceItem[]; // Add statistics array
+  constraints?: ConstraintSourceItem[]; // Add constraints array
+  workflows?: WorkflowItem[]; // Add workflows array
   hasFeatureStatistics?: boolean;
   isBaseLayer?: boolean; // Add isBaseLayer as optional to base interface
   exclusivitySets?: string[]; // Array of exclusivity set names this layer belongs to

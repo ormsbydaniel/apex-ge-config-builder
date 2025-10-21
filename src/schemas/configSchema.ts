@@ -94,6 +94,48 @@ const DataFieldSchema = z.array(DataSourceItemSchema);
 // Statistics field schema - array of DataSourceItems with level field
 const StatisticsFieldSchema = z.array(DataSourceItemSchema);
 
+// Constraint source schema
+const ConstraintSourceItemSchema = z.object({
+  url: urlOrRelativePathSchema,
+  format: z.literal('cog'),
+  label: z.string(),
+  type: z.enum(['continuous', 'categorical']),
+  interactive: z.boolean(),
+  // Continuous fields
+  min: z.number().optional(),
+  max: z.number().optional(),
+  units: z.string().optional(),
+  // Categorical fields
+  constrainTo: z.array(z.object({
+    label: z.string(),
+    value: z.number()
+  })).optional()
+}).refine(
+  (data) => {
+    // Continuous constraints require min and max
+    if (data.type === 'continuous') {
+      return data.min !== undefined && data.max !== undefined;
+    }
+    // Categorical constraints require constrainTo array
+    if (data.type === 'categorical') {
+      return data.constrainTo && data.constrainTo.length > 0;
+    }
+    return true;
+  },
+  {
+    message: "Continuous constraints require min/max, categorical constraints require constrainTo array",
+  }
+);
+
+// Workflow schema
+const WorkflowItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  endpoint: urlOrRelativePathSchema,
+  parameters: z.record(z.any()),
+  enabled: z.boolean()
+});
+
 // Updated Swipe configuration schema to support multiple base sources
 const SwipeConfigSchema = z.object({
   clippedSourceName: z.string().min(1, "Clipped source name is required"),
@@ -208,6 +250,8 @@ const BaseDataSourceObjectSchema = z.object({
   isActive: z.boolean(),
   data: DataFieldSchema,
   statistics: StatisticsFieldSchema.optional(), // Add optional statistics array
+  constraints: z.array(ConstraintSourceItemSchema).optional(), // Add optional constraints array
+  workflows: z.array(WorkflowItemSchema).optional(), // Add optional workflows array
   hasFeatureStatistics: z.boolean().optional(),
   isBaseLayer: z.boolean().optional(), // Add optional isBaseLayer for new format
   exclusivitySets: z.array(z.string()).optional(), // Array of exclusivity set names
