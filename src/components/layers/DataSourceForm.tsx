@@ -19,6 +19,7 @@ import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosit
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ServiceSelectionModal } from './components/ServiceSelectionModals';
+import { determineZLevel } from '@/utils/drawOrderUtils';
 
 interface DataSourceFormProps {
   services: Service[];
@@ -44,11 +45,23 @@ const DataSourceForm = ({
   const { toast } = useToast();
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   
+  // Helper function to get recommended zIndex based on format
+  const getRecommendedZIndex = (format: DataSourceFormat): number => {
+    // Create a mock DataSourceItem to pass to determineZLevel
+    const mockDataItem: DataSourceItem = {
+      url: '',
+      format,
+      zIndex: 0
+    };
+    // Assume standard (non-base) layer for recommendation
+    return determineZLevel(mockDataItem, false);
+  };
+  
   const [sourceType, setSourceType] = useState<'service' | 'direct'>('direct');
   const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('cog');
   const [directUrl, setDirectUrl] = useState('');
   const [directLayers, setDirectLayers] = useState('');
-  const [zIndex, setZIndex] = useState(2);
+  const [zIndex, setZIndex] = useState(getRecommendedZIndex('cog'));
   
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
@@ -154,6 +167,9 @@ const DataSourceForm = ({
 
   const handleFormatChange = (format: DataSourceFormat) => {
     setSelectedFormat(format);
+    
+    // Update zIndex to recommended value for the new format
+    setZIndex(getRecommendedZIndex(format));
     
     // Reset statistics state for unsupported formats
     if (format !== 'flatgeobuf' && format !== 'geojson') {
@@ -593,11 +609,14 @@ const DataSourceForm = ({
                     name="directZIndex"
                     type="number"
                     value={zIndex}
-                    onChange={(e) => setZIndex(parseInt(e.target.value) || 2)}
+                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
                     min="0"
-                    max="100"
+                    max="200"
                     autoComplete="off"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+                  </p>
                 </div>
               </div>
             )}
@@ -728,11 +747,14 @@ const DataSourceForm = ({
                     name="serviceDirectZIndex"
                     type="number"
                     value={zIndex}
-                    onChange={(e) => setZIndex(parseInt(e.target.value) || 2)}
+                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
                     min="0"
-                    max="100"
+                    max="200"
                     autoComplete="off"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+                  </p>
                 </div>
               </div>
             )}
