@@ -140,6 +140,7 @@ const LayersTabCore = ({
         editingLayerIndex={editingLayerIndex}
         config={config}
         defaultInterfaceGroup={defaultInterfaceGroup}
+        isAddingStatistics={layersLogic?.isAddingStatistics || false}
         onSelectType={handleLayerTypeSelect}
         onLayerSaved={handleLayerSaved}
         onLayerFormCancel={handleLayerFormCancel}

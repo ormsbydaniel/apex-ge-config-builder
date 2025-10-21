@@ -31,6 +31,8 @@ interface DataSourceFormProps {
   onAddStatisticsLayer: (statisticsItem: DataSourceItem) => void;
   onAddService: (service: Service) => void;
   onCancel: () => void;
+  allowedFormats?: DataSourceFormat[]; // Optional format restriction
+  isAddingStatistics?: boolean; // Flag to indicate adding statistics source
 }
 
 const DataSourceForm = ({ 
@@ -41,7 +43,9 @@ const DataSourceForm = ({
   onAddDataSource, 
   onAddStatisticsLayer,
   onAddService, 
-  onCancel 
+  onCancel,
+  allowedFormats,
+  isAddingStatistics = false
 }: DataSourceFormProps) => {
   const { toast } = useToast();
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
@@ -58,11 +62,19 @@ const DataSourceForm = ({
     return determineZLevel(mockDataItem, false);
   };
   
+  // Determine initial format based on allowed formats
+  const getInitialFormat = (): DataSourceFormat => {
+    if (allowedFormats && allowedFormats.length > 0) {
+      return allowedFormats[0];
+    }
+    return 'cog';
+  };
+  
   const [sourceType, setSourceType] = useState<'service' | 'direct'>('direct');
-  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('cog');
+  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>(getInitialFormat());
   const [directUrl, setDirectUrl] = useState('');
   const [directLayers, setDirectLayers] = useState('');
-  const [zIndex, setZIndex] = useState(getRecommendedZIndex('cog'));
+  const [zIndex, setZIndex] = useState(getRecommendedZIndex(getInitialFormat()));
   
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
@@ -166,6 +178,11 @@ const DataSourceForm = ({
   const config_format = FORMAT_CONFIGS[selectedFormat];
   const needsPosition = requiresPosition(layerType);
   const validPositions = getValidPositions(layerType);
+
+  // Filter format configs based on allowed formats
+  const availableFormatConfigs = allowedFormats
+    ? Object.entries(FORMAT_CONFIGS).filter(([key]) => allowedFormats.includes(key as DataSourceFormat))
+    : Object.entries(FORMAT_CONFIGS);
 
   // Check if current format supports statistics
   const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
@@ -357,7 +374,7 @@ const DataSourceForm = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
-            Add Data Source
+            {isAddingStatistics ? 'Add Statistics Source' : 'Add Data Source'}
             {needsPosition && (
               <Badge variant="outline" className="text-xs">
                 {layerType} layer
@@ -365,7 +382,10 @@ const DataSourceForm = ({
             )}
           </CardTitle>
           <CardDescription>
-            Configure a data source for this layer from an existing service or provide direct connection details.
+            {isAddingStatistics 
+              ? 'Add a FlatGeobuf or GeoJSON statistics source for this layer.'
+              : 'Configure a data source for this layer from an existing service or provide direct connection details.'
+            }
             {needsPosition && (
               <span className="block mt-1 text-orange-600">
                 Position assignment is required for {layerType} layers.
@@ -535,7 +555,7 @@ const DataSourceForm = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(FORMAT_CONFIGS).map(([key, config]) => (
+                      {availableFormatConfigs.map(([key, config]) => (
                         <SelectItem key={key} value={key}>
                           {config.label}
                         </SelectItem>
@@ -544,8 +564,8 @@ const DataSourceForm = ({
                   </Select>
                 </div>
 
-                {/* Statistics Layer Toggle for Direct Configuration */}
-                {supportsStatistics && (
+                {/* Statistics Layer Toggle for Direct Configuration - hide if already adding statistics */}
+                {supportsStatistics && !isAddingStatistics && (
                   <div className="space-y-6 p-4 border rounded-lg bg-muted/20">
                     <div className="flex items-center space-x-2">
                       <Switch
@@ -742,7 +762,7 @@ const DataSourceForm = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(FORMAT_CONFIGS).map(([key, config]) => (
+                      {availableFormatConfigs.map(([key, config]) => (
                         <SelectItem key={key} value={key}>
                           {config.label}
                         </SelectItem>
@@ -751,8 +771,8 @@ const DataSourceForm = ({
                   </Select>
                 </div>
 
-                {/* Statistics Layer Toggle */}
-                {supportsStatistics && (
+                {/* Statistics Layer Toggle - hide if already adding statistics */}
+                {supportsStatistics && !isAddingStatistics && (
                   <div className="space-y-6 p-4 border rounded-lg bg-muted/20">
                     <div className="flex items-center space-x-2">
                       <Switch

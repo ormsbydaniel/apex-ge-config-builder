@@ -15,6 +15,7 @@ interface LayerFormHandlerProps {
   editingLayerIndex: number | null;
   config: { sources: DataSource[]; exclusivitySets?: string[] };
   defaultInterfaceGroup?: string;
+  isAddingStatistics?: boolean;
   onSelectType: (type: any) => void;
   onLayerSaved: (layer: DataSource) => void;
   onLayerFormCancel: () => void;
@@ -34,6 +35,7 @@ const LayerFormHandler = ({
   editingLayerIndex,
   config,
   defaultInterfaceGroup,
+  isAddingStatistics = false,
   onSelectType,
   onLayerSaved,
   onLayerFormCancel,
@@ -91,6 +93,8 @@ const LayerFormHandler = ({
         onAddStatisticsLayer={onStatisticsLayerAdded}
         onAddService={onAddService}
         onCancel={onDataSourceCancel}
+        allowedFormats={isAddingStatistics ? ['flatgeobuf', 'geojson'] : undefined}
+        isAddingStatistics={isAddingStatistics}
       />
     );
   }

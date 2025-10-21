@@ -13,6 +13,7 @@ interface DataSourceFormState {
   showDataSourceForm: boolean;
   selectedLayerIndex: number | null;
   canceledLayerIndex: number | null;
+  isAddingStatistics: boolean; // Track if adding statistics source
 }
 
 interface LayerStateManagementState {
@@ -33,7 +34,7 @@ type LayerStateAction =
   | { type: 'CLEAR_EXPANDED_AFTER_CREATION' }
   | { type: 'CLEAR_EXPANDED_AFTER_EDIT' }
   | { type: 'CLEAR_EXPANDED_GROUP' }
-  | { type: 'START_DATA_SOURCE_FORM'; layerIndex: number }
+  | { type: 'START_DATA_SOURCE_FORM'; layerIndex: number; isAddingStatistics?: boolean }
   | { type: 'CANCEL_DATA_SOURCE_FORM'; selectedLayerIndex: number | null }
   | { type: 'COMPLETE_DATA_SOURCE_FORM' }
   | { type: 'CLEAR_DATA_SOURCE_FORM' }
@@ -52,6 +53,7 @@ const initialState: LayerStateManagementState = {
     showDataSourceForm: false,
     selectedLayerIndex: null,
     canceledLayerIndex: null,
+    isAddingStatistics: false,
   },
 };
 
@@ -180,6 +182,7 @@ function layerStateReducer(
           ...state.dataSourceForm,
           selectedLayerIndex: action.layerIndex,
           showDataSourceForm: true,
+          isAddingStatistics: action.isAddingStatistics || false,
         },
       };
 
@@ -191,6 +194,7 @@ function layerStateReducer(
           canceledLayerIndex: action.selectedLayerIndex,
           showDataSourceForm: false,
           selectedLayerIndex: null,
+          isAddingStatistics: false,
         },
       };
 
@@ -201,6 +205,7 @@ function layerStateReducer(
           ...state.dataSourceForm,
           showDataSourceForm: false,
           selectedLayerIndex: null,
+          isAddingStatistics: false,
         },
       };
 
@@ -211,6 +216,7 @@ function layerStateReducer(
           showDataSourceForm: false,
           selectedLayerIndex: null,
           canceledLayerIndex: null,
+          isAddingStatistics: false,
         },
       };
 
@@ -304,8 +310,8 @@ export const useLayerStateManagement = () => {
   }, []);
 
   // Data source form actions
-  const handleStartDataSourceForm = useCallback((layerIndex: number, layerCardId?: string) => {
-    dispatch({ type: 'START_DATA_SOURCE_FORM', layerIndex });
+  const handleStartDataSourceForm = useCallback((layerIndex: number, layerCardId?: string, isAddingStatistics = false) => {
+    dispatch({ type: 'START_DATA_SOURCE_FORM', layerIndex, isAddingStatistics });
     if (layerCardId) {
       dispatch({ type: 'SET_EXPANDED_AFTER_DATA_SOURCE', cardId: layerCardId });
     }
@@ -364,6 +370,7 @@ export const useLayerStateManagement = () => {
     showDataSourceForm: state.dataSourceForm.showDataSourceForm,
     selectedLayerIndex: state.dataSourceForm.selectedLayerIndex,
     canceledLayerIndex: state.dataSourceForm.canceledLayerIndex,
+    isAddingStatistics: state.dataSourceForm.isAddingStatistics,
 
     // Data source form actions
     handleStartDataSourceForm,

@@ -20,6 +20,7 @@ interface LayerCardContentProps {
   onRemoveStatisticsSource?: (statsIndex: number) => void;
   onEditDataSource?: (dataIndex: number) => void;
   onEditStatisticsSource?: (statsIndex: number) => void;
+  onAddStatisticsSource?: () => void;
 }
 
 const LayerCardContent = ({
@@ -28,7 +29,8 @@ const LayerCardContent = ({
   onRemoveDataSource,
   onRemoveStatisticsSource,
   onEditDataSource,
-  onEditStatisticsSource
+  onEditStatisticsSource,
+  onAddStatisticsSource
 }: LayerCardContentProps) => {
   const { config, dispatch } = useConfig();
   const { toast } = useToast();
@@ -100,12 +102,7 @@ const LayerCardContent = ({
           services={(config.services || []) as Service[]}
           layerIndex={sourceIndex}
           onAddDataSource={() => onAddDataSource?.()}
-          onAddStatisticsSource={() => {
-            toast({
-              title: "Coming Soon",
-              description: "Statistics source management will be available soon.",
-            });
-          }}
+          onAddStatisticsSource={onAddStatisticsSource}
           onAddConstraintSource={() => {
             toast({
               title: "Coming Soon",
