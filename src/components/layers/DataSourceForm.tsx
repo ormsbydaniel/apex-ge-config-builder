@@ -387,7 +387,7 @@ const DataSourceForm = ({
             )}
 
             {/* Source Type Selection */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               <Label>Source Type</Label>
               <div className="grid grid-cols-2 gap-4">
                 <Card 
@@ -419,7 +419,7 @@ const DataSourceForm = ({
 
             {/* Service Selection */}
             {sourceType === 'service' && !directUrl && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <Label>Select Service</Label>
 
                 {services.length > 0 ? (
@@ -514,7 +514,7 @@ const DataSourceForm = ({
 
             {/* Direct Configuration */}
             {sourceType === 'direct' && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="directFormat">Data Format *</Label>
                   <Select value={selectedFormat} onValueChange={handleFormatChange}>
@@ -533,7 +533,7 @@ const DataSourceForm = ({
 
                 {/* Statistics Layer Toggle for Direct Configuration */}
                 {supportsStatistics && (
-                  <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                  <div className="space-y-6 p-4 border rounded-lg bg-muted/20">
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="directStatisticsLayer"
@@ -683,7 +683,7 @@ const DataSourceForm = ({
 
             {/* Service-populated Direct Configuration */}
             {sourceType === 'service' && directUrl && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-sm text-green-700">
                     ✓ Configuration populated from selected service. You can modify the details below if needed.
@@ -708,7 +708,7 @@ const DataSourceForm = ({
 
                 {/* Statistics Layer Toggle */}
                 {supportsStatistics && (
-                  <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                  <div className="space-y-6 p-4 border rounded-lg bg-muted/20">
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="serviceDirectStatisticsLayer"
