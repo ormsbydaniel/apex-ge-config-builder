@@ -758,48 +758,6 @@ const DataSourceForm = ({
                   </div>
                 )}
                 
-                {/* Timestamp Picker for Temporal Layers */}
-                {requiresTimestamp && (
-                  <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                    <div className="space-y-2">
-                      <Label htmlFor="serviceTimestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                        Timestamp *
-                      </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
-                              !selectedDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={setSelectedDate}
-                            month={month}
-                            onMonthChange={setMonth}
-                            initialFocus
-                            className={cn("p-0 pointer-events-auto")}
-                            components={{
-                              Caption: CustomCaption
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <p className="text-xs text-blue-600 dark:text-blue-400">
-                        This timestamp will be used for temporal data visualization ({timeframe} timeframe).
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 <div className="space-y-2">
                   <Label htmlFor="serviceDirectZIndex">Z-Index</Label>
                   <Input
@@ -816,6 +774,85 @@ const DataSourceForm = ({
                     Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
                   </p>
                 </div>
+
+                {/* Timestamp Picker for Temporal Layers */}
+                {requiresTimestamp && (
+                  <div className="space-y-2">
+                    <Label htmlFor="serviceTimestamp">Timestamp *</Label>
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        id="serviceTimestamp"
+                        placeholder="DD/MM/YYYY"
+                        value={dateInputValue}
+                        onChange={(e) => {
+                          let value = e.target.value;
+                          
+                          // Remove any non-digit characters except slashes
+                          value = value.replace(/[^\d/]/g, '');
+                          
+                          // Auto-add slashes
+                          if (value.length === 2 && !value.includes('/')) {
+                            value = value + '/';
+                          } else if (value.length === 5 && value.split('/').length === 2) {
+                            value = value + '/';
+                          }
+                          
+                          // Limit to DD/MM/YYYY format length
+                          if (value.length > 10) {
+                            value = value.substring(0, 10);
+                          }
+                          
+                          setDateInputValue(value);
+                          
+                          // Try to parse the date in DD/MM/YYYY format
+                          if (value.length === 10) {
+                            const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                            if (isValid(parsedDate)) {
+                              setSelectedDate(parsedDate);
+                              setMonth(parsedDate);
+                            }
+                          }
+                        }}
+                        autoComplete="off"
+                        className="w-32"
+                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            type="button"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(date) => {
+                              setSelectedDate(date);
+                              if (date) {
+                                setDateInputValue(format(date, 'dd/MM/yyyy'));
+                                setMonth(date);
+                              }
+                            }}
+                            month={month}
+                            onMonthChange={setMonth}
+                            initialFocus
+                            className={cn("p-0 pointer-events-auto")}
+                            components={{
+                              Caption: CustomCaption
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
