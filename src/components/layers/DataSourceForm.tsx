@@ -579,43 +579,39 @@ const DataSourceForm = ({
 
                 {/* Timestamp Picker for Temporal Layers */}
                 {requiresTimestamp && (
-                  <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                    <div className="space-y-2">
-                      <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                        Timestamp *
-                      </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
-                              !selectedDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={setSelectedDate}
-                            month={month}
-                            onMonthChange={setMonth}
-                            initialFocus
-                            className={cn("p-0 pointer-events-auto")}
-                            components={{
-                              Caption: CustomCaption
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <p className="text-xs text-blue-600 dark:text-blue-400">
-                        This timestamp will be used for temporal data visualization ({timeframe} timeframe).
-                      </p>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="timestamp">Timestamp *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !selectedDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          month={month}
+                          onMonthChange={setMonth}
+                          initialFocus
+                          className={cn("p-0 pointer-events-auto")}
+                          components={{
+                            Caption: CustomCaption
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <p className="text-xs text-muted-foreground">
+                      This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                    </p>
                   </div>
                 )}
               </div>
