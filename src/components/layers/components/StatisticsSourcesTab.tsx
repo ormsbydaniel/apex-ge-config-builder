@@ -35,7 +35,7 @@ export function StatisticsSourcesTab({
         </Button>
       </div>
 
-      {hasStatistics ? <DataSourceDisplay source={statsOnlySource} services={services} onRemoveDataSource={statsIndex => onRemove(layerIndex, statsIndex)} onEditDataSource={statsIndex => onEdit(layerIndex, statsIndex)} /> : <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
+      {hasStatistics ? <DataSourceDisplay source={statsOnlySource} services={services} onRemoveDataSource={statsIndex => onRemove(layerIndex, statsIndex)} onEditDataSource={statsIndex => onEdit(layerIndex, statsIndex)} showStatsLevelForData={true} /> : <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
             No statistics sources configured yet
           </p>

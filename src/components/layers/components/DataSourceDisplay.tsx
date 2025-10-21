@@ -12,6 +12,7 @@ interface DataSourceDisplayProps {
   onEditDataSource?: (dataIndex: number) => void;
   onEditStatisticsSource?: (statsIndex: number) => void;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
+  showStatsLevelForData?: boolean; // Treat data sources as statistics sources
 }
 const DataSourceDisplay = ({
   source,
@@ -21,7 +22,8 @@ const DataSourceDisplay = ({
   onRemoveStatisticsSource,
   onEditDataSource,
   onEditStatisticsSource,
-  onUpdateMeta
+  onUpdateMeta,
+  showStatsLevelForData = false
 }: DataSourceDisplayProps) => {
   // Check if this is a swipe layer that needs position display
   const isSwipeLayer = (source as any).isSwipeLayer === true || source.meta?.swipeConfig !== undefined;
@@ -41,7 +43,7 @@ const DataSourceDisplay = ({
         </div>
 
         {hasDataSources ? <div className="space-y-2">
-            {source.data.map((dataItem, index) => <DataSourceItem key={index} dataSource={dataItem} index={index} onRemove={onRemoveDataSource} showPosition={isSwipeLayer} timeframe={timeframe} services={services} currentMeta={source.meta} onUpdateMeta={onUpdateMeta} />)}
+            {source.data.map((dataItem, index) => <DataSourceItem key={index} dataSource={dataItem} index={index} onRemove={onRemoveDataSource} showPosition={isSwipeLayer} showStatsLevel={showStatsLevelForData} timeframe={timeframe} services={services} currentMeta={source.meta} onUpdateMeta={onUpdateMeta} />)}
           </div> : <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-md border border-dashed">
             <p className="text-sm">No data sources added yet.</p>
             {onAddDataSource && <p className="text-xs mt-1">Click "Add Data Source" to get started.</p>}
