@@ -397,9 +397,9 @@ const WmsWmtsMetadataDialog = ({
                 No layers found in capabilities document.
               </div>
             )}
-          </>
-        )}
           </div>
+        )}
+          </>
         )}
       </DialogContent>
     </Dialog>
