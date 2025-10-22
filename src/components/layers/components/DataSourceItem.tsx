@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Copy, Trash2, Clock, Info } from 'lucide-react';
-import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta } from '@/types/config';
+import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
@@ -22,7 +22,10 @@ interface DataSourceItemProps {
   onManageTimestamps?: () => void;
   services?: Service[];
   currentMeta?: DataSourceMeta;
+  currentLayout?: DataSourceLayout;
+  sourceName?: string;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
+  onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
 }
 
 const DataSourceItem = ({ 
@@ -35,7 +38,10 @@ const DataSourceItem = ({
   onManageTimestamps,
   services = [],
   currentMeta,
-  onUpdateMeta
+  currentLayout,
+  sourceName,
+  onUpdateMeta,
+  onUpdateLayout
 }: DataSourceItemProps) => {
   const { toast } = useToast();
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
@@ -281,6 +287,9 @@ const DataSourceItem = ({
           layerName={dataSource.layers}
           isOpen={showWmsWmtsDialog}
           onClose={() => setShowWmsWmtsDialog(false)}
+          sourceName={sourceName}
+          currentLayout={currentLayout}
+          onUpdateLayout={onUpdateLayout}
         />
       )}
     </div>

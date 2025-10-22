@@ -1,4 +1,4 @@
-import { DataSource, Service } from '@/types/config';
+import { DataSource, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataSourcesTab } from './DataSourcesTab';
 import { StatisticsSourcesTab } from './StatisticsSourcesTab';
@@ -22,6 +22,8 @@ interface LayerCardTabsProps {
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
   onEditWorkflow: (layerIndex: number, workflowIndex: number) => void;
+  onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
+  onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
 }
 
 export function LayerCardTabs({
@@ -40,6 +42,8 @@ export function LayerCardTabs({
   onEditStatisticsSource,
   onEditConstraintSource,
   onEditWorkflow,
+  onUpdateMeta,
+  onUpdateLayout,
 }: LayerCardTabsProps) {
   const [activeTab, setActiveTab] = useState('data');
 
@@ -73,6 +77,8 @@ export function LayerCardTabs({
           onAdd={onAddDataSource}
           onRemove={onRemoveDataSource}
           onEdit={onEditDataSource}
+          onUpdateMeta={onUpdateMeta}
+          onUpdateLayout={onUpdateLayout}
         />
       </TabsContent>
 

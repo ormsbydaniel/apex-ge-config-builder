@@ -7,10 +7,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Eye, Copy, ArrowLeft } from 'lucide-react';
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
-import { DataSourceFormat } from '@/types/config';
+import { DataSourceFormat, DataSourceLayout } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 interface WmsWmtsMetadataDialogProps {
   url: string;
@@ -18,6 +19,9 @@ interface WmsWmtsMetadataDialogProps {
   layerName?: string;
   isOpen: boolean;
   onClose: () => void;
+  sourceName?: string;
+  currentLayout?: DataSourceLayout;
+  onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
 }
 
 const WmsWmtsMetadataDialog = ({ 
@@ -25,15 +29,25 @@ const WmsWmtsMetadataDialog = ({
   format,
   layerName,
   isOpen, 
-  onClose 
+  onClose,
+  sourceName,
+  currentLayout,
+  onUpdateLayout
 }: WmsWmtsMetadataDialogProps) => {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [capabilities, setCapabilities] = useState<any | null>(null);
+  const [viewMode, setViewMode] = useState<'details' | 'legend'>('details');
+  const [selectedLegendUrl, setSelectedLegendUrl] = useState<string | null>(null);
+  const [legendLoading, setLegendLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && url) {
       loadCapabilities();
+      // Reset view mode when dialog opens
+      setViewMode('details');
+      setSelectedLegendUrl(null);
     }
   }, [isOpen, url]);
 
@@ -59,6 +73,50 @@ const WmsWmtsMetadataDialog = ({
     loadCapabilities();
   };
 
+  const handleViewLegend = (legendUrl: string) => {
+    setSelectedLegendUrl(legendUrl);
+    setViewMode('legend');
+  };
+
+  const handleBackToDetails = () => {
+    setViewMode('details');
+    setSelectedLegendUrl(null);
+  };
+
+  const handleCopyToConfig = (legendUrl: string) => {
+    if (!onUpdateLayout || !currentLayout) {
+      toast({
+        title: "Cannot Update Configuration",
+        description: "Layer layout configuration is not available",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Determine the content location (defaults to layerCard)
+    const contentLocation = currentLayout.contentLocation || 'layerCard';
+    
+    // Update the appropriate legend location
+    const updates: Partial<DataSourceLayout> = {
+      ...currentLayout,
+      [contentLocation]: {
+        ...currentLayout[contentLocation],
+        legend: {
+          ...currentLayout[contentLocation]?.legend,
+          type: 'image',
+          url: legendUrl
+        }
+      }
+    };
+
+    onUpdateLayout(updates);
+    
+    toast({
+      title: "Legend Configuration Updated",
+      description: `Legend URL copied to ${contentLocation === 'layerCard' ? 'layer card' : 'info panel'} configuration`,
+    });
+  };
+
   // Find the specific layer if layerName is provided
   const currentLayer = layerName && capabilities?.layers 
     ? capabilities.layers.find((l: any) => l.name === layerName)
@@ -70,43 +128,95 @@ const WmsWmtsMetadataDialog = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{format.toUpperCase()} GetCapabilities</DialogTitle>
-          <DialogDescription className="break-all">
-            {url}
-          </DialogDescription>
+          <DialogTitle>
+            {viewMode === 'legend' ? (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToDetails}
+                  className="h-8 w-8 p-0"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                Legend Graphic
+              </div>
+            ) : (
+              `${format.toUpperCase()} GetCapabilities`
+            )}
+          </DialogTitle>
+          {viewMode === 'details' && (
+            <DialogDescription className="break-all">
+              {url}
+            </DialogDescription>
+          )}
         </DialogHeader>
 
-        {loading && (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            <span className="ml-2 text-muted-foreground">Loading capabilities...</span>
-          </div>
-        )}
-
-        {error && (
-          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-destructive mb-1">Error Loading Capabilities</h3>
-                <p className="text-sm text-destructive/90">{error}</p>
-                {error.includes('CORS') && (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    This may be due to CORS restrictions on the service.
-                  </p>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRetry}
-                  className="mt-3"
-                >
-                  Retry
-                </Button>
-              </div>
+        {/* Legend View Mode */}
+        {viewMode === 'legend' && selectedLegendUrl && (
+          <div className="space-y-4">
+            <div className="border rounded-lg overflow-hidden bg-muted/20">
+              <img 
+                src={selectedLegendUrl} 
+                alt="Legend Graphic"
+                className="w-full h-auto"
+                onLoad={() => setLegendLoading(false)}
+                onError={() => {
+                  setLegendLoading(false);
+                  toast({
+                    title: "Failed to Load Legend",
+                    description: "The legend graphic could not be loaded. The URL may be incorrect or the service may be unavailable.",
+                    variant: "destructive"
+                  });
+                }}
+              />
+              {legendLoading && (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  <span className="ml-2 text-muted-foreground">Loading legend...</span>
+                </div>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground break-all">
+              <strong>URL:</strong> {selectedLegendUrl}
             </div>
           </div>
         )}
+
+        {/* Details View Mode */}
+        {viewMode === 'details' && (
+          <>
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-muted-foreground">Loading capabilities...</span>
+              </div>
+            )}
+
+            {error && (
+              <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-destructive mb-1">Error Loading Capabilities</h3>
+                    <p className="text-sm text-destructive/90">{error}</p>
+                    {error.includes('CORS') && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        This may be due to CORS restrictions on the service.
+                      </p>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRetry}
+                      className="mt-3"
+                    >
+                      Retry
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
 
         {capabilities && (
           <div className="space-y-6">
@@ -242,12 +352,36 @@ const WmsWmtsMetadataDialog = ({
                               Legend Graphic Available
                             </td>
                             <td className="py-2 px-3 text-sm">
-                              <Badge 
-                                variant={layer.hasLegendGraphic ? "default" : "secondary"}
-                                className={layer.hasLegendGraphic ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : ""}
-                              >
-                                {layer.hasLegendGraphic ? "Yes" : "No"}
-                              </Badge>
+                              <div className="flex items-center gap-2">
+                                <Badge 
+                                  variant={layer.hasLegendGraphic ? "default" : "secondary"}
+                                  className={layer.hasLegendGraphic ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : ""}
+                                >
+                                  {layer.hasLegendGraphic ? "Yes" : "No"}
+                                </Badge>
+                                {layer.hasLegendGraphic && layer.legendGraphicUrl && (
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleViewLegend(layer.legendGraphicUrl)}
+                                      className="h-7 gap-1"
+                                    >
+                                      <Eye className="h-3 w-3" />
+                                      View
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleCopyToConfig(layer.legendGraphicUrl)}
+                                      className="h-7 gap-1"
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                      Copy to config
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         </tbody>
@@ -263,6 +397,8 @@ const WmsWmtsMetadataDialog = ({
                 No layers found in capabilities document.
               </div>
             )}
+          </>
+        )}
           </div>
         )}
       </DialogContent>

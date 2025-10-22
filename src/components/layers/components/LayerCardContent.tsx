@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { CardContent } from '@/components/ui/card';
-import { DataSource, isDataSourceItemArray, Service, DataSourceMeta } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useToast } from '@/hooks/use-toast';
 import LayerMetadata from './LayerMetadata';
@@ -68,6 +68,32 @@ const LayerCardContent = ({
     toast({
       title: "Metadata Updated",
       description: `Successfully updated ${updateDescription.join(', ')} values from COG metadata`,
+    });
+  };
+
+  // Handler to update layout fields
+  const handleUpdateLayout = (updates: Partial<DataSourceLayout>) => {
+    if (sourceIndex === -1) return;
+
+    const updatedSource = {
+      ...source,
+      layout: {
+        ...source.layout,
+        ...updates
+      }
+    };
+
+    dispatch({
+      type: 'UPDATE_SOURCE',
+      payload: {
+        index: sourceIndex,
+        source: updatedSource
+      }
+    });
+
+    toast({
+      title: "Layout Updated",
+      description: "Legend configuration has been updated successfully",
     });
   };
 
@@ -145,6 +171,8 @@ const LayerCardContent = ({
               description: "Workflow editing will be available soon.",
             });
           }}
+          onUpdateMeta={handleUpdateMeta}
+          onUpdateLayout={handleUpdateLayout}
         />
         </div>
       )}

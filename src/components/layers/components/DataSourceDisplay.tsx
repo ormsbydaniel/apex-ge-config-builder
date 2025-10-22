@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { DataSource, isDataSourceItemArray, Service, DataSourceMeta } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import DataSourceItem from './DataSourceItem';
 interface DataSourceDisplayProps {
   source: DataSource;
@@ -12,6 +12,7 @@ interface DataSourceDisplayProps {
   onEditDataSource?: (dataIndex: number) => void;
   onEditStatisticsSource?: (statsIndex: number) => void;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
+  onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
   showStatsLevelForData?: boolean; // Treat data sources as statistics sources
 }
 const DataSourceDisplay = ({
@@ -23,6 +24,7 @@ const DataSourceDisplay = ({
   onEditDataSource,
   onEditStatisticsSource,
   onUpdateMeta,
+  onUpdateLayout,
   showStatsLevelForData = false
 }: DataSourceDisplayProps) => {
   // Check if this is a swipe layer that needs position display
@@ -43,7 +45,7 @@ const DataSourceDisplay = ({
         </div>
 
         {hasDataSources ? <div className="space-y-2">
-            {source.data.map((dataItem, index) => <DataSourceItem key={index} dataSource={dataItem} index={index} onRemove={onRemoveDataSource} showPosition={isSwipeLayer} showStatsLevel={showStatsLevelForData} timeframe={timeframe} services={services} currentMeta={source.meta} onUpdateMeta={onUpdateMeta} />)}
+            {source.data.map((dataItem, index) => <DataSourceItem key={index} dataSource={dataItem} index={index} onRemove={onRemoveDataSource} showPosition={isSwipeLayer} showStatsLevel={showStatsLevelForData} timeframe={timeframe} services={services} currentMeta={source.meta} currentLayout={source.layout} sourceName={source.name} onUpdateMeta={onUpdateMeta} onUpdateLayout={onUpdateLayout} />)}
           </div> : <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-md border border-dashed">
             <p className="text-sm">No datasets added yet.</p>
             {onAddDataSource && <p className="text-xs mt-1">Click "Add Dataset" to get started.</p>}

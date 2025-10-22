@@ -33,6 +33,16 @@ export interface LayerInfo {
   title?: string;
   abstract?: string;
   hasTimeDimension?: boolean;
+  defaultTime?: string;
+  crs?: string[];
+  bbox?: {
+    west: string;
+    east: string;
+    south: string;
+    north: string;
+  };
+  hasLegendGraphic?: boolean;
+  legendGraphicUrl?: string;
   boundingBox?: {
     minX: number;
     minY: number;

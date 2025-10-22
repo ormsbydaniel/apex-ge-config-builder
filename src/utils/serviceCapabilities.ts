@@ -58,9 +58,28 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
             };
           }
           
-          // Check for LegendURL (GetLegendGraphic support)
+          // Check for LegendURL and extract the actual URL (GetLegendGraphic support)
           const legendURL = layer.querySelector('Style > LegendURL');
           const hasLegendGraphic = !!legendURL;
+          let legendGraphicUrl: string | undefined;
+          
+          if (legendURL) {
+            // Try to extract the OnlineResource URL
+            const onlineResource = legendURL.querySelector('OnlineResource');
+            if (onlineResource) {
+              legendGraphicUrl = onlineResource.getAttribute('xlink:href') || 
+                                 onlineResource.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                                 undefined;
+            }
+          }
+          
+          // If no URL found in capabilities but layer exists, construct a standard GetLegendGraphic URL
+          if (!legendGraphicUrl && nameElement?.textContent) {
+            // Extract base URL (remove query parameters)
+            const baseUrl = url.split('?')[0];
+            const layerName = nameElement.textContent;
+            legendGraphicUrl = `${baseUrl}?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image/png&layer=${encodeURIComponent(layerName)}`;
+          }
           
           // Only add layers that have a Name element (actual layers, not layer groups)
           if (nameElement?.textContent) {
@@ -72,7 +91,8 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
               defaultTime,
               crs: crsList.length > 0 ? crsList : undefined,
               bbox,
-              hasLegendGraphic
+              hasLegendGraphic,
+              legendGraphicUrl
             });
           }
         });
