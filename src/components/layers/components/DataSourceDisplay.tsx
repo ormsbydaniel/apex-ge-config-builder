@@ -45,7 +45,7 @@ const DataSourceDisplay = ({
         </div>
 
         {hasDataSources ? <div className="space-y-2">
-            {source.data.map((dataItem, index) => <DataSourceItem key={index} dataSource={dataItem} index={index} onRemove={onRemoveDataSource} showPosition={isSwipeLayer} showStatsLevel={showStatsLevelForData} timeframe={timeframe} services={services} currentMeta={source.meta} currentLayout={source.layout} sourceName={source.name} onUpdateMeta={onUpdateMeta} onUpdateLayout={onUpdateLayout} />)}
+            {source.data.map((dataItem, index) => <DataSourceItem key={index} dataSource={dataItem} index={index} onRemove={onRemoveDataSource} onEdit={onEditDataSource} showPosition={isSwipeLayer} showStatsLevel={showStatsLevelForData} timeframe={timeframe} services={services} currentMeta={source.meta} currentLayout={source.layout} sourceName={source.name} onUpdateMeta={onUpdateMeta} onUpdateLayout={onUpdateLayout} />)}
           </div> : <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-md border border-dashed">
             <p className="text-sm">No datasets added yet.</p>
             {onAddDataSource && <p className="text-xs mt-1">Click "Add Dataset" to get started.</p>}
@@ -56,7 +56,7 @@ const DataSourceDisplay = ({
       {hasStatistics && <div>
           <h4 className="text-sm font-medium text-gray-700 mb-3">Statistics Sources</h4>
           <div className="space-y-2">
-            {source.statistics.map((stat, index) => <DataSourceItem key={index} dataSource={stat} index={index} onRemove={onRemoveStatisticsSource || (() => {})} showPosition={isSwipeLayer} showStatsLevel={true} timeframe={timeframe} services={services} />)}
+            {source.statistics.map((stat, index) => <DataSourceItem key={index} dataSource={stat} index={index} onRemove={onRemoveStatisticsSource || (() => {})} onEdit={onEditStatisticsSource} showPosition={isSwipeLayer} showStatsLevel={true} timeframe={timeframe} services={services} />)}
           </div>
         </div>}
     </div>;

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Copy, Trash2, Clock, Info } from 'lucide-react';
+import { Copy, Trash2, Clock, Info, Edit } from 'lucide-react';
 import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,7 @@ interface DataSourceItemProps {
   dataSource: DataSourceItemType;
   index: number;
   onRemove: (index: number) => void;
+  onEdit?: (index: number) => void;
   showPosition?: boolean;
   showStatsLevel?: boolean;
   timeframe?: TimeframeType;
@@ -31,7 +32,8 @@ interface DataSourceItemProps {
 const DataSourceItem = ({ 
   dataSource, 
   index, 
-  onRemove, 
+  onRemove,
+  onEdit, 
   showPosition = false, 
   showStatsLevel = false,
   timeframe = 'None',
@@ -244,6 +246,18 @@ const DataSourceItem = ({
             title="Copy URL"
           >
             <Copy className="h-3 w-3" />
+          </Button>
+        )}
+
+        {onEdit && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onEdit(index)}
+            className="h-8 w-8 p-0"
+            title="Edit Dataset"
+          >
+            <Edit className="h-3 w-3" />
           </Button>
         )}
         
