@@ -34,6 +34,10 @@ interface DataSourceFormProps {
   onCancel: () => void;
   allowedFormats?: DataSourceFormat[]; // Optional format restriction
   isAddingStatistics?: boolean; // Flag to indicate adding statistics source
+  editingDataSource?: DataSourceItem; // Data source being edited
+  editingIndex?: number; // Index of data source being edited
+  onUpdateDataSource?: (dataSource: DataSourceItem, layerIndex: number, dataSourceIndex: number) => void; // Update function
+  editingLayerIndex?: number; // Layer index for editing
 }
 
 const DataSourceForm = ({ 
@@ -46,7 +50,11 @@ const DataSourceForm = ({
   onAddService, 
   onCancel,
   allowedFormats,
-  isAddingStatistics = false
+  isAddingStatistics = false,
+  editingDataSource,
+  editingIndex,
+  onUpdateDataSource,
+  editingLayerIndex
 }: DataSourceFormProps) => {
   const { toast } = useToast();
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
@@ -63,8 +71,11 @@ const DataSourceForm = ({
     return determineZLevel(mockDataItem, false);
   };
   
-  // Determine initial format based on allowed formats
+  // Determine initial format based on allowed formats or editing data source
   const getInitialFormat = (): DataSourceFormat => {
+    if (editingDataSource) {
+      return editingDataSource.format as DataSourceFormat;
+    }
     if (allowedFormats && allowedFormats.length > 0) {
       return allowedFormats[0];
     }
@@ -73,9 +84,9 @@ const DataSourceForm = ({
   
   const [sourceType, setSourceType] = useState<'service' | 'direct'>('direct');
   const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>(getInitialFormat());
-  const [directUrl, setDirectUrl] = useState('');
-  const [directLayers, setDirectLayers] = useState('');
-  const [zIndex, setZIndex] = useState(getRecommendedZIndex(getInitialFormat()));
+  const [directUrl, setDirectUrl] = useState(editingDataSource?.url || '');
+  const [directLayers, setDirectLayers] = useState(editingDataSource?.layers || '');
+  const [zIndex, setZIndex] = useState(editingDataSource?.zIndex ?? getRecommendedZIndex(getInitialFormat()));
   
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
@@ -83,7 +94,7 @@ const DataSourceForm = ({
   
   // Position state for comparison layers
   const [selectedPosition, setSelectedPosition] = useState<PositionValue | undefined>(
-    requiresPosition(layerType) ? getDefaultPosition(layerType) : undefined
+    editingDataSource?.position || (requiresPosition(layerType) ? getDefaultPosition(layerType) : undefined)
   );
   
   // Statistics layer state
@@ -94,18 +105,29 @@ const DataSourceForm = ({
   } = useStatisticsLayer(currentLayerStatistics);
   
   // Manual statistics level input (when isAddingStatistics is true)
-  const [manualStatisticsLevel, setManualStatisticsLevel] = useState<number>(statisticsLevel);
+  const [manualStatisticsLevel, setManualStatisticsLevel] = useState<number>(editingDataSource?.level ?? statisticsLevel);
   
   // Removed new service form state - services should be added via Services menu
   
-  // Date picker state for temporal layers
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  const [dateInputValue, setDateInputValue] = useState<string>('');
-  const [month, setMonth] = useState<Date>(new Date());
+  // Date picker state for temporal layers - initialize from editing data source if available
+  const getInitialDate = (): Date | undefined => {
+    if (editingDataSource?.timestamps && editingDataSource.timestamps.length > 0) {
+      return new Date(editingDataSource.timestamps[0] * 1000); // Convert Unix timestamp to Date
+    }
+    return undefined;
+  };
+  
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(getInitialDate());
+  const [dateInputValue, setDateInputValue] = useState<string>(
+    getInitialDate() ? format(getInitialDate()!, 'dd/MM/yyyy') : ''
+  );
+  const [month, setMonth] = useState<Date>(getInitialDate() || new Date());
   const requiresTimestamp = timeframe && timeframe !== 'None';
   
-  // State for WMS/WMTS TIME parameter usage
-  const [useTimeParameter, setUseTimeParameter] = useState<boolean>(true);
+  // State for WMS/WMTS TIME parameter usage - initialize from editing data source
+  const [useTimeParameter, setUseTimeParameter] = useState<boolean>(
+    editingDataSource?.useTimeParameter ?? true
+  );
 
   // Generate year options (1900 to 2050)
   const yearOptions = Array.from({ length: 151 }, (_, i) => 1900 + i);
@@ -369,19 +391,29 @@ const DataSourceForm = ({
       ...(isWmsOrWmts && useTimeParameter && { useTimeParameter: true })
     };
 
-    // Call appropriate callback based on statistics layer flag
-    if (shouldAddAsStatistics) {
-      onAddStatisticsLayer(dataSourceItem);
+    // Check if we're in edit mode
+    if (editingDataSource && editingIndex !== undefined && onUpdateDataSource && editingLayerIndex !== undefined) {
+      // Update existing data source
+      onUpdateDataSource(dataSourceItem, editingLayerIndex, editingIndex);
       toast({
-        title: "Statistics Source Added",
-        description: `${selectedFormat.toUpperCase()} statistics source (level ${levelToUse}) has been added.`,
+        title: "Data Source Updated",
+        description: `${selectedFormat.toUpperCase()} data source has been updated.`,
       });
     } else {
-      onAddDataSource(dataSourceItem);
-      toast({
-        title: "Data Source Added",
-        description: `${selectedFormat.toUpperCase()} data source has been added to the layer.`,
-      });
+      // Call appropriate callback based on statistics layer flag
+      if (shouldAddAsStatistics) {
+        onAddStatisticsLayer(dataSourceItem);
+        toast({
+          title: "Statistics Source Added",
+          description: `${selectedFormat.toUpperCase()} statistics source (level ${levelToUse}) has been added.`,
+        });
+      } else {
+        onAddDataSource(dataSourceItem);
+        toast({
+          title: "Data Source Added",
+          description: `${selectedFormat.toUpperCase()} data source has been added to the layer.`,
+        });
+      }
     }
   };
 
@@ -398,7 +430,7 @@ const DataSourceForm = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
-            {isAddingStatistics ? 'Add Statistics Source' : 'Add Data Source'}
+            {editingDataSource ? 'Edit Data Source' : (isAddingStatistics ? 'Add Statistics Source' : 'Add Data Source')}
             {needsPosition && (
               <Badge variant="outline" className="text-xs">
                 {layerType} layer
@@ -406,9 +438,11 @@ const DataSourceForm = ({
             )}
           </CardTitle>
           <CardDescription>
-            {isAddingStatistics 
-              ? 'Add a FlatGeobuf or GeoJSON statistics source for this layer.'
-              : 'Configure a data source for this layer from an existing service or provide direct connection details.'
+            {editingDataSource 
+              ? 'Update the configuration for this data source.'
+              : (isAddingStatistics 
+                ? 'Add a FlatGeobuf or GeoJSON statistics source for this layer.'
+                : 'Configure a data source for this layer from an existing service or provide direct connection details.')
             }
             {needsPosition && (
               <span className="block mt-1 text-orange-600">

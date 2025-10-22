@@ -21,6 +21,8 @@ interface LayerFormHandlerProps {
   isAddingConstraint?: boolean;
   editingConstraintIndex?: number | null;
   editingConstraintLayerIndex?: number | null;
+  editingDataSourceIndex?: number | null;
+  editingDataSourceLayerIndex?: number | null;
   onSelectType: (type: any) => void;
   onLayerSaved: (layer: DataSource) => void;
   onLayerFormCancel: () => void;
@@ -28,6 +30,7 @@ interface LayerFormHandlerProps {
   onStatisticsLayerAdded: (statisticsItem: any) => void;
   onConstraintSourceAdded?: (constraint: ConstraintSourceItem | ConstraintSourceItem[]) => void;
   onUpdateConstraintSource?: (constraint: ConstraintSourceItem, layerIndex: number, constraintIndex: number) => void;
+  onUpdateDataSource?: (dataSource: any, layerIndex: number, dataSourceIndex: number) => void;
   onDataSourceCancel: () => void;
   onConstraintFormCancel?: () => void;
   onAddService: (service: any) => void;
@@ -48,6 +51,8 @@ const LayerFormHandler = ({
   isAddingConstraint = false,
   editingConstraintIndex = null,
   editingConstraintLayerIndex = null,
+  editingDataSourceIndex = null,
+  editingDataSourceLayerIndex = null,
   onSelectType,
   onLayerSaved,
   onLayerFormCancel,
@@ -55,6 +60,7 @@ const LayerFormHandler = ({
   onStatisticsLayerAdded,
   onConstraintSourceAdded,
   onUpdateConstraintSource,
+  onUpdateDataSource,
   onDataSourceCancel,
   onConstraintFormCancel,
   onAddService
@@ -98,6 +104,11 @@ const LayerFormHandler = ({
     else if ((currentLayer as any).isMirrorLayer) layerType = 'mirror';
     else if ((currentLayer as any).isSpotlightLayer) layerType = 'spotlight';
     
+    // Get the data source being edited if in edit mode
+    const editingDataSource = editingDataSourceIndex !== null && editingDataSourceLayerIndex !== null
+      ? config.sources[editingDataSourceLayerIndex]?.data?.[editingDataSourceIndex]
+      : undefined;
+    
     return (
       <DataSourceForm
         services={services}
@@ -110,6 +121,10 @@ const LayerFormHandler = ({
         onCancel={onDataSourceCancel}
         allowedFormats={isAddingStatistics ? ['flatgeobuf', 'geojson'] : undefined}
         isAddingStatistics={isAddingStatistics}
+        editingDataSource={editingDataSource}
+        editingIndex={editingDataSourceIndex || undefined}
+        onUpdateDataSource={onUpdateDataSource}
+        editingLayerIndex={editingDataSourceLayerIndex || undefined}
       />
     );
   }

@@ -113,6 +113,14 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
       const cardId = `${groupName}-${layerIndex}`;
       
       layerState.handleStartEditConstraint(layerIndex, constraintIndex, cardId);
+    },
+
+    handleEditDataSource: (layerIndex: number, dataSourceIndex: number) => {
+      const layer = config.sources[layerIndex];
+      const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
+      const cardId = `${groupName}-${layerIndex}`;
+      
+      layerState.handleStartEditDataSource(layerIndex, dataSourceIndex, cardId);
     }
   };
   

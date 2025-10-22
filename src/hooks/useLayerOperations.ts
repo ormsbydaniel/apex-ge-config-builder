@@ -376,6 +376,31 @@ export const useLayerOperations = ({
     console.log('Starting edit constraint form for layer:', layerIndex, 'constraint:', constraintIndex);
   }, []);
 
+  const handleUpdateDataSource = useCallback((dataSourceItem: any, layerIndex: number, dataSourceIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer) return;
+    
+    const updatedData = [...(layer.data || [])];
+    updatedData[dataSourceIndex] = dataSourceItem;
+    
+    const updatedLayer = {
+      ...layer,
+      data: updatedData
+    };
+    
+    updateLayer(layerIndex, updatedLayer);
+    
+    const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+    handleLayerCreated(groupName, layerIndex);
+    
+    handleDataSourceComplete();
+  }, [config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
+
+  const handleEditDataSource = useCallback((layerIndex: number, dataSourceIndex: number) => {
+    // This will be overridden by composition layer to include expansion
+    console.log('Starting edit data source form for layer:', layerIndex, 'data source:', dataSourceIndex);
+  }, []);
+
   const handleStartConstraintForm = useCallback((layerIndex: number) => {
     // This will be overridden by the composition layer if needed
     console.log('Starting constraint form for layer:', layerIndex);
@@ -448,6 +473,8 @@ export const useLayerOperations = ({
     handleConstraintSourceAdded,
     handleUpdateConstraintSource,
     handleEditConstraintSource,
+    handleUpdateDataSource,
+    handleEditDataSource,
     handleStartConstraintForm,
     handleCancelConstraintForm,
     

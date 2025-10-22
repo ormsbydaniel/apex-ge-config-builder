@@ -145,6 +145,8 @@ const LayersTabCore = ({
         isAddingConstraint={layersLogic?.isAddingConstraint || false}
         editingConstraintIndex={layersLogic?.editingConstraintIndex ?? null}
         editingConstraintLayerIndex={layersLogic?.editingConstraintLayerIndex ?? null}
+        editingDataSourceIndex={layersLogic?.editingDataSourceIndex ?? null}
+        editingDataSourceLayerIndex={layersLogic?.editingDataSourceLayerIndex ?? null}
         onSelectType={handleLayerTypeSelect}
         onLayerSaved={handleLayerSaved}
         onLayerFormCancel={handleLayerFormCancel}
@@ -152,6 +154,7 @@ const LayersTabCore = ({
         onStatisticsLayerAdded={layersLogic?.handleStatisticsLayerAdded || (() => {})}
         onConstraintSourceAdded={layersLogic?.handleConstraintSourceAdded || (() => {})}
         onUpdateConstraintSource={layersLogic?.handleUpdateConstraintSource || (() => {})}
+        onUpdateDataSource={layersLogic?.handleUpdateDataSource || (() => {})}
         onDataSourceCancel={layersLogic?.handleCancelDataSource || (() => {})}
         onConstraintFormCancel={layersLogic?.handleCancelConstraint || (() => {})}
         onAddService={addService}
