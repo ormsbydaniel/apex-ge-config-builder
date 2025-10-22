@@ -16,6 +16,8 @@ interface DataSourceFormState {
   isAddingStatistics: boolean; // Track if adding statistics source
   showConstraintForm: boolean; // Track if adding constraint source
   isAddingConstraint: boolean; // Track if adding constraint source
+  editingConstraintIndex: number | null; // Track which constraint is being edited
+  editingConstraintLayerIndex: number | null; // Track which layer's constraint is being edited
 }
 
 interface LayerStateManagementState {
@@ -43,7 +45,9 @@ type LayerStateAction =
   | { type: 'CLEAR_CANCELED_LAYER_INDEX' }
   | { type: 'START_CONSTRAINT_FORM'; layerIndex: number; isAddingConstraint?: boolean }
   | { type: 'CANCEL_CONSTRAINT_FORM'; selectedLayerIndex: number | null }
-  | { type: 'COMPLETE_CONSTRAINT_FORM' };
+  | { type: 'COMPLETE_CONSTRAINT_FORM' }
+  | { type: 'START_EDIT_CONSTRAINT'; layerIndex: number; constraintIndex: number }
+  | { type: 'CLEAR_EDIT_CONSTRAINT' };
 
 // Initial state
 const initialState: LayerStateManagementState = {
@@ -61,6 +65,8 @@ const initialState: LayerStateManagementState = {
     isAddingStatistics: false,
     showConstraintForm: false,
     isAddingConstraint: false,
+    editingConstraintIndex: null,
+    editingConstraintLayerIndex: null,
   },
 };
 
@@ -226,6 +232,8 @@ function layerStateReducer(
           isAddingStatistics: false,
           showConstraintForm: false,
           isAddingConstraint: false,
+          editingConstraintIndex: null,
+          editingConstraintLayerIndex: null,
         },
       };
 
@@ -269,6 +277,30 @@ function layerStateReducer(
           showConstraintForm: false,
           selectedLayerIndex: null,
           isAddingConstraint: false,
+          editingConstraintIndex: null,
+          editingConstraintLayerIndex: null,
+        },
+      };
+
+    case 'START_EDIT_CONSTRAINT':
+      return {
+        ...state,
+        dataSourceForm: {
+          ...state.dataSourceForm,
+          selectedLayerIndex: action.layerIndex,
+          showConstraintForm: true,
+          editingConstraintIndex: action.constraintIndex,
+          editingConstraintLayerIndex: action.layerIndex,
+        },
+      };
+
+    case 'CLEAR_EDIT_CONSTRAINT':
+      return {
+        ...state,
+        dataSourceForm: {
+          ...state.dataSourceForm,
+          editingConstraintIndex: null,
+          editingConstraintLayerIndex: null,
         },
       };
 
@@ -398,6 +430,17 @@ export const useLayerStateManagement = () => {
     dispatch({ type: 'COMPLETE_CONSTRAINT_FORM' });
   }, []);
 
+  const handleStartEditConstraint = useCallback((layerIndex: number, constraintIndex: number, layerCardId?: string) => {
+    dispatch({ type: 'START_EDIT_CONSTRAINT', layerIndex, constraintIndex });
+    if (layerCardId) {
+      dispatch({ type: 'SET_EXPANDED_AFTER_DATA_SOURCE', cardId: layerCardId });
+    }
+  }, []);
+
+  const clearEditConstraint = useCallback(() => {
+    dispatch({ type: 'CLEAR_EDIT_CONSTRAINT' });
+  }, []);
+
   return {
     // Card expansion state and actions
     expandedCards: state.expansion.expandedCards,
@@ -444,10 +487,14 @@ export const useLayerStateManagement = () => {
     // Constraint form state
     showConstraintForm: state.dataSourceForm.showConstraintForm,
     isAddingConstraint: state.dataSourceForm.isAddingConstraint,
+    editingConstraintIndex: state.dataSourceForm.editingConstraintIndex,
+    editingConstraintLayerIndex: state.dataSourceForm.editingConstraintLayerIndex,
 
     // Constraint form actions
     handleStartConstraintForm,
     handleCancelConstraint,
     handleConstraintComplete,
+    handleStartEditConstraint,
+    clearEditConstraint,
   };
 };

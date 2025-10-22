@@ -351,6 +351,31 @@ export const useLayerOperations = ({
     handleConstraintComplete();
   }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleConstraintComplete]);
 
+  const handleUpdateConstraintSource = useCallback((constraintItem: any, layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer) return;
+    
+    const updatedConstraints = [...(layer.constraints || [])];
+    updatedConstraints[constraintIndex] = constraintItem;
+    
+    const updatedLayer = {
+      ...layer,
+      constraints: updatedConstraints
+    };
+    
+    updateLayer(layerIndex, updatedLayer);
+    
+    const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+    handleLayerCreated(groupName, layerIndex);
+    
+    handleConstraintComplete();
+  }, [config.sources, updateLayer, handleLayerCreated, handleConstraintComplete]);
+
+  const handleEditConstraintSource = useCallback((layerIndex: number, constraintIndex: number) => {
+    // This will be overridden by composition layer to include expansion
+    console.log('Starting edit constraint form for layer:', layerIndex, 'constraint:', constraintIndex);
+  }, []);
+
   const handleStartConstraintForm = useCallback((layerIndex: number) => {
     // This will be overridden by the composition layer if needed
     console.log('Starting constraint form for layer:', layerIndex);
@@ -421,6 +446,8 @@ export const useLayerOperations = ({
     handleDataSourceAdded,
     handleStatisticsLayerAdded,
     handleConstraintSourceAdded,
+    handleUpdateConstraintSource,
+    handleEditConstraintSource,
     handleStartConstraintForm,
     handleCancelConstraintForm,
     

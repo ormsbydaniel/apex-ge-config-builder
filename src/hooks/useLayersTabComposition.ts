@@ -105,6 +105,14 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
       console.log('[useLayersTabComposition] Calling handleStartConstraintForm with cardId:', cardId);
       
       layerState.handleStartConstraintForm(layerIndex, cardId, true);
+    },
+
+    handleEditConstraintSource: (layerIndex: number, constraintIndex: number) => {
+      const layer = config.sources[layerIndex];
+      const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
+      const cardId = `${groupName}-${layerIndex}`;
+      
+      layerState.handleStartEditConstraint(layerIndex, constraintIndex, cardId);
     }
   };
   

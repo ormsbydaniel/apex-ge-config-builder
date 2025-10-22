@@ -34,7 +34,10 @@ const ConstraintSourceForm = ({
   const { toast } = useToast();
   const { addService } = useServices(services, onAddService);
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct'>('direct');
+  // Initialize sourceType based on whether we have an existing URL
+  const [sourceType, setSourceType] = useState<'service' | 'direct'>(
+    editingConstraint?.url ? 'direct' : 'direct'
+  );
   const [directUrl, setDirectUrl] = useState(editingConstraint?.url || '');
   const [label, setLabel] = useState(editingConstraint?.label || '');
   const [interactive, setInteractive] = useState(editingConstraint?.interactive ?? true);

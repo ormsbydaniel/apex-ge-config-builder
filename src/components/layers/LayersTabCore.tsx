@@ -143,12 +143,15 @@ const LayersTabCore = ({
         defaultInterfaceGroup={defaultInterfaceGroup}
         isAddingStatistics={layersLogic?.isAddingStatistics || false}
         isAddingConstraint={layersLogic?.isAddingConstraint || false}
+        editingConstraintIndex={layersLogic?.editingConstraintIndex ?? null}
+        editingConstraintLayerIndex={layersLogic?.editingConstraintLayerIndex ?? null}
         onSelectType={handleLayerTypeSelect}
         onLayerSaved={handleLayerSaved}
         onLayerFormCancel={handleLayerFormCancel}
         onDataSourceAdded={layersLogic?.handleDataSourceAdded || (() => {})}
         onStatisticsLayerAdded={layersLogic?.handleStatisticsLayerAdded || (() => {})}
         onConstraintSourceAdded={layersLogic?.handleConstraintSourceAdded || (() => {})}
+        onUpdateConstraintSource={layersLogic?.handleUpdateConstraintSource || (() => {})}
         onDataSourceCancel={layersLogic?.handleCancelDataSource || (() => {})}
         onConstraintFormCancel={layersLogic?.handleCancelConstraint || (() => {})}
         onAddService={addService}

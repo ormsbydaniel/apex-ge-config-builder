@@ -19,12 +19,15 @@ interface LayerFormHandlerProps {
   defaultInterfaceGroup?: string;
   isAddingStatistics?: boolean;
   isAddingConstraint?: boolean;
+  editingConstraintIndex?: number | null;
+  editingConstraintLayerIndex?: number | null;
   onSelectType: (type: any) => void;
   onLayerSaved: (layer: DataSource) => void;
   onLayerFormCancel: () => void;
   onDataSourceAdded: (dataSource: any) => void;
   onStatisticsLayerAdded: (statisticsItem: any) => void;
   onConstraintSourceAdded?: (constraint: ConstraintSourceItem | ConstraintSourceItem[]) => void;
+  onUpdateConstraintSource?: (constraint: ConstraintSourceItem, layerIndex: number, constraintIndex: number) => void;
   onDataSourceCancel: () => void;
   onConstraintFormCancel?: () => void;
   onAddService: (service: any) => void;
@@ -43,12 +46,15 @@ const LayerFormHandler = ({
   defaultInterfaceGroup,
   isAddingStatistics = false,
   isAddingConstraint = false,
+  editingConstraintIndex = null,
+  editingConstraintLayerIndex = null,
   onSelectType,
   onLayerSaved,
   onLayerFormCancel,
   onDataSourceAdded,
   onStatisticsLayerAdded,
   onConstraintSourceAdded,
+  onUpdateConstraintSource,
   onDataSourceCancel,
   onConstraintFormCancel,
   onAddService
@@ -117,12 +123,28 @@ const LayerFormHandler = ({
       return null;
     }
     
+    // Get the constraint being edited if in edit mode
+    const editingConstraint = editingConstraintIndex !== null && editingConstraintLayerIndex !== null
+      ? config.sources[editingConstraintLayerIndex]?.constraints?.[editingConstraintIndex]
+      : undefined;
+    
+    // Create handler that routes to add or update based on editing state
+    const handleConstraintSubmit = (constraint: ConstraintSourceItem) => {
+      if (editingConstraintIndex !== null && editingConstraintLayerIndex !== null && onUpdateConstraintSource) {
+        onUpdateConstraintSource(constraint, editingConstraintLayerIndex, editingConstraintIndex);
+      } else if (onConstraintSourceAdded) {
+        onConstraintSourceAdded(constraint);
+      }
+    };
+    
     return (
       <ConstraintSourceForm
         services={services}
-        onAddConstraintSource={onConstraintSourceAdded || (() => {})}
+        onAddConstraintSource={handleConstraintSubmit}
         onAddService={onAddService}
         onCancel={onConstraintFormCancel || (() => {})}
+        editingConstraint={editingConstraint}
+        editingIndex={editingConstraintIndex || undefined}
       />
     );
   }
