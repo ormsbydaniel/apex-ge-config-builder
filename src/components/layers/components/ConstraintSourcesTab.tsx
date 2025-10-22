@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { DataSource, Service } from '@/types/config';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Edit, Info } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { extractDisplayName } from '@/utils/urlDisplay';
+import CogMetadataDialog from './CogMetadataDialog';
 
 interface ConstraintSourcesTabProps {
   source: DataSource;
@@ -23,23 +25,43 @@ export function ConstraintSourcesTab({
   onRemove,
   onEdit
 }: ConstraintSourcesTabProps) {
+  const [metadataDialogIndex, setMetadataDialogIndex] = useState<number | null>(null);
   const hasConstraints = source.constraints && source.constraints.length > 0;
 
   return <div className="space-y-4">
       {hasConstraints ? <div className="space-y-3">
           {source.constraints.map((constraint, index) => <Card key={index}>
-               <CardContent className="pt-4">
+              <CardContent className="pt-4">
                 <div className="space-y-2">
-                  {/* Line 1: Constraint Name, Interactive Pill, Type Pill, Edit, Delete */}
+                  {/* Line 1: Data type Pill, File Name (hover full), Info button, Edit, Delete */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <h4 className="font-medium text-sm truncate">{constraint.label}</h4>
-                      <Badge variant={constraint.interactive ? 'default' : 'secondary'} className="text-xs shrink-0">
-                        {constraint.interactive ? 'Interactive' : 'Fixed'}
+                      <Badge variant="outline" className="text-xs shrink-0">
+                        {constraint.format.toUpperCase()}
                       </Badge>
-                      <Badge variant="outline" className="text-xs capitalize shrink-0">
-                        {constraint.type}
-                      </Badge>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-sm font-medium truncate cursor-help">
+                              {extractDisplayName(constraint.url, constraint.format)}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-md break-all">
+                            <p className="text-xs">{constraint.url}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      {constraint.format?.toLowerCase() === 'cog' && constraint.url && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setMetadataDialogIndex(index)}
+                          className="h-6 w-6 p-0 shrink-0"
+                          title="View COG Metadata"
+                        >
+                          <Info className="h-3 w-3" />
+                        </Button>
+                      )}
                     </div>
                     <div className="flex gap-2 shrink-0">
                       <Button variant="ghost" size="sm" onClick={() => onEdit(layerIndex, index)}>
@@ -51,47 +73,48 @@ export function ConstraintSourcesTab({
                     </div>
                   </div>
 
-                  {/* Line 2: Data Type Pill, Data File Name */}
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs shrink-0">
-                      {constraint.format.toUpperCase()}
+                  {/* Line 2: All other information */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-medium">{constraint.label}</span>
+                    <Badge variant={constraint.interactive ? 'default' : 'secondary'} className="text-xs shrink-0">
+                      {constraint.interactive ? 'Interactive' : 'Fixed'}
                     </Badge>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-xs text-muted-foreground truncate cursor-help">
-                            {extractDisplayName(constraint.url, constraint.format)}
+                    <Badge variant="outline" className="text-xs capitalize shrink-0">
+                      {constraint.type}
+                    </Badge>
+                    
+                    {constraint.type === 'continuous' && (
+                      <>
+                        <span className="text-xs text-muted-foreground">Min: {constraint.min}</span>
+                        <span className="text-xs text-muted-foreground">Max: {constraint.max}</span>
+                        {constraint.units && <span className="text-xs text-muted-foreground">Units: {constraint.units}</span>}
+                      </>
+                    )}
+                    
+                    {constraint.type === 'categorical' && constraint.constrainTo && (
+                      <span className="text-xs text-muted-foreground">
+                        <span className="font-semibold">Categories:</span>{' '}
+                        {constraint.constrainTo.map((cat, i) => (
+                          <span key={i}>
+                            {cat.label} ({cat.value})
+                            {i < constraint.constrainTo!.length - 1 ? ', ' : ''}
                           </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-md break-all">
-                          <p className="text-xs">{constraint.url}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                        ))}
+                      </span>
+                    )}
                   </div>
-
-                  {/* Additional lines: Remaining details */}
-                  {constraint.type === 'continuous' && (
-                    <div className="text-xs text-muted-foreground flex gap-4">
-                      <span>Min: {constraint.min}</span>
-                      <span>Max: {constraint.max}</span>
-                      {constraint.units && <span>Units: {constraint.units}</span>}
-                    </div>
-                  )}
-                  
-                  {constraint.type === 'categorical' && constraint.constrainTo && (
-                    <div className="text-xs text-muted-foreground">
-                      <span className="font-semibold">Categories:</span>{' '}
-                      {constraint.constrainTo.map((cat, i) => (
-                        <span key={i}>
-                          {cat.label} ({cat.value})
-                          {i < constraint.constrainTo!.length - 1 ? ', ' : ''}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </CardContent>
+              
+              {/* COG Metadata Dialog */}
+              {constraint.format?.toLowerCase() === 'cog' && constraint.url && metadataDialogIndex === index && (
+                <CogMetadataDialog
+                  url={constraint.url}
+                  filename={extractDisplayName(constraint.url, constraint.format)}
+                  isOpen={metadataDialogIndex === index}
+                  onClose={() => setMetadataDialogIndex(null)}
+                />
+              )}
             </Card>)}
         </div> : <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
           <p className="text-sm text-muted-foreground mb-2">
