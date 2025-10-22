@@ -305,7 +305,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <Label htmlFor="primaryColor" className="w-24">Primary</Label>
+                      <Label htmlFor="primaryColor" className="w-24">Menu 1</Label>
                       <Input
                         id="primaryColor"
                         type="color"
@@ -328,7 +328,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Label htmlFor="secondaryColor" className="w-24">Secondary</Label>
+                      <Label htmlFor="secondaryColor" className="w-24">Menu 2</Label>
                       <Input
                         id="secondaryColor"
                         type="color"
@@ -351,7 +351,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Label htmlFor="tertiaryColor" className="w-24">Tertiary</Label>
+                      <Label htmlFor="tertiaryColor" className="w-24">Background</Label>
                       <Input
                         id="tertiaryColor"
                         type="color"
@@ -381,7 +381,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <Label htmlFor="primaryFontColor" className="w-24">Primary</Label>
+                      <Label htmlFor="primaryFontColor" className="w-24">Menu 1</Label>
                       <Input
                         id="primaryFontColor"
                         type="color"
@@ -404,7 +404,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Label htmlFor="secondaryFontColor" className="w-24">Secondary</Label>
+                      <Label htmlFor="secondaryFontColor" className="w-24">Menu 2</Label>
                       <Input
                         id="secondaryFontColor"
                         type="color"
