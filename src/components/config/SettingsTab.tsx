@@ -300,134 +300,124 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             <div className="space-y-3 mt-6">
               <h4 className="font-medium">Theme Colors</h4>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="primaryColor">Primary Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="primaryColor"
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => {
-                        setPrimaryColor(e.target.value);
-                        handleColorChange('primaryColor', e.target.value);
-                      }}
-                      className="w-16 h-10 p-1 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={primaryColor}
-                      onChange={(e) => {
-                        setPrimaryColor(e.target.value);
-                        handleColorChange('primaryColor', e.target.value);
-                      }}
-                      className="flex-1"
-                    />
-                  </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <Label htmlFor="primaryColor" className="w-32">Primary</Label>
+                  <Input
+                    id="primaryColor"
+                    type="color"
+                    value={primaryColor}
+                    onChange={(e) => {
+                      setPrimaryColor(e.target.value);
+                      handleColorChange('primaryColor', e.target.value);
+                    }}
+                    className="w-16 h-10 p-1 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={primaryColor}
+                    onChange={(e) => {
+                      setPrimaryColor(e.target.value);
+                      handleColorChange('primaryColor', e.target.value);
+                    }}
+                    className="flex-1"
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="secondaryColor">Secondary Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="secondaryColor"
-                      type="color"
-                      value={secondaryColor}
-                      onChange={(e) => {
-                        setSecondaryColor(e.target.value);
-                        handleColorChange('secondaryColor', e.target.value);
-                      }}
-                      className="w-16 h-10 p-1 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={secondaryColor}
-                      onChange={(e) => {
-                        setSecondaryColor(e.target.value);
-                        handleColorChange('secondaryColor', e.target.value);
-                      }}
-                      className="flex-1"
-                    />
-                  </div>
+                <div className="flex items-center gap-3">
+                  <Label htmlFor="secondaryColor" className="w-32">Secondary</Label>
+                  <Input
+                    id="secondaryColor"
+                    type="color"
+                    value={secondaryColor}
+                    onChange={(e) => {
+                      setSecondaryColor(e.target.value);
+                      handleColorChange('secondaryColor', e.target.value);
+                    }}
+                    className="w-16 h-10 p-1 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={secondaryColor}
+                    onChange={(e) => {
+                      setSecondaryColor(e.target.value);
+                      handleColorChange('secondaryColor', e.target.value);
+                    }}
+                    className="flex-1"
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="tertiaryColor">Tertiary Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="tertiaryColor"
-                      type="color"
-                      value={tertiaryColor}
-                      onChange={(e) => {
-                        setTertiaryColor(e.target.value);
-                        handleColorChange('tertiaryColor', e.target.value);
-                      }}
-                      className="w-16 h-10 p-1 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={tertiaryColor}
-                      onChange={(e) => {
-                        setTertiaryColor(e.target.value);
-                        handleColorChange('tertiaryColor', e.target.value);
-                      }}
-                      className="flex-1"
-                    />
-                  </div>
+                <div className="flex items-center gap-3">
+                  <Label htmlFor="tertiaryColor" className="w-32">Tertiary</Label>
+                  <Input
+                    id="tertiaryColor"
+                    type="color"
+                    value={tertiaryColor}
+                    onChange={(e) => {
+                      setTertiaryColor(e.target.value);
+                      handleColorChange('tertiaryColor', e.target.value);
+                    }}
+                    className="w-16 h-10 p-1 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={tertiaryColor}
+                    onChange={(e) => {
+                      setTertiaryColor(e.target.value);
+                      handleColorChange('tertiaryColor', e.target.value);
+                    }}
+                    className="flex-1"
+                  />
                 </div>
               </div>
 
               <h4 className="font-medium mt-4">Font Colors</h4>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="primaryFontColor">Primary Font Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="primaryFontColor"
-                      type="color"
-                      value={primaryFontColor}
-                      onChange={(e) => {
-                        setPrimaryFontColor(e.target.value);
-                        handleColorChange('primaryFontColor', e.target.value);
-                      }}
-                      className="w-16 h-10 p-1 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={primaryFontColor}
-                      onChange={(e) => {
-                        setPrimaryFontColor(e.target.value);
-                        handleColorChange('primaryFontColor', e.target.value);
-                      }}
-                      className="flex-1"
-                    />
-                  </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <Label htmlFor="primaryFontColor" className="w-32">Primary Font</Label>
+                  <Input
+                    id="primaryFontColor"
+                    type="color"
+                    value={primaryFontColor}
+                    onChange={(e) => {
+                      setPrimaryFontColor(e.target.value);
+                      handleColorChange('primaryFontColor', e.target.value);
+                    }}
+                    className="w-16 h-10 p-1 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={primaryFontColor}
+                    onChange={(e) => {
+                      setPrimaryFontColor(e.target.value);
+                      handleColorChange('primaryFontColor', e.target.value);
+                    }}
+                    className="flex-1"
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="secondaryFontColor">Secondary Font Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="secondaryFontColor"
-                      type="color"
-                      value={secondaryFontColor}
-                      onChange={(e) => {
-                        setSecondaryFontColor(e.target.value);
-                        handleColorChange('secondaryFontColor', e.target.value);
-                      }}
-                      className="w-16 h-10 p-1 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={secondaryFontColor}
-                      onChange={(e) => {
-                        setSecondaryFontColor(e.target.value);
-                        handleColorChange('secondaryFontColor', e.target.value);
-                      }}
-                      className="flex-1"
-                    />
-                  </div>
+                <div className="flex items-center gap-3">
+                  <Label htmlFor="secondaryFontColor" className="w-32">Secondary Font</Label>
+                  <Input
+                    id="secondaryFontColor"
+                    type="color"
+                    value={secondaryFontColor}
+                    onChange={(e) => {
+                      setSecondaryFontColor(e.target.value);
+                      handleColorChange('secondaryFontColor', e.target.value);
+                    }}
+                    className="w-16 h-10 p-1 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={secondaryFontColor}
+                    onChange={(e) => {
+                      setSecondaryFontColor(e.target.value);
+                      handleColorChange('secondaryFontColor', e.target.value);
+                    }}
+                    className="flex-1"
+                  />
                 </div>
               </div>
             </div>
