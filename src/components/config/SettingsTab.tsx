@@ -27,7 +27,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [secondaryColor, setSecondaryColor] = useState(config.layout.theme?.secondaryColor || '#f3f7f8');
   const [tertiaryColor, setTertiaryColor] = useState(config.layout.theme?.tertiaryColor || '#335e6f');
   const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.primaryFontColor || '#ffffff');
-  const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.secondaryFontColor || '#6b7280');
+  const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.secondaryFontColor || '#333333');
   
   // Update local state when config changes
   useEffect(() => {
@@ -46,7 +46,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
       setSecondaryColor(config.layout.theme.secondaryColor || '#f3f7f8');
       setTertiaryColor(config.layout.theme.tertiaryColor || '#335e6f');
       setPrimaryFontColor(config.layout.theme.primaryFontColor || '#ffffff');
-      setSecondaryFontColor(config.layout.theme.secondaryFontColor || '#6b7280');
+      setSecondaryFontColor(config.layout.theme.secondaryFontColor || '#333333');
     }
   }, [config.layout.theme]);
 
@@ -135,7 +135,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
       secondaryColor: '#f3f7f8',
       tertiaryColor: '#335e6f',
       primaryFontColor: '#ffffff',
-      secondaryFontColor: '#6b7280'
+      secondaryFontColor: '#333333'
     };
     
     setPrimaryColor(defaults.primaryColor);
