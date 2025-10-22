@@ -520,11 +520,11 @@ const ConstraintSourceForm = ({
                           </Button>
                         </div>
                       ))}
-                      {interactive && (
-                        <p className="text-xs text-muted-foreground">
-                          Categories listed above are presented as check boxes which the user can select / deselect. Categories excluded will be masked out from the primary layer automatically.
-                        </p>
-                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {interactive 
+                          ? "Categories listed above are presented as check boxes which the user can select / deselect. Categories excluded will be masked out from the primary layer automatically."
+                          : "Only locations covered by categories included above will be visible on the primary layer."}
+                      </p>
                       <Button
                         type="button"
                         variant="outline"
