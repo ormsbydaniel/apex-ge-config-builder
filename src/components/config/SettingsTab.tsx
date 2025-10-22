@@ -475,7 +475,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
                     <div className="h-10 flex items-center">
                       <div 
-                        className="flex items-center justify-center px-4 py-2 rounded border w-full"
+                        className="flex items-center justify-center rounded border w-full h-full"
                         style={{ 
                           backgroundColor: tertiaryColor 
                         }}
