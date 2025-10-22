@@ -223,7 +223,7 @@ const WmsWmtsMetadataDialog = ({
                             </tr>
                           )}
                           {layer.bbox && (
-                            <tr className="hover:bg-muted/50">
+                            <tr className="border-b hover:bg-muted/50">
                               <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
                                 Bounding Box
                               </td>
@@ -237,6 +237,19 @@ const WmsWmtsMetadataDialog = ({
                               </td>
                             </tr>
                           )}
+                          <tr className="hover:bg-muted/50">
+                            <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                              Legend Graphic Available
+                            </td>
+                            <td className="py-2 px-3 text-sm">
+                              <Badge 
+                                variant={layer.hasLegendGraphic ? "default" : "secondary"}
+                                className={layer.hasLegendGraphic ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : ""}
+                              >
+                                {layer.hasLegendGraphic ? "Yes" : "No"}
+                              </Badge>
+                            </td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>

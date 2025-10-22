@@ -58,6 +58,10 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
             };
           }
           
+          // Check for LegendURL (GetLegendGraphic support)
+          const legendURL = layer.querySelector('Style > LegendURL');
+          const hasLegendGraphic = !!legendURL;
+          
           // Only add layers that have a Name element (actual layers, not layer groups)
           if (nameElement?.textContent) {
             layers.push({
@@ -67,7 +71,8 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
               hasTimeDimension,
               defaultTime,
               crs: crsList.length > 0 ? crsList : undefined,
-              bbox
+              bbox,
+              hasLegendGraphic
             });
           }
         });
@@ -105,6 +110,9 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
             }
           }
           
+          // WMTS doesn't typically have GetLegendGraphic in the same way as WMS
+          const hasLegendGraphic = false;
+          
           if (identifier?.textContent) {
             layers.push({
               name: identifier.textContent,
@@ -113,7 +121,8 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
               hasTimeDimension,
               defaultTime,
               crs: crsList.length > 0 ? crsList : undefined,
-              bbox
+              bbox,
+              hasLegendGraphic
             });
           }
         });
