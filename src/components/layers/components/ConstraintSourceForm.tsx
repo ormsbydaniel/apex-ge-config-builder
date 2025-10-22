@@ -10,6 +10,7 @@ import { Service, ConstraintSourceItem } from '@/types/config';
 import { useServices } from '@/hooks/useServices';
 import { useToast } from '@/hooks/use-toast';
 import { ServiceSelectionModal } from './ServiceSelectionModals';
+import { ServiceCardList } from './ServiceCardList';
 import { populateConstraintFromCogMetadata, validateConstraintSource } from '@/utils/constraintMetadataHelpers';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -308,28 +309,16 @@ const ConstraintSourceForm = ({
             {sourceType === 'service' && (
               <div className="space-y-4">
                 <Label>Select a Service (COG, S3, or STAC)</Label>
-                {cogServices.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No COG-compatible services available. Add services via the Services menu.
-                  </p>
-                ) : (
-                  <div className="grid gap-2">
-                    {cogServices.map(service => (
-                      <Button
-                        key={service.id}
-                        type="button"
-                        variant="outline"
-                        className="justify-start h-auto py-3"
-                        onClick={() => handleServiceSelect(service)}
-                      >
-                        <div className="text-left">
-                          <div className="font-medium">{service.name}</div>
-                          <div className="text-xs text-muted-foreground truncate">{service.url}</div>
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                )}
+                <ServiceCardList
+                  services={services}
+                  onServiceSelect={handleServiceSelect}
+                  filterFn={(service) => 
+                    service.format === 'cog' || 
+                    service.sourceType === 's3' || 
+                    service.sourceType === 'stac'
+                  }
+                  emptyMessage="No COG-compatible services available. Add services via the Services menu."
+                />
               </div>
             )}
 

@@ -20,6 +20,7 @@ import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosit
 import { format, parse, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ServiceSelectionModal } from './components/ServiceSelectionModals';
+import { ServiceCardList } from './components/ServiceCardList';
 import { determineZLevel } from '@/utils/drawOrderUtils';
 
 interface DataSourceFormProps {
@@ -478,93 +479,10 @@ const DataSourceForm = ({
               <div className="space-y-6">
                 <Label>Select Service</Label>
 
-                {services.length > 0 ? (
-                  <div className="grid gap-4">
-                    {services
-                      .slice()
-                      .sort((a, b) => {
-                        // Define priority order
-                        const getPriority = (service: Service) => {
-                          if (service.sourceType === 'stac') return 1;
-                          if (service.format === 'wms' || service.format === 'wmts') return 2;
-                          if (service.sourceType === 's3') return 3;
-                          return 4;
-                        };
-                        
-                        const priorityA = getPriority(a);
-                        const priorityB = getPriority(b);
-                        
-                        // Sort by priority first
-                        if (priorityA !== priorityB) {
-                          return priorityA - priorityB;
-                        }
-                        
-                        // Within same priority, sort alphabetically by name
-                        return a.name.localeCompare(b.name);
-                      })
-                      .map((service) => (
-                      <Card key={service.id} className={`border-l-4 ${
-                        service.sourceType === 's3' ? 'border-l-green-500' : 
-                        service.sourceType === 'stac' ? 'border-l-purple-500' : 
-                        'border-l-blue-500'
-                      }`}>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                {service.sourceType === 's3' ? (
-                                  <Database className="h-4 w-4 text-green-600" />
-                                ) : service.sourceType === 'stac' ? (
-                                  <Server className="h-4 w-4 text-purple-600" />
-                                ) : (
-                                  <Globe className="h-4 w-4 text-blue-600" />
-                                )}
-                                <h3 className={`font-medium ${
-                                  service.sourceType === 's3' ? 'text-green-700' : 
-                                  service.sourceType === 'stac' ? 'text-purple-700' : 
-                                  'text-blue-700'
-                                }`}>{service.name}</h3>
-                                <Badge variant="outline" className={`${
-                                  service.sourceType === 's3' ? 'border-green-300 text-green-700' : 
-                                  service.sourceType === 'stac' ? 'border-purple-300 text-purple-700' : 
-                                  'border-blue-300 text-blue-700'
-                                }`}>
-                                  {service.sourceType === 's3' ? 'S3 Bucket' : 
-                                   service.sourceType === 'stac' ? 'STAC' : 
-                                   service.format?.toUpperCase()}
-                                </Badge>
-                                {service.capabilities?.layers.length && (
-                                  <Badge variant="outline" className="border-green-300 text-green-700">
-                                    {service.capabilities.layers.length} {
-                                      service.sourceType === 's3' ? 'objects' : 
-                                      service.sourceType === 'stac' ? 'collections' : 
-                                      'layers'
-                                    } available
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-sm text-muted-foreground truncate">{service.url}</p>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleServiceSelect(service)}
-                            >
-                              Select
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-4 bg-muted/50 border rounded-lg text-center">
-                    <p className="text-muted-foreground">
-                      No services configured. Add new services via the Services menu above.
-                    </p>
-                  </div>
-                )}
+                <ServiceCardList
+                  services={services}
+                  onServiceSelect={handleServiceSelect}
+                />
               </div>
             )}
 
