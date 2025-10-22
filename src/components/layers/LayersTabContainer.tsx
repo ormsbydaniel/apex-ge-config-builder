@@ -49,6 +49,18 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     layersLogic.handleStartDataSourceFormWithExpansion?.(layerIndex, true);
   }, [layersLogic]);
 
+  const onAddConstraintSource = useCallback((layerIndex: number, constraint: any) => {
+    // Update the layer directly
+    const layer = props.config.sources[layerIndex];
+    if (layer) {
+      const updatedLayer = {
+        ...layer,
+        constraints: [...(layer.constraints || []), constraint]
+      };
+      props.updateLayer(layerIndex, updatedLayer);
+    }
+  }, [props]);
+
   const contextValue = {
     config: props.config,
     editingLayerIndex: props.editingLayerIndex,
@@ -69,6 +81,7 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onEditDataSource: layersLogic.handleEditDataSource,
     onEditStatisticsSource: layersLogic.handleEditStatisticsSource,
     onAddStatisticsSource,
+    onAddConstraintSource,
   };
 
   return (

@@ -1,23 +1,52 @@
-import { DataSource } from '@/types/config';
+import { useState } from 'react';
+import { DataSource, Service, ConstraintSourceItem } from '@/types/config';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import ConstraintSourceForm from './ConstraintSourceForm';
+
 interface ConstraintSourcesTabProps {
   source: DataSource;
+  services: Service[];
   layerIndex: number;
-  onAdd: (layerIndex: number) => void;
+  onAddConstraintSource: (layerIndex: number, constraint: ConstraintSourceItem) => void;
   onRemove: (layerIndex: number, constraintIndex: number) => void;
   onEdit: (layerIndex: number, constraintIndex: number) => void;
 }
+
 export function ConstraintSourcesTab({
   source,
+  services,
   layerIndex,
-  onAdd,
+  onAddConstraintSource,
   onRemove,
   onEdit
 }: ConstraintSourcesTabProps) {
+  const [isAddingConstraint, setIsAddingConstraint] = useState(false);
   const hasConstraints = source.constraints && source.constraints.length > 0;
+
+  const handleAddConstraint = (constraint: ConstraintSourceItem | ConstraintSourceItem[]) => {
+    const constraintItem = Array.isArray(constraint) ? constraint[0] : constraint;
+    onAddConstraintSource(layerIndex, constraintItem);
+    setIsAddingConstraint(false);
+  };
+
+  const handleAddService = (service: Service) => {
+    console.log('Add service:', service);
+  };
+
+  if (isAddingConstraint) {
+    return (
+      <ConstraintSourceForm
+        services={services}
+        onAddConstraintSource={handleAddConstraint}
+        onAddService={handleAddService}
+        onCancel={() => setIsAddingConstraint(false)}
+      />
+    );
+  }
+
   return <div className="space-y-4">
       {hasConstraints ? <div className="space-y-3">
           {source.constraints.map((constraint, index) => <Card key={index}>
@@ -77,7 +106,7 @@ export function ConstraintSourcesTab({
         </div>}
 
       <div className="flex items-center justify-end pt-2">
-        <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
+        <Button variant="outline" size="sm" onClick={() => setIsAddingConstraint(true)} className="gap-2">
           <Plus className="h-4 w-4" />
           Add Constraint Source
         </Button>

@@ -1,4 +1,4 @@
-import { DataSource, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
+import { DataSource, Service, DataSourceMeta, DataSourceLayout, ConstraintSourceItem } from '@/types/config';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataSourcesTab } from './DataSourcesTab';
 import { StatisticsSourcesTab } from './StatisticsSourcesTab';
@@ -12,7 +12,7 @@ interface LayerCardTabsProps {
   layerIndex: number;
   onAddDataSource: (layerIndex: number) => void;
   onAddStatisticsSource: (layerIndex: number) => void;
-  onAddConstraintSource: (layerIndex: number) => void;
+  onAddConstraintSource?: (layerIndex: number, constraint: ConstraintSourceItem) => void;
   onAddWorkflow: (layerIndex: number) => void;
   onRemoveDataSource: (layerIndex: number, dataIndex: number) => void;
   onRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
@@ -96,8 +96,9 @@ export function LayerCardTabs({
       <TabsContent value="constraints" className="mt-2">
         <ConstraintSourcesTab
           source={source}
+          services={services}
           layerIndex={layerIndex}
-          onAdd={onAddConstraintSource}
+          onAddConstraintSource={onAddConstraintSource || (() => {})}
           onRemove={onRemoveConstraintSource}
           onEdit={onEditConstraintSource}
         />

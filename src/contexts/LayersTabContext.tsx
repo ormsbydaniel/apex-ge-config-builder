@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext } from 'react';
-import { DataSource, LayerType, Service } from '@/types/config';
+import { DataSource, LayerType, Service, ConstraintSourceItem } from '@/types/config';
 
 interface LayersTabContextValue {
   config: {
@@ -29,6 +29,7 @@ interface LayersTabContextValue {
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onAddStatisticsSource: (layerIndex: number) => void;
+  onAddConstraintSource?: (layerIndex: number, constraint: ConstraintSourceItem) => void;
 }
 
 const LayersTabContext = createContext<LayersTabContextValue | null>(null);

@@ -1,7 +1,6 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout, ConstraintSourceItem } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useToast } from '@/hooks/use-toast';
@@ -13,7 +12,6 @@ import LayerControlsDisplay from './LayerControlsDisplay';
 import LayerAttributionDisplay from './LayerAttributionDisplay';
 import LayerColormapsDisplay from './LayerColormapsDisplay';
 import { LayerCardTabs } from './LayerCardTabs';
-import ConstraintSourceForm from './ConstraintSourceForm';
 
 interface LayerCardContentProps {
   source: DataSource;
@@ -23,6 +21,7 @@ interface LayerCardContentProps {
   onEditDataSource?: (dataIndex: number) => void;
   onEditStatisticsSource?: (statsIndex: number) => void;
   onAddStatisticsSource?: () => void;
+  onAddConstraintSource?: (layerIndex: number, constraint: ConstraintSourceItem) => void;
 }
 
 const LayerCardContent = ({
@@ -32,7 +31,8 @@ const LayerCardContent = ({
   onRemoveStatisticsSource,
   onEditDataSource,
   onEditStatisticsSource,
-  onAddStatisticsSource
+  onAddStatisticsSource,
+  onAddConstraintSource
 }: LayerCardContentProps) => {
   const { config, dispatch } = useConfig();
   const { toast } = useToast();
@@ -40,9 +40,6 @@ const LayerCardContent = ({
 
   // Find the index of this source in the config
   const sourceIndex = config.sources.findIndex(s => s.name === source.name);
-  
-  // State for constraint form dialog
-  const [showConstraintForm, setShowConstraintForm] = useState(false);
 
   // Handler to update meta fields
   const handleUpdateMeta = (updates: Partial<DataSourceMeta>) => {
@@ -102,46 +99,7 @@ const LayerCardContent = ({
     });
   };
 
-  // Handler to add constraint source
-  const handleAddConstraintSource = (constraint: ConstraintSourceItem | ConstraintSourceItem[]) => {
-    if (sourceIndex === -1) return;
-
-    const itemsToAdd = Array.isArray(constraint) ? constraint : [constraint];
-    const updatedSource = {
-      ...source,
-      constraints: [...(source.constraints || []), ...itemsToAdd]
-    };
-
-    dispatch({
-      type: 'UPDATE_SOURCE',
-      payload: {
-        index: sourceIndex,
-        source: updatedSource
-      }
-    });
-
-    toast({
-      title: "Constraint Added",
-      description: `${itemsToAdd.length} constraint source(s) have been added to the layer.`,
-    });
-
-    setShowConstraintForm(false);
-  };
-
   return (
-    <>
-      <Dialog open={showConstraintForm} onOpenChange={setShowConstraintForm}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <ConstraintSourceForm
-            services={(config.services || []) as Service[]}
-            onAddConstraintSource={handleAddConstraintSource}
-            onAddService={(service) => {
-              dispatch({ type: 'ADD_SERVICE', payload: service });
-            }}
-            onCancel={() => setShowConstraintForm(false)}
-          />
-        </DialogContent>
-      </Dialog>
     <CardContent className="space-y-4 pl-[46px]">
       <LayerMetadata source={source} />
       
@@ -175,7 +133,7 @@ const LayerCardContent = ({
           layerIndex={sourceIndex}
           onAddDataSource={() => onAddDataSource?.()}
           onAddStatisticsSource={onAddStatisticsSource}
-          onAddConstraintSource={() => setShowConstraintForm(true)}
+          onAddConstraintSource={onAddConstraintSource}
           onAddWorkflow={() => {
             toast({
               title: "Coming Soon",
@@ -219,7 +177,6 @@ const LayerCardContent = ({
       {/* Show swipe configuration for swipe layers */}
       {isSwipeLayer && <SwipeLayerConfig source={source} />}
     </CardContent>
-    </>
   );
 };
 
