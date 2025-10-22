@@ -24,8 +24,8 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   
   // Theme colors state
   const [primaryColor, setPrimaryColor] = useState(config.layout.theme?.primaryColor || '#003247');
-  const [secondaryColor, setSecondaryColor] = useState(config.layout.theme?.secondaryColor || '#335e6f');
-  const [tertiaryColor, setTertiaryColor] = useState(config.layout.theme?.tertiaryColor || '#f3f7f8');
+  const [secondaryColor, setSecondaryColor] = useState(config.layout.theme?.secondaryColor || '#f3f7f8');
+  const [tertiaryColor, setTertiaryColor] = useState(config.layout.theme?.tertiaryColor || '#335e6f');
   const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.primaryFontColor || '#1f2937');
   const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.secondaryFontColor || '#6b7280');
   
@@ -43,8 +43,8 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   useEffect(() => {
     if (config.layout.theme) {
       setPrimaryColor(config.layout.theme.primaryColor || '#003247');
-      setSecondaryColor(config.layout.theme.secondaryColor || '#335e6f');
-      setTertiaryColor(config.layout.theme.tertiaryColor || '#f3f7f8');
+      setSecondaryColor(config.layout.theme.secondaryColor || '#f3f7f8');
+      setTertiaryColor(config.layout.theme.tertiaryColor || '#335e6f');
       setPrimaryFontColor(config.layout.theme.primaryFontColor || '#1f2937');
       setSecondaryFontColor(config.layout.theme.secondaryFontColor || '#6b7280');
     }
