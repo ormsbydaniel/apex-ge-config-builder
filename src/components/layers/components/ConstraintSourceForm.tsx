@@ -439,7 +439,11 @@ const ConstraintSourceForm = ({
                     className="w-full"
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
-                    {isFetchingMetadata ? 'Fetching...' : 'Fetch COG Metadata & Auto-populate'}
+                    {isFetchingMetadata 
+                      ? 'Fetching...' 
+                      : constraintType === 'continuous' 
+                        ? 'Populate Min & Max from COG' 
+                        : 'Fetch COG Metadata & Auto-populate'}
                   </Button>
 
                   {/* Continuous Fields */}
