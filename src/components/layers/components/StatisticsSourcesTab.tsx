@@ -27,13 +27,6 @@ export function StatisticsSourcesTab({
     statistics: [] // Empty to prevent double-showing
   };
   return <div className="space-y-4">
-      <div className="flex items-center justify-end">
-        <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Statistics Source
-        </Button>
-      </div>
-
       {hasStatistics ? <DataSourceDisplay source={statsOnlySource} services={services} onRemoveDataSource={statsIndex => onRemove(layerIndex, statsIndex)} onEditDataSource={statsIndex => onEdit(layerIndex, statsIndex)} showStatsLevelForData={true} /> : <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
             No statistics sources configured yet
@@ -41,10 +34,13 @@ export function StatisticsSourcesTab({
           <p className="text-xs text-muted-foreground mb-4">
             Statistics sources can be FlatGeobuf or GeoJSON format
           </p>
-          <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Your First Statistics Source
-          </Button>
         </div>}
+
+      <div className="flex items-center justify-end pt-2">
+        <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Add Statistics Source
+        </Button>
+      </div>
     </div>;
 }
