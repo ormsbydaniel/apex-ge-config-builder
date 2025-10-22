@@ -26,8 +26,7 @@ export function DataSourcesTab({
     statistics: [] // Empty statistics to prevent them showing in data tab
   };
   return <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Sources</h3>
+      <div className="flex items-center justify-end">
         <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
           <Plus className="h-4 w-4" />
           Add Data Source
