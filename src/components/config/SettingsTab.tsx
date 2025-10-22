@@ -260,7 +260,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               ) : (
                 <div className="flex justify-center border rounded-lg p-4 min-h-[80px] bg-[#2d5f72]">
                   {config.layout.navigation.logo ? (
-                    <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
+                    <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 w-[20%] object-contain" onError={e => {
                       e.currentTarget.style.display = 'none';
                     }} />
                   ) : (
