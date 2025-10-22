@@ -40,6 +40,7 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
           // Check for TIME dimension
           const timeDimension = layer.querySelector('Dimension[name="time"], Dimension[name="TIME"]');
           const hasTimeDimension = !!timeDimension;
+          const defaultTime = timeDimension?.getAttribute('default') || undefined;
           
           // Only add layers that have a Name element (actual layers, not layer groups)
           if (nameElement?.textContent) {
@@ -47,7 +48,8 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
               name: nameElement.textContent,
               title: titleElement?.textContent || nameElement.textContent,
               abstract: abstractElement?.textContent,
-              hasTimeDimension
+              hasTimeDimension,
+              defaultTime
             });
           }
         });
@@ -61,13 +63,17 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
           // Check for TIME dimension in WMTS - improved detection
           const timeDimension = layer.querySelector('Dimension > ows\\:Identifier, Dimension > Identifier');
           const hasTimeDimension = timeDimension?.textContent?.toUpperCase() === 'TIME';
+          const defaultTime = hasTimeDimension 
+            ? layer.querySelector('Dimension > ows\\:Default, Dimension > Default')?.textContent || undefined
+            : undefined;
           
           if (identifier?.textContent) {
             layers.push({
               name: identifier.textContent,
               title: title?.textContent || identifier.textContent,
               abstract: abstract?.textContent,
-              hasTimeDimension
+              hasTimeDimension,
+              defaultTime
             });
           }
         });

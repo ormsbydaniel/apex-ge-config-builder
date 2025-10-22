@@ -183,16 +183,28 @@ const WmsWmtsMetadataDialog = ({
                             </tr>
                           )}
                           {layer.hasTimeDimension && (
-                            <tr className="hover:bg-muted/50">
-                              <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
-                                Temporal Dimension
-                              </td>
-                              <td className="py-2 px-3 text-sm">
-                                <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                                  Available
-                                </Badge>
-                              </td>
-                            </tr>
+                            <>
+                              <tr className="border-b hover:bg-muted/50">
+                                <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                  Temporal Dimension
+                                </td>
+                                <td className="py-2 px-3 text-sm">
+                                  <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                    Available
+                                  </Badge>
+                                </td>
+                              </tr>
+                              {layer.defaultTime && (
+                                <tr className="hover:bg-muted/50">
+                                  <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                    Default Timestamp
+                                  </td>
+                                  <td className="py-2 px-3 text-sm font-mono">
+                                    {layer.defaultTime}
+                                  </td>
+                                </tr>
+                              )}
+                            </>
                           )}
                         </tbody>
                       </table>
