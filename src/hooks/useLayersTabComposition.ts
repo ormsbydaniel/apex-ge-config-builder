@@ -116,9 +116,12 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     },
 
     handleEditDataSource: (layerIndex: number, dataSourceIndex: number) => {
+      console.log('[useLayersTabComposition] handleEditDataSource called with:', { layerIndex, dataSourceIndex });
       const layer = config.sources[layerIndex];
+      console.log('[useLayersTabComposition] Found layer:', layer?.name);
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
+      console.log('[useLayersTabComposition] Calling handleStartEditDataSource with cardId:', cardId);
       
       layerState.handleStartEditDataSource(layerIndex, dataSourceIndex, cardId);
     }
