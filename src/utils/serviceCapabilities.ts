@@ -42,6 +42,22 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
           const hasTimeDimension = !!timeDimension;
           const defaultTime = timeDimension?.getAttribute('default') || undefined;
           
+          // Extract CRS/EPSG codes
+          const crsElements = layer.querySelectorAll('CRS');
+          const crsList = Array.from(crsElements).map(el => el.textContent).filter(Boolean);
+          
+          // Extract bounding box
+          const bboxElement = layer.querySelector('EX_GeographicBoundingBox');
+          let bbox = undefined;
+          if (bboxElement) {
+            bbox = {
+              west: bboxElement.querySelector('westBoundLongitude')?.textContent,
+              east: bboxElement.querySelector('eastBoundLongitude')?.textContent,
+              south: bboxElement.querySelector('southBoundLatitude')?.textContent,
+              north: bboxElement.querySelector('northBoundLatitude')?.textContent
+            };
+          }
+          
           // Only add layers that have a Name element (actual layers, not layer groups)
           if (nameElement?.textContent) {
             layers.push({
@@ -49,7 +65,9 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
               title: titleElement?.textContent || nameElement.textContent,
               abstract: abstractElement?.textContent,
               hasTimeDimension,
-              defaultTime
+              defaultTime,
+              crs: crsList.length > 0 ? crsList : undefined,
+              bbox
             });
           }
         });
@@ -67,13 +85,35 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
             ? layer.querySelector('Dimension > ows\\:Default, Dimension > Default')?.textContent || undefined
             : undefined;
           
+          // Extract TileMatrixSet (CRS info)
+          const tileMatrixSetElements = layer.querySelectorAll('TileMatrixSetLink > TileMatrixSet');
+          const crsList = Array.from(tileMatrixSetElements).map(el => el.textContent).filter(Boolean);
+          
+          // Extract WGS84 bounding box
+          const bboxElement = layer.querySelector('ows\\:WGS84BoundingBox, WGS84BoundingBox');
+          let bbox = undefined;
+          if (bboxElement) {
+            const lowerCorner = bboxElement.querySelector('ows\\:LowerCorner, LowerCorner')?.textContent?.split(' ');
+            const upperCorner = bboxElement.querySelector('ows\\:UpperCorner, UpperCorner')?.textContent?.split(' ');
+            if (lowerCorner && upperCorner) {
+              bbox = {
+                west: lowerCorner[0],
+                south: lowerCorner[1],
+                east: upperCorner[0],
+                north: upperCorner[1]
+              };
+            }
+          }
+          
           if (identifier?.textContent) {
             layers.push({
               name: identifier.textContent,
               title: title?.textContent || identifier.textContent,
               abstract: abstract?.textContent,
               hasTimeDimension,
-              defaultTime
+              defaultTime,
+              crs: crsList.length > 0 ? crsList : undefined,
+              bbox
             });
           }
         });

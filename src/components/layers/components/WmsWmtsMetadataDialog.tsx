@@ -195,7 +195,7 @@ const WmsWmtsMetadataDialog = ({
                                 </td>
                               </tr>
                               {layer.defaultTime && (
-                                <tr className="hover:bg-muted/50">
+                                <tr className="border-b hover:bg-muted/50">
                                   <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
                                     Default Timestamp
                                   </td>
@@ -205,6 +205,37 @@ const WmsWmtsMetadataDialog = ({
                                 </tr>
                               )}
                             </>
+                          )}
+                          {layer.crs && layer.crs.length > 0 && (
+                            <tr className="border-b hover:bg-muted/50">
+                              <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                Coordinate Systems
+                              </td>
+                              <td className="py-2 px-3 text-sm">
+                                <div className="flex flex-wrap gap-1">
+                                  {layer.crs.map((crs: string, idx: number) => (
+                                    <Badge key={idx} variant="outline" className="text-xs font-mono">
+                                      {crs}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                          {layer.bbox && (
+                            <tr className="hover:bg-muted/50">
+                              <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                Bounding Box
+                              </td>
+                              <td className="py-2 px-3 text-sm font-mono text-xs">
+                                <div className="grid grid-cols-2 gap-1">
+                                  <div>West: {layer.bbox.west}</div>
+                                  <div>East: {layer.bbox.east}</div>
+                                  <div>South: {layer.bbox.south}</div>
+                                  <div>North: {layer.bbox.north}</div>
+                                </div>
+                              </td>
+                            </tr>
                           )}
                         </tbody>
                       </table>
