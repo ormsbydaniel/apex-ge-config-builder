@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { DataSource, Service } from '@/types/config';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Edit, Info } from 'lucide-react';
+import { Plus, Trash2, Edit, Info, Copy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import CogMetadataDialog from './CogMetadataDialog';
+import { toast } from 'sonner';
 
 interface ConstraintSourcesTabProps {
   source: DataSource;
@@ -28,12 +29,22 @@ export function ConstraintSourcesTab({
   const [metadataDialogIndex, setMetadataDialogIndex] = useState<number | null>(null);
   const hasConstraints = source.constraints && source.constraints.length > 0;
 
+  const handleCopyUrl = async (url: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('URL copied to clipboard');
+    } catch (err) {
+      toast.error('Failed to copy URL');
+    }
+  };
+
   return <div className="space-y-4">
       {hasConstraints ? <div className="space-y-3">
           {source.constraints.map((constraint, index) => <Card key={index}>
               <CardContent className="pt-4">
                 <div className="space-y-2">
-                  {/* Line 1: Data type Pill, File Name (hover full), Info button, Edit, Delete */}
+                  {/* Line 1: Data type Pill, File Name (hover full), Right-aligned icons: Info | Copy | Edit | Delete */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <Badge variant="outline" className="text-xs shrink-0">
@@ -51,23 +62,44 @@ export function ConstraintSourcesTab({
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
                       {constraint.format?.toLowerCase() === 'cog' && constraint.url && (
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => setMetadataDialogIndex(index)}
-                          className="h-6 w-6 p-0 shrink-0"
+                          className="h-8 w-8 p-0"
                           title="View COG Metadata"
                         >
-                          <Info className="h-3 w-3" />
+                          <Info className="h-4 w-4" />
                         </Button>
                       )}
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                      <Button variant="ghost" size="sm" onClick={() => onEdit(layerIndex, index)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => handleCopyUrl(constraint.url, e)}
+                        className="h-8 w-8 p-0"
+                        title="Copy URL"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => onEdit(layerIndex, index)}
+                        className="h-8 w-8 p-0"
+                        title="Edit Constraint"
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => onRemove(layerIndex, index)} className="text-destructive hover:text-destructive">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => onRemove(layerIndex, index)} 
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        title="Delete Constraint"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
