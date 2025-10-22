@@ -315,12 +315,14 @@ export const useLayerOperations = ({
     handleDataSourceComplete();
   }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
 
-  const handleStatisticsLayerAdded = useCallback((statisticsItem: any) => {
+  const handleStatisticsLayerAdded = useCallback((statisticsItem: any | any[]) => {
     if (selectedLayerIndex !== null) {
       const layer = config.sources[selectedLayerIndex];
+      // Handle both single and array of statistics items
+      const itemsToAdd = Array.isArray(statisticsItem) ? statisticsItem : [statisticsItem];
       const updatedLayer = {
         ...layer,
-        statistics: [...(layer.statistics || []), statisticsItem]
+        statistics: [...(layer.statistics || []), ...itemsToAdd]
       };
       updateLayer(selectedLayerIndex, updatedLayer);
       

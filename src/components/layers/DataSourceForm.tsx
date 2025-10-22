@@ -28,7 +28,7 @@ interface DataSourceFormProps {
   layerType?: LayerTypeOption;
   timeframe?: TimeframeType;
   onAddDataSource: (dataSource: DataSourceItem | DataSourceItem[]) => void;
-  onAddStatisticsLayer: (statisticsItem: DataSourceItem) => void;
+  onAddStatisticsLayer: (statisticsItem: DataSourceItem | DataSourceItem[]) => void;
   onAddService: (service: Service) => void;
   onCancel: () => void;
   allowedFormats?: DataSourceFormat[]; // Optional format restriction
@@ -243,10 +243,8 @@ const DataSourceForm = ({
       
       // Add all data sources based on type
       if (shouldAddAsStatistics) {
-        // Add each statistics source individually
-        dataSourceItems.forEach(item => {
-          onAddStatisticsLayer(item);
-        });
+        // Add all statistics sources in a single batch operation
+        onAddStatisticsLayer(dataSourceItems);
         
         toast({
           title: "Statistics Sources Added",
