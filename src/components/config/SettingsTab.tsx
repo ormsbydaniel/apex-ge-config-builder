@@ -296,29 +296,31 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               )}
             </div>
 
-            {/* Theme Colors */}
-            <div className="mt-6">
-              <div className="grid grid-cols-4 gap-6">
+            {/* Colour Scheme */}
+            <div className="space-y-3 mt-6">
+              <h3 className="text-lg font-semibold">Colour Scheme</h3>
+              
+              <div className="grid gap-6" style={{ gridTemplateColumns: 'auto 1fr 1fr 1fr' }}>
                 {/* Interface Area */}
                 <div className="space-y-3">
-                  <h4 className="font-medium">Interface Area</h4>
+                  <h4 className="text-sm font-medium">Interface Area</h4>
                   
                   <div className="space-y-2">
                     <div className="h-10 flex items-center">
-                      <Label className="font-medium">Title & menu 1</Label>
+                      <Label className="font-medium whitespace-nowrap">Title & menu 1</Label>
                     </div>
                     <div className="h-10 flex items-center">
-                      <Label className="font-medium">Menu 2</Label>
+                      <Label className="font-medium whitespace-nowrap">Menu 2</Label>
                     </div>
                     <div className="h-10 flex items-center">
-                      <Label className="font-medium">Background</Label>
+                      <Label className="font-medium whitespace-nowrap">Background</Label>
                     </div>
                   </div>
                 </div>
 
                 {/* Background Colours */}
                 <div className="space-y-3">
-                  <h4 className="font-medium">Background Colours</h4>
+                  <h4 className="text-sm font-medium">Background Colours</h4>
                   
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -391,7 +393,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
                 {/* Font Colours */}
                 <div className="space-y-3">
-                  <h4 className="font-medium">Font Colours</h4>
+                  <h4 className="text-sm font-medium">Font Colours</h4>
                   
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -444,7 +446,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
                 {/* Previews */}
                 <div className="space-y-3">
-                  <h4 className="font-medium">Previews</h4>
+                  <h4 className="text-sm font-medium">Previews</h4>
                   
                   <div className="space-y-2">
                     <div className="h-10 flex items-center">
