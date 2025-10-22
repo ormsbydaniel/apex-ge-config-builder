@@ -62,6 +62,7 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     selectedLayerIndex: layerState.selectedLayerIndex,
     handleLayerCreated: layerState.handleLayerCreated,
     handleDataSourceComplete: layerState.handleDataSourceComplete,
+    handleConstraintComplete: layerState.handleConstraintComplete,
     // Pass through the actual state setters from props instead of using internal state
     setShowLayerForm: setShowLayerForm,
     setSelectedLayerType: setSelectedLayerType,

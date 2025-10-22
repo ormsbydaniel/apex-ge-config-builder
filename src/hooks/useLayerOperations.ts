@@ -34,6 +34,7 @@ interface UseLayerOperationsProps {
   selectedLayerIndex?: number | null;
   handleLayerCreated?: (groupName: string, layerIndex: number) => void;
   handleDataSourceComplete?: () => void;
+  handleConstraintComplete?: () => void;
   // External state setters (optional - if not provided, will use internal state)
   setShowLayerForm?: (show: boolean) => void;
   setSelectedLayerType?: (type: LayerType | null) => void;
@@ -51,6 +52,7 @@ export const useLayerOperations = ({
   selectedLayerIndex = null,
   handleLayerCreated = () => {},
   handleDataSourceComplete = () => {},
+  handleConstraintComplete = () => {},
   // External state setters
   setShowLayerForm: externalSetShowLayerForm,
   setSelectedLayerType: externalSetSelectedLayerType,
@@ -346,8 +348,8 @@ export const useLayerOperations = ({
       const groupName = layer.layout?.interfaceGroup || 'ungrouped';
       handleLayerCreated(groupName, selectedLayerIndex);
     }
-    handleDataSourceComplete();
-  }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
+    handleConstraintComplete();
+  }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleConstraintComplete]);
 
   const handleStartConstraintForm = useCallback((layerIndex: number) => {
     // This will be overridden by the composition layer if needed
