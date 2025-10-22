@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle, Eye, Copy, ArrowLeft } from 'lucide-react';
+import { Loader2, AlertCircle, Eye, Copy, ArrowLeft, ZoomIn, ZoomOut } from 'lucide-react';
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
 import { DataSourceFormat, DataSourceLayout } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +41,7 @@ const WmsWmtsMetadataDialog = ({
   const [viewMode, setViewMode] = useState<'details' | 'legend'>('details');
   const [selectedLegendUrl, setSelectedLegendUrl] = useState<string | null>(null);
   const [legendLoading, setLegendLoading] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
     if (isOpen && url) {
@@ -48,6 +49,7 @@ const WmsWmtsMetadataDialog = ({
       // Reset view mode when dialog opens
       setViewMode('details');
       setSelectedLegendUrl(null);
+      setIsZoomed(false);
     }
   }, [isOpen, url]);
 
@@ -81,6 +83,11 @@ const WmsWmtsMetadataDialog = ({
   const handleBackToDetails = () => {
     setViewMode('details');
     setSelectedLegendUrl(null);
+    setIsZoomed(false);
+  };
+
+  const toggleZoom = () => {
+    setIsZoomed(!isZoomed);
   };
 
   const handleCopyToConfig = (legendUrl: string) => {
@@ -130,16 +137,36 @@ const WmsWmtsMetadataDialog = ({
         <DialogHeader>
           <DialogTitle>
             {viewMode === 'legend' ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleBackToDetails}
+                    className="h-8 w-8 p-0"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  Legend Graphic
+                </div>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  onClick={handleBackToDetails}
-                  className="h-8 w-8 p-0"
+                  onClick={toggleZoom}
+                  className="h-8 gap-2"
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  {isZoomed ? (
+                    <>
+                      <ZoomOut className="h-4 w-4" />
+                      Fit to View
+                    </>
+                  ) : (
+                    <>
+                      <ZoomIn className="h-4 w-4" />
+                      Full Size
+                    </>
+                  )}
                 </Button>
-                Legend Graphic
               </div>
             ) : (
               `${format.toUpperCase()} GetCapabilities`
@@ -155,12 +182,15 @@ const WmsWmtsMetadataDialog = ({
         {/* Legend View Mode */}
         {viewMode === 'legend' && selectedLegendUrl && (
           <div className="space-y-4">
-            <div className="border rounded-lg overflow-hidden bg-muted/20 flex items-center justify-center" style={{ maxHeight: 'calc(80vh - 200px)' }}>
+            <div 
+              className={`border rounded-lg bg-muted/20 ${isZoomed ? 'overflow-auto' : 'overflow-hidden flex items-center justify-center'}`}
+              style={isZoomed ? { maxHeight: 'calc(80vh - 200px)' } : { maxHeight: 'calc(80vh - 200px)' }}
+            >
               <img 
                 src={selectedLegendUrl} 
                 alt="Legend Graphic"
-                className="max-w-full max-h-full object-contain"
-                style={{ maxHeight: 'calc(80vh - 200px)' }}
+                className={isZoomed ? 'w-auto h-auto' : 'max-w-full max-h-full object-contain'}
+                style={isZoomed ? {} : { maxHeight: 'calc(80vh - 200px)' }}
                 onLoad={() => setLegendLoading(false)}
                 onError={() => {
                   setLegendLoading(false);
