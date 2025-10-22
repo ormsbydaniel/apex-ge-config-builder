@@ -298,7 +298,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
             {/* Theme Colors */}
             <div className="space-y-3 mt-6">
-              <h4 className="font-medium">Theme Colors</h4>
+              <h4 className="font-medium">Background Colours</h4>
               
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
