@@ -305,7 +305,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   
                   <div className="space-y-2">
                     <div className="h-10 flex items-center">
-                      <Label className="font-medium">Menu 1</Label>
+                      <Label className="font-medium">Title & menu 1</Label>
                     </div>
                     <div className="h-10 flex items-center">
                       <Label className="font-medium">Menu 2</Label>
