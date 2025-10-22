@@ -155,11 +155,12 @@ const WmsWmtsMetadataDialog = ({
         {/* Legend View Mode */}
         {viewMode === 'legend' && selectedLegendUrl && (
           <div className="space-y-4">
-            <div className="border rounded-lg overflow-hidden bg-muted/20">
+            <div className="border rounded-lg overflow-hidden bg-muted/20 flex items-center justify-center" style={{ maxHeight: 'calc(80vh - 200px)' }}>
               <img 
                 src={selectedLegendUrl} 
                 alt="Legend Graphic"
-                className="w-full h-auto"
+                className="max-w-full max-h-full object-contain"
+                style={{ maxHeight: 'calc(80vh - 200px)' }}
                 onLoad={() => setLegendLoading(false)}
                 onError={() => {
                   setLegendLoading(false);
