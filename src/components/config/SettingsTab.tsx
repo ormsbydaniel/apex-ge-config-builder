@@ -239,7 +239,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             <h3 className="text-lg font-semibold">Branding Settings</h3>
             
             <div className="space-y-1">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <span className="font-medium">Logo:</span>
                 <Button size="sm" variant="ghost" onClick={() => setIsEditingLogo(true)} className="h-6 w-6 p-0">
                   <Edit className="h-3 w-3" />
