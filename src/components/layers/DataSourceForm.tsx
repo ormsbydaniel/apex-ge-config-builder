@@ -92,6 +92,9 @@ const DataSourceForm = ({
     statisticsLevel
   } = useStatisticsLayer(currentLayerStatistics);
   
+  // Manual statistics level input (when isAddingStatistics is true)
+  const [manualStatisticsLevel, setManualStatisticsLevel] = useState<number>(statisticsLevel);
+  
   // Removed new service form state - services should be added via Services menu
   
   // Date picker state for temporal layers
@@ -334,23 +337,27 @@ const DataSourceForm = ({
       return;
     }
 
+    // Determine if this should be treated as a statistics source
+    const shouldAddAsStatistics = isAddingStatistics || (isStatisticsLayer && supportsStatistics);
+    const levelToUse = isAddingStatistics ? manualStatisticsLevel : statisticsLevel;
+
     const dataSourceItem: DataSourceItem = {
       url,
       format: selectedFormat,
       zIndex,
       ...(layers && { layers }),
       ...(needsPosition && selectedPosition && { position: selectedPosition }),
-      ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel }),
+      ...(shouldAddAsStatistics && { level: levelToUse }),
       ...(needsManualTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] }),
       ...(isWmsOrWmts && useTimeParameter && { useTimeParameter: true })
     };
 
     // Call appropriate callback based on statistics layer flag
-    if (isStatisticsLayer && supportsStatistics) {
+    if (shouldAddAsStatistics) {
       onAddStatisticsLayer(dataSourceItem);
       toast({
-        title: "Statistics Layer Added",
-        description: `${selectedFormat.toUpperCase()} statistics layer (level ${statisticsLevel}) has been added.`,
+        title: "Statistics Source Added",
+        description: `${selectedFormat.toUpperCase()} statistics source (level ${levelToUse}) has been added.`,
       });
     } else {
       onAddDataSource(dataSourceItem);
@@ -590,6 +597,28 @@ const DataSourceForm = ({
                   </div>
                 )}
 
+                {/* Statistics Level Input - shown when explicitly adding statistics */}
+                {isAddingStatistics && (
+                  <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                    <Label htmlFor="directStatisticsLevel" className="font-medium text-blue-700 dark:text-blue-300">
+                      Statistics Level *
+                    </Label>
+                    <Input
+                      id="directStatisticsLevel"
+                      name="directStatisticsLevel"
+                      type="number"
+                      value={manualStatisticsLevel}
+                      onChange={(e) => setManualStatisticsLevel(parseInt(e.target.value) || 0)}
+                      min="0"
+                      max="100"
+                      autoComplete="off"
+                    />
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      Recommended: {statisticsLevel} (next available level)
+                    </p>
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <Label htmlFor="directUrl">Data Source URL *</Label>
                   <Input
@@ -794,6 +823,28 @@ const DataSourceForm = ({
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* Statistics Level Input - shown when explicitly adding statistics */}
+                {isAddingStatistics && (
+                  <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                    <Label htmlFor="serviceStatisticsLevel" className="font-medium text-blue-700 dark:text-blue-300">
+                      Statistics Level *
+                    </Label>
+                    <Input
+                      id="serviceStatisticsLevel"
+                      name="serviceStatisticsLevel"
+                      type="number"
+                      value={manualStatisticsLevel}
+                      onChange={(e) => setManualStatisticsLevel(parseInt(e.target.value) || 0)}
+                      min="0"
+                      max="100"
+                      autoComplete="off"
+                    />
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      Recommended: {statisticsLevel} (next available level)
+                    </p>
                   </div>
                 )}
 
