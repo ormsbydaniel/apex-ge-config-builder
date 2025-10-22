@@ -29,7 +29,7 @@ interface LayersTabContextValue {
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onAddStatisticsSource: (layerIndex: number) => void;
-  onAddConstraintSource?: (layerIndex: number, constraint: ConstraintSourceItem) => void;
+  onAddConstraintSource?: (layerIndex: number) => void;
 }
 
 const LayersTabContext = createContext<LayersTabContextValue | null>(null);

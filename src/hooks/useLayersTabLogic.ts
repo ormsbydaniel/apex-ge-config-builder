@@ -54,6 +54,8 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     selectedLayerIndex,
     canceledLayerIndex,
     isAddingStatistics,
+    showConstraintForm,
+    isAddingConstraint,
     expandedLayerAfterDataSource,
     expandedLayerAfterCreation,
     expandedLayerAfterEdit,
@@ -64,6 +66,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     clearExpandedGroup,
     clearCanceledLayerIndex,
     handleStartDataSourceFormWithExpansion,
+    handleStartConstraintFormWithExpansion,
     ...restLogic
   } = composedLogic;
 
@@ -175,12 +178,15 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     showDataSourceForm,
     selectedLayerIndex,
     isAddingStatistics,
+    showConstraintForm,
+    isAddingConstraint,
     expandedLayerAfterCreation,
     expandedLayerAfterEdit,
     expandedGroupAfterAction,
     expandedLayers,
     onToggleLayer,
     handleStartDataSourceFormWithExpansion,
+    handleStartConstraintFormWithExpansion,
     clearExpandedLayerAfterCreation,
     clearExpandedLayerAfterEdit,
     clearExpandedGroup,

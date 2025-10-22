@@ -349,6 +349,15 @@ export const useLayerOperations = ({
     handleDataSourceComplete();
   }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
 
+  const handleStartConstraintForm = useCallback((layerIndex: number) => {
+    // This will be overridden by the composition layer if needed
+    console.log('Starting constraint form for layer:', layerIndex);
+  }, []);
+
+  const handleCancelConstraintForm = useCallback(() => {
+    handleDataSourceComplete();
+  }, [handleDataSourceComplete]);
+
   // === LAYER ACTIONS ===
 
   const layerActionHandlers = useMemo(() => {
@@ -410,6 +419,8 @@ export const useLayerOperations = ({
     handleDataSourceAdded,
     handleStatisticsLayerAdded,
     handleConstraintSourceAdded,
+    handleStartConstraintForm,
+    handleCancelConstraintForm,
     
     // Layer actions (from utility)
     ...layerActionHandlers

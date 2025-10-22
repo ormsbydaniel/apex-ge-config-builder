@@ -1,4 +1,4 @@
-import { DataSource, Service, DataSourceMeta, DataSourceLayout, ConstraintSourceItem } from '@/types/config';
+import { DataSource, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataSourcesTab } from './DataSourcesTab';
 import { StatisticsSourcesTab } from './StatisticsSourcesTab';
@@ -12,7 +12,7 @@ interface LayerCardTabsProps {
   layerIndex: number;
   onAddDataSource: (layerIndex: number) => void;
   onAddStatisticsSource: (layerIndex: number) => void;
-  onAddConstraintSource?: (layerIndex: number, constraint: ConstraintSourceItem) => void;
+  onAddConstraintSource?: (layerIndex: number) => void;
   onAddWorkflow: (layerIndex: number) => void;
   onRemoveDataSource: (layerIndex: number, dataIndex: number) => void;
   onRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;

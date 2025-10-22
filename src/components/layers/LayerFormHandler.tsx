@@ -1,13 +1,15 @@
 
 import React from 'react';
-import { DataSource } from '@/types/config';
+import { DataSource, ConstraintSourceItem } from '@/types/config';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import LayerFormContainer from './LayerFormContainer';
 import DataSourceForm from './DataSourceForm';
+import ConstraintSourceForm from './components/ConstraintSourceForm';
 
 interface LayerFormHandlerProps {
   showLayerForm: boolean;
   showDataSourceForm: boolean;
+  showConstraintForm?: boolean;
   selectedLayerType: any;
   selectedLayerIndex: number | null;
   interfaceGroups: string[];
@@ -16,18 +18,22 @@ interface LayerFormHandlerProps {
   config: { sources: DataSource[]; exclusivitySets?: string[] };
   defaultInterfaceGroup?: string;
   isAddingStatistics?: boolean;
+  isAddingConstraint?: boolean;
   onSelectType: (type: any) => void;
   onLayerSaved: (layer: DataSource) => void;
   onLayerFormCancel: () => void;
   onDataSourceAdded: (dataSource: any) => void;
   onStatisticsLayerAdded: (statisticsItem: any) => void;
+  onConstraintSourceAdded?: (constraint: ConstraintSourceItem | ConstraintSourceItem[]) => void;
   onDataSourceCancel: () => void;
+  onConstraintFormCancel?: () => void;
   onAddService: (service: any) => void;
 }
 
 const LayerFormHandler = ({
   showLayerForm,
   showDataSourceForm,
+  showConstraintForm = false,
   selectedLayerType,
   selectedLayerIndex,
   interfaceGroups,
@@ -36,12 +42,15 @@ const LayerFormHandler = ({
   config,
   defaultInterfaceGroup,
   isAddingStatistics = false,
+  isAddingConstraint = false,
   onSelectType,
   onLayerSaved,
   onLayerFormCancel,
   onDataSourceAdded,
   onStatisticsLayerAdded,
+  onConstraintSourceAdded,
   onDataSourceCancel,
+  onConstraintFormCancel,
   onAddService
 }: LayerFormHandlerProps) => {
   if (showLayerForm) {
@@ -95,6 +104,25 @@ const LayerFormHandler = ({
         onCancel={onDataSourceCancel}
         allowedFormats={isAddingStatistics ? ['flatgeobuf', 'geojson'] : undefined}
         isAddingStatistics={isAddingStatistics}
+      />
+    );
+  }
+
+  if (showConstraintForm && selectedLayerIndex !== null) {
+    console.log('LayerFormHandler: showConstraintForm=true, selectedLayerIndex=', selectedLayerIndex);
+    const currentLayer = config.sources[selectedLayerIndex];
+    
+    if (!currentLayer) {
+      console.error('No layer found at index:', selectedLayerIndex);
+      return null;
+    }
+    
+    return (
+      <ConstraintSourceForm
+        services={services}
+        onAddConstraintSource={onConstraintSourceAdded || (() => {})}
+        onAddService={onAddService}
+        onCancel={onConstraintFormCancel || (() => {})}
       />
     );
   }
