@@ -97,7 +97,6 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
 
     handleStartConstraintFormWithExpansion: (layerIndex: number) => {
       const layer = config.sources[layerIndex];
-      console.log('Starting constraint form for layer:', layer ? layer.name : 'UNDEFINED');
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
       
