@@ -401,6 +401,15 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         }}
                         className="w-28 text-sm"
                       />
+                      <div 
+                        className="flex items-center justify-center px-4 py-2 rounded border font-medium"
+                        style={{ 
+                          color: primaryFontColor, 
+                          backgroundColor: primaryColor 
+                        }}
+                      >
+                        Text
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -424,6 +433,15 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         }}
                         className="w-28 text-sm"
                       />
+                      <div 
+                        className="flex items-center justify-center px-4 py-2 rounded border font-medium"
+                        style={{ 
+                          color: secondaryFontColor, 
+                          backgroundColor: secondaryColor 
+                        }}
+                      >
+                        Text
+                      </div>
                     </div>
                   </div>
                 </div>
