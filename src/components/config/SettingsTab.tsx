@@ -577,15 +577,21 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               </div>
 
               {/* Reset All Button */}
-              <div className="flex justify-end mt-4">
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={handleResetColors}
-                  className="w-[148px]"
-                >
-                  Reset all
-                </Button>
+              <div className="grid gap-4 mt-4" style={{ gridTemplateColumns: 'auto auto auto auto auto' }}>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleResetColors}
+                    className="w-full"
+                  >
+                    Reset all
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
