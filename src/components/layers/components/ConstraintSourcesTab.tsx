@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { extractDisplayName } from '@/utils/urlDisplay';
 
 interface ConstraintSourcesTabProps {
   source: DataSource;
@@ -26,49 +28,68 @@ export function ConstraintSourcesTab({
   return <div className="space-y-4">
       {hasConstraints ? <div className="space-y-3">
           {source.constraints.map((constraint, index) => <Card key={index}>
-              <CardContent className="pt-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-sm">{constraint.label}</h4>
-                      <Badge variant="outline" className="text-xs">
-                        {constraint.format.toUpperCase()}
-                      </Badge>
-                      <Badge variant={constraint.interactive ? 'default' : 'secondary'} className="text-xs">
+               <CardContent className="pt-4">
+                <div className="space-y-2">
+                  {/* Line 1: Constraint Name, Interactive Pill, Type Pill, Edit, Delete */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <h4 className="font-medium text-sm truncate">{constraint.label}</h4>
+                      <Badge variant={constraint.interactive ? 'default' : 'secondary'} className="text-xs shrink-0">
                         {constraint.interactive ? 'Interactive' : 'Fixed'}
                       </Badge>
-                      <Badge variant="outline" className="text-xs capitalize">
+                      <Badge variant="outline" className="text-xs capitalize shrink-0">
                         {constraint.type}
                       </Badge>
                     </div>
-                    
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div className="font-mono text-xs truncate">{constraint.url}</div>
-                      
-                      {constraint.type === 'continuous' && <div className="flex gap-4">
-                          <span>Min: {constraint.min}</span>
-                          <span>Max: {constraint.max}</span>
-                          {constraint.units && <span>Units: {constraint.units}</span>}
-                        </div>}
-                      
-                      {constraint.type === 'categorical' && constraint.constrainTo && <div>
-                          <span className="font-semibold">Categories:</span>{' '}
-                          {constraint.constrainTo.map((cat, i) => <span key={i}>
-                              {cat.label} ({cat.value})
-                              {i < constraint.constrainTo!.length - 1 ? ', ' : ''}
-                            </span>)}
-                        </div>}
+                    <div className="flex gap-2 shrink-0">
+                      <Button variant="ghost" size="sm" onClick={() => onEdit(layerIndex, index)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => onRemove(layerIndex, index)} className="text-destructive hover:text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 ml-4">
-                    <Button variant="ghost" size="sm" onClick={() => onEdit(layerIndex, index)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => onRemove(layerIndex, index)} className="text-destructive hover:text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  {/* Line 2: Data Type Pill, Data File Name */}
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs shrink-0">
+                      {constraint.format.toUpperCase()}
+                    </Badge>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-xs text-muted-foreground truncate cursor-help">
+                            {extractDisplayName(constraint.url, constraint.format)}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md break-all">
+                          <p className="text-xs">{constraint.url}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
+
+                  {/* Additional lines: Remaining details */}
+                  {constraint.type === 'continuous' && (
+                    <div className="text-xs text-muted-foreground flex gap-4">
+                      <span>Min: {constraint.min}</span>
+                      <span>Max: {constraint.max}</span>
+                      {constraint.units && <span>Units: {constraint.units}</span>}
+                    </div>
+                  )}
+                  
+                  {constraint.type === 'categorical' && constraint.constrainTo && (
+                    <div className="text-xs text-muted-foreground">
+                      <span className="font-semibold">Categories:</span>{' '}
+                      {constraint.constrainTo.map((cat, i) => (
+                        <span key={i}>
+                          {cat.label} ({cat.value})
+                          {i < constraint.constrainTo!.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>)}
