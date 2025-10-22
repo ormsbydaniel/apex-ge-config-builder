@@ -42,7 +42,8 @@ const LayersMainContent = ({
     onRemoveStatisticsSource,
     onEditDataSource,
     onEditStatisticsSource,
-    onAddStatisticsSource
+    onAddStatisticsSource,
+    onAddConstraintSource
   } = useLayersTabContext();
 
   return (
@@ -60,6 +61,7 @@ const LayersMainContent = ({
         onEditDataSource={onEditDataSource}
         onEditStatisticsSource={onEditStatisticsSource}
         onAddStatisticsSource={onAddStatisticsSource}
+        onAddConstraintSource={onAddConstraintSource}
         onMoveLayer={onMoveLayer}
         onAddLayer={layersLogic.handleAddLayerForGroup || (() => {})}
         onAddBaseLayer={layersLogic.handleAddBaseLayer}
