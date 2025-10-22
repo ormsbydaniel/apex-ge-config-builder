@@ -169,10 +169,10 @@ const ConstraintSourceForm = ({
       return;
     }
     
-    if (!label.trim()) {
+    if (interactive && !label.trim()) {
       toast({
         title: "Missing Label",
-        description: "Please provide a label for this constraint.",
+        description: "Please provide a label for interactive constraints.",
         variant: "destructive"
       });
       return;
@@ -398,10 +398,16 @@ const ConstraintSourceForm = ({
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="label">Label *</Label>
+                    <Label htmlFor="label">
+                      {interactive 
+                        ? "Label (displayed in Geospatial Explorer UI) *" 
+                        : "Label (optional, for reference)"}
+                    </Label>
                     <Input
                       id="label"
-                      placeholder="e.g., Temperature, Land Cover Type"
+                      placeholder={interactive 
+                        ? "e.g., Temperature, Land Cover Type" 
+                        : "Optional label for reference"}
                       value={label}
                       onChange={(e) => setLabel(e.target.value)}
                     />
