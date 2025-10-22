@@ -408,7 +408,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           backgroundColor: primaryColor 
                         }}
                       >
-                        Text
+                        Lorem ipsum ...
                       </div>
                     </div>
 
@@ -440,7 +440,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           backgroundColor: secondaryColor 
                         }}
                       >
-                        Text
+                        Lorem ipsum ...
                       </div>
                     </div>
                   </div>
