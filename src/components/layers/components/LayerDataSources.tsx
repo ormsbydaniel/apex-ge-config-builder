@@ -10,7 +10,7 @@ interface LayerDataSourcesProps {
 const LayerDataSources = ({ dataSources }: LayerDataSourcesProps) => {
   return (
     <div className="mt-3">
-      <span className="text-sm font-medium text-slate-600">Data Sources:</span>
+      <span className="text-sm font-medium text-slate-600">Datasets:</span>
       <div className="mt-1 space-y-1">
         {dataSources.map((dataItem, dataIndex) => (
           <div key={dataIndex} className="text-xs text-slate-500 bg-slate-50 p-2 rounded">

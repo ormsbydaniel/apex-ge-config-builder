@@ -32,21 +32,21 @@ const DataSourceDisplay = ({
   const hasDataSources = source.data && isDataSourceItemArray(source.data) && source.data.length > 0;
   const hasStatistics = source.statistics && source.statistics.length > 0;
   return <div className="space-y-4">
-      {/* Data Sources Section */}
+      {/* Datasets Section */}
       <div>
         <div className="flex items-center justify-between mb-3">
           
           {onAddDataSource && <Button variant="outline" size="sm" onClick={onAddDataSource} className="text-primary hover:bg-primary/10 border-primary/30">
               <Plus className="h-3 w-3 mr-1" />
-              Add Data Source
+              Add Dataset
             </Button>}
         </div>
 
         {hasDataSources ? <div className="space-y-2">
             {source.data.map((dataItem, index) => <DataSourceItem key={index} dataSource={dataItem} index={index} onRemove={onRemoveDataSource} showPosition={isSwipeLayer} showStatsLevel={showStatsLevelForData} timeframe={timeframe} services={services} currentMeta={source.meta} onUpdateMeta={onUpdateMeta} />)}
           </div> : <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-md border border-dashed">
-            <p className="text-sm">No data sources added yet.</p>
-            {onAddDataSource && <p className="text-xs mt-1">Click "Add Data Source" to get started.</p>}
+            <p className="text-sm">No datasets added yet.</p>
+            {onAddDataSource && <p className="text-xs mt-1">Click "Add Dataset" to get started.</p>}
           </div>}
       </div>
 

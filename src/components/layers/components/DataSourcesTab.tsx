@@ -29,17 +29,17 @@ export function DataSourcesTab({
       <div className="flex items-center justify-end">
         <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Add Data Source
+          Add Dataset
         </Button>
       </div>
 
       {hasDataSources ? <DataSourceDisplay source={dataOnlySource} services={services} onRemoveDataSource={dataIndex => onRemove(layerIndex, dataIndex)} onEditDataSource={dataIndex => onEdit(layerIndex, dataIndex)} /> : <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
-            No data sources configured yet
+            No datasets configured yet
           </p>
           <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
             <Plus className="h-4 w-4" />
-            Add Your First Data Source
+            Add Your First Dataset
           </Button>
         </div>}
     </div>;
