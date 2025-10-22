@@ -152,6 +152,28 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
     });
   };
 
+  const handleResetPrimary = () => {
+    const defaults = { primaryColor: '#003247', primaryFontColor: '#ffffff' };
+    setPrimaryColor(defaults.primaryColor);
+    setPrimaryFontColor(defaults.primaryFontColor);
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'primaryColor', value: defaults.primaryColor } });
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'primaryFontColor', value: defaults.primaryFontColor } });
+  };
+
+  const handleResetSecondary = () => {
+    const defaults = { secondaryColor: '#f3f7f8', secondaryFontColor: '#333333' };
+    setSecondaryColor(defaults.secondaryColor);
+    setSecondaryFontColor(defaults.secondaryFontColor);
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'secondaryColor', value: defaults.secondaryColor } });
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'secondaryFontColor', value: defaults.secondaryFontColor } });
+  };
+
+  const handleResetTertiary = () => {
+    const defaults = { tertiaryColor: '#335e6f' };
+    setTertiaryColor(defaults.tertiaryColor);
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'tertiaryColor', value: defaults.tertiaryColor } });
+  };
+
   const getZoomTooltip = (zoom: number): string => {
     let label = '';
     if (zoom <= 1) label = ' (Global)';
@@ -326,16 +348,9 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             <div className="space-y-3 mt-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Colour Scheme</h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleResetColors}
-                >
-                  Reset to default
-                </Button>
               </div>
               
-              <div className="grid gap-6" style={{ gridTemplateColumns: 'auto 1fr 1fr 1fr' }}>
+              <div className="grid gap-4" style={{ gridTemplateColumns: 'auto auto auto auto auto' }}>
                 {/* Colours */}
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium">Colours</h4>
@@ -367,7 +382,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryColor(e.target.value);
                           handleColorChange('primaryColor', e.target.value);
                         }}
-                        className="w-16 h-10 p-1 cursor-pointer"
+                        className="w-12 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -389,7 +404,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryColor(e.target.value);
                           handleColorChange('secondaryColor', e.target.value);
                         }}
-                        className="w-16 h-10 p-1 cursor-pointer"
+                        className="w-12 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -411,7 +426,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setTertiaryColor(e.target.value);
                           handleColorChange('tertiaryColor', e.target.value);
                         }}
-                        className="w-16 h-10 p-1 cursor-pointer"
+                        className="w-12 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -440,7 +455,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryFontColor(e.target.value);
                           handleColorChange('primaryFontColor', e.target.value);
                         }}
-                        className="w-16 h-10 p-1 cursor-pointer"
+                        className="w-12 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -462,7 +477,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryFontColor(e.target.value);
                           handleColorChange('secondaryFontColor', e.target.value);
                         }}
-                        className="w-16 h-10 p-1 cursor-pointer"
+                        className="w-12 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -519,6 +534,57 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     </div>
                   </div>
                 </div>
+
+                {/* Reset Buttons */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">Reset</h4>
+                  
+                  <div className="space-y-2">
+                    <div className="h-10 flex items-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetPrimary}
+                        className="w-full"
+                      >
+                        Reset to default
+                      </Button>
+                    </div>
+
+                    <div className="h-10 flex items-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetSecondary}
+                        className="w-full"
+                      >
+                        Reset to default
+                      </Button>
+                    </div>
+
+                    <div className="h-10 flex items-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetTertiary}
+                        className="w-full"
+                      >
+                        Reset to default
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reset All Button */}
+              <div className="flex justify-end mt-4">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleResetColors}
+                >
+                  Reset all
+                </Button>
               </div>
             </div>
           </div>
