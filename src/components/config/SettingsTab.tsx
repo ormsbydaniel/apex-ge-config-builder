@@ -298,7 +298,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
             {/* Theme Colors */}
             <div className="mt-6">
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid grid-cols-3 gap-8">
                 {/* Background Colours */}
                 <div className="space-y-3">
                   <h4 className="font-medium">Background Colours</h4>
@@ -401,15 +401,6 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         }}
                         className="w-28 text-sm"
                       />
-                      <div 
-                        className="flex items-center justify-center px-4 py-2 rounded border font-medium"
-                        style={{ 
-                          color: primaryFontColor, 
-                          backgroundColor: primaryColor 
-                        }}
-                      >
-                        Lorem ipsum ...
-                      </div>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -433,8 +424,30 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         }}
                         className="w-28 text-sm"
                       />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Previews */}
+                <div className="space-y-3">
+                  <h4 className="font-medium">Previews</h4>
+                  
+                  <div className="space-y-2">
+                    <div className="h-10 flex items-center">
                       <div 
-                        className="flex items-center justify-center px-4 py-2 rounded border font-medium"
+                        className="flex items-center justify-center px-4 py-2 rounded border font-medium w-full"
+                        style={{ 
+                          color: primaryFontColor, 
+                          backgroundColor: primaryColor 
+                        }}
+                      >
+                        Lorem ipsum ...
+                      </div>
+                    </div>
+
+                    <div className="h-10 flex items-center">
+                      <div 
+                        className="flex items-center justify-center px-4 py-2 rounded border font-medium w-full"
                         style={{ 
                           color: secondaryFontColor, 
                           backgroundColor: secondaryColor 
