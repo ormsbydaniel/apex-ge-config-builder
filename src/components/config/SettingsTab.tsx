@@ -239,7 +239,12 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             <h3 className="text-lg font-semibold">Branding Settings</h3>
             
             <div className="space-y-1">
-              <span className="font-medium">Logo:</span>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Logo:</span>
+                <Button size="sm" variant="ghost" onClick={() => setIsEditingLogo(true)} className="h-6 w-6 p-0">
+                  <Edit className="h-3 w-3" />
+                </Button>
+              </div>
               {isEditingLogo ? (
                 <div className="space-y-2">
                   <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://example.com/logo.svg" />
@@ -254,11 +259,6 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                 </div>
               ) : (
                 <div className="w-[20%]">
-                  <div className="flex justify-end mb-1">
-                    <Button size="sm" variant="ghost" onClick={() => setIsEditingLogo(true)} className="h-6 w-6 p-0">
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                  </div>
                   <div className="flex justify-center border rounded-lg p-4 min-h-[80px] bg-[#2d5f72]">
                     {config.layout.navigation.logo ? (
                       <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
