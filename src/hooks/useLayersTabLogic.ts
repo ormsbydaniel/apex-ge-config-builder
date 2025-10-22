@@ -81,11 +81,34 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   }, []); // Only run on mount
 
   useEffect(() => {
-    if (expandedLayerAfterDataSource && !showDataSourceForm) {
+    if (expandedLayerAfterDataSource && !showDataSourceForm && !showConstraintForm) {
       expandCard(expandedLayerAfterDataSource);
+      
+      // Extract layer index and scroll to it
+      const cardIdStr = String(expandedLayerAfterDataSource);
+      const parts = cardIdStr.split('-');
+      const indexPart = parts[parts.length - 1];
+      const layerIndex = parseInt(indexPart, 10);
+      
+      if (!isNaN(layerIndex)) {
+        scrollToLayer(layerIndex, expandedLayerAfterDataSource);
+        
+        // Expand the appropriate group
+        const layer = props.config.sources[layerIndex];
+        if (layer) {
+          if (layer.isBaseLayer) {
+            composedLogic.setExpandedGroupAfterAction('__BASE_LAYERS__');
+          } else if (layer.layout?.interfaceGroup) {
+            composedLogic.setExpandedGroupAfterAction(layer.layout.interfaceGroup);
+          } else {
+            composedLogic.setExpandedGroupAfterAction('__UNGROUPED__');
+          }
+        }
+      }
+      
       clearExpandedLayer();
     }
-  }, [expandedLayerAfterDataSource, showDataSourceForm, expandCard, clearExpandedLayer]);
+  }, [expandedLayerAfterDataSource, showDataSourceForm, showConstraintForm, expandCard, clearExpandedLayer, scrollToLayer, props.config.sources, composedLogic.setExpandedGroupAfterAction]);
 
   // Handle expansion after layer creation
   useEffect(() => {
