@@ -332,6 +332,23 @@ export const useLayerOperations = ({
     handleDataSourceComplete();
   }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
 
+  const handleConstraintSourceAdded = useCallback((constraintItem: any | any[]) => {
+    if (selectedLayerIndex !== null) {
+      const layer = config.sources[selectedLayerIndex];
+      // Handle both single and array of constraint items
+      const itemsToAdd = Array.isArray(constraintItem) ? constraintItem : [constraintItem];
+      const updatedLayer = {
+        ...layer,
+        constraints: [...(layer.constraints || []), ...itemsToAdd]
+      };
+      updateLayer(selectedLayerIndex, updatedLayer);
+      
+      const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+      handleLayerCreated(groupName, selectedLayerIndex);
+    }
+    handleDataSourceComplete();
+  }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
+
   // === LAYER ACTIONS ===
 
   const layerActionHandlers = useMemo(() => {
@@ -392,6 +409,7 @@ export const useLayerOperations = ({
     // Data source actions
     handleDataSourceAdded,
     handleStatisticsLayerAdded,
+    handleConstraintSourceAdded,
     
     // Layer actions (from utility)
     ...layerActionHandlers
