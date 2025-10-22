@@ -238,7 +238,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Branding Settings</h3>
             
-            <div className="space-y-3">
+            <div className="space-y-1">
               <span className="font-medium">Logo:</span>
               {isEditingLogo ? (
                 <div className="space-y-2">
