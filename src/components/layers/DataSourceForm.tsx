@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,7 @@ import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
-import { format, parse, isValid } from 'date-fns';
+import { format as formatDate, parse, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ServiceSelectionModal } from './components/ServiceSelectionModals';
 import { ServiceCardList } from './components/ServiceCardList';
@@ -119,7 +119,7 @@ const DataSourceForm = ({
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(getInitialDate());
   const [dateInputValue, setDateInputValue] = useState<string>(
-    getInitialDate() ? format(getInitialDate()!, 'dd/MM/yyyy') : ''
+    getInitialDate() ? formatDate(getInitialDate()!, 'dd/MM/yyyy') : ''
   );
   const [month, setMonth] = useState<Date>(getInitialDate() || new Date());
   const requiresTimestamp = timeframe && timeframe !== 'None';
@@ -147,6 +147,32 @@ const DataSourceForm = ({
     const newMonth = new Date(parseInt(year), month.getMonth(), 1);
     setMonth(newMonth);
   };
+
+  // Sync form state with editingDataSource when it changes
+  useEffect(() => {
+    if (editingDataSource) {
+      const dataFormat = editingDataSource.format as DataSourceFormat;
+      setSelectedFormat(dataFormat);
+      setDirectUrl(editingDataSource.url || '');
+      setDirectLayers(editingDataSource.layers || '');
+      setZIndex(editingDataSource.zIndex ?? getRecommendedZIndex(dataFormat));
+      setSelectedPosition(editingDataSource.position || (requiresPosition(layerType) ? getDefaultPosition(layerType) : undefined));
+      setManualStatisticsLevel(editingDataSource.level ?? statisticsLevel);
+      setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
+      
+      // Handle date initialization
+      if (editingDataSource.timestamps && editingDataSource.timestamps.length > 0) {
+        const date = new Date(editingDataSource.timestamps[0] * 1000);
+        setSelectedDate(date);
+        setDateInputValue(formatDate(date, 'dd/MM/yyyy'));
+        setMonth(date);
+      } else {
+        setSelectedDate(undefined);
+        setDateInputValue('');
+        setMonth(new Date());
+      }
+    }
+  }, [editingDataSource, layerType]);
 
   const CustomCaption = ({ displayMonth }: { displayMonth: Date }) => {
     return (
@@ -710,7 +736,7 @@ const DataSourceForm = ({
                                   onSelect={(date) => {
                                     setSelectedDate(date);
                                     if (date) {
-                                      setDateInputValue(format(date, 'dd/MM/yyyy'));
+                                      setDateInputValue(formatDate(date, 'dd/MM/yyyy'));
                                       setMonth(date);
                                     }
                                   }}
@@ -939,7 +965,7 @@ const DataSourceForm = ({
                                   onSelect={(date) => {
                                     setSelectedDate(date);
                                     if (date) {
-                                      setDateInputValue(format(date, 'dd/MM/yyyy'));
+                                      setDateInputValue(formatDate(date, 'dd/MM/yyyy'));
                                       setMonth(date);
                                     }
                                   }}
