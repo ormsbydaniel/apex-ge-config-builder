@@ -94,6 +94,7 @@ const LayersTabContent = ({
             onEditDataSource={onEditDataSource}
             onEditStatisticsSource={onEditStatisticsSource}
             onAddStatisticsSource={onAddStatisticsSource}
+            onAddConstraintSource={onAddConstraintSource}
             onMoveLayer={onMoveLayer}
             onAddLayer={onAddLayer}
             onAddBaseLayer={onAddBaseLayer}

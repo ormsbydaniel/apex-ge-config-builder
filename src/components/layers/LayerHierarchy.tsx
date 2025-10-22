@@ -23,6 +23,7 @@ interface LayerHierarchyProps {
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onAddStatisticsSource: (layerIndex: number) => void;
+  onAddConstraintSource?: (layerIndex: number) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddLayer: (groupName: string) => void;
   onAddBaseLayer: () => void;
@@ -54,6 +55,7 @@ const LayerHierarchy = ({
   onEditDataSource,
   onEditStatisticsSource,
   onAddStatisticsSource,
+  onAddConstraintSource,
   onMoveLayer,
   onAddLayer,
   onAddBaseLayer,
@@ -304,6 +306,7 @@ const LayerHierarchy = ({
         onEditDataSource={onEditDataSource}
         onEditStatisticsSource={onEditStatisticsSource}
         onAddStatisticsSource={onAddStatisticsSource}
+        onAddConstraintSource={onAddConstraintSource}
         onMoveLayer={onMoveLayer}
         onAddBaseLayer={onAddBaseLayer}
         onAddRecommendedBaseLayers={onAddRecommendedBaseLayers}
@@ -325,6 +328,7 @@ const LayerHierarchy = ({
           onEditDataSource={onEditDataSource}
           onEditStatisticsSource={onEditStatisticsSource}
           onAddStatisticsSource={onAddStatisticsSource}
+          onAddConstraintSource={onAddConstraintSource}
           isExpanded={expandedUngroupedLayers}
           onToggle={() => {
             const newExpanded = !expandedUngroupedLayers;

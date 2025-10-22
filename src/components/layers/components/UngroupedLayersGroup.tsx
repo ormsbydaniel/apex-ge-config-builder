@@ -22,6 +22,7 @@ interface UngroupedLayersGroupProps {
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onAddStatisticsSource: (layerIndex: number) => void;
+  onAddConstraintSource?: (layerIndex: number) => void;
   isExpanded?: boolean;
   onToggle?: () => void;
 }
@@ -39,6 +40,7 @@ const UngroupedLayersGroup = ({
   onEditDataSource,
   onEditStatisticsSource,
   onAddStatisticsSource,
+  onAddConstraintSource,
   isExpanded = false,
   onToggle
 }: UngroupedLayersGroupProps) => {
@@ -116,6 +118,7 @@ const UngroupedLayersGroup = ({
                   onEditDataSource={(dataIndex) => onEditDataSource(originalIndex, dataIndex)}
                   onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
                   onAddStatisticsSource={() => onAddStatisticsSource(originalIndex)}
+                  onAddConstraintSource={onAddConstraintSource}
                   isExpanded={isCardExpanded(`ungrouped-${originalIndex}`)}
                   onToggle={() => toggleCard(`ungrouped-${originalIndex}`)}
                 />
