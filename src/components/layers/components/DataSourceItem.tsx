@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
 import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
+import WmsWmtsMetadataDialog from './WmsWmtsMetadataDialog';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
@@ -39,6 +40,7 @@ const DataSourceItem = ({
   const { toast } = useToast();
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
+  const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
 
   const handleCopyUrl = () => {
     if (dataSource.url) {
@@ -138,6 +140,19 @@ const DataSourceItem = ({
             onClick={() => setShowFlatGeobufDialog(true)}
             className="h-6 w-6 p-0 flex-shrink-0"
             title="View FlatGeobuf Metadata"
+          >
+            <Info className="h-3 w-3" />
+          </Button>
+        )}
+        
+        {/* Info icon for WMS/WMTS layers */}
+        {(dataSource.format?.toLowerCase() === 'wms' || dataSource.format?.toLowerCase() === 'wmts') && dataSource.url && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowWmsWmtsDialog(true)}
+            className="h-6 w-6 p-0 flex-shrink-0"
+            title={`View ${dataSource.format.toUpperCase()} Capabilities`}
           >
             <Info className="h-3 w-3" />
           </Button>
@@ -255,6 +270,17 @@ const DataSourceItem = ({
           url={dataSource.url}
           open={showFlatGeobufDialog}
           onOpenChange={setShowFlatGeobufDialog}
+        />
+      )}
+      
+      {/* WMS/WMTS Capabilities Dialog */}
+      {(dataSource.format?.toLowerCase() === 'wms' || dataSource.format?.toLowerCase() === 'wmts') && dataSource.url && (
+        <WmsWmtsMetadataDialog
+          url={dataSource.url}
+          format={dataSource.format.toLowerCase() as 'wms' | 'wmts'}
+          layerName={dataSource.layers}
+          isOpen={showWmsWmtsDialog}
+          onClose={() => setShowWmsWmtsDialog(false)}
         />
       )}
     </div>
