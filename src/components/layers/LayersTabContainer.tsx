@@ -82,6 +82,8 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onEditStatisticsSource: layersLogic.handleEditStatisticsSource,
     onAddStatisticsSource,
     onAddConstraintSource,
+    onRemoveConstraintSource: layersLogic.handleRemoveConstraintSource,
+    onEditConstraintSource: layersLogic.handleEditConstraintSource,
   };
 
   return (

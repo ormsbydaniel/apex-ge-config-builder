@@ -57,6 +57,8 @@ const LayerGroup = ({
     onEditStatisticsSource,
     onAddStatisticsSource,
     onAddConstraintSource,
+    onRemoveConstraintSource,
+    onEditConstraintSource,
     onMoveLayer,
     moveLayerToTop,
     moveLayerToBottom,
@@ -163,7 +165,7 @@ const LayerGroup = ({
                   const actualIndex = sourceIndices[idx];
                   return <div key={actualIndex} className="flex items-center gap-2">
                         <div className="flex-1">
-                          <LayerCard source={source} index={actualIndex} onRemove={onRemoveLayer} onEdit={onEditLayer} onEditBaseLayer={onEditBaseLayer} onDuplicate={onDuplicateLayer} onUpdateLayer={onUpdateLayer} onAddDataSource={() => onAddDataSource(actualIndex)} onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)} onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)} onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)} onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)} onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)} onAddConstraintSource={onAddConstraintSource} isExpanded={expandedLayers.has(actualIndex)} onToggle={() => onToggleLayer(actualIndex)} />
+                          <LayerCard source={source} index={actualIndex} onRemove={onRemoveLayer} onEdit={onEditLayer} onEditBaseLayer={onEditBaseLayer} onDuplicate={onDuplicateLayer} onUpdateLayer={onUpdateLayer} onAddDataSource={() => onAddDataSource(actualIndex)} onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)} onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)} onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)} onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)} onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)} onAddConstraintSource={onAddConstraintSource} onRemoveConstraintSource={constraintIndex => onRemoveConstraintSource(actualIndex, constraintIndex)} onEditConstraintSource={constraintIndex => onEditConstraintSource(actualIndex, constraintIndex)} isExpanded={expandedLayers.has(actualIndex)} onToggle={() => onToggleLayer(actualIndex)} />
                         </div>
                         <LayerMoveControls
                           onMoveUp={() => handleMoveLayerInGroup(actualIndex, 'up')}

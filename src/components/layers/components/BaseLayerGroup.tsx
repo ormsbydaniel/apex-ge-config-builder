@@ -27,6 +27,8 @@ interface BaseLayerGroupProps {
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onAddStatisticsSource: (layerIndex: number) => void;
   onAddConstraintSource?: (layerIndex: number) => void;
+  onRemoveConstraintSource: (layerIndex: number, constraintIndex: number) => void;
+  onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddBaseLayer: () => void;
   onAddRecommendedBaseLayers: () => void;
@@ -49,6 +51,8 @@ const BaseLayerGroup = ({
   onEditStatisticsSource,
   onAddStatisticsSource,
   onAddConstraintSource,
+  onRemoveConstraintSource,
+  onEditConstraintSource,
   onMoveLayer,
   onAddBaseLayer,
   onAddRecommendedBaseLayers,
@@ -149,6 +153,8 @@ const BaseLayerGroup = ({
                       onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
                       onAddStatisticsSource={() => onAddStatisticsSource(originalIndex)}
                       onAddConstraintSource={onAddConstraintSource}
+                      onRemoveConstraintSource={(constraintIndex) => onRemoveConstraintSource(originalIndex, constraintIndex)}
+                      onEditConstraintSource={(constraintIndex) => onEditConstraintSource(originalIndex, constraintIndex)}
                       isExpanded={isCardExpanded(`base-${originalIndex}`)}
                       onToggle={() => toggleCard(`base-${originalIndex}`)}
                     />

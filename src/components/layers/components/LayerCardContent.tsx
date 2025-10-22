@@ -22,6 +22,8 @@ interface LayerCardContentProps {
   onEditStatisticsSource?: (statsIndex: number) => void;
   onAddStatisticsSource?: () => void;
   onAddConstraintSource?: (layerIndex: number) => void;
+  onRemoveConstraintSource?: (constraintIndex: number) => void;
+  onEditConstraintSource?: (constraintIndex: number) => void;
 }
 
 const LayerCardContent = ({
@@ -32,7 +34,9 @@ const LayerCardContent = ({
   onEditDataSource,
   onEditStatisticsSource,
   onAddStatisticsSource,
-  onAddConstraintSource
+  onAddConstraintSource,
+  onRemoveConstraintSource,
+  onEditConstraintSource
 }: LayerCardContentProps) => {
   const { config, dispatch } = useConfig();
   const { toast } = useToast();
@@ -142,12 +146,7 @@ const LayerCardContent = ({
           }}
           onRemoveDataSource={(_, dataIndex) => onRemoveDataSource(dataIndex)}
           onRemoveStatisticsSource={(_, statsIndex) => onRemoveStatisticsSource?.(statsIndex)}
-          onRemoveConstraintSource={() => {
-            toast({
-              title: "Coming Soon",
-              description: "Constraint removal will be available soon.",
-            });
-          }}
+          onRemoveConstraintSource={(_, constraintIndex) => onRemoveConstraintSource?.(constraintIndex)}
           onRemoveWorkflow={() => {
             toast({
               title: "Coming Soon",
@@ -156,12 +155,7 @@ const LayerCardContent = ({
           }}
           onEditDataSource={(_, dataIndex) => onEditDataSource?.(dataIndex)}
           onEditStatisticsSource={(_, statsIndex) => onEditStatisticsSource?.(statsIndex)}
-          onEditConstraintSource={() => {
-            toast({
-              title: "Coming Soon",
-              description: "Constraint editing will be available soon.",
-            });
-          }}
+          onEditConstraintSource={(_, constraintIndex) => onEditConstraintSource?.(constraintIndex)}
           onEditWorkflow={() => {
             toast({
               title: "Coming Soon",
