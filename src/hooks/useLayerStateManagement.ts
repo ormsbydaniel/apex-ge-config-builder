@@ -313,6 +313,7 @@ function layerStateReducer(
       };
 
     case 'START_EDIT_DATA_SOURCE':
+      console.log('[useLayerStateManagement reducer] START_EDIT_DATA_SOURCE action:', action);
       return {
         ...state,
         dataSourceForm: {
@@ -472,6 +473,7 @@ export const useLayerStateManagement = () => {
   }, []);
 
   const handleStartEditDataSource = useCallback((layerIndex: number, dataSourceIndex: number, layerCardId?: string) => {
+    console.log('[useLayerStateManagement] handleStartEditDataSource called with:', { layerIndex, dataSourceIndex, layerCardId });
     dispatch({ type: 'START_EDIT_DATA_SOURCE', layerIndex, dataSourceIndex });
     if (layerCardId) {
       dispatch({ type: 'SET_EXPANDED_AFTER_DATA_SOURCE', cardId: layerCardId });
