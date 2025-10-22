@@ -95,9 +95,11 @@ const LayerCardContent = ({
       <LayerControlsDisplay source={source} />
 
 
-      {/* Tabbed Sources Section - only show for non-swipe layers */}
+      {/* Data Sources Section - only show for non-swipe layers */}
       {!isSwipeLayer && (
-        <LayerCardTabs
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">Data Sources</h4>
+          <LayerCardTabs
           source={source}
           services={(config.services || []) as Service[]}
           layerIndex={sourceIndex}
@@ -144,6 +146,7 @@ const LayerCardContent = ({
             });
           }}
         />
+        </div>
       )}
 
       {/* Show swipe configuration for swipe layers */}
