@@ -350,7 +350,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                 <h3 className="text-lg font-semibold">Colour Scheme</h3>
               </div>
               
-              <div className="grid gap-4" style={{ gridTemplateColumns: 'auto auto auto auto auto' }}>
+              <div className="grid gap-3" style={{ gridTemplateColumns: 'auto auto auto auto auto' }}>
                 {/* Colours */}
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium">Colours</h4>
