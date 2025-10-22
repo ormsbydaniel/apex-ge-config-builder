@@ -15,6 +15,7 @@ const initialFormState: DataSource = {
   },
   layout: {
     interfaceGroup: '',
+    contentLocation: 'infoPanel',
     layerCard: {
       toggleable: true,
       controls: {
