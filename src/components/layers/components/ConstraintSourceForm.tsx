@@ -443,7 +443,7 @@ const ConstraintSourceForm = ({
                       ? 'Fetching...' 
                       : constraintType === 'continuous' 
                         ? 'Populate Min & Max from COG' 
-                        : 'Fetch COG Metadata & Auto-populate'}
+                        : 'Populate Categories from COG'}
                   </Button>
 
                   {/* Continuous Fields */}
