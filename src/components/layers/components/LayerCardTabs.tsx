@@ -65,7 +65,7 @@ export function LayerCardTabs({
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="data" className="mt-4">
+      <TabsContent value="data" className="mt-2">
         <DataSourcesTab
           source={source}
           services={services}
@@ -76,7 +76,7 @@ export function LayerCardTabs({
         />
       </TabsContent>
 
-      <TabsContent value="statistics" className="mt-4">
+      <TabsContent value="statistics" className="mt-2">
         <StatisticsSourcesTab
           source={source}
           services={services}
@@ -87,7 +87,7 @@ export function LayerCardTabs({
         />
       </TabsContent>
 
-      <TabsContent value="constraints" className="mt-4">
+      <TabsContent value="constraints" className="mt-2">
         <ConstraintSourcesTab
           source={source}
           layerIndex={layerIndex}
@@ -97,7 +97,7 @@ export function LayerCardTabs({
         />
       </TabsContent>
 
-      <TabsContent value="workflows" className="mt-4">
+      <TabsContent value="workflows" className="mt-2">
         <WorkflowsTab
           source={source}
           layerIndex={layerIndex}
