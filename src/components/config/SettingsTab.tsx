@@ -298,14 +298,30 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
             {/* Theme Colors */}
             <div className="mt-6">
-              <div className="grid grid-cols-3 gap-8">
+              <div className="grid grid-cols-4 gap-6">
+                {/* Interface Area */}
+                <div className="space-y-3">
+                  <h4 className="font-medium">Interface Area</h4>
+                  
+                  <div className="space-y-2">
+                    <div className="h-10 flex items-center">
+                      <Label className="font-medium">Menu 1</Label>
+                    </div>
+                    <div className="h-10 flex items-center">
+                      <Label className="font-medium">Menu 2</Label>
+                    </div>
+                    <div className="h-10 flex items-center">
+                      <Label className="font-medium">Background</Label>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Background Colours */}
                 <div className="space-y-3">
                   <h4 className="font-medium">Background Colours</h4>
                   
                   <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <Label htmlFor="primaryColor" className="w-24">Menu 1</Label>
+                    <div className="flex items-center gap-2">
                       <Input
                         id="primaryColor"
                         type="color"
@@ -323,12 +339,11 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryColor(e.target.value);
                           handleColorChange('primaryColor', e.target.value);
                         }}
-                        className="w-28 text-sm"
+                        className="flex-1 text-sm"
                       />
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <Label htmlFor="secondaryColor" className="w-24">Menu 2</Label>
+                    <div className="flex items-center gap-2">
                       <Input
                         id="secondaryColor"
                         type="color"
@@ -346,12 +361,11 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryColor(e.target.value);
                           handleColorChange('secondaryColor', e.target.value);
                         }}
-                        className="w-28 text-sm"
+                        className="flex-1 text-sm"
                       />
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <Label htmlFor="tertiaryColor" className="w-24">Background</Label>
+                    <div className="flex items-center gap-2">
                       <Input
                         id="tertiaryColor"
                         type="color"
@@ -369,7 +383,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setTertiaryColor(e.target.value);
                           handleColorChange('tertiaryColor', e.target.value);
                         }}
-                        className="w-28 text-sm"
+                        className="flex-1 text-sm"
                       />
                     </div>
                   </div>
@@ -380,8 +394,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   <h4 className="font-medium">Font Colours</h4>
                   
                   <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <Label htmlFor="primaryFontColor" className="w-24">Menu 1</Label>
+                    <div className="flex items-center gap-2">
                       <Input
                         id="primaryFontColor"
                         type="color"
@@ -399,12 +412,11 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryFontColor(e.target.value);
                           handleColorChange('primaryFontColor', e.target.value);
                         }}
-                        className="w-28 text-sm"
+                        className="flex-1 text-sm"
                       />
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <Label htmlFor="secondaryFontColor" className="w-24">Menu 2</Label>
+                    <div className="flex items-center gap-2">
                       <Input
                         id="secondaryFontColor"
                         type="color"
@@ -422,9 +434,11 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryFontColor(e.target.value);
                           handleColorChange('secondaryFontColor', e.target.value);
                         }}
-                        className="w-28 text-sm"
+                        className="flex-1 text-sm"
                       />
                     </div>
+
+                    <div className="h-10"></div>
                   </div>
                 </div>
 
@@ -456,6 +470,8 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         Lorem ipsum ...
                       </div>
                     </div>
+
+                    <div className="h-10"></div>
                   </div>
                 </div>
               </div>
