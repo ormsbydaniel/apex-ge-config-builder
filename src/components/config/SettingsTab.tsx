@@ -22,6 +22,13 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [isEditingLogo, setIsEditingLogo] = useState(false);
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   
+  // Theme colors state
+  const [primaryColor, setPrimaryColor] = useState(config.layout.theme?.primaryColor || '#3b82f6');
+  const [secondaryColor, setSecondaryColor] = useState(config.layout.theme?.secondaryColor || '#10b981');
+  const [tertiaryColor, setTertiaryColor] = useState(config.layout.theme?.tertiaryColor || '#f59e0b');
+  const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.primaryFontColor || '#1f2937');
+  const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.secondaryFontColor || '#6b7280');
+  
   // Update local state when config changes
   useEffect(() => {
     const center = config.mapConstraints?.center || [0, 0];
@@ -32,6 +39,16 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   useEffect(() => {
     setLogoUrl(config.layout.navigation.logo);
   }, [config.layout.navigation.logo]);
+
+  useEffect(() => {
+    if (config.layout.theme) {
+      setPrimaryColor(config.layout.theme.primaryColor || '#3b82f6');
+      setSecondaryColor(config.layout.theme.secondaryColor || '#10b981');
+      setTertiaryColor(config.layout.theme.tertiaryColor || '#f59e0b');
+      setPrimaryFontColor(config.layout.theme.primaryFontColor || '#1f2937');
+      setSecondaryFontColor(config.layout.theme.secondaryFontColor || '#6b7280');
+    }
+  }, [config.layout.theme]);
 
   const validateAndUpdateLatitude = (value: string) => {
     const latitude = parseFloat(value);
@@ -103,6 +120,13 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const handleCancelLogo = () => {
     setLogoUrl(config.layout.navigation.logo);
     setIsEditingLogo(false);
+  };
+
+  const handleColorChange = (field: string, value: string) => {
+    dispatch({
+      type: 'UPDATE_THEME',
+      payload: { field, value }
+    });
   };
 
   const getZoomTooltip = (zoom: number): string => {
@@ -270,6 +294,142 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Theme Colors */}
+            <div className="space-y-3 mt-6">
+              <h4 className="font-medium">Theme Colors</h4>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="primaryColor">Primary Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="primaryColor"
+                      type="color"
+                      value={primaryColor}
+                      onChange={(e) => {
+                        setPrimaryColor(e.target.value);
+                        handleColorChange('primaryColor', e.target.value);
+                      }}
+                      className="w-16 h-10 p-1 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={primaryColor}
+                      onChange={(e) => {
+                        setPrimaryColor(e.target.value);
+                        handleColorChange('primaryColor', e.target.value);
+                      }}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="secondaryColor">Secondary Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="secondaryColor"
+                      type="color"
+                      value={secondaryColor}
+                      onChange={(e) => {
+                        setSecondaryColor(e.target.value);
+                        handleColorChange('secondaryColor', e.target.value);
+                      }}
+                      className="w-16 h-10 p-1 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={secondaryColor}
+                      onChange={(e) => {
+                        setSecondaryColor(e.target.value);
+                        handleColorChange('secondaryColor', e.target.value);
+                      }}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tertiaryColor">Tertiary Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="tertiaryColor"
+                      type="color"
+                      value={tertiaryColor}
+                      onChange={(e) => {
+                        setTertiaryColor(e.target.value);
+                        handleColorChange('tertiaryColor', e.target.value);
+                      }}
+                      className="w-16 h-10 p-1 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={tertiaryColor}
+                      onChange={(e) => {
+                        setTertiaryColor(e.target.value);
+                        handleColorChange('tertiaryColor', e.target.value);
+                      }}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <h4 className="font-medium mt-4">Font Colors</h4>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="primaryFontColor">Primary Font Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="primaryFontColor"
+                      type="color"
+                      value={primaryFontColor}
+                      onChange={(e) => {
+                        setPrimaryFontColor(e.target.value);
+                        handleColorChange('primaryFontColor', e.target.value);
+                      }}
+                      className="w-16 h-10 p-1 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={primaryFontColor}
+                      onChange={(e) => {
+                        setPrimaryFontColor(e.target.value);
+                        handleColorChange('primaryFontColor', e.target.value);
+                      }}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="secondaryFontColor">Secondary Font Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="secondaryFontColor"
+                      type="color"
+                      value={secondaryFontColor}
+                      onChange={(e) => {
+                        setSecondaryFontColor(e.target.value);
+                        handleColorChange('secondaryFontColor', e.target.value);
+                      }}
+                      className="w-16 h-10 p-1 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={secondaryFontColor}
+                      onChange={(e) => {
+                        setSecondaryFontColor(e.target.value);
+                        handleColorChange('secondaryFontColor', e.target.value);
+                      }}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>

@@ -370,6 +370,13 @@ export const ConfigurationSchema = z.object({
       logo: urlOrRelativePathSchema,
       title: z.string().min(1, 'Title is required'),
     }),
+    theme: z.object({
+      primaryColor: z.string().optional(),
+      secondaryColor: z.string().optional(),
+      tertiaryColor: z.string().optional(),
+      primaryFontColor: z.string().optional(),
+      secondaryFontColor: z.string().optional(),
+    }).optional(),
   }),
   interfaceGroups: z.array(z.string()),
   exclusivitySets: z.array(z.string()),
