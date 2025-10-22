@@ -301,26 +301,26 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               <h3 className="text-lg font-semibold">Colour Scheme</h3>
               
               <div className="grid gap-6" style={{ gridTemplateColumns: 'auto 1fr 1fr 1fr' }}>
-                {/* Interface Area */}
+                {/* Colours */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium">Interface Area</h4>
+                  <h4 className="text-sm font-medium">Colours</h4>
                   
                   <div className="space-y-2">
                     <div className="h-10 flex items-center">
-                      <Label className="font-medium whitespace-nowrap">Title & menu 1</Label>
+                      <Label className="font-medium whitespace-nowrap">Primary (title & menu 1)</Label>
                     </div>
                     <div className="h-10 flex items-center">
-                      <Label className="font-medium whitespace-nowrap">Menu 2</Label>
+                      <Label className="font-medium whitespace-nowrap">Secondary (menu 2)</Label>
                     </div>
                     <div className="h-10 flex items-center">
-                      <Label className="font-medium whitespace-nowrap">Background</Label>
+                      <Label className="font-medium whitespace-nowrap">Tertiary (panel)</Label>
                     </div>
                   </div>
                 </div>
 
-                {/* Background Colours */}
+                {/* Background */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium">Background Colours</h4>
+                  <h4 className="text-sm font-medium">Background</h4>
                   
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -391,9 +391,9 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   </div>
                 </div>
 
-                {/* Font Colours */}
+                {/* Font */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium">Font Colours</h4>
+                  <h4 className="text-sm font-medium">Font</h4>
                   
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -473,7 +473,15 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                       </div>
                     </div>
 
-                    <div className="h-10"></div>
+                    <div className="h-10 flex items-center">
+                      <div 
+                        className="flex items-center justify-center px-4 py-2 rounded border w-full"
+                        style={{ 
+                          backgroundColor: tertiaryColor 
+                        }}
+                      >
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
