@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import { NavigationState } from '@/hooks/useNavigationState';
 import { LayersTabProvider } from '@/contexts/LayersTabContext';
@@ -42,13 +42,11 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
 
   // Create context value with all required properties
   const onAddDataSource = useCallback((layerIndex: number) => {
-    const cardId = `layer-${layerIndex}`;
-    layerOperations.handleStartDataSourceFormWithExpansion?.(layerIndex, cardId);
+    layersLogic.handleStartDataSourceFormWithExpansion?.(layerIndex, false);
   }, [layersLogic]);
 
   const onAddStatisticsSource = useCallback((layerIndex: number) => {
-    const cardId = `layer-${layerIndex}`;
-    layersLogic.handleStartDataSourceFormWithExpansion?.(layerIndex, cardId, true);
+    layersLogic.handleStartDataSourceFormWithExpansion?.(layerIndex, true);
   }, [layersLogic]);
 
   const contextValue = {

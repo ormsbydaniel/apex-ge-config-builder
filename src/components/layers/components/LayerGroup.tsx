@@ -55,6 +55,7 @@ const LayerGroup = ({
     onRemoveStatisticsSource,
     onEditDataSource,
     onEditStatisticsSource,
+    onAddStatisticsSource,
     onMoveLayer,
     moveLayerToTop,
     moveLayerToBottom,

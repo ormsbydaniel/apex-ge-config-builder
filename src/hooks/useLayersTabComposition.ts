@@ -85,14 +85,14 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     handleAddInterfaceGroup: interfaceGroupActions.handleAddInterfaceGroup,
     
     // Custom composed methods
-    handleStartDataSourceFormWithExpansion: (layerIndex: number) => {
+    handleStartDataSourceFormWithExpansion: (layerIndex: number, isAddingStatistics = false) => {
       
       const layer = config.sources[layerIndex];
       console.log('Layer found:', layer ? layer.name : 'UNDEFINED');
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
       
-      layerState.handleStartDataSourceForm(layerIndex, cardId);
+      layerState.handleStartDataSourceForm(layerIndex, cardId, isAddingStatistics);
     }
   };
   
