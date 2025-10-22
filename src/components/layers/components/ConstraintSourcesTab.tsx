@@ -82,7 +82,16 @@ export function ConstraintSourcesTab({
         </div>}
 
       <div className="flex items-center justify-end pt-2">
-        <Button variant="outline" size="sm" onClick={() => onAddConstraintSource(layerIndex)} className="gap-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => {
+            console.log('[ConstraintSourcesTab] Button clicked for layerIndex:', layerIndex);
+            console.log('[ConstraintSourcesTab] onAddConstraintSource:', onAddConstraintSource);
+            onAddConstraintSource(layerIndex);
+          }} 
+          className="gap-2"
+        >
           <Plus className="h-4 w-4" />
           Add Constraint Source
         </Button>

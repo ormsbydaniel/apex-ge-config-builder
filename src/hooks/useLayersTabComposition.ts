@@ -96,9 +96,12 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     },
 
     handleStartConstraintFormWithExpansion: (layerIndex: number) => {
+      console.log('[useLayersTabComposition] handleStartConstraintFormWithExpansion called with layerIndex:', layerIndex);
       const layer = config.sources[layerIndex];
+      console.log('[useLayersTabComposition] Found layer:', layer?.name);
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
+      console.log('[useLayersTabComposition] Calling handleStartConstraintForm with cardId:', cardId);
       
       layerState.handleStartConstraintForm(layerIndex, cardId, true);
     }
