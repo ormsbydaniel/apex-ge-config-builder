@@ -482,11 +482,11 @@ const ConstraintSourceForm = ({
                           />
                         </div>
                       </div>
-                      {interactive && (
-                        <p className="text-xs text-muted-foreground">
-                          Min and max values are used as the range for the interactive constraint slider
-                        </p>
-                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {interactive 
+                          ? "Min and max values are used as the range for the interactive constraint slider"
+                          : "Min and max values are the range across which the primary layer is visible"}
+                      </p>
                     </div>
                   )}
 
