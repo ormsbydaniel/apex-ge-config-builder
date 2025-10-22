@@ -582,6 +582,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   variant="default"
                   size="sm"
                   onClick={handleResetColors}
+                  className="w-[148px]"
                 >
                   Reset all
                 </Button>
