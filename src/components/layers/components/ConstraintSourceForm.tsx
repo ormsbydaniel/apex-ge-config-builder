@@ -366,21 +366,34 @@ const ConstraintSourceForm = ({
 
                 {/* After service selection - show pre-populated URL */}
                 {sourceType === 'service' && directUrl && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label>Selected COG URL</Label>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDirectUrl('')}
-                      >
-                        Change Source
-                      </Button>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Selected COG URL</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDirectUrl('')}
+                        >
+                          Change Source
+                        </Button>
+                      </div>
+                      <div className="p-3 bg-muted/50 border rounded text-sm break-all">
+                        {directUrl}
+                      </div>
                     </div>
-                    <div className="p-3 bg-muted/50 border rounded text-sm break-all">
-                      {directUrl}
-                    </div>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleFetchMetadata}
+                      disabled={!directUrl.trim() || isFetchingMetadata}
+                      className="w-full"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      {isFetchingMetadata ? 'Fetching...' : 'Fetch COG Metadata & Auto-populate'}
+                    </Button>
                   </div>
                 )}
 
