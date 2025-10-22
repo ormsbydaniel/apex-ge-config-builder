@@ -41,7 +41,7 @@ export function ConstraintSourcesTab({
 
   return <div className="space-y-4">
       {hasConstraints ? <div className="space-y-3">
-          {source.constraints.map((constraint, index) => <Card key={index}>
+          {source.constraints.map((constraint, index) => <Card key={index} className="bg-muted/50">
               <CardContent className="pt-4">
                 <div className="space-y-2">
                   {/* Line 1: Data type Pill, File Name (hover full), Right-aligned icons: Info | Copy | Edit | Delete */}
