@@ -19,13 +19,6 @@ export function ConstraintSourcesTab({
 }: ConstraintSourcesTabProps) {
   const hasConstraints = source.constraints && source.constraints.length > 0;
   return <div className="space-y-4">
-      <div className="flex items-center justify-end">
-        <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Constraint Source
-        </Button>
-      </div>
-
       {hasConstraints ? <div className="space-y-3">
           {source.constraints.map((constraint, index) => <Card key={index}>
               <CardContent className="pt-4">
@@ -81,10 +74,13 @@ export function ConstraintSourcesTab({
           <p className="text-xs text-muted-foreground mb-4">
             Constraint sources must be COG format and define continuous or categorical constraints
           </p>
-          <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Your First Constraint Source
-          </Button>
         </div>}
+
+      <div className="flex items-center justify-end pt-2">
+        <Button variant="outline" size="sm" onClick={() => onAdd(layerIndex)} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Add Constraint Source
+        </Button>
+      </div>
     </div>;
 }

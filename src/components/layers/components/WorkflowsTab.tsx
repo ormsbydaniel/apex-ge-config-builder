@@ -39,18 +39,6 @@ export function WorkflowsTab({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onAdd(layerIndex)}
-          className="gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add Workflow
-        </Button>
-      </div>
-
       {hasWorkflows ? (
         <div className="space-y-3">
           {source.workflows.map((workflow, index) => (
@@ -128,17 +116,20 @@ export function WorkflowsTab({
           <p className="text-xs text-muted-foreground mb-4">
             Workflows define processing endpoints with configurable parameters
           </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onAdd(layerIndex)}
-            className="gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Add Your First Workflow
-          </Button>
         </div>
       )}
+
+      <div className="flex items-center justify-end pt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onAdd(layerIndex)}
+          className="gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add Workflow
+        </Button>
+      </div>
     </div>
   );
 }
