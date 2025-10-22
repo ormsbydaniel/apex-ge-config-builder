@@ -378,24 +378,24 @@ const ConstraintSourceForm = ({
                   </div>
                 )}
 
-                {/* Interactive Toggle */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="interactive">Interactive</Label>
-                    <Switch
-                      id="interactive"
-                      checked={interactive}
-                      onCheckedChange={setInteractive}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    If enabled, users can control this constraint in the viewer interface.
-                  </p>
-                </div>
-
                 {/* Constraint Configuration */}
                 <div className="space-y-4 pt-4 border-t">
                   <h3 className="font-medium">Constraint Configuration</h3>
+
+                  {/* Interactive Toggle */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="interactive">Interactive</Label>
+                      <Switch
+                        id="interactive"
+                        checked={interactive}
+                        onCheckedChange={setInteractive}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      If enabled, users can control this constraint in the viewer interface.
+                    </p>
+                  </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="label">Label *</Label>
