@@ -281,7 +281,13 @@ const ConstraintSourceForm = ({
                   className={`cursor-pointer transition-colors ${
                     sourceType === 'direct' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
                   }`}
-                  onClick={() => setSourceType('direct')}
+                  onClick={() => {
+                    setSourceType('direct');
+                    // Clear directUrl if switching from service to allow manual entry
+                    if (sourceType === 'service') {
+                      setDirectUrl('');
+                    }
+                  }}
                 >
                   <CardContent className="p-4 text-center">
                     <Database className="h-6 w-6 mx-auto mb-2" />
@@ -294,7 +300,13 @@ const ConstraintSourceForm = ({
                   className={`cursor-pointer transition-colors ${
                     sourceType === 'service' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
                   }`}
-                  onClick={() => setSourceType('service')}
+                  onClick={() => {
+                    setSourceType('service');
+                    // Clear directUrl if switching from direct to allow service selection
+                    if (sourceType === 'direct') {
+                      setDirectUrl('');
+                    }
+                  }}
                 >
                   <CardContent className="p-4 text-center">
                     <Database className="h-6 w-6 mx-auto mb-2" />
@@ -305,8 +317,8 @@ const ConstraintSourceForm = ({
               </div>
             </div>
 
-            {/* Service Selection Tab */}
-            {sourceType === 'service' && (
+            {/* Service Selection - ONLY show when no URL selected yet */}
+            {sourceType === 'service' && !directUrl && (
               <div className="space-y-4">
                 <Label>Select a Service (COG, S3, or STAC)</Label>
                 <ServiceCardList
@@ -322,158 +334,183 @@ const ConstraintSourceForm = ({
               </div>
             )}
 
-            {/* Direct Connection Tab */}
-            {sourceType === 'direct' && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="url">COG URL *</Label>
-                  <Input
-                    id="url"
-                    type="url"
-                    placeholder="https://example.com/constraint.tif"
-                    value={directUrl}
-                    onChange={(e) => setDirectUrl(e.target.value)}
-                  />
-                </div>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleFetchMetadata}
-                  disabled={!directUrl.trim() || isFetchingMetadata}
-                  className="w-full"
-                >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  {isFetchingMetadata ? 'Fetching...' : 'Fetch COG Metadata & Auto-populate'}
-                </Button>
-              </div>
-            )}
-
-            {/* Constraint Configuration */}
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="font-medium">Constraint Configuration</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="label">Label *</Label>
-                <Input
-                  id="label"
-                  placeholder="e.g., Temperature, Land Cover Type"
-                  value={label}
-                  onChange={(e) => setLabel(e.target.value)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="interactive">Interactive</Label>
-                <Switch
-                  id="interactive"
-                  checked={interactive}
-                  onCheckedChange={setInteractive}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                If enabled, users can control this constraint in the viewer interface.
-              </p>
-
-              <div className="space-y-2">
-                <Label>Constraint Type *</Label>
-                <RadioGroup value={constraintType} onValueChange={(value) => setConstraintType(value as 'continuous' | 'categorical')}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="continuous" id="continuous" />
-                    <Label htmlFor="continuous" className="font-normal cursor-pointer">
-                      Continuous (e.g., temperature, elevation)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="categorical" id="categorical" />
-                    <Label htmlFor="categorical" className="font-normal cursor-pointer">
-                      Categorical (e.g., land cover classes)
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {/* Continuous Fields */}
-              {constraintType === 'continuous' && (
-                <div className="space-y-4 pl-4 border-l-2">
-                  <div className="grid grid-cols-2 gap-4">
+            {/* Configuration Fields - show for direct OR after service selection */}
+            {(sourceType === 'direct' || directUrl) && (
+              <>
+                {/* Direct URL Input - only for direct connection */}
+                {sourceType === 'direct' && (
+                  <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="min">Min Value *</Label>
+                      <Label htmlFor="url">COG URL *</Label>
                       <Input
-                        id="min"
-                        type="number"
-                        step="any"
-                        placeholder="0"
-                        value={minValue}
-                        onChange={(e) => setMinValue(e.target.value)}
+                        id="url"
+                        type="url"
+                        placeholder="https://example.com/constraint.tif"
+                        value={directUrl}
+                        onChange={(e) => setDirectUrl(e.target.value)}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="max">Max Value *</Label>
-                      <Input
-                        id="max"
-                        type="number"
-                        step="any"
-                        placeholder="100"
-                        value={maxValue}
-                        onChange={(e) => setMaxValue(e.target.value)}
-                      />
-                    </div>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleFetchMetadata}
+                      disabled={!directUrl.trim() || isFetchingMetadata}
+                      className="w-full"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      {isFetchingMetadata ? 'Fetching...' : 'Fetch COG Metadata & Auto-populate'}
+                    </Button>
                   </div>
+                )}
+
+                {/* After service selection - show pre-populated URL */}
+                {sourceType === 'service' && directUrl && (
                   <div className="space-y-2">
-                    <Label htmlFor="units">Units</Label>
-                    <Input
-                      id="units"
-                      placeholder="e.g., °C, meters, km/h"
-                      value={units}
-                      onChange={(e) => setUnits(e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Categorical Fields */}
-              {constraintType === 'categorical' && (
-                <div className="space-y-4 pl-4 border-l-2">
-                  <Label>Categories *</Label>
-                  {constrainToValues.map((category, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        placeholder="Label"
-                        value={category.label}
-                        onChange={(e) => handleConstrainToChange(index, 'label', e.target.value)}
-                        className="flex-1"
-                      />
-                      <Input
-                        placeholder="Value"
-                        type="number"
-                        value={category.value}
-                        onChange={(e) => handleConstrainToChange(index, 'value', e.target.value)}
-                        className="w-24"
-                      />
+                    <div className="flex items-center justify-between">
+                      <Label>Selected COG URL</Label>
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveConstrainToValue(index)}
-                        disabled={constrainToValues.length === 1}
+                        size="sm"
+                        onClick={() => setDirectUrl('')}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        Change Source
                       </Button>
                     </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleAddConstrainToValue}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Category
-                  </Button>
+                    <div className="p-3 bg-muted/50 border rounded text-sm break-all">
+                      {directUrl}
+                    </div>
+                  </div>
+                )}
+
+                {/* Constraint Configuration */}
+                <div className="space-y-4 pt-4 border-t">
+                  <h3 className="font-medium">Constraint Configuration</h3>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="label">Label *</Label>
+                    <Input
+                      id="label"
+                      placeholder="e.g., Temperature, Land Cover Type"
+                      value={label}
+                      onChange={(e) => setLabel(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="interactive">Interactive</Label>
+                    <Switch
+                      id="interactive"
+                      checked={interactive}
+                      onCheckedChange={setInteractive}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    If enabled, users can control this constraint in the viewer interface.
+                  </p>
+
+                  <div className="space-y-2">
+                    <Label>Constraint Type *</Label>
+                    <RadioGroup value={constraintType} onValueChange={(value) => setConstraintType(value as 'continuous' | 'categorical')}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="continuous" id="continuous" />
+                        <Label htmlFor="continuous" className="font-normal cursor-pointer">
+                          Continuous (e.g., temperature, elevation)
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="categorical" id="categorical" />
+                        <Label htmlFor="categorical" className="font-normal cursor-pointer">
+                          Categorical (e.g., land cover classes)
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {/* Continuous Fields */}
+                  {constraintType === 'continuous' && (
+                    <div className="space-y-4 pl-4 border-l-2">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="min">Min Value *</Label>
+                          <Input
+                            id="min"
+                            type="number"
+                            step="any"
+                            placeholder="0"
+                            value={minValue}
+                            onChange={(e) => setMinValue(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="max">Max Value *</Label>
+                          <Input
+                            id="max"
+                            type="number"
+                            step="any"
+                            placeholder="100"
+                            value={maxValue}
+                            onChange={(e) => setMaxValue(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="units">Units</Label>
+                        <Input
+                          id="units"
+                          placeholder="e.g., °C, meters, km/h"
+                          value={units}
+                          onChange={(e) => setUnits(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Categorical Fields */}
+                  {constraintType === 'categorical' && (
+                    <div className="space-y-4 pl-4 border-l-2">
+                      <Label>Categories *</Label>
+                      {constrainToValues.map((category, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            placeholder="Label"
+                            value={category.label}
+                            onChange={(e) => handleConstrainToChange(index, 'label', e.target.value)}
+                            className="flex-1"
+                          />
+                          <Input
+                            placeholder="Value"
+                            type="number"
+                            value={category.value}
+                            onChange={(e) => handleConstrainToChange(index, 'value', e.target.value)}
+                            className="w-24"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveConstrainToValue(index)}
+                            disabled={constrainToValues.length === 1}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleAddConstrainToValue}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Category
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
 
             {/* Form Actions */}
             <div className="flex gap-2 justify-end pt-4">
