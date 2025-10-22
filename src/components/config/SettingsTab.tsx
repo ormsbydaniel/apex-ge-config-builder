@@ -341,7 +341,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryColor(e.target.value);
                           handleColorChange('primaryColor', e.target.value);
                         }}
-                        className="flex-1 text-sm"
+                        className="w-24 text-sm"
                       />
                     </div>
 
@@ -363,7 +363,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryColor(e.target.value);
                           handleColorChange('secondaryColor', e.target.value);
                         }}
-                        className="flex-1 text-sm"
+                        className="w-24 text-sm"
                       />
                     </div>
 
@@ -385,7 +385,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setTertiaryColor(e.target.value);
                           handleColorChange('tertiaryColor', e.target.value);
                         }}
-                        className="flex-1 text-sm"
+                        className="w-24 text-sm"
                       />
                     </div>
                   </div>
@@ -414,7 +414,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryFontColor(e.target.value);
                           handleColorChange('primaryFontColor', e.target.value);
                         }}
-                        className="flex-1 text-sm"
+                        className="w-24 text-sm"
                       />
                     </div>
 
@@ -436,7 +436,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryFontColor(e.target.value);
                           handleColorChange('secondaryFontColor', e.target.value);
                         }}
-                        className="flex-1 text-sm"
+                        className="w-24 text-sm"
                       />
                     </div>
 
