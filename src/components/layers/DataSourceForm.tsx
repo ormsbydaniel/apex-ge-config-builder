@@ -226,23 +226,41 @@ const DataSourceForm = ({
   ) => {
     // Handle bulk selection (array of assets)
     if (Array.isArray(selection)) {
+      // Determine if this should be treated as a statistics source
+      const shouldAddAsStatistics = isAddingStatistics || (isStatisticsLayer && supportsStatistics);
+      const levelToUse = isAddingStatistics ? manualStatisticsLevel : statisticsLevel;
+      
       // Convert all assets to DataSourceItems
-      const dataSourceItems: DataSourceItem[] = selection.map((asset) => ({
+      const dataSourceItems: DataSourceItem[] = selection.map((asset, index) => ({
         url: asset.url,
         format: asset.format,
         zIndex, // Use the current zIndex from form state
         ...(asset.datetime && requiresTimestamp && {
           timestamps: [Math.floor(new Date(asset.datetime).getTime() / 1000)]
-        })
+        }),
+        ...(shouldAddAsStatistics && { level: levelToUse + index }) // Increment level for each statistics source
       }));
       
-      // Add all data sources in a single batch operation
-      onAddDataSource(dataSourceItems);
-      
-      toast({
-        title: "Data Sources Added",
-        description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
-      });
+      // Add all data sources based on type
+      if (shouldAddAsStatistics) {
+        // Add each statistics source individually
+        dataSourceItems.forEach(item => {
+          onAddStatisticsLayer(item);
+        });
+        
+        toast({
+          title: "Statistics Sources Added",
+          description: `${dataSourceItems.length} statistics sources have been added starting at level ${levelToUse}.`,
+        });
+      } else {
+        // Add all data sources in a single batch operation
+        onAddDataSource(dataSourceItems);
+        
+        toast({
+          title: "Data Sources Added",
+          description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
+        });
+      }
       
       setShowServiceModal(false);
       setSelectedServiceForModal(null);
