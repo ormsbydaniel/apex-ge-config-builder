@@ -108,10 +108,10 @@ export function ConstraintSourcesTab({
                   {/* Line 2: All other information */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-medium">{constraint.label}</span>
-                    <Badge variant={constraint.interactive ? 'default' : 'secondary'} className="text-xs shrink-0">
+                    <Badge variant="secondary" className="text-xs shrink-0 bg-muted text-muted-foreground">
                       {constraint.interactive ? 'Interactive' : 'Fixed'}
                     </Badge>
-                    <Badge variant="outline" className="text-xs capitalize shrink-0">
+                    <Badge variant="secondary" className="text-xs capitalize shrink-0 bg-muted text-muted-foreground">
                       {constraint.type}
                     </Badge>
                     
