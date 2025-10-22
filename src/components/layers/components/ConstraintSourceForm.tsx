@@ -445,7 +445,7 @@ const ConstraintSourceForm = ({
                   {/* Continuous Fields */}
                   {constraintType === 'continuous' && (
                     <div className="space-y-4 pl-4 border-l-2">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="min">Min Value *</Label>
                           <Input
@@ -468,15 +468,15 @@ const ConstraintSourceForm = ({
                             onChange={(e) => setMaxValue(e.target.value)}
                           />
                         </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="units">Units</Label>
-                        <Input
-                          id="units"
-                          placeholder="e.g., °C, meters, km/h"
-                          value={units}
-                          onChange={(e) => setUnits(e.target.value)}
-                        />
+                        <div className="space-y-2">
+                          <Label htmlFor="units">Units</Label>
+                          <Input
+                            id="units"
+                            placeholder="e.g., °C, meters, km/h"
+                            value={units}
+                            onChange={(e) => setUnits(e.target.value)}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
