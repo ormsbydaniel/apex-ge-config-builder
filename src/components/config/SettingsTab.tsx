@@ -382,7 +382,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryColor(e.target.value);
                           handleColorChange('primaryColor', e.target.value);
                         }}
-                        className="w-12 h-10 p-1 cursor-pointer"
+                        className="w-10 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -391,7 +391,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryColor(e.target.value);
                           handleColorChange('primaryColor', e.target.value);
                         }}
-                        className="w-24 text-sm"
+                        className="w-20 text-sm"
                       />
                     </div>
 
@@ -404,7 +404,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryColor(e.target.value);
                           handleColorChange('secondaryColor', e.target.value);
                         }}
-                        className="w-12 h-10 p-1 cursor-pointer"
+                        className="w-10 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -413,7 +413,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryColor(e.target.value);
                           handleColorChange('secondaryColor', e.target.value);
                         }}
-                        className="w-24 text-sm"
+                        className="w-20 text-sm"
                       />
                     </div>
 
@@ -426,7 +426,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setTertiaryColor(e.target.value);
                           handleColorChange('tertiaryColor', e.target.value);
                         }}
-                        className="w-12 h-10 p-1 cursor-pointer"
+                        className="w-10 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -435,7 +435,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setTertiaryColor(e.target.value);
                           handleColorChange('tertiaryColor', e.target.value);
                         }}
-                        className="w-24 text-sm"
+                        className="w-20 text-sm"
                       />
                     </div>
                   </div>
@@ -455,7 +455,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryFontColor(e.target.value);
                           handleColorChange('primaryFontColor', e.target.value);
                         }}
-                        className="w-12 h-10 p-1 cursor-pointer"
+                        className="w-10 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -464,7 +464,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setPrimaryFontColor(e.target.value);
                           handleColorChange('primaryFontColor', e.target.value);
                         }}
-                        className="w-24 text-sm"
+                        className="w-20 text-sm"
                       />
                     </div>
 
@@ -477,7 +477,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryFontColor(e.target.value);
                           handleColorChange('secondaryFontColor', e.target.value);
                         }}
-                        className="w-12 h-10 p-1 cursor-pointer"
+                        className="w-10 h-10 p-1 cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -486,7 +486,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           setSecondaryFontColor(e.target.value);
                           handleColorChange('secondaryFontColor', e.target.value);
                         }}
-                        className="w-24 text-sm"
+                        className="w-20 text-sm"
                       />
                     </div>
 
