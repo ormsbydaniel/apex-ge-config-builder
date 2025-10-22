@@ -482,6 +482,11 @@ const ConstraintSourceForm = ({
                           />
                         </div>
                       </div>
+                      {interactive && (
+                        <p className="text-xs text-muted-foreground">
+                          Min and max values are used as the range for the interactive constraint slider
+                        </p>
+                      )}
                     </div>
                   )}
 
