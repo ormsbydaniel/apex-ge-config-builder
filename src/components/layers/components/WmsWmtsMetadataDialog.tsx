@@ -151,34 +151,51 @@ const WmsWmtsMetadataDialog = ({
                 <h3 className="text-sm font-semibold mb-3 text-foreground">
                   {currentLayer ? 'Layer Details' : `Available Layers (${displayLayers.length})`}
                 </h3>
-                <div className="space-y-3 max-h-96 overflow-y-auto">
+                <div className="space-y-4 max-h-96 overflow-y-auto">
                   {displayLayers.map((layer: any, idx: number) => (
-                    <div 
-                      key={idx} 
-                      className="border rounded-lg p-3 hover:bg-muted/30 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold text-sm truncate">
+                    <div key={idx} className="border rounded-lg overflow-hidden">
+                      <table className="w-full">
+                        <tbody>
+                          <tr className="border-b hover:bg-muted/50">
+                            <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                              Title
+                            </td>
+                            <td className="py-2 px-3 text-sm">
                               {layer.title}
-                            </h4>
-                            {layer.hasTimeDimension && (
-                              <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                                Temporal
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-xs font-mono text-muted-foreground break-all">
-                            {layer.name}
-                          </p>
-                        </div>
-                      </div>
-                      {layer.abstract && (
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {layer.abstract}
-                        </p>
-                      )}
+                            </td>
+                          </tr>
+                          <tr className="border-b hover:bg-muted/50">
+                            <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                              Name
+                            </td>
+                            <td className="py-2 px-3 text-sm font-mono break-all">
+                              {layer.name}
+                            </td>
+                          </tr>
+                          {layer.abstract && (
+                            <tr className="border-b hover:bg-muted/50">
+                              <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                Abstract
+                              </td>
+                              <td className="py-2 px-3 text-sm">
+                                {layer.abstract}
+                              </td>
+                            </tr>
+                          )}
+                          {layer.hasTimeDimension && (
+                            <tr className="hover:bg-muted/50">
+                              <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                Temporal Dimension
+                              </td>
+                              <td className="py-2 px-3 text-sm">
+                                <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                  Available
+                                </Badge>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   ))}
                 </div>
