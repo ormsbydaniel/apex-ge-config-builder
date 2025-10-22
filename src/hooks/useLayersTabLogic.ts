@@ -195,7 +195,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     }
   };
 
-  return {
+  const returnValue = {
     showAddGroupDialog,
     setShowAddGroupDialog,
     showDataSourceForm,
@@ -218,4 +218,9 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     // Spread all other logic from the composed hook (includes layer operations)
     ...restLogic
   };
+  
+  console.log('[useLayersTabLogic] Returning editingDataSourceIndex:', returnValue.editingDataSourceIndex);
+  console.log('[useLayersTabLogic] Returning editingDataSourceLayerIndex:', returnValue.editingDataSourceLayerIndex);
+  
+  return returnValue;
 };
