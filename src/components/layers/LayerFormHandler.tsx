@@ -105,9 +105,17 @@ const LayerFormHandler = ({
     else if ((currentLayer as any).isSpotlightLayer) layerType = 'spotlight';
     
     // Get the data source being edited if in edit mode
+    console.log('LayerFormHandler editing state:', {
+      editingDataSourceIndex,
+      editingDataSourceLayerIndex,
+      hasDataSources: config.sources[editingDataSourceLayerIndex || 0]?.data?.length
+    });
+    
     const editingDataSource = editingDataSourceIndex !== null && editingDataSourceLayerIndex !== null
       ? config.sources[editingDataSourceLayerIndex]?.data?.[editingDataSourceIndex]
       : undefined;
+    
+    console.log('LayerFormHandler editingDataSource:', editingDataSource);
     
     return (
       <DataSourceForm
