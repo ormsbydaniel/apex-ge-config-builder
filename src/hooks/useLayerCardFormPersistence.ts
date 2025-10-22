@@ -113,7 +113,7 @@ export const useLayerCardFormPersistence = (
       attributionText: '',
       attributionUrl: '',
       exclusivitySets: [],
-      contentLocation: 'layerCard', // NEW: Default to layerCard
+      contentLocation: 'infoPanel', // NEW: Default to infoPanel (map panel)
       toggleable: true,
       opacitySlider: true,
       zoomToCenter: true,
