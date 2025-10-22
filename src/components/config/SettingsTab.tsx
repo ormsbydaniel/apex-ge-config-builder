@@ -129,6 +129,29 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
     });
   };
 
+  const handleResetColors = () => {
+    const defaults = {
+      primaryColor: '#003247',
+      secondaryColor: '#f3f7f8',
+      tertiaryColor: '#335e6f',
+      primaryFontColor: '#1f2937',
+      secondaryFontColor: '#6b7280'
+    };
+    
+    setPrimaryColor(defaults.primaryColor);
+    setSecondaryColor(defaults.secondaryColor);
+    setTertiaryColor(defaults.tertiaryColor);
+    setPrimaryFontColor(defaults.primaryFontColor);
+    setSecondaryFontColor(defaults.secondaryFontColor);
+    
+    Object.entries(defaults).forEach(([field, value]) => {
+      dispatch({
+        type: 'UPDATE_THEME',
+        payload: { field, value }
+      });
+    });
+  };
+
   const getZoomTooltip = (zoom: number): string => {
     let label = '';
     if (zoom <= 1) label = ' (Global)';
@@ -298,7 +321,16 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
             {/* Colour Scheme */}
             <div className="space-y-3 mt-6">
-              <h3 className="text-lg font-semibold">Colour Scheme</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Colour Scheme</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResetColors}
+                >
+                  Reset to default
+                </Button>
+              </div>
               
               <div className="grid gap-6" style={{ gridTemplateColumns: 'auto 1fr 1fr 1fr' }}>
                 {/* Colours */}
