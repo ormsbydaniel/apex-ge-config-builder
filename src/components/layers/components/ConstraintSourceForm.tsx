@@ -353,17 +353,6 @@ const ConstraintSourceForm = ({
                         onChange={(e) => setDirectUrl(e.target.value)}
                       />
                     </div>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleFetchMetadata}
-                      disabled={!directUrl.trim() || isFetchingMetadata}
-                      className="w-full"
-                    >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      {isFetchingMetadata ? 'Fetching...' : 'Fetch COG Metadata & Auto-populate'}
-                    </Button>
                   </div>
                 )}
 
@@ -386,17 +375,6 @@ const ConstraintSourceForm = ({
                         {directUrl}
                       </div>
                     </div>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleFetchMetadata}
-                      disabled={!directUrl.trim() || isFetchingMetadata}
-                      className="w-full"
-                    >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      {isFetchingMetadata ? 'Fetching...' : 'Fetch COG Metadata & Auto-populate'}
-                    </Button>
                   </div>
                 )}
 
@@ -446,6 +424,17 @@ const ConstraintSourceForm = ({
                       </div>
                     </RadioGroup>
                   </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleFetchMetadata}
+                    disabled={!directUrl.trim() || isFetchingMetadata}
+                    className="w-full"
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {isFetchingMetadata ? 'Fetching...' : 'Fetch COG Metadata & Auto-populate'}
+                  </Button>
 
                   {/* Continuous Fields */}
                   {constraintType === 'continuous' && (
