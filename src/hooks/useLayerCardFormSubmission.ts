@@ -122,7 +122,10 @@ export const useLayerCardFormSubmission = (
       meta: metaObject,
       layout: layoutObject,
       data: editingLayer?.data || [],
-      ...(editingLayer?.statistics && { statistics: editingLayer.statistics })
+      // Preserve existing arrays when editing
+      ...(editingLayer?.statistics && { statistics: editingLayer.statistics }),
+      ...(editingLayer?.constraints && { constraints: editingLayer.constraints }),
+      ...(editingLayer?.workflows && { workflows: editingLayer.workflows })
     };
 
     console.log('useLayerCardFormSubmission: Final layer card:', layerCard);
