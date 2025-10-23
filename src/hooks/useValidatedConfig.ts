@@ -49,7 +49,8 @@ export const useValidatedConfig = () => {
           label: cat.label || '',
           value: cat.value ?? 0
         }))
-      })
+      }),
+      ...(constraint.bandIndex !== undefined && { bandIndex: constraint.bandIndex })
     }));
 
     // Validate workflows array if it exists

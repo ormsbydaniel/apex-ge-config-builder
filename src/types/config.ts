@@ -111,6 +111,8 @@ export interface ConstraintSourceItem {
   units?: string;
   // For categorical constraints
   constrainTo?: Array<{ label: string; value: number }>;
+  // Band selection
+  bandIndex?: number;
 }
 
 // Workflow configuration

@@ -109,7 +109,9 @@ const ConstraintSourceItemSchema = z.object({
   constrainTo: z.array(z.object({
     label: z.string(),
     value: z.number()
-  })).optional()
+  })).optional(),
+  // Band selection
+  bandIndex: z.number().int().optional()
 }).refine(
   (data) => {
     // Continuous constraints require min and max
