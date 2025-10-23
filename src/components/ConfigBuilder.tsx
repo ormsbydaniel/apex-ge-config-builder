@@ -189,8 +189,8 @@ const ConfigBuilderContent = () => {
             </TabsContent>
 
             <TabsContent value="layers">
-              <div ref={layersScrollRef} className="max-h-[calc(100vh-200px)] overflow-y-auto">
-                <LayersTab 
+              <div ref={layersScrollRef}>
+                <LayersTab
                   config={config} 
                   showLayerForm={showLayerForm} 
                   selectedLayerType={selectedLayerType} 
