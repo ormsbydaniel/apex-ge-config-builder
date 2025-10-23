@@ -219,8 +219,5 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     ...restLogic
   };
   
-  console.log('[useLayersTabLogic] Returning editingDataSourceIndex:', returnValue.editingDataSourceIndex);
-  console.log('[useLayersTabLogic] Returning editingDataSourceLayerIndex:', returnValue.editingDataSourceLayerIndex);
-  
   return returnValue;
 };
