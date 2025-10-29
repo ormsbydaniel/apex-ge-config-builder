@@ -363,7 +363,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                       <Label className="font-medium whitespace-nowrap italic">Level 2 menu</Label>
                     </div>
                     <div className="h-10 flex items-center">
-                      <Label className="font-medium whitespace-nowrap italic">Tertiary (panel)</Label>
+                      <Label className="font-medium whitespace-nowrap italic">Panel</Label>
                     </div>
                   </div>
                 </div>
