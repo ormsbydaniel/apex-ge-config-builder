@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,6 +61,21 @@ const ConstraintSourceForm = ({
   
   // Loading state for metadata fetch
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
+
+  // Reset form when editingConstraint changes (including when switching from edit to add mode)
+  useEffect(() => {
+    setSourceType(editingConstraint?.url ? 'direct' : 'direct');
+    setDirectUrl(editingConstraint?.url || '');
+    setLabel(editingConstraint?.label || '');
+    setInteractive(editingConstraint?.interactive ?? true);
+    setConstraintType(editingConstraint?.type || 'continuous');
+    setMinValue(editingConstraint?.min?.toString() || '');
+    setMaxValue(editingConstraint?.max?.toString() || '');
+    setUnits(editingConstraint?.units || '');
+    setConstrainToValues(
+      editingConstraint?.constrainTo?.map(c => ({ label: c.label, value: c.value.toString() })) || [{ label: '', value: '' }]
+    );
+  }, [editingConstraint]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
