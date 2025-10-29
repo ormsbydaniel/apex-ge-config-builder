@@ -314,7 +314,12 @@ const ConstraintSourceForm = ({
 
     // Validation for combined type
     if (constraintType === 'combined') {
-      if (namedRanges.length === 0) {
+      // Filter out completely empty rows
+      const validRanges = namedRanges.filter(r => 
+        r.label.trim() || r.min.trim() || r.max.trim()
+      );
+      
+      if (validRanges.length === 0) {
         toast({
           title: "Validation Error",
           description: "At least one named range is required",
@@ -323,14 +328,15 @@ const ConstraintSourceForm = ({
         return;
       }
       
-      // Validate each range
-      for (let i = 0; i < namedRanges.length; i++) {
-        const range = namedRanges[i];
+      // Validate each non-empty range
+      for (let i = 0; i < validRanges.length; i++) {
+        const range = validRanges[i];
+        const originalIndex = namedRanges.indexOf(range);
         
         if (!range.label.trim()) {
           toast({
             title: "Validation Error",
-            description: `Range ${i + 1}: Label is required`,
+            description: `Range ${originalIndex + 1}: Label is required`,
             variant: "destructive"
           });
           return;
@@ -339,19 +345,19 @@ const ConstraintSourceForm = ({
         const min = parseFloat(range.min);
         const max = parseFloat(range.max);
         
-        if (isNaN(min)) {
+        if (isNaN(min) || !range.min.trim()) {
           toast({
             title: "Validation Error",
-            description: `Range ${i + 1}: Min value is required`,
+            description: `Range ${originalIndex + 1}: Min value is required`,
             variant: "destructive"
           });
           return;
         }
         
-        if (isNaN(max)) {
+        if (isNaN(max) || !range.max.trim()) {
           toast({
             title: "Validation Error",
-            description: `Range ${i + 1}: Max value is required`,
+            description: `Range ${originalIndex + 1}: Max value is required`,
             variant: "destructive"
           });
           return;
@@ -360,7 +366,7 @@ const ConstraintSourceForm = ({
         if (min >= max) {
           toast({
             title: "Validation Error",
-            description: `Range ${i + 1}: Min must be less than Max`,
+            description: `Range ${originalIndex + 1}: Min must be less than Max`,
             variant: "destructive"
           });
           return;
@@ -394,7 +400,9 @@ const ConstraintSourceForm = ({
       
       baseConstraint.min = min;
       baseConstraint.max = max;
-      baseConstraint.units = units.trim();
+      if (units.trim()) {
+        baseConstraint.units = units.trim();
+      }
     } else if (constraintType === 'categorical') {
       // Categorical
       const parsedConstrainTo = constrainToValues
@@ -425,13 +433,17 @@ const ConstraintSourceForm = ({
       
       baseConstraint.constrainTo = parsedConstrainTo;
     } else if (constraintType === 'combined') {
-      // Combined (named ranges)
-      baseConstraint.constrainTo = namedRanges.map(r => ({
-        label: r.label.trim(),
-        min: parseFloat(r.min),
-        max: parseFloat(r.max)
-      }));
-      if (units) {
+      // Combined (named ranges) - filter out empty rows
+      const validRanges = namedRanges
+        .filter(r => r.label.trim() || r.min.trim() || r.max.trim())
+        .map(r => ({
+          label: r.label.trim(),
+          min: parseFloat(r.min),
+          max: parseFloat(r.max)
+        }));
+      
+      baseConstraint.constrainTo = validRanges;
+      if (units.trim()) {
         baseConstraint.units = units.trim();
       }
     }
