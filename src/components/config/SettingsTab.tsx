@@ -583,7 +583,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   variant="outline" 
                   onClick={() => setAdvancedColorsOpen(true)}
                 >
-                  More colours...
+                  View / edit full colour palette
                 </Button>
               </div>
             </div>
