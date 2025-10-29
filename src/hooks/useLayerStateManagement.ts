@@ -262,6 +262,9 @@ function layerStateReducer(
           selectedLayerIndex: action.layerIndex,
           showConstraintForm: true,
           isAddingConstraint: action.isAddingConstraint || false,
+          // Clear editing state when starting a new add operation
+          editingConstraintIndex: null,
+          editingConstraintLayerIndex: null,
         },
       };
 
@@ -274,6 +277,9 @@ function layerStateReducer(
           showConstraintForm: false,
           selectedLayerIndex: null,
           isAddingConstraint: false,
+          // Clear editing state when canceling
+          editingConstraintIndex: null,
+          editingConstraintLayerIndex: null,
         },
       };
 
