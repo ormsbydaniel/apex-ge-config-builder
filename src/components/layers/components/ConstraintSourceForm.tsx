@@ -44,9 +44,6 @@ const ConstraintSourceForm = ({
   const [constraintType, setConstraintType] = useState<'continuous' | 'categorical'>(
     editingConstraint?.type || 'continuous'
   );
-  const [bandIndex, setBandIndex] = useState<string>(
-    editingConstraint?.bandIndex?.toString() || ''
-  );
   
   // Continuous constraint fields
   const [minValue, setMinValue] = useState<string>(editingConstraint?.min?.toString() || '');
@@ -188,21 +185,9 @@ const ConstraintSourceForm = ({
       label: label.trim(),
       type: constraintType,
       interactive,
+      // Preserve bandIndex when editing, otherwise it will be auto-assigned
+      ...(editingConstraint?.bandIndex !== undefined && { bandIndex: editingConstraint.bandIndex })
     };
-    
-    // Add bandIndex if provided
-    if (bandIndex.trim()) {
-      const parsedBandIndex = parseInt(bandIndex.trim());
-      if (isNaN(parsedBandIndex) || parsedBandIndex < 0) {
-        toast({
-          title: "Invalid Band Index",
-          description: "Band index must be a non-negative integer.",
-          variant: "destructive"
-        });
-        return;
-      }
-      baseConstraint.bandIndex = parsedBandIndex;
-    }
 
     if (constraintType === 'continuous') {
       const min = parseFloat(minValue);
@@ -369,20 +354,8 @@ const ConstraintSourceForm = ({
                         value={directUrl}
                         onChange={(e) => setDirectUrl(e.target.value)}
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="bandIndex">Band Index (optional)</Label>
-                      <Input
-                        id="bandIndex"
-                        type="number"
-                        min="0"
-                        step="1"
-                        placeholder="e.g., 0, 1, 2"
-                        value={bandIndex}
-                        onChange={(e) => setBandIndex(e.target.value)}
-                      />
                       <p className="text-xs text-muted-foreground">
-                        Specify which band to use from the COG file (0-based index). Leave empty to use the first band.
+                        Band index is automatically managed (starts at 2, increments sequentially).
                       </p>
                     </div>
                   </div>
@@ -406,20 +379,8 @@ const ConstraintSourceForm = ({
                       <div className="p-3 bg-muted/50 border rounded text-sm break-all">
                         {directUrl}
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="bandIndex">Band Index (optional)</Label>
-                      <Input
-                        id="bandIndex"
-                        type="number"
-                        min="0"
-                        step="1"
-                        placeholder="e.g., 0, 1, 2"
-                        value={bandIndex}
-                        onChange={(e) => setBandIndex(e.target.value)}
-                      />
                       <p className="text-xs text-muted-foreground">
-                        Specify which band to use from the COG file (0-based index). Leave empty to use the first band.
+                        Band index is automatically managed (starts at 2, increments sequentially).
                       </p>
                     </div>
                   </div>

@@ -107,9 +107,18 @@ export const createLayerActionHandlers = (
   const handleRemoveConstraintSource = (layerIndex: number, constraintIndex: number) => {
     const layer = config.sources[layerIndex];
     if (layer.constraints) {
+      // Filter out the deleted constraint
+      const remainingConstraints = layer.constraints.filter((_, index) => index !== constraintIndex);
+      
+      // Renumber all remaining constraints sequentially from 2
+      const renumberedConstraints = remainingConstraints.map((constraint, index) => ({
+        ...constraint,
+        bandIndex: index + 2  // Start from 2
+      }));
+      
       const updatedLayer = {
         ...layer,
-        constraints: layer.constraints.filter((_, index) => index !== constraintIndex)
+        constraints: renumberedConstraints
       };
       updateLayer(layerIndex, updatedLayer);
     }

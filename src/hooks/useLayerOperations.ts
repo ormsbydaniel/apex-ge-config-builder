@@ -337,11 +337,25 @@ export const useLayerOperations = ({
   const handleConstraintSourceAdded = useCallback((constraintItem: any | any[]) => {
     if (selectedLayerIndex !== null) {
       const layer = config.sources[selectedLayerIndex];
+      const existingConstraints = layer.constraints || [];
+      
+      // Calculate next bandIndex: start at 2, or max + 1
+      const nextBandIndex = existingConstraints.length > 0 
+        ? Math.max(...existingConstraints.map(c => c.bandIndex || 1)) + 1 
+        : 2;
+      
       // Handle both single and array of constraint items
       const itemsToAdd = Array.isArray(constraintItem) ? constraintItem : [constraintItem];
+      
+      // Add bandIndex to items that don't have one (new constraints)
+      const itemsWithBandIndex = itemsToAdd.map((item, index) => ({
+        ...item,
+        bandIndex: item.bandIndex !== undefined ? item.bandIndex : nextBandIndex + index
+      }));
+      
       const updatedLayer = {
         ...layer,
-        constraints: [...(layer.constraints || []), ...itemsToAdd]
+        constraints: [...existingConstraints, ...itemsWithBandIndex]
       };
       updateLayer(selectedLayerIndex, updatedLayer);
       
