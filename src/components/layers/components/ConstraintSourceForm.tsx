@@ -63,7 +63,7 @@ const ConstraintSourceForm = ({
       ? editingConstraint.constrainTo.map(c => 'min' in c && 'max' in c 
           ? { label: c.label, min: c.min.toString(), max: c.max.toString() }
           : { label: '', min: '', max: '' })
-      : []
+      : [{ label: '', min: '', max: '' }]
   );
   const [bulkCount, setBulkCount] = useState<string>('');
   const [bulkMin, setBulkMin] = useState<string>('');
@@ -96,7 +96,7 @@ const ConstraintSourceForm = ({
         ? editingConstraint.constrainTo.map(c => 'min' in c && 'max' in c 
             ? { label: c.label, min: c.min.toString(), max: c.max.toString() }
             : { label: '', min: '', max: '' })
-        : []
+        : [{ label: '', min: '', max: '' }]
     );
     setBulkCount('');
     setBulkMin('');
@@ -766,6 +766,121 @@ const ConstraintSourceForm = ({
                         />
                       </div>
 
+                      {/* Named Ranges Table */}
+                      <div className="space-y-2">
+                        <Label>Named Ranges ({namedRanges.length})</Label>
+                        <div className="border rounded-lg overflow-hidden">
+                          <div className="max-h-64 overflow-y-auto">
+                            <table className="w-full text-sm">
+                              <thead className="bg-muted sticky top-0">
+                                <tr>
+                                  <th className="text-left p-2 font-medium" style={{ width: '50%' }}>Label</th>
+                                  <th className="text-left p-2 font-medium w-32">Min</th>
+                                  <th className="text-left p-2 font-medium w-32">Max</th>
+                                  <th className="text-right p-2 font-medium w-24">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {namedRanges.map((range, index) => (
+                                  <tr key={index} className="border-t hover:bg-muted/30">
+                                    <td className="p-2" style={{ width: '50%' }}>
+                                      <Input
+                                        value={range.label}
+                                        onChange={(e) => handleNamedRangeChange(index, 'label', e.target.value)}
+                                        placeholder="Range label"
+                                        className="h-8 text-sm"
+                                      />
+                                    </td>
+                                    <td className="p-2 w-32">
+                                      <Input
+                                        type="number"
+                                        value={range.min}
+                                        onChange={(e) => handleNamedRangeChange(index, 'min', e.target.value)}
+                                        onBlur={() => {
+                                          const min = parseFloat(range.min);
+                                          const max = parseFloat(range.max);
+                                          if (!isNaN(min) && !isNaN(max) && min >= max) {
+                                            toast({
+                                              title: "Invalid Range",
+                                              description: `Range ${index + 1}: Min must be less than Max`,
+                                              variant: "destructive"
+                                            });
+                                          }
+                                        }}
+                                        placeholder="Min"
+                                        className="h-8 text-sm"
+                                      />
+                                    </td>
+                                    <td className="p-2 w-32">
+                                      <Input
+                                        type="number"
+                                        value={range.max}
+                                        onChange={(e) => handleNamedRangeChange(index, 'max', e.target.value)}
+                                        onBlur={() => {
+                                          const min = parseFloat(range.min);
+                                          const max = parseFloat(range.max);
+                                          if (!isNaN(min) && !isNaN(max) && min >= max) {
+                                            toast({
+                                              title: "Invalid Range",
+                                              description: `Range ${index + 1}: Min must be less than Max`,
+                                              variant: "destructive"
+                                            });
+                                          }
+                                        }}
+                                        placeholder="Max"
+                                        className="h-8 text-sm"
+                                      />
+                                    </td>
+                                    <td className="p-2 w-24">
+                                      <div className="flex gap-1 justify-end">
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleMoveNamedRange(index, 'up')}
+                                          disabled={index === 0}
+                                          className="h-6 w-6 p-0"
+                                        >
+                                          ↑
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleMoveNamedRange(index, 'down')}
+                                          disabled={index === namedRanges.length - 1}
+                                          className="h-6 w-6 p-0"
+                                        >
+                                          ↓
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleRemoveNamedRange(index)}
+                                          className="h-6 w-6 p-0 text-destructive"
+                                        >
+                                          <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleAddNamedRange}
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Add Range
+                        </Button>
+                      </div>
+
                       {/* Bulk Generation Section */}
                       <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
                         <h4 className="text-sm font-medium">Bulk Generate Ranges</h4>
@@ -810,130 +925,6 @@ const ConstraintSourceForm = ({
                         >
                           Generate Ranges
                         </Button>
-                      </div>
-
-                      {/* Named Ranges List */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label>Named Ranges ({namedRanges.length})</Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={handleAddNamedRange}
-                          >
-                            <Plus className="h-4 w-4 mr-1" />
-                            Add Range
-                          </Button>
-                        </div>
-
-                        {namedRanges.length === 0 ? (
-                          <div className="border rounded-lg border-dashed p-4 text-center text-sm text-muted-foreground">
-                            No ranges defined. Use bulk generation or add manually.
-                          </div>
-                        ) : (
-                          <div className="border rounded-lg overflow-hidden">
-                            <div className="max-h-64 overflow-y-auto">
-                              <table className="w-full text-sm">
-                                <thead className="bg-muted sticky top-0">
-                                  <tr>
-                                    <th className="text-left p-2 font-medium" style={{ width: '50%' }}>Label</th>
-                                    <th className="text-left p-2 font-medium w-32">Min</th>
-                                    <th className="text-left p-2 font-medium w-32">Max</th>
-                                    <th className="text-right p-2 font-medium w-24">Actions</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {namedRanges.map((range, index) => (
-                                    <tr key={index} className="border-t hover:bg-muted/30">
-                                      <td className="p-2" style={{ width: '50%' }}>
-                                        <Input
-                                          value={range.label}
-                                          onChange={(e) => handleNamedRangeChange(index, 'label', e.target.value)}
-                                          placeholder="Range label"
-                                          className="h-8 text-sm"
-                                        />
-                                      </td>
-                                      <td className="p-2 w-32">
-                                        <Input
-                                          type="number"
-                                          value={range.min}
-                                          onChange={(e) => handleNamedRangeChange(index, 'min', e.target.value)}
-                                          onBlur={() => {
-                                            const min = parseFloat(range.min);
-                                            const max = parseFloat(range.max);
-                                            if (!isNaN(min) && !isNaN(max) && min >= max) {
-                                              toast({
-                                                title: "Invalid Range",
-                                                description: `Range ${index + 1}: Min must be less than Max`,
-                                                variant: "destructive"
-                                              });
-                                            }
-                                          }}
-                                          placeholder="Min"
-                                          className="h-8 text-sm"
-                                        />
-                                      </td>
-                                      <td className="p-2 w-32">
-                                        <Input
-                                          type="number"
-                                          value={range.max}
-                                          onChange={(e) => handleNamedRangeChange(index, 'max', e.target.value)}
-                                          onBlur={() => {
-                                            const min = parseFloat(range.min);
-                                            const max = parseFloat(range.max);
-                                            if (!isNaN(min) && !isNaN(max) && min >= max) {
-                                              toast({
-                                                title: "Invalid Range",
-                                                description: `Range ${index + 1}: Min must be less than Max`,
-                                                variant: "destructive"
-                                              });
-                                            }
-                                          }}
-                                          placeholder="Max"
-                                          className="h-8 text-sm"
-                                        />
-                                      </td>
-                                      <td className="p-2 w-24">
-                                        <div className="flex gap-1 justify-end">
-                                          <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleMoveNamedRange(index, 'up')}
-                                            disabled={index === 0}
-                                            className="h-6 w-6 p-0"
-                                          >
-                                            ↑
-                                          </Button>
-                                          <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleMoveNamedRange(index, 'down')}
-                                            disabled={index === namedRanges.length - 1}
-                                            className="h-6 w-6 p-0"
-                                          >
-                                            ↓
-                                          </Button>
-                                          <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleRemoveNamedRange(index)}
-                                            className="h-6 w-6 p-0 text-destructive"
-                                          >
-                                            <Trash2 className="h-3 w-3" />
-                                          </Button>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}
