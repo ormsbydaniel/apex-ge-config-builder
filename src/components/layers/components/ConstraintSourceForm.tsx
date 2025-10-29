@@ -837,16 +837,16 @@ const ConstraintSourceForm = ({
                               <table className="w-full text-sm">
                                 <thead className="bg-muted sticky top-0">
                                   <tr>
-                                    <th className="text-left p-2 font-medium">Label</th>
-                                    <th className="text-left p-2 font-medium w-24">Min</th>
-                                    <th className="text-left p-2 font-medium w-24">Max</th>
+                                    <th className="text-left p-2 font-medium" style={{ width: '50%' }}>Label</th>
+                                    <th className="text-left p-2 font-medium w-32">Min</th>
+                                    <th className="text-left p-2 font-medium w-32">Max</th>
                                     <th className="text-right p-2 font-medium w-24">Actions</th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   {namedRanges.map((range, index) => (
                                     <tr key={index} className="border-t hover:bg-muted/30">
-                                      <td className="p-2">
+                                      <td className="p-2" style={{ width: '50%' }}>
                                         <Input
                                           value={range.label}
                                           onChange={(e) => handleNamedRangeChange(index, 'label', e.target.value)}
@@ -854,7 +854,7 @@ const ConstraintSourceForm = ({
                                           className="h-8 text-sm"
                                         />
                                       </td>
-                                      <td className="p-2">
+                                      <td className="p-2 w-32">
                                         <Input
                                           type="number"
                                           value={range.min}
@@ -874,7 +874,7 @@ const ConstraintSourceForm = ({
                                           className="h-8 text-sm"
                                         />
                                       </td>
-                                      <td className="p-2">
+                                      <td className="p-2 w-32">
                                         <Input
                                           type="number"
                                           value={range.max}
@@ -894,7 +894,7 @@ const ConstraintSourceForm = ({
                                           className="h-8 text-sm"
                                         />
                                       </td>
-                                      <td className="p-2">
+                                      <td className="p-2 w-24">
                                         <div className="flex gap-1 justify-end">
                                           <Button
                                             type="button"
