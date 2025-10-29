@@ -141,7 +141,7 @@ export function AdvancedColorSchemeDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Advanced Color Scheme</DialogTitle>
             <DialogDescription>
@@ -149,7 +149,7 @@ export function AdvancedColorSchemeDialog({
             </DialogDescription>
           </DialogHeader>
           
-          <ScrollArea className="flex-1 pr-4 min-h-0">
+          <ScrollArea className="h-[calc(90vh-200px)] pr-4">
             <div className="space-y-8">
               {COLOR_GROUPS.map((group) => (
                 <div key={group.title} className="space-y-4">
