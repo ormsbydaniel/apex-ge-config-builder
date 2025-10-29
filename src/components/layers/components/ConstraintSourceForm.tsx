@@ -13,6 +13,7 @@ import { ServiceSelectionModal } from './ServiceSelectionModals';
 import { ServiceCardList } from './ServiceCardList';
 import { populateConstraintFromCogMetadata, validateConstraintSource } from '@/utils/constraintMetadataHelpers';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface ConstraintSourceFormProps {
   services: Service[];
@@ -68,6 +69,7 @@ const ConstraintSourceForm = ({
   const [bulkCount, setBulkCount] = useState<string>('');
   const [bulkMin, setBulkMin] = useState<string>('');
   const [bulkMax, setBulkMax] = useState<string>('');
+  const [showBulkModal, setShowBulkModal] = useState(false);
   
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
@@ -282,6 +284,9 @@ const ConstraintSourceForm = ({
     setBulkCount('');
     setBulkMin('');
     setBulkMax('');
+    
+    // Close modal
+    setShowBulkModal(false);
     
     toast({
       title: "Ranges Generated",
@@ -958,6 +963,67 @@ const ConstraintSourceForm = ({
           </form>
         </CardContent>
       </Card>
+
+      {/* Bulk Generation Modal */}
+      <Dialog open={showBulkModal} onOpenChange={setShowBulkModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bulk Generate Ranges</DialogTitle>
+            <DialogDescription>
+              Generate multiple equal-interval ranges automatically. Ranges will be non-overlapping with 1-unit gaps.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="bulkCount">Number of Ranges</Label>
+              <Input
+                id="bulkCount"
+                type="number"
+                value={bulkCount}
+                onChange={(e) => setBulkCount(e.target.value)}
+                placeholder="e.g., 10"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="bulkMin">From</Label>
+                <Input
+                  id="bulkMin"
+                  type="number"
+                  value={bulkMin}
+                  onChange={(e) => setBulkMin(e.target.value)}
+                  placeholder="e.g., 0"
+                />
+              </div>
+              <div>
+                <Label htmlFor="bulkMax">To</Label>
+                <Input
+                  id="bulkMax"
+                  type="number"
+                  value={bulkMax}
+                  onChange={(e) => setBulkMax(e.target.value)}
+                  placeholder="e.g., 10000"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowBulkModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleBulkGenerate}
+            >
+              Generate Ranges
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
