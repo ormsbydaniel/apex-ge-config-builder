@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { RotateCcw } from 'lucide-react';
 
 const DEFAULT_THEME_COLORS = {
   'primary-color': '#003247',
@@ -82,9 +84,12 @@ export function AdvancedColorSchemeDialog({
   dispatch 
 }: AdvancedColorSchemeDialogProps) {
   const [colors, setColors] = useState<Record<string, string>>(DEFAULT_THEME_COLORS);
+  const [originalColors, setOriginalColors] = useState<Record<string, string>>(DEFAULT_THEME_COLORS);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
+  // Load colors when dialog opens
   useEffect(() => {
-    if (config.layout?.theme) {
+    if (open && config.layout?.theme) {
       const updatedColors = { ...DEFAULT_THEME_COLORS };
       Object.keys(DEFAULT_THEME_COLORS).forEach((key) => {
         if (config.layout.theme[key]) {
@@ -92,83 +97,134 @@ export function AdvancedColorSchemeDialog({
         }
       });
       setColors(updatedColors);
+      setOriginalColors(updatedColors);
     }
-  }, [config.layout?.theme]);
+  }, [open, config.layout?.theme]);
+
+  const hasChanges = () => {
+    return Object.keys(colors).some(key => colors[key] !== originalColors[key]);
+  };
 
   const handleColorChange = (key: string, value: string) => {
     setColors(prev => ({ ...prev, [key]: value }));
-    dispatch({
-      type: 'UPDATE_THEME',
-      payload: { field: key, value }
-    });
   };
 
-  const handleResetAll = () => {
-    Object.entries(DEFAULT_THEME_COLORS).forEach(([key, value]) => {
-      dispatch({
-        type: 'UPDATE_THEME',
-        payload: { field: key, value }
-      });
+  const handleResetToDefault = (key: string) => {
+    setColors(prev => ({ ...prev, [key]: DEFAULT_THEME_COLORS[key] }));
+  };
+
+  const handleApplyChanges = () => {
+    Object.entries(colors).forEach(([key, value]) => {
+      if (value !== originalColors[key]) {
+        dispatch({
+          type: 'UPDATE_THEME',
+          payload: { field: key, value }
+        });
+      }
     });
-    setColors(DEFAULT_THEME_COLORS);
+    onOpenChange(false);
+  };
+
+  const handleCancel = () => {
+    setColors(originalColors);
+    onOpenChange(false);
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    if (!open && hasChanges()) {
+      setShowConfirmDialog(true);
+    } else {
+      onOpenChange(open);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle>Advanced Color Scheme</DialogTitle>
-          <DialogDescription>
-            Customize all color properties for your application theme
-          </DialogDescription>
-        </DialogHeader>
-        
-        <ScrollArea className="h-[600px] pr-4">
-          <div className="space-y-8">
-            {COLOR_GROUPS.map((group) => (
-              <div key={group.title} className="space-y-4">
-                <h3 className="font-semibold text-lg">{group.title}</h3>
-                <div className="grid gap-4">
-                  {group.colors.map(({ key, label }) => (
-                    <div key={key} className="grid grid-cols-[200px_80px_1fr_60px] gap-4 items-center">
-                      <Label htmlFor={key} className="text-sm">
-                        {label}
-                      </Label>
-                      <Input
-                        id={key}
-                        type="color"
-                        value={colors[key]}
-                        onChange={(e) => handleColorChange(key, e.target.value)}
-                        className="h-10 w-20 cursor-pointer"
-                      />
-                      <Input
-                        type="text"
-                        value={colors[key]}
-                        onChange={(e) => handleColorChange(key, e.target.value)}
-                        placeholder="#000000"
-                        className="font-mono text-sm"
-                      />
-                      <div
-                        className="h-10 w-full rounded border border-border"
-                        style={{ backgroundColor: colors[key] }}
-                      />
-                    </div>
-                  ))}
+    <>
+      <Dialog open={open} onOpenChange={handleDialogClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Advanced Color Scheme</DialogTitle>
+            <DialogDescription>
+              Customize all color properties for your application theme
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="h-[600px] pr-4">
+            <div className="space-y-8">
+              {COLOR_GROUPS.map((group) => (
+                <div key={group.title} className="space-y-4">
+                  <h3 className="font-semibold text-lg">{group.title}</h3>
+                  <div className="grid gap-4">
+                    {group.colors.map(({ key, label }) => (
+                      <div key={key} className="grid grid-cols-[180px_70px_1fr_auto] gap-3 items-center">
+                        <Label htmlFor={key} className="text-sm">
+                          {label}
+                        </Label>
+                        <Input
+                          id={key}
+                          type="color"
+                          value={colors[key]}
+                          onChange={(e) => handleColorChange(key, e.target.value)}
+                          className="h-10 w-16 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={colors[key]}
+                          onChange={(e) => handleColorChange(key, e.target.value)}
+                          placeholder="#000000"
+                          className="font-mono text-sm"
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleResetToDefault(key)}
+                          title="Reset to default"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
+              ))}
+            </div>
+          </ScrollArea>
 
-        <div className="flex justify-between pt-4 border-t">
-          <Button variant="outline" onClick={handleResetAll}>
-            Reset All to Defaults
-          </Button>
-          <Button onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button onClick={handleApplyChanges}>
+              Apply Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved color changes. Do you want to apply them before closing?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowConfirmDialog(false);
+              handleCancel();
+            }}>
+              Cancel Changes
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setShowConfirmDialog(false);
+              handleApplyChanges();
+            }}>
+              Apply Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
