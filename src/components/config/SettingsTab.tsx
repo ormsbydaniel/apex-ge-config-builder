@@ -357,7 +357,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   
                   <div className="space-y-2">
                     <div className="h-10 flex items-center">
-                      <Label className="font-medium whitespace-nowrap italic">Primary (title & menu 1)</Label>
+                      <Label className="font-medium whitespace-nowrap italic">Title & level 1 menu</Label>
                     </div>
                     <div className="h-10 flex items-center">
                       <Label className="font-medium whitespace-nowrap italic">Secondary (menu 2)</Label>
