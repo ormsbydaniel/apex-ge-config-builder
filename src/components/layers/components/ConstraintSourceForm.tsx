@@ -972,21 +972,48 @@ const ConstraintSourceForm = ({
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowBulkModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={handleBulkGenerate}
-            >
-              Generate Ranges
-            </Button>
-          </DialogFooter>
+          {/* Preview Section */}
+          {bulkCount && bulkMin !== '' && bulkMax !== '' && (
+            <div className="space-y-2 border-t pt-4">
+              <Label className="text-sm font-medium">Preview</Label>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                {(() => {
+                  const count = parseInt(bulkCount);
+                  const from = parseFloat(bulkMin);
+                  const to = parseFloat(bulkMax);
+                  const rangeSize = (to - from) / count;
+                  const previewCount = Math.min(3, count);
+                  
+                  return Array.from({ length: previewCount }, (_, i) => {
+                    const rangeMin = from + (rangeSize * i);
+                    const rangeMax = from + (rangeSize * (i + 1));
+                    return (
+                      <div key={i}>
+                        Range {i + 1}, {rangeMin.toFixed(2)} to {rangeMax.toFixed(2)}
+                      </div>
+                    );
+                  });
+                })()}
+                {parseInt(bulkCount) > 3 && <div>etc</div>}
+              </div>
+            </div>
+          )}
+
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowBulkModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleBulkGenerate}
+                    >
+                      Add Ranges
+                    </Button>
+                  </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
