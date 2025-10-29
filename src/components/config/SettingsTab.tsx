@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Settings, MapPin, ZoomIn, Edit } from 'lucide-react';
+import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 
 interface SettingsTabProps {
   config: any;
@@ -28,6 +29,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [tertiaryColor, setTertiaryColor] = useState(config.layout.theme?.['secondary-color'] || '#335e6f');
   const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.['text-color-primary'] || '#ffffff');
   const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.['text-color-secondary'] || '#333333');
+  const [advancedColorsOpen, setAdvancedColorsOpen] = useState(false);
   
   // Update local state when config changes
   useEffect(() => {
@@ -575,10 +577,26 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   </div>
                 </div>
               </div>
+
+              <div className="flex justify-center pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setAdvancedColorsOpen(true)}
+                >
+                  More colours...
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      <AdvancedColorSchemeDialog 
+        open={advancedColorsOpen}
+        onOpenChange={setAdvancedColorsOpen}
+        config={config}
+        dispatch={dispatch}
+      />
     </div>
   );
 };
