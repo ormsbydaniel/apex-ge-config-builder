@@ -23,11 +23,11 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   
   // Theme colors state
-  const [primaryColor, setPrimaryColor] = useState(config.layout.theme?.primaryColor || '#003247');
-  const [secondaryColor, setSecondaryColor] = useState(config.layout.theme?.secondaryColor || '#f3f7f8');
-  const [tertiaryColor, setTertiaryColor] = useState(config.layout.theme?.tertiaryColor || '#335e6f');
-  const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.primaryFontColor || '#ffffff');
-  const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.secondaryFontColor || '#333333');
+  const [primaryColor, setPrimaryColor] = useState(config.layout.theme?.['primary-color'] || '#003247');
+  const [secondaryColor, setSecondaryColor] = useState(config.layout.theme?.['background-color'] || '#f3f7f8');
+  const [tertiaryColor, setTertiaryColor] = useState(config.layout.theme?.['secondary-color'] || '#335e6f');
+  const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.['text-color-primary'] || '#ffffff');
+  const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.['text-color-secondary'] || '#333333');
   
   // Update local state when config changes
   useEffect(() => {
@@ -42,11 +42,11 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
   useEffect(() => {
     if (config.layout.theme) {
-      setPrimaryColor(config.layout.theme.primaryColor || '#003247');
-      setSecondaryColor(config.layout.theme.secondaryColor || '#f3f7f8');
-      setTertiaryColor(config.layout.theme.tertiaryColor || '#335e6f');
-      setPrimaryFontColor(config.layout.theme.primaryFontColor || '#ffffff');
-      setSecondaryFontColor(config.layout.theme.secondaryFontColor || '#333333');
+      setPrimaryColor(config.layout.theme['primary-color'] || '#003247');
+      setSecondaryColor(config.layout.theme['background-color'] || '#f3f7f8');
+      setTertiaryColor(config.layout.theme['secondary-color'] || '#335e6f');
+      setPrimaryFontColor(config.layout.theme['text-color-primary'] || '#ffffff');
+      setSecondaryFontColor(config.layout.theme['text-color-secondary'] || '#333333');
     }
   }, [config.layout.theme]);
 
@@ -131,18 +131,18 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
   const handleResetColors = () => {
     const defaults = {
-      primaryColor: '#003247',
-      secondaryColor: '#f3f7f8',
-      tertiaryColor: '#335e6f',
-      primaryFontColor: '#ffffff',
-      secondaryFontColor: '#333333'
+      'primary-color': '#003247',
+      'background-color': '#f3f7f8',
+      'secondary-color': '#335e6f',
+      'text-color-primary': '#ffffff',
+      'text-color-secondary': '#333333'
     };
     
-    setPrimaryColor(defaults.primaryColor);
-    setSecondaryColor(defaults.secondaryColor);
-    setTertiaryColor(defaults.tertiaryColor);
-    setPrimaryFontColor(defaults.primaryFontColor);
-    setSecondaryFontColor(defaults.secondaryFontColor);
+    setPrimaryColor(defaults['primary-color']);
+    setSecondaryColor(defaults['background-color']);
+    setTertiaryColor(defaults['secondary-color']);
+    setPrimaryFontColor(defaults['text-color-primary']);
+    setSecondaryFontColor(defaults['text-color-secondary']);
     
     Object.entries(defaults).forEach(([field, value]) => {
       dispatch({
@@ -153,25 +153,25 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   };
 
   const handleResetPrimary = () => {
-    const defaults = { primaryColor: '#003247', primaryFontColor: '#ffffff' };
-    setPrimaryColor(defaults.primaryColor);
-    setPrimaryFontColor(defaults.primaryFontColor);
-    dispatch({ type: 'UPDATE_THEME', payload: { field: 'primaryColor', value: defaults.primaryColor } });
-    dispatch({ type: 'UPDATE_THEME', payload: { field: 'primaryFontColor', value: defaults.primaryFontColor } });
+    const defaults = { 'primary-color': '#003247', 'text-color-primary': '#ffffff' };
+    setPrimaryColor(defaults['primary-color']);
+    setPrimaryFontColor(defaults['text-color-primary']);
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'primary-color', value: defaults['primary-color'] } });
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'text-color-primary', value: defaults['text-color-primary'] } });
   };
 
   const handleResetSecondary = () => {
-    const defaults = { secondaryColor: '#f3f7f8', secondaryFontColor: '#333333' };
-    setSecondaryColor(defaults.secondaryColor);
-    setSecondaryFontColor(defaults.secondaryFontColor);
-    dispatch({ type: 'UPDATE_THEME', payload: { field: 'secondaryColor', value: defaults.secondaryColor } });
-    dispatch({ type: 'UPDATE_THEME', payload: { field: 'secondaryFontColor', value: defaults.secondaryFontColor } });
+    const defaults = { 'background-color': '#f3f7f8', 'text-color-secondary': '#333333' };
+    setSecondaryColor(defaults['background-color']);
+    setSecondaryFontColor(defaults['text-color-secondary']);
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'background-color', value: defaults['background-color'] } });
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'text-color-secondary', value: defaults['text-color-secondary'] } });
   };
 
   const handleResetTertiary = () => {
-    const defaults = { tertiaryColor: '#335e6f' };
-    setTertiaryColor(defaults.tertiaryColor);
-    dispatch({ type: 'UPDATE_THEME', payload: { field: 'tertiaryColor', value: defaults.tertiaryColor } });
+    const defaults = { 'secondary-color': '#335e6f' };
+    setTertiaryColor(defaults['secondary-color']);
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'secondary-color', value: defaults['secondary-color'] } });
   };
 
   const getZoomTooltip = (zoom: number): string => {
@@ -380,7 +380,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={primaryColor}
                         onChange={(e) => {
                           setPrimaryColor(e.target.value);
-                          handleColorChange('primaryColor', e.target.value);
+                          handleColorChange('primary-color', e.target.value);
                         }}
                         className="w-10 h-10 p-1 cursor-pointer"
                       />
@@ -389,7 +389,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={primaryColor}
                         onChange={(e) => {
                           setPrimaryColor(e.target.value);
-                          handleColorChange('primaryColor', e.target.value);
+                          handleColorChange('primary-color', e.target.value);
                         }}
                         className="w-20 text-sm"
                       />
@@ -402,7 +402,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={secondaryColor}
                         onChange={(e) => {
                           setSecondaryColor(e.target.value);
-                          handleColorChange('secondaryColor', e.target.value);
+                          handleColorChange('background-color', e.target.value);
                         }}
                         className="w-10 h-10 p-1 cursor-pointer"
                       />
@@ -411,7 +411,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={secondaryColor}
                         onChange={(e) => {
                           setSecondaryColor(e.target.value);
-                          handleColorChange('secondaryColor', e.target.value);
+                          handleColorChange('background-color', e.target.value);
                         }}
                         className="w-20 text-sm"
                       />
@@ -424,7 +424,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={tertiaryColor}
                         onChange={(e) => {
                           setTertiaryColor(e.target.value);
-                          handleColorChange('tertiaryColor', e.target.value);
+                          handleColorChange('secondary-color', e.target.value);
                         }}
                         className="w-10 h-10 p-1 cursor-pointer"
                       />
@@ -433,7 +433,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={tertiaryColor}
                         onChange={(e) => {
                           setTertiaryColor(e.target.value);
-                          handleColorChange('tertiaryColor', e.target.value);
+                          handleColorChange('secondary-color', e.target.value);
                         }}
                         className="w-20 text-sm"
                       />
@@ -453,7 +453,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={primaryFontColor}
                         onChange={(e) => {
                           setPrimaryFontColor(e.target.value);
-                          handleColorChange('primaryFontColor', e.target.value);
+                          handleColorChange('text-color-primary', e.target.value);
                         }}
                         className="w-10 h-10 p-1 cursor-pointer"
                       />
@@ -462,7 +462,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={primaryFontColor}
                         onChange={(e) => {
                           setPrimaryFontColor(e.target.value);
-                          handleColorChange('primaryFontColor', e.target.value);
+                          handleColorChange('text-color-primary', e.target.value);
                         }}
                         className="w-20 text-sm"
                       />
@@ -475,7 +475,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={secondaryFontColor}
                         onChange={(e) => {
                           setSecondaryFontColor(e.target.value);
-                          handleColorChange('secondaryFontColor', e.target.value);
+                          handleColorChange('text-color-secondary', e.target.value);
                         }}
                         className="w-10 h-10 p-1 cursor-pointer"
                       />
@@ -484,7 +484,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         value={secondaryFontColor}
                         onChange={(e) => {
                           setSecondaryFontColor(e.target.value);
-                          handleColorChange('secondaryFontColor', e.target.value);
+                          handleColorChange('text-color-secondary', e.target.value);
                         }}
                         className="w-20 text-sm"
                       />
