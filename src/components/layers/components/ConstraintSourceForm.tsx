@@ -785,29 +785,7 @@ const ConstraintSourceForm = ({
 
                       {/* Named Ranges Table */}
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label>Named Ranges ({namedRanges.length})</Label>
-                          <div className="flex gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setShowBulkModal(true)}
-                            >
-                              <Plus className="h-4 w-4 mr-1" />
-                              Bulk Add
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={handleAddNamedRange}
-                            >
-                              <Plus className="h-4 w-4 mr-1" />
-                              Add Another
-                            </Button>
-                          </div>
-                        </div>
+                        <Label>Named Ranges ({namedRanges.length})</Label>
                         <div className="border rounded-lg overflow-hidden">
                           <div className="max-h-64 overflow-y-auto">
                             <table className="w-full text-sm">
@@ -908,6 +886,26 @@ const ConstraintSourceForm = ({
                               </tbody>
                             </table>
                           </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleAddNamedRange}
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add Another
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowBulkModal(true)}
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Bulk Add
+                          </Button>
                         </div>
                       </div>
                     </div>
