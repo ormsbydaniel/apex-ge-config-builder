@@ -69,6 +69,7 @@ const ConstraintSourceForm = ({
   const [bulkCount, setBulkCount] = useState<string>('');
   const [bulkMin, setBulkMin] = useState<string>('');
   const [bulkMax, setBulkMax] = useState<string>('');
+  const [bulkPrefix, setBulkPrefix] = useState<string>('Range');
   const [showBulkModal, setShowBulkModal] = useState(false);
   
   // Modal state for service selection
@@ -271,7 +272,7 @@ const ConstraintSourceForm = ({
         : min + ((i + 1) * intervalSize); // Other ranges calculated normally
       
       newRanges.push({
-        label: `Range ${i + 1}`,
+        label: `${bulkPrefix} ${i + 1}`,
         min: rangeMin.toString(),
         max: rangeMax.toString()
       });
@@ -940,6 +941,16 @@ const ConstraintSourceForm = ({
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
+              <Label htmlFor="bulkPrefix">Prefix (optional)</Label>
+              <Input
+                id="bulkPrefix"
+                type="text"
+                value={bulkPrefix}
+                onChange={(e) => setBulkPrefix(e.target.value || 'Range')}
+                placeholder="e.g., Zone, Region, etc."
+              />
+            </div>
+            <div>
               <Label htmlFor="bulkCount">Number of Ranges</Label>
               <Input
                 id="bulkCount"
@@ -989,7 +1000,7 @@ const ConstraintSourceForm = ({
                     const rangeMax = from + (rangeSize * (i + 1));
                     return (
                       <div key={i}>
-                        Range {i + 1}, {rangeMin.toFixed(2)} to {rangeMax.toFixed(2)}
+                        {bulkPrefix} {i + 1}, {rangeMin.toFixed(2)} to {rangeMax.toFixed(2)}
                       </div>
                     );
                   });
