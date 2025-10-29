@@ -785,7 +785,29 @@ const ConstraintSourceForm = ({
 
                       {/* Named Ranges Table */}
                       <div className="space-y-2">
-                        <Label>Named Ranges ({namedRanges.length})</Label>
+                        <div className="flex items-center justify-between">
+                          <Label>Named Ranges ({namedRanges.length})</Label>
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowBulkModal(true)}
+                            >
+                              <Plus className="h-4 w-4 mr-1" />
+                              Bulk Add
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleAddNamedRange}
+                            >
+                              <Plus className="h-4 w-4 mr-1" />
+                              Add Another
+                            </Button>
+                          </div>
+                        </div>
                         <div className="border rounded-lg overflow-hidden">
                           <div className="max-h-64 overflow-y-auto">
                             <table className="w-full text-sm">
@@ -887,61 +909,6 @@ const ConstraintSourceForm = ({
                             </table>
                           </div>
                         </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={handleAddNamedRange}
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          Add Range
-                        </Button>
-                      </div>
-
-                      {/* Bulk Generation Section */}
-                      <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
-                        <h4 className="text-sm font-medium">Bulk Generate Ranges</h4>
-                        <div className="grid grid-cols-3 gap-2">
-                          <div>
-                            <Label htmlFor="bulkCount" className="text-xs">Number of Ranges</Label>
-                            <Input
-                              id="bulkCount"
-                              type="number"
-                              value={bulkCount}
-                              onChange={(e) => setBulkCount(e.target.value)}
-                              placeholder="e.g., 10"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="bulkMin" className="text-xs">From</Label>
-                            <Input
-                              id="bulkMin"
-                              type="number"
-                              value={bulkMin}
-                              onChange={(e) => setBulkMin(e.target.value)}
-                              placeholder="e.g., 0"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="bulkMax" className="text-xs">To</Label>
-                            <Input
-                              id="bulkMax"
-                              type="number"
-                              value={bulkMax}
-                              onChange={(e) => setBulkMax(e.target.value)}
-                              placeholder="e.g., 10000"
-                            />
-                          </div>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={handleBulkGenerate}
-                          className="w-full"
-                        >
-                          Generate Ranges
-                        </Button>
                       </div>
                     </div>
                   )}
