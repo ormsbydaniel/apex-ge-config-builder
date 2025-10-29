@@ -459,10 +459,6 @@ const ConstraintSourceForm = ({
       return;
     }
 
-    console.log('[ConstraintSourceForm] Submitting constraint:', JSON.stringify(baseConstraint, null, 2));
-    console.log('[ConstraintSourceForm] Constraint type:', constraintType);
-    console.log('[ConstraintSourceForm] constrainTo structure:', baseConstraint.constrainTo);
-
     onAddConstraintSource(baseConstraint as ConstraintSourceItem);
     
     toast({

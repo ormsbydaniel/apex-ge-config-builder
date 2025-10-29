@@ -335,8 +335,6 @@ export const useLayerOperations = ({
   }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
 
   const handleConstraintSourceAdded = useCallback((constraintItem: any | any[]) => {
-    console.log('[handleConstraintSourceAdded] Received constraint item:', JSON.stringify(constraintItem, null, 2));
-    
     if (selectedLayerIndex !== null) {
       const layer = config.sources[selectedLayerIndex];
       const existingConstraints = layer.constraints || [];
@@ -355,15 +353,10 @@ export const useLayerOperations = ({
         bandIndex: item.bandIndex !== undefined ? item.bandIndex : nextBandIndex + index
       }));
       
-      console.log('[handleConstraintSourceAdded] Items with bandIndex:', JSON.stringify(itemsWithBandIndex, null, 2));
-      
       const updatedLayer = {
         ...layer,
         constraints: [...existingConstraints, ...itemsWithBandIndex]
       };
-      
-      console.log('[handleConstraintSourceAdded] Updated layer constraints:', JSON.stringify(updatedLayer.constraints, null, 2));
-      
       updateLayer(selectedLayerIndex, updatedLayer);
       
       const groupName = layer.layout?.interfaceGroup || 'ungrouped';

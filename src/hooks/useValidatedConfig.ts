@@ -45,10 +45,16 @@ export const useValidatedConfig = () => {
       ...(constraint.max !== undefined && { max: constraint.max }),
       ...(constraint.units && { units: constraint.units }),
       ...(constraint.constrainTo && { 
-        constrainTo: constraint.constrainTo.map(cat => ({
-          label: cat.label || '',
-          value: cat.value ?? 0
-        }))
+        constrainTo: constraint.type === 'combined'
+          ? constraint.constrainTo.map(range => ({
+              label: range.label || '',
+              min: range.min ?? 0,
+              max: range.max ?? 0
+            }))
+          : constraint.constrainTo.map(cat => ({
+              label: cat.label || '',
+              value: cat.value ?? 0
+            }))
       }),
       ...(constraint.bandIndex !== undefined && { bandIndex: constraint.bandIndex })
     }));
