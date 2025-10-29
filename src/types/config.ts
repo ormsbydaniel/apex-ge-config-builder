@@ -103,14 +103,14 @@ export interface ConstraintSourceItem {
   url: string;
   format: 'cog'; // Only COG supported for constraints
   label: string; // Display name for the constraint
-  type: 'continuous' | 'categorical'; // Constraint type
+  type: 'continuous' | 'categorical' | 'combined'; // Constraint type
   interactive: boolean; // Whether user can control this constraint
   // For continuous constraints
   min?: number;
   max?: number;
   units?: string;
-  // For categorical constraints
-  constrainTo?: Array<{ label: string; value: number }>;
+  // For categorical constraints (values only) or combined (named ranges with min/max)
+  constrainTo?: Array<{ label: string; value: number }> | Array<{ label: string; min: number; max: number }>;
   // Band selection
   bandIndex?: number;
 }

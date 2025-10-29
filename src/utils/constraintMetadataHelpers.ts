@@ -117,6 +117,42 @@ export function validateConstraintSource(constraint: Partial<ConstraintSourceIte
     if (!constraint.constrainTo || constraint.constrainTo.length === 0) {
       errors.push('At least one category is required for categorical constraints');
     }
+    // Validate categorical format
+    if (constraint.constrainTo) {
+      for (const item of constraint.constrainTo) {
+        if ('value' in item && item.value === undefined) {
+          errors.push('All categories must have a value');
+        }
+      }
+    }
+  }
+  
+  if (constraint.type === 'combined') {
+    if (!constraint.constrainTo || constraint.constrainTo.length === 0) {
+      errors.push('At least one named range is required for combined constraints');
+    }
+    // Validate combined format
+    if (constraint.constrainTo) {
+      for (let i = 0; i < constraint.constrainTo.length; i++) {
+        const item = constraint.constrainTo[i];
+        if (!('min' in item) || !('max' in item)) {
+          errors.push(`Range ${i + 1}: Must have min and max values`);
+          continue;
+        }
+        if (item.min === undefined) {
+          errors.push(`Range ${i + 1}: Min value is required`);
+        }
+        if (item.max === undefined) {
+          errors.push(`Range ${i + 1}: Max value is required`);
+        }
+        if (item.min !== undefined && item.max !== undefined && item.min >= item.max) {
+          errors.push(`Range ${i + 1}: Min must be less than max`);
+        }
+        if (!item.label || item.label.trim() === '') {
+          errors.push(`Range ${i + 1}: Label is required`);
+        }
+      }
+    }
   }
   
   return {

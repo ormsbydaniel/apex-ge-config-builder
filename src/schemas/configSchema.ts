@@ -99,17 +99,24 @@ const ConstraintSourceItemSchema = z.object({
   url: urlOrRelativePathSchema,
   format: z.literal('cog'),
   label: z.string(),
-  type: z.enum(['continuous', 'categorical']),
+  type: z.enum(['continuous', 'categorical', 'combined']),
   interactive: z.boolean(),
   // Continuous fields
   min: z.number().optional(),
   max: z.number().optional(),
   units: z.string().optional(),
-  // Categorical fields
-  constrainTo: z.array(z.object({
-    label: z.string(),
-    value: z.number()
-  })).optional(),
+  // Categorical and combined fields
+  constrainTo: z.union([
+    z.array(z.object({
+      label: z.string(),
+      value: z.number()
+    })),
+    z.array(z.object({
+      label: z.string(),
+      min: z.number(),
+      max: z.number()
+    }))
+  ]).optional(),
   // Band selection
   bandIndex: z.number().int().optional()
 }).refine(
@@ -118,14 +125,18 @@ const ConstraintSourceItemSchema = z.object({
     if (data.type === 'continuous') {
       return data.min !== undefined && data.max !== undefined;
     }
-    // Categorical constraints require constrainTo array
+    // Categorical constraints require constrainTo array with value
     if (data.type === 'categorical') {
+      return data.constrainTo && data.constrainTo.length > 0;
+    }
+    // Combined constraints require constrainTo array with min/max
+    if (data.type === 'combined') {
       return data.constrainTo && data.constrainTo.length > 0;
     }
     return true;
   },
   {
-    message: "Continuous constraints require min/max, categorical constraints require constrainTo array",
+    message: "Continuous constraints require min/max, categorical/combined constraints require constrainTo array",
   }
 );
 

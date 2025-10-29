@@ -41,7 +41,7 @@ const ConstraintSourceForm = ({
   const [directUrl, setDirectUrl] = useState(editingConstraint?.url || '');
   const [label, setLabel] = useState(editingConstraint?.label || '');
   const [interactive, setInteractive] = useState(editingConstraint?.interactive ?? true);
-  const [constraintType, setConstraintType] = useState<'continuous' | 'categorical'>(
+  const [constraintType, setConstraintType] = useState<'continuous' | 'categorical' | 'combined'>(
     editingConstraint?.type || 'continuous'
   );
   
@@ -52,8 +52,22 @@ const ConstraintSourceForm = ({
   
   // Categorical constraint fields
   const [constrainToValues, setConstrainToValues] = useState<Array<{ label: string; value: string }>>(
-    editingConstraint?.constrainTo?.map(c => ({ label: c.label, value: c.value.toString() })) || [{ label: '', value: '' }]
+    editingConstraint?.type === 'categorical' && editingConstraint?.constrainTo
+      ? editingConstraint.constrainTo.map(c => 'value' in c ? { label: c.label, value: c.value.toString() } : { label: '', value: '' })
+      : [{ label: '', value: '' }]
   );
+  
+  // Combined constraint fields (named ranges)
+  const [namedRanges, setNamedRanges] = useState<Array<{ label: string; min: string; max: string }>>(
+    editingConstraint?.type === 'combined' && editingConstraint?.constrainTo
+      ? editingConstraint.constrainTo.map(c => 'min' in c && 'max' in c 
+          ? { label: c.label, min: c.min.toString(), max: c.max.toString() }
+          : { label: '', min: '', max: '' })
+      : []
+  );
+  const [bulkCount, setBulkCount] = useState<string>('');
+  const [bulkMin, setBulkMin] = useState<string>('');
+  const [bulkMax, setBulkMax] = useState<string>('');
   
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
@@ -73,8 +87,20 @@ const ConstraintSourceForm = ({
     setMaxValue(editingConstraint?.max?.toString() || '');
     setUnits(editingConstraint?.units || '');
     setConstrainToValues(
-      editingConstraint?.constrainTo?.map(c => ({ label: c.label, value: c.value.toString() })) || [{ label: '', value: '' }]
+      editingConstraint?.type === 'categorical' && editingConstraint?.constrainTo
+        ? editingConstraint.constrainTo.map(c => 'value' in c ? { label: c.label, value: c.value.toString() } : { label: '', value: '' })
+        : [{ label: '', value: '' }]
     );
+    setNamedRanges(
+      editingConstraint?.type === 'combined' && editingConstraint?.constrainTo
+        ? editingConstraint.constrainTo.map(c => 'min' in c && 'max' in c 
+            ? { label: c.label, min: c.min.toString(), max: c.max.toString() }
+            : { label: '', min: '', max: '' })
+        : []
+    );
+    setBulkCount('');
+    setBulkMin('');
+    setBulkMax('');
   }, [editingConstraint]);
 
   const handleServiceSelect = (service: Service) => {
@@ -112,6 +138,15 @@ const ConstraintSourceForm = ({
   };
 
   const handleFetchMetadata = async () => {
+    // For combined type, show placeholder message
+    if (constraintType === 'combined') {
+      toast({
+        title: "Coming Soon",
+        description: "Functionality available in future release",
+      });
+      return;
+    }
+
     if (!directUrl.trim()) {
       toast({
         title: "Missing URL",
@@ -170,6 +205,90 @@ const ConstraintSourceForm = ({
     setConstrainToValues(updated);
   };
 
+  // Named ranges handlers
+  const handleAddNamedRange = () => {
+    setNamedRanges([...namedRanges, { label: '', min: '', max: '' }]);
+  };
+
+  const handleRemoveNamedRange = (index: number) => {
+    setNamedRanges(namedRanges.filter((_, i) => i !== index));
+  };
+
+  const handleNamedRangeChange = (index: number, field: 'label' | 'min' | 'max', value: string) => {
+    const updated = [...namedRanges];
+    updated[index][field] = value;
+    setNamedRanges(updated);
+  };
+
+  const handleMoveNamedRange = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index > 0) {
+      const updated = [...namedRanges];
+      [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+      setNamedRanges(updated);
+    } else if (direction === 'down' && index < namedRanges.length - 1) {
+      const updated = [...namedRanges];
+      [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
+      setNamedRanges(updated);
+    }
+  };
+
+  const handleBulkGenerate = () => {
+    const count = parseInt(bulkCount);
+    const min = parseFloat(bulkMin);
+    const max = parseFloat(bulkMax);
+    
+    if (isNaN(count) || count <= 0) {
+      toast({
+        title: "Invalid Input",
+        description: "Please enter a valid number of ranges",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (isNaN(min) || isNaN(max) || min >= max) {
+      toast({
+        title: "Invalid Range",
+        description: "Please enter valid min and max values (min < max)",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Calculate interval size
+    const totalRange = max - min;
+    const intervalSize = Math.floor(totalRange / count);
+    
+    // Generate ranges with 1-unit gaps (non-overlapping)
+    const newRanges: Array<{ label: string; min: string; max: string }> = [];
+    
+    for (let i = 0; i < count; i++) {
+      const rangeMin = min + (i * intervalSize) + (i > 0 ? 1 : 0); // Add 1-unit gap for ranges after the first
+      const rangeMax = i === count - 1 
+        ? max  // Last range goes to exact max
+        : min + ((i + 1) * intervalSize); // Other ranges calculated normally
+      
+      newRanges.push({
+        label: `Range ${i + 1}`,
+        min: rangeMin.toString(),
+        max: rangeMax.toString()
+      });
+    }
+    
+    // APPEND to existing ranges (don't clear)
+    setNamedRanges([...namedRanges, ...newRanges]);
+    
+    // Clear bulk input fields
+    setBulkCount('');
+    setBulkMin('');
+    setBulkMax('');
+    
+    toast({
+      title: "Ranges Generated",
+      description: `Added ${count} ranges. You can now edit the labels.`
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -191,6 +310,62 @@ const ConstraintSourceForm = ({
         variant: "destructive"
       });
       return;
+    }
+
+    // Validation for combined type
+    if (constraintType === 'combined') {
+      if (namedRanges.length === 0) {
+        toast({
+          title: "Validation Error",
+          description: "At least one named range is required",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Validate each range
+      for (let i = 0; i < namedRanges.length; i++) {
+        const range = namedRanges[i];
+        
+        if (!range.label.trim()) {
+          toast({
+            title: "Validation Error",
+            description: `Range ${i + 1}: Label is required`,
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        const min = parseFloat(range.min);
+        const max = parseFloat(range.max);
+        
+        if (isNaN(min)) {
+          toast({
+            title: "Validation Error",
+            description: `Range ${i + 1}: Min value is required`,
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        if (isNaN(max)) {
+          toast({
+            title: "Validation Error",
+            description: `Range ${i + 1}: Max value is required`,
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        if (min >= max) {
+          toast({
+            title: "Validation Error",
+            description: `Range ${i + 1}: Min must be less than Max`,
+            variant: "destructive"
+          });
+          return;
+        }
+      }
     }
 
     // Build constraint object based on type
@@ -220,7 +395,7 @@ const ConstraintSourceForm = ({
       baseConstraint.min = min;
       baseConstraint.max = max;
       baseConstraint.units = units.trim();
-    } else {
+    } else if (constraintType === 'categorical') {
       // Categorical
       const parsedConstrainTo = constrainToValues
         .filter(c => c.label.trim() && c.value.trim())
@@ -249,6 +424,16 @@ const ConstraintSourceForm = ({
       }
       
       baseConstraint.constrainTo = parsedConstrainTo;
+    } else if (constraintType === 'combined') {
+      // Combined (named ranges)
+      baseConstraint.constrainTo = namedRanges.map(r => ({
+        label: r.label.trim(),
+        min: parseFloat(r.min),
+        max: parseFloat(r.max)
+      }));
+      if (units) {
+        baseConstraint.units = units.trim();
+      }
     }
 
     // Validate constraint
@@ -438,7 +623,7 @@ const ConstraintSourceForm = ({
 
                   <div className="space-y-2">
                     <Label>Constraint Type *</Label>
-                    <RadioGroup value={constraintType} onValueChange={(value) => setConstraintType(value as 'continuous' | 'categorical')}>
+                    <RadioGroup value={constraintType} onValueChange={(value) => setConstraintType(value as 'continuous' | 'categorical' | 'combined')}>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="continuous" id="continuous" />
                         <Label htmlFor="continuous" className="font-normal cursor-pointer">
@@ -449,6 +634,12 @@ const ConstraintSourceForm = ({
                         <RadioGroupItem value="categorical" id="categorical" />
                         <Label htmlFor="categorical" className="font-normal cursor-pointer">
                           Categorical (e.g., land cover classes)
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="combined" id="combined" />
+                        <Label htmlFor="combined" className="font-normal cursor-pointer">
+                          Named Ranges (continuous with labeled ranges)
                         </Label>
                       </div>
                     </RadioGroup>
@@ -466,7 +657,9 @@ const ConstraintSourceForm = ({
                       ? 'Fetching...' 
                       : constraintType === 'continuous' 
                         ? 'Populate Min & Max from COG' 
-                        : 'Populate Categories from COG'}
+                        : constraintType === 'categorical'
+                          ? 'Populate Categories from COG'
+                          : 'Populate from COG'}
                   </Button>
 
                   {/* Continuous Fields */}
@@ -557,6 +750,188 @@ const ConstraintSourceForm = ({
                         <Plus className="h-4 w-4 mr-2" />
                         Add Category
                       </Button>
+                    </div>
+                  )}
+
+                  {/* Named Ranges (Combined) Fields */}
+                  {constraintType === 'combined' && (
+                    <div className="space-y-4 pl-4 border-l-2">
+                      <div>
+                        <Label htmlFor="units">Units</Label>
+                        <Input
+                          id="units"
+                          value={units}
+                          onChange={(e) => setUnits(e.target.value)}
+                          placeholder="e.g., meters, degrees, percentage"
+                        />
+                      </div>
+
+                      {/* Bulk Generation Section */}
+                      <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                        <h4 className="text-sm font-medium">Bulk Generate Ranges</h4>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <Label htmlFor="bulkCount" className="text-xs">Number of Ranges</Label>
+                            <Input
+                              id="bulkCount"
+                              type="number"
+                              value={bulkCount}
+                              onChange={(e) => setBulkCount(e.target.value)}
+                              placeholder="e.g., 10"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="bulkMin" className="text-xs">From</Label>
+                            <Input
+                              id="bulkMin"
+                              type="number"
+                              value={bulkMin}
+                              onChange={(e) => setBulkMin(e.target.value)}
+                              placeholder="e.g., 0"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="bulkMax" className="text-xs">To</Label>
+                            <Input
+                              id="bulkMax"
+                              type="number"
+                              value={bulkMax}
+                              onChange={(e) => setBulkMax(e.target.value)}
+                              placeholder="e.g., 10000"
+                            />
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleBulkGenerate}
+                          className="w-full"
+                        >
+                          Generate Ranges
+                        </Button>
+                      </div>
+
+                      {/* Named Ranges List */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Named Ranges ({namedRanges.length})</Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleAddNamedRange}
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add Range
+                          </Button>
+                        </div>
+
+                        {namedRanges.length === 0 ? (
+                          <div className="border rounded-lg border-dashed p-4 text-center text-sm text-muted-foreground">
+                            No ranges defined. Use bulk generation or add manually.
+                          </div>
+                        ) : (
+                          <div className="space-y-2 max-h-64 overflow-y-auto">
+                            {namedRanges.map((range, index) => (
+                              <div key={index} className="border rounded-lg p-3 space-y-2 bg-card">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-muted-foreground">
+                                    Range {index + 1}
+                                  </span>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleMoveNamedRange(index, 'up')}
+                                      disabled={index === 0}
+                                      className="h-6 w-6 p-0"
+                                    >
+                                      ↑
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleMoveNamedRange(index, 'down')}
+                                      disabled={index === namedRanges.length - 1}
+                                      className="h-6 w-6 p-0"
+                                    >
+                                      ↓
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleRemoveNamedRange(index)}
+                                      className="h-6 w-6 p-0 text-destructive"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <Input
+                                    value={range.label}
+                                    onChange={(e) => handleNamedRangeChange(index, 'label', e.target.value)}
+                                    placeholder="Range label"
+                                    className="text-sm"
+                                  />
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                      <Label htmlFor={`range-min-${index}`} className="text-xs">Min</Label>
+                                      <Input
+                                        id={`range-min-${index}`}
+                                        type="number"
+                                        value={range.min}
+                                        onChange={(e) => handleNamedRangeChange(index, 'min', e.target.value)}
+                                        onBlur={() => {
+                                          // Validate on blur
+                                          const min = parseFloat(range.min);
+                                          const max = parseFloat(range.max);
+                                          if (!isNaN(min) && !isNaN(max) && min >= max) {
+                                            toast({
+                                              title: "Invalid Range",
+                                              description: `Range ${index + 1}: Min must be less than Max`,
+                                              variant: "destructive"
+                                            });
+                                          }
+                                        }}
+                                        placeholder="Min value"
+                                        className="text-sm"
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor={`range-max-${index}`} className="text-xs">Max</Label>
+                                      <Input
+                                        id={`range-max-${index}`}
+                                        type="number"
+                                        value={range.max}
+                                        onChange={(e) => handleNamedRangeChange(index, 'max', e.target.value)}
+                                        onBlur={() => {
+                                          // Validate on blur
+                                          const min = parseFloat(range.min);
+                                          const max = parseFloat(range.max);
+                                          if (!isNaN(min) && !isNaN(max) && min >= max) {
+                                            toast({
+                                              title: "Invalid Range",
+                                              description: `Range ${index + 1}: Min must be less than Max`,
+                                              variant: "destructive"
+                                            });
+                                          }
+                                        }}
+                                        placeholder="Max value"
+                                        className="text-sm"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
