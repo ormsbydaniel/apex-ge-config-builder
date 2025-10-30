@@ -88,16 +88,6 @@ const LayerFormHandler = ({
   if (showDataSourceForm && selectedLayerIndex !== null) {
     const currentLayer = config.sources[selectedLayerIndex];
     
-    console.log('[LayerFormHandler] Rendering DataSourceForm with:', {
-      editingDataSourceIndex,
-      editingDataSourceLayerIndex,
-      selectedLayerIndex,
-      'editingDataSourceIndex ?? undefined': editingDataSourceIndex ?? undefined,
-      'actual editingDataSource': editingDataSourceIndex !== null && editingDataSourceLayerIndex !== null
-        ? config.sources[editingDataSourceLayerIndex]?.data?.[editingDataSourceIndex]
-        : undefined
-    });
-    
     if (!currentLayer) {
       console.error('No layer found at index:', selectedLayerIndex, 'Available sources:', config.sources.map(s => s.name));
       return null;
@@ -136,7 +126,6 @@ const LayerFormHandler = ({
   }
 
   if (showConstraintForm && selectedLayerIndex !== null) {
-    console.log('LayerFormHandler: showConstraintForm=true, selectedLayerIndex=', selectedLayerIndex);
     const currentLayer = config.sources[selectedLayerIndex];
     
     if (!currentLayer) {

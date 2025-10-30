@@ -118,19 +118,11 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
 
     // Override the stub handleEditDataSource from layerOperations
     handleEditDataSource: (layerIndex: number, dataSourceIndex: number) => {
-      console.log('[useLayersTabComposition] handleEditDataSource called:', { layerIndex, dataSourceIndex });
       const layer = config.sources[layerIndex];
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
       
       layerState.handleStartEditDataSource(layerIndex, dataSourceIndex, cardId);
-      
-      // Log state immediately after calling
-      console.log('[useLayersTabComposition] After handleStartEditDataSource, layerState has:', {
-        editingDataSourceIndex: layerState.editingDataSourceIndex,
-        editingDataSourceLayerIndex: layerState.editingDataSourceLayerIndex,
-        showDataSourceForm: layerState.showDataSourceForm
-      });
     }
   };
   
