@@ -216,7 +216,12 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     // Layer type handlers
     ...layerTypeHandlers,
     // Spread all other logic from the composed hook (includes layer operations)
-    ...restLogic
+    ...restLogic,
+    // Explicitly expose editing state (ensure they're not lost in spread)
+    editingConstraintIndex: composedLogic.editingConstraintIndex,
+    editingConstraintLayerIndex: composedLogic.editingConstraintLayerIndex,
+    editingDataSourceIndex: composedLogic.editingDataSourceIndex,
+    editingDataSourceLayerIndex: composedLogic.editingDataSourceLayerIndex,
   };
   
   return returnValue;
