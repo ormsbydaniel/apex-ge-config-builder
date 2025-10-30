@@ -85,7 +85,7 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     // Interface group actions
     handleAddInterfaceGroup: interfaceGroupActions.handleAddInterfaceGroup,
     
-    // Custom composed methods
+    // Override stub methods from layerOperations with real implementations
     handleStartDataSourceFormWithExpansion: (layerIndex: number, isAddingStatistics = false) => {
       const layer = config.sources[layerIndex];
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
@@ -110,6 +110,7 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
       layerState.handleStartEditConstraint(layerIndex, constraintIndex, cardId);
     },
 
+    // Override the stub handleEditDataSource from layerOperations
     handleEditDataSource: (layerIndex: number, dataSourceIndex: number) => {
       const layer = config.sources[layerIndex];
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
