@@ -3,7 +3,7 @@
 # Configuration
 VIEWER_DIR=~/software/apex_geospatial_explorer
 BUILDER_DIR=~/software/apex-ge-config-builder
-VERSION="3.3.3"
+VERSION="dev-2025-10-30"
 
 # Colors for output
 GREEN='\033[0;32m'
