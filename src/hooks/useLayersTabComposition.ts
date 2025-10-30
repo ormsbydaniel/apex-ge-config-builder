@@ -120,5 +120,11 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     }
   };
   
+  console.log('[useLayersTabComposition] Returning state:', {
+    editingDataSourceIndex: result.editingDataSourceIndex,
+    editingDataSourceLayerIndex: result.editingDataSourceLayerIndex,
+    showDataSourceForm: result.showDataSourceForm
+  });
+  
   return result;
 };
