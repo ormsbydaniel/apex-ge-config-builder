@@ -129,6 +129,14 @@ const LayersTabCore = ({
 
   // Show form if we're in form mode
   if (showLayerForm || (layersLogic && layersLogic.showDataSourceForm) || (layersLogic && layersLogic.showConstraintForm)) {
+    // Log what we're passing to LayerFormHandler
+    if (layersLogic?.showDataSourceForm) {
+      console.log('[LayersTabCore] Passing to LayerFormHandler:', {
+        editingDataSourceIndex: layersLogic?.editingDataSourceIndex,
+        editingDataSourceLayerIndex: layersLogic?.editingDataSourceLayerIndex,
+      });
+    }
+    
     return (
       <LayerFormHandler
         showLayerForm={showLayerForm}

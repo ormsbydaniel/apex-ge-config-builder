@@ -65,6 +65,14 @@ const LayerFormHandler = ({
   onConstraintFormCancel,
   onAddService
 }: LayerFormHandlerProps) => {
+  // Log props on every render to debug the issue
+  if (showDataSourceForm) {
+    console.log('[LayerFormHandler] Props received:', {
+      editingDataSourceIndex,
+      editingDataSourceLayerIndex,
+      selectedLayerIndex
+    });
+  }
   if (showLayerForm) {
     return (
         <LayerFormContainer
