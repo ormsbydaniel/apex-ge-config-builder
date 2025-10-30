@@ -19,6 +19,7 @@ interface SubmissionFormData {
   download?: string;
   temporalControls: boolean;
   constraintSlider: boolean;
+  blendControls: boolean;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -57,6 +58,7 @@ export const useLayerCardFormSubmission = (
       zoomToCenter: formData.zoomToCenter,
       temporalControls: formData.temporalControls,
       constraintSlider: formData.constraintSlider,
+      blendControls: formData.blendControls,
       ...(formData.download && formData.download.trim() && { download: formData.download.trim() })
     };
 

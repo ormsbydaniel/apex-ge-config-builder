@@ -164,6 +164,7 @@ export interface DataSourceLayout {
       download?: string;
       temporalControls?: boolean;
       constraintSlider?: boolean;
+      blendControls?: boolean;
     };
     showStatistics?: boolean;
   };
@@ -178,6 +179,7 @@ export interface DataSourceLayout {
       download?: string;
       temporalControls?: boolean;
       constraintSlider?: boolean;
+      blendControls?: boolean;
     } | string[]; // Support both object and array for backward compatibility
   };
 }

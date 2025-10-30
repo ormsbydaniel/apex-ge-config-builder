@@ -17,7 +17,7 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const isControlsObject = rawControls && typeof rawControls === 'object' && !Array.isArray(rawControls);
   const controls = isControlsObject ? rawControls : undefined;
   
-  const hasControls = controls && (controls.opacitySlider || controls.zoomToCenter || controls.download || controls.temporalControls || controls.constraintSlider);
+  const hasControls = controls && (controls.opacitySlider || controls.zoomToCenter || controls.download || controls.temporalControls || controls.constraintSlider || controls.blendControls);
   const hasTimeframe = timeframe && timeframe !== 'None';
   const hasToggleable = toggleable;
   const hasDownload = controls?.download !== undefined;
@@ -33,6 +33,7 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   if (controls?.opacitySlider) controlsList.push('Opacity Slider');
   if (controls?.temporalControls) controlsList.push('Temporal Control');
   if (controls?.constraintSlider) controlsList.push('Constraint Slider');
+  if (controls?.blendControls) controlsList.push('Blend Controls');
 
   return (
     <div className="space-y-2">

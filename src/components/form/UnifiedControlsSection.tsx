@@ -11,6 +11,7 @@ interface UnifiedControlsSectionProps {
   download: string;
   temporalControls: boolean;
   constraintSlider: boolean;
+  blendControls: boolean;
   timeframe: TimeframeType;
   onUpdate: (field: string, value: any) => void;
 }
@@ -21,6 +22,7 @@ const UnifiedControlsSection = ({
   download,
   temporalControls,
   constraintSlider,
+  blendControls,
   timeframe,
   onUpdate
 }: UnifiedControlsSectionProps) => {
@@ -86,6 +88,15 @@ const UnifiedControlsSection = ({
             id="temporalControls"
             checked={temporalControls}
             onCheckedChange={(value) => onUpdate('temporalControls', value)}
+          />
+        </div>
+        
+        <div className="flex items-center justify-between space-x-2 min-w-[160px]">
+          <Label htmlFor="blendControls" className="min-w-[110px]">Blend Controls:</Label>
+          <Switch
+            id="blendControls"
+            checked={blendControls}
+            onCheckedChange={(value) => onUpdate('blendControls', value)}
           />
         </div>
         

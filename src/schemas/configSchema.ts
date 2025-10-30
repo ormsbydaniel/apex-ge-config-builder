@@ -221,6 +221,7 @@ const ControlsSchema = z.union([
     download: z.string().optional(),
     temporalControls: z.boolean().optional(),
     constraintSlider: z.boolean().optional(),
+    blendControls: z.boolean().optional(),
   }),
   z.array(z.string()), // Support controls as array of strings for backward compatibility
 ]);
