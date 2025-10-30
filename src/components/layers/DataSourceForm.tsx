@@ -459,11 +459,19 @@ const DataSourceForm = ({
         onSelect={handleServiceModalSelection}
       />
       
-      <Card>
+      <Card className={cn(
+        "border-2",
+        editingDataSource ? "border-blue-500" : ""
+      )}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
             {editingDataSource ? 'Edit Data Source' : (isAddingStatistics ? 'Add Statistics Source' : 'Add Data Source')}
+            {editingDataSource && editingIndex !== undefined && (
+              <Badge variant="secondary" className="ml-2">
+                Editing #{editingIndex + 1}
+              </Badge>
+            )}
             {needsPosition && (
               <Badge variant="outline" className="text-xs">
                 {layerType} layer
@@ -1013,7 +1021,7 @@ const DataSourceForm = ({
               {((sourceType === 'direct' && directUrl) || (sourceType === 'service' && directUrl)) && (
                 <Button type="submit" className="bg-primary hover:bg-primary/90">
                   <Save className="h-4 w-4 mr-2" />
-                  Finish
+                  {editingDataSource ? 'Save Changes' : 'Add Source'}
                 </Button>
               )}
             </div>
