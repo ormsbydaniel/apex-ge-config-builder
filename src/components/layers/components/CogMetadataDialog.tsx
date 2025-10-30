@@ -11,7 +11,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import { fetchCogMetadata, formatMetadataForDisplay, CogMetadata } from '@/utils/cogMetadata';
 import { DataSourceMeta, Category } from '@/types/config';
 import MinMaxUpdateDialog from './MinMaxUpdateDialog';
-import { generateDivergentColors } from '@/utils/colorUtils';
+import { generateDivergentColors, rgbToHex } from '@/utils/colorUtils';
 import { useToast } from '@/hooks/use-toast';
 
 interface CogMetadataDialogProps {
@@ -129,6 +129,24 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
     });
   };
 
+  const handleCopyEmbeddedColormap = () => {
+    if (!rawMetadata?.embeddedColormap || !onUpdateMeta) return;
+
+    const palette = rawMetadata.embeddedColormap;
+    const newCategories: Category[] = Object.entries(palette).map(([value, rgba]) => ({
+      value: parseFloat(value),
+      label: value.toString(),
+      color: rgbToHex(rgba[0], rgba[1], rgba[2])
+    }));
+
+    onUpdateMeta({ categories: newCategories });
+
+    toast({
+      title: "Embedded Colormap Copied",
+      description: `${newCategories.length} color entries copied to categories.`,
+    });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -197,6 +215,45 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                     </tbody>
                   </table>
                 </div>
+                
+                {/* Embedded Colormap Actions */}
+                {section.category === 'Embedded Colormap' && onUpdateMeta && rawMetadata?.embeddedColormap && (
+                  <div className="mt-3 space-y-3">
+                    {/* Color palette preview */}
+                    <div className="border rounded-lg p-3 bg-muted/20">
+                      <p className="text-xs text-muted-foreground mb-2">Color Palette Preview (first 20 entries):</p>
+                      <div className="grid grid-cols-10 gap-1">
+                        {Object.entries(rawMetadata.embeddedColormap)
+                          .slice(0, 20)
+                          .map(([value, rgba]) => {
+                            const hexColor = rgbToHex(rgba[0], rgba[1], rgba[2]);
+                            return (
+                              <div
+                                key={value}
+                                className="w-8 h-8 rounded border border-border"
+                                style={{ backgroundColor: hexColor }}
+                                title={`Value: ${value}, Color: ${hexColor}`}
+                              />
+                            );
+                          })}
+                      </div>
+                      {Object.keys(rawMetadata.embeddedColormap).length > 20 && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          +{Object.keys(rawMetadata.embeddedColormap).length - 20} more colors
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyEmbeddedColormap}
+                    >
+                      Copy embedded colormap to config categories
+                    </Button>
+                  </div>
+                )}
+
+                {/* Data Statistics Actions */}
                 {section.category === 'Data Statistics' && onUpdateMeta && (
                   <div className="flex gap-2 mt-3">
                     <Button

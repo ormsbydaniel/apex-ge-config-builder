@@ -1,4 +1,5 @@
 import { fromUrl } from 'geotiff';
+import { getPalette } from 'geotiff-palette';
 
 export interface CogMetadata {
   // Image Properties
@@ -40,6 +41,10 @@ export interface CogMetadata {
   dataNature?: 'continuous' | 'categorical' | 'unknown';
   uniqueValues?: number[];
   sampleCount?: number;
+  
+  // Embedded Colormap (TIFF ColorMap tag 320)
+  embeddedColormap?: Record<number, [number, number, number, number]>;
+  hasEmbeddedColormap?: boolean;
 }
 
 export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
@@ -138,7 +143,18 @@ export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
       }
     }
     
-    // Phase 2: Compute statistics from overviews if min/max not available
+    // Phase 2: Check for embedded colormap (palette)
+    try {
+      const palette = await getPalette(image);
+      if (palette && Object.keys(palette).length > 0) {
+        metadata.embeddedColormap = palette;
+        metadata.hasEmbeddedColormap = true;
+      }
+    } catch (e) {
+      // No colormap or error reading it - not critical
+    }
+    
+    // Phase 3: Compute statistics from overviews if min/max not available
     if (metadata.minValue === undefined || metadata.maxValue === undefined) {
       const stats = await computeStatisticsFromOverview(tiff, metadata.noDataValue);
       metadata.minValue = stats.min;
@@ -269,7 +285,27 @@ function getSampleFormatName(sampleFormat: number, bitsPerSample?: number): stri
 export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ category: string; items: Array<{ label: string; value: string }> }> {
   const sections = [];
   
-  // Data Statistics (moved to top)
+  // Embedded Colormap (show first if present)
+  if (metadata.hasEmbeddedColormap && metadata.embeddedColormap) {
+    const colormapProps = [];
+    const entries = Object.keys(metadata.embeddedColormap).length;
+    colormapProps.push({
+      label: 'Color Entries',
+      value: entries.toString()
+    });
+    
+    const values = Object.keys(metadata.embeddedColormap).map(Number).sort((a, b) => a - b);
+    if (values.length > 0) {
+      colormapProps.push({
+        label: 'Value Range',
+        value: `${values[0]} to ${values[values.length - 1]}`
+      });
+    }
+    
+    sections.push({ category: 'Embedded Colormap', items: colormapProps });
+  }
+  
+  // Data Statistics
   const dataProps = [];
   if (metadata.sampleCount !== undefined) {
     let sampleValue = metadata.sampleCount.toString();
