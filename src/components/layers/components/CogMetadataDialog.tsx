@@ -130,20 +130,28 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
   };
 
   const handleCopyEmbeddedColormap = () => {
-    if (!rawMetadata?.embeddedColormap || !onUpdateMeta) return;
+    if (!rawMetadata?.embeddedColormap || !rawMetadata?.uniqueValues || !onUpdateMeta) return;
 
     const palette = rawMetadata.embeddedColormap;
-    const newCategories: Category[] = Object.entries(palette).map(([value, rgba]) => ({
-      value: parseFloat(value),
-      label: value.toString(),
-      color: rgbToHex(rgba[0], rgba[1], rgba[2])
-    }));
+    const uniqueValues = rawMetadata.uniqueValues;
+    
+    // Only create categories for values that exist in uniqueValues
+    const newCategories: Category[] = uniqueValues
+      .filter(value => palette[value] !== undefined)
+      .map(value => {
+        const rgba = palette[value];
+        return {
+          value,
+          label: value.toString(),
+          color: rgbToHex(rgba[0], rgba[1], rgba[2])
+        };
+      });
 
     onUpdateMeta({ categories: newCategories });
 
     toast({
       title: "Embedded Colormap Copied",
-      description: `${newCategories.length} color entries copied to categories.`,
+      description: `${newCategories.length} color entries copied to categories (filtered to unique values in data).`,
     });
   };
 
