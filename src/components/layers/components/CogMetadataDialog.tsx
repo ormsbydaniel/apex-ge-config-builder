@@ -215,64 +215,70 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                     </tbody>
                   </table>
                 </div>
-                
-                {/* Embedded Colormap Actions */}
-                {section.category === 'Embedded Colormap' && onUpdateMeta && rawMetadata?.embeddedColormap && (
-                  <div className="mt-3 space-y-3">
-                    {/* Color palette preview */}
-                    <div className="border rounded-lg p-3 bg-muted/20">
-                      <p className="text-xs text-muted-foreground mb-2">Color Palette Preview (first 20 entries):</p>
-                      <div className="grid grid-cols-10 gap-1">
-                        {Object.entries(rawMetadata.embeddedColormap)
-                          .slice(0, 20)
-                          .map(([value, rgba]) => {
-                            const hexColor = rgbToHex(rgba[0], rgba[1], rgba[2]);
-                            return (
-                              <div
-                                key={value}
-                                className="w-8 h-8 rounded border border-border"
-                                style={{ backgroundColor: hexColor }}
-                                title={`Value: ${value}, Color: ${hexColor}`}
-                              />
-                            );
-                          })}
-                      </div>
-                      {Object.keys(rawMetadata.embeddedColormap).length > 20 && (
-                        <p className="text-xs text-muted-foreground mt-2">
-                          +{Object.keys(rawMetadata.embeddedColormap).length - 20} more colors
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopyEmbeddedColormap}
-                    >
-                      Copy embedded colormap to config categories
-                    </Button>
-                  </div>
-                )}
 
                 {/* Data Statistics Actions */}
-                {section.category === 'Data Statistics' && onUpdateMeta && (
-                  <div className="flex gap-2 mt-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopyMinMax}
-                      disabled={rawMetadata?.minValue === undefined || rawMetadata?.maxValue === undefined || !onUpdateMeta}
-                    >
-                      Copy min/max to config
-                    </Button>
-                    {section.items.find(item => item.label === 'Data Nature')?.value === 'Categorical' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCopyCategories}
-                        disabled={!rawMetadata?.uniqueValues || !onUpdateMeta}
-                      >
-                        Copy unique values to config categories
-                      </Button>
+                {section.category === 'Data Statistics' && (
+                  <div className="mt-3 space-y-3">
+                    {/* Embedded Colormap Preview for Unique Values */}
+                    {onUpdateMeta && rawMetadata?.embeddedColormap && rawMetadata?.uniqueValues && (
+                      <div className="border rounded-lg p-3 bg-muted/20">
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Embedded Color Palette (for unique values):
+                        </p>
+                        <div className="grid grid-cols-10 gap-1">
+                          {rawMetadata.uniqueValues
+                            .slice(0, 20)
+                            .filter(value => rawMetadata.embeddedColormap![value] !== undefined)
+                            .map((value) => {
+                              const rgba = rawMetadata.embeddedColormap![value];
+                              const hexColor = rgbToHex(rgba[0], rgba[1], rgba[2]);
+                              return (
+                                <div
+                                  key={value}
+                                  className="w-8 h-8 rounded border border-border"
+                                  style={{ backgroundColor: hexColor }}
+                                  title={`Value: ${value}, Color: ${hexColor}`}
+                                />
+                              );
+                            })}
+                        </div>
+                        {rawMetadata.uniqueValues.length > 20 && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            +{rawMetadata.uniqueValues.length - 20} more values
+                          </p>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCopyEmbeddedColormap}
+                          className="mt-2"
+                        >
+                          Copy embedded colormap to config categories
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {onUpdateMeta && (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCopyMinMax}
+                          disabled={rawMetadata?.minValue === undefined || rawMetadata?.maxValue === undefined || !onUpdateMeta}
+                        >
+                          Copy min/max to config
+                        </Button>
+                        {section.items.find(item => item.label === 'Data Nature')?.value === 'Categorical' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCopyCategories}
+                            disabled={!rawMetadata?.uniqueValues || !onUpdateMeta}
+                          >
+                            Copy unique values to config categories
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
