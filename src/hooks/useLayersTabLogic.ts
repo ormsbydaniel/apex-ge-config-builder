@@ -74,6 +74,15 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     ...restLogic
   } = composedLogic;
 
+  // Debug log to see what values we're getting
+  if (showDataSourceForm) {
+    console.log('[useLayersTabLogic] Extracted from composedLogic:', {
+      editingDataSourceIndex,
+      editingDataSourceLayerIndex,
+      showDataSourceForm
+    });
+  }
+
   // Restore expanded layers from navigationState on mount
   useEffect(() => {
     if (navigationState && navigationState.expandedLayers && navigationState.expandedLayers.length > 0) {
