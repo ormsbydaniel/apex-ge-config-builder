@@ -129,12 +129,6 @@ const LayersTabCore = ({
 
   // Show form if we're in form mode
   if (showLayerForm || (layersLogic && layersLogic.showDataSourceForm) || (layersLogic && layersLogic.showConstraintForm)) {
-    console.log('[LayersTabCore] Rendering form with editing state:', {
-      editingDataSourceIndex: layersLogic?.editingDataSourceIndex,
-      editingDataSourceLayerIndex: layersLogic?.editingDataSourceLayerIndex,
-      showDataSourceForm: layersLogic?.showDataSourceForm
-    });
-    
     return (
       <LayerFormHandler
         showLayerForm={showLayerForm}
