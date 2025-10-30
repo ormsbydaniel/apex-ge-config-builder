@@ -3,42 +3,52 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Copy, Trash2, Clock, Info } from 'lucide-react';
-import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta } from '@/types/config';
+import { Copy, Trash2, Clock, Info, Edit } from 'lucide-react';
+import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
 import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
+import WmsWmtsMetadataDialog from './WmsWmtsMetadataDialog';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
   index: number;
   onRemove: (index: number) => void;
+  onEdit?: (index: number) => void;
   showPosition?: boolean;
   showStatsLevel?: boolean;
   timeframe?: TimeframeType;
   onManageTimestamps?: () => void;
   services?: Service[];
   currentMeta?: DataSourceMeta;
+  currentLayout?: DataSourceLayout;
+  sourceName?: string;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
+  onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
 }
 
 const DataSourceItem = ({ 
   dataSource, 
   index, 
-  onRemove, 
+  onRemove,
+  onEdit, 
   showPosition = false, 
   showStatsLevel = false,
   timeframe = 'None',
   onManageTimestamps,
   services = [],
   currentMeta,
-  onUpdateMeta
+  currentLayout,
+  sourceName,
+  onUpdateMeta,
+  onUpdateLayout
 }: DataSourceItemProps) => {
   const { toast } = useToast();
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
+  const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
 
   const handleCopyUrl = () => {
     if (dataSource.url) {
@@ -93,16 +103,9 @@ const DataSourceItem = ({
   const hasTimestamps = dataSource.timestamps && dataSource.timestamps.length > 0;
   const showTemporalInfo = timeframe !== 'None' && (hasTimestamps || onManageTimestamps);
   
-  // Check if this data source uses TIME parameter from service capabilities
-  const hasTimeParameter = React.useMemo(() => {
-    if (!dataSource.serviceId || !dataSource.layers) return false;
-    
-    const service = services.find(s => s.id === dataSource.serviceId);
-    if (!service?.capabilities) return false;
-    
-    const layerCapabilities = service.capabilities.layers.find(l => l.name === dataSource.layers);
-    return layerCapabilities?.hasTimeDimension || false;
-  }, [dataSource.serviceId, dataSource.layers, services]);
+  // Check if this data source uses TIME parameter (WMS/WMTS with temporal control but no timestamps)
+  const isWmsOrWmts = dataSource.format?.toLowerCase() === 'wms' || dataSource.format?.toLowerCase() === 'wmts';
+  const hasTimeParameter = isWmsOrWmts && timeframe !== 'None' && !hasTimestamps;
 
   return (
     <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50">
@@ -150,11 +153,30 @@ const DataSourceItem = ({
           </Button>
         )}
         
+        {/* Info icon for WMS/WMTS layers */}
+        {(dataSource.format?.toLowerCase() === 'wms' || dataSource.format?.toLowerCase() === 'wmts') && dataSource.url && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowWmsWmtsDialog(true)}
+            className="h-6 w-6 p-0 flex-shrink-0"
+            title={`View ${dataSource.format.toUpperCase()} Capabilities`}
+          >
+            <Info className="h-3 w-3" />
+          </Button>
+        )}
+        
         {/* Date pill for temporal layers */}
         {hasTimestamps && timeframe !== 'None' && dataSource.timestamps && dataSource.timestamps[0] && (
           <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
             {formatTimestampForTimeframe(dataSource.timestamps[0], timeframe)}
           </Badge>
+        )}
+        
+        {showStatsLevel && (
+          <span className="text-xs text-gray-500 flex-shrink-0">
+            L: {getLevel()}
+          </span>
         )}
         
         <span className="text-xs text-gray-500 flex-shrink-0">
@@ -167,17 +189,11 @@ const DataSourceItem = ({
           </span>
         )}
         
-        {/* TIME parameter pill for WMS/WMTS layers */}
+        {/* TIME parameter badge for WMS/WMTS layers with temporal control but no timestamps */}
         {hasTimeParameter && (
           <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-            TIME param
+            TIME PARAM
           </Badge>
-        )}
-        
-        {showStatsLevel && (
-          <span className="text-xs text-gray-500 flex-shrink-0">
-            L: {getLevel()}
-          </span>
         )}
         
         {showPosition && (
@@ -232,6 +248,18 @@ const DataSourceItem = ({
             <Copy className="h-3 w-3" />
           </Button>
         )}
+
+        {onEdit && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onEdit(index)}
+            className="h-8 w-8 p-0"
+            title="Edit Dataset"
+          >
+            <Edit className="h-3 w-3" />
+          </Button>
+        )}
         
         <Button
           size="sm"
@@ -262,6 +290,20 @@ const DataSourceItem = ({
           url={dataSource.url}
           open={showFlatGeobufDialog}
           onOpenChange={setShowFlatGeobufDialog}
+        />
+      )}
+      
+      {/* WMS/WMTS Capabilities Dialog */}
+      {(dataSource.format?.toLowerCase() === 'wms' || dataSource.format?.toLowerCase() === 'wmts') && dataSource.url && (
+        <WmsWmtsMetadataDialog
+          url={dataSource.url}
+          format={dataSource.format.toLowerCase() as 'wms' | 'wmts'}
+          layerName={dataSource.layers}
+          isOpen={showWmsWmtsDialog}
+          onClose={() => setShowWmsWmtsDialog(false)}
+          sourceName={sourceName}
+          currentLayout={currentLayout}
+          onUpdateLayout={onUpdateLayout}
         />
       )}
     </div>

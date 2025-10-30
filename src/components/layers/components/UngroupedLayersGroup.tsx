@@ -21,6 +21,10 @@ interface UngroupedLayersGroupProps {
   onRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
+  onAddStatisticsSource: (layerIndex: number) => void;
+  onAddConstraintSource?: (layerIndex: number) => void;
+  onRemoveConstraintSource: (layerIndex: number, constraintIndex: number) => void;
+  onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
   isExpanded?: boolean;
   onToggle?: () => void;
 }
@@ -37,6 +41,10 @@ const UngroupedLayersGroup = ({
   onRemoveStatisticsSource,
   onEditDataSource,
   onEditStatisticsSource,
+  onAddStatisticsSource,
+  onAddConstraintSource,
+  onRemoveConstraintSource,
+  onEditConstraintSource,
   isExpanded = false,
   onToggle
 }: UngroupedLayersGroupProps) => {
@@ -113,6 +121,10 @@ const UngroupedLayersGroup = ({
                   onRemoveStatisticsSource={(statsIndex) => onRemoveStatisticsSource(originalIndex, statsIndex)}
                   onEditDataSource={(dataIndex) => onEditDataSource(originalIndex, dataIndex)}
                   onEditStatisticsSource={(statsIndex) => onEditStatisticsSource(originalIndex, statsIndex)}
+                  onAddStatisticsSource={() => onAddStatisticsSource(originalIndex)}
+                  onAddConstraintSource={onAddConstraintSource}
+                  onRemoveConstraintSource={(constraintIndex) => onRemoveConstraintSource(originalIndex, constraintIndex)}
+                  onEditConstraintSource={(constraintIndex) => onEditConstraintSource(originalIndex, constraintIndex)}
                   isExpanded={isCardExpanded(`ungrouped-${originalIndex}`)}
                   onToggle={() => toggleCard(`ungrouped-${originalIndex}`)}
                 />

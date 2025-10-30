@@ -1,6 +1,7 @@
 
 /**
  * Process both data and statistics arrays of a source with a transformation function
+ * Preserves additional fields like constraints and workflows
  */
 export const processSourceArrays = (source: any, transformFn: (items: any[]) => any[]): any => {
   const normalizedSource = { ...source };
@@ -17,6 +18,16 @@ export const processSourceArrays = (source: any, transformFn: (items: any[]) => 
   // Process statistics array
   if (normalizedSource.statistics && Array.isArray(normalizedSource.statistics)) {
     normalizedSource.statistics = transformFn(normalizedSource.statistics);
+  }
+  
+  // Explicitly preserve constraints array (not processed by transformFn)
+  if (source.constraints && Array.isArray(source.constraints)) {
+    normalizedSource.constraints = source.constraints;
+  }
+  
+  // Explicitly preserve workflows array (not processed by transformFn)
+  if (source.workflows && Array.isArray(source.workflows)) {
+    normalizedSource.workflows = source.workflows;
   }
   
   return normalizedSource;

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { CardContent } from '@/components/ui/card';
-import { DataSource, isDataSourceItemArray, Service, DataSourceMeta } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useToast } from '@/hooks/use-toast';
 import LayerMetadata from './LayerMetadata';
@@ -9,9 +9,9 @@ import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
 import LayerLegendDisplay from './LayerLegendDisplay';
 import LayerControlsDisplay from './LayerControlsDisplay';
-import RegularLayerContent from './RegularLayerContent';
 import LayerAttributionDisplay from './LayerAttributionDisplay';
 import LayerColormapsDisplay from './LayerColormapsDisplay';
+import { LayerCardTabs } from './LayerCardTabs';
 
 interface LayerCardContentProps {
   source: DataSource;
@@ -20,6 +20,10 @@ interface LayerCardContentProps {
   onRemoveStatisticsSource?: (statsIndex: number) => void;
   onEditDataSource?: (dataIndex: number) => void;
   onEditStatisticsSource?: (statsIndex: number) => void;
+  onAddStatisticsSource?: () => void;
+  onAddConstraintSource?: (layerIndex: number) => void;
+  onRemoveConstraintSource?: (constraintIndex: number) => void;
+  onEditConstraintSource?: (constraintIndex: number) => void;
 }
 
 const LayerCardContent = ({
@@ -28,7 +32,11 @@ const LayerCardContent = ({
   onRemoveDataSource,
   onRemoveStatisticsSource,
   onEditDataSource,
-  onEditStatisticsSource
+  onEditStatisticsSource,
+  onAddStatisticsSource,
+  onAddConstraintSource,
+  onRemoveConstraintSource,
+  onEditConstraintSource
 }: LayerCardContentProps) => {
   const { config, dispatch } = useConfig();
   const { toast } = useToast();
@@ -69,6 +77,32 @@ const LayerCardContent = ({
     });
   };
 
+  // Handler to update layout fields
+  const handleUpdateLayout = (updates: Partial<DataSourceLayout>) => {
+    if (sourceIndex === -1) return;
+
+    const updatedSource = {
+      ...source,
+      layout: {
+        ...source.layout,
+        ...updates
+      }
+    };
+
+    dispatch({
+      type: 'UPDATE_SOURCE',
+      payload: {
+        index: sourceIndex,
+        source: updatedSource
+      }
+    });
+
+    toast({
+      title: "Layout Updated",
+      description: "Legend configuration has been updated successfully",
+    });
+  };
+
   return (
     <CardContent className="space-y-4 pl-[46px]">
       <LayerMetadata source={source} />
@@ -93,18 +127,45 @@ const LayerCardContent = ({
       <LayerControlsDisplay source={source} />
 
 
-      {/* Only show data source display for non-swipe layers */}
+      {/* Data Sources Section - only show for non-swipe layers */}
       {!isSwipeLayer && (
-        <RegularLayerContent
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">Data Sources</h4>
+          <LayerCardTabs
           source={source}
           services={(config.services || []) as Service[]}
-          onAddDataSource={onAddDataSource}
-          onRemoveDataSource={onRemoveDataSource}
-          onRemoveStatisticsSource={onRemoveStatisticsSource}
-          onEditDataSource={onEditDataSource}
-          onEditStatisticsSource={onEditStatisticsSource}
+          layerIndex={sourceIndex}
+          onAddDataSource={() => onAddDataSource?.()}
+          onAddStatisticsSource={onAddStatisticsSource}
+          onAddConstraintSource={onAddConstraintSource}
+          onAddWorkflow={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Workflow management will be available soon.",
+            });
+          }}
+          onRemoveDataSource={(_, dataIndex) => onRemoveDataSource(dataIndex)}
+          onRemoveStatisticsSource={(_, statsIndex) => onRemoveStatisticsSource?.(statsIndex)}
+          onRemoveConstraintSource={(_, constraintIndex) => onRemoveConstraintSource?.(constraintIndex)}
+          onRemoveWorkflow={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Workflow removal will be available soon.",
+            });
+          }}
+          onEditDataSource={(_, dataIndex) => onEditDataSource?.(dataIndex)}
+          onEditStatisticsSource={(_, statsIndex) => onEditStatisticsSource?.(statsIndex)}
+          onEditConstraintSource={(_, constraintIndex) => onEditConstraintSource?.(constraintIndex)}
+          onEditWorkflow={() => {
+            toast({
+              title: "Coming Soon",
+              description: "Workflow editing will be available soon.",
+            });
+          }}
           onUpdateMeta={handleUpdateMeta}
+          onUpdateLayout={handleUpdateLayout}
         />
+        </div>
       )}
 
       {/* Show swipe configuration for swipe layers */}

@@ -1,13 +1,15 @@
 
 import React from 'react';
-import { DataSource } from '@/types/config';
+import { DataSource, ConstraintSourceItem } from '@/types/config';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import LayerFormContainer from './LayerFormContainer';
 import DataSourceForm from './DataSourceForm';
+import ConstraintSourceForm from './components/ConstraintSourceForm';
 
 interface LayerFormHandlerProps {
   showLayerForm: boolean;
   showDataSourceForm: boolean;
+  showConstraintForm?: boolean;
   selectedLayerType: any;
   selectedLayerIndex: number | null;
   interfaceGroups: string[];
@@ -15,18 +17,29 @@ interface LayerFormHandlerProps {
   editingLayerIndex: number | null;
   config: { sources: DataSource[]; exclusivitySets?: string[] };
   defaultInterfaceGroup?: string;
+  isAddingStatistics?: boolean;
+  isAddingConstraint?: boolean;
+  editingConstraintIndex?: number | null;
+  editingConstraintLayerIndex?: number | null;
+  editingDataSourceIndex?: number | null;
+  editingDataSourceLayerIndex?: number | null;
   onSelectType: (type: any) => void;
   onLayerSaved: (layer: DataSource) => void;
   onLayerFormCancel: () => void;
   onDataSourceAdded: (dataSource: any) => void;
   onStatisticsLayerAdded: (statisticsItem: any) => void;
+  onConstraintSourceAdded?: (constraint: ConstraintSourceItem | ConstraintSourceItem[]) => void;
+  onUpdateConstraintSource?: (constraint: ConstraintSourceItem, layerIndex: number, constraintIndex: number) => void;
+  onUpdateDataSource?: (dataSource: any, layerIndex: number, dataSourceIndex: number) => void;
   onDataSourceCancel: () => void;
+  onConstraintFormCancel?: () => void;
   onAddService: (service: any) => void;
 }
 
 const LayerFormHandler = ({
   showLayerForm,
   showDataSourceForm,
+  showConstraintForm = false,
   selectedLayerType,
   selectedLayerIndex,
   interfaceGroups,
@@ -34,12 +47,22 @@ const LayerFormHandler = ({
   editingLayerIndex,
   config,
   defaultInterfaceGroup,
+  isAddingStatistics = false,
+  isAddingConstraint = false,
+  editingConstraintIndex = null,
+  editingConstraintLayerIndex = null,
+  editingDataSourceIndex = null,
+  editingDataSourceLayerIndex = null,
   onSelectType,
   onLayerSaved,
   onLayerFormCancel,
   onDataSourceAdded,
   onStatisticsLayerAdded,
+  onConstraintSourceAdded,
+  onUpdateConstraintSource,
+  onUpdateDataSource,
   onDataSourceCancel,
+  onConstraintFormCancel,
   onAddService
 }: LayerFormHandlerProps) => {
   if (showLayerForm) {
@@ -62,24 +85,25 @@ const LayerFormHandler = ({
     );
   }
 
-  
-  
   if (showDataSourceForm && selectedLayerIndex !== null) {
-    console.log('LayerFormHandler: showDataSourceForm=true, selectedLayerIndex=', selectedLayerIndex);
-    console.log('LayerFormHandler: config.sources.length=', config.sources.length);
     const currentLayer = config.sources[selectedLayerIndex];
     
     if (!currentLayer) {
       console.error('No layer found at index:', selectedLayerIndex, 'Available sources:', config.sources.map(s => s.name));
       return null;
     }
-    console.log('LayerFormHandler: Found current layer:', currentLayer.name);
     
     // Determine layer type from flags
     let layerType: LayerTypeOption = 'standard';
     if ((currentLayer as any).isSwipeLayer) layerType = 'swipe';
     else if ((currentLayer as any).isMirrorLayer) layerType = 'mirror';
     else if ((currentLayer as any).isSpotlightLayer) layerType = 'spotlight';
+    
+    // Get the data source being edited if in edit mode
+    // CRITICAL: Use explicit null checks, not || operator, because 0 is a valid index!
+    const editingDataSource = editingDataSourceIndex !== null && editingDataSourceLayerIndex !== null
+      ? config.sources[editingDataSourceLayerIndex]?.data?.[editingDataSourceIndex]
+      : undefined;
     
     return (
       <DataSourceForm
@@ -91,6 +115,46 @@ const LayerFormHandler = ({
         onAddStatisticsLayer={onStatisticsLayerAdded}
         onAddService={onAddService}
         onCancel={onDataSourceCancel}
+        allowedFormats={isAddingStatistics ? ['flatgeobuf', 'geojson'] : undefined}
+        isAddingStatistics={isAddingStatistics}
+        editingDataSource={editingDataSource}
+        editingIndex={editingDataSourceIndex ?? undefined}
+        onUpdateDataSource={onUpdateDataSource}
+        editingLayerIndex={editingDataSourceLayerIndex ?? undefined}
+      />
+    );
+  }
+
+  if (showConstraintForm && selectedLayerIndex !== null) {
+    const currentLayer = config.sources[selectedLayerIndex];
+    
+    if (!currentLayer) {
+      console.error('No layer found at index:', selectedLayerIndex);
+      return null;
+    }
+    
+    // Get the constraint being edited if in edit mode
+    const editingConstraint = editingConstraintIndex !== null && editingConstraintLayerIndex !== null
+      ? config.sources[editingConstraintLayerIndex]?.constraints?.[editingConstraintIndex]
+      : undefined;
+    
+    // Create handler that routes to add or update based on editing state
+    const handleConstraintSubmit = (constraint: ConstraintSourceItem) => {
+      if (editingConstraintIndex !== null && editingConstraintLayerIndex !== null && onUpdateConstraintSource) {
+        onUpdateConstraintSource(constraint, editingConstraintLayerIndex, editingConstraintIndex);
+      } else if (onConstraintSourceAdded) {
+        onConstraintSourceAdded(constraint);
+      }
+    };
+    
+    return (
+      <ConstraintSourceForm
+        services={services}
+        onAddConstraintSource={handleConstraintSubmit}
+        onAddService={onAddService}
+        onCancel={onConstraintFormCancel || (() => {})}
+        editingConstraint={editingConstraint}
+        editingIndex={editingConstraintIndex ?? undefined}
       />
     );
   }

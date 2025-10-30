@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { DataSource, LayerType, Service } from '@/types/config';
 import { NavigationState } from '@/hooks/useNavigationState';
 import { LayersTabProvider } from '@/contexts/LayersTabContext';
@@ -41,6 +41,20 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
   const layersLogic = useLayersTabLogic({ ...props, navigationState: props.navigationState });
 
   // Create context value with all required properties
+  const onAddDataSource = useCallback((layerIndex: number) => {
+    layersLogic.handleStartDataSourceFormWithExpansion?.(layerIndex, false);
+  }, [layersLogic]);
+
+  const onAddStatisticsSource = useCallback((layerIndex: number) => {
+    layersLogic.handleStartDataSourceFormWithExpansion?.(layerIndex, true);
+  }, [layersLogic]);
+
+  const onAddConstraintSource = useCallback((layerIndex: number) => {
+    if (layersLogic?.handleStartConstraintFormWithExpansion) {
+      layersLogic.handleStartConstraintFormWithExpansion(layerIndex);
+    }
+  }, [layersLogic]);
+
   const contextValue = {
     config: props.config,
     editingLayerIndex: props.editingLayerIndex,
@@ -55,11 +69,15 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onUpdateLayer: props.updateLayer,
     onAddLayer: props.addLayer,
     onUpdateConfig: props.updateConfig,
-    onAddDataSource: layersLogic.handleStartDataSourceFormWithExpansion,
+    onAddDataSource,
     onRemoveDataSource: layersLogic.handleRemoveDataSource,
     onRemoveStatisticsSource: layersLogic.handleRemoveStatisticsSource,
     onEditDataSource: layersLogic.handleEditDataSource,
-    onEditStatisticsSource: layersLogic.handleEditStatisticsSource
+    onEditStatisticsSource: layersLogic.handleEditStatisticsSource,
+    onAddStatisticsSource,
+    onAddConstraintSource,
+    onRemoveConstraintSource: layersLogic.handleRemoveConstraintSource,
+    onEditConstraintSource: layersLogic.handleEditConstraintSource,
   };
 
   return (

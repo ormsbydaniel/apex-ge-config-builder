@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Settings, MapPin, ZoomIn, Edit } from 'lucide-react';
+import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 
 interface SettingsTabProps {
   config: any;
@@ -22,6 +23,14 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [isEditingLogo, setIsEditingLogo] = useState(false);
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   
+  // Theme colors state
+  const [primaryColor, setPrimaryColor] = useState(config.layout.theme?.['primary-color'] || '#003247');
+  const [secondaryColor, setSecondaryColor] = useState(config.layout.theme?.['background-color'] || '#f3f7f8');
+  const [tertiaryColor, setTertiaryColor] = useState(config.layout.theme?.['secondary-color'] || '#335e6f');
+  const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.['text-color-primary'] || '#ffffff');
+  const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.['text-color-secondary'] || '#333333');
+  const [advancedColorsOpen, setAdvancedColorsOpen] = useState(false);
+  
   // Update local state when config changes
   useEffect(() => {
     const center = config.mapConstraints?.center || [0, 0];
@@ -32,6 +41,16 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   useEffect(() => {
     setLogoUrl(config.layout.navigation.logo);
   }, [config.layout.navigation.logo]);
+
+  useEffect(() => {
+    if (config.layout.theme) {
+      setPrimaryColor(config.layout.theme['primary-color'] || '#003247');
+      setSecondaryColor(config.layout.theme['background-color'] || '#f3f7f8');
+      setTertiaryColor(config.layout.theme['secondary-color'] || '#335e6f');
+      setPrimaryFontColor(config.layout.theme['text-color-primary'] || '#ffffff');
+      setSecondaryFontColor(config.layout.theme['text-color-secondary'] || '#333333');
+    }
+  }, [config.layout.theme]);
 
   const validateAndUpdateLatitude = (value: string) => {
     const latitude = parseFloat(value);
@@ -103,6 +122,58 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const handleCancelLogo = () => {
     setLogoUrl(config.layout.navigation.logo);
     setIsEditingLogo(false);
+  };
+
+  const handleColorChange = (field: string, value: string) => {
+    dispatch({
+      type: 'UPDATE_THEME',
+      payload: { field, value }
+    });
+  };
+
+  const handleResetColors = () => {
+    const defaults = {
+      'primary-color': '#003247',
+      'background-color': '#f3f7f8',
+      'secondary-color': '#335e6f',
+      'text-color-primary': '#ffffff',
+      'text-color-secondary': '#333333'
+    };
+    
+    setPrimaryColor(defaults['primary-color']);
+    setSecondaryColor(defaults['background-color']);
+    setTertiaryColor(defaults['secondary-color']);
+    setPrimaryFontColor(defaults['text-color-primary']);
+    setSecondaryFontColor(defaults['text-color-secondary']);
+    
+    Object.entries(defaults).forEach(([field, value]) => {
+      dispatch({
+        type: 'UPDATE_THEME',
+        payload: { field, value }
+      });
+    });
+  };
+
+  const handleResetPrimary = () => {
+    const defaults = { 'primary-color': '#003247', 'text-color-primary': '#ffffff' };
+    setPrimaryColor(defaults['primary-color']);
+    setPrimaryFontColor(defaults['text-color-primary']);
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'primary-color', value: defaults['primary-color'] } });
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'text-color-primary', value: defaults['text-color-primary'] } });
+  };
+
+  const handleResetSecondary = () => {
+    const defaults = { 'background-color': '#f3f7f8', 'text-color-secondary': '#333333' };
+    setSecondaryColor(defaults['background-color']);
+    setSecondaryFontColor(defaults['text-color-secondary']);
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'background-color', value: defaults['background-color'] } });
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'text-color-secondary', value: defaults['text-color-secondary'] } });
+  };
+
+  const handleResetTertiary = () => {
+    const defaults = { 'secondary-color': '#335e6f' };
+    setTertiaryColor(defaults['secondary-color']);
+    dispatch({ type: 'UPDATE_THEME', payload: { field: 'secondary-color', value: defaults['secondary-color'] } });
   };
 
   const getZoomTooltip = (zoom: number): string => {
@@ -238,8 +309,8 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Branding Settings</h3>
             
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
                 <span className="font-medium">Logo:</span>
                 <Button size="sm" variant="ghost" onClick={() => setIsEditingLogo(true)} className="h-6 w-6 p-0">
                   <Edit className="h-3 w-3" />
@@ -258,20 +329,274 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   </div>
                 </div>
               ) : (
-                <div className="flex justify-center border rounded-lg p-4 min-h-[80px] bg-[#2d5f72]">
-                  {config.layout.navigation.logo ? (
-                    <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
-                      e.currentTarget.style.display = 'none';
-                    }} />
-                  ) : (
-                    <div className="text-sm text-slate-500 italic flex items-center">No logo set</div>
-                  )}
+                <div className="w-[20%]">
+                  <div 
+                    className="flex justify-center border rounded-lg p-4 min-h-[80px]" 
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    {config.layout.navigation.logo ? (
+                      <img src={config.layout.navigation.logo} alt="Logo" className="max-h-16 max-w-full object-contain" onError={e => {
+                        e.currentTarget.style.display = 'none';
+                      }} />
+                    ) : (
+                      <div className="text-sm text-slate-500 italic flex items-center">No logo set</div>
+                    )}
+                  </div>
                 </div>
               )}
+            </div>
+
+            {/* Colour Scheme */}
+            <div className="space-y-3 mt-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Colour Scheme</h3>
+              </div>
+              
+              <div className="grid gap-3" style={{ gridTemplateColumns: 'auto auto auto auto auto' }}>
+                {/* Colours */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">Colours</h4>
+                  
+                  <div className="space-y-2">
+                    <div className="h-10 flex items-center">
+                      <Label className="font-medium whitespace-nowrap italic">Title & level 1 menu</Label>
+                    </div>
+                    <div className="h-10 flex items-center">
+                      <Label className="font-medium whitespace-nowrap italic">Level 2 menu</Label>
+                    </div>
+                    <div className="h-10 flex items-center">
+                      <Label className="font-medium whitespace-nowrap italic">Panel</Label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Background */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">Background</h4>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="primaryColor"
+                        type="color"
+                        value={primaryColor}
+                        onChange={(e) => {
+                          setPrimaryColor(e.target.value);
+                          handleColorChange('primary-color', e.target.value);
+                        }}
+                        className="w-10 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        type="text"
+                        value={primaryColor}
+                        onChange={(e) => {
+                          setPrimaryColor(e.target.value);
+                          handleColorChange('primary-color', e.target.value);
+                        }}
+                        className="w-20 text-sm"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="secondaryColor"
+                        type="color"
+                        value={secondaryColor}
+                        onChange={(e) => {
+                          setSecondaryColor(e.target.value);
+                          handleColorChange('background-color', e.target.value);
+                        }}
+                        className="w-10 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        type="text"
+                        value={secondaryColor}
+                        onChange={(e) => {
+                          setSecondaryColor(e.target.value);
+                          handleColorChange('background-color', e.target.value);
+                        }}
+                        className="w-20 text-sm"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="tertiaryColor"
+                        type="color"
+                        value={tertiaryColor}
+                        onChange={(e) => {
+                          setTertiaryColor(e.target.value);
+                          handleColorChange('secondary-color', e.target.value);
+                        }}
+                        className="w-10 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        type="text"
+                        value={tertiaryColor}
+                        onChange={(e) => {
+                          setTertiaryColor(e.target.value);
+                          handleColorChange('secondary-color', e.target.value);
+                        }}
+                        className="w-20 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Font */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">Font</h4>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="primaryFontColor"
+                        type="color"
+                        value={primaryFontColor}
+                        onChange={(e) => {
+                          setPrimaryFontColor(e.target.value);
+                          handleColorChange('text-color-primary', e.target.value);
+                        }}
+                        className="w-10 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        type="text"
+                        value={primaryFontColor}
+                        onChange={(e) => {
+                          setPrimaryFontColor(e.target.value);
+                          handleColorChange('text-color-primary', e.target.value);
+                        }}
+                        className="w-20 text-sm"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="secondaryFontColor"
+                        type="color"
+                        value={secondaryFontColor}
+                        onChange={(e) => {
+                          setSecondaryFontColor(e.target.value);
+                          handleColorChange('text-color-secondary', e.target.value);
+                        }}
+                        className="w-10 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        type="text"
+                        value={secondaryFontColor}
+                        onChange={(e) => {
+                          setSecondaryFontColor(e.target.value);
+                          handleColorChange('text-color-secondary', e.target.value);
+                        }}
+                        className="w-20 text-sm"
+                      />
+                    </div>
+
+                    <div className="h-10"></div>
+                  </div>
+                </div>
+
+                {/* Previews */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">Previews</h4>
+                  
+                  <div className="space-y-2">
+                    <div className="h-10 flex items-center">
+                      <div 
+                        className="flex items-center justify-center px-4 py-2 rounded border font-medium w-full"
+                        style={{ 
+                          color: primaryFontColor, 
+                          backgroundColor: primaryColor 
+                        }}
+                      >
+                        Lorem ipsum ...
+                      </div>
+                    </div>
+
+                    <div className="h-10 flex items-center">
+                      <div 
+                        className="flex items-center justify-center px-4 py-2 rounded border font-medium w-full"
+                        style={{ 
+                          color: secondaryFontColor, 
+                          backgroundColor: secondaryColor 
+                        }}
+                      >
+                        Lorem ipsum ...
+                      </div>
+                    </div>
+
+                    <div className="h-10 flex items-center">
+                      <div 
+                        className="flex items-center justify-center rounded border w-full h-full"
+                        style={{ 
+                          backgroundColor: tertiaryColor 
+                        }}
+                      >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reset Buttons */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">Reset</h4>
+                  
+                  <div className="space-y-2">
+                    <div className="h-10 flex items-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetPrimary}
+                        className="w-full"
+                      >
+                        Reset to default
+                      </Button>
+                    </div>
+
+                    <div className="h-10 flex items-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetSecondary}
+                        className="w-full"
+                      >
+                        Reset to default
+                      </Button>
+                    </div>
+
+                    <div className="h-10 flex items-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetTertiary}
+                        className="w-full"
+                      >
+                        Reset to default
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setAdvancedColorsOpen(true)}
+                >
+                  View / edit full colour palette
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      <AdvancedColorSchemeDialog 
+        open={advancedColorsOpen}
+        onOpenChange={setAdvancedColorsOpen}
+        config={config}
+        dispatch={dispatch}
+      />
     </div>
   );
 };

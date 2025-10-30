@@ -33,6 +33,42 @@ export const useValidatedConfig = () => {
       })
     }));
 
+    // Validate constraints array if it exists
+    const validatedConstraints = source.constraints?.map(constraint => ({
+      ...constraint,
+      url: constraint.url || '',
+      format: 'cog' as const,
+      label: constraint.label || '',
+      type: constraint.type || ('continuous' as const),
+      interactive: constraint.interactive ?? false,
+      ...(constraint.min !== undefined && { min: constraint.min }),
+      ...(constraint.max !== undefined && { max: constraint.max }),
+      ...(constraint.units && { units: constraint.units }),
+      ...(constraint.constrainTo && { 
+        constrainTo: constraint.type === 'combined'
+          ? constraint.constrainTo.map(range => ({
+              label: range.label || '',
+              min: range.min ?? 0,
+              max: range.max ?? 0
+            }))
+          : constraint.constrainTo.map(cat => ({
+              label: cat.label || '',
+              value: cat.value ?? 0
+            }))
+      }),
+      ...(constraint.bandIndex !== undefined && { bandIndex: constraint.bandIndex })
+    }));
+
+    // Validate workflows array if it exists
+    const validatedWorkflows = source.workflows?.map(workflow => ({
+      ...workflow,
+      id: workflow.id || '',
+      name: workflow.name || '',
+      endpoint: workflow.endpoint || '',
+      parameters: workflow.parameters || {},
+      enabled: workflow.enabled ?? false
+    }));
+
     // Enhanced base layer detection
     const isBaseLayer = source.isBaseLayer === true;
 
@@ -47,7 +83,11 @@ export const useValidatedConfig = () => {
       // Set isBaseLayer at top level if detected from legacy format
       ...(shouldBeBaseLayer && { isBaseLayer: true }),
       // Include statistics if they exist
-      ...(validatedStatistics && { statistics: validatedStatistics })
+      ...(validatedStatistics && { statistics: validatedStatistics }),
+      // Include constraints if they exist
+      ...(validatedConstraints && { constraints: validatedConstraints }),
+      // Include workflows if they exist
+      ...(validatedWorkflows && { workflows: validatedWorkflows })
     };
 
     // For base layers (now detected at top level), meta and layout are optional

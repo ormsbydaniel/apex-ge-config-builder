@@ -104,6 +104,31 @@ export const createLayerActionHandlers = (
     console.log(`Edit statistics source at layer ${layerIndex}, stats index ${statsIndex}`);
   };
 
+  const handleRemoveConstraintSource = (layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (layer.constraints) {
+      // Filter out the deleted constraint
+      const remainingConstraints = layer.constraints.filter((_, index) => index !== constraintIndex);
+      
+      // Renumber all remaining constraints sequentially from 2
+      const renumberedConstraints = remainingConstraints.map((constraint, index) => ({
+        ...constraint,
+        bandIndex: index + 2  // Start from 2
+      }));
+      
+      const updatedLayer = {
+        ...layer,
+        constraints: renumberedConstraints
+      };
+      updateLayer(layerIndex, updatedLayer);
+    }
+  };
+
+  const handleEditConstraintSource = (layerIndex: number, constraintIndex: number) => {
+    // Placeholder for Phase 2 implementation
+    console.log(`Edit constraint source at layer ${layerIndex}, constraint index ${constraintIndex}`);
+  };
+
   return {
     handleEditLayer,
     handleEditBaseLayer,
@@ -111,6 +136,8 @@ export const createLayerActionHandlers = (
     handleRemoveDataSource,
     handleRemoveStatisticsSource,
     handleEditDataSource,
-    handleEditStatisticsSource
+    handleEditStatisticsSource,
+    handleRemoveConstraintSource,
+    handleEditConstraintSource
   };
 };

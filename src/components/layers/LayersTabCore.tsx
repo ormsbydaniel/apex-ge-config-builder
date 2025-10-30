@@ -128,11 +128,12 @@ const LayersTabCore = ({
   };
 
   // Show form if we're in form mode
-  if (showLayerForm || (layersLogic && layersLogic.showDataSourceForm)) {
+  if (showLayerForm || (layersLogic && layersLogic.showDataSourceForm) || (layersLogic && layersLogic.showConstraintForm)) {
     return (
       <LayerFormHandler
         showLayerForm={showLayerForm}
         showDataSourceForm={layersLogic?.showDataSourceForm || false}
+        showConstraintForm={layersLogic?.showConstraintForm || false}
         selectedLayerType={selectedLayerType}
         selectedLayerIndex={layersLogic?.selectedLayerIndex ?? null}
         interfaceGroups={config.interfaceGroups}
@@ -140,12 +141,22 @@ const LayersTabCore = ({
         editingLayerIndex={editingLayerIndex}
         config={config}
         defaultInterfaceGroup={defaultInterfaceGroup}
+        isAddingStatistics={layersLogic?.isAddingStatistics || false}
+        isAddingConstraint={layersLogic?.isAddingConstraint || false}
+        editingConstraintIndex={layersLogic?.editingConstraintIndex ?? null}
+        editingConstraintLayerIndex={layersLogic?.editingConstraintLayerIndex ?? null}
+        editingDataSourceIndex={layersLogic?.editingDataSourceIndex ?? null}
+        editingDataSourceLayerIndex={layersLogic?.editingDataSourceLayerIndex ?? null}
         onSelectType={handleLayerTypeSelect}
         onLayerSaved={handleLayerSaved}
         onLayerFormCancel={handleLayerFormCancel}
         onDataSourceAdded={layersLogic?.handleDataSourceAdded || (() => {})}
         onStatisticsLayerAdded={layersLogic?.handleStatisticsLayerAdded || (() => {})}
+        onConstraintSourceAdded={layersLogic?.handleConstraintSourceAdded || (() => {})}
+        onUpdateConstraintSource={layersLogic?.handleUpdateConstraintSource || (() => {})}
+        onUpdateDataSource={layersLogic?.handleUpdateDataSource || (() => {})}
         onDataSourceCancel={layersLogic?.handleCancelDataSource || (() => {})}
+        onConstraintFormCancel={layersLogic?.handleCancelConstraint || (() => {})}
         onAddService={addService}
       />
     );

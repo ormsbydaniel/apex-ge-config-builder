@@ -45,8 +45,6 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
     try {
       // If we have cached capabilities from file upload, use those instead of fetching
       if (capabilities?.layers && capabilities.layers.length > 0) {
-        console.log('Using cached S3 bucket data from file upload', capabilities);
-        
         // Transform capabilities layers to S3Object format
         const cachedObjects: S3Object[] = capabilities.layers.map(layer => ({
           key: layer.name,

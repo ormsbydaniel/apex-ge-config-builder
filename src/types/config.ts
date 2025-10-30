@@ -33,6 +33,16 @@ export interface LayerInfo {
   title?: string;
   abstract?: string;
   hasTimeDimension?: boolean;
+  defaultTime?: string;
+  crs?: string[];
+  bbox?: {
+    west: string;
+    east: string;
+    south: string;
+    north: string;
+  };
+  hasLegendGraphic?: boolean;
+  legendGraphicUrl?: string;
   boundingBox?: {
     minX: number;
     minY: number;
@@ -61,6 +71,7 @@ export interface DataSourceItem {
   maxZoom?: number;
   // Temporal support
   timestamps?: number[]; // Array of Unix timestamps
+  useTimeParameter?: boolean; // Use TIME parameter from WMS/WMTS service
   // Opacity support (0-1 range)
   opacity?: number;
 }
@@ -85,6 +96,32 @@ export type TimeframeType = 'None' | 'Days' | 'Months' | 'Years';
 export interface TemporalConfig {
   timeframe: TimeframeType;
   defaultTimestamp?: number; // Default timestamp when timeframe is not 'None'
+}
+
+// Constraint source configuration
+export interface ConstraintSourceItem {
+  url: string;
+  format: 'cog'; // Only COG supported for constraints
+  label: string; // Display name for the constraint
+  type: 'continuous' | 'categorical' | 'combined'; // Constraint type
+  interactive: boolean; // Whether user can control this constraint
+  // For continuous constraints
+  min?: number;
+  max?: number;
+  units?: string;
+  // For categorical constraints (values only) or combined (named ranges with min/max)
+  constrainTo?: Array<{ label: string; value: number }> | Array<{ label: string; min: number; max: number }>;
+  // Band selection
+  bandIndex?: number;
+}
+
+// Workflow configuration
+export interface WorkflowItem {
+  id: string;
+  name: string;
+  endpoint: string; // Processing endpoint URL
+  parameters: Record<string, any>; // Flexible parameter object
+  enabled: boolean;
 }
 
 // Enhanced meta interface
@@ -151,6 +188,8 @@ interface BaseDataSource {
   isActive: boolean;
   data: DataField;
   statistics?: DataSourceItem[]; // Add statistics array
+  constraints?: ConstraintSourceItem[]; // Add constraints array
+  workflows?: WorkflowItem[]; // Add workflows array
   hasFeatureStatistics?: boolean;
   isBaseLayer?: boolean; // Add isBaseLayer as optional to base interface
   exclusivitySets?: string[]; // Array of exclusivity set names this layer belongs to

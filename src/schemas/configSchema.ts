@@ -94,6 +94,61 @@ const DataFieldSchema = z.array(DataSourceItemSchema);
 // Statistics field schema - array of DataSourceItems with level field
 const StatisticsFieldSchema = z.array(DataSourceItemSchema);
 
+// Constraint source schema
+const ConstraintSourceItemSchema = z.object({
+  url: urlOrRelativePathSchema,
+  format: z.literal('cog'),
+  label: z.string(),
+  type: z.enum(['continuous', 'categorical', 'combined']),
+  interactive: z.boolean(),
+  // Continuous fields
+  min: z.number().optional(),
+  max: z.number().optional(),
+  units: z.string().optional(),
+  // Categorical and combined fields
+  constrainTo: z.union([
+    z.array(z.object({
+      label: z.string(),
+      value: z.number()
+    })),
+    z.array(z.object({
+      label: z.string(),
+      min: z.number(),
+      max: z.number()
+    }))
+  ]).optional(),
+  // Band selection
+  bandIndex: z.number().int().optional()
+}).refine(
+  (data) => {
+    // Continuous constraints require min and max
+    if (data.type === 'continuous') {
+      return data.min !== undefined && data.max !== undefined;
+    }
+    // Categorical constraints require constrainTo array with value
+    if (data.type === 'categorical') {
+      return data.constrainTo && data.constrainTo.length > 0;
+    }
+    // Combined constraints require constrainTo array with min/max
+    if (data.type === 'combined') {
+      return data.constrainTo && data.constrainTo.length > 0;
+    }
+    return true;
+  },
+  {
+    message: "Continuous constraints require min/max, categorical/combined constraints require constrainTo array",
+  }
+);
+
+// Workflow schema
+const WorkflowItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  endpoint: urlOrRelativePathSchema,
+  parameters: z.record(z.any()),
+  enabled: z.boolean()
+});
+
 // Updated Swipe configuration schema to support multiple base sources
 const SwipeConfigSchema = z.object({
   clippedSourceName: z.string().min(1, "Clipped source name is required"),
@@ -208,6 +263,8 @@ const BaseDataSourceObjectSchema = z.object({
   isActive: z.boolean(),
   data: DataFieldSchema,
   statistics: StatisticsFieldSchema.optional(), // Add optional statistics array
+  constraints: z.array(ConstraintSourceItemSchema).optional(), // Add optional constraints array
+  workflows: z.array(WorkflowItemSchema).optional(), // Add optional workflows array
   hasFeatureStatistics: z.boolean().optional(),
   isBaseLayer: z.boolean().optional(), // Add optional isBaseLayer for new format
   exclusivitySets: z.array(z.string()).optional(), // Array of exclusivity set names
@@ -326,6 +383,24 @@ export const ConfigurationSchema = z.object({
       logo: urlOrRelativePathSchema,
       title: z.string().min(1, 'Title is required'),
     }),
+    theme: z.object({
+      'primary-color': z.string().optional(),
+      'secondary-color': z.string().optional(),
+      'tertiary-color': z.string().optional(),
+      'accent-color': z.string().optional(),
+      'background-color': z.string().optional(),
+      'foreground-color': z.string().optional(),
+      'text-color-primary': z.string().optional(),
+      'text-color-secondary': z.string().optional(),
+      'disabled-color': z.string().optional(),
+      'border-color': z.string().optional(),
+      'success-color': z.string().optional(),
+      'text-color-on-success': z.string().optional(),
+      'error-color': z.string().optional(),
+      'text-color-on-error': z.string().optional(),
+      'warning-color': z.string().optional(),
+      'text-color-on-warning': z.string().optional(),
+    }).optional(),
   }),
   interfaceGroups: z.array(z.string()),
   exclusivitySets: z.array(z.string()),

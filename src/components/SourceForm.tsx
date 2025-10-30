@@ -31,14 +31,6 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
     handleFormatChange,
   } = useSourceForm();
 
-  // Debug logging for SourceForm
-  console.log('SourceForm Debug:', {
-    selectedFormat,
-    formDataServiceId: formData.data[0]?.serviceId,
-    formDataUrl: formData.data[0]?.url,
-    services: services.map(s => ({ id: s.id, name: s.name, format: s.format, sourceType: s.sourceType }))
-  });
-
   const [selectedS3Object, setSelectedS3Object] = useState<S3Selection | null>(null);
   const [detectedS3Format, setDetectedS3Format] = useState<DataSourceFormat | null>(null);
 
@@ -139,6 +131,16 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
     updateFormData('name', newName);
   };
 
+  // Parse level from filename (e.g., "level00" -> 0, "level01" -> 1)
+  const parseLevelFromFilename = (url: string): number | undefined => {
+    const filename = url.split('/').pop() || '';
+    const levelMatch = filename.match(/level(\d+)/i);
+    if (levelMatch) {
+      return parseInt(levelMatch[1], 10);
+    }
+    return undefined;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -173,26 +175,34 @@ const SourceForm = ({ interfaceGroups, services, onAddSource, onAddService, onCa
 
     // Handle statistics layer
     if (isStatisticsLayer && supportsStatistics) {
+      // Parse level from filename or use calculated level
+      const url = finalFormData.data[0]?.url || '';
+      const parsedLevel = parseLevelFromFilename(url);
+      const level = parsedLevel !== undefined ? parsedLevel : statisticsLevel;
+
       // Create statistics item
       const statisticsItem = {
         ...finalFormData.data[0],
-        level: statisticsLevel
+        level
       };
 
-      // Find existing layer or create new structure
+      // Find existing layer to add statistics to
       const existingLayerIndex = config.sources.findIndex(source => source.name === formData.name);
       
       if (existingLayerIndex !== -1) {
-        // Add to existing layer's statistics
-        const existingLayer = { ...config.sources[existingLayerIndex] };
-        if (!existingLayer.statistics) {
-          existingLayer.statistics = [];
+        // Update existing layer by adding to statistics array
+        const updatedLayer = { ...config.sources[existingLayerIndex] };
+        if (!updatedLayer.statistics) {
+          updatedLayer.statistics = [];
         }
-        existingLayer.statistics.push(statisticsItem);
+        updatedLayer.statistics.push(statisticsItem);
+        
+        // Pass the updated layer back through onAddSource (which handles updates)
+        onAddSource(updatedLayer);
         
         toast({
           title: "Statistics Layer Added",
-          description: `Statistics layer has been added to "${formData.name}".`,
+          description: `Statistics layer (level ${level}) has been added to "${formData.name}".`,
         });
         return;
       } else {

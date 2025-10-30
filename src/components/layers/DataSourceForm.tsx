@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -16,9 +17,11 @@ import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
-import { format } from 'date-fns';
+import { format as formatDate, parse, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ServiceSelectionModal } from './components/ServiceSelectionModals';
+import { ServiceCardList } from './components/ServiceCardList';
+import { determineZLevel } from '@/utils/drawOrderUtils';
 
 interface DataSourceFormProps {
   services: Service[];
@@ -26,9 +29,15 @@ interface DataSourceFormProps {
   layerType?: LayerTypeOption;
   timeframe?: TimeframeType;
   onAddDataSource: (dataSource: DataSourceItem | DataSourceItem[]) => void;
-  onAddStatisticsLayer: (statisticsItem: DataSourceItem) => void;
+  onAddStatisticsLayer: (statisticsItem: DataSourceItem | DataSourceItem[]) => void;
   onAddService: (service: Service) => void;
   onCancel: () => void;
+  allowedFormats?: DataSourceFormat[]; // Optional format restriction
+  isAddingStatistics?: boolean; // Flag to indicate adding statistics source
+  editingDataSource?: DataSourceItem; // Data source being edited
+  editingIndex?: number; // Index of data source being edited
+  onUpdateDataSource?: (dataSource: DataSourceItem, layerIndex: number, dataSourceIndex: number) => void; // Update function
+  editingLayerIndex?: number; // Layer index for editing
 }
 
 const DataSourceForm = ({ 
@@ -39,16 +48,45 @@ const DataSourceForm = ({
   onAddDataSource, 
   onAddStatisticsLayer,
   onAddService, 
-  onCancel 
+  onCancel,
+  allowedFormats,
+  isAddingStatistics = false,
+  editingDataSource,
+  editingIndex,
+  onUpdateDataSource,
+  editingLayerIndex
 }: DataSourceFormProps) => {
   const { toast } = useToast();
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   
+  // Helper function to get recommended zIndex based on format
+  const getRecommendedZIndex = (format: DataSourceFormat): number => {
+    // Create a mock DataSourceItem to pass to determineZLevel
+    const mockDataItem: DataSourceItem = {
+      url: '',
+      format,
+      zIndex: 0
+    };
+    // Assume standard (non-base) layer for recommendation
+    return determineZLevel(mockDataItem, false);
+  };
+  
+  // Determine initial format based on allowed formats or editing data source
+  const getInitialFormat = (): DataSourceFormat => {
+    if (editingDataSource) {
+      return editingDataSource.format as DataSourceFormat;
+    }
+    if (allowedFormats && allowedFormats.length > 0) {
+      return allowedFormats[0];
+    }
+    return 'cog';
+  };
+  
   const [sourceType, setSourceType] = useState<'service' | 'direct'>('direct');
-  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>('cog');
-  const [directUrl, setDirectUrl] = useState('');
-  const [directLayers, setDirectLayers] = useState('');
-  const [zIndex, setZIndex] = useState(2);
+  const [selectedFormat, setSelectedFormat] = useState<DataSourceFormat>(getInitialFormat());
+  const [directUrl, setDirectUrl] = useState(editingDataSource?.url || '');
+  const [directLayers, setDirectLayers] = useState(editingDataSource?.layers || '');
+  const [zIndex, setZIndex] = useState(editingDataSource?.zIndex ?? getRecommendedZIndex(getInitialFormat()));
   
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
@@ -56,7 +94,7 @@ const DataSourceForm = ({
   
   // Position state for comparison layers
   const [selectedPosition, setSelectedPosition] = useState<PositionValue | undefined>(
-    requiresPosition(layerType) ? getDefaultPosition(layerType) : undefined
+    editingDataSource?.position || (requiresPosition(layerType) ? getDefaultPosition(layerType) : undefined)
   );
   
   // Statistics layer state
@@ -66,12 +104,30 @@ const DataSourceForm = ({
     statisticsLevel
   } = useStatisticsLayer(currentLayerStatistics);
   
+  // Manual statistics level input (when isAddingStatistics is true)
+  const [manualStatisticsLevel, setManualStatisticsLevel] = useState<number>(editingDataSource?.level ?? statisticsLevel);
+  
   // Removed new service form state - services should be added via Services menu
   
-  // Date picker state for temporal layers
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  const [month, setMonth] = useState<Date>(new Date());
+  // Date picker state for temporal layers - initialize from editing data source if available
+  const getInitialDate = (): Date | undefined => {
+    if (editingDataSource?.timestamps && editingDataSource.timestamps.length > 0) {
+      return new Date(editingDataSource.timestamps[0] * 1000); // Convert Unix timestamp to Date
+    }
+    return undefined;
+  };
+  
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(getInitialDate());
+  const [dateInputValue, setDateInputValue] = useState<string>(
+    getInitialDate() ? formatDate(getInitialDate()!, 'dd/MM/yyyy') : ''
+  );
+  const [month, setMonth] = useState<Date>(getInitialDate() || new Date());
   const requiresTimestamp = timeframe && timeframe !== 'None';
+  
+  // State for WMS/WMTS TIME parameter usage - initialize from editing data source
+  const [useTimeParameter, setUseTimeParameter] = useState<boolean>(
+    editingDataSource?.useTimeParameter ?? true
+  );
 
   // Generate year options (1900 to 2050)
   const yearOptions = Array.from({ length: 151 }, (_, i) => 1900 + i);
@@ -91,6 +147,32 @@ const DataSourceForm = ({
     const newMonth = new Date(parseInt(year), month.getMonth(), 1);
     setMonth(newMonth);
   };
+
+  // Sync form state with editingDataSource when it changes
+  useEffect(() => {
+    if (editingDataSource) {
+      const dataFormat = editingDataSource.format as DataSourceFormat;
+      setSelectedFormat(dataFormat);
+      setDirectUrl(editingDataSource.url || '');
+      setDirectLayers(editingDataSource.layers || '');
+      setZIndex(editingDataSource.zIndex ?? getRecommendedZIndex(dataFormat));
+      setSelectedPosition(editingDataSource.position || (requiresPosition(layerType) ? getDefaultPosition(layerType) : undefined));
+      setManualStatisticsLevel(editingDataSource.level ?? statisticsLevel);
+      setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
+      
+      // Handle date initialization
+      if (editingDataSource.timestamps && editingDataSource.timestamps.length > 0) {
+        const date = new Date(editingDataSource.timestamps[0] * 1000);
+        setSelectedDate(date);
+        setDateInputValue(formatDate(date, 'dd/MM/yyyy'));
+        setMonth(date);
+      } else {
+        setSelectedDate(undefined);
+        setDateInputValue('');
+        setMonth(new Date());
+      }
+    }
+  }, [editingDataSource, layerType]);
 
   const CustomCaption = ({ displayMonth }: { displayMonth: Date }) => {
     return (
@@ -149,15 +231,28 @@ const DataSourceForm = ({
   const needsPosition = requiresPosition(layerType);
   const validPositions = getValidPositions(layerType);
 
+  // Filter format configs based on allowed formats
+  const availableFormatConfigs = allowedFormats
+    ? Object.entries(FORMAT_CONFIGS).filter(([key]) => allowedFormats.includes(key as DataSourceFormat))
+    : Object.entries(FORMAT_CONFIGS);
+
   // Check if current format supports statistics
   const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
 
   const handleFormatChange = (format: DataSourceFormat) => {
     setSelectedFormat(format);
     
+    // Update zIndex to recommended value for the new format
+    setZIndex(getRecommendedZIndex(format));
+    
     // Reset statistics state for unsupported formats
     if (format !== 'flatgeobuf' && format !== 'geojson') {
       setIsStatisticsLayer(false);
+    }
+    
+    // Set useTimeParameter to true by default for WMS/WMTS when temporal is enabled
+    if ((format === 'wms' || format === 'wmts') && requiresTimestamp) {
+      setUseTimeParameter(true);
     }
   };
 
@@ -180,23 +275,39 @@ const DataSourceForm = ({
   ) => {
     // Handle bulk selection (array of assets)
     if (Array.isArray(selection)) {
+      // Determine if this should be treated as a statistics source
+      const shouldAddAsStatistics = isAddingStatistics || (isStatisticsLayer && supportsStatistics);
+      const levelToUse = isAddingStatistics ? manualStatisticsLevel : statisticsLevel;
+      
       // Convert all assets to DataSourceItems
-      const dataSourceItems: DataSourceItem[] = selection.map((asset) => ({
+      const dataSourceItems: DataSourceItem[] = selection.map((asset, index) => ({
         url: asset.url,
         format: asset.format,
         zIndex, // Use the current zIndex from form state
         ...(asset.datetime && requiresTimestamp && {
           timestamps: [Math.floor(new Date(asset.datetime).getTime() / 1000)]
-        })
+        }),
+        ...(shouldAddAsStatistics && { level: levelToUse + index }) // Increment level for each statistics source
       }));
       
-      // Add all data sources in a single batch operation
-      onAddDataSource(dataSourceItems);
-      
-      toast({
-        title: "Data Sources Added",
-        description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
-      });
+      // Add all data sources based on type
+      if (shouldAddAsStatistics) {
+        // Add all statistics sources in a single batch operation
+        onAddStatisticsLayer(dataSourceItems);
+        
+        toast({
+          title: "Statistics Sources Added",
+          description: `${dataSourceItems.length} statistics sources have been added starting at level ${levelToUse}.`,
+        });
+      } else {
+        // Add all data sources in a single batch operation
+        onAddDataSource(dataSourceItems);
+        
+        toast({
+          title: "Data Sources Added",
+          description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
+        });
+      }
       
       setShowServiceModal(false);
       setSelectedServiceForModal(null);
@@ -279,7 +390,10 @@ const DataSourceForm = ({
     }
 
     // Validate timestamp for temporal layers
-    if (requiresTimestamp && !selectedDate) {
+    const isWmsOrWmts = selectedFormat === 'wms' || selectedFormat === 'wmts';
+    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !useTimeParameter);
+    
+    if (needsManualTimestamp && !selectedDate) {
       toast({
         title: "Missing Timestamp",
         description: "Please select a timestamp for this temporal layer.",
@@ -288,29 +402,44 @@ const DataSourceForm = ({
       return;
     }
 
+    // Determine if this should be treated as a statistics source
+    const shouldAddAsStatistics = isAddingStatistics || (isStatisticsLayer && supportsStatistics);
+    const levelToUse = isAddingStatistics ? manualStatisticsLevel : statisticsLevel;
+
     const dataSourceItem: DataSourceItem = {
       url,
       format: selectedFormat,
       zIndex,
       ...(layers && { layers }),
       ...(needsPosition && selectedPosition && { position: selectedPosition }),
-      ...(isStatisticsLayer && supportsStatistics && { level: statisticsLevel }),
-      ...(requiresTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] })
+      ...(shouldAddAsStatistics && { level: levelToUse }),
+      ...(needsManualTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] }),
+      ...(isWmsOrWmts && useTimeParameter && { useTimeParameter: true })
     };
 
-    // Call appropriate callback based on statistics layer flag
-    if (isStatisticsLayer && supportsStatistics) {
-      onAddStatisticsLayer(dataSourceItem);
+    // Check if we're in edit mode
+    if (editingDataSource && editingIndex !== undefined && onUpdateDataSource && editingLayerIndex !== undefined) {
+      // Update existing data source
+      onUpdateDataSource(dataSourceItem, editingLayerIndex, editingIndex);
       toast({
-        title: "Statistics Layer Added",
-        description: `${selectedFormat.toUpperCase()} statistics layer (level ${statisticsLevel}) has been added.`,
+        title: "Data Source Updated",
+        description: `${selectedFormat.toUpperCase()} data source has been updated.`,
       });
     } else {
-      onAddDataSource(dataSourceItem);
-      toast({
-        title: "Data Source Added",
-        description: `${selectedFormat.toUpperCase()} data source has been added to the layer.`,
-      });
+      // Call appropriate callback based on statistics layer flag
+      if (shouldAddAsStatistics) {
+        onAddStatisticsLayer(dataSourceItem);
+        toast({
+          title: "Statistics Source Added",
+          description: `${selectedFormat.toUpperCase()} statistics source (level ${levelToUse}) has been added.`,
+        });
+      } else {
+        onAddDataSource(dataSourceItem);
+        toast({
+          title: "Data Source Added",
+          description: `${selectedFormat.toUpperCase()} data source has been added to the layer.`,
+        });
+      }
     }
   };
 
@@ -323,11 +452,19 @@ const DataSourceForm = ({
         onSelect={handleServiceModalSelection}
       />
       
-      <Card>
+      <Card className={cn(
+        "border-2",
+        editingDataSource ? "border-blue-500" : ""
+      )}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
-            Add Data Source
+            {editingDataSource ? 'Edit Data Source' : (isAddingStatistics ? 'Add Statistics Source' : 'Add Data Source')}
+            {editingDataSource && editingIndex !== undefined && (
+              <Badge variant="secondary" className="ml-2">
+                Editing #{editingIndex + 1}
+              </Badge>
+            )}
             {needsPosition && (
               <Badge variant="outline" className="text-xs">
                 {layerType} layer
@@ -335,7 +472,12 @@ const DataSourceForm = ({
             )}
           </CardTitle>
           <CardDescription>
-            Configure a data source for this layer from an existing service or provide direct connection details.
+            {editingDataSource 
+              ? 'Update the configuration for this data source.'
+              : (isAddingStatistics 
+                ? 'Add a FlatGeobuf or GeoJSON statistics source for this layer.'
+                : 'Configure a data source for this layer from an existing service or provide direct connection details.')
+            }
             {needsPosition && (
               <span className="block mt-1 text-orange-600">
                 Position assignment is required for {layerType} layers.
@@ -370,7 +512,7 @@ const DataSourceForm = ({
             )}
 
             {/* Source Type Selection */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               <Label>Source Type</Label>
               <div className="grid grid-cols-2 gap-4">
                 <Card 
@@ -402,80 +544,19 @@ const DataSourceForm = ({
 
             {/* Service Selection */}
             {sourceType === 'service' && !directUrl && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <Label>Select Service</Label>
 
-                {services.length > 0 ? (
-                  <div className="grid gap-4">
-                    {services.map((service) => (
-                      <Card key={service.id} className={`border-l-4 ${
-                        service.sourceType === 's3' ? 'border-l-green-500' : 
-                        service.sourceType === 'stac' ? 'border-l-purple-500' : 
-                        'border-l-blue-500'
-                      }`}>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                {service.sourceType === 's3' ? (
-                                  <Database className="h-4 w-4 text-green-600" />
-                                ) : service.sourceType === 'stac' ? (
-                                  <Server className="h-4 w-4 text-purple-600" />
-                                ) : (
-                                  <Globe className="h-4 w-4 text-blue-600" />
-                                )}
-                                <h3 className={`font-medium ${
-                                  service.sourceType === 's3' ? 'text-green-700' : 
-                                  service.sourceType === 'stac' ? 'text-purple-700' : 
-                                  'text-blue-700'
-                                }`}>{service.name}</h3>
-                                <Badge variant="outline" className={`${
-                                  service.sourceType === 's3' ? 'border-green-300 text-green-700' : 
-                                  service.sourceType === 'stac' ? 'border-purple-300 text-purple-700' : 
-                                  'border-blue-300 text-blue-700'
-                                }`}>
-                                  {service.sourceType === 's3' ? 'S3 Bucket' : 
-                                   service.sourceType === 'stac' ? 'STAC' : 
-                                   service.format?.toUpperCase()}
-                                </Badge>
-                                {service.capabilities?.layers.length && (
-                                  <Badge variant="outline" className="border-green-300 text-green-700">
-                                    {service.capabilities.layers.length} {
-                                      service.sourceType === 's3' ? 'objects' : 
-                                      service.sourceType === 'stac' ? 'collections' : 
-                                      'layers'
-                                    } available
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-sm text-muted-foreground truncate">{service.url}</p>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleServiceSelect(service)}
-                            >
-                              Select
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-4 bg-muted/50 border rounded-lg text-center">
-                    <p className="text-muted-foreground">
-                      No services configured. Add new services via the Services menu above.
-                    </p>
-                  </div>
-                )}
+                <ServiceCardList
+                  services={services}
+                  onServiceSelect={handleServiceSelect}
+                />
               </div>
             )}
 
             {/* Direct Configuration */}
             {sourceType === 'direct' && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="directFormat">Data Format *</Label>
                   <Select value={selectedFormat} onValueChange={handleFormatChange}>
@@ -483,7 +564,7 @@ const DataSourceForm = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(FORMAT_CONFIGS).map(([key, config]) => (
+                      {availableFormatConfigs.map(([key, config]) => (
                         <SelectItem key={key} value={key}>
                           {config.label}
                         </SelectItem>
@@ -492,9 +573,9 @@ const DataSourceForm = ({
                   </Select>
                 </div>
 
-                {/* Statistics Layer Toggle for Direct Configuration */}
-                {supportsStatistics && (
-                  <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                {/* Statistics Layer Toggle for Direct Configuration - hide if already adding statistics */}
+                {supportsStatistics && !isAddingStatistics && (
+                  <div className="space-y-6 p-4 border rounded-lg bg-muted/20">
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="directStatisticsLayer"
@@ -515,6 +596,28 @@ const DataSourceForm = ({
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* Statistics Level Input - shown when explicitly adding statistics */}
+                {isAddingStatistics && (
+                  <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                    <Label htmlFor="directStatisticsLevel" className="font-medium text-blue-700 dark:text-blue-300">
+                      Statistics Level *
+                    </Label>
+                    <Input
+                      id="directStatisticsLevel"
+                      name="directStatisticsLevel"
+                      type="number"
+                      value={manualStatisticsLevel}
+                      onChange={(e) => setManualStatisticsLevel(parseInt(e.target.value) || 0)}
+                      min="0"
+                      max="100"
+                      autoComplete="off"
+                    />
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      Recommended: {statisticsLevel} (next available level)
+                    </p>
                   </div>
                 )}
 
@@ -544,48 +647,6 @@ const DataSourceForm = ({
                   </div>
                 )}
                 
-                {/* Timestamp Picker for Temporal Layers */}
-                {requiresTimestamp && (
-                  <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                    <div className="space-y-2">
-                      <Label htmlFor="timestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                        Timestamp *
-                      </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
-                              !selectedDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={setSelectedDate}
-                            month={month}
-                            onMonthChange={setMonth}
-                            initialFocus
-                            className={cn("p-0 pointer-events-auto")}
-                            components={{
-                              Caption: CustomCaption
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <p className="text-xs text-blue-600 dark:text-blue-400">
-                        This timestamp will be used for temporal data visualization ({timeframe} timeframe).
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 <div className="space-y-2">
                   <Label htmlFor="directZIndex">Z-Index</Label>
                   <Input
@@ -593,18 +654,132 @@ const DataSourceForm = ({
                     name="directZIndex"
                     type="number"
                     value={zIndex}
-                    onChange={(e) => setZIndex(parseInt(e.target.value) || 2)}
+                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
                     min="0"
-                    max="100"
+                    max="200"
                     autoComplete="off"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+                  </p>
                 </div>
+
+                {/* Timestamp Configuration for Temporal Layers */}
+                {requiresTimestamp && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="timestamp">Timestamp {((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
+                      
+                      {/* WMS/WMTS TIME Parameter Option */}
+                      {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="useTimeParameter"
+                            checked={useTimeParameter}
+                            onCheckedChange={(checked) => setUseTimeParameter(checked as boolean)}
+                          />
+                          <Label 
+                            htmlFor="useTimeParameter"
+                            className="text-sm font-normal cursor-pointer"
+                          >
+                            Use TIME parameter from service
+                          </Label>
+                        </div>
+                      )}
+                      
+                      {/* Manual Timestamp Input - always show for non-WMS/WMTS, conditionally for WMS/WMTS */}
+                      {(selectedFormat !== 'wms' && selectedFormat !== 'wmts') || !useTimeParameter ? (
+                        <>
+                          <div className="flex gap-2 items-center">
+                            <Input
+                              id="timestamp"
+                              placeholder="DD/MM/YYYY"
+                              value={dateInputValue}
+                              onChange={(e) => {
+                                let value = e.target.value;
+                                
+                                // Remove any non-digit characters except slashes
+                                value = value.replace(/[^\d/]/g, '');
+                                
+                                // Auto-add slashes
+                                if (value.length === 2 && !value.includes('/')) {
+                                  value = value + '/';
+                                } else if (value.length === 5 && value.split('/').length === 2) {
+                                  value = value + '/';
+                                }
+                                
+                                // Limit to DD/MM/YYYY format length
+                                if (value.length > 10) {
+                                  value = value.substring(0, 10);
+                                }
+                                
+                                setDateInputValue(value);
+                                
+                                // Try to parse the date in DD/MM/YYYY format
+                                if (value.length === 10) {
+                                  const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                                  if (isValid(parsedDate)) {
+                                    setSelectedDate(parsedDate);
+                                    setMonth(parsedDate);
+                                  }
+                                }
+                              }}
+                              autoComplete="off"
+                              className="w-32"
+                            />
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  type="button"
+                                >
+                                  <CalendarIcon className="h-4 w-4" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={selectedDate}
+                                  onSelect={(date) => {
+                                    setSelectedDate(date);
+                                    if (date) {
+                                      setDateInputValue(formatDate(date, 'dd/MM/yyyy'));
+                                      setMonth(date);
+                                    }
+                                  }}
+                                  month={month}
+                                  onMonthChange={setMonth}
+                                  initialFocus
+                                  className={cn("p-0 pointer-events-auto")}
+                                  components={{
+                                    Caption: CustomCaption
+                                  }}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                          </p>
+                        </>
+                      ) : null}
+                      
+                      {/* Help text when using TIME parameter */}
+                      {useTimeParameter && (selectedFormat === 'wms' || selectedFormat === 'wmts') && (
+                        <p className="text-xs text-muted-foreground">
+                          The TIME parameter from the {selectedFormat.toUpperCase()} service will be used for temporal data visualization.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
             {/* Service-populated Direct Configuration */}
             {sourceType === 'service' && directUrl && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-sm text-green-700">
                     ✓ Configuration populated from selected service. You can modify the details below if needed.
@@ -618,7 +793,7 @@ const DataSourceForm = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(FORMAT_CONFIGS).map(([key, config]) => (
+                      {availableFormatConfigs.map(([key, config]) => (
                         <SelectItem key={key} value={key}>
                           {config.label}
                         </SelectItem>
@@ -627,9 +802,9 @@ const DataSourceForm = ({
                   </Select>
                 </div>
 
-                {/* Statistics Layer Toggle */}
-                {supportsStatistics && (
-                  <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                {/* Statistics Layer Toggle - hide if already adding statistics */}
+                {supportsStatistics && !isAddingStatistics && (
+                  <div className="space-y-6 p-4 border rounded-lg bg-muted/20">
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="serviceDirectStatisticsLayer"
@@ -650,6 +825,28 @@ const DataSourceForm = ({
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* Statistics Level Input - shown when explicitly adding statistics */}
+                {isAddingStatistics && (
+                  <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                    <Label htmlFor="serviceStatisticsLevel" className="font-medium text-blue-700 dark:text-blue-300">
+                      Statistics Level *
+                    </Label>
+                    <Input
+                      id="serviceStatisticsLevel"
+                      name="serviceStatisticsLevel"
+                      type="number"
+                      value={manualStatisticsLevel}
+                      onChange={(e) => setManualStatisticsLevel(parseInt(e.target.value) || 0)}
+                      min="0"
+                      max="100"
+                      autoComplete="off"
+                    />
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      Recommended: {statisticsLevel} (next available level)
+                    </p>
                   </div>
                 )}
 
@@ -679,48 +876,6 @@ const DataSourceForm = ({
                   </div>
                 )}
                 
-                {/* Timestamp Picker for Temporal Layers */}
-                {requiresTimestamp && (
-                  <div className="space-y-2 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                    <div className="space-y-2">
-                      <Label htmlFor="serviceTimestamp" className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                        Timestamp *
-                      </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal border-blue-200 dark:border-blue-800",
-                              !selectedDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={setSelectedDate}
-                            month={month}
-                            onMonthChange={setMonth}
-                            initialFocus
-                            className={cn("p-0 pointer-events-auto")}
-                            components={{
-                              Caption: CustomCaption
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <p className="text-xs text-blue-600 dark:text-blue-400">
-                        This timestamp will be used for temporal data visualization ({timeframe} timeframe).
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 <div className="space-y-2">
                   <Label htmlFor="serviceDirectZIndex">Z-Index</Label>
                   <Input
@@ -728,12 +883,126 @@ const DataSourceForm = ({
                     name="serviceDirectZIndex"
                     type="number"
                     value={zIndex}
-                    onChange={(e) => setZIndex(parseInt(e.target.value) || 2)}
+                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
                     min="0"
-                    max="100"
+                    max="200"
                     autoComplete="off"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+                  </p>
                 </div>
+
+                {/* Timestamp Configuration for Temporal Layers */}
+                {requiresTimestamp && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="serviceTimestamp">Timestamp {((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
+                      
+                      {/* WMS/WMTS TIME Parameter Option */}
+                      {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="serviceUseTimeParameter"
+                            checked={useTimeParameter}
+                            onCheckedChange={(checked) => setUseTimeParameter(checked as boolean)}
+                          />
+                          <Label 
+                            htmlFor="serviceUseTimeParameter"
+                            className="text-sm font-normal cursor-pointer"
+                          >
+                            Use TIME parameter from service
+                          </Label>
+                        </div>
+                      )}
+                      
+                      {/* Manual Timestamp Input - always show for non-WMS/WMTS, conditionally for WMS/WMTS */}
+                      {(selectedFormat !== 'wms' && selectedFormat !== 'wmts') || !useTimeParameter ? (
+                        <>
+                          <div className="flex gap-2 items-center">
+                            <Input
+                              id="serviceTimestamp"
+                              placeholder="DD/MM/YYYY"
+                              value={dateInputValue}
+                              onChange={(e) => {
+                                let value = e.target.value;
+                                
+                                // Remove any non-digit characters except slashes
+                                value = value.replace(/[^\d/]/g, '');
+                                
+                                // Auto-add slashes
+                                if (value.length === 2 && !value.includes('/')) {
+                                  value = value + '/';
+                                } else if (value.length === 5 && value.split('/').length === 2) {
+                                  value = value + '/';
+                                }
+                                
+                                // Limit to DD/MM/YYYY format length
+                                if (value.length > 10) {
+                                  value = value.substring(0, 10);
+                                }
+                                
+                                setDateInputValue(value);
+                                
+                                // Try to parse the date in DD/MM/YYYY format
+                                if (value.length === 10) {
+                                  const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+                                  if (isValid(parsedDate)) {
+                                    setSelectedDate(parsedDate);
+                                    setMonth(parsedDate);
+                                  }
+                                }
+                              }}
+                              autoComplete="off"
+                              className="w-32"
+                            />
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  type="button"
+                                >
+                                  <CalendarIcon className="h-4 w-4" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={selectedDate}
+                                  onSelect={(date) => {
+                                    setSelectedDate(date);
+                                    if (date) {
+                                      setDateInputValue(formatDate(date, 'dd/MM/yyyy'));
+                                      setMonth(date);
+                                    }
+                                  }}
+                                  month={month}
+                                  onMonthChange={setMonth}
+                                  initialFocus
+                                  className={cn("p-0 pointer-events-auto")}
+                                  components={{
+                                    Caption: CustomCaption
+                                  }}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                          </p>
+                        </>
+                      ) : null}
+                      
+                      {/* Help text when using TIME parameter */}
+                      {useTimeParameter && (selectedFormat === 'wms' || selectedFormat === 'wmts') && (
+                        <p className="text-xs text-muted-foreground">
+                          The TIME parameter from the {selectedFormat.toUpperCase()} service will be used for temporal data visualization.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -745,7 +1014,7 @@ const DataSourceForm = ({
               {((sourceType === 'direct' && directUrl) || (sourceType === 'service' && directUrl)) && (
                 <Button type="submit" className="bg-primary hover:bg-primary/90">
                   <Save className="h-4 w-4 mr-2" />
-                  Finish
+                  {editingDataSource ? 'Save Changes' : 'Add Source'}
                 </Button>
               )}
             </div>

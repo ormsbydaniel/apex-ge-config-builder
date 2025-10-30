@@ -62,6 +62,7 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     selectedLayerIndex: layerState.selectedLayerIndex,
     handleLayerCreated: layerState.handleLayerCreated,
     handleDataSourceComplete: layerState.handleDataSourceComplete,
+    handleConstraintComplete: layerState.handleConstraintComplete,
     // Pass through the actual state setters from props instead of using internal state
     setShowLayerForm: setShowLayerForm,
     setSelectedLayerType: setSelectedLayerType,
@@ -74,25 +75,54 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     updateConfig
   });
 
+  // Separate out state properties from layerOperations that conflict with layerState
+  const { 
+    editingDataSourceIndex: _unusedEditingDSIndex, // This is for position editing in layerOperations
+    ...layerOperationsWithoutConflicts 
+  } = layerOperations;
+
   const result = {
-    // Layer state management (consolidated)
+    // Layer state management (consolidated) - spread first as it has the correct editingDataSourceIndex
     ...layerState,
     
-    // Layer operations (consolidated)
-    ...layerOperations,
+    // Layer operations (consolidated) - without conflicting state properties
+    ...layerOperationsWithoutConflicts,
     
     // Interface group actions
     handleAddInterfaceGroup: interfaceGroupActions.handleAddInterfaceGroup,
     
-    // Custom composed methods
-    handleStartDataSourceFormWithExpansion: (layerIndex: number) => {
-      
+    // Override stub methods from layerOperations with real implementations
+    handleStartDataSourceFormWithExpansion: (layerIndex: number, isAddingStatistics = false) => {
       const layer = config.sources[layerIndex];
-      console.log('Layer found:', layer ? layer.name : 'UNDEFINED');
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
       
-      layerState.handleStartDataSourceForm(layerIndex, cardId);
+      layerState.handleStartDataSourceForm(layerIndex, cardId, isAddingStatistics);
+    },
+
+    handleStartConstraintFormWithExpansion: (layerIndex: number) => {
+      const layer = config.sources[layerIndex];
+      const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
+      const cardId = `${groupName}-${layerIndex}`;
+      
+      layerState.handleStartConstraintForm(layerIndex, cardId, true);
+    },
+
+    handleEditConstraintSource: (layerIndex: number, constraintIndex: number) => {
+      const layer = config.sources[layerIndex];
+      const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
+      const cardId = `${groupName}-${layerIndex}`;
+      
+      layerState.handleStartEditConstraint(layerIndex, constraintIndex, cardId);
+    },
+
+    // Override the stub handleEditDataSource from layerOperations
+    handleEditDataSource: (layerIndex: number, dataSourceIndex: number) => {
+      const layer = config.sources[layerIndex];
+      const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
+      const cardId = `${groupName}-${layerIndex}`;
+      
+      layerState.handleStartEditDataSource(layerIndex, dataSourceIndex, cardId);
     }
   };
   

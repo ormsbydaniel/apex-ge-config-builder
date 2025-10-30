@@ -34,6 +34,7 @@ interface UseLayerOperationsProps {
   selectedLayerIndex?: number | null;
   handleLayerCreated?: (groupName: string, layerIndex: number) => void;
   handleDataSourceComplete?: () => void;
+  handleConstraintComplete?: () => void;
   // External state setters (optional - if not provided, will use internal state)
   setShowLayerForm?: (show: boolean) => void;
   setSelectedLayerType?: (type: LayerType | null) => void;
@@ -51,6 +52,7 @@ export const useLayerOperations = ({
   selectedLayerIndex = null,
   handleLayerCreated = () => {},
   handleDataSourceComplete = () => {},
+  handleConstraintComplete = () => {},
   // External state setters
   setShowLayerForm: externalSetShowLayerForm,
   setSelectedLayerType: externalSetSelectedLayerType,
@@ -315,12 +317,14 @@ export const useLayerOperations = ({
     handleDataSourceComplete();
   }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
 
-  const handleStatisticsLayerAdded = useCallback((statisticsItem: any) => {
+  const handleStatisticsLayerAdded = useCallback((statisticsItem: any | any[]) => {
     if (selectedLayerIndex !== null) {
       const layer = config.sources[selectedLayerIndex];
+      // Handle both single and array of statistics items
+      const itemsToAdd = Array.isArray(statisticsItem) ? statisticsItem : [statisticsItem];
       const updatedLayer = {
         ...layer,
-        statistics: [...(layer.statistics || []), statisticsItem]
+        statistics: [...(layer.statistics || []), ...itemsToAdd]
       };
       updateLayer(selectedLayerIndex, updatedLayer);
       
@@ -329,6 +333,93 @@ export const useLayerOperations = ({
     }
     handleDataSourceComplete();
   }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
+
+  const handleConstraintSourceAdded = useCallback((constraintItem: any | any[]) => {
+    if (selectedLayerIndex !== null) {
+      const layer = config.sources[selectedLayerIndex];
+      const existingConstraints = layer.constraints || [];
+      
+      // Calculate next bandIndex: start at 2, or max + 1
+      const nextBandIndex = existingConstraints.length > 0 
+        ? Math.max(...existingConstraints.map(c => c.bandIndex || 1)) + 1 
+        : 2;
+      
+      // Handle both single and array of constraint items
+      const itemsToAdd = Array.isArray(constraintItem) ? constraintItem : [constraintItem];
+      
+      // Add bandIndex to items that don't have one (new constraints)
+      const itemsWithBandIndex = itemsToAdd.map((item, index) => ({
+        ...item,
+        bandIndex: item.bandIndex !== undefined ? item.bandIndex : nextBandIndex + index
+      }));
+      
+      const updatedLayer = {
+        ...layer,
+        constraints: [...existingConstraints, ...itemsWithBandIndex]
+      };
+      updateLayer(selectedLayerIndex, updatedLayer);
+      
+      const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+      handleLayerCreated(groupName, selectedLayerIndex);
+    }
+    handleConstraintComplete();
+  }, [selectedLayerIndex, config.sources, updateLayer, handleLayerCreated, handleConstraintComplete]);
+
+  const handleUpdateConstraintSource = useCallback((constraintItem: any, layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer) return;
+    
+    const updatedConstraints = [...(layer.constraints || [])];
+    updatedConstraints[constraintIndex] = constraintItem;
+    
+    const updatedLayer = {
+      ...layer,
+      constraints: updatedConstraints
+    };
+    
+    updateLayer(layerIndex, updatedLayer);
+    
+    const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+    handleLayerCreated(groupName, layerIndex);
+    
+    handleConstraintComplete();
+  }, [config.sources, updateLayer, handleLayerCreated, handleConstraintComplete]);
+
+  const handleEditConstraintSource = useCallback((layerIndex: number, constraintIndex: number) => {
+    // This will be overridden by composition layer to include expansion
+  }, []);
+
+  const handleUpdateDataSource = useCallback((dataSourceItem: any, layerIndex: number, dataSourceIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer) return;
+    
+    const updatedData = [...(layer.data || [])];
+    updatedData[dataSourceIndex] = dataSourceItem;
+    
+    const updatedLayer = {
+      ...layer,
+      data: updatedData
+    };
+    
+    updateLayer(layerIndex, updatedLayer);
+    
+    const groupName = layer.layout?.interfaceGroup || 'ungrouped';
+    handleLayerCreated(groupName, layerIndex);
+    
+    handleDataSourceComplete();
+  }, [config.sources, updateLayer, handleLayerCreated, handleDataSourceComplete]);
+
+  const handleEditDataSource = useCallback((layerIndex: number, dataSourceIndex: number) => {
+    // This will be overridden by composition layer to include expansion
+  }, []);
+
+  const handleStartConstraintForm = useCallback((layerIndex: number) => {
+    // This will be overridden by the composition layer if needed
+  }, []);
+
+  const handleCancelConstraintForm = useCallback(() => {
+    handleDataSourceComplete();
+  }, [handleDataSourceComplete]);
 
   // === LAYER ACTIONS ===
 
@@ -390,6 +481,13 @@ export const useLayerOperations = ({
     // Data source actions
     handleDataSourceAdded,
     handleStatisticsLayerAdded,
+    handleConstraintSourceAdded,
+    handleUpdateConstraintSource,
+    handleEditConstraintSource,
+    handleUpdateDataSource,
+    handleEditDataSource,
+    handleStartConstraintForm,
+    handleCancelConstraintForm,
     
     // Layer actions (from utility)
     ...layerActionHandlers

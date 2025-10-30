@@ -38,8 +38,6 @@ export const useLayerCardFormSubmission = (
   const { toast } = useToast();
 
   const createLayerFromFormData = (formData: SubmissionFormData): DataSource => {
-    console.log('useLayerCardFormSubmission: Creating layer from form data:', formData);
-    
     // Process categories to ensure they have the required value property
     const processedCategories = formData.categories?.map((cat, index) => ({
       label: cat.label || '',
@@ -81,8 +79,6 @@ export const useLayerCardFormSubmission = (
       }),
     };
 
-    console.log('useLayerCardFormSubmission: Meta object:', metaObject);
-
     // Create layout structure based on contentLocation
     const layoutObject: any = {
       ...(formData.interfaceGroup && { interfaceGroup: formData.interfaceGroup }),
@@ -122,10 +118,12 @@ export const useLayerCardFormSubmission = (
       meta: metaObject,
       layout: layoutObject,
       data: editingLayer?.data || [],
-      ...(editingLayer?.statistics && { statistics: editingLayer.statistics })
+      // Preserve existing arrays when editing
+      ...(editingLayer?.statistics && { statistics: editingLayer.statistics }),
+      ...(editingLayer?.constraints && { constraints: editingLayer.constraints }),
+      ...(editingLayer?.workflows && { workflows: editingLayer.workflows })
     };
 
-    console.log('useLayerCardFormSubmission: Final layer card:', layerCard);
     return layerCard;
   };
 

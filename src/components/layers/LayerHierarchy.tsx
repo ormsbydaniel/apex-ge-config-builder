@@ -22,6 +22,10 @@ interface LayerHierarchyProps {
   onRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
+  onAddStatisticsSource: (layerIndex: number) => void;
+  onAddConstraintSource?: (layerIndex: number) => void;
+  onRemoveConstraintSource: (layerIndex: number, constraintIndex: number) => void;
+  onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddLayer: (groupName: string) => void;
   onAddBaseLayer: () => void;
@@ -52,6 +56,10 @@ const LayerHierarchy = ({
   onRemoveStatisticsSource,
   onEditDataSource,
   onEditStatisticsSource,
+  onAddStatisticsSource,
+  onAddConstraintSource,
+  onRemoveConstraintSource,
+  onEditConstraintSource,
   onMoveLayer,
   onAddLayer,
   onAddBaseLayer,
@@ -301,6 +309,10 @@ const LayerHierarchy = ({
         onRemoveStatisticsSource={onRemoveStatisticsSource}
         onEditDataSource={onEditDataSource}
         onEditStatisticsSource={onEditStatisticsSource}
+        onAddStatisticsSource={onAddStatisticsSource}
+        onAddConstraintSource={onAddConstraintSource}
+        onRemoveConstraintSource={onRemoveConstraintSource}
+        onEditConstraintSource={onEditConstraintSource}
         onMoveLayer={onMoveLayer}
         onAddBaseLayer={onAddBaseLayer}
         onAddRecommendedBaseLayers={onAddRecommendedBaseLayers}
@@ -321,6 +333,10 @@ const LayerHierarchy = ({
           onRemoveStatisticsSource={onRemoveStatisticsSource}
           onEditDataSource={onEditDataSource}
           onEditStatisticsSource={onEditStatisticsSource}
+          onAddStatisticsSource={onAddStatisticsSource}
+          onAddConstraintSource={onAddConstraintSource}
+          onRemoveConstraintSource={onRemoveConstraintSource}
+          onEditConstraintSource={onEditConstraintSource}
           isExpanded={expandedUngroupedLayers}
           onToggle={() => {
             const newExpanded = !expandedUngroupedLayers;

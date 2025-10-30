@@ -36,31 +36,63 @@ export const useNavigationState = () => {
   });
 
   // Save to sessionStorage whenever state changes
-  const saveState = useCallback((state: NavigationState) => {
+  const saveState = useCallback((newState: NavigationState) => {
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      setNavigationState(state);
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      setNavigationState(newState);
     } catch (error) {
       console.error('Failed to save navigation state:', error);
     }
-  }, []);
+  }, []); // Remove navigationState dependency
 
   // Update individual pieces of state
   const setActiveTab = useCallback((tab: string) => {
-    saveState({ ...navigationState, activeTab: tab });
-  }, [navigationState, saveState]);
+    setNavigationState(prev => {
+      const newState = { ...prev, activeTab: tab };
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      } catch (error) {
+        console.error('Failed to save navigation state:', error);
+      }
+      return newState;
+    });
+  }, []);
 
   const setExpandedGroups = useCallback((groups: string[]) => {
-    saveState({ ...navigationState, expandedGroups: groups });
-  }, [navigationState, saveState]);
+    setNavigationState(prev => {
+      const newState = { ...prev, expandedGroups: groups };
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      } catch (error) {
+        console.error('Failed to save navigation state:', error);
+      }
+      return newState;
+    });
+  }, []);
 
   const setExpandedLayers = useCallback((layers: string[]) => {
-    saveState({ ...navigationState, expandedLayers: layers });
-  }, [navigationState, saveState]);
+    setNavigationState(prev => {
+      const newState = { ...prev, expandedLayers: layers };
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      } catch (error) {
+        console.error('Failed to save navigation state:', error);
+      }
+      return newState;
+    });
+  }, []);
 
   const setScrollPosition = useCallback((position: number) => {
-    saveState({ ...navigationState, scrollPosition: position });
-  }, [navigationState, saveState]);
+    setNavigationState(prev => {
+      const newState = { ...prev, scrollPosition: position };
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      } catch (error) {
+        console.error('Failed to save navigation state:', error);
+      }
+      return newState;
+    });
+  }, []);
 
   // Clear state (useful for reset)
   const clearState = useCallback(() => {

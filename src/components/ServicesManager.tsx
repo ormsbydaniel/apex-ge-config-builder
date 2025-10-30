@@ -424,7 +424,27 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {services.map((service, index) => (
+              {services
+                .slice()
+                .sort((a, b) => {
+                  // Priority-based sorting
+                  const getPriority = (service: Service) => {
+                    if (service.sourceType === 'stac') return 1;
+                    if (service.format === 'wms' || service.format === 'wmts') return 2;
+                    if (service.sourceType === 's3') return 3;
+                    return 4;
+                  };
+                  
+                  const priorityA = getPriority(a);
+                  const priorityB = getPriority(b);
+                  
+                  if (priorityA !== priorityB) {
+                    return priorityA - priorityB;
+                  }
+                  
+                  return a.name.localeCompare(b.name);
+                })
+                .map((service, index) => (
                 <Card key={service.id} className={`border-l-4 ${
                   service.sourceType === 's3' ? 'border-l-green-500' : 
                   service.sourceType === 'stac' ? 'border-l-purple-500' : 

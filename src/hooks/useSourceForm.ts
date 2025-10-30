@@ -15,6 +15,7 @@ const initialFormState: DataSource = {
   },
   layout: {
     interfaceGroup: '',
+    contentLocation: 'infoPanel',
     layerCard: {
       toggleable: true,
       controls: {
@@ -39,7 +40,6 @@ export const useSourceForm = () => {
   const [hasFeatureStatistics, setHasFeatureStatistics] = useState(false);
 
   const updateFormData = (path: string, value: any) => {
-    console.log('updateFormData called:', path, '=', value);
     setFormData(prev => {
       const keys = path.split('.');
       const updated = { ...prev };
@@ -56,11 +56,6 @@ export const useSourceForm = () => {
   };
 
   const handleFormatChange = (format: SourceConfigType) => {
-    console.log('=== useSourceForm handleFormatChange ===');
-    console.log('Previous selectedFormat:', selectedFormat);
-    console.log('New format:', format);
-    console.log('Format type:', typeof format);
-    
     setSelectedFormat(format);
     
     // For S3, don't set format in data - it will be determined by file extension
@@ -72,9 +67,6 @@ export const useSourceForm = () => {
     if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf' || format === 's3') {
       updateFormData('data.0.layers', '');
     }
-    
-    console.log('selectedFormat state should now be:', format);
-    console.log('=======================================');
   };
 
   const resetForm = () => {
@@ -82,9 +74,6 @@ export const useSourceForm = () => {
     setSelectedFormat('wms');
     setHasFeatureStatistics(false);
   };
-
-  // Log current state whenever hook is called
-  console.log('useSourceForm hook state - selectedFormat:', selectedFormat);
 
   return {
     selectedFormat,
