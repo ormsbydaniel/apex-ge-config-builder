@@ -67,21 +67,8 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     clearCanceledLayerIndex,
     handleStartDataSourceFormWithExpansion,
     handleStartConstraintFormWithExpansion,
-    editingConstraintIndex,
-    editingConstraintLayerIndex,
-    editingDataSourceIndex,
-    editingDataSourceLayerIndex,
     ...restLogic
   } = composedLogic;
-
-  // Debug log to see what values we're getting
-  if (showDataSourceForm) {
-    console.log('[useLayersTabLogic] Extracted from composedLogic:', {
-      editingDataSourceIndex,
-      editingDataSourceLayerIndex,
-      showDataSourceForm
-    });
-  }
 
   // Restore expanded layers from navigationState on mount
   useEffect(() => {
@@ -230,10 +217,10 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     ...layerTypeHandlers,
     // Spread all other logic from the composed hook
     ...restLogic,
-    // Explicitly expose editing state AFTER spreads to ensure they take precedence
-    editingConstraintIndex,
-    editingConstraintLayerIndex,
-    editingDataSourceIndex,
-    editingDataSourceLayerIndex,
+    // Explicitly get editing state from composedLogic to avoid stale closures
+    editingConstraintIndex: composedLogic.editingConstraintIndex,
+    editingConstraintLayerIndex: composedLogic.editingConstraintLayerIndex,
+    editingDataSourceIndex: composedLogic.editingDataSourceIndex,
+    editingDataSourceLayerIndex: composedLogic.editingDataSourceLayerIndex,
   };
 };

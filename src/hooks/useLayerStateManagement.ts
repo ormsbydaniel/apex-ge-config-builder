@@ -326,6 +326,7 @@ function layerStateReducer(
           ...state.dataSourceForm,
           selectedLayerIndex: action.layerIndex,
           showDataSourceForm: true,
+          isAddingStatistics: false, // Clear this when editing
           editingDataSourceIndex: action.dataSourceIndex,
           editingDataSourceLayerIndex: action.layerIndex,
         },
@@ -490,7 +491,7 @@ export const useLayerStateManagement = () => {
     dispatch({ type: 'CLEAR_EDIT_DATA_SOURCE' });
   }, []);
 
-  const returnValue = {
+  return {
     // Card expansion state and actions
     expandedCards: state.expansion.expandedCards,
     toggleCard,
@@ -554,13 +555,4 @@ export const useLayerStateManagement = () => {
     handleStartEditDataSource,
     clearEditDataSource,
   };
-  
-  // Debug log - shows what we're actually returning
-  console.log('[useLayerStateManagement] Returning state:', {
-    editingDataSourceIndex: state.dataSourceForm.editingDataSourceIndex,
-    editingDataSourceLayerIndex: state.dataSourceForm.editingDataSourceLayerIndex,
-    showDataSourceForm: state.dataSourceForm.showDataSourceForm,
-  });
-  
-  return returnValue;
 };
