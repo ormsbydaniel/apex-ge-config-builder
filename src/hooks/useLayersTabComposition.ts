@@ -75,12 +75,18 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     updateConfig
   });
 
+  // Separate out state properties from layerOperations that conflict with layerState
+  const { 
+    editingDataSourceIndex: _unusedEditingDSIndex, // This is for position editing in layerOperations
+    ...layerOperationsWithoutConflicts 
+  } = layerOperations;
+
   const result = {
-    // Layer state management (consolidated)
+    // Layer state management (consolidated) - spread first as it has the correct editingDataSourceIndex
     ...layerState,
     
-    // Layer operations (consolidated)
-    ...layerOperations,
+    // Layer operations (consolidated) - without conflicting state properties
+    ...layerOperationsWithoutConflicts,
     
     // Interface group actions
     handleAddInterfaceGroup: interfaceGroupActions.handleAddInterfaceGroup,
