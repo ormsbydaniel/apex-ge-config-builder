@@ -167,6 +167,9 @@ export const useValidatedConfig = () => {
                     }),
                     ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
                       constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
+                    }),
+                    ...((source.layout.layerCard.controls as any).blendControls !== undefined && {
+                      blendControls: (source.layout.layerCard.controls as any).blendControls
                     })
                   }
                 : { opacitySlider: true };
@@ -193,6 +196,9 @@ export const useValidatedConfig = () => {
                       }),
                       ...((source.layout.infoPanel.controls as any).constraintSlider !== undefined && {
                         constraintSlider: (source.layout.infoPanel.controls as any).constraintSlider
+                      }),
+                      ...((source.layout.infoPanel.controls as any).blendControls !== undefined && {
+                        blendControls: (source.layout.infoPanel.controls as any).blendControls
                       })
                     }
                   : { opacitySlider: true }
@@ -279,6 +285,9 @@ export const useValidatedConfig = () => {
             }),
             ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
               constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
+            }),
+            ...((source.layout.layerCard.controls as any).blendControls !== undefined && {
+              blendControls: (source.layout.layerCard.controls as any).blendControls
             })
           }
         : { opacitySlider: true };
@@ -305,6 +314,9 @@ export const useValidatedConfig = () => {
               }),
               ...((source.layout.infoPanel.controls as any).constraintSlider !== undefined && {
                 constraintSlider: (source.layout.infoPanel.controls as any).constraintSlider
+              }),
+              ...((source.layout.infoPanel.controls as any).blendControls !== undefined && {
+                blendControls: (source.layout.infoPanel.controls as any).blendControls
               })
             }
           : { opacitySlider: true }
