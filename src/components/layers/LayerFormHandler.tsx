@@ -85,18 +85,13 @@ const LayerFormHandler = ({
     );
   }
 
-  
-  
   if (showDataSourceForm && selectedLayerIndex !== null) {
-    console.log('LayerFormHandler: showDataSourceForm=true, selectedLayerIndex=', selectedLayerIndex);
-    console.log('LayerFormHandler: config.sources.length=', config.sources.length);
     const currentLayer = config.sources[selectedLayerIndex];
     
     if (!currentLayer) {
       console.error('No layer found at index:', selectedLayerIndex, 'Available sources:', config.sources.map(s => s.name));
       return null;
     }
-    console.log('LayerFormHandler: Found current layer:', currentLayer.name);
     
     // Determine layer type from flags
     let layerType: LayerTypeOption = 'standard';
@@ -105,17 +100,10 @@ const LayerFormHandler = ({
     else if ((currentLayer as any).isSpotlightLayer) layerType = 'spotlight';
     
     // Get the data source being edited if in edit mode
-    console.log('LayerFormHandler editing state:', {
-      editingDataSourceIndex,
-      editingDataSourceLayerIndex,
-      hasDataSources: config.sources[editingDataSourceLayerIndex || 0]?.data?.length
-    });
-    
+    // CRITICAL: Use explicit null checks, not || operator, because 0 is a valid index!
     const editingDataSource = editingDataSourceIndex !== null && editingDataSourceLayerIndex !== null
       ? config.sources[editingDataSourceLayerIndex]?.data?.[editingDataSourceIndex]
       : undefined;
-    
-    console.log('LayerFormHandler editingDataSource:', editingDataSource);
     
     return (
       <DataSourceForm
@@ -130,9 +118,9 @@ const LayerFormHandler = ({
         allowedFormats={isAddingStatistics ? ['flatgeobuf', 'geojson'] : undefined}
         isAddingStatistics={isAddingStatistics}
         editingDataSource={editingDataSource}
-        editingIndex={editingDataSourceIndex || undefined}
+        editingIndex={editingDataSourceIndex ?? undefined}
         onUpdateDataSource={onUpdateDataSource}
-        editingLayerIndex={editingDataSourceLayerIndex || undefined}
+        editingLayerIndex={editingDataSourceLayerIndex ?? undefined}
       />
     );
   }
@@ -167,7 +155,7 @@ const LayerFormHandler = ({
         onAddService={onAddService}
         onCancel={onConstraintFormCancel || (() => {})}
         editingConstraint={editingConstraint}
-        editingIndex={editingConstraintIndex || undefined}
+        editingIndex={editingConstraintIndex ?? undefined}
       />
     );
   }

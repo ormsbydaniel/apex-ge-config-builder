@@ -150,14 +150,7 @@ const DataSourceForm = ({
 
   // Sync form state with editingDataSource when it changes
   useEffect(() => {
-    console.log('DataSourceForm useEffect triggered with editingDataSource:', editingDataSource);
     if (editingDataSource) {
-      console.log('Populating form with editing data:', {
-        format: editingDataSource.format,
-        url: editingDataSource.url,
-        layers: editingDataSource.layers,
-        zIndex: editingDataSource.zIndex
-      });
       const dataFormat = editingDataSource.format as DataSourceFormat;
       setSelectedFormat(dataFormat);
       setDirectUrl(editingDataSource.url || '');

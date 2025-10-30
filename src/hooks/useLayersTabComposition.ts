@@ -87,9 +87,7 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     
     // Custom composed methods
     handleStartDataSourceFormWithExpansion: (layerIndex: number, isAddingStatistics = false) => {
-      
       const layer = config.sources[layerIndex];
-      console.log('Layer found:', layer ? layer.name : 'UNDEFINED');
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
       
@@ -97,12 +95,9 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     },
 
     handleStartConstraintFormWithExpansion: (layerIndex: number) => {
-      console.log('[useLayersTabComposition] handleStartConstraintFormWithExpansion called with layerIndex:', layerIndex);
       const layer = config.sources[layerIndex];
-      console.log('[useLayersTabComposition] Found layer:', layer?.name);
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
-      console.log('[useLayersTabComposition] Calling handleStartConstraintForm with cardId:', cardId);
       
       layerState.handleStartConstraintForm(layerIndex, cardId, true);
     },
@@ -116,12 +111,9 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     },
 
     handleEditDataSource: (layerIndex: number, dataSourceIndex: number) => {
-      console.log('[useLayersTabComposition] handleEditDataSource called with:', { layerIndex, dataSourceIndex });
       const layer = config.sources[layerIndex];
-      console.log('[useLayersTabComposition] Found layer:', layer?.name);
       const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
       const cardId = `${groupName}-${layerIndex}`;
-      console.log('[useLayersTabComposition] Calling handleStartEditDataSource with cardId:', cardId);
       
       layerState.handleStartEditDataSource(layerIndex, dataSourceIndex, cardId);
     }
