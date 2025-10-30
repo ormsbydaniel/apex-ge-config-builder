@@ -74,13 +74,6 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     ...restLogic
   } = composedLogic;
 
-  console.log('[useLayersTabLogic] Editing state from composedLogic:', {
-    editingDataSourceIndex,
-    editingDataSourceLayerIndex,
-    editingConstraintIndex,
-    editingConstraintLayerIndex
-  });
-
   // Restore expanded layers from navigationState on mount
   useEffect(() => {
     if (navigationState && navigationState.expandedLayers && navigationState.expandedLayers.length > 0) {
@@ -206,7 +199,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     }
   };
 
-  const returnValue = {
+  return {
     showAddGroupDialog,
     setShowAddGroupDialog,
     showDataSourceForm,
@@ -224,21 +217,14 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     clearExpandedLayerAfterCreation,
     clearExpandedLayerAfterEdit,
     clearExpandedGroup,
-    // Explicitly expose editing state
+    // Layer type handlers
+    ...layerTypeHandlers,
+    // Spread all other logic from the composed hook
+    ...restLogic,
+    // Explicitly expose editing state AFTER spreads to ensure they take precedence
     editingConstraintIndex,
     editingConstraintLayerIndex,
     editingDataSourceIndex,
     editingDataSourceLayerIndex,
-    // Layer type handlers
-    ...layerTypeHandlers,
-    // Spread all other logic from the composed hook (includes layer operations)
-    ...restLogic,
   };
-  
-  console.log('[useLayersTabLogic] Returning editing state:', {
-    editingDataSourceIndex: returnValue.editingDataSourceIndex,
-    editingDataSourceLayerIndex: returnValue.editingDataSourceLayerIndex,
-  });
-  
-  return returnValue;
 };
