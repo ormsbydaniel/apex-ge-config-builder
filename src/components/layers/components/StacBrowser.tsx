@@ -135,30 +135,20 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     try {
       setLoading(true);
       const itemsUrl = getItemsUrl(collection);
-      console.log('Fetching items from URL:', itemsUrl);
       const response = await fetch(itemsUrl);
       
       if (!response.ok) throw new Error('Failed to fetch items');
       
       const data = await response.json();
-      console.log('Raw items response:', data);
-      console.log('Response type:', data.type);
-      console.log('Features array:', data.features);
-      console.log('Items array:', data.items);
       
       const itemsList = data.features || data.items || data;
-      console.log('Processed items list:', itemsList);
-      console.log('Items list is array:', Array.isArray(itemsList));
-      console.log('Items list length:', itemsList?.length);
       
       if (Array.isArray(itemsList)) {
         setItems(itemsList);
         setSelectedCollection(collection);
         setCurrentStep('items');
         setSearchTerm(''); // Clear search after setting items step
-        console.log('Successfully set items, moving to items step');
       } else {
-        console.error('Items list is not an array:', itemsList);
         throw new Error('Invalid items response');
       }
     } catch (error) {
@@ -309,7 +299,6 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
 
   const getFilteredData = () => {
     const term = searchTerm.toLowerCase();
-    console.log(`Filtering ${currentStep} with term: "${term}"`);
     
     if (currentStep === 'collections') {
       const filtered = collections.filter(c => 
@@ -318,7 +307,6 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         c.id.toLowerCase().includes(term) ||
         (c.description && c.description.toLowerCase().includes(term))
       );
-      console.log(`Collections: ${collections.length} total, ${filtered.length} filtered`);
       return filtered;
     } else if (currentStep === 'items') {
       const filtered = items.filter(i => 
@@ -326,8 +314,6 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         i.id.toLowerCase().includes(term) ||
         (i.properties?.title && i.properties.title.toLowerCase().includes(term))
       );
-      console.log(`Items: ${items.length} total, ${filtered.length} filtered`);
-      console.log('Sample item for debugging:', items[0]);
       return filtered;
     } else if (currentStep === 'assets') {
       const filtered = assets.filter(([key, asset]) =>
@@ -336,7 +322,6 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         (asset.title && asset.title.toLowerCase().includes(term)) ||
         asset.href.toLowerCase().includes(term)
       );
-      console.log(`Assets: ${assets.length} total, ${filtered.length} filtered`);
       return filtered;
     }
     

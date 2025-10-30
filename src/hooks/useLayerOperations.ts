@@ -387,7 +387,6 @@ export const useLayerOperations = ({
 
   const handleEditConstraintSource = useCallback((layerIndex: number, constraintIndex: number) => {
     // This will be overridden by composition layer to include expansion
-    console.log('Starting edit constraint form for layer:', layerIndex, 'constraint:', constraintIndex);
   }, []);
 
   const handleUpdateDataSource = useCallback((dataSourceItem: any, layerIndex: number, dataSourceIndex: number) => {
@@ -412,12 +411,10 @@ export const useLayerOperations = ({
 
   const handleEditDataSource = useCallback((layerIndex: number, dataSourceIndex: number) => {
     // This will be overridden by composition layer to include expansion
-    console.log('Starting edit data source form for layer:', layerIndex, 'data source:', dataSourceIndex);
   }, []);
 
   const handleStartConstraintForm = useCallback((layerIndex: number) => {
     // This will be overridden by the composition layer if needed
-    console.log('Starting constraint form for layer:', layerIndex);
   }, []);
 
   const handleCancelConstraintForm = useCallback(() => {

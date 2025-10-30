@@ -5,15 +5,12 @@
 export const transformBaseLayerPreview = (config: any, enabled: boolean): any => {
   if (!enabled) return config;
 
-  console.log('Transforming base layer preview from meta to top level');
   const normalizedConfig = { ...config };
   
   if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
     normalizedConfig.sources = normalizedConfig.sources.map((source: any) => {
       // Check if this is a base layer with preview in meta but not at top level
       if (source.isBaseLayer === true && source.meta?.preview && !source.preview) {
-        console.log('Moving preview from meta to top level for base layer:', source.name);
-        
         const normalizedSource = { ...source };
         
         // Move preview to top level

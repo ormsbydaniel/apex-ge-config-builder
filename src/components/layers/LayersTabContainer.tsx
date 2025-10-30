@@ -50,14 +50,8 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
   }, [layersLogic]);
 
   const onAddConstraintSource = useCallback((layerIndex: number) => {
-    console.log('[LayersTabContainer] onAddConstraintSource called with layerIndex:', layerIndex);
-    console.log('[LayersTabContainer] layersLogic:', layersLogic);
-    console.log('[LayersTabContainer] handleStartConstraintFormWithExpansion:', layersLogic?.handleStartConstraintFormWithExpansion);
-    
     if (layersLogic?.handleStartConstraintFormWithExpansion) {
       layersLogic.handleStartConstraintFormWithExpansion(layerIndex);
-    } else {
-      console.error('[LayersTabContainer] handleStartConstraintFormWithExpansion not found!');
     }
   }, [layersLogic]);
 

@@ -5,7 +5,6 @@
 export const reverseBaseLayerTransformation = (config: any, enabled: boolean): any => {
   if (!enabled) return config;
 
-  console.log('Reversing base layer transformation (old format → new format)');
   const normalizedConfig = { ...config };
   
   if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
@@ -16,8 +15,6 @@ export const reverseBaseLayerTransformation = (config: any, enabled: boolean): a
         const hasBaseLayerAtSourceLevel = source.isBaseLayer === true;
         
         if (hasBaseLayerInData && !hasBaseLayerAtSourceLevel) {
-          console.log('Converting base layer from old format:', source.name);
-          
           const normalizedSource = { ...source };
           
           // Set isBaseLayer at the source level
