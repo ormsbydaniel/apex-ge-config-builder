@@ -224,6 +224,15 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                   </table>
                 </div>
 
+                {/* Data Statistics Note */}
+                {section.category === 'Data Statistics' && (
+                  <div className="mt-3 p-3 bg-muted/20 border rounded-lg">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>NOTE:</strong> The above data statistics are based on the sample of pixels indicated and is therefore a guide rather than definitive. Other values or categories may be present in pixels that have not been sampled.
+                    </p>
+                  </div>
+                )}
+
                 {/* Data Statistics Actions */}
                 {section.category === 'Data Statistics' && (
                   <div className="mt-3 space-y-3">
