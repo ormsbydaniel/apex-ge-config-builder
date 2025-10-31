@@ -33,10 +33,16 @@ export const ConfigFetcher = ({ config: providedConfig }) => {
       
       // Apply theme from config
       const configTheme = providedConfig?.layout?.theme;
+      console.log('[Viewer ConfigFetcher] Provided config theme:', configTheme);
       if (configTheme) {
+        console.log('[Viewer ConfigFetcher] Applying theme properties to document root:');
         Object.entries(configTheme).forEach(([key, value]) => {
+          console.log(`[Viewer ConfigFetcher]   --${key}: ${value}`);
           document.documentElement.style.setProperty(`--${key}`, value);
         });
+        console.log('[Viewer ConfigFetcher] Theme properties applied successfully');
+      } else {
+        console.log('[Viewer ConfigFetcher] No theme found in provided config');
       }
       
       return;
@@ -56,10 +62,16 @@ export const ConfigFetcher = ({ config: providedConfig }) => {
     
     // Apply theme from config
     const configTheme = configData?.layout?.theme;
+    console.log('[Viewer ConfigFetcher] Fetched config theme:', configTheme);
     if (configTheme) {
+      console.log('[Viewer ConfigFetcher] Applying theme properties to document root:');
       Object.entries(configTheme).forEach(([key, value]) => {
+        console.log(`[Viewer ConfigFetcher]   --${key}: ${value}`);
         document.documentElement.style.setProperty(`--${key}`, value);
       });
+      console.log('[Viewer ConfigFetcher] Theme properties applied successfully');
+    } else {
+      console.log('[Viewer ConfigFetcher] No theme found in fetched config');
     }
   }, [providedConfig, configData, configStatus, setConfig, setLayers]);
 

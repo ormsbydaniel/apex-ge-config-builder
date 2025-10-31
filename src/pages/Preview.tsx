@@ -23,15 +23,20 @@ const Preview = () => {
   const { config } = useConfig();
   
   // Extract only viewer-needed config fields, memoized to prevent unnecessary reloads
-  const viewerConfig = useMemo(() => ({
-    version: config.version,
-    layout: config.layout,
-    interfaceGroups: config.interfaceGroups,
-    exclusivitySets: config.exclusivitySets,
-    services: config.services,
-    sources: config.sources,
-    mapConstraints: config.mapConstraints,
-  }), [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints]);
+  const viewerConfig = useMemo(() => {
+    const vConfig = {
+      version: config.version,
+      layout: config.layout,
+      interfaceGroups: config.interfaceGroups,
+      exclusivitySets: config.exclusivitySets,
+      services: config.services,
+      sources: config.sources,
+      mapConstraints: config.mapConstraints,
+    };
+    console.log('[Config Builder Preview] viewerConfig.layout:', vConfig.layout);
+    console.log('[Config Builder Preview] viewerConfig.layout.theme:', vConfig.layout?.theme);
+    return vConfig;
+  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints]);
   
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
