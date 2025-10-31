@@ -30,6 +30,15 @@ export const ConfigFetcher = ({ config: providedConfig }) => {
         setLayers(filteredLayers);
       });
       setConfig(providedConfig);
+      
+      // Apply theme from config
+      const configTheme = providedConfig?.layout?.theme;
+      if (configTheme) {
+        Object.entries(configTheme).forEach(([key, value]) => {
+          document.documentElement.style.setProperty(`--${key}`, value);
+        });
+      }
+      
       return;
     }
 
@@ -44,6 +53,14 @@ export const ConfigFetcher = ({ config: providedConfig }) => {
     });
 
     setConfig(configData);
+    
+    // Apply theme from config
+    const configTheme = configData?.layout?.theme;
+    if (configTheme) {
+      Object.entries(configTheme).forEach(([key, value]) => {
+        document.documentElement.style.setProperty(`--${key}`, value);
+      });
+    }
   }, [providedConfig, configData, configStatus, setConfig, setLayers]);
 
   return config && layers && layers.length > 0 ? <ConfigRenderer /> : <SplashScreen />;
