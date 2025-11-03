@@ -67,7 +67,14 @@ const LayerGroup = ({
     moveLayerToTop,
     moveLayerToBottom,
     config,
-    onUpdateConfig
+    onUpdateConfig,
+    onAddWorkflow,
+    onRemoveWorkflow,
+    onUpdateWorkflow,
+    onMoveWorkflowUp,
+    onMoveWorkflowDown,
+    onMoveWorkflowToTop,
+    onMoveWorkflowToBottom
   } = useLayersTabContext();
 
   // Calculate QA stats for this group's sources
@@ -190,6 +197,13 @@ const LayerGroup = ({
                             onMoveConstraintDown={constraintIndex => onMoveConstraintDown(actualIndex, constraintIndex)}
                             onMoveConstraintToTop={constraintIndex => onMoveConstraintToTop(actualIndex, constraintIndex)}
                             onMoveConstraintToBottom={constraintIndex => onMoveConstraintToBottom(actualIndex, constraintIndex)}
+                            onAddWorkflow={workflow => onAddWorkflow(actualIndex, workflow)}
+                            onRemoveWorkflow={workflowIndex => onRemoveWorkflow(actualIndex, workflowIndex)}
+                            onUpdateWorkflow={(workflowIndex, workflow) => onUpdateWorkflow(actualIndex, workflowIndex, workflow)}
+                            onMoveWorkflowUp={workflowIndex => onMoveWorkflowUp(actualIndex, workflowIndex)}
+                            onMoveWorkflowDown={workflowIndex => onMoveWorkflowDown(actualIndex, workflowIndex)}
+                            onMoveWorkflowToTop={workflowIndex => onMoveWorkflowToTop(actualIndex, workflowIndex)}
+                            onMoveWorkflowToBottom={workflowIndex => onMoveWorkflowToBottom(actualIndex, workflowIndex)}
                             isExpanded={expandedLayers.has(actualIndex)} 
                             onToggle={() => onToggleLayer(actualIndex)} 
                           />

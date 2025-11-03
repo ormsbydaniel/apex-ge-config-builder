@@ -28,6 +28,13 @@ interface LayerCardProps {
   onMoveConstraintDown?: (constraintIndex: number) => void;
   onMoveConstraintToTop?: (constraintIndex: number) => void;
   onMoveConstraintToBottom?: (constraintIndex: number) => void;
+  onAddWorkflow?: (workflow: any) => void;
+  onRemoveWorkflow?: (workflowIndex: number) => void;
+  onUpdateWorkflow?: (workflowIndex: number, workflow: any) => void;
+  onMoveWorkflowUp?: (workflowIndex: number) => void;
+  onMoveWorkflowDown?: (workflowIndex: number) => void;
+  onMoveWorkflowToTop?: (workflowIndex: number) => void;
+  onMoveWorkflowToBottom?: (workflowIndex: number) => void;
   isExpanded: boolean;
   onToggle: () => void;
 }
@@ -53,6 +60,13 @@ const LayerCard = ({
   onMoveConstraintDown,
   onMoveConstraintToTop,
   onMoveConstraintToBottom,
+  onAddWorkflow,
+  onRemoveWorkflow,
+  onUpdateWorkflow,
+  onMoveWorkflowUp,
+  onMoveWorkflowDown,
+  onMoveWorkflowToTop,
+  onMoveWorkflowToBottom,
   isExpanded, 
   onToggle 
 }: LayerCardProps) => {
@@ -127,6 +141,13 @@ const LayerCard = ({
               onMoveConstraintDown={onMoveConstraintDown}
               onMoveConstraintToTop={onMoveConstraintToTop}
               onMoveConstraintToBottom={onMoveConstraintToBottom}
+              onAddWorkflow={onAddWorkflow}
+              onRemoveWorkflow={onRemoveWorkflow}
+              onUpdateWorkflow={onUpdateWorkflow}
+              onMoveWorkflowUp={onMoveWorkflowUp}
+              onMoveWorkflowDown={onMoveWorkflowDown}
+              onMoveWorkflowToTop={onMoveWorkflowToTop}
+              onMoveWorkflowToBottom={onMoveWorkflowToBottom}
             />
           </CollapsibleContent>
         </Collapsible>
