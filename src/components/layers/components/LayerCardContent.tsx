@@ -146,36 +146,40 @@ const LayerCardContent = ({
           onAddDataSource={() => onAddDataSource?.()}
           onAddStatisticsSource={onAddStatisticsSource}
           onAddConstraintSource={onAddConstraintSource}
-          onAddWorkflow={() => {
+          onRemoveDataSource={(_, dataIndex) => onRemoveDataSource(dataIndex)}
+          onRemoveStatisticsSource={(_, statsIndex) => onRemoveStatisticsSource?.(statsIndex)}
+          onRemoveConstraintSource={(_, constraintIndex) => onRemoveConstraintSource?.(constraintIndex)}
+          onEditDataSource={(_, dataIndex) => onEditDataSource?.(dataIndex)}
+          onEditStatisticsSource={(_, statsIndex) => onEditStatisticsSource?.(statsIndex)}
+          onEditConstraintSource={(_, constraintIndex) => onEditConstraintSource?.(constraintIndex)}
+          onMoveConstraintUp={(_, constraintIndex) => onMoveConstraintUp?.(constraintIndex)}
+          onMoveConstraintDown={(_, constraintIndex) => onMoveConstraintDown?.(constraintIndex)}
+          onMoveConstraintToTop={(_, constraintIndex) => onMoveConstraintToTop?.(constraintIndex)}
+          onMoveConstraintToBottom={(_, constraintIndex) => onMoveConstraintToBottom?.(constraintIndex)}
+          onReorderDataSource={() => {}}
+          onReorderStatisticsSource={() => {}}
+          onAddWorkflow={(_, workflow) => {
             toast({
               title: "Coming Soon",
               description: "Workflow management will be available soon.",
             });
           }}
-          onRemoveDataSource={(_, dataIndex) => onRemoveDataSource(dataIndex)}
-          onRemoveStatisticsSource={(_, statsIndex) => onRemoveStatisticsSource?.(statsIndex)}
-          onRemoveConstraintSource={(_, constraintIndex) => onRemoveConstraintSource?.(constraintIndex)}
           onRemoveWorkflow={() => {
             toast({
               title: "Coming Soon",
               description: "Workflow removal will be available soon.",
             });
           }}
-          onEditDataSource={(_, dataIndex) => onEditDataSource?.(dataIndex)}
-          onEditStatisticsSource={(_, statsIndex) => onEditStatisticsSource?.(statsIndex)}
-          onEditConstraintSource={(_, constraintIndex) => onEditConstraintSource?.(constraintIndex)}
-          onEditWorkflow={() => {
+          onUpdateWorkflow={() => {
             toast({
               title: "Coming Soon",
               description: "Workflow editing will be available soon.",
             });
           }}
-          onMoveConstraintUp={(_, constraintIndex) => onMoveConstraintUp?.(constraintIndex)}
-          onMoveConstraintDown={(_, constraintIndex) => onMoveConstraintDown?.(constraintIndex)}
-          onMoveConstraintToTop={(_, constraintIndex) => onMoveConstraintToTop?.(constraintIndex)}
-          onMoveConstraintToBottom={(_, constraintIndex) => onMoveConstraintToBottom?.(constraintIndex)}
-          onUpdateMeta={handleUpdateMeta}
-          onUpdateLayout={handleUpdateLayout}
+          onMoveWorkflowUp={() => {}}
+          onMoveWorkflowDown={() => {}}
+          onMoveWorkflowToTop={() => {}}
+          onMoveWorkflowToBottom={() => {}}
         />
         </div>
       )}

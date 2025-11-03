@@ -98,7 +98,6 @@ export function LayerCardTabs({
               onAdd={(layerIndex) => onAddDataSource(layerIndex, false)}
               onRemove={onRemoveDataSource}
               onEdit={onEditDataSource}
-              onReorder={onReorderDataSource}
             />
           </TabsContent>
 
@@ -110,7 +109,6 @@ export function LayerCardTabs({
               onAdd={onAddStatisticsSource}
               onRemove={onRemoveStatisticsSource}
               onEdit={onEditStatisticsSource}
-              onReorder={onReorderStatisticsSource}
             />
           </TabsContent>
 
