@@ -143,12 +143,10 @@ const ConstraintSourceItemSchema = z.object({
 
 // Workflow schema
 const WorkflowItemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  endpoint: urlOrRelativePathSchema,
-  parameters: z.record(z.any()),
-  enabled: z.boolean()
-});
+  zIndex: z.number(),
+  service: z.string(),
+  label: z.string(),
+}).passthrough(); // Allow arbitrary additional properties
 
 // Updated Swipe configuration schema to support multiple base sources
 const SwipeConfigSchema = z.object({

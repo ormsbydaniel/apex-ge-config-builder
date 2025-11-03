@@ -1,11 +1,10 @@
-import { DataSource } from '@/types/config';
+import React, { useState } from 'react';
+import { DataSource, WorkflowItem } from '@/types/config';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Edit, Power, PowerOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Pencil, Trash2, ChevronDown, ChevronRight, MoveUp, MoveDown, ChevronsUp, ChevronsDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
 
 interface WorkflowsTabProps {
   source: DataSource;
@@ -13,16 +12,23 @@ interface WorkflowsTabProps {
   onAdd: (layerIndex: number) => void;
   onRemove: (layerIndex: number, workflowIndex: number) => void;
   onEdit: (layerIndex: number, workflowIndex: number) => void;
+  onMoveUp?: (layerIndex: number, workflowIndex: number) => void;
+  onMoveDown?: (layerIndex: number, workflowIndex: number) => void;
+  onMoveToTop?: (layerIndex: number, workflowIndex: number) => void;
+  onMoveToBottom?: (layerIndex: number, workflowIndex: number) => void;
 }
 
-export function WorkflowsTab({
-  source,
-  layerIndex,
-  onAdd,
-  onRemove,
+export function WorkflowsTab({ 
+  source, 
+  layerIndex, 
+  onAdd, 
+  onRemove, 
   onEdit,
+  onMoveUp,
+  onMoveDown,
+  onMoveToTop,
+  onMoveToBottom
 }: WorkflowsTabProps) {
-  const hasWorkflows = source.workflows && source.workflows.length > 0;
   const [expandedWorkflows, setExpandedWorkflows] = useState<Set<number>>(new Set());
 
   const toggleWorkflow = (index: number) => {
@@ -37,99 +43,128 @@ export function WorkflowsTab({
     });
   };
 
+  const workflows = source.workflows || [];
+
   return (
     <div className="space-y-4">
-      {hasWorkflows ? (
-        <div className="space-y-3">
-          {source.workflows.map((workflow, index) => (
-            <Card key={index}>
-              <CardContent className="pt-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-sm">{workflow.name}</h4>
-                      <Badge variant={workflow.enabled ? 'default' : 'secondary'} className="text-xs gap-1">
-                        {workflow.enabled ? (
-                          <>
-                            <Power className="h-3 w-3" />
-                            Enabled
-                          </>
-                        ) : (
-                          <>
-                            <PowerOff className="h-3 w-3" />
-                            Disabled
-                          </>
-                        )}
-                      </Badge>
-                    </div>
-                    
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div className="font-mono text-xs truncate">{workflow.endpoint}</div>
-                      <div className="text-xs text-muted-foreground">ID: {workflow.id}</div>
-                    </div>
-
-                    <Collapsible open={expandedWorkflows.has(index)}>
-                      <CollapsibleTrigger 
-                        onClick={() => toggleWorkflow(index)}
-                        className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <ChevronDown className={`h-3 w-3 transition-transform ${expandedWorkflows.has(index) ? 'rotate-180' : ''}`} />
-                        Parameters ({Object.keys(workflow.parameters || {}).length})
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2">
-                        <div className="rounded-md bg-muted p-3">
-                          <pre className="text-xs font-mono overflow-x-auto">
-                            {JSON.stringify(workflow.parameters, null, 2)}
-                          </pre>
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  </div>
-
-                  <div className="flex gap-2 ml-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEdit(layerIndex, index)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onRemove(layerIndex, index)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+      {workflows.map((workflow, workflowIndex) => {
+        const isExpanded = expandedWorkflows.has(workflowIndex);
+        
+        // Extract additional properties (excluding zIndex, service, label)
+        const { zIndex, service, label, ...additionalProps } = workflow;
+        const hasAdditionalProps = Object.keys(additionalProps).length > 0;
+        
+        return (
+          <Card key={workflowIndex}>
+            <CardHeader>
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1 flex-1">
+                  <CardTitle className="text-base">{label}</CardTitle>
+                  <CardDescription className="text-sm space-y-1">
+                    <div>Service: <span className="font-mono text-xs">{service}</span></div>
+                    <div>zIndex: <span className="font-mono text-xs">{zIndex}</span></div>
+                  </CardDescription>
                 </div>
+                <div className="flex gap-1 flex-shrink-0">
+                  {onMoveToTop && workflowIndex > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onMoveToTop(layerIndex, workflowIndex)}
+                      title="Move to top"
+                    >
+                      <ChevronsUp className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {onMoveUp && workflowIndex > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onMoveUp(layerIndex, workflowIndex)}
+                      title="Move up"
+                    >
+                      <MoveUp className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {onMoveDown && workflowIndex < workflows.length - 1 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onMoveDown(layerIndex, workflowIndex)}
+                      title="Move down"
+                    >
+                      <MoveDown className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {onMoveToBottom && workflowIndex < workflows.length - 1 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onMoveToBottom(layerIndex, workflowIndex)}
+                      title="Move to bottom"
+                    >
+                      <ChevronsDown className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEdit(layerIndex, workflowIndex)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onRemove(layerIndex, workflowIndex)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            
+            {hasAdditionalProps && (
+              <CardContent>
+                <Collapsible open={isExpanded} onOpenChange={() => toggleWorkflow(workflowIndex)}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-start p-2">
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4 mr-2" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 mr-2" />
+                      )}
+                      <span className="text-sm font-medium">
+                        Additional Properties ({Object.keys(additionalProps).length})
+                      </span>
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-2">
+                    <div className="rounded-md bg-muted/50 p-3 space-y-2">
+                      {Object.entries(additionalProps).map(([key, value]) => (
+                        <div key={key} className="flex gap-2 text-sm">
+                          <span className="font-medium text-muted-foreground">{key}:</span>
+                          <span className="font-mono text-xs break-all">{JSON.stringify(value)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
-          <p className="text-sm text-muted-foreground mb-2">
-            No workflows configured yet
-          </p>
-          <p className="text-xs text-muted-foreground mb-4">
-            Workflows define processing endpoints with configurable parameters
-          </p>
+            )}
+          </Card>
+        );
+      })}
+
+      {workflows.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          No workflows configured for this layer.
         </div>
       )}
 
-      <div className="flex items-center justify-end pt-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onAdd(layerIndex)}
-          className="gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add Workflow
-        </Button>
-      </div>
+      <Button onClick={() => onAdd(layerIndex)} className="w-full">
+        Add Workflow
+      </Button>
     </div>
   );
 }

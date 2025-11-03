@@ -119,11 +119,11 @@ export interface ConstraintSourceItem {
 
 // Workflow configuration
 export interface WorkflowItem {
-  id: string;
-  name: string;
-  endpoint: string; // Processing endpoint URL
-  parameters: Record<string, any>; // Flexible parameter object
-  enabled: boolean;
+  zIndex: number;
+  service: string;
+  label: string;
+  // Allow arbitrary additional properties
+  [key: string]: any;
 }
 
 // Enhanced meta interface

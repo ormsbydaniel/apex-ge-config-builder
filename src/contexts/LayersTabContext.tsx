@@ -1,8 +1,7 @@
+import React, { createContext, useContext, ReactNode } from 'react';
+import { DataSource, Service, ConstraintSourceItem, WorkflowItem } from '@/types/config';
 
-import React, { createContext, useContext } from 'react';
-import { DataSource, LayerType, Service, ConstraintSourceItem } from '@/types/config';
-
-interface LayersTabContextValue {
+export interface LayersTabContextValue {
   config: {
     sources: DataSource[];
     interfaceGroups: string[];
@@ -10,32 +9,31 @@ interface LayersTabContextValue {
     exclusivitySets: string[];
   };
   editingLayerIndex: number | null;
-  defaultInterfaceGroup?: string;
-  // Action handlers
-  onRemoveLayer: (index: number) => void;
-  onEditLayer: (index: number) => void;
-  onEditBaseLayer: (index: number) => void;
-  onDuplicateLayer: (index: number) => void;
-  onMoveLayer: (fromIndex: number, toIndex: number) => void;
-  moveLayerToTop: (layerIndex: number, groupIndices: number[]) => void;
-  moveLayerToBottom: (layerIndex: number, groupIndices: number[]) => void;
-  onUpdateLayer: (index: number, layer: DataSource) => void;
-  onAddLayer: (layer: DataSource) => void;
-  onUpdateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
-  // Data source actions
-  onAddDataSource: (layerIndex: number) => void;
-  onRemoveDataSource: (layerIndex: number, dataSourceIndex: number) => void;
-  onRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
-  onEditDataSource: (layerIndex: number, dataIndex: number) => void;
-  onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
-  onAddStatisticsSource: (layerIndex: number) => void;
-  onAddConstraintSource?: (layerIndex: number) => void;
-  onRemoveConstraintSource: (layerIndex: number, constraintIndex: number) => void;
-  onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
-  onMoveConstraintUp: (layerIndex: number, constraintIndex: number) => void;
-  onMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
-  onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
-  onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
+  handleEditLayer: (layerIndex: number) => void;
+  handleEditBaseLayer: (layerIndex: number) => void;
+  handleDuplicateLayer: (layerIndex: number) => void;
+  handleRemoveDataSource: (layerIndex: number, dataIndex: number) => void;
+  handleRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
+  handleEditDataSource: (layerIndex: number, dataIndex: number) => void;
+  handleEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
+  handleStartDataSourceFormWithExpansion: (layerIndex: number, isAddingStatistics?: boolean) => void;
+  handleDataSourcePositionSave: (layerIndex: number, dataSourceIndex: number, position: string) => void;
+  handleStartConstraintFormWithExpansion: (layerIndex: number) => void;
+  handleRemoveConstraintSource: (layerIndex: number, constraintIndex: number) => void;
+  handleEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
+  handleMoveConstraintUp: (layerIndex: number, constraintIndex: number) => void;
+  handleMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
+  handleMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
+  handleMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
+  handleReorderDataSource: (layerIndex: number, fromIndex: number, toIndex: number) => void;
+  handleReorderStatisticsSource: (layerIndex: number, fromIndex: number, toIndex: number) => void;
+  handleAddWorkflow: (layerIndex: number, workflow: WorkflowItem) => void;
+  handleRemoveWorkflow: (layerIndex: number, workflowIndex: number) => void;
+  handleUpdateWorkflow: (layerIndex: number, workflowIndex: number, workflow: WorkflowItem) => void;
+  handleMoveWorkflowUp: (layerIndex: number, workflowIndex: number) => void;
+  handleMoveWorkflowDown: (layerIndex: number, workflowIndex: number) => void;
+  handleMoveWorkflowToTop: (layerIndex: number, workflowIndex: number) => void;
+  handleMoveWorkflowToBottom: (layerIndex: number, workflowIndex: number) => void;
 }
 
 const LayersTabContext = createContext<LayersTabContextValue | null>(null);
@@ -49,7 +47,7 @@ export const useLayersTabContext = () => {
 };
 
 interface LayersTabProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
   value: LayersTabContextValue;
 }
 

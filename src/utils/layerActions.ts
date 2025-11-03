@@ -197,6 +197,81 @@ export const createLayerActionHandlers = (
     updateLayer(layerIndex, { ...layer, constraints: renumberedConstraints });
   };
 
+  // Workflow handlers
+  const handleAddWorkflow = (layerIndex: number, workflow: any) => {
+    const layer = config.sources[layerIndex];
+    const updatedLayer = {
+      ...layer,
+      workflows: [...(layer.workflows || []), workflow]
+    };
+    updateLayer(layerIndex, updatedLayer);
+  };
+
+  const handleUpdateWorkflow = (layerIndex: number, workflowIndex: number, workflow: any) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows) return;
+
+    const updatedWorkflows = [...layer.workflows];
+    updatedWorkflows[workflowIndex] = workflow;
+    
+    updateLayer(layerIndex, { ...layer, workflows: updatedWorkflows });
+  };
+
+  const handleRemoveWorkflow = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows) return;
+
+    const updatedLayer = {
+      ...layer,
+      workflows: layer.workflows.filter((_, index) => index !== workflowIndex)
+    };
+    updateLayer(layerIndex, updatedLayer);
+  };
+
+  const handleMoveWorkflowUp = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows || workflowIndex === 0) return;
+
+    const newWorkflows = [...layer.workflows];
+    [newWorkflows[workflowIndex - 1], newWorkflows[workflowIndex]] = 
+      [newWorkflows[workflowIndex], newWorkflows[workflowIndex - 1]];
+
+    updateLayer(layerIndex, { ...layer, workflows: newWorkflows });
+  };
+
+  const handleMoveWorkflowDown = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows || workflowIndex === layer.workflows.length - 1) return;
+
+    const newWorkflows = [...layer.workflows];
+    [newWorkflows[workflowIndex], newWorkflows[workflowIndex + 1]] = 
+      [newWorkflows[workflowIndex + 1], newWorkflows[workflowIndex]];
+
+    updateLayer(layerIndex, { ...layer, workflows: newWorkflows });
+  };
+
+  const handleMoveWorkflowToTop = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows || workflowIndex === 0) return;
+
+    const newWorkflows = [...layer.workflows];
+    const [movedWorkflow] = newWorkflows.splice(workflowIndex, 1);
+    newWorkflows.unshift(movedWorkflow);
+
+    updateLayer(layerIndex, { ...layer, workflows: newWorkflows });
+  };
+
+  const handleMoveWorkflowToBottom = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows || workflowIndex === layer.workflows.length - 1) return;
+
+    const newWorkflows = [...layer.workflows];
+    const [movedWorkflow] = newWorkflows.splice(workflowIndex, 1);
+    newWorkflows.push(movedWorkflow);
+
+    updateLayer(layerIndex, { ...layer, workflows: newWorkflows });
+  };
+
   return {
     handleEditLayer,
     handleEditBaseLayer,
@@ -210,6 +285,13 @@ export const createLayerActionHandlers = (
     handleMoveConstraintUp,
     handleMoveConstraintDown,
     handleMoveConstraintToTop,
-    handleMoveConstraintToBottom
+    handleMoveConstraintToBottom,
+    handleAddWorkflow,
+    handleUpdateWorkflow,
+    handleRemoveWorkflow,
+    handleMoveWorkflowUp,
+    handleMoveWorkflowDown,
+    handleMoveWorkflowToTop,
+    handleMoveWorkflowToBottom
   };
 };
