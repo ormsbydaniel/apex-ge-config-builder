@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
@@ -27,12 +27,14 @@ export function WorkflowEditorDialog({
   const [editedJson, setEditedJson] = useState<string>(
     JSON.stringify(workflow || DEFAULT_WORKFLOW_TEMPLATE, null, 2)
   );
+  const prevOpenRef = useRef(open);
 
-  // Update editedJson when dialog opens or workflow changes
+  // Only update editedJson when dialog transitions from closed to open
   useEffect(() => {
-    if (open) {
+    if (open && !prevOpenRef.current) {
       setEditedJson(JSON.stringify(workflow || DEFAULT_WORKFLOW_TEMPLATE, null, 2));
     }
+    prevOpenRef.current = open;
   }, [open, workflow]);
 
   const handleSave = () => {
