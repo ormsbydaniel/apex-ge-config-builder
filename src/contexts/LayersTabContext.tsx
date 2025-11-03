@@ -32,6 +32,10 @@ interface LayersTabContextValue {
   onAddConstraintSource?: (layerIndex: number) => void;
   onRemoveConstraintSource: (layerIndex: number, constraintIndex: number) => void;
   onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintUp: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
 }
 
 const LayersTabContext = createContext<LayersTabContextValue | null>(null);

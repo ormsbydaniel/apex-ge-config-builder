@@ -24,6 +24,10 @@ interface LayerCardProps {
   onAddConstraintSource?: (layerIndex: number) => void;
   onRemoveConstraintSource?: (constraintIndex: number) => void;
   onEditConstraintSource?: (constraintIndex: number) => void;
+  onMoveConstraintUp?: (constraintIndex: number) => void;
+  onMoveConstraintDown?: (constraintIndex: number) => void;
+  onMoveConstraintToTop?: (constraintIndex: number) => void;
+  onMoveConstraintToBottom?: (constraintIndex: number) => void;
   isExpanded: boolean;
   onToggle: () => void;
 }
@@ -45,6 +49,10 @@ const LayerCard = ({
   onAddConstraintSource,
   onRemoveConstraintSource,
   onEditConstraintSource,
+  onMoveConstraintUp,
+  onMoveConstraintDown,
+  onMoveConstraintToTop,
+  onMoveConstraintToBottom,
   isExpanded, 
   onToggle 
 }: LayerCardProps) => {
@@ -115,6 +123,10 @@ const LayerCard = ({
               onAddConstraintSource={onAddConstraintSource}
               onRemoveConstraintSource={onRemoveConstraintSource}
               onEditConstraintSource={onEditConstraintSource}
+              onMoveConstraintUp={onMoveConstraintUp}
+              onMoveConstraintDown={onMoveConstraintDown}
+              onMoveConstraintToTop={onMoveConstraintToTop}
+              onMoveConstraintToBottom={onMoveConstraintToBottom}
             />
           </CollapsibleContent>
         </Collapsible>

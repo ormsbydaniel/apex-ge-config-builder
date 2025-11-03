@@ -129,6 +129,74 @@ export const createLayerActionHandlers = (
     console.log(`Edit constraint source at layer ${layerIndex}, constraint index ${constraintIndex}`);
   };
 
+  const handleMoveConstraintUp = (layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.constraints || constraintIndex === 0) return;
+
+    const newConstraints = [...layer.constraints];
+    [newConstraints[constraintIndex - 1], newConstraints[constraintIndex]] = 
+      [newConstraints[constraintIndex], newConstraints[constraintIndex - 1]];
+    
+    // Renumber bandIndex sequentially from 2
+    const renumberedConstraints = newConstraints.map((constraint, index) => ({
+      ...constraint,
+      bandIndex: index + 2
+    }));
+
+    updateLayer(layerIndex, { ...layer, constraints: renumberedConstraints });
+  };
+
+  const handleMoveConstraintDown = (layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.constraints || constraintIndex === layer.constraints.length - 1) return;
+
+    const newConstraints = [...layer.constraints];
+    [newConstraints[constraintIndex], newConstraints[constraintIndex + 1]] = 
+      [newConstraints[constraintIndex + 1], newConstraints[constraintIndex]];
+    
+    // Renumber bandIndex sequentially from 2
+    const renumberedConstraints = newConstraints.map((constraint, index) => ({
+      ...constraint,
+      bandIndex: index + 2
+    }));
+
+    updateLayer(layerIndex, { ...layer, constraints: renumberedConstraints });
+  };
+
+  const handleMoveConstraintToTop = (layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.constraints || constraintIndex === 0) return;
+
+    const newConstraints = [...layer.constraints];
+    const [movedConstraint] = newConstraints.splice(constraintIndex, 1);
+    newConstraints.unshift(movedConstraint);
+    
+    // Renumber bandIndex sequentially from 2
+    const renumberedConstraints = newConstraints.map((constraint, index) => ({
+      ...constraint,
+      bandIndex: index + 2
+    }));
+
+    updateLayer(layerIndex, { ...layer, constraints: renumberedConstraints });
+  };
+
+  const handleMoveConstraintToBottom = (layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.constraints || constraintIndex === layer.constraints.length - 1) return;
+
+    const newConstraints = [...layer.constraints];
+    const [movedConstraint] = newConstraints.splice(constraintIndex, 1);
+    newConstraints.push(movedConstraint);
+    
+    // Renumber bandIndex sequentially from 2
+    const renumberedConstraints = newConstraints.map((constraint, index) => ({
+      ...constraint,
+      bandIndex: index + 2
+    }));
+
+    updateLayer(layerIndex, { ...layer, constraints: renumberedConstraints });
+  };
+
   return {
     handleEditLayer,
     handleEditBaseLayer,
@@ -138,6 +206,10 @@ export const createLayerActionHandlers = (
     handleEditDataSource,
     handleEditStatisticsSource,
     handleRemoveConstraintSource,
-    handleEditConstraintSource
+    handleEditConstraintSource,
+    handleMoveConstraintUp,
+    handleMoveConstraintDown,
+    handleMoveConstraintToTop,
+    handleMoveConstraintToBottom
   };
 };

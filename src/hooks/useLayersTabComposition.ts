@@ -123,7 +123,13 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
       const cardId = `${groupName}-${layerIndex}`;
       
       layerState.handleStartEditDataSource(layerIndex, dataSourceIndex, cardId);
-    }
+    },
+
+    // Constraint move handlers
+    handleMoveConstraintUp: layerOperations.handleMoveConstraintUp,
+    handleMoveConstraintDown: layerOperations.handleMoveConstraintDown,
+    handleMoveConstraintToTop: layerOperations.handleMoveConstraintToTop,
+    handleMoveConstraintToBottom: layerOperations.handleMoveConstraintToBottom
   };
   
   return result;

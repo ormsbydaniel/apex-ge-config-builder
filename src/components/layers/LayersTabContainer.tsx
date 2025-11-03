@@ -78,6 +78,10 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onAddConstraintSource,
     onRemoveConstraintSource: layersLogic.handleRemoveConstraintSource,
     onEditConstraintSource: layersLogic.handleEditConstraintSource,
+    onMoveConstraintUp: layersLogic.handleMoveConstraintUp,
+    onMoveConstraintDown: layersLogic.handleMoveConstraintDown,
+    onMoveConstraintToTop: layersLogic.handleMoveConstraintToTop,
+    onMoveConstraintToBottom: layersLogic.handleMoveConstraintToBottom,
   };
 
   return (

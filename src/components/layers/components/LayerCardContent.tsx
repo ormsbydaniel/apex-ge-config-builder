@@ -24,6 +24,10 @@ interface LayerCardContentProps {
   onAddConstraintSource?: (layerIndex: number) => void;
   onRemoveConstraintSource?: (constraintIndex: number) => void;
   onEditConstraintSource?: (constraintIndex: number) => void;
+  onMoveConstraintUp?: (constraintIndex: number) => void;
+  onMoveConstraintDown?: (constraintIndex: number) => void;
+  onMoveConstraintToTop?: (constraintIndex: number) => void;
+  onMoveConstraintToBottom?: (constraintIndex: number) => void;
 }
 
 const LayerCardContent = ({
@@ -36,7 +40,11 @@ const LayerCardContent = ({
   onAddStatisticsSource,
   onAddConstraintSource,
   onRemoveConstraintSource,
-  onEditConstraintSource
+  onEditConstraintSource,
+  onMoveConstraintUp,
+  onMoveConstraintDown,
+  onMoveConstraintToTop,
+  onMoveConstraintToBottom
 }: LayerCardContentProps) => {
   const { config, dispatch } = useConfig();
   const { toast } = useToast();
@@ -162,6 +170,10 @@ const LayerCardContent = ({
               description: "Workflow editing will be available soon.",
             });
           }}
+          onMoveConstraintUp={(_, constraintIndex) => onMoveConstraintUp?.(constraintIndex)}
+          onMoveConstraintDown={(_, constraintIndex) => onMoveConstraintDown?.(constraintIndex)}
+          onMoveConstraintToTop={(_, constraintIndex) => onMoveConstraintToTop?.(constraintIndex)}
+          onMoveConstraintToBottom={(_, constraintIndex) => onMoveConstraintToBottom?.(constraintIndex)}
           onUpdateMeta={handleUpdateMeta}
           onUpdateLayout={handleUpdateLayout}
         />

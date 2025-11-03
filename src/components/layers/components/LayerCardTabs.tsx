@@ -22,6 +22,10 @@ interface LayerCardTabsProps {
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
   onEditWorkflow: (layerIndex: number, workflowIndex: number) => void;
+  onMoveConstraintUp: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
 }
@@ -42,6 +46,10 @@ export function LayerCardTabs({
   onEditStatisticsSource,
   onEditConstraintSource,
   onEditWorkflow,
+  onMoveConstraintUp,
+  onMoveConstraintDown,
+  onMoveConstraintToTop,
+  onMoveConstraintToBottom,
   onUpdateMeta,
   onUpdateLayout,
 }: LayerCardTabsProps) {
@@ -101,6 +109,10 @@ export function LayerCardTabs({
           onAddConstraintSource={onAddConstraintSource || (() => {})}
           onRemove={onRemoveConstraintSource}
           onEdit={onEditConstraintSource}
+          onMoveUp={onMoveConstraintUp}
+          onMoveDown={onMoveConstraintDown}
+          onMoveToTop={onMoveConstraintToTop}
+          onMoveToBottom={onMoveConstraintToBottom}
         />
       </TabsContent>
 
