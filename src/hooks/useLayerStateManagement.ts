@@ -214,6 +214,8 @@ function layerStateReducer(
           showDataSourceForm: false,
           selectedLayerIndex: null,
           isAddingStatistics: false,
+          editingDataSourceIndex: null,
+          editingDataSourceLayerIndex: null,
         },
       };
 
@@ -225,6 +227,8 @@ function layerStateReducer(
           showDataSourceForm: false,
           selectedLayerIndex: null,
           isAddingStatistics: false,
+          editingDataSourceIndex: null,
+          editingDataSourceLayerIndex: null,
         },
       };
 
