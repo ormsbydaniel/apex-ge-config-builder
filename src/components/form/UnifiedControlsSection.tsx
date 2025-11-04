@@ -74,6 +74,15 @@ const UnifiedControlsSection = ({
         </div>
         
         <div className="flex items-center justify-between space-x-2 min-w-[160px]">
+          <Label htmlFor="blendControls" className="min-w-[110px]">Blend Controls:</Label>
+          <Switch
+            id="blendControls"
+            checked={blendControls}
+            onCheckedChange={(value) => onUpdate('blendControls', value)}
+          />
+        </div>
+        
+        <div className="flex items-center justify-between space-x-2 min-w-[160px]">
           <Label htmlFor="constraintSlider" className="min-w-[110px]">Constraint Slider:</Label>
           <Switch
             id="constraintSlider"
@@ -88,15 +97,6 @@ const UnifiedControlsSection = ({
             id="temporalControls"
             checked={temporalControls}
             onCheckedChange={(value) => onUpdate('temporalControls', value)}
-          />
-        </div>
-        
-        <div className="flex items-center justify-between space-x-2 min-w-[160px]">
-          <Label htmlFor="blendControls" className="min-w-[110px]">Blend Controls:</Label>
-          <Switch
-            id="blendControls"
-            checked={blendControls}
-            onCheckedChange={(value) => onUpdate('blendControls', value)}
           />
         </div>
         
