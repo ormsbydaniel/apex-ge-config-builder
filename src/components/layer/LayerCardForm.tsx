@@ -1,5 +1,6 @@
 
 import React, { useEffect } from 'react';
+import { useConfig } from '@/contexts/ConfigContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Save, X, Layers, AlertTriangle } from 'lucide-react';
@@ -43,6 +44,7 @@ const LayerCardForm = ({
   editingLayer, 
   isEditing = false 
 }: LayerCardFormProps) => {
+  const { dispatch } = useConfig();
   const {
     formData,
     updateFormData,
@@ -107,6 +109,24 @@ const LayerCardForm = ({
     }
   } as DataSource;
 
+  // Notify ConfigContext when form editing state changes
+  useEffect(() => {
+    if (isDirty && formData.name) {
+      dispatch({ 
+        type: 'SET_UNSAVED_LAYER_CHANGES', 
+        hasUnsavedChanges: true, 
+        layerName: formData.name 
+      });
+    }
+    return () => {
+      dispatch({ 
+        type: 'SET_UNSAVED_LAYER_CHANGES', 
+        hasUnsavedChanges: false, 
+        layerName: null 
+      });
+    };
+  }, [isDirty, formData.name, dispatch]);
+
   // Get data sources for position management
   const dataSources = editingLayer?.data || [];
 
@@ -149,6 +169,7 @@ const LayerCardForm = ({
 
     onAddLayer(layerCard);
     clearDraft();
+    dispatch({ type: 'SET_UNSAVED_LAYER_CHANGES', hasUnsavedChanges: false, layerName: null });
     handleSuccessfulSubmission(formData.name);
   };
 
@@ -158,6 +179,7 @@ const LayerCardForm = ({
       if (!confirmDiscard) return;
     }
     clearDraft();
+    dispatch({ type: 'SET_UNSAVED_LAYER_CHANGES', hasUnsavedChanges: false, layerName: null });
     onCancel();
   };
 

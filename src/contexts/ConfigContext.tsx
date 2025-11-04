@@ -9,6 +9,8 @@ interface ConfigState extends ValidatedConfiguration {
   lastLoaded: Date | null;
   lastExported: Date | null;
   validationResults: Map<number, LayerValidationResult>;
+  hasUnsavedLayerChanges: boolean;
+  editingLayerName: string | null;
 }
 
 type ConfigAction =
@@ -29,7 +31,8 @@ type ConfigAction =
   | { type: 'REMOVE_SOURCE'; payload: number }
   | { type: 'UPDATE_SOURCE'; payload: { index: number; source: DataSource } }
   | { type: 'UPDATE_SOURCES'; payload: DataSource[] }
-  | { type: 'UPDATE_VALIDATION_RESULTS'; payload: Map<number, LayerValidationResult> };
+  | { type: 'UPDATE_VALIDATION_RESULTS'; payload: Map<number, LayerValidationResult> }
+  | { type: 'SET_UNSAVED_LAYER_CHANGES'; hasUnsavedChanges: boolean; layerName: string | null };
 
 const initialState: ConfigState = {
   version: '1.0.0',
@@ -73,6 +76,8 @@ const initialState: ConfigState = {
   lastLoaded: null,
   lastExported: null,
   validationResults: new Map(),
+  hasUnsavedLayerChanges: false,
+  editingLayerName: null,
 };
 
 // Helper function to normalize legacy data to always be arrays
@@ -143,12 +148,16 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         lastLoaded: new Date(),
         lastExported: state.lastExported, // Preserve last exported time
         validationResults: new Map(), // Reset validation results when loading new config
+        hasUnsavedLayerChanges: false,
+        editingLayerName: null,
       };
     case 'RESET_CONFIG':
       return {
         ...initialState,
         lastLoaded: null,
         lastExported: null,
+        hasUnsavedLayerChanges: false,
+        editingLayerName: null,
       };
     case 'SET_LOADING':
       return {
@@ -423,6 +432,12 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       return {
         ...state,
         validationResults: action.payload,
+      };
+    case 'SET_UNSAVED_LAYER_CHANGES':
+      return {
+        ...state,
+        hasUnsavedLayerChanges: action.hasUnsavedChanges,
+        editingLayerName: action.layerName,
       };
     default:
       return state;

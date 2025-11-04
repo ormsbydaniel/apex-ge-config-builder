@@ -2,8 +2,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map } from 'lucide-react';
-import { ConfigProvider } from '@/contexts/ConfigContext';
+import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
 import { useConfigBuilderState } from '@/hooks/useConfigBuilderState';
 import { useNavigationState } from '@/hooks/useNavigationState';
 import ServicesManager from './ServicesManager';
@@ -57,6 +58,7 @@ class ConfigErrorBoundary extends React.Component<
 
 const ConfigBuilderContent = () => {
   const navigate = useNavigate();
+  const { config: configState } = useConfig();
   const {
     config,
     newExclusivitySet,
@@ -174,14 +176,26 @@ const ConfigBuilderContent = () => {
                 <FileJson className="h-4 w-4" />
                 JSON Config
               </TabsTrigger>
-              <TabsTrigger 
-                value="mappreview" 
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                onClick={handlePreviewClick}
-              >
-                <Map className="h-4 w-4" />
-                Preview
-              </TabsTrigger>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <TabsTrigger 
+                      value="mappreview" 
+                      className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      onClick={handlePreviewClick}
+                      disabled={configState.hasUnsavedLayerChanges}
+                    >
+                      <Map className="h-4 w-4" />
+                      Preview
+                    </TabsTrigger>
+                  </TooltipTrigger>
+                  {configState.hasUnsavedLayerChanges && (
+                    <TooltipContent>
+                      <p>Please Save or Cancel changes to the {configState.editingLayerName} before previewing</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             </TabsList>
 
             <TabsContent value="home">
