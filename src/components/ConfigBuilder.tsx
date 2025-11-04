@@ -178,16 +178,18 @@ const ConfigBuilderContent = () => {
               </TabsTrigger>
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <TabsTrigger 
-                      value="mappreview" 
-                      className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                      onClick={handlePreviewClick}
-                      disabled={configState.hasUnsavedFormChanges}
-                    >
-                      <Map className="h-4 w-4" />
-                      Preview
-                    </TabsTrigger>
+                  <TooltipTrigger asChild={false} className="inline-block">
+                    <span>
+                      <TabsTrigger 
+                        value="mappreview" 
+                        className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                        onClick={handlePreviewClick}
+                        disabled={configState.hasUnsavedFormChanges}
+                      >
+                        <Map className="h-4 w-4" />
+                        Preview
+                      </TabsTrigger>
+                    </span>
                   </TooltipTrigger>
                   {configState.hasUnsavedFormChanges && (
                     <TooltipContent>
