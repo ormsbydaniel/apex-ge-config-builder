@@ -11,6 +11,8 @@ interface LayerCardTabsProps {
   source: DataSource;
   services: Service[];
   layerIndex: number;
+  onUpdateMeta?: (updates: Partial<import('@/types/config').DataSourceMeta>) => void;
+  onUpdateLayout?: (updates: Partial<import('@/types/config').DataSourceLayout>) => void;
   onAddDataSource: (layerIndex: number, isAddingStatistics: boolean) => void;
   onRemoveDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
@@ -39,6 +41,8 @@ export function LayerCardTabs({
   source,
   services,
   layerIndex,
+  onUpdateMeta,
+  onUpdateLayout,
   onAddDataSource,
   onRemoveDataSource,
   onEditDataSource,
@@ -98,6 +102,8 @@ export function LayerCardTabs({
               onAdd={(layerIndex) => onAddDataSource(layerIndex, false)}
               onRemove={onRemoveDataSource}
               onEdit={onEditDataSource}
+              onUpdateMeta={onUpdateMeta}
+              onUpdateLayout={onUpdateLayout}
             />
           </TabsContent>
 

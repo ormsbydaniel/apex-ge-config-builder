@@ -157,6 +157,8 @@ const LayerCardContent = ({
           source={source}
           services={(config.services || []) as Service[]}
           layerIndex={sourceIndex}
+          onUpdateMeta={handleUpdateMeta}
+          onUpdateLayout={handleUpdateLayout}
           onAddDataSource={() => onAddDataSource?.()}
           onAddStatisticsSource={onAddStatisticsSource}
           onAddConstraintSource={onAddConstraintSource}
