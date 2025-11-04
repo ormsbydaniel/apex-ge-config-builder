@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { WorkflowItem } from '@/types/config';
 import { toast } from 'sonner';
+import { useConfig } from '@/contexts/ConfigContext';
 
 interface WorkflowEditorDialogProps {
   open: boolean;
@@ -24,7 +25,11 @@ export function WorkflowEditorDialog({
   workflow, 
   onSave 
 }: WorkflowEditorDialogProps) {
+  const { dispatch } = useConfig();
   const [editedJson, setEditedJson] = useState<string>(
+    JSON.stringify(workflow || DEFAULT_WORKFLOW_TEMPLATE, null, 2)
+  );
+  const [initialJson, setInitialJson] = useState<string>(
     JSON.stringify(workflow || DEFAULT_WORKFLOW_TEMPLATE, null, 2)
   );
   const prevOpenRef = useRef(open);
@@ -32,10 +37,23 @@ export function WorkflowEditorDialog({
   // Only update editedJson when dialog transitions from closed to open
   useEffect(() => {
     if (open && !prevOpenRef.current) {
-      setEditedJson(JSON.stringify(workflow || DEFAULT_WORKFLOW_TEMPLATE, null, 2));
+      const json = JSON.stringify(workflow || DEFAULT_WORKFLOW_TEMPLATE, null, 2);
+      setEditedJson(json);
+      setInitialJson(json);
     }
     prevOpenRef.current = open;
   }, [open, workflow]);
+
+  // Track dirty state and update ConfigContext
+  useEffect(() => {
+    if (open && editedJson !== initialJson) {
+      const description = workflow?.label ? `Workflow: ${workflow.label}` : 'Workflow: New Workflow';
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: true, description }
+      });
+    }
+  }, [open, editedJson, initialJson, workflow, dispatch]);
 
   const handleSave = () => {
     try {
@@ -63,6 +81,12 @@ export function WorkflowEditorDialog({
         return;
       }
 
+      // Clear unsaved changes flag
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: false, description: null }
+      });
+
       onSave(parsed as WorkflowItem);
       onOpenChange(false);
       toast.success(workflow ? 'Workflow updated successfully' : 'Workflow added successfully');
@@ -74,13 +98,30 @@ export function WorkflowEditorDialog({
   };
 
   const handleCancel = () => {
+    // Clear unsaved changes flag
+    dispatch({
+      type: 'SET_UNSAVED_FORM_CHANGES',
+      payload: { hasChanges: false, description: null }
+    });
+
     onOpenChange(false);
     // Reset to original when dialog reopens
     setEditedJson(JSON.stringify(workflow || DEFAULT_WORKFLOW_TEMPLATE, null, 2));
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      // Clear unsaved changes flag when closing dialog
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: false, description: null }
+      });
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>

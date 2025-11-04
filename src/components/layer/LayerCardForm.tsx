@@ -112,19 +112,11 @@ const LayerCardForm = ({
   // Notify ConfigContext when form editing state changes
   useEffect(() => {
     if (isDirty && formData.name) {
-      dispatch({ 
-        type: 'SET_UNSAVED_LAYER_CHANGES', 
-        hasUnsavedChanges: true, 
-        layerName: formData.name 
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: true, description: `Layer: ${formData.name}` }
       });
     }
-    return () => {
-      dispatch({ 
-        type: 'SET_UNSAVED_LAYER_CHANGES', 
-        hasUnsavedChanges: false, 
-        layerName: null 
-      });
-    };
   }, [isDirty, formData.name, dispatch]);
 
   // Get data sources for position management
@@ -167,9 +159,14 @@ const LayerCardForm = ({
       layerCard = applyLayerTypeMigration(layerCard, selectedLayerType);
     }
 
+    // Clear unsaved changes flag
+    dispatch({
+      type: 'SET_UNSAVED_FORM_CHANGES',
+      payload: { hasChanges: false, description: null }
+    });
+
     onAddLayer(layerCard);
     clearDraft();
-    dispatch({ type: 'SET_UNSAVED_LAYER_CHANGES', hasUnsavedChanges: false, layerName: null });
     handleSuccessfulSubmission(formData.name);
   };
 
@@ -178,8 +175,14 @@ const LayerCardForm = ({
       const confirmDiscard = window.confirm('You have unsaved changes. Are you sure you want to discard them?');
       if (!confirmDiscard) return;
     }
+    
+    // Clear unsaved changes flag
+    dispatch({
+      type: 'SET_UNSAVED_FORM_CHANGES',
+      payload: { hasChanges: false, description: null }
+    });
+
     clearDraft();
-    dispatch({ type: 'SET_UNSAVED_LAYER_CHANGES', hasUnsavedChanges: false, layerName: null });
     onCancel();
   };
 

@@ -9,8 +9,8 @@ interface ConfigState extends ValidatedConfiguration {
   lastLoaded: Date | null;
   lastExported: Date | null;
   validationResults: Map<number, LayerValidationResult>;
-  hasUnsavedLayerChanges: boolean;
-  editingLayerName: string | null;
+  hasUnsavedFormChanges: boolean;
+  unsavedFormDescription: string | null;
 }
 
 type ConfigAction =
@@ -32,7 +32,7 @@ type ConfigAction =
   | { type: 'UPDATE_SOURCE'; payload: { index: number; source: DataSource } }
   | { type: 'UPDATE_SOURCES'; payload: DataSource[] }
   | { type: 'UPDATE_VALIDATION_RESULTS'; payload: Map<number, LayerValidationResult> }
-  | { type: 'SET_UNSAVED_LAYER_CHANGES'; hasUnsavedChanges: boolean; layerName: string | null };
+  | { type: 'SET_UNSAVED_FORM_CHANGES'; payload: { hasChanges: boolean; description: string | null } };
 
 const initialState: ConfigState = {
   version: '1.0.0',
@@ -76,8 +76,8 @@ const initialState: ConfigState = {
   lastLoaded: null,
   lastExported: null,
   validationResults: new Map(),
-  hasUnsavedLayerChanges: false,
-  editingLayerName: null,
+  hasUnsavedFormChanges: false,
+  unsavedFormDescription: null,
 };
 
 // Helper function to normalize legacy data to always be arrays
@@ -148,16 +148,16 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         lastLoaded: new Date(),
         lastExported: state.lastExported, // Preserve last exported time
         validationResults: new Map(), // Reset validation results when loading new config
-        hasUnsavedLayerChanges: false,
-        editingLayerName: null,
+        hasUnsavedFormChanges: false,
+        unsavedFormDescription: null,
       };
     case 'RESET_CONFIG':
       return {
         ...initialState,
         lastLoaded: null,
         lastExported: null,
-        hasUnsavedLayerChanges: false,
-        editingLayerName: null,
+        hasUnsavedFormChanges: false,
+        unsavedFormDescription: null,
       };
     case 'SET_LOADING':
       return {
@@ -433,11 +433,11 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...state,
         validationResults: action.payload,
       };
-    case 'SET_UNSAVED_LAYER_CHANGES':
+    case 'SET_UNSAVED_FORM_CHANGES':
       return {
         ...state,
-        hasUnsavedLayerChanges: action.hasUnsavedChanges,
-        editingLayerName: action.layerName,
+        hasUnsavedFormChanges: action.payload.hasChanges,
+        unsavedFormDescription: action.payload.description,
       };
     default:
       return state;

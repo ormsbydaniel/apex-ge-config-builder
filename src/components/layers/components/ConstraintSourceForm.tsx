@@ -9,6 +9,7 @@ import { Save, X, Database, Plus, Trash2, Sparkles } from 'lucide-react';
 import { Service, ConstraintSourceItem } from '@/types/config';
 import { useServices } from '@/hooks/useServices';
 import { useToast } from '@/hooks/use-toast';
+import { useConfig } from '@/contexts/ConfigContext';
 import { ServiceSelectionModal } from './ServiceSelectionModals';
 import { ServiceCardList } from './ServiceCardList';
 import { populateConstraintFromCogMetadata, validateConstraintSource } from '@/utils/constraintMetadataHelpers';
@@ -33,6 +34,7 @@ const ConstraintSourceForm = ({
   editingIndex
 }: ConstraintSourceFormProps) => {
   const { toast } = useToast();
+  const { dispatch } = useConfig();
   const { addService } = useServices(services, onAddService);
   
   // Initialize sourceType based on whether we have an existing URL
@@ -79,6 +81,9 @@ const ConstraintSourceForm = ({
   // Loading state for metadata fetch
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
 
+  // Track dirty state for unsaved changes
+  const [isDirty, setIsDirty] = useState(false);
+
   // Reset form when editingConstraint changes (including when switching from edit to add mode)
   useEffect(() => {
     setSourceType(editingConstraint?.url ? 'direct' : 'direct');
@@ -104,7 +109,21 @@ const ConstraintSourceForm = ({
     setBulkCount('');
     setBulkMin('');
     setBulkMax('');
+    setIsDirty(false);
   }, [editingConstraint]);
+
+  // Track dirty state and update ConfigContext
+  useEffect(() => {
+    const hasUrl = directUrl.trim() !== '';
+    if (hasUrl) {
+      setIsDirty(true);
+      const description = `Constraint: ${label || directUrl || 'New Constraint'}`;
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: true, description }
+      });
+    }
+  }, [directUrl, label, interactive, constraintType, minValue, maxValue, units, constrainToValues, namedRanges, dispatch]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
@@ -465,12 +484,27 @@ const ConstraintSourceForm = ({
       return;
     }
 
+    // Clear unsaved changes flag
+    dispatch({
+      type: 'SET_UNSAVED_FORM_CHANGES',
+      payload: { hasChanges: false, description: null }
+    });
+
     onAddConstraintSource(baseConstraint as ConstraintSourceItem);
     
     toast({
       title: editingConstraint ? "Constraint Updated" : "Constraint Added",
       description: `${constraintType.charAt(0).toUpperCase() + constraintType.slice(1)} constraint has been ${editingConstraint ? 'updated' : 'added'}.`,
     });
+  };
+
+  const handleCancel = () => {
+    // Clear unsaved changes flag
+    dispatch({
+      type: 'SET_UNSAVED_FORM_CHANGES',
+      payload: { hasChanges: false, description: null }
+    });
+    onCancel();
   };
 
   const cogServices = services.filter(s => s.format === 'cog' || s.sourceType === 's3' || s.sourceType === 'stac');
@@ -917,7 +951,7 @@ const ConstraintSourceForm = ({
 
             {/* Form Actions */}
             <div className="flex gap-2 justify-end pt-4">
-              <Button type="button" variant="outline" onClick={onCancel}>
+              <Button type="button" variant="outline" onClick={handleCancel}>
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>

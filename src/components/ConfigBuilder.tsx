@@ -183,15 +183,15 @@ const ConfigBuilderContent = () => {
                       value="mappreview" 
                       className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                       onClick={handlePreviewClick}
-                      disabled={configState.hasUnsavedLayerChanges}
+                      disabled={configState.hasUnsavedFormChanges}
                     >
                       <Map className="h-4 w-4" />
                       Preview
                     </TabsTrigger>
                   </TooltipTrigger>
-                  {configState.hasUnsavedLayerChanges && (
+                  {configState.hasUnsavedFormChanges && (
                     <TooltipContent>
-                      <p>Please Save or Cancel changes to the {configState.editingLayerName} before previewing</p>
+                      <p>Please Save or Cancel changes to the {configState.unsavedFormDescription} before previewing</p>
                     </TooltipContent>
                   )}
                 </Tooltip>
