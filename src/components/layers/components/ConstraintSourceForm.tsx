@@ -114,10 +114,8 @@ const ConstraintSourceForm = ({
 
   // Track dirty state and update ConfigContext
   useEffect(() => {
-    console.log('[ConstraintForm] useEffect triggered, constrainToValues:', constrainToValues, 'isDirty:', isDirty);
     const hasUrl = directUrl.trim() !== '';
     if (hasUrl && !isDirty) {
-      console.log('[ConstraintForm] Setting dirty state and dispatching');
       setIsDirty(true);
       const description = `Constraint: ${label || directUrl || 'New Constraint'}`;
       dispatch({
