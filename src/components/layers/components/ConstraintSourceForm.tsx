@@ -123,7 +123,7 @@ const ConstraintSourceForm = ({
         payload: { hasChanges: true, description }
       });
     }
-  }, [directUrl, label, interactive, constraintType, minValue, maxValue, units, constrainToValues, namedRanges, dispatch, isDirty]);
+  }, [directUrl, label, isDirty, dispatch]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
