@@ -2,6 +2,10 @@ import { fromUrl } from 'geotiff';
 import { getPalette } from 'geotiff-palette';
 
 export interface CogMetadata {
+  // COG Validation
+  isCloudOptimized?: boolean;
+  cogValidationIssues?: string[];
+  
   // Image Properties
   width?: number;
   height?: number;
@@ -164,6 +168,11 @@ export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
       metadata.sampleCount = stats.sampleCount;
     }
     
+    // Phase 4: Validate COG compliance
+    const cogValidation = validateCogCompliance(metadata);
+    metadata.isCloudOptimized = cogValidation.isValid;
+    metadata.cogValidationIssues = cogValidation.issues;
+    
     return metadata;
   } catch (error) {
     throw new Error(`Failed to fetch COG metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -282,10 +291,58 @@ function getSampleFormatName(sampleFormat: number, bitsPerSample?: number): stri
   }
 }
 
+function validateCogCompliance(metadata: CogMetadata): { isValid: boolean; issues: string[] } {
+  const issues: string[] = [];
+  
+  // Check 1: Must be tiled (not striped)
+  if (!metadata.tileWidth || !metadata.tileLength) {
+    issues.push('Not tiled - uses strip-based layout instead of tiles');
+  }
+  
+  // Check 2: Should have overviews for multi-resolution access
+  if (!metadata.overviewCount || metadata.overviewCount === 0) {
+    issues.push('No overviews (pyramids) - inefficient for zooming');
+  }
+  
+  // Check 3: Tiles should be reasonably sized (typically 256 or 512)
+  if (metadata.tileWidth && (metadata.tileWidth < 128 || metadata.tileWidth > 1024)) {
+    issues.push(`Tile size ${metadata.tileWidth} is non-standard (recommended: 256 or 512)`);
+  }
+  
+  // Check 4: Should use efficient compression
+  const efficientCompressions = [1, 5, 7, 8, 34712]; // None, LZW, JPEG, Deflate, JPEG2000
+  if (metadata.compression && !efficientCompressions.includes(metadata.compression)) {
+    issues.push('Uses inefficient compression method');
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
+
 export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ category: string; items: Array<{ label: string; value: string }> }> {
   const sections = [];
   
-  // Embedded Colormap (show first if present)
+  // COG Validation (show first - most important for COG workflows)
+  if (metadata.isCloudOptimized !== undefined) {
+    const cogProps = [];
+    cogProps.push({
+      label: 'Cloud Optimized',
+      value: metadata.isCloudOptimized ? '✓ Yes' : '✗ No'
+    });
+    
+    if (metadata.cogValidationIssues && metadata.cogValidationIssues.length > 0) {
+      cogProps.push({
+        label: 'Issues',
+        value: metadata.cogValidationIssues.join('; ')
+      });
+    }
+    
+    sections.push({ category: 'COG Validation', items: cogProps });
+  }
+  
+  // Embedded Colormap (show second if present)
   if (metadata.hasEmbeddedColormap && metadata.embeddedColormap) {
     const colormapProps = [];
     const entries = Object.keys(metadata.embeddedColormap).length;
