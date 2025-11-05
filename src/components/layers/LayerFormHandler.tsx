@@ -65,6 +65,41 @@ const LayerFormHandler = ({
   onConstraintFormCancel,
   onAddService
 }: LayerFormHandlerProps) => {
+  // Memoize editing objects at top level to prevent unnecessary form resets
+  // CRITICAL: These must be at top level, not inside conditional blocks, to follow Rules of Hooks
+  
+  // For data source editing - extract the specific data item being edited
+  // Serialize the specific item to prevent reference changes from triggering resets
+  const editingDataSourceKey = useMemo(() => {
+    if (editingDataSourceIndex === null || editingDataSourceLayerIndex === null) {
+      return null;
+    }
+    const layer = config.sources[editingDataSourceLayerIndex];
+    if (!layer?.data?.[editingDataSourceIndex]) return null;
+    return JSON.stringify(layer.data[editingDataSourceIndex]);
+  }, [editingDataSourceIndex, editingDataSourceLayerIndex, config.sources]);
+
+  const editingDataSource = useMemo(() => {
+    if (!editingDataSourceKey) return undefined;
+    return JSON.parse(editingDataSourceKey);
+  }, [editingDataSourceKey]);
+
+  // For constraint editing - extract the specific constraint being edited
+  // Serialize the specific constraint to prevent reference changes from triggering resets
+  const editingConstraintKey = useMemo(() => {
+    if (editingConstraintIndex === null || editingConstraintLayerIndex === null) {
+      return null;
+    }
+    const layer = config.sources[editingConstraintLayerIndex];
+    if (!layer?.constraints?.[editingConstraintIndex]) return null;
+    return JSON.stringify(layer.constraints[editingConstraintIndex]);
+  }, [editingConstraintIndex, editingConstraintLayerIndex, config.sources]);
+
+  const editingConstraint = useMemo(() => {
+    if (!editingConstraintKey) return undefined;
+    return JSON.parse(editingConstraintKey);
+  }, [editingConstraintKey]);
+
   if (showLayerForm) {
     return (
         <LayerFormContainer
@@ -99,15 +134,6 @@ const LayerFormHandler = ({
     else if ((currentLayer as any).isMirrorLayer) layerType = 'mirror';
     else if ((currentLayer as any).isSpotlightLayer) layerType = 'spotlight';
     
-    // Get the data source being edited if in edit mode
-    // CRITICAL: Use explicit null checks, not || operator, because 0 is a valid index!
-    // Memoize to prevent unnecessary form resets on parent re-renders
-    const editingDataSource = useMemo(() => {
-      return editingDataSourceIndex !== null && editingDataSourceLayerIndex !== null
-        ? config.sources[editingDataSourceLayerIndex]?.data?.[editingDataSourceIndex]
-        : undefined;
-    }, [editingDataSourceIndex, editingDataSourceLayerIndex, config.sources]);
-    
     return (
       <DataSourceForm
         services={services}
@@ -135,14 +161,6 @@ const LayerFormHandler = ({
       console.error('No layer found at index:', selectedLayerIndex);
       return null;
     }
-    
-    // Get the constraint being edited if in edit mode
-    // Memoize to prevent unnecessary form resets on parent re-renders
-    const editingConstraint = useMemo(() => {
-      return editingConstraintIndex !== null && editingConstraintLayerIndex !== null
-        ? config.sources[editingConstraintLayerIndex]?.constraints?.[editingConstraintIndex]
-        : undefined;
-    }, [editingConstraintIndex, editingConstraintLayerIndex, config.sources]);
     
     // Create handler that routes to add or update based on editing state
     const handleConstraintSubmit = (constraint: ConstraintSourceItem) => {
