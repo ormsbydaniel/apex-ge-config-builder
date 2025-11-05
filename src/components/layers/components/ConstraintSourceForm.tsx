@@ -114,8 +114,10 @@ const ConstraintSourceForm = ({
 
   // Track dirty state and update ConfigContext
   useEffect(() => {
+    console.log('[ConstraintForm] useEffect triggered, constrainToValues:', constrainToValues, 'isDirty:', isDirty);
     const hasUrl = directUrl.trim() !== '';
     if (hasUrl && !isDirty) {
+      console.log('[ConstraintForm] Setting dirty state and dispatching');
       setIsDirty(true);
       const description = `Constraint: ${label || directUrl || 'New Constraint'}`;
       dispatch({
@@ -222,8 +224,10 @@ const ConstraintSourceForm = ({
   };
 
   const handleConstrainToChange = (index: number, field: 'label' | 'value', value: string) => {
+    console.log('[ConstraintForm] handleConstrainToChange called:', { index, field, value, currentValues: constrainToValues });
     const updated = [...constrainToValues];
     updated[index][field] = value;
+    console.log('[ConstraintForm] Setting new values:', updated);
     setConstrainToValues(updated);
   };
 
