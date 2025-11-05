@@ -115,7 +115,7 @@ const ConstraintSourceForm = ({
   // Track dirty state and update ConfigContext
   useEffect(() => {
     const hasUrl = directUrl.trim() !== '';
-    if (hasUrl) {
+    if (hasUrl && !isDirty) {
       setIsDirty(true);
       const description = `Constraint: ${label || directUrl || 'New Constraint'}`;
       dispatch({
@@ -123,7 +123,7 @@ const ConstraintSourceForm = ({
         payload: { hasChanges: true, description }
       });
     }
-  }, [directUrl, label, interactive, constraintType, minValue, maxValue, units, constrainToValues, namedRanges, dispatch]);
+  }, [directUrl, label, interactive, constraintType, minValue, maxValue, units, constrainToValues, namedRanges, dispatch, isDirty]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
@@ -763,7 +763,7 @@ const ConstraintSourceForm = ({
                     <div className="space-y-4 pl-4 border-l-2">
                       <Label>Categories *</Label>
                       {constrainToValues.map((category, index) => (
-                        <div key={index} className="flex gap-2">
+                        <div key={`category-${index}-${category.value}`} className="flex gap-2">
                           <Input
                             placeholder="Label"
                             value={category.label}
