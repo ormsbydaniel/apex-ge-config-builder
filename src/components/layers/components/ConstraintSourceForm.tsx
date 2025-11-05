@@ -222,10 +222,8 @@ const ConstraintSourceForm = ({
   };
 
   const handleConstrainToChange = (index: number, field: 'label' | 'value', value: string) => {
-    console.log('[ConstraintForm] handleConstrainToChange called:', { index, field, value, currentValues: constrainToValues });
     const updated = [...constrainToValues];
     updated[index][field] = value;
-    console.log('[ConstraintForm] Setting new values:', updated);
     setConstrainToValues(updated);
   };
 

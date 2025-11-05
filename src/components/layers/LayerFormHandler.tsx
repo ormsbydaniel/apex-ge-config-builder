@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { DataSource, ConstraintSourceItem } from '@/types/config';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import LayerFormContainer from './LayerFormContainer';
@@ -101,9 +101,12 @@ const LayerFormHandler = ({
     
     // Get the data source being edited if in edit mode
     // CRITICAL: Use explicit null checks, not || operator, because 0 is a valid index!
-    const editingDataSource = editingDataSourceIndex !== null && editingDataSourceLayerIndex !== null
-      ? config.sources[editingDataSourceLayerIndex]?.data?.[editingDataSourceIndex]
-      : undefined;
+    // Memoize to prevent unnecessary form resets on parent re-renders
+    const editingDataSource = useMemo(() => {
+      return editingDataSourceIndex !== null && editingDataSourceLayerIndex !== null
+        ? config.sources[editingDataSourceLayerIndex]?.data?.[editingDataSourceIndex]
+        : undefined;
+    }, [editingDataSourceIndex, editingDataSourceLayerIndex, config.sources]);
     
     return (
       <DataSourceForm
@@ -134,9 +137,12 @@ const LayerFormHandler = ({
     }
     
     // Get the constraint being edited if in edit mode
-    const editingConstraint = editingConstraintIndex !== null && editingConstraintLayerIndex !== null
-      ? config.sources[editingConstraintLayerIndex]?.constraints?.[editingConstraintIndex]
-      : undefined;
+    // Memoize to prevent unnecessary form resets on parent re-renders
+    const editingConstraint = useMemo(() => {
+      return editingConstraintIndex !== null && editingConstraintLayerIndex !== null
+        ? config.sources[editingConstraintLayerIndex]?.constraints?.[editingConstraintIndex]
+        : undefined;
+    }, [editingConstraintIndex, editingConstraintLayerIndex, config.sources]);
     
     // Create handler that routes to add or update based on editing state
     const handleConstraintSubmit = (constraint: ConstraintSourceItem) => {
