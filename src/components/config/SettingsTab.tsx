@@ -250,6 +250,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     <SelectValue placeholder="Select a location preset..." />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="custom">Custom (Manual Entry)</SelectItem>
                     <SelectGroup>
                       <SelectLabel>Global & Continents</SelectLabel>
                       {groupedLocations.global.map(loc => (
@@ -257,7 +258,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           {loc.name}
                         </SelectItem>
                       ))}
-                      {groupedLocations.continents.map(loc => (
+                      {[...groupedLocations.continents].sort((a, b) => a.name.localeCompare(b.name)).map(loc => (
                         <SelectItem key={loc.name} value={loc.name}>
                           {loc.name}
                         </SelectItem>
@@ -265,13 +266,12 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     </SelectGroup>
                     <SelectGroup>
                       <SelectLabel>Countries</SelectLabel>
-                      {groupedLocations.countries.map(loc => (
+                      {[...groupedLocations.countries].sort((a, b) => a.name.localeCompare(b.name)).map(loc => (
                         <SelectItem key={loc.name} value={loc.name}>
                           {loc.name}
                         </SelectItem>
                       ))}
                     </SelectGroup>
-                    <SelectItem value="custom">Custom (Manual Entry)</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground mt-1">
