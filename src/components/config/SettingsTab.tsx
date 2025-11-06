@@ -265,7 +265,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                       ))}
                     </SelectGroup>
                     <SelectGroup>
-                      <SelectLabel>Countries</SelectLabel>
+                      <SelectLabel>Major countries</SelectLabel>
                       {[...groupedLocations.countries].sort((a, b) => a.name.localeCompare(b.name)).map(loc => (
                         <SelectItem key={loc.name} value={loc.name}>
                           {loc.name}
