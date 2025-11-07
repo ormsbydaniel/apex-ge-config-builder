@@ -165,7 +165,7 @@ const Preview = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>New Viewer Version Available</AlertDialogTitle>
             <AlertDialogDescription>
-              You're currently using version <span className="font-semibold">{selectedVersion}</span>, but version <span className="font-semibold">{latestVersion}</span> is now available. Would you like to update to the latest version?
+              You were last using version <span className="font-semibold">{selectedVersion}</span>, but version <span className="font-semibold">{latestVersion}</span> is now available. Would you like to update to the latest version?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
