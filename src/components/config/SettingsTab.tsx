@@ -7,9 +7,10 @@ import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe } from 'lucide-react';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import { geoLocations, groupedLocations } from '@/constants/geoLocations';
+import { PROJECTION_OPTIONS, DEFAULT_PROJECTION } from '@/constants/projections';
 
 interface SettingsTabProps {
   config: any;
@@ -140,6 +141,13 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
     dispatch({
       type: 'UPDATE_MAP_CONSTRAINTS',
       payload: { zoom: value[0] }
+    });
+  };
+
+  const handleProjectionChange = (value: string) => {
+    dispatch({
+      type: 'UPDATE_MAP_CONSTRAINTS',
+      payload: { projection: value }
     });
   };
 
@@ -381,6 +389,34 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     <span>28</span>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Coordinate Reference System */}
+            <div className="flex items-start gap-6">
+              <div className="flex items-center gap-2 pt-2 w-[180px]">
+                <Globe className="h-5 w-5 text-muted-foreground" />
+                <Label className="text-base font-medium whitespace-nowrap">Coordinate Reference System</Label>
+              </div>
+              <div className="flex-1">
+                <Select
+                  value={config.mapConstraints?.projection || DEFAULT_PROJECTION}
+                  onValueChange={handleProjectionChange}
+                >
+                  <SelectTrigger className="w-[400px]">
+                    <SelectValue placeholder="Select projection..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    {PROJECTION_OPTIONS.map((projection) => (
+                      <SelectItem key={projection.code} value={projection.code}>
+                        {projection.code} - {projection.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select the coordinate reference system for the map
+                </p>
               </div>
             </div>
           </div>

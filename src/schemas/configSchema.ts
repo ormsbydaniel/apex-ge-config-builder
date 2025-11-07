@@ -409,6 +409,7 @@ export const ConfigurationSchema = z.object({
   mapConstraints: z.object({
     zoom: z.number().min(0).max(28),
     center: z.array(z.number()).length(2), // [longitude, latitude]
+    projection: z.string().optional(), // EPSG projection code
   }).optional(),
 });
 

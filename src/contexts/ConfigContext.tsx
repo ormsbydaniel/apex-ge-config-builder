@@ -24,7 +24,7 @@ type ConfigAction =
   | { type: 'UPDATE_INTERFACE_GROUPS'; payload: string[] }
   | { type: 'UPDATE_EXCLUSIVITY_SETS'; payload: string[] }
   | { type: 'REMOVE_EXCLUSIVITY_SET'; payload: { index: number; setName: string } }
-  | { type: 'UPDATE_MAP_CONSTRAINTS'; payload: { zoom?: number; center?: [number, number] } }
+  | { type: 'UPDATE_MAP_CONSTRAINTS'; payload: { zoom?: number; center?: [number, number]; projection?: string } }
   | { type: 'ADD_SERVICE'; payload: Service }
   | { type: 'REMOVE_SERVICE'; payload: number }
   | { type: 'ADD_SOURCE'; payload: DataSource }
@@ -70,7 +70,8 @@ const initialState: ConfigState = {
   ],
   mapConstraints: {
     zoom: 0,
-    center: [0, 0]
+    center: [0, 0],
+    projection: 'EPSG:3857'
   },
   isLoading: false,
   lastLoaded: null,
@@ -129,10 +130,14 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         services: action.payload.services || [],
         // Only add default mapConstraints if none exist in the imported config
         mapConstraints: action.payload.mapConstraints !== undefined 
-          ? action.payload.mapConstraints 
+          ? {
+              ...action.payload.mapConstraints,
+              projection: action.payload.mapConstraints.projection || 'EPSG:3857'
+            }
           : {
               zoom: 0,
-              center: [0, 0]
+              center: [0, 0],
+              projection: 'EPSG:3857'
             },
         sources: action.payload.sources.map(source => ({
           ...source,
