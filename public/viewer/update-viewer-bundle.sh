@@ -3,7 +3,7 @@
 # Configuration
 VIEWER_DIR=~/software/apex_geospatial_explorer
 BUILDER_DIR=~/software/apex-ge-config-builder
-VERSION="dev-colormap-legend"
+VERSION="3.4.1"
 
 # Colors for output
 GREEN='\033[0;32m'
