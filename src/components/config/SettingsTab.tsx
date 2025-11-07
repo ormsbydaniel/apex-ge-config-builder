@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Settings, MapPin, ZoomIn, Edit, Globe } from 'lucide-react';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
@@ -416,11 +416,26 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     <SelectValue placeholder="Select projection..." />
                   </SelectTrigger>
                   <SelectContent className="bg-background z-50">
-                    {PROJECTION_OPTIONS.map((projection) => (
-                      <SelectItem key={projection.code} value={projection.code}>
-                        {projection.code} - {projection.name}
-                      </SelectItem>
-                    ))}
+                    {/* Default projection */}
+                    <SelectItem value="EPSG:3857">
+                      EPSG:3857 - WGS 84 / Pseudo-Mercator
+                    </SelectItem>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      <SelectLabel>Other supported reference systems:</SelectLabel>
+                      {PROJECTION_OPTIONS
+                        .filter(p => p.code !== 'EPSG:3857')
+                        .sort((a, b) => {
+                          const aNum = parseInt(a.code.split(':')[1]);
+                          const bNum = parseInt(b.code.split(':')[1]);
+                          return aNum - bNum;
+                        })
+                        .map((projection) => (
+                          <SelectItem key={projection.code} value={projection.code}>
+                            {projection.code} - {projection.name}
+                          </SelectItem>
+                        ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground mt-1">
