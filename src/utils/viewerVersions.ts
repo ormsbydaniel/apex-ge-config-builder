@@ -25,6 +25,25 @@ export async function getAvailableViewerVersions(): Promise<ViewerVersion[]> {
 }
 
 /**
+ * Get the latest version from versions.json
+ */
+export async function getLatestVersionFromManifest(): Promise<string | null> {
+  try {
+    const response = await fetch('/viewer/versions.json');
+    if (!response.ok) {
+      console.error('Failed to fetch versions manifest');
+      return null;
+    }
+    
+    const data = await response.json();
+    return data.latest || null;
+  } catch (error) {
+    console.error('Error fetching latest version:', error);
+    return null;
+  }
+}
+
+/**
  * Parse and compare semantic versions
  */
 export function compareVersions(a: string, b: string): number {
@@ -52,6 +71,7 @@ export function getLatestVersion(versions: ViewerVersion[]): ViewerVersion | nul
 }
 
 const VIEWER_VERSION_KEY = 'apex-viewer-version';
+const VERSION_ALERT_SHOWN_KEY = 'apex-viewer-update-alert-shown';
 
 export function getSavedViewerVersion(): string | null {
   return localStorage.getItem(VIEWER_VERSION_KEY);
@@ -59,4 +79,12 @@ export function getSavedViewerVersion(): string | null {
 
 export function saveViewerVersion(version: string): void {
   localStorage.setItem(VIEWER_VERSION_KEY, version);
+}
+
+export function hasShownVersionAlertThisSession(): boolean {
+  return sessionStorage.getItem(VERSION_ALERT_SHOWN_KEY) === 'true';
+}
+
+export function markVersionAlertAsShown(): void {
+  sessionStorage.setItem(VERSION_ALERT_SHOWN_KEY, 'true');
 }

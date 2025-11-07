@@ -5,14 +5,18 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { 
   getAvailableViewerVersions, 
   getLatestVersion, 
+  getLatestVersionFromManifest,
   getSavedViewerVersion,
-  saveViewerVersion 
+  saveViewerVersion,
+  hasShownVersionAlertThisSession,
+  markVersionAlertAsShown
 } from '@/utils/viewerVersions';
 import type { ViewerVersion } from '@/types/viewer';
 
@@ -41,26 +45,38 @@ const Preview = () => {
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
   const [isLoadingVersions, setIsLoadingVersions] = useState(true);
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+  const [latestVersion, setLatestVersion] = useState<string>('');
 
-  // Load available versions
+  // Load available versions and check for updates
   useEffect(() => {
     const loadVersions = async () => {
       setIsLoadingVersions(true);
       const availableVersions = await getAvailableViewerVersions();
+      const manifestLatest = await getLatestVersionFromManifest();
+      
       setVersions(availableVersions);
+      if (manifestLatest) {
+        setLatestVersion(manifestLatest);
+      }
       
       if (availableVersions.length > 0) {
-        // Try to use saved version, or latest version
         const savedVersion = getSavedViewerVersion();
         const versionExists = availableVersions.some(v => v.version === savedVersion);
         
         if (savedVersion && versionExists) {
           setSelectedVersion(savedVersion);
+          
+          // Check if user is on older version and hasn't been alerted this session
+          if (manifestLatest && savedVersion !== manifestLatest && !hasShownVersionAlertThisSession()) {
+            setShowUpdateDialog(true);
+          }
         } else {
-          const latest = getLatestVersion(availableVersions);
+          // No saved version or invalid - use latest
+          const latest = manifestLatest || getLatestVersion(availableVersions)?.version;
           if (latest) {
-            setSelectedVersion(latest.version);
-            saveViewerVersion(latest.version);
+            setSelectedVersion(latest);
+            saveViewerVersion(latest);
           }
         }
       }
@@ -74,6 +90,20 @@ const Preview = () => {
   const handleVersionChange = (version: string) => {
     setSelectedVersion(version);
     saveViewerVersion(version);
+  };
+
+  const handleUpdateToLatest = () => {
+    if (latestVersion) {
+      setSelectedVersion(latestVersion);
+      saveViewerVersion(latestVersion);
+    }
+    markVersionAlertAsShown();
+    setShowUpdateDialog(false);
+  };
+
+  const handleStayOnCurrent = () => {
+    markVersionAlertAsShown();
+    setShowUpdateDialog(false);
   };
 
   const { isLoading, isReady, error, reload } = useViewerLoader({
@@ -129,7 +159,27 @@ const Preview = () => {
   }
 
   return (
-    <div className="h-screen relative bg-background">
+    <>
+      <AlertDialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>New Viewer Version Available</AlertDialogTitle>
+            <AlertDialogDescription>
+              You're currently using version <span className="font-semibold">{selectedVersion}</span>, but version <span className="font-semibold">{latestVersion}</span> is now available. Would you like to update to the latest version?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleStayOnCurrent}>
+              Stay on {selectedVersion}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleUpdateToLatest}>
+              Update to {latestVersion}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <div className="h-screen relative bg-background">
       <header className="absolute top-[3px] left-1/2 -translate-x-1/2 z-50 border rounded-lg bg-card/95 backdrop-blur-sm shadow-lg px-3 py-1">
         <div className="flex items-center gap-2">
           <Button onClick={() => navigate('/')} variant="outline" size="sm">
@@ -209,6 +259,7 @@ const Preview = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
