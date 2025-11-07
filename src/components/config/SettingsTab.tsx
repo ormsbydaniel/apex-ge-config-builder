@@ -7,7 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit, Globe } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map } from 'lucide-react';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import { geoLocations, groupedLocations } from '@/constants/geoLocations';
 import { PROJECTION_OPTIONS, DEFAULT_PROJECTION } from '@/constants/projections';
@@ -290,12 +290,16 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
             {/* Map Centre */}
             <div className="flex items-start gap-6">
-              <div className="flex items-center gap-2 pt-8 w-[180px]">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                <Label className="text-base font-medium whitespace-nowrap">
-                  Map centre at start
-                  {selectedLocation === 'custom' && <span className="text-xs ml-1">(Custom)</span>}
-                </Label>
+              <div className="space-y-2 w-[180px]">
+                <div className="flex items-center gap-2">
+                  <Map className="h-5 w-5 text-muted-foreground" />
+                  <Label className="text-base font-medium whitespace-nowrap">Map centre at start</Label>
+                </div>
+                {selectedLocation === 'custom' && (
+                  <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded inline-block w-[140px]">
+                    (Custom)
+                  </span>
+                )}
               </div>
               <div className="flex-1">
                 <div className="px-2">
