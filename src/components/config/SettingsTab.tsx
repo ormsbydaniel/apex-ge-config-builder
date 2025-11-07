@@ -396,7 +396,16 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             <div className="flex items-start gap-6">
               <div className="flex items-center gap-2 pt-2 w-[180px]">
                 <Globe className="h-5 w-5 text-muted-foreground" />
-                <Label className="text-base font-medium whitespace-nowrap">Coordinate Reference System</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Label className="text-base font-medium whitespace-nowrap cursor-help">CRS</Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Coordinate Reference System</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="flex-1">
                 <Select
