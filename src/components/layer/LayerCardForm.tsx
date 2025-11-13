@@ -1,5 +1,6 @@
 
 import React, { useEffect } from 'react';
+import { useConfig } from '@/contexts/ConfigContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Save, X, Layers, AlertTriangle } from 'lucide-react';
@@ -13,6 +14,7 @@ import { useLayerCardFormValidation } from '@/hooks/useLayerCardFormValidation';
 import { useLayerCardFormSubmission } from '@/hooks/useLayerCardFormSubmission';
 import { useLayerOperations, LayerTypeOption } from '@/hooks/useLayerOperations';
 import { analyzeLayerTypeMigration, applyLayerTypeMigration } from '@/utils/layerTypeMigration';
+import { useToast } from '@/hooks/use-toast';
 import UnifiedBasicInfoSection from '@/components/form/UnifiedBasicInfoSection';
 import UnifiedAttributionSection from '@/components/form/UnifiedAttributionSection';
 import UnifiedCategoriesSection from '@/components/form/UnifiedCategoriesSection';
@@ -43,6 +45,8 @@ const LayerCardForm = ({
   editingLayer, 
   isEditing = false 
 }: LayerCardFormProps) => {
+  const { dispatch } = useConfig();
+  const { toast } = useToast();
   const {
     formData,
     updateFormData,
@@ -107,8 +111,34 @@ const LayerCardForm = ({
     }
   } as DataSource;
 
+  // Notify ConfigContext when form editing state changes
+  useEffect(() => {
+    if (isDirty && formData.name) {
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: true, description: `Layer: ${formData.name}` }
+      });
+    }
+  }, [isDirty, formData.name, dispatch]);
+
   // Get data sources for position management
   const dataSources = editingLayer?.data || [];
+
+  // Wrapper for updateFormData that handles auto-switch logic
+  const handleFieldChange = (field: string, value: any) => {
+    updateFormData(field, value);
+    
+    // Auto-switch to gradient when colormap is added
+    if (field === 'colormaps' && Array.isArray(value) && value.length > 0) {
+      if (formData.legendType !== 'gradient') {
+        updateFormData('legendType', 'gradient');
+        toast({
+          title: "Legend type changed",
+          description: "Legend type automatically switched to gradient",
+        });
+      }
+    }
+  };
 
   // Process categories to ensure they have the required value property
   const processedCategories = formData.categories?.map((cat, index) => ({
@@ -127,7 +157,11 @@ const LayerCardForm = ({
     // Create layer with layer type flags
     let layerCard = createLayerFromFormData({
       ...formData,
+      zoomToCenter: (formData as any).zoomToCenter || false,
       download: (formData as any).download,
+      temporalControls: (formData as any).temporalControls || false,
+      constraintSlider: (formData as any).constraintSlider || false,
+      blendControls: (formData as any).blendControls || false,
       categories: processedCategories || [],
       colormaps: formData.colormaps || [],
       timeframe: formData.timeframe,
@@ -143,6 +177,12 @@ const LayerCardForm = ({
       layerCard = applyLayerTypeMigration(layerCard, selectedLayerType);
     }
 
+    // Clear unsaved changes flag
+    dispatch({
+      type: 'SET_UNSAVED_FORM_CHANGES',
+      payload: { hasChanges: false, description: null }
+    });
+
     onAddLayer(layerCard);
     clearDraft();
     handleSuccessfulSubmission(formData.name);
@@ -153,6 +193,13 @@ const LayerCardForm = ({
       const confirmDiscard = window.confirm('You have unsaved changes. Are you sure you want to discard them?');
       if (!confirmDiscard) return;
     }
+    
+    // Clear unsaved changes flag
+    dispatch({
+      type: 'SET_UNSAVED_FORM_CHANGES',
+      payload: { hasChanges: false, description: null }
+    });
+
     clearDraft();
     onCancel();
   };
@@ -193,7 +240,7 @@ const LayerCardForm = ({
                     <Switch
                       id="toggleable"
                       checked={formData.toggleable}
-                      onCheckedChange={(checked) => updateFormData('toggleable', checked)}
+                      onCheckedChange={(checked) => handleFieldChange('toggleable', checked)}
                     />
                   </div>
                   
@@ -202,7 +249,7 @@ const LayerCardForm = ({
                     <Switch
                       id="isActive"
                       checked={formData.isActive}
-                      onCheckedChange={(checked) => updateFormData('isActive', checked)}
+                      onCheckedChange={(checked) => handleFieldChange('isActive', checked)}
                     />
                   </div>
                 </div>
@@ -210,7 +257,7 @@ const LayerCardForm = ({
 
               <ContentLocationRadioGroup
                 value={formData.contentLocation}
-                onChange={(value) => updateFormData('contentLocation', value)}
+                onChange={(value) => handleFieldChange('contentLocation', value)}
               />
             </div>
 
@@ -232,25 +279,25 @@ const LayerCardForm = ({
               units={formData.units}
               timeframe={formData.timeframe}
               defaultTimestamp={formData.defaultTimestamp}
-              onUpdate={updateFormData}
+              onUpdate={handleFieldChange}
               showUnits={true}
             />
 
             <UnifiedAttributionSection
               attributionText={formData.attributionText}
               attributionUrl={formData.attributionUrl}
-              onUpdate={updateFormData}
+              onUpdate={handleFieldChange}
             />
 
             <UnifiedCategoriesSection
               categories={processedCategories || []}
-              onUpdate={updateFormData}
+              onUpdate={handleFieldChange}
               layerName={formData.name || ''}
             />
 
             <ColormapsSection
               colormaps={formData.colormaps || []}
-              onUpdate={updateFormData}
+              onUpdate={handleFieldChange}
               metaMin={formData.minValue ? parseFloat(formData.minValue) : undefined}
               metaMax={formData.maxValue ? parseFloat(formData.maxValue) : undefined}
             />
@@ -262,7 +309,8 @@ const LayerCardForm = ({
               endColor={formData.endColor}
               minValue={formData.minValue}
               maxValue={formData.maxValue}
-              onUpdate={updateFormData}
+              colormaps={formData.colormaps || []}
+              onUpdate={handleFieldChange}
             />
 
             <UnifiedControlsSection
@@ -271,15 +319,16 @@ const LayerCardForm = ({
               download={(formData as any).download}
               temporalControls={(formData as any).temporalControls || false}
               constraintSlider={(formData as any).constraintSlider || false}
+              blendControls={(formData as any).blendControls || false}
               timeframe={formData.timeframe || 'None'}
-              onUpdate={updateFormData}
+              onUpdate={handleFieldChange}
             />
 
             {availableExclusivitySets.length > 0 && (
               <UnifiedExclusivitySetsSection
                 availableExclusivitySets={availableExclusivitySets}
                 selectedExclusivitySets={formData.exclusivitySets}
-                onUpdateExclusivitySets={(exclusivitySets) => updateFormData('exclusivitySets', exclusivitySets)}
+                onUpdateExclusivitySets={(exclusivitySets) => handleFieldChange('exclusivitySets', exclusivitySets)}
               />
             )}
 

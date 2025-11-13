@@ -17,6 +17,7 @@ interface LayerCardFormData {
   download?: string;
   temporalControls: boolean;
   constraintSlider: boolean;
+  blendControls: boolean;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -74,10 +75,16 @@ export const useLayerCardFormPersistence = (
         download: (sourceObj?.controls as any)?.download,
         temporalControls: (sourceObj?.controls as any)?.temporalControls || false,
         constraintSlider: (sourceObj?.controls as any)?.constraintSlider || false,
+        blendControls: (sourceObj?.controls as any)?.blendControls || false,
         legendType: sourceObj?.legend?.type || 'swatch',
         legendUrl: sourceObj?.legend?.url || '',
-        startColor: editingLayer.meta?.startColor || '#000000',
-        endColor: editingLayer.meta?.endColor || '#ffffff',
+        // Only populate startColor/endColor if there are no colormaps
+        startColor: (editingLayer.meta?.colormaps && editingLayer.meta.colormaps.length > 0) 
+          ? '#000000' 
+          : (editingLayer.meta?.startColor || '#000000'),
+        endColor: (editingLayer.meta?.colormaps && editingLayer.meta.colormaps.length > 0)
+          ? '#ffffff'
+          : (editingLayer.meta?.endColor || '#ffffff'),
         minValue: editingLayer.meta?.min?.toString() || '',
         maxValue: editingLayer.meta?.max?.toString() || '',
         categories: editingLayer.meta?.categories || [],
@@ -120,6 +127,7 @@ export const useLayerCardFormPersistence = (
       download: undefined,
       temporalControls: false,
       constraintSlider: false,
+      blendControls: false,
       legendType: 'swatch',
       legendUrl: '',
       startColor: '#000000',

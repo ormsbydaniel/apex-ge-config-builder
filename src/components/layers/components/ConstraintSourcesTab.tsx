@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import CogMetadataDialog from './CogMetadataDialog';
+import LayerMoveControls from './LayerMoveControls';
 import { toast } from 'sonner';
 
 interface ConstraintSourcesTabProps {
@@ -16,6 +17,10 @@ interface ConstraintSourcesTabProps {
   onAddConstraintSource: (layerIndex: number) => void;
   onRemove: (layerIndex: number, constraintIndex: number) => void;
   onEdit: (layerIndex: number, constraintIndex: number) => void;
+  onMoveUp: (layerIndex: number, constraintIndex: number) => void;
+  onMoveDown: (layerIndex: number, constraintIndex: number) => void;
+  onMoveToTop: (layerIndex: number, constraintIndex: number) => void;
+  onMoveToBottom: (layerIndex: number, constraintIndex: number) => void;
 }
 
 export function ConstraintSourcesTab({
@@ -24,7 +29,11 @@ export function ConstraintSourcesTab({
   layerIndex,
   onAddConstraintSource,
   onRemove,
-  onEdit
+  onEdit,
+  onMoveUp,
+  onMoveDown,
+  onMoveToTop,
+  onMoveToBottom
 }: ConstraintSourcesTabProps) {
   const [metadataDialogIndex, setMetadataDialogIndex] = useState<number | null>(null);
   const hasConstraints = source.constraints && source.constraints.length > 0;
@@ -44,7 +53,7 @@ export function ConstraintSourcesTab({
           {source.constraints.map((constraint, index) => <Card key={index} className="bg-muted/50">
               <CardContent className="pt-4">
                 <div className="space-y-2">
-                  {/* Line 1: Data type Pill, File Name (hover full), Right-aligned icons: Info | Copy | Edit | Delete */}
+                  {/* Line 1: Data type Pill, File Name (hover full), Right-aligned icons: Move | Info | Copy | Edit | Delete */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <Badge variant="outline" className="text-xs shrink-0">
@@ -64,6 +73,16 @@ export function ConstraintSourcesTab({
                       </TooltipProvider>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
+                      <LayerMoveControls
+                        onMoveUp={() => onMoveUp(layerIndex, index)}
+                        onMoveDown={() => onMoveDown(layerIndex, index)}
+                        onMoveToTop={() => onMoveToTop(layerIndex, index)}
+                        onMoveToBottom={() => onMoveToBottom(layerIndex, index)}
+                        canMoveUp={index > 0}
+                        canMoveDown={index < source.constraints!.length - 1}
+                        canMoveToTop={index > 0}
+                        canMoveToBottom={index < source.constraints!.length - 1}
+                      />
                       {constraint.format?.toLowerCase() === 'cog' && constraint.url && (
                         <Button
                           size="sm"

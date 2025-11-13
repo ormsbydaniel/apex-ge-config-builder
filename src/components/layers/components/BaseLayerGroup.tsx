@@ -29,6 +29,10 @@ interface BaseLayerGroupProps {
   onAddConstraintSource?: (layerIndex: number) => void;
   onRemoveConstraintSource: (layerIndex: number, constraintIndex: number) => void;
   onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintUp: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddBaseLayer: () => void;
   onAddRecommendedBaseLayers: () => void;
@@ -53,6 +57,10 @@ const BaseLayerGroup = ({
   onAddConstraintSource,
   onRemoveConstraintSource,
   onEditConstraintSource,
+  onMoveConstraintUp,
+  onMoveConstraintDown,
+  onMoveConstraintToTop,
+  onMoveConstraintToBottom,
   onMoveLayer,
   onAddBaseLayer,
   onAddRecommendedBaseLayers,
@@ -155,6 +163,10 @@ const BaseLayerGroup = ({
                       onAddConstraintSource={onAddConstraintSource}
                       onRemoveConstraintSource={(constraintIndex) => onRemoveConstraintSource(originalIndex, constraintIndex)}
                       onEditConstraintSource={(constraintIndex) => onEditConstraintSource(originalIndex, constraintIndex)}
+                      onMoveConstraintUp={(constraintIndex) => onMoveConstraintUp(originalIndex, constraintIndex)}
+                      onMoveConstraintDown={(constraintIndex) => onMoveConstraintDown(originalIndex, constraintIndex)}
+                      onMoveConstraintToTop={(constraintIndex) => onMoveConstraintToTop(originalIndex, constraintIndex)}
+                      onMoveConstraintToBottom={(constraintIndex) => onMoveConstraintToBottom(originalIndex, constraintIndex)}
                       isExpanded={isCardExpanded(`base-${originalIndex}`)}
                       onToggle={() => toggleCard(`base-${originalIndex}`)}
                     />

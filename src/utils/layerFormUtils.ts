@@ -14,7 +14,8 @@ export const createEmptyLayer = (interfaceGroup?: string): Partial<DataSource> =
           opacitySlider: true, // Default to on
           zoomToCenter: true,   // Default to on
           temporalControls: false, // Default to off
-          constraintSlider: false  // Default to off
+          constraintSlider: false,  // Default to off
+          blendControls: false // Default to off
         }
       }
     },

@@ -129,6 +129,149 @@ export const createLayerActionHandlers = (
     console.log(`Edit constraint source at layer ${layerIndex}, constraint index ${constraintIndex}`);
   };
 
+  const handleMoveConstraintUp = (layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.constraints || constraintIndex === 0) return;
+
+    const newConstraints = [...layer.constraints];
+    [newConstraints[constraintIndex - 1], newConstraints[constraintIndex]] = 
+      [newConstraints[constraintIndex], newConstraints[constraintIndex - 1]];
+    
+    // Renumber bandIndex sequentially from 2
+    const renumberedConstraints = newConstraints.map((constraint, index) => ({
+      ...constraint,
+      bandIndex: index + 2
+    }));
+
+    updateLayer(layerIndex, { ...layer, constraints: renumberedConstraints });
+  };
+
+  const handleMoveConstraintDown = (layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.constraints || constraintIndex === layer.constraints.length - 1) return;
+
+    const newConstraints = [...layer.constraints];
+    [newConstraints[constraintIndex], newConstraints[constraintIndex + 1]] = 
+      [newConstraints[constraintIndex + 1], newConstraints[constraintIndex]];
+    
+    // Renumber bandIndex sequentially from 2
+    const renumberedConstraints = newConstraints.map((constraint, index) => ({
+      ...constraint,
+      bandIndex: index + 2
+    }));
+
+    updateLayer(layerIndex, { ...layer, constraints: renumberedConstraints });
+  };
+
+  const handleMoveConstraintToTop = (layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.constraints || constraintIndex === 0) return;
+
+    const newConstraints = [...layer.constraints];
+    const [movedConstraint] = newConstraints.splice(constraintIndex, 1);
+    newConstraints.unshift(movedConstraint);
+    
+    // Renumber bandIndex sequentially from 2
+    const renumberedConstraints = newConstraints.map((constraint, index) => ({
+      ...constraint,
+      bandIndex: index + 2
+    }));
+
+    updateLayer(layerIndex, { ...layer, constraints: renumberedConstraints });
+  };
+
+  const handleMoveConstraintToBottom = (layerIndex: number, constraintIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.constraints || constraintIndex === layer.constraints.length - 1) return;
+
+    const newConstraints = [...layer.constraints];
+    const [movedConstraint] = newConstraints.splice(constraintIndex, 1);
+    newConstraints.push(movedConstraint);
+    
+    // Renumber bandIndex sequentially from 2
+    const renumberedConstraints = newConstraints.map((constraint, index) => ({
+      ...constraint,
+      bandIndex: index + 2
+    }));
+
+    updateLayer(layerIndex, { ...layer, constraints: renumberedConstraints });
+  };
+
+  // Workflow handlers
+  const handleAddWorkflow = (layerIndex: number, workflow: any) => {
+    const layer = config.sources[layerIndex];
+    const updatedLayer = {
+      ...layer,
+      workflows: [...(layer.workflows || []), workflow]
+    };
+    updateLayer(layerIndex, updatedLayer);
+  };
+
+  const handleUpdateWorkflow = (layerIndex: number, workflowIndex: number, workflow: any) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows) return;
+
+    const updatedWorkflows = [...layer.workflows];
+    updatedWorkflows[workflowIndex] = workflow;
+    
+    updateLayer(layerIndex, { ...layer, workflows: updatedWorkflows });
+  };
+
+  const handleRemoveWorkflow = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows) return;
+
+    const updatedLayer = {
+      ...layer,
+      workflows: layer.workflows.filter((_, index) => index !== workflowIndex)
+    };
+    updateLayer(layerIndex, updatedLayer);
+  };
+
+  const handleMoveWorkflowUp = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows || workflowIndex === 0) return;
+
+    const newWorkflows = [...layer.workflows];
+    [newWorkflows[workflowIndex - 1], newWorkflows[workflowIndex]] = 
+      [newWorkflows[workflowIndex], newWorkflows[workflowIndex - 1]];
+
+    updateLayer(layerIndex, { ...layer, workflows: newWorkflows });
+  };
+
+  const handleMoveWorkflowDown = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows || workflowIndex === layer.workflows.length - 1) return;
+
+    const newWorkflows = [...layer.workflows];
+    [newWorkflows[workflowIndex], newWorkflows[workflowIndex + 1]] = 
+      [newWorkflows[workflowIndex + 1], newWorkflows[workflowIndex]];
+
+    updateLayer(layerIndex, { ...layer, workflows: newWorkflows });
+  };
+
+  const handleMoveWorkflowToTop = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows || workflowIndex === 0) return;
+
+    const newWorkflows = [...layer.workflows];
+    const [movedWorkflow] = newWorkflows.splice(workflowIndex, 1);
+    newWorkflows.unshift(movedWorkflow);
+
+    updateLayer(layerIndex, { ...layer, workflows: newWorkflows });
+  };
+
+  const handleMoveWorkflowToBottom = (layerIndex: number, workflowIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer.workflows || workflowIndex === layer.workflows.length - 1) return;
+
+    const newWorkflows = [...layer.workflows];
+    const [movedWorkflow] = newWorkflows.splice(workflowIndex, 1);
+    newWorkflows.push(movedWorkflow);
+
+    updateLayer(layerIndex, { ...layer, workflows: newWorkflows });
+  };
+
   return {
     handleEditLayer,
     handleEditBaseLayer,
@@ -138,6 +281,17 @@ export const createLayerActionHandlers = (
     handleEditDataSource,
     handleEditStatisticsSource,
     handleRemoveConstraintSource,
-    handleEditConstraintSource
+    handleEditConstraintSource,
+    handleMoveConstraintUp,
+    handleMoveConstraintDown,
+    handleMoveConstraintToTop,
+    handleMoveConstraintToBottom,
+    handleAddWorkflow,
+    handleUpdateWorkflow,
+    handleRemoveWorkflow,
+    handleMoveWorkflowUp,
+    handleMoveWorkflowDown,
+    handleMoveWorkflowToTop,
+    handleMoveWorkflowToBottom
   };
 };

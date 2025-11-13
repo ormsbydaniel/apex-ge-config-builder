@@ -15,6 +15,7 @@ import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
+import { useConfig } from '@/contexts/ConfigContext';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
 import { format as formatDate, parse, isValid } from 'date-fns';
@@ -57,6 +58,7 @@ const DataSourceForm = ({
   editingLayerIndex
 }: DataSourceFormProps) => {
   const { toast } = useToast();
+  const { dispatch } = useConfig();
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   
   // Helper function to get recommended zIndex based on format
@@ -129,6 +131,9 @@ const DataSourceForm = ({
     editingDataSource?.useTimeParameter ?? true
   );
 
+  // Track dirty state for unsaved changes
+  const [isDirty, setIsDirty] = useState(false);
+
   // Generate year options (1900 to 2050)
   const yearOptions = Array.from({ length: 151 }, (_, i) => 1900 + i);
   
@@ -171,8 +176,26 @@ const DataSourceForm = ({
         setDateInputValue('');
         setMonth(new Date());
       }
+      
+      // Reset dirty state when editing starts
+      setIsDirty(false);
     }
   }, [editingDataSource, layerType]);
+
+  // Track dirty state and update ConfigContext
+  useEffect(() => {
+    const hasUrl = directUrl.trim() !== '';
+    if (hasUrl) {
+      setIsDirty(true);
+      const description = isAddingStatistics 
+        ? `Statistics: ${directUrl || 'New Statistics'}`
+        : `Dataset: ${directUrl || 'New Dataset'}`;
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: true, description }
+      });
+    }
+  }, [directUrl, directLayers, zIndex, selectedFormat, selectedPosition, selectedDate, isAddingStatistics, dispatch]);
 
   const CustomCaption = ({ displayMonth }: { displayMonth: Date }) => {
     return (
@@ -417,6 +440,12 @@ const DataSourceForm = ({
       ...(isWmsOrWmts && useTimeParameter && { useTimeParameter: true })
     };
 
+    // Clear unsaved changes flag
+    dispatch({
+      type: 'SET_UNSAVED_FORM_CHANGES',
+      payload: { hasChanges: false, description: null }
+    });
+
     // Check if we're in edit mode
     if (editingDataSource && editingIndex !== undefined && onUpdateDataSource && editingLayerIndex !== undefined) {
       // Update existing data source
@@ -441,6 +470,15 @@ const DataSourceForm = ({
         });
       }
     }
+  };
+
+  const handleCancel = () => {
+    // Clear unsaved changes flag
+    dispatch({
+      type: 'SET_UNSAVED_FORM_CHANGES',
+      payload: { hasChanges: false, description: null }
+    });
+    onCancel();
   };
 
   return (
@@ -1007,7 +1045,7 @@ const DataSourceForm = ({
             )}
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={onCancel}>
+              <Button type="button" variant="outline" onClick={handleCancel}>
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>

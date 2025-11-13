@@ -9,6 +9,8 @@ interface ConfigState extends ValidatedConfiguration {
   lastLoaded: Date | null;
   lastExported: Date | null;
   validationResults: Map<number, LayerValidationResult>;
+  hasUnsavedFormChanges: boolean;
+  unsavedFormDescription: string | null;
 }
 
 type ConfigAction =
@@ -22,14 +24,15 @@ type ConfigAction =
   | { type: 'UPDATE_INTERFACE_GROUPS'; payload: string[] }
   | { type: 'UPDATE_EXCLUSIVITY_SETS'; payload: string[] }
   | { type: 'REMOVE_EXCLUSIVITY_SET'; payload: { index: number; setName: string } }
-  | { type: 'UPDATE_MAP_CONSTRAINTS'; payload: { zoom?: number; center?: [number, number] } }
+  | { type: 'UPDATE_MAP_CONSTRAINTS'; payload: { zoom?: number; center?: [number, number]; projection?: string } }
   | { type: 'ADD_SERVICE'; payload: Service }
   | { type: 'REMOVE_SERVICE'; payload: number }
   | { type: 'ADD_SOURCE'; payload: DataSource }
   | { type: 'REMOVE_SOURCE'; payload: number }
   | { type: 'UPDATE_SOURCE'; payload: { index: number; source: DataSource } }
   | { type: 'UPDATE_SOURCES'; payload: DataSource[] }
-  | { type: 'UPDATE_VALIDATION_RESULTS'; payload: Map<number, LayerValidationResult> };
+  | { type: 'UPDATE_VALIDATION_RESULTS'; payload: Map<number, LayerValidationResult> }
+  | { type: 'SET_UNSAVED_FORM_CHANGES'; payload: { hasChanges: boolean; description: string | null } };
 
 const initialState: ConfigState = {
   version: '1.0.0',
@@ -67,12 +70,15 @@ const initialState: ConfigState = {
   ],
   mapConstraints: {
     zoom: 0,
-    center: [0, 0]
+    center: [0, 0],
+    projection: 'EPSG:3857'
   },
   isLoading: false,
   lastLoaded: null,
   lastExported: null,
   validationResults: new Map(),
+  hasUnsavedFormChanges: false,
+  unsavedFormDescription: null,
 };
 
 // Helper function to normalize legacy data to always be arrays
@@ -124,10 +130,14 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         services: action.payload.services || [],
         // Only add default mapConstraints if none exist in the imported config
         mapConstraints: action.payload.mapConstraints !== undefined 
-          ? action.payload.mapConstraints 
+          ? {
+              ...action.payload.mapConstraints,
+              projection: action.payload.mapConstraints.projection || 'EPSG:3857'
+            }
           : {
               zoom: 0,
-              center: [0, 0]
+              center: [0, 0],
+              projection: 'EPSG:3857'
             },
         sources: action.payload.sources.map(source => ({
           ...source,
@@ -143,12 +153,16 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         lastLoaded: new Date(),
         lastExported: state.lastExported, // Preserve last exported time
         validationResults: new Map(), // Reset validation results when loading new config
+        hasUnsavedFormChanges: false,
+        unsavedFormDescription: null,
       };
     case 'RESET_CONFIG':
       return {
         ...initialState,
         lastLoaded: null,
         lastExported: null,
+        hasUnsavedFormChanges: false,
+        unsavedFormDescription: null,
       };
     case 'SET_LOADING':
       return {
@@ -423,6 +437,12 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       return {
         ...state,
         validationResults: action.payload,
+      };
+    case 'SET_UNSAVED_FORM_CHANGES':
+      return {
+        ...state,
+        hasUnsavedFormChanges: action.payload.hasChanges,
+        unsavedFormDescription: action.payload.description,
       };
     default:
       return state;

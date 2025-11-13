@@ -5,9 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map } from 'lucide-react';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
+import { geoLocations, groupedLocations } from '@/constants/geoLocations';
+import { PROJECTION_OPTIONS, DEFAULT_PROJECTION } from '@/constants/projections';
 
 interface SettingsTabProps {
   config: any;
@@ -20,6 +23,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const currentCenter = config.mapConstraints?.center || [0, 0];
   const [latitudeInput, setLatitudeInput] = useState(currentCenter[1].toFixed(6));
   const [longitudeInput, setLongitudeInput] = useState(currentCenter[0].toFixed(6));
+  const [selectedLocation, setSelectedLocation] = useState<string>('custom');
   const [isEditingLogo, setIsEditingLogo] = useState(false);
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   
@@ -60,6 +64,8 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
         type: 'UPDATE_MAP_CONSTRAINTS',
         payload: { center: [currentCenter[0], latitude] }
       });
+      // Mark as custom when manually edited
+      setSelectedLocation('custom');
     }
   };
 
@@ -71,6 +77,33 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
         type: 'UPDATE_MAP_CONSTRAINTS',
         payload: { center: [longitude, currentCenter[1]] }
       });
+      // Mark as custom when manually edited
+      setSelectedLocation('custom');
+    }
+  };
+
+  const handleLocationChange = (locationName: string) => {
+    setSelectedLocation(locationName);
+    
+    if (locationName === 'custom') {
+      // User wants manual entry, do nothing
+      return;
+    }
+    
+    const location = geoLocations.find(loc => loc.name === locationName);
+    if (location) {
+      // Update map constraints
+      dispatch({
+        type: 'UPDATE_MAP_CONSTRAINTS',
+        payload: { 
+          center: location.center,
+          zoom: location.zoom
+        }
+      });
+      
+      // Update local input states
+      setLatitudeInput(location.center[1].toFixed(6));
+      setLongitudeInput(location.center[0].toFixed(6));
     }
   };
 
@@ -108,6 +141,13 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
     dispatch({
       type: 'UPDATE_MAP_CONSTRAINTS',
       payload: { zoom: value[0] }
+    });
+  };
+
+  const handleProjectionChange = (value: string) => {
+    dispatch({
+      type: 'UPDATE_MAP_CONSTRAINTS',
+      payload: { projection: value }
     });
   };
 
@@ -203,11 +243,63 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Navigation Settings</h3>
             
+            {/* Location Preset Selector */}
+            <div className="flex items-start gap-6">
+              <div className="flex items-center gap-2 pt-2 w-[180px]">
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+                <Label className="text-base font-medium whitespace-nowrap">Quick Location</Label>
+              </div>
+              <div className="flex-1">
+                <Select
+                  value={selectedLocation}
+                  onValueChange={handleLocationChange}
+                >
+                  <SelectTrigger className="w-[300px]">
+                    <SelectValue placeholder="Select a location preset..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="custom">Custom (Manual Entry)</SelectItem>
+                    <SelectGroup>
+                      <SelectLabel>Global & Continents</SelectLabel>
+                      {groupedLocations.global.map(loc => (
+                        <SelectItem key={loc.name} value={loc.name}>
+                          {loc.name}
+                        </SelectItem>
+                      ))}
+                      {[...groupedLocations.continents].sort((a, b) => a.name.localeCompare(b.name)).map(loc => (
+                        <SelectItem key={loc.name} value={loc.name}>
+                          {loc.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel>Major countries</SelectLabel>
+                      {[...groupedLocations.countries].sort((a, b) => a.name.localeCompare(b.name)).map(loc => (
+                        <SelectItem key={loc.name} value={loc.name}>
+                          {loc.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select a preset location or use Custom for manual coordinates
+                </p>
+              </div>
+            </div>
+
             {/* Map Centre */}
             <div className="flex items-start gap-6">
-              <div className="flex items-center gap-2 pt-8 w-[180px]">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                <Label className="text-base font-medium whitespace-nowrap">Map centre at start</Label>
+              <div className="space-y-2 w-[180px]">
+                <div className="flex items-center gap-2">
+                  <Map className="h-5 w-5 text-muted-foreground" />
+                  <Label className="text-base font-medium whitespace-nowrap">Map centre at start</Label>
+                </div>
+                {selectedLocation === 'custom' && (
+                  <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded inline-block w-[140px]">
+                    (Custom)
+                  </span>
+                )}
               </div>
               <div className="flex-1">
                 <div className="px-2">
@@ -301,6 +393,58 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     <span>28</span>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Coordinate Reference System */}
+            <div className="flex items-start gap-6">
+              <div className="flex items-center gap-2 pt-2 w-[180px]">
+                <Globe className="h-5 w-5 text-muted-foreground" />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Label className="text-base font-medium whitespace-nowrap cursor-help">CRS</Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Coordinate Reference System</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex-1">
+                <Select
+                  value={config.mapConstraints?.projection || DEFAULT_PROJECTION}
+                  onValueChange={handleProjectionChange}
+                >
+                  <SelectTrigger className="w-[400px]">
+                    <SelectValue placeholder="Select projection..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    {/* Default projection */}
+                    <SelectItem value="EPSG:3857">
+                      EPSG:3857 - WGS 84 / Pseudo-Mercator
+                    </SelectItem>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      <SelectLabel>Other supported reference systems:</SelectLabel>
+                      {PROJECTION_OPTIONS
+                        .filter(p => p.code !== 'EPSG:3857')
+                        .sort((a, b) => {
+                          const aNum = parseInt(a.code.split(':')[1]);
+                          const bNum = parseInt(b.code.split(':')[1]);
+                          return aNum - bNum;
+                        })
+                        .map((projection) => (
+                          <SelectItem key={projection.code} value={projection.code}>
+                            {projection.code} - {projection.name}
+                          </SelectItem>
+                        ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select the coordinate reference system for the map
+                </p>
               </div>
             </div>
           </div>

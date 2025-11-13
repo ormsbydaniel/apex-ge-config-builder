@@ -11,6 +11,11 @@ interface LayerCardFormData {
   attributionUrl: string;
   toggleable: boolean;
   opacitySlider: boolean;
+  zoomToCenter: boolean;
+  download?: string;
+  temporalControls: boolean;
+  constraintSlider: boolean;
+  blendControls: boolean;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -45,6 +50,10 @@ export const useLayerCardFormState = ({
       if ((editingLayer as any).isMirrorLayer) layerType = 'mirror';
       if ((editingLayer as any).isSpotlightLayer) layerType = 'spotlight';
 
+      // Check both layerCard and infoPanel for controls (backward compatibility)
+      const controls = editingLayer.layout?.layerCard?.controls || editingLayer.layout?.infoPanel?.controls;
+      const controlsObj = controls && typeof controls === 'object' && !Array.isArray(controls) ? controls : undefined;
+
       return {
         name: editingLayer.name || '',
         description: editingLayer.meta?.description || '',
@@ -52,7 +61,12 @@ export const useLayerCardFormState = ({
         attributionText: editingLayer.meta?.attribution?.text || '',
         attributionUrl: editingLayer.meta?.attribution?.url || '',
         toggleable: editingLayer.layout?.layerCard?.toggleable || false,
-        opacitySlider: editingLayer.layout?.layerCard?.controls?.opacitySlider || false,
+        opacitySlider: controlsObj?.opacitySlider || false,
+        zoomToCenter: controlsObj?.zoomToCenter || false,
+        download: controlsObj?.download,
+        temporalControls: controlsObj?.temporalControls || false,
+        constraintSlider: controlsObj?.constraintSlider || false,
+        blendControls: controlsObj?.blendControls || false,
         legendType: editingLayer.layout?.layerCard?.legend?.type || 'swatch',
         legendUrl: editingLayer.layout?.layerCard?.legend?.url || '',
         startColor: editingLayer.meta?.startColor || '#000000',
@@ -77,6 +91,11 @@ export const useLayerCardFormState = ({
       attributionUrl: '',
       toggleable: false,
       opacitySlider: false,
+      zoomToCenter: false,
+      download: undefined,
+      temporalControls: false,
+      constraintSlider: false,
+      blendControls: false,
       legendType: 'swatch',
       legendUrl: '',
       startColor: '#000000',

@@ -78,6 +78,17 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onAddConstraintSource,
     onRemoveConstraintSource: layersLogic.handleRemoveConstraintSource,
     onEditConstraintSource: layersLogic.handleEditConstraintSource,
+    onMoveConstraintUp: layersLogic.handleMoveConstraintUp,
+    onMoveConstraintDown: layersLogic.handleMoveConstraintDown,
+    onMoveConstraintToTop: layersLogic.handleMoveConstraintToTop,
+    onMoveConstraintToBottom: layersLogic.handleMoveConstraintToBottom,
+    onAddWorkflow: layersLogic.handleAddWorkflow,
+    onRemoveWorkflow: layersLogic.handleRemoveWorkflow,
+    onUpdateWorkflow: layersLogic.handleUpdateWorkflow,
+    onMoveWorkflowUp: layersLogic.handleMoveWorkflowUp,
+    onMoveWorkflowDown: layersLogic.handleMoveWorkflowDown,
+    onMoveWorkflowToTop: layersLogic.handleMoveWorkflowToTop,
+    onMoveWorkflowToBottom: layersLogic.handleMoveWorkflowToBottom,
   };
 
   return (

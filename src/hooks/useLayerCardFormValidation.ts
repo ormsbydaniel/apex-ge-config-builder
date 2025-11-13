@@ -1,5 +1,6 @@
 
 import { useToast } from '@/hooks/use-toast';
+import { Colormap } from '@/types/config';
 
 interface ValidationData {
   name: string;
@@ -9,6 +10,7 @@ interface ValidationData {
   endColor: string;
   minValue: string;
   maxValue: string;
+  colormaps: Colormap[];
 }
 
 export const useLayerCardFormValidation = () => {
@@ -36,10 +38,25 @@ export const useLayerCardFormValidation = () => {
 
     // Validate gradient fields when type is 'gradient'
     if (formData.legendType === 'gradient') {
-      if (!formData.startColor.trim() || !formData.endColor.trim() || !formData.minValue.trim() || !formData.maxValue.trim()) {
+      const hasColormaps = formData.colormaps && formData.colormaps.length > 0;
+      
+      // If no colormaps, startColor and endColor are required
+      if (!hasColormaps) {
+        if (!formData.startColor.trim() || !formData.endColor.trim()) {
+          toast({
+            title: "Missing Required Fields",
+            description: "Please provide start color and end color for gradient legend without colormaps.",
+            variant: "destructive"
+          });
+          return false;
+        }
+      }
+      
+      // Min and max values are always required for gradient legends
+      if (!formData.minValue.trim() || !formData.maxValue.trim()) {
         toast({
           title: "Missing Required Fields",
-          description: "Please provide start color, end color, min value, and max value for gradient legend.",
+          description: "Please provide min value and max value for gradient legend.",
           variant: "destructive"
         });
         return false;

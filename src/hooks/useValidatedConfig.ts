@@ -62,11 +62,9 @@ export const useValidatedConfig = () => {
     // Validate workflows array if it exists
     const validatedWorkflows = source.workflows?.map(workflow => ({
       ...workflow,
-      id: workflow.id || '',
-      name: workflow.name || '',
-      endpoint: workflow.endpoint || '',
-      parameters: workflow.parameters || {},
-      enabled: workflow.enabled ?? false
+      zIndex: workflow.zIndex ?? 10,
+      service: workflow.service || '',
+      label: workflow.label || ''
     }));
 
     // Enhanced base layer detection
@@ -167,6 +165,9 @@ export const useValidatedConfig = () => {
                     }),
                     ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
                       constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
+                    }),
+                    ...((source.layout.layerCard.controls as any).blendControls !== undefined && {
+                      blendControls: (source.layout.layerCard.controls as any).blendControls
                     })
                   }
                 : { opacitySlider: true };
@@ -193,6 +194,9 @@ export const useValidatedConfig = () => {
                       }),
                       ...((source.layout.infoPanel.controls as any).constraintSlider !== undefined && {
                         constraintSlider: (source.layout.infoPanel.controls as any).constraintSlider
+                      }),
+                      ...((source.layout.infoPanel.controls as any).blendControls !== undefined && {
+                        blendControls: (source.layout.infoPanel.controls as any).blendControls
                       })
                     }
                   : { opacitySlider: true }
@@ -279,6 +283,9 @@ export const useValidatedConfig = () => {
             }),
             ...((source.layout.layerCard.controls as any).constraintSlider !== undefined && {
               constraintSlider: (source.layout.layerCard.controls as any).constraintSlider
+            }),
+            ...((source.layout.layerCard.controls as any).blendControls !== undefined && {
+              blendControls: (source.layout.layerCard.controls as any).blendControls
             })
           }
         : { opacitySlider: true };
@@ -305,6 +312,9 @@ export const useValidatedConfig = () => {
               }),
               ...((source.layout.infoPanel.controls as any).constraintSlider !== undefined && {
                 constraintSlider: (source.layout.infoPanel.controls as any).constraintSlider
+              }),
+              ...((source.layout.infoPanel.controls as any).blendControls !== undefined && {
+                blendControls: (source.layout.infoPanel.controls as any).blendControls
               })
             }
           : { opacitySlider: true }

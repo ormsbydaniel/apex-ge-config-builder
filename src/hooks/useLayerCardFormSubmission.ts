@@ -19,6 +19,7 @@ interface SubmissionFormData {
   download?: string;
   temporalControls: boolean;
   constraintSlider: boolean;
+  blendControls: boolean;
   legendType: 'swatch' | 'gradient' | 'image';
   legendUrl: string;
   startColor: string;
@@ -57,10 +58,13 @@ export const useLayerCardFormSubmission = (
       zoomToCenter: formData.zoomToCenter,
       temporalControls: formData.temporalControls,
       constraintSlider: formData.constraintSlider,
+      blendControls: formData.blendControls,
       ...(formData.download && formData.download.trim() && { download: formData.download.trim() })
     };
 
     // Prepare meta object with gradient fields if needed
+    const hasColormaps = formData.colormaps && formData.colormaps.length > 0;
+    
     const metaObject = {
       description: formData.description.trim(),
       attribution: {
@@ -72,8 +76,11 @@ export const useLayerCardFormSubmission = (
       ...(formData.units.trim() && { units: formData.units.trim() }),
       // Add gradient fields if legend type is gradient
       ...(formData.legendType === 'gradient' && {
-        startColor: formData.startColor.trim(),
-        endColor: formData.endColor.trim(),
+        // Only include startColor and endColor if there are no colormaps
+        ...(!hasColormaps && {
+          startColor: formData.startColor.trim(),
+          endColor: formData.endColor.trim(),
+        }),
         min: parseFloat(formData.minValue),
         max: parseFloat(formData.maxValue)
       }),

@@ -39,30 +39,23 @@ export const useConfigExport = () => {
         sources: config.sources.map(source => ({
           ...source,
           data: source.data.map(item => ({
-            ...item,
-            url: item.url ? sanitizeUrl(item.url) : item.url,
-            format: item.format,
-            zIndex: item.zIndex,
-            // Preserve minZoom and maxZoom if they exist
-            ...(item.minZoom !== undefined && { minZoom: item.minZoom }),
-            ...(item.maxZoom !== undefined && { maxZoom: item.maxZoom }),
-            // Preserve normalize if it exists
-            ...(item.normalize !== undefined && { normalize: item.normalize })
+            ...item, // Spread ALL properties first to preserve arbitrary fields
+            url: item.url ? sanitizeUrl(item.url) : item.url, // Override only url for sanitization
           })),
           // Preserve preview for base layers
           ...('preview' in source && source.preview ? { preview: source.preview } : {}),
           // Include statistics if they exist
           ...(source.statistics && {
             statistics: source.statistics.map(item => ({
-              ...item,
-              url: item.url ? sanitizeUrl(item.url) : item.url,
-              format: item.format,
-              zIndex: item.zIndex,
-              // Preserve minZoom and maxZoom in statistics as well
-              ...(item.minZoom !== undefined && { minZoom: item.minZoom }),
-              ...(item.maxZoom !== undefined && { maxZoom: item.maxZoom }),
-              // Preserve normalize in statistics as well
-              ...(item.normalize !== undefined && { normalize: item.normalize })
+              ...item, // Spread ALL properties first to preserve arbitrary fields
+              url: item.url ? sanitizeUrl(item.url) : item.url, // Override only url for sanitization
+            }))
+          }),
+          // Include constraints if they exist
+          ...(source.constraints && {
+            constraints: source.constraints.map(constraint => ({
+              ...constraint, // Spread ALL properties to preserve any additional fields
+              url: constraint.url ? sanitizeUrl(constraint.url) : constraint.url, // Override only url for sanitization
             }))
           })
         })),

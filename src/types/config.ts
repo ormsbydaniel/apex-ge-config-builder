@@ -74,6 +74,8 @@ export interface DataSourceItem {
   useTimeParameter?: boolean; // Use TIME parameter from WMS/WMTS service
   // Opacity support (0-1 range)
   opacity?: number;
+  // Allow arbitrary additional properties (e.g., env, styles, time, transparent)
+  [key: string]: any;
 }
 
 // Simplified - data is always an array
@@ -117,11 +119,11 @@ export interface ConstraintSourceItem {
 
 // Workflow configuration
 export interface WorkflowItem {
-  id: string;
-  name: string;
-  endpoint: string; // Processing endpoint URL
-  parameters: Record<string, any>; // Flexible parameter object
-  enabled: boolean;
+  zIndex: number;
+  service: string;
+  label: string;
+  // Allow arbitrary additional properties
+  [key: string]: any;
 }
 
 // Enhanced meta interface
@@ -164,6 +166,7 @@ export interface DataSourceLayout {
       download?: string;
       temporalControls?: boolean;
       constraintSlider?: boolean;
+      blendControls?: boolean;
     };
     showStatistics?: boolean;
   };
@@ -178,6 +181,7 @@ export interface DataSourceLayout {
       download?: string;
       temporalControls?: boolean;
       constraintSlider?: boolean;
+      blendControls?: boolean;
     } | string[]; // Support both object and array for backward compatibility
   };
 }

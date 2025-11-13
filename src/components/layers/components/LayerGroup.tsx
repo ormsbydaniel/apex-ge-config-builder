@@ -59,11 +59,22 @@ const LayerGroup = ({
     onAddConstraintSource,
     onRemoveConstraintSource,
     onEditConstraintSource,
+    onMoveConstraintUp,
+    onMoveConstraintDown,
+    onMoveConstraintToTop,
+    onMoveConstraintToBottom,
     onMoveLayer,
     moveLayerToTop,
     moveLayerToBottom,
     config,
-    onUpdateConfig
+    onUpdateConfig,
+    onAddWorkflow,
+    onRemoveWorkflow,
+    onUpdateWorkflow,
+    onMoveWorkflowUp,
+    onMoveWorkflowDown,
+    onMoveWorkflowToTop,
+    onMoveWorkflowToBottom
   } = useLayersTabContext();
 
   // Calculate QA stats for this group's sources
@@ -165,7 +176,37 @@ const LayerGroup = ({
                   const actualIndex = sourceIndices[idx];
                   return <div key={actualIndex} className="flex items-center gap-2">
                         <div className="flex-1">
-                          <LayerCard source={source} index={actualIndex} onRemove={onRemoveLayer} onEdit={onEditLayer} onEditBaseLayer={onEditBaseLayer} onDuplicate={onDuplicateLayer} onUpdateLayer={onUpdateLayer} onAddDataSource={() => onAddDataSource(actualIndex)} onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)} onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)} onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)} onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)} onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)} onAddConstraintSource={onAddConstraintSource} onRemoveConstraintSource={constraintIndex => onRemoveConstraintSource(actualIndex, constraintIndex)} onEditConstraintSource={constraintIndex => onEditConstraintSource(actualIndex, constraintIndex)} isExpanded={expandedLayers.has(actualIndex)} onToggle={() => onToggleLayer(actualIndex)} />
+                          <LayerCard 
+                            source={source} 
+                            index={actualIndex} 
+                            onRemove={onRemoveLayer} 
+                            onEdit={onEditLayer} 
+                            onEditBaseLayer={onEditBaseLayer} 
+                            onDuplicate={onDuplicateLayer} 
+                            onUpdateLayer={onUpdateLayer} 
+                            onAddDataSource={() => onAddDataSource(actualIndex)} 
+                            onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)} 
+                            onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)} 
+                            onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)} 
+                            onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)} 
+                            onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)} 
+                            onAddConstraintSource={onAddConstraintSource} 
+                            onRemoveConstraintSource={constraintIndex => onRemoveConstraintSource(actualIndex, constraintIndex)} 
+                            onEditConstraintSource={constraintIndex => onEditConstraintSource(actualIndex, constraintIndex)} 
+                            onMoveConstraintUp={constraintIndex => onMoveConstraintUp(actualIndex, constraintIndex)}
+                            onMoveConstraintDown={constraintIndex => onMoveConstraintDown(actualIndex, constraintIndex)}
+                            onMoveConstraintToTop={constraintIndex => onMoveConstraintToTop(actualIndex, constraintIndex)}
+                            onMoveConstraintToBottom={constraintIndex => onMoveConstraintToBottom(actualIndex, constraintIndex)}
+                            onAddWorkflow={workflow => onAddWorkflow(actualIndex, workflow)}
+                            onRemoveWorkflow={workflowIndex => onRemoveWorkflow(actualIndex, workflowIndex)}
+                            onUpdateWorkflow={(workflowIndex, workflow) => onUpdateWorkflow(actualIndex, workflowIndex, workflow)}
+                            onMoveWorkflowUp={workflowIndex => onMoveWorkflowUp(actualIndex, workflowIndex)}
+                            onMoveWorkflowDown={workflowIndex => onMoveWorkflowDown(actualIndex, workflowIndex)}
+                            onMoveWorkflowToTop={workflowIndex => onMoveWorkflowToTop(actualIndex, workflowIndex)}
+                            onMoveWorkflowToBottom={workflowIndex => onMoveWorkflowToBottom(actualIndex, workflowIndex)}
+                            isExpanded={expandedLayers.has(actualIndex)} 
+                            onToggle={() => onToggleLayer(actualIndex)} 
+                          />
                         </div>
                         <LayerMoveControls
                           onMoveUp={() => handleMoveLayerInGroup(actualIndex, 'up')}

@@ -24,6 +24,17 @@ interface LayerCardContentProps {
   onAddConstraintSource?: (layerIndex: number) => void;
   onRemoveConstraintSource?: (constraintIndex: number) => void;
   onEditConstraintSource?: (constraintIndex: number) => void;
+  onMoveConstraintUp?: (constraintIndex: number) => void;
+  onMoveConstraintDown?: (constraintIndex: number) => void;
+  onMoveConstraintToTop?: (constraintIndex: number) => void;
+  onMoveConstraintToBottom?: (constraintIndex: number) => void;
+  onAddWorkflow?: (workflow: any) => void;
+  onRemoveWorkflow?: (workflowIndex: number) => void;
+  onUpdateWorkflow?: (workflowIndex: number, workflow: any) => void;
+  onMoveWorkflowUp?: (workflowIndex: number) => void;
+  onMoveWorkflowDown?: (workflowIndex: number) => void;
+  onMoveWorkflowToTop?: (workflowIndex: number) => void;
+  onMoveWorkflowToBottom?: (workflowIndex: number) => void;
 }
 
 const LayerCardContent = ({
@@ -36,7 +47,18 @@ const LayerCardContent = ({
   onAddStatisticsSource,
   onAddConstraintSource,
   onRemoveConstraintSource,
-  onEditConstraintSource
+  onEditConstraintSource,
+  onMoveConstraintUp,
+  onMoveConstraintDown,
+  onMoveConstraintToTop,
+  onMoveConstraintToBottom,
+  onAddWorkflow,
+  onRemoveWorkflow,
+  onUpdateWorkflow,
+  onMoveWorkflowUp,
+  onMoveWorkflowDown,
+  onMoveWorkflowToTop,
+  onMoveWorkflowToBottom
 }: LayerCardContentProps) => {
   const { config, dispatch } = useConfig();
   const { toast } = useToast();
@@ -135,35 +157,30 @@ const LayerCardContent = ({
           source={source}
           services={(config.services || []) as Service[]}
           layerIndex={sourceIndex}
+          onUpdateMeta={handleUpdateMeta}
+          onUpdateLayout={handleUpdateLayout}
           onAddDataSource={() => onAddDataSource?.()}
           onAddStatisticsSource={onAddStatisticsSource}
           onAddConstraintSource={onAddConstraintSource}
-          onAddWorkflow={() => {
-            toast({
-              title: "Coming Soon",
-              description: "Workflow management will be available soon.",
-            });
-          }}
           onRemoveDataSource={(_, dataIndex) => onRemoveDataSource(dataIndex)}
           onRemoveStatisticsSource={(_, statsIndex) => onRemoveStatisticsSource?.(statsIndex)}
           onRemoveConstraintSource={(_, constraintIndex) => onRemoveConstraintSource?.(constraintIndex)}
-          onRemoveWorkflow={() => {
-            toast({
-              title: "Coming Soon",
-              description: "Workflow removal will be available soon.",
-            });
-          }}
           onEditDataSource={(_, dataIndex) => onEditDataSource?.(dataIndex)}
           onEditStatisticsSource={(_, statsIndex) => onEditStatisticsSource?.(statsIndex)}
           onEditConstraintSource={(_, constraintIndex) => onEditConstraintSource?.(constraintIndex)}
-          onEditWorkflow={() => {
-            toast({
-              title: "Coming Soon",
-              description: "Workflow editing will be available soon.",
-            });
-          }}
-          onUpdateMeta={handleUpdateMeta}
-          onUpdateLayout={handleUpdateLayout}
+          onMoveConstraintUp={(_, constraintIndex) => onMoveConstraintUp?.(constraintIndex)}
+          onMoveConstraintDown={(_, constraintIndex) => onMoveConstraintDown?.(constraintIndex)}
+          onMoveConstraintToTop={(_, constraintIndex) => onMoveConstraintToTop?.(constraintIndex)}
+          onMoveConstraintToBottom={(_, constraintIndex) => onMoveConstraintToBottom?.(constraintIndex)}
+          onReorderDataSource={() => {}}
+          onReorderStatisticsSource={() => {}}
+          onAddWorkflow={(_, workflow) => onAddWorkflow?.(workflow)}
+          onRemoveWorkflow={(_, workflowIndex) => onRemoveWorkflow?.(workflowIndex)}
+          onUpdateWorkflow={(_, workflowIndex, workflow) => onUpdateWorkflow?.(workflowIndex, workflow)}
+          onMoveWorkflowUp={(_, workflowIndex) => onMoveWorkflowUp?.(workflowIndex)}
+          onMoveWorkflowDown={(_, workflowIndex) => onMoveWorkflowDown?.(workflowIndex)}
+          onMoveWorkflowToTop={(_, workflowIndex) => onMoveWorkflowToTop?.(workflowIndex)}
+          onMoveWorkflowToBottom={(_, workflowIndex) => onMoveWorkflowToBottom?.(workflowIndex)}
         />
         </div>
       )}

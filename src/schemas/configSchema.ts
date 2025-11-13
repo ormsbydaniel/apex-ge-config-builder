@@ -78,7 +78,8 @@ export const DataSourceItemSchema = z.object({
   timestamps: z.array(z.number()).optional(),
   // Opacity support (0-1 range)  
   opacity: z.number().min(0).max(1).optional(),
-}).refine(
+}).passthrough() // Allow arbitrary additional properties (e.g., env, styles, time, transparent)
+.refine(
   (data) => {
     // Either url or images array must be present
     return data.url || (data.images && data.images.length > 0);
@@ -142,12 +143,10 @@ const ConstraintSourceItemSchema = z.object({
 
 // Workflow schema
 const WorkflowItemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  endpoint: urlOrRelativePathSchema,
-  parameters: z.record(z.any()),
-  enabled: z.boolean()
-});
+  zIndex: z.number(),
+  service: z.string(),
+  label: z.string(),
+}).passthrough(); // Allow arbitrary additional properties
 
 // Updated Swipe configuration schema to support multiple base sources
 const SwipeConfigSchema = z.object({
@@ -193,6 +192,30 @@ const MetaSchema = z.object({
   swipeConfig: SwipeConfigSchema.optional(),
   // Temporal configuration
   temporal: TemporalConfigSchema.optional(),
+}).superRefine((meta, ctx) => {
+  // Conditional validation: startColor and endColor required for gradient legends WITHOUT colormaps
+  // This validation only applies when used with a DataSource that has a gradient legend
+  // The actual legend type check happens at the DataSource level
+  // Here we just ensure that if startColor/endColor are present without colormaps, they're valid
+  const hasColormaps = meta.colormaps && meta.colormaps.length > 0;
+  
+  // If there are no colormaps and startColor is present but empty, that's an error
+  if (!hasColormaps && meta.startColor !== undefined && meta.startColor.trim() === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Start color cannot be empty when using gradient legend without colormaps",
+      path: ['startColor'],
+    });
+  }
+  
+  // If there are no colormaps and endColor is present but empty, that's an error
+  if (!hasColormaps && meta.endColor !== undefined && meta.endColor.trim() === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "End color cannot be empty when using gradient legend without colormaps",
+      path: ['endColor'],
+    });
+  }
 });
 
 // Legend schema (reusable)
@@ -221,6 +244,7 @@ const ControlsSchema = z.union([
     download: z.string().optional(),
     temporalControls: z.boolean().optional(),
     constraintSlider: z.boolean().optional(),
+    blendControls: z.boolean().optional(),
   }),
   z.array(z.string()), // Support controls as array of strings for backward compatibility
 ]);
@@ -409,6 +433,7 @@ export const ConfigurationSchema = z.object({
   mapConstraints: z.object({
     zoom: z.number().min(0).max(28),
     center: z.array(z.number()).length(2), // [longitude, latitude]
+    projection: z.string().optional(), // EPSG projection code
   }).optional(),
 });
 

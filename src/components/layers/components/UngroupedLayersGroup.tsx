@@ -25,6 +25,10 @@ interface UngroupedLayersGroupProps {
   onAddConstraintSource?: (layerIndex: number) => void;
   onRemoveConstraintSource: (layerIndex: number, constraintIndex: number) => void;
   onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintUp: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
   isExpanded?: boolean;
   onToggle?: () => void;
 }
@@ -45,6 +49,10 @@ const UngroupedLayersGroup = ({
   onAddConstraintSource,
   onRemoveConstraintSource,
   onEditConstraintSource,
+  onMoveConstraintUp,
+  onMoveConstraintDown,
+  onMoveConstraintToTop,
+  onMoveConstraintToBottom,
   isExpanded = false,
   onToggle
 }: UngroupedLayersGroupProps) => {
@@ -125,6 +133,10 @@ const UngroupedLayersGroup = ({
                   onAddConstraintSource={onAddConstraintSource}
                   onRemoveConstraintSource={(constraintIndex) => onRemoveConstraintSource(originalIndex, constraintIndex)}
                   onEditConstraintSource={(constraintIndex) => onEditConstraintSource(originalIndex, constraintIndex)}
+                  onMoveConstraintUp={(constraintIndex) => onMoveConstraintUp(originalIndex, constraintIndex)}
+                  onMoveConstraintDown={(constraintIndex) => onMoveConstraintDown(originalIndex, constraintIndex)}
+                  onMoveConstraintToTop={(constraintIndex) => onMoveConstraintToTop(originalIndex, constraintIndex)}
+                  onMoveConstraintToBottom={(constraintIndex) => onMoveConstraintToBottom(originalIndex, constraintIndex)}
                   isExpanded={isCardExpanded(`ungrouped-${originalIndex}`)}
                   onToggle={() => toggleCard(`ungrouped-${originalIndex}`)}
                 />

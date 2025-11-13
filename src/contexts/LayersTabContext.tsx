@@ -1,8 +1,7 @@
+import React, { createContext, useContext, ReactNode } from 'react';
+import { DataSource, Service, ConstraintSourceItem, WorkflowItem } from '@/types/config';
 
-import React, { createContext, useContext } from 'react';
-import { DataSource, LayerType, Service, ConstraintSourceItem } from '@/types/config';
-
-interface LayersTabContextValue {
+export interface LayersTabContextValue {
   config: {
     sources: DataSource[];
     interfaceGroups: string[];
@@ -11,7 +10,7 @@ interface LayersTabContextValue {
   };
   editingLayerIndex: number | null;
   defaultInterfaceGroup?: string;
-  // Action handlers
+  // Layer actions
   onRemoveLayer: (index: number) => void;
   onEditLayer: (index: number) => void;
   onEditBaseLayer: (index: number) => void;
@@ -32,6 +31,18 @@ interface LayersTabContextValue {
   onAddConstraintSource?: (layerIndex: number) => void;
   onRemoveConstraintSource: (layerIndex: number, constraintIndex: number) => void;
   onEditConstraintSource: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintUp: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
+  onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
+  // Workflow actions
+  onAddWorkflow: (layerIndex: number, workflow: WorkflowItem) => void;
+  onRemoveWorkflow: (layerIndex: number, workflowIndex: number) => void;
+  onUpdateWorkflow: (layerIndex: number, workflowIndex: number, workflow: WorkflowItem) => void;
+  onMoveWorkflowUp: (layerIndex: number, workflowIndex: number) => void;
+  onMoveWorkflowDown: (layerIndex: number, workflowIndex: number) => void;
+  onMoveWorkflowToTop: (layerIndex: number, workflowIndex: number) => void;
+  onMoveWorkflowToBottom: (layerIndex: number, workflowIndex: number) => void;
 }
 
 const LayersTabContext = createContext<LayersTabContextValue | null>(null);
@@ -45,7 +56,7 @@ export const useLayersTabContext = () => {
 };
 
 interface LayersTabProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
   value: LayersTabContextValue;
 }
 
