@@ -291,6 +291,7 @@ const LayerCardForm = ({
               endColor={formData.endColor}
               minValue={formData.minValue}
               maxValue={formData.maxValue}
+              colormaps={formData.colormaps || []}
               onUpdate={updateFormData}
             />
 

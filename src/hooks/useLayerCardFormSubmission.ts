@@ -63,6 +63,8 @@ export const useLayerCardFormSubmission = (
     };
 
     // Prepare meta object with gradient fields if needed
+    const hasColormaps = formData.colormaps && formData.colormaps.length > 0;
+    
     const metaObject = {
       description: formData.description.trim(),
       attribution: {
@@ -74,8 +76,11 @@ export const useLayerCardFormSubmission = (
       ...(formData.units.trim() && { units: formData.units.trim() }),
       // Add gradient fields if legend type is gradient
       ...(formData.legendType === 'gradient' && {
-        startColor: formData.startColor.trim(),
-        endColor: formData.endColor.trim(),
+        // Only include startColor and endColor if there are no colormaps
+        ...(!hasColormaps && {
+          startColor: formData.startColor.trim(),
+          endColor: formData.endColor.trim(),
+        }),
         min: parseFloat(formData.minValue),
         max: parseFloat(formData.maxValue)
       }),

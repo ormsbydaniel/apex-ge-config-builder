@@ -192,6 +192,30 @@ const MetaSchema = z.object({
   swipeConfig: SwipeConfigSchema.optional(),
   // Temporal configuration
   temporal: TemporalConfigSchema.optional(),
+}).superRefine((meta, ctx) => {
+  // Conditional validation: startColor and endColor required for gradient legends WITHOUT colormaps
+  // This validation only applies when used with a DataSource that has a gradient legend
+  // The actual legend type check happens at the DataSource level
+  // Here we just ensure that if startColor/endColor are present without colormaps, they're valid
+  const hasColormaps = meta.colormaps && meta.colormaps.length > 0;
+  
+  // If there are no colormaps and startColor is present but empty, that's an error
+  if (!hasColormaps && meta.startColor !== undefined && meta.startColor.trim() === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Start color cannot be empty when using gradient legend without colormaps",
+      path: ['startColor'],
+    });
+  }
+  
+  // If there are no colormaps and endColor is present but empty, that's an error
+  if (!hasColormaps && meta.endColor !== undefined && meta.endColor.trim() === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "End color cannot be empty when using gradient legend without colormaps",
+      path: ['endColor'],
+    });
+  }
 });
 
 // Legend schema (reusable)

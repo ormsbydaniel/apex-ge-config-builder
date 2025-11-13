@@ -2,6 +2,8 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Colormap } from '@/types/config';
+import { Info } from 'lucide-react';
 
 interface UnifiedLegendTypeSectionProps {
   legendType: 'swatch' | 'gradient' | 'image';
@@ -10,6 +12,7 @@ interface UnifiedLegendTypeSectionProps {
   endColor: string;
   minValue: string;
   maxValue: string;
+  colormaps: Colormap[];
   onUpdate: (field: string, value: any) => void;
 }
 
@@ -20,8 +23,11 @@ const UnifiedLegendTypeSection = ({
   endColor,
   minValue,
   maxValue,
+  colormaps,
   onUpdate
 }: UnifiedLegendTypeSectionProps) => {
+  const hasColormaps = colormaps.length > 0;
+  const isGradientWithColormap = legendType === 'gradient' && hasColormaps;
   return (
     <div className="space-y-4">
       <h4 className="font-medium">Legend Type</h4>
@@ -55,46 +61,58 @@ const UnifiedLegendTypeSection = ({
       {legendType === 'gradient' && (
         <div className="space-y-4 p-4 border rounded-lg">
           <h5 className="font-medium">Gradient Configuration</h5>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startColor">Start Color *</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="color"
-                  id="startColor"
-                  value={startColor}
-                  onChange={(e) => onUpdate('startColor', e.target.value)}
-                  className="w-16"
-                  required={legendType === 'gradient'}
-                />
-                <Input
-                  value={startColor}
-                  onChange={(e) => onUpdate('startColor', e.target.value)}
-                  placeholder="e.g., #000000 or rgb(0,0,0)"
-                  required={legendType === 'gradient'}
-                />
+          
+          {isGradientWithColormap && (
+            <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-md border border-border/50">
+              <Info className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+              <p className="text-sm text-muted-foreground">
+                Gradient colors will be derived from the colormap definition. Start/End colors are not required.
+              </p>
+            </div>
+          )}
+          
+          {!hasColormaps && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="startColor">Start Color *</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    id="startColor"
+                    value={startColor}
+                    onChange={(e) => onUpdate('startColor', e.target.value)}
+                    className="w-16"
+                    required={legendType === 'gradient' && !hasColormaps}
+                  />
+                  <Input
+                    value={startColor}
+                    onChange={(e) => onUpdate('startColor', e.target.value)}
+                    placeholder="e.g., #000000 or rgb(0,0,0)"
+                    required={legendType === 'gradient' && !hasColormaps}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="endColor">End Color *</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    id="endColor"
+                    value={endColor}
+                    onChange={(e) => onUpdate('endColor', e.target.value)}
+                    className="w-16"
+                    required={legendType === 'gradient' && !hasColormaps}
+                  />
+                  <Input
+                    value={endColor}
+                    onChange={(e) => onUpdate('endColor', e.target.value)}
+                    placeholder="e.g., #ffffff or rgb(255,255,255)"
+                    required={legendType === 'gradient' && !hasColormaps}
+                  />
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="endColor">End Color *</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="color"
-                  id="endColor"
-                  value={endColor}
-                  onChange={(e) => onUpdate('endColor', e.target.value)}
-                  className="w-16"
-                  required={legendType === 'gradient'}
-                />
-                <Input
-                  value={endColor}
-                  onChange={(e) => onUpdate('endColor', e.target.value)}
-                  placeholder="e.g., #ffffff or rgb(255,255,255)"
-                  required={legendType === 'gradient'}
-                />
-              </div>
-            </div>
-          </div>
+          )}
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

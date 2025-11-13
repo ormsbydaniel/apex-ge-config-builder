@@ -78,8 +78,13 @@ export const useLayerCardFormPersistence = (
         blendControls: (sourceObj?.controls as any)?.blendControls || false,
         legendType: sourceObj?.legend?.type || 'swatch',
         legendUrl: sourceObj?.legend?.url || '',
-        startColor: editingLayer.meta?.startColor || '#000000',
-        endColor: editingLayer.meta?.endColor || '#ffffff',
+        // Only populate startColor/endColor if there are no colormaps
+        startColor: (editingLayer.meta?.colormaps && editingLayer.meta.colormaps.length > 0) 
+          ? '#000000' 
+          : (editingLayer.meta?.startColor || '#000000'),
+        endColor: (editingLayer.meta?.colormaps && editingLayer.meta.colormaps.length > 0)
+          ? '#ffffff'
+          : (editingLayer.meta?.endColor || '#ffffff'),
         minValue: editingLayer.meta?.min?.toString() || '',
         maxValue: editingLayer.meta?.max?.toString() || '',
         categories: editingLayer.meta?.categories || [],
