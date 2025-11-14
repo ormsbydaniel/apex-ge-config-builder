@@ -14,16 +14,8 @@ export const interpolateColor = (
   return [r, g, b];
 };
 
-/**
- * Converts RGB values to hex string
- */
-export const rgbToHex = (r: number, g: number, b: number): string => {
-  const toHex = (n: number) => {
-    const hex = Math.max(0, Math.min(255, n)).toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  };
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-};
+// Note: rgbToHex has been consolidated to src/utils/colorUtils.ts
+// Import from there if needed
 
 /**
  * Generates an array of RGB colors for a colormap
