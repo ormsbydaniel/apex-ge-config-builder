@@ -16,6 +16,7 @@ interface StacCollection {
   id: string;
   title?: string;
   description?: string;
+  keywords?: string[];
   extent?: any;
   links?: StacLink[];
 }
@@ -57,7 +58,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   const [searching, setSearching] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [serverSearchTerm, setServerSearchTerm] = useState(''); // Track the search term used for server fetch
+  const [serverSearchTerm, setServerSearchTerm] = useState(''); // Track the search term used for server fetch (items only)
   const { toast } = useToast();
 
   // Collections state
@@ -118,36 +119,30 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     return 'cog';
   };
 
-  const fetchCollections = async (searchQuery?: string) => {
+  const fetchAllCollections = async () => {
     try {
-      // Use searching state when triggered by user search, loading for initial load
-      if (searchQuery !== undefined) {
-        setSearching(true);
-      } else {
-        setLoading(true);
+      setLoading(true);
+      let allCollections: StacCollection[] = [];
+      let currentUrl: string | null = ensureSlash(serviceUrl) + 'collections?limit=100';
+      
+      while (currentUrl) {
+        const response = await fetch(currentUrl);
+        if (!response.ok) throw new Error('Failed to fetch collections');
+        
+        const data = await response.json();
+        const collectionsList = data.collections || data;
+        
+        if (Array.isArray(collectionsList)) {
+          allCollections = [...allCollections, ...collectionsList];
+          currentUrl = extractNextLink(data);
+        } else {
+          throw new Error('Invalid collections response');
+        }
       }
       
-      let collectionsUrl = ensureSlash(serviceUrl) + 'collections?limit=100';
-      
-      // Add server-side search parameter if provided
-      if (searchQuery && searchQuery.trim()) {
-        collectionsUrl = appendQueryParam(collectionsUrl, 'q', searchQuery.trim());
-      }
-      
-      const response = await fetch(collectionsUrl);
-      
-      if (!response.ok) throw new Error('Failed to fetch collections');
-      
-      const data = await response.json();
-      const collectionsList = data.collections || data;
-      
-      if (Array.isArray(collectionsList)) {
-        setCollections(collectionsList);
-        setNextCollectionsUrl(extractNextLink(data));
-        setServerSearchTerm(searchQuery || ''); // Track the search term used
-      } else {
-        throw new Error('Invalid collections response');
-      }
+      setCollections(allCollections);
+      setNextCollectionsUrl(null); // All collections loaded
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching STAC collections:', error);
       toast({
@@ -155,39 +150,10 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         description: "Failed to fetch collections. Please check the catalogue URL.",
         variant: "destructive"
       });
-    } finally {
       setLoading(false);
-      setSearching(false);
     }
   };
 
-  const loadMoreCollections = async () => {
-    if (!nextCollectionsUrl) return;
-    
-    try {
-      setLoadingMore(true);
-      const response = await fetch(nextCollectionsUrl);
-      
-      if (!response.ok) throw new Error('Failed to fetch more collections');
-      
-      const data = await response.json();
-      const collectionsList = data.collections || data;
-      
-      if (Array.isArray(collectionsList)) {
-        setCollections(prev => [...prev, ...collectionsList]);
-        setNextCollectionsUrl(extractNextLink(data));
-      }
-    } catch (error) {
-      console.error('Error fetching more collections:', error);
-      toast({
-        title: "STAC Error",
-        description: "Failed to fetch more collections.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoadingMore(false);
-    }
-  };
 
   const fetchItems = async (collection: StacCollection, searchQuery?: string) => {
     try {
@@ -384,30 +350,26 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       setItems([]);
       setNextItemsUrl(null);
       setSelectedCollection(null);
+      setServerSearchTerm(''); // Clear server search term for items
     }
     setSearchTerm('');
-    setServerSearchTerm('');
   };
 
-  // Debounced search effect for server-side search
+  // Debounced search effect for server-side search (items only)
   useEffect(() => {
-    if (currentStep === 'assets') return; // Don't trigger server search on assets step
+    if (currentStep !== 'items' || !selectedCollection) return;
     
     const timeoutId = setTimeout(() => {
-      if (currentStep === 'collections') {
-        fetchCollections(searchTerm);
-      } else if (currentStep === 'items' && selectedCollection) {
-        fetchItems(selectedCollection, searchTerm);
-      }
+      fetchItems(selectedCollection, searchTerm);
     }, 1200); // 1200ms debounce delay for natural pause in typing
 
     return () => clearTimeout(timeoutId);
   }, [searchTerm, currentStep]);
 
-  // Initial load
+  // Initial load - fetch all collections
   useEffect(() => {
     if (currentStep === 'collections' && collections.length === 0) {
-      fetchCollections();
+      fetchAllCollections();
     }
   }, [serviceUrl]);
 
@@ -415,18 +377,44 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     const term = searchTerm.toLowerCase();
     
     if (currentStep === 'collections') {
-      // Only apply client-side filtering if no server search was performed
-      // or if user is typing something different from the server search
-      const filtered = collections.filter(c => {
-        if (!term) return true; // Show all if no search term
-        if (serverSearchTerm) return true; // Server already filtered, show all results
+      if (!term) return collections; // Show all if no search term
+      
+      // Ranked client-side filtering with prioritization
+      const titleMatches: StacCollection[] = [];
+      const keywordMatches: StacCollection[] = [];
+      const descriptionMatches: StacCollection[] = [];
+      
+      collections.forEach(c => {
+        let added = false;
         
-        // Client-side fallback filtering (for STAC APIs that don't support 'q' parameter)
-        return (c.title && c.title.toLowerCase().includes(term)) ||
-               c.id.toLowerCase().includes(term) ||
-               (c.description && c.description.toLowerCase().includes(term));
+        // Check title first (highest priority)
+        if (c.title && c.title.toLowerCase().includes(term)) {
+          titleMatches.push(c);
+          added = true;
+        }
+        
+        // Check keywords second (if not already added)
+        if (!added && c.keywords && Array.isArray(c.keywords)) {
+          const hasKeywordMatch = c.keywords.some(k => 
+            k.toLowerCase().includes(term)
+          );
+          if (hasKeywordMatch) {
+            keywordMatches.push(c);
+            added = true;
+          }
+        }
+        
+        // Check description and ID last (if not already added)
+        if (!added) {
+          if ((c.description && c.description.toLowerCase().includes(term)) ||
+              c.id.toLowerCase().includes(term)) {
+            descriptionMatches.push(c);
+          }
+        }
       });
-      return filtered;
+      
+      // Return prioritized results: title matches, then keyword matches, then description/ID matches
+      return [...titleMatches, ...keywordMatches, ...descriptionMatches];
     } else if (currentStep === 'items') {
       // Only apply client-side filtering if no server search was performed
       const filtered = items.filter(i => {
@@ -499,7 +487,12 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       </div>
 
       {/* Content */}
-      {loading ? (
+      {loading && currentStep === 'collections' ? (
+        <div className="flex items-center justify-center p-8">
+          <Loader2 className="h-6 w-6 animate-spin mr-2" />
+          <span>Loading all collections...</span>
+        </div>
+      ) : loading ? (
         <div className="p-4 text-center text-muted-foreground">Loading...</div>
       ) : (
         <>
@@ -617,17 +610,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
             </div>
           </div>
 
-          {/* Load More buttons */}
-          {currentStep === 'collections' && nextCollectionsUrl && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={loadMoreCollections}
-              disabled={loadingMore}
-            >
-              {loadingMore ? 'Loading...' : 'Load More Collections'}
-            </Button>
-          )}
+          {/* Load More button (items only) */}
           {currentStep === 'items' && nextItemsUrl && (
             <Button
               variant="outline"
@@ -658,7 +641,6 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         <div className="text-xs text-muted-foreground">
           Showing {filteredData.length} {currentStep}
           {searchTerm && ` matching "${searchTerm}"`}
-          {currentStep === 'collections' && nextCollectionsUrl && ' (more available)'}
           {currentStep === 'items' && nextItemsUrl && ' (more available)'}
         </div>
       )}
