@@ -54,16 +54,19 @@ type BrowserStep = 'collections' | 'items' | 'assets';
 const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   // Collections state
   const [collections, setCollections] = useState<StacCollection[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<StacCollection | null>(null);
+  const [nextCollectionsUrl, setNextCollectionsUrl] = useState<string | null>(null);
 
   // Items state
   const [items, setItems] = useState<StacItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<StacItem | null>(null);
+  const [nextItemsUrl, setNextItemsUrl] = useState<string | null>(null);
 
   // Assets state
   const [assets, setAssets] = useState<[string, StacAsset][]>([]);
@@ -83,6 +86,12 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       url = appendQueryParam(url, 'limit', 100);
     }
     return url;
+  };
+
+  const extractNextLink = (data: any): string | null => {
+    const links = data.links || [];
+    const nextLink = links.find((link: any) => link.rel === 'next');
+    return nextLink?.href || null;
   };
 
   const detectAssetFormat = (asset: StacAsset): DataSourceFormat => {
@@ -116,6 +125,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       
       if (Array.isArray(collectionsList)) {
         setCollections(collectionsList);
+        setNextCollectionsUrl(extractNextLink(data));
       } else {
         throw new Error('Invalid collections response');
       }
@@ -128,6 +138,34 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreCollections = async () => {
+    if (!nextCollectionsUrl) return;
+    
+    try {
+      setLoadingMore(true);
+      const response = await fetch(nextCollectionsUrl);
+      
+      if (!response.ok) throw new Error('Failed to fetch more collections');
+      
+      const data = await response.json();
+      const collectionsList = data.collections || data;
+      
+      if (Array.isArray(collectionsList)) {
+        setCollections(prev => [...prev, ...collectionsList]);
+        setNextCollectionsUrl(extractNextLink(data));
+      }
+    } catch (error) {
+      console.error('Error fetching more collections:', error);
+      toast({
+        title: "STAC Error",
+        description: "Failed to fetch more collections.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -145,6 +183,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       
       if (Array.isArray(itemsList)) {
         setItems(itemsList);
+        setNextItemsUrl(extractNextLink(data));
         setSelectedCollection(collection);
         setCurrentStep('items');
         setSearchTerm(''); // Clear search after setting items step
@@ -160,6 +199,34 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreItems = async () => {
+    if (!nextItemsUrl) return;
+    
+    try {
+      setLoadingMore(true);
+      const response = await fetch(nextItemsUrl);
+      
+      if (!response.ok) throw new Error('Failed to fetch more items');
+      
+      const data = await response.json();
+      const itemsList = data.features || data.items || data;
+      
+      if (Array.isArray(itemsList)) {
+        setItems(prev => [...prev, ...itemsList]);
+        setNextItemsUrl(extractNextLink(data));
+      }
+    } catch (error) {
+      console.error('Error fetching more items:', error);
+      toast({
+        title: "STAC Error",
+        description: "Failed to fetch more items.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -286,6 +353,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     } else if (currentStep === 'items') {
       setCurrentStep('collections');
       setItems([]);
+      setNextItemsUrl(null);
       setSelectedCollection(null);
     }
     setSearchTerm('');
@@ -375,85 +443,53 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       {loading ? (
         <div className="p-4 text-center text-muted-foreground">Loading...</div>
       ) : (
-        <div className="max-h-96 overflow-y-auto border rounded-md">
-          <div className="grid gap-2 p-2">
-            {filteredData.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground">
-                No {currentStep} found
-                {searchTerm && ` matching "${searchTerm}"`}
-              </div>
-            ) : currentStep === 'collections' ? (
-              // Collections view
-              (filteredData as StacCollection[]).map((collection) => (
-                <div key={collection.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
-                  <Folder className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                  <div className="flex-1 min-w-0 pr-2">
-                    <div className="font-medium text-sm">{collection.title || collection.id}</div>
-                    {collection.description && (
-                      <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                        {collection.description}
-                      </div>
-                    )}
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-shrink-0"
-                    onClick={() => fetchItems(collection)}
-                  >
-                    Browse
-                  </Button>
+        <>
+          <div className="max-h-96 overflow-y-auto border rounded-md">
+            <div className="grid gap-2 p-2">
+              {filteredData.length === 0 ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  No {currentStep} found
+                  {searchTerm && ` matching "${searchTerm}"`}
                 </div>
-              ))
-            ) : currentStep === 'items' ? (
-              // Items view
-              (filteredData as StacItem[]).map((item) => (
-                <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
-                  <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                  <div className="flex-1 min-w-0 pr-2">
-                    <div className="font-medium text-sm">{item.properties?.title || item.id}</div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {item.properties?.datetime && (
-                        <Badge variant="secondary" className="text-xs">
-                          {new Date(item.properties.datetime).toLocaleDateString()}
-                        </Badge>
-                      )}
-                      {item.assets && (
-                        <span className="text-xs text-muted-foreground">
-                          {Object.keys(item.assets).length} assets
-                        </span>
+              ) : currentStep === 'collections' ? (
+                // Collections view
+                (filteredData as StacCollection[]).map((collection) => (
+                  <div key={collection.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                    <Folder className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <div className="flex-1 min-w-0 pr-2">
+                      <div className="font-medium text-sm">{collection.title || collection.id}</div>
+                      {collection.description && (
+                        <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                          {collection.description}
+                        </div>
                       )}
                     </div>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-shrink-0"
+                      onClick={() => fetchItems(collection)}
+                    >
+                      Browse
+                    </Button>
                   </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-shrink-0"
-                    onClick={() => selectItem(item)}
-                  >
-                    View Assets
-                  </Button>
-                </div>
-              ))
-            ) : (
-              // Assets view
-              (filteredData as [string, StacAsset][]).map(([key, asset]) => {
-                const format = detectAssetFormat(asset);
-                return (
-                  <div key={key} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
-                    <Download className="h-4 w-4 text-green-600 flex-shrink-0" />
+                ))
+              ) : currentStep === 'items' ? (
+                // Items view
+                (filteredData as StacItem[]).map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                    <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />
                     <div className="flex-1 min-w-0 pr-2">
-                      <div className="font-medium text-sm">{asset.title || key}</div>
+                      <div className="font-medium text-sm">{item.properties?.title || item.id}</div>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary" className="text-xs">
-                          {format.toUpperCase()}
-                        </Badge>
-                        {asset.type && (
-                          <span className="text-xs text-muted-foreground">{asset.type}</span>
+                        {item.properties?.datetime && (
+                          <Badge variant="secondary" className="text-xs">
+                            {new Date(item.properties.datetime).toLocaleDateString()}
+                          </Badge>
                         )}
-                        {asset['file:size'] && (
+                        {item.assets && (
                           <span className="text-xs text-muted-foreground">
-                            {(asset['file:size'] / (1024 * 1024)).toFixed(2)} MB
+                            {Object.keys(item.assets).length} assets
                           </span>
                         )}
                       </div>
@@ -462,16 +498,76 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
                       size="sm" 
                       variant="outline" 
                       className="flex-shrink-0"
-                      onClick={() => selectAsset(key, asset)}
+                      onClick={() => selectItem(item)}
                     >
-                      Select
+                      View Assets
                     </Button>
                   </div>
-                );
-              })
-            )}
+                ))
+              ) : (
+                // Assets view
+                (filteredData as [string, StacAsset][]).map(([key, asset]) => {
+                  const format = detectAssetFormat(asset);
+                  return (
+                    <div key={key} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                      <Download className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="font-medium text-sm">{asset.title || key}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {format.toUpperCase()}
+                          </Badge>
+                          {asset.type && (
+                            <span className="text-xs text-muted-foreground">{asset.type}</span>
+                          )}
+                          {asset['file:size'] && (
+                            <span className="text-xs text-muted-foreground">
+                              {(asset['file:size'] / (1024 * 1024)).toFixed(2)} MB
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-shrink-0"
+                        onClick={() => selectAsset(key, asset)}
+                      >
+                        Select
+                      </Button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
-        </div>
+
+          {/* Load More buttons - only show when not searching */}
+          {!searchTerm && (
+            <>
+              {currentStep === 'collections' && nextCollectionsUrl && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={loadMoreCollections}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? 'Loading...' : 'Load More Collections'}
+                </Button>
+              )}
+              {currentStep === 'items' && nextItemsUrl && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={loadMoreItems}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? 'Loading...' : 'Load More Items'}
+                </Button>
+              )}
+            </>
+          )}
+        </>
       )}
 
       {/* Add All Button for Items - placed after the list */}
@@ -491,6 +587,8 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         <div className="text-xs text-muted-foreground">
           Showing {filteredData.length} {currentStep}
           {searchTerm && ` matching "${searchTerm}"`}
+          {!searchTerm && currentStep === 'collections' && nextCollectionsUrl && ' (more available)'}
+          {!searchTerm && currentStep === 'items' && nextItemsUrl && ' (more available)'}
         </div>
       )}
     </div>
