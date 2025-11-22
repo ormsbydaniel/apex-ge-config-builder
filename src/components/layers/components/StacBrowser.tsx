@@ -56,6 +56,7 @@ type BrowserStep = 'collections' | 'items' | 'assets';
 const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
   const [loading, setLoading] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(false);
   const [searching, setSearching] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -376,6 +377,27 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     }
   }, [serviceUrl]);
 
+  // Delay skeleton display to prevent flicker on fast responses
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    
+    if (loading) {
+      // Show skeleton after 500ms delay
+      timeoutId = setTimeout(() => {
+        setShowSkeleton(true);
+      }, 500);
+    } else {
+      // Immediately hide skeleton when loading completes
+      setShowSkeleton(false);
+    }
+    
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [loading]);
+
   // Rank a collection based on search term matches
   const rankCollection = (collection: StacCollection, searchTerm: string): number => {
     const term = searchTerm.toLowerCase().trim();
@@ -505,7 +527,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
 
       {/* Content */}
       <div className="min-h-96 max-h-96 overflow-y-auto border rounded-md relative">
-        {loading && currentStep === 'collections' ? (
+        {loading && showSkeleton && currentStep === 'collections' ? (
           <div className="grid gap-2 p-2">
             {Array.from({ length: 6 }).map((_, idx) => (
               <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg">
@@ -524,7 +546,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
               </div>
             ))}
           </div>
-        ) : loading && currentStep === 'items' ? (
+        ) : loading && showSkeleton && currentStep === 'items' ? (
           <div className="grid gap-2 p-2">
             {Array.from({ length: 8 }).map((_, idx) => (
               <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg">
@@ -540,7 +562,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
               </div>
             ))}
           </div>
-        ) : loading && currentStep === 'assets' ? (
+        ) : loading && showSkeleton && currentStep === 'assets' ? (
           <div className="grid gap-2 p-2">
             {Array.from({ length: 5 }).map((_, idx) => (
               <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg">
@@ -557,8 +579,9 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
               </div>
             ))}
           </div>
-        ) : loading ? (
-          <div className="flex items-center justify-center h-96 text-muted-foreground">Loading...</div>
+        ) : loading && !showSkeleton ? (
+          // Loading but skeleton not shown yet (< 500ms) - show nothing to prevent flicker
+          <div className="h-96"></div>
         ) : (
           <>
             {/* Searching overlay */}
