@@ -167,9 +167,16 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
 
 
   const fetchItems = async (collection: StacCollection) => {
+    // Immediately update UI state before async fetch
+    setCurrentStep('items');
+    setSelectedCollection(collection);
+    setSearchTerm('');
+    setServerSearchTerm('');
+    
+    // Then start loading and fetch
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      
       const itemsUrl = getItemsUrl(collection);
       const response = await fetch(itemsUrl);
       
@@ -182,15 +189,14 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       if (Array.isArray(itemsList)) {
         setItems(itemsList);
         setNextItemsUrl(extractNextLink(data));
-        setSelectedCollection(collection);
-        setCurrentStep('items');
-        setServerSearchTerm('');
-        setSearchTerm(''); // Clear search input when entering items step
       } else {
         throw new Error('Invalid items response');
       }
     } catch (error) {
       console.error('Error fetching STAC items:', error);
+      // Set empty items to show "No items found" message
+      setItems([]);
+      setNextItemsUrl(null);
       toast({
         title: "STAC Error",
         description: `Failed to fetch items for collection "${collection.title || collection.id}".`,
@@ -501,6 +507,16 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         <div className="flex items-center justify-center p-8">
           <Loader2 className="h-6 w-6 animate-spin mr-2" />
           <span>Loading all collections...</span>
+        </div>
+      ) : loading && currentStep === 'items' ? (
+        <div className="flex items-center justify-center p-8">
+          <Loader2 className="h-6 w-6 animate-spin mr-2" />
+          <span>Loading items from "{selectedCollection?.title || selectedCollection?.id}"...</span>
+        </div>
+      ) : loading && currentStep === 'assets' ? (
+        <div className="flex items-center justify-center p-8">
+          <Loader2 className="h-6 w-6 animate-spin mr-2" />
+          <span>Loading assets...</span>
         </div>
       ) : loading ? (
         <div className="p-4 text-center text-muted-foreground">Loading...</div>
