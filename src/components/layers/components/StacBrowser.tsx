@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, Search, Folder, FileText, Download, Plus } from 'lucide-react';
+import { ChevronLeft, Search, Folder, FileText, Download, Plus, Loader2 } from 'lucide-react';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
@@ -54,6 +54,7 @@ type BrowserStep = 'collections' | 'items' | 'assets';
 const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
   const [loading, setLoading] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [serverSearchTerm, setServerSearchTerm] = useState(''); // Track the search term used for server fetch
@@ -119,7 +120,13 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
 
   const fetchCollections = async (searchQuery?: string) => {
     try {
-      setLoading(true);
+      // Use searching state when triggered by user search, loading for initial load
+      if (searchQuery !== undefined) {
+        setSearching(true);
+      } else {
+        setLoading(true);
+      }
+      
       let collectionsUrl = ensureSlash(serviceUrl) + 'collections?limit=100';
       
       // Add server-side search parameter if provided
@@ -150,6 +157,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       });
     } finally {
       setLoading(false);
+      setSearching(false);
     }
   };
 
@@ -183,7 +191,13 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
 
   const fetchItems = async (collection: StacCollection, searchQuery?: string) => {
     try {
-      setLoading(true);
+      // Use searching state when triggered by user search, loading for initial load
+      if (searchQuery !== undefined) {
+        setSearching(true);
+      } else {
+        setLoading(true);
+      }
+      
       const itemsUrl = getItemsUrl(collection, searchQuery);
       const response = await fetch(itemsUrl);
       
@@ -212,6 +226,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       });
     } finally {
       setLoading(false);
+      setSearching(false);
     }
   };
 
@@ -384,7 +399,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       } else if (currentStep === 'items' && selectedCollection) {
         fetchItems(selectedCollection, searchTerm);
       }
-    }, 500); // 500ms debounce delay
+    }, 1200); // 1200ms debounce delay for natural pause in typing
 
     return () => clearTimeout(timeoutId);
   }, [searchTerm, currentStep]);
@@ -471,12 +486,15 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        {searching && (
+          <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+        )}
         <input
           type="text"
           placeholder={`Search ${currentStep}...`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 p-2 border border-input rounded-md"
+          className="w-full pl-10 pr-10 p-2 border border-input rounded-md"
         />
       </div>
 
@@ -485,12 +503,28 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         <div className="p-4 text-center text-muted-foreground">Loading...</div>
       ) : (
         <>
-          <div className="max-h-96 overflow-y-auto border rounded-md">
+          <div className="min-h-96 max-h-96 overflow-y-auto border rounded-md relative">
+            {/* Searching overlay */}
+            {searching && (
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10 rounded-md">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm">Searching...</span>
+                </div>
+              </div>
+            )}
+            
             <div className="grid gap-2 p-2">
               {filteredData.length === 0 ? (
-                <div className="p-4 text-center text-muted-foreground">
-                  No {currentStep} found
-                  {searchTerm && ` matching "${searchTerm}"`}
+                <div className="p-8 text-center text-muted-foreground">
+                  {searchTerm ? (
+                    <>
+                      <p>No {currentStep} found matching "{searchTerm}"</p>
+                      <p className="text-sm mt-2">Try different search terms</p>
+                    </>
+                  ) : (
+                    <p>No {currentStep} available</p>
+                  )}
                 </div>
               ) : currentStep === 'collections' ? (
                 // Collections view
