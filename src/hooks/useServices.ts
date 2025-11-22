@@ -130,7 +130,8 @@ export const useServices = (services: Service[], onAddService: (service: Service
 
       const ensureSlash = (u: string) => (u.endsWith('/') ? u : u + '/');
       const rootUrl = url;
-      const collectionsUrl = ensureSlash(url) + 'collections';
+      // Add limit parameter to fetch more collections in initial request
+      const collectionsUrl = ensureSlash(url) + 'collections?limit=100';
 
       // Fetch root catalogue for title/description
       const [rootRes, collRes] = await Promise.all([
