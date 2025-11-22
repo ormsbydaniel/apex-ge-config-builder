@@ -18,6 +18,7 @@ export interface ServiceCapabilities {
   layers: LayerInfo[];
   title?: string;
   abstract?: string;
+  totalCount?: number; // Total count of items (for paginated APIs like STAC)
 }
 
 export interface LayerInfo {

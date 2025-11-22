@@ -146,6 +146,12 @@ export const useServices = (services: Service[], onAddService: (service: Service
 
       let layers: any[] = [];
       const collections = collectionsJson.collections || collectionsJson; // some servers may return array directly
+      
+      // Use numberMatched from STAC API if available, otherwise use array length
+      const totalCollections = collectionsJson.numberMatched !== undefined 
+        ? collectionsJson.numberMatched 
+        : (Array.isArray(collections) ? collections.length : 0);
+      
       if (Array.isArray(collections)) {
         layers = collections.map((c: any) => ({
           name: c.id || c.title,
@@ -158,7 +164,8 @@ export const useServices = (services: Service[], onAddService: (service: Service
         capabilities: {
           layers,
           title: catalogue.title,
-          abstract: catalogue.description
+          abstract: catalogue.description,
+          totalCount: totalCollections
         },
         title
       };

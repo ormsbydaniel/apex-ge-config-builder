@@ -104,7 +104,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
                 </Badge>
                 {service.capabilities?.layers.length && (
                   <Badge variant="outline" className="border-green-300 text-green-700">
-                    {service.capabilities.layers.length} {
+                    {service.capabilities.totalCount || service.capabilities.layers.length} {
                       isS3Service ? 'objects' : 
                       isStacService ? 'collections' : 
                       'layers'
