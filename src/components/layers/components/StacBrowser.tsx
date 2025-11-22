@@ -97,15 +97,11 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     return `${url}${separator}${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`;
   };
 
-  const getItemsUrl = (collection: StacCollection, searchQuery?: string) => {
+  const getItemsUrl = (collection: StacCollection) => {
     const link = collection.links?.find((l) => l.rel === 'items');
     let url = link?.href || (ensureSlash(serviceUrl) + `collections/${collection.id}/items`);
     if (!/[?&]limit=/.test(url)) {
       url = appendQueryParam(url, 'limit', 100);
-    }
-    // Add server-side search parameter if provided
-    if (searchQuery && searchQuery.trim()) {
-      url = appendQueryParam(url, 'q', searchQuery.trim());
     }
     return url;
   };
@@ -170,16 +166,11 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   };
 
 
-  const fetchItems = async (collection: StacCollection, searchQuery?: string, isInitialLoad: boolean = false) => {
+  const fetchItems = async (collection: StacCollection) => {
     try {
-      // Use searching state when triggered by user search, loading for initial load
-      if (searchQuery !== undefined && !isInitialLoad) {
-        setSearching(true);
-      } else {
-        setLoading(true);
-      }
+      setLoading(true);
       
-      const itemsUrl = getItemsUrl(collection, searchQuery);
+      const itemsUrl = getItemsUrl(collection);
       const response = await fetch(itemsUrl);
       
       if (!response.ok) throw new Error('Failed to fetch items');
@@ -193,11 +184,8 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         setNextItemsUrl(extractNextLink(data));
         setSelectedCollection(collection);
         setCurrentStep('items');
-        setServerSearchTerm(searchQuery || ''); // Track the search term used
-        // Only clear search term on initial load (when browsing from collections)
-        if (isInitialLoad) {
-          setSearchTerm('');
-        }
+        setServerSearchTerm('');
+        setSearchTerm(''); // Clear search input when entering items step
       } else {
         throw new Error('Invalid items response');
       }
@@ -373,20 +361,6 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     setSearchTerm('');
   };
 
-  // Debounced search effect for server-side search (items only)
-  useEffect(() => {
-    if (currentStep !== 'items' || !selectedCollection) return;
-    
-    // Only trigger server search if search term has actually changed from what we last searched
-    const trimmedSearch = searchTerm.trim();
-    if (trimmedSearch === serverSearchTerm) return;
-    
-    const timeoutId = setTimeout(() => {
-      fetchItems(selectedCollection, trimmedSearch || undefined);
-    }, 1200); // 1200ms debounce delay for natural pause in typing
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, currentStep, selectedCollection, serverSearchTerm]);
 
   // Initial load - fetch all collections
   useEffect(() => {
@@ -454,12 +428,10 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       
       return rankedCollections;
     } else if (currentStep === 'items') {
-      // Only apply client-side filtering if no server search was performed
+      // Client-side filtering for items
       const filtered = items.filter(i => {
         if (!term) return true; // Show all if no search term
-        if (serverSearchTerm) return true; // Server already filtered, show all results
         
-        // Client-side fallback filtering
         return i.id.toLowerCase().includes(term) ||
                (i.properties?.title && i.properties.title.toLowerCase().includes(term));
       });
@@ -629,7 +601,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
                         size="sm" 
                         variant="outline" 
                         className="flex-shrink-0"
-                        onClick={() => fetchItems(collection, undefined, true)}
+                        onClick={() => fetchItems(collection)}
                       >
                         Browse
                       </Button>
