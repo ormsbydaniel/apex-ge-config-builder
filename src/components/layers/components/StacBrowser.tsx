@@ -170,10 +170,10 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   };
 
 
-  const fetchItems = async (collection: StacCollection, searchQuery?: string) => {
+  const fetchItems = async (collection: StacCollection, searchQuery?: string, isInitialLoad: boolean = false) => {
     try {
       // Use searching state when triggered by user search, loading for initial load
-      if (searchQuery !== undefined) {
+      if (searchQuery !== undefined && !isInitialLoad) {
         setSearching(true);
       } else {
         setLoading(true);
@@ -194,7 +194,10 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         setSelectedCollection(collection);
         setCurrentStep('items');
         setServerSearchTerm(searchQuery || ''); // Track the search term used
-        setSearchTerm(''); // Clear search input after setting items step
+        // Only clear search term on initial load (when browsing from collections)
+        if (isInitialLoad) {
+          setSearchTerm('');
+        }
       } else {
         throw new Error('Invalid items response');
       }
@@ -622,7 +625,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
                         size="sm" 
                         variant="outline" 
                         className="flex-shrink-0"
-                        onClick={() => fetchItems(collection)}
+                        onClick={() => fetchItems(collection, undefined, true)}
                       >
                         Browse
                       </Button>
