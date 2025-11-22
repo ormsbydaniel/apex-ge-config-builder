@@ -377,12 +377,16 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   useEffect(() => {
     if (currentStep !== 'items' || !selectedCollection) return;
     
+    // Only trigger server search if search term has actually changed from what we last searched
+    const trimmedSearch = searchTerm.trim();
+    if (trimmedSearch === serverSearchTerm) return;
+    
     const timeoutId = setTimeout(() => {
-      fetchItems(selectedCollection, searchTerm);
+      fetchItems(selectedCollection, trimmedSearch || undefined);
     }, 1200); // 1200ms debounce delay for natural pause in typing
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, currentStep]);
+  }, [searchTerm, currentStep, selectedCollection, serverSearchTerm]);
 
   // Initial load - fetch all collections
   useEffect(() => {
