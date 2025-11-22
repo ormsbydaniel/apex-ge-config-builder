@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, ChevronDown, ChevronUp, Search, Folder, FileText, Download, Plus, Loader2 } from 'lucide-react';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
@@ -505,19 +506,56 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       {/* Content */}
       <div className="min-h-96 max-h-96 overflow-y-auto border rounded-md relative">
         {loading && currentStep === 'collections' ? (
-          <div className="flex items-center justify-center h-96">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Loading all collections...</span>
+          <div className="grid gap-2 p-2">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg">
+                <Skeleton className="h-4 w-4 flex-shrink-0" />
+                <div className="flex-1 min-w-0 pr-2 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-5/6" />
+                  <div className="flex gap-1 mt-2">
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-16" />
+                  </div>
+                </div>
+                <Skeleton className="h-9 w-20 flex-shrink-0" />
+              </div>
+            ))}
           </div>
         ) : loading && currentStep === 'items' ? (
-          <div className="flex items-center justify-center h-96">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Loading items from "{selectedCollection?.title || selectedCollection?.id}"...</span>
+          <div className="grid gap-2 p-2">
+            {Array.from({ length: 8 }).map((_, idx) => (
+              <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg">
+                <Skeleton className="h-4 w-4 flex-shrink-0" />
+                <div className="flex-1 min-w-0 pr-2 space-y-2">
+                  <Skeleton className="h-4 w-2/3" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+                <Skeleton className="h-9 w-24 flex-shrink-0" />
+              </div>
+            ))}
           </div>
         ) : loading && currentStep === 'assets' ? (
-          <div className="flex items-center justify-center h-96">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Loading assets...</span>
+          <div className="grid gap-2 p-2">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg">
+                <Skeleton className="h-4 w-4 flex-shrink-0" />
+                <div className="flex-1 min-w-0 pr-2 space-y-2">
+                  <Skeleton className="h-4 w-3/5" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+                <Skeleton className="h-9 w-20 flex-shrink-0" />
+              </div>
+            ))}
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center h-96 text-muted-foreground">Loading...</div>
