@@ -584,7 +584,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
                         {collection.keywords && collection.keywords.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {(isExpanded ? collection.keywords : collection.keywords.slice(0, 5)).map((keyword, idx) => (
-                              <Badge key={idx} variant="secondary" className="text-xs">
+                              <Badge key={idx} variant="secondary" className="text-xs font-normal">
                                 {highlightText(keyword)}
                               </Badge>
                             ))}
