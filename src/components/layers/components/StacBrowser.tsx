@@ -503,26 +503,26 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       </div>
 
       {/* Content */}
-      {loading && currentStep === 'collections' ? (
-        <div className="flex items-center justify-center p-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Loading all collections...</span>
-        </div>
-      ) : loading && currentStep === 'items' ? (
-        <div className="flex items-center justify-center p-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Loading items from "{selectedCollection?.title || selectedCollection?.id}"...</span>
-        </div>
-      ) : loading && currentStep === 'assets' ? (
-        <div className="flex items-center justify-center p-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Loading assets...</span>
-        </div>
-      ) : loading ? (
-        <div className="p-4 text-center text-muted-foreground">Loading...</div>
-      ) : (
-        <>
-          <div className="min-h-96 max-h-96 overflow-y-auto border rounded-md relative">
+      <div className="min-h-96 max-h-96 overflow-y-auto border rounded-md relative">
+        {loading && currentStep === 'collections' ? (
+          <div className="flex items-center justify-center h-96">
+            <Loader2 className="h-6 w-6 animate-spin mr-2" />
+            <span>Loading all collections...</span>
+          </div>
+        ) : loading && currentStep === 'items' ? (
+          <div className="flex items-center justify-center h-96">
+            <Loader2 className="h-6 w-6 animate-spin mr-2" />
+            <span>Loading items from "{selectedCollection?.title || selectedCollection?.id}"...</span>
+          </div>
+        ) : loading && currentStep === 'assets' ? (
+          <div className="flex items-center justify-center h-96">
+            <Loader2 className="h-6 w-6 animate-spin mr-2" />
+            <span>Loading assets...</span>
+          </div>
+        ) : loading ? (
+          <div className="flex items-center justify-center h-96 text-muted-foreground">Loading...</div>
+        ) : (
+          <>
             {/* Searching overlay */}
             {searching && (
               <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10 rounded-md">
@@ -690,10 +690,12 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
                 })
               )}
             </div>
-          </div>
+          </>
+        )}
+      </div>
 
-          {/* Load More button (items only) */}
-          {currentStep === 'items' && nextItemsUrl && (
+      {/* Load More button (items only) */}
+      {!loading && currentStep === 'items' && nextItemsUrl && (
             <Button
               variant="outline"
               className="w-full"
@@ -703,8 +705,6 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
               {loadingMore ? 'Loading...' : 'Load More Items'}
             </Button>
           )}
-        </>
-      )}
 
       {/* Add All Button for Items - placed after the list */}
       {currentStep === 'items' && !loading && filteredData.length > 0 && (
