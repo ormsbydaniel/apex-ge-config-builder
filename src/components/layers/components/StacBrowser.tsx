@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, Search, Folder, FileText, Download, Plus, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronDown, ChevronUp, Search, Folder, FileText, Download, Plus, Loader2 } from 'lucide-react';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
@@ -73,6 +73,21 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
 
   // Assets state
   const [assets, setAssets] = useState<[string, StacAsset][]>([]);
+
+  // Expanded collections state
+  const [expandedCollections, setExpandedCollections] = useState<Set<string>>(new Set());
+
+  const toggleCollectionExpanded = (collectionId: string) => {
+    setExpandedCollections(prev => {
+      const next = new Set(prev);
+      if (next.has(collectionId)) {
+        next.delete(collectionId);
+      } else {
+        next.add(collectionId);
+      }
+      return next;
+    });
+  };
 
   const ensureSlash = (url: string) => url.endsWith('/') ? url : url + '/';
 
@@ -521,41 +536,70 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
                 </div>
               ) : currentStep === 'collections' ? (
                 // Collections view
-                (filteredData as StacCollection[]).map((collection) => (
-                  <div key={collection.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
-                    <Folder className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                    <div className="flex-1 min-w-0 pr-2">
-                      <div className="font-medium text-sm">{collection.title || collection.id}</div>
-                      {collection.description && (
-                        <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                          {collection.description}
-                        </div>
-                      )}
-                      {collection.keywords && collection.keywords.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {collection.keywords.slice(0, 5).map((keyword, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs">
-                              {keyword}
-                            </Badge>
-                          ))}
-                          {collection.keywords.length > 5 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{collection.keywords.length - 5}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
+                (filteredData as StacCollection[]).map((collection) => {
+                  const isExpanded = expandedCollections.has(collection.id);
+                  const hasLongDescription = collection.description && collection.description.length > 150;
+                  const hasExtraKeywords = collection.keywords && collection.keywords.length > 5;
+                  const shouldShowToggle = hasLongDescription || hasExtraKeywords;
+                  
+                  return (
+                    <div key={collection.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                      <Folder className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="font-medium text-sm">{collection.title || collection.id}</div>
+                        {collection.description && (
+                          <div className={`text-xs text-muted-foreground mt-1 ${!isExpanded ? 'line-clamp-2' : ''}`}>
+                            {collection.description}
+                          </div>
+                        )}
+                        {collection.keywords && collection.keywords.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {(isExpanded ? collection.keywords : collection.keywords.slice(0, 5)).map((keyword, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-xs">
+                                {keyword}
+                              </Badge>
+                            ))}
+                            {!isExpanded && collection.keywords.length > 5 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{collection.keywords.length - 5}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                        {shouldShowToggle && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleCollectionExpanded(collection.id);
+                            }}
+                            className="flex items-center gap-1 text-xs text-primary hover:underline mt-1"
+                            aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                          >
+                            {isExpanded ? (
+                              <>
+                                <ChevronUp className="h-3 w-3" />
+                                <span>Less</span>
+                              </>
+                            ) : (
+                              <>
+                                <ChevronDown className="h-3 w-3" />
+                                <span>More</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-shrink-0"
+                        onClick={() => fetchItems(collection)}
+                      >
+                        Browse
+                      </Button>
                     </div>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex-shrink-0"
-                      onClick={() => fetchItems(collection)}
-                    >
-                      Browse
-                    </Button>
-                  </div>
-                ))
+                  );
+                })
               ) : currentStep === 'items' ? (
                 // Items view
                 (filteredData as StacItem[]).map((item) => (
