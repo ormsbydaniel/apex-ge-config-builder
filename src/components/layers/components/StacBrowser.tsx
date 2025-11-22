@@ -388,48 +388,64 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     }
   }, [serviceUrl]);
 
+  // Rank a collection based on search term matches
+  const rankCollection = (collection: StacCollection, searchTerm: string): number => {
+    const term = searchTerm.toLowerCase().trim();
+    let score = 0;
+    
+    const title = (collection.title || collection.id).toLowerCase();
+    const description = (collection.description || '').toLowerCase();
+    const keywords = (collection.keywords || []).map(k => k.toLowerCase());
+    
+    // Create word boundary regex for whole-word matching
+    const wholeWordRegex = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    
+    // Title matches (highest priority)
+    if (title === term) {
+      score += 1000; // Exact match
+    } else if (wholeWordRegex.test(collection.title || collection.id)) {
+      score += 500; // Whole word match
+    } else if (title.startsWith(term)) {
+      score += 400; // Starts with search term
+    } else if (title.includes(term)) {
+      score += 300; // Partial match in title
+    }
+    
+    // Keywords matches
+    keywords.forEach(keyword => {
+      if (keyword === term) {
+        score += 250; // Exact keyword match
+      } else if (wholeWordRegex.test(keyword)) {
+        score += 200; // Whole word in keyword
+      } else if (keyword.includes(term)) {
+        score += 50; // Partial match in keyword
+      }
+    });
+    
+    // Description matches (lower priority)
+    if (wholeWordRegex.test(description)) {
+      score += 100; // Whole word in description
+    } else if (description.includes(term)) {
+      score += 25; // Partial match in description
+    }
+    
+    return score;
+  };
+
   const getFilteredData = () => {
     const term = searchTerm.toLowerCase();
     
     if (currentStep === 'collections') {
       if (!term) return collections; // Show all if no search term
       
-      // Ranked client-side filtering with prioritization
-      const titleMatches: StacCollection[] = [];
-      const keywordMatches: StacCollection[] = [];
-      const descriptionMatches: StacCollection[] = [];
+      // Filter and rank collections by score
+      const rankedCollections = collections
+        .map(c => ({ collection: c, score: rankCollection(c, term) }))
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map(item => item.collection);
       
-      collections.forEach(c => {
-        let added = false;
-        
-        // Check title first (highest priority)
-        if (c.title && c.title.toLowerCase().includes(term)) {
-          titleMatches.push(c);
-          added = true;
-        }
-        
-        // Check keywords second (if not already added)
-        if (!added && c.keywords && Array.isArray(c.keywords)) {
-          const hasKeywordMatch = c.keywords.some(k => 
-            k.toLowerCase().includes(term)
-          );
-          if (hasKeywordMatch) {
-            keywordMatches.push(c);
-            added = true;
-          }
-        }
-        
-        // Check description and ID last (if not already added)
-        if (!added) {
-          if ((c.description && c.description.toLowerCase().includes(term)) ||
-              c.id.toLowerCase().includes(term)) {
-            descriptionMatches.push(c);
-          }
-        }
-      });
-      
-      // Return prioritized results: title matches, then keyword matches, then description/ID matches
-      return [...titleMatches, ...keywordMatches, ...descriptionMatches];
+      return rankedCollections;
     } else if (currentStep === 'items') {
       // Only apply client-side filtering if no server search was performed
       const filtered = items.filter(i => {
@@ -542,21 +558,34 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
                   const hasExtraKeywords = collection.keywords && collection.keywords.length > 5;
                   const shouldShowToggle = hasLongDescription || hasExtraKeywords;
                   
+                  // Helper to highlight search terms
+                  const highlightText = (text: string) => {
+                    if (!searchTerm.trim()) return text;
+                    
+                    const term = searchTerm.trim();
+                    const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    const parts = text.split(regex);
+                    
+                    return parts.map((part, i) => 
+                      regex.test(part) ? <strong key={i}>{part}</strong> : part
+                    );
+                  };
+                  
                   return (
                     <div key={collection.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
                       <Folder className="h-4 w-4 text-purple-600 flex-shrink-0" />
                       <div className="flex-1 min-w-0 pr-2">
-                        <div className="font-medium text-sm">{collection.title || collection.id}</div>
+                        <div className="font-medium text-sm">{highlightText(collection.title || collection.id)}</div>
                         {collection.description && (
                           <div className={`text-xs text-muted-foreground mt-1 ${!isExpanded ? 'line-clamp-2' : ''}`}>
-                            {collection.description}
+                            {highlightText(collection.description)}
                           </div>
                         )}
                         {collection.keywords && collection.keywords.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {(isExpanded ? collection.keywords : collection.keywords.slice(0, 5)).map((keyword, idx) => (
                               <Badge key={idx} variant="secondary" className="text-xs">
-                                {keyword}
+                                {highlightText(keyword)}
                               </Badge>
                             ))}
                             {!isExpanded && collection.keywords.length > 5 && (
