@@ -127,6 +127,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
           ) : isStacService ? (
             <StacBrowser
               serviceUrl={service.url}
+              serviceName={service.name}
               onAssetSelect={(selection) => {
                 // Handle both single and bulk selections
                 if (Array.isArray(selection)) {
