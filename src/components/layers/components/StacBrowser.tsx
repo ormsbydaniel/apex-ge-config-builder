@@ -195,8 +195,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       if (Array.isArray(itemsList)) {
         setItems(itemsList);
         setNextItemsUrl(extractNextLink(data));
-        // Extract total count from response (numberMatched, context.matched, or context.returned)
-        const total = data.numberMatched || data.context?.matched || data.context?.returned || itemsList.length;
+        // Only set total count if we have a reliable count from the API
+        const total = data.numberMatched || data.context?.matched || null;
         setTotalItemCount(total);
       } else {
         throw new Error('Invalid items response');
@@ -541,11 +541,13 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
               <h3 className="font-medium text-purple-700">
                 {selectedCollection.title || selectedCollection.id}
               </h3>
-              {totalItemCount !== null && (
-                <Badge variant="outline" className="border-green-300 text-green-700">
-                  {totalItemCount} items
-                </Badge>
-              )}
+              <Badge variant="outline" className="border-green-300 text-green-700">
+                {totalItemCount !== null 
+                  ? `${totalItemCount} items`
+                  : nextItemsUrl 
+                    ? `${items.length}+ items`
+                    : `${items.length} items`}
+              </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
               {selfLink || `Collection: ${selectedCollection.id}`}
