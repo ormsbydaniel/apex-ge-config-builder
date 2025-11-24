@@ -85,38 +85,35 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
         )}
         
         <div className="space-y-4">
-          {/* Service Info Card */}
-          <Card className={`border-l-4 ${
-            isS3Service ? 'border-l-green-500' : 
-            isStacService ? 'border-l-purple-500' : 
-            'border-l-blue-500'
-          }`}>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-2 mb-2">
-                {getServiceIcon()}
-                <h3 className={`font-medium ${
-                  isS3Service ? 'text-green-700' : 
-                  isStacService ? 'text-purple-700' : 
-                  'text-blue-700'
-                }`}>
-                  {service.name}
-                </h3>
-                <Badge variant="outline" className={getServiceTypeColor()}>
-                  {getServiceTypeLabel()}
-                </Badge>
-                {service.capabilities?.layers.length && (
-                  <Badge variant="outline" className="border-green-300 text-green-700">
-                    {service.capabilities.totalCount || service.capabilities.layers.length} {
-                      isS3Service ? 'objects' : 
-                      isStacService ? 'collections' : 
-                      'layers'
-                    } available
+          {/* Service Info Card - not shown for STAC services (delegated to StacBrowser) */}
+          {!isStacService && (
+            <Card className={`border-l-4 ${
+              isS3Service ? 'border-l-green-500' : 'border-l-blue-500'
+            }`}>
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  {getServiceIcon()}
+                  <h3 className={`font-medium ${
+                    isS3Service ? 'text-green-700' : 'text-blue-700'
+                  }`}>
+                    {service.name}
+                  </h3>
+                  <Badge variant="outline" className={getServiceTypeColor()}>
+                    {getServiceTypeLabel()}
                   </Badge>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">{service.url}</p>
-            </CardContent>
-          </Card>
+                  {service.capabilities?.layers.length && (
+                    <Badge variant="outline" className="border-green-300 text-green-700">
+                      {service.capabilities.totalCount || service.capabilities.layers.length} {
+                        isS3Service ? 'objects' : 'layers'
+                      } available
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">{service.url}</p>
+              </CardContent>
+            </Card>
+          )}
+
 
           {/* Selection Interface */}
           {isS3Service ? (
