@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
+import { AssetPreviewDialog, PreviewAsset } from './AssetPreviewDialog';
 
 // Supported formats for direct connection
 const SUPPORTED_FORMATS: DataSourceFormat[] = ['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf'];
@@ -103,6 +104,11 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
   // Expanded collections state
   const [expandedCollections, setExpandedCollections] = useState<Set<string>>(new Set());
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  
+  // Preview dialog state
+  const [previewAssets, setPreviewAssets] = useState<PreviewAsset[]>([]);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
   const toggleCollectionExpanded = (collectionId: string) => {
     setExpandedCollections(prev => {
@@ -333,62 +339,49 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     }
 
     setLoading(true);
-    const assetSelections: AssetSelection[] = [];
-    let processedCount = 0;
-    let failedCount = 0;
-    let unsupportedCount = 0;
+    const previewAssetsList: PreviewAsset[] = [];
 
     try {
       for (const item of filteredItems) {
-        processedCount++;
-        
         if (!item.assets || Object.keys(item.assets).length === 0) {
           console.warn(`Item ${item.id} has no assets, skipping...`);
-          failedCount++;
           continue;
         }
 
-        // Get the first asset from each item
-        const [assetKey, asset] = Object.entries(item.assets)[0];
-        
-        try {
-          const format = detectAssetFormat(asset);
-          
-          // Check if format is supported
-          if (!SUPPORTED_FORMATS.includes(format as DataSourceFormat)) {
-            console.warn(`Skipping asset ${assetKey} from item ${item.id}: unsupported format ${format}`);
-            unsupportedCount++;
-            continue;
+        // Process ALL assets from each item, not just the first one
+        for (const [assetKey, asset] of Object.entries(item.assets)) {
+          try {
+            const format = detectAssetFormat(asset);
+            
+            // Check if format is supported
+            if (!SUPPORTED_FORMATS.includes(format as DataSourceFormat)) {
+              console.warn(`Skipping asset ${assetKey} from item ${item.id}: unsupported format ${format}`);
+              continue;
+            }
+            
+            const resolved = resolveAssetUrl(asset.href);
+            const datetime = item.properties?.datetime;
+            
+            previewAssetsList.push({
+              id: `${item.id}::${assetKey}`,
+              itemId: item.id,
+              assetKey,
+              url: resolved,
+              format,
+              datetime,
+              roles: asset.roles,
+              fileSize: asset['file:size'],
+              title: asset.title,
+            });
+          } catch (error) {
+            console.error(`Failed to process asset ${assetKey} from item ${item.id}:`, error);
           }
-          
-          const resolved = resolveAssetUrl(asset.href);
-          const datetime = item.properties?.datetime; // Get datetime from item properties
-          
-          assetSelections.push({
-            url: resolved,
-            format,
-            datetime
-          });
-        } catch (error) {
-          console.error(`Failed to process asset ${assetKey} from item ${item.id}:`, error);
-          failedCount++;
         }
       }
 
-      if (assetSelections.length > 0) {
-        onAssetSelect(assetSelections);
-        
-        if (failedCount > 0 || unsupportedCount > 0) {
-          toast({
-            title: "Partial Success",
-            description: `Added ${assetSelections.length} of ${processedCount} data sources (${unsupportedCount} unsupported formats, ${failedCount} failed).`,
-          });
-        } else {
-          toast({
-            title: "Success",
-            description: `Added ${assetSelections.length} supported data sources from STAC catalogue.`,
-          });
-        }
+      if (previewAssetsList.length > 0) {
+        setPreviewAssets(previewAssetsList);
+        setShowPreviewDialog(true);
       } else {
         toast({
           title: "No Supported Formats",
@@ -406,6 +399,73 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddAllAssetsFromItem = (item: StacItem) => {
+    if (!item.assets || Object.keys(item.assets).length === 0) {
+      toast({
+        title: "No Assets",
+        description: "This item has no assets to add.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const previewAssetsList: PreviewAsset[] = [];
+
+    for (const [assetKey, asset] of Object.entries(item.assets)) {
+      try {
+        const format = detectAssetFormat(asset);
+        
+        // Check if format is supported
+        if (!SUPPORTED_FORMATS.includes(format as DataSourceFormat)) {
+          continue;
+        }
+        
+        const resolved = resolveAssetUrl(asset.href);
+        const datetime = item.properties?.datetime;
+        
+        previewAssetsList.push({
+          id: `${item.id}::${assetKey}`,
+          itemId: item.id,
+          assetKey,
+          url: resolved,
+          format,
+          datetime,
+          roles: asset.roles,
+          fileSize: asset['file:size'],
+          title: asset.title,
+        });
+      } catch (error) {
+        console.error(`Failed to process asset ${assetKey} from item ${item.id}:`, error);
+      }
+    }
+
+    if (previewAssetsList.length > 0) {
+      setPreviewAssets(previewAssetsList);
+      setShowPreviewDialog(true);
+    } else {
+      toast({
+        title: "No Supported Formats",
+        description: "No supported asset formats found in this item.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePreviewConfirm = (selectedAssets: PreviewAsset[]) => {
+    const assetSelections: AssetSelection[] = selectedAssets.map(asset => ({
+      url: asset.url,
+      format: asset.format,
+      datetime: asset.datetime,
+    }));
+
+    onAssetSelect(assetSelections);
+    
+    toast({
+      title: "Success",
+      description: `Added ${assetSelections.length} data ${assetSelections.length === 1 ? 'source' : 'sources'} from STAC catalogue.`,
+    });
   };
 
   const goBack = () => {
@@ -1035,6 +1095,26 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           Add All Filtered Items ({filteredData.length})
         </Button>
       )}
+
+      {/* Add All Assets button when viewing single item's assets */}
+      {currentStep === 'assets' && selectedItem && !loading && assets.length > 0 && (
+        <Button
+          variant="default"
+          className="w-full"
+          onClick={() => handleAddAllAssetsFromItem(selectedItem)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add All Supported Assets from This Item ({assets.filter(([key, asset]) => SUPPORTED_FORMATS.includes(detectAssetFormat(asset) as DataSourceFormat)).length})
+        </Button>
+      )}
+
+      {/* Asset Preview Dialog */}
+      <AssetPreviewDialog
+        open={showPreviewDialog}
+        onOpenChange={setShowPreviewDialog}
+        assets={previewAssets}
+        onConfirm={handlePreviewConfirm}
+      />
     </div>
   );
 };
