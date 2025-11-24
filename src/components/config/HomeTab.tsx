@@ -17,7 +17,7 @@ import { calculateQAStats } from '@/utils/qaUtils';
 import { ConfigStatCard } from './components/ConfigStatCard';
 import { QAStatCard } from './components/QAStatCard';
 import { LayerIssuesDialog } from './components/LayerIssuesDialog';
-import WhatsNewSection from './components/WhatsNewSection';
+import LatestUpdatesSection from './components/LatestUpdatesSection';
 import { DataSource } from '@/types/config';
 
 interface HomeTabProps {
@@ -561,7 +561,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
       {/* What's New Section */}
       <div className="mt-6">
-        <WhatsNewSection />
+        <LatestUpdatesSection />
       </div>
 
       <ExportOptionsDialog open={showExportDialog} onOpenChange={setShowExportDialog} onExport={handleExportWithOptions} />
