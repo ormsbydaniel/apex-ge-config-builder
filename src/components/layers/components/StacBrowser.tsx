@@ -636,7 +636,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto border rounded-md relative min-h-96">
+      <div className="flex-1 overflow-y-auto border rounded-md relative min-h-0">
         {loading && showSkeleton && currentStep === 'collections' ? (
           <div className="grid gap-2 p-2">
             {Array.from({ length: 6 }).map((_, idx) => (
