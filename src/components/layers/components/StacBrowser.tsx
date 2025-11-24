@@ -10,25 +10,25 @@ import { Label } from '@/components/ui/label';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 import { AssetPreviewDialog, PreviewAsset } from './AssetPreviewDialog';
+import {
+  createStacBrowserUrl,
+  detectAssetFormat,
+  getItemsUrl,
+  extractNextLink,
+  getSelfLink,
+  resolveAssetUrl,
+  ensureSlash,
+  type StacLink,
+  type StacAsset,
+  type StacCollection as StacCollectionType,
+} from '@/utils/stacUtils';
+import { rankCollection, filterAndRankCollections } from '@/utils/stacSearchUtils';
 
 // Supported formats for direct connection
 const SUPPORTED_FORMATS: DataSourceFormat[] = ['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf'];
 
-interface StacLink {
-  rel: string;
-  href: string;
-  type?: string;
-  method?: string;
-}
-
-interface StacCollection {
-  id: string;
-  title?: string;
-  description?: string;
-  keywords?: string[];
-  extent?: any;
-  links?: StacLink[];
-}
+// Use imported type with local interface extension for items
+interface StacCollection extends StacCollectionType {}
 
 interface StacItem {
   id: string;
@@ -39,14 +39,6 @@ interface StacItem {
   };
   assets?: Record<string, StacAsset>;
   links?: StacLink[];
-}
-
-interface StacAsset {
-  href: string;
-  type?: string;
-  title?: string;
-  roles?: string[];
-  'file:size'?: number;
 }
 
 export interface AssetSelection {
@@ -62,20 +54,6 @@ interface StacBrowserProps {
 }
 
 type BrowserStep = 'collections' | 'items' | 'assets';
-
-// Utility function to create STAC browser URL
-const createStacBrowserUrl = (selfUrl: string, serviceUrl: string): string => {
-  // Determine the browser base URL based on service domain
-  const isEoresults = serviceUrl.toLowerCase().includes('eoresults');
-  const browserBase = isEoresults 
-    ? 'https://browser.apex.esa.int/external/'
-    : 'https://radiantearth.github.io/stac-browser/#/external/';
-  
-  // Strip protocol from self URL
-  const urlWithoutProtocol = selfUrl.replace(/^https?:\/\//, '');
-  
-  return `${browserBase}${urlWithoutProtocol}`;
-};
 
 const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
@@ -120,62 +98,6 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       }
       return next;
     });
-  };
-
-  const ensureSlash = (url: string) => url.endsWith('/') ? url : url + '/';
-
-  const appendQueryParam = (url: string, key: string, value: string | number) => {
-    const hasQuery = url.includes('?');
-    const separator = hasQuery ? '&' : '?';
-    return `${url}${separator}${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`;
-  };
-
-  const getItemsUrl = (collection: StacCollection) => {
-    const link = collection.links?.find((l) => l.rel === 'items');
-    let url = link?.href || (ensureSlash(serviceUrl) + `collections/${collection.id}/items`);
-    if (!/[?&]limit=/.test(url)) {
-      url = appendQueryParam(url, 'limit', 100);
-    }
-    return url;
-  };
-
-  const extractNextLink = (data: any): string | null => {
-    const links = data.links || [];
-    const nextLink = links.find((link: any) => link.rel === 'next');
-    return nextLink?.href || null;
-  };
-
-  const detectAssetFormat = (asset: StacAsset): DataSourceFormat | string => {
-    const href = asset.href.toLowerCase();
-    const type = asset.type?.toLowerCase() || '';
-    
-    // Check by media type first
-    if (type.includes('tiff') || type.includes('geotiff')) return 'cog';
-    if (type.includes('json')) return 'geojson';
-    if (type.includes('flatgeobuf')) return 'flatgeobuf';
-    
-    // Check by file extension
-    if (href.includes('.tif') || href.includes('.tiff')) return 'cog';
-    if (href.includes('.json') || href.includes('.geojson')) return 'geojson';
-    if (href.includes('.fgb')) return 'flatgeobuf';
-    
-    // Return actual MIME type or format for unknown types
-    if (asset.type) {
-      // Clean up common MIME type prefixes for display
-      return asset.type
-        .replace('application/x-', '')
-        .replace('application/', '')
-        .replace('image/', '')
-        .toUpperCase();
-    }
-    
-    // Extract extension from URL as last resort
-    const match = href.match(/\.([a-z0-9]+)(\?|$)/i);
-    if (match) {
-      return match[1].toUpperCase();
-    }
-    
-    return 'UNKNOWN';
   };
 
   const fetchAllCollections = async () => {
@@ -225,7 +147,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     setLoading(true);
     
     try {
-      const itemsUrl = getItemsUrl(collection);
+      const itemsUrl = getItemsUrl(collection, serviceUrl);
       const response = await fetch(itemsUrl);
       
       if (!response.ok) throw new Error('Failed to fetch items');
@@ -306,22 +228,9 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     }
   };
 
-  // Helper to resolve STAC asset URLs (absolute, root-relative, or relative)
-  const resolveAssetUrl = (href: string) => {
-    try {
-      if (/^https?:\/\//i.test(href) || href.startsWith('data:')) return href;
-      const origin = new URL(serviceUrl).origin;
-      if (href.startsWith('/')) return origin + href;
-      return new URL(href, ensureSlash(serviceUrl)).toString();
-    } catch (e) {
-      console.warn('Failed to resolve asset URL, returning original href', href, e);
-      return href;
-    }
-  };
-
   const selectAsset = (assetKey: string, asset: StacAsset) => {
     const format = detectAssetFormat(asset);
-    const resolved = resolveAssetUrl(asset.href);
+    const resolved = resolveAssetUrl(asset.href, serviceUrl);
     const datetime = selectedItem?.properties?.datetime;
     onAssetSelect({ url: resolved, format, datetime });
   };
@@ -359,7 +268,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
               continue;
             }
             
-            const resolved = resolveAssetUrl(asset.href);
+            const resolved = resolveAssetUrl(asset.href, serviceUrl);
             const datetime = item.properties?.datetime;
             
             previewAssetsList.push({
@@ -422,7 +331,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           continue;
         }
         
-        const resolved = resolveAssetUrl(asset.href);
+        const resolved = resolveAssetUrl(asset.href, serviceUrl);
         const datetime = item.properties?.datetime;
         
         previewAssetsList.push({
@@ -514,64 +423,11 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     };
   }, [loading]);
 
-  // Rank a collection based on search term matches
-  const rankCollection = (collection: StacCollection, searchTerm: string): number => {
-    const term = searchTerm.toLowerCase().trim();
-    let score = 0;
-    
-    const title = (collection.title || collection.id).toLowerCase();
-    const description = (collection.description || '').toLowerCase();
-    const keywords = (collection.keywords || []).map(k => k.toLowerCase());
-    
-    // Create word boundary regex for whole-word matching
-    const wholeWordRegex = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-    
-    // Title matches (highest priority)
-    if (title === term) {
-      score += 1000; // Exact match
-    } else if (wholeWordRegex.test(collection.title || collection.id)) {
-      score += 500; // Whole word match
-    } else if (title.startsWith(term)) {
-      score += 400; // Starts with search term
-    } else if (title.includes(term)) {
-      score += 300; // Partial match in title
-    }
-    
-    // Keywords matches
-    keywords.forEach(keyword => {
-      if (keyword === term) {
-        score += 250; // Exact keyword match
-      } else if (wholeWordRegex.test(keyword)) {
-        score += 200; // Whole word in keyword
-      } else if (keyword.includes(term)) {
-        score += 50; // Partial match in keyword
-      }
-    });
-    
-    // Description matches (lower priority)
-    if (wholeWordRegex.test(description)) {
-      score += 100; // Whole word in description
-    } else if (description.includes(term)) {
-      score += 25; // Partial match in description
-    }
-    
-    return score;
-  };
-
   const getFilteredData = () => {
     const term = searchTerm.toLowerCase();
     
     if (currentStep === 'collections') {
-      if (!term) return collections; // Show all if no search term
-      
-      // Filter and rank collections by score
-      const rankedCollections = collections
-        .map(c => ({ collection: c, score: rankCollection(c, term) }))
-        .filter(item => item.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .map(item => item.collection);
-      
-      return rankedCollections;
+      return filterAndRankCollections(collections, searchTerm);
     } else if (currentStep === 'items') {
       // Client-side filtering for items
       const filtered = items.filter(i => {
