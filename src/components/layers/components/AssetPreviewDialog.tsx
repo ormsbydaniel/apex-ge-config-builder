@@ -333,7 +333,7 @@ export const AssetPreviewDialog: React.FC<AssetPreviewDialogProps> = ({
         </div>
 
         {/* Asset List */}
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 min-h-0 max-h-[400px]">
           <div className="space-y-2 pr-4">
             {filteredAssets.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
