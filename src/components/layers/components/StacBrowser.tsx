@@ -8,6 +8,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
+// Supported formats for direct connection
+const SUPPORTED_FORMATS: DataSourceFormat[] = ['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf'];
+
 interface StacLink {
   rel: string;
   href: string;
@@ -943,14 +946,28 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                           )}
                         </div>
                       </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="flex-shrink-0"
-                        onClick={() => selectAsset(key, asset)}
-                      >
-                        Select
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="flex-shrink-0"
+                                onClick={() => selectAsset(key, asset)}
+                                disabled={!SUPPORTED_FORMATS.includes(format as DataSourceFormat)}
+                              >
+                                Select
+                              </Button>
+                            </div>
+                          </TooltipTrigger>
+                          {!SUPPORTED_FORMATS.includes(format as DataSourceFormat) && (
+                            <TooltipContent>
+                              <p>Unsupported asset format</p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   );
                 })
