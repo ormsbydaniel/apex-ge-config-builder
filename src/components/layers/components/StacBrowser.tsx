@@ -507,8 +507,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
   const renderInfoCard = () => {
-    if (currentStep === 'collections') {
-      // Service info card for collections view
+    // Only show Service Info Card on collections view (not when collection or item is selected)
+    if (currentStep === 'collections' && !selectedCollection && !selectedItem) {
       return (
         <Card className="border-l-4 border-l-purple-500">
           <CardContent className="pt-4">
@@ -528,8 +528,10 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           </CardContent>
         </Card>
       );
-    } else if (currentStep === 'items' && selectedCollection) {
-      // Collection info card for items view
+    }
+    
+    // Show Collection Info Card on items view (when collection selected but no item)
+    if (currentStep === 'items' && selectedCollection && !selectedItem) {
       const selfLink = getSelfLink(selectedCollection.links);
       return (
         <Card className="border-l-4 border-l-purple-500">
@@ -551,8 +553,10 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           </CardContent>
         </Card>
       );
-    } else if (currentStep === 'assets' && selectedItem) {
-      // Item info card for assets view
+    }
+    
+    // Show Item Info Card on assets view (when item is selected)
+    if (currentStep === 'assets' && selectedItem) {
       const selfLink = getSelfLink(selectedItem.links);
       const totalAssetCount = Object.keys(selectedItem.assets || {}).length;
       return (
@@ -574,6 +578,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         </Card>
       );
     }
+    
     return null;
   };
 
