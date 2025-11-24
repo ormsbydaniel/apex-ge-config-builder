@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronLeft, ChevronDown, ChevronUp, Search, Folder, FileText, Download, Plus, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronDown, ChevronUp, Search, Folder, FileText, Download, Plus, Loader2, ExternalLink } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
@@ -55,6 +56,20 @@ interface StacBrowserProps {
 }
 
 type BrowserStep = 'collections' | 'items' | 'assets';
+
+// Utility function to create STAC browser URL
+const createStacBrowserUrl = (selfUrl: string, serviceUrl: string): string => {
+  // Determine the browser base URL based on service domain
+  const isEoresults = serviceUrl.toLowerCase().includes('eoresults');
+  const browserBase = isEoresults 
+    ? 'https://browser.apex.esa.int/external/'
+    : 'https://radiantearth.github.io/stac-browser/#/external/';
+  
+  // Strip protocol from self URL
+  const urlWithoutProtocol = selfUrl.replace(/^https?:\/\//, '');
+  
+  return `${browserBase}${urlWithoutProtocol}`;
+};
 
 const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
@@ -550,7 +565,28 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              {selfLink || `Collection: ${selectedCollection.id}`}
+              {selfLink ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a 
+                        href={createStacBrowserUrl(selfLink, serviceUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                      >
+                        {selfLink}
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Open in STAC Browser</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                `Collection: ${selectedCollection.id}`
+              )}
             </p>
           </CardContent>
         </Card>
@@ -574,7 +610,28 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              {selfLink || `Item: ${selectedItem.id}`}
+              {selfLink ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a 
+                        href={createStacBrowserUrl(selfLink, serviceUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                      >
+                        {selfLink}
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Open in STAC Browser</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                `Item: ${selectedItem.id}`
+              )}
             </p>
           </CardContent>
         </Card>
