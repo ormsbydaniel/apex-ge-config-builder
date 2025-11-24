@@ -19,7 +19,7 @@ const getCategoryColor = (category?: Announcement['category']) => {
   }
 };
 
-const WhatsNewSection = () => {
+const LatestUpdatesSection = () => {
   return (
     <Card className="bg-transparent border-teal-800/30">
       <CardHeader>
@@ -66,4 +66,4 @@ const WhatsNewSection = () => {
   );
 };
 
-export default WhatsNewSection;
+export default LatestUpdatesSection;
