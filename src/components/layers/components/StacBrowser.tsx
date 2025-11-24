@@ -5,6 +5,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronDown, ChevronUp, Search, Folder, FileText, Download, Plus, Loader2, ExternalLink } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
@@ -82,6 +84,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [serverSearchTerm, setServerSearchTerm] = useState(''); // Track the search term used for server fetch (items only)
+  const [showSupportedOnly, setShowSupportedOnly] = useState(false);
   const { toast } = useToast();
 
   // Collections state
@@ -282,6 +285,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   const selectItem = (item: StacItem) => {
     setSearchTerm(''); // Clear search when moving to assets step
     setServerSearchTerm(''); // Clear server search state
+    setShowSupportedOnly(false); // Reset format filter
     if (item.assets) {
       const assetEntries = Object.entries(item.assets);
       setAssets(assetEntries);
@@ -400,6 +404,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       setCurrentStep('items');
       setAssets([]);
       setSelectedItem(null);
+      setShowSupportedOnly(false); // Reset format filter when leaving assets
     } else if (currentStep === 'items') {
       setCurrentStep('collections');
       setItems([]);
@@ -508,13 +513,20 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       });
       return filtered;
     } else if (currentStep === 'assets') {
-      // Assets are always filtered client-side (no server-side search for assets)
-      const filtered = assets.filter(([key, asset]) =>
-        !term ||
-        key.toLowerCase().includes(term) ||
-        (asset.title && asset.title.toLowerCase().includes(term)) ||
-        asset.href.toLowerCase().includes(term)
-      );
+      // Assets are filtered by both search term AND format support
+      const filtered = assets.filter(([key, asset]) => {
+        // Text search filter
+        const matchesSearch = !term ||
+          key.toLowerCase().includes(term) ||
+          (asset.title && asset.title.toLowerCase().includes(term)) ||
+          asset.href.toLowerCase().includes(term);
+        
+        // Format filter (only apply if showSupportedOnly is true)
+        const matchesFormat = !showSupportedOnly || 
+          SUPPORTED_FORMATS.includes(detectAssetFormat(asset) as DataSourceFormat);
+        
+        return matchesSearch && matchesFormat;
+      });
       return filtered;
     }
     
@@ -715,13 +727,27 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           />
         </div>
         
+        {/* Format filter toggle - only for assets */}
+        {currentStep === 'assets' && (
+          <div className="flex items-center gap-2 px-1">
+            <Switch 
+              id="supported-only"
+              checked={showSupportedOnly}
+              onCheckedChange={setShowSupportedOnly}
+            />
+            <Label htmlFor="supported-only" className="cursor-pointer text-sm">
+              Show only supported formats
+            </Label>
+          </div>
+        )}
+        
         {/* Count message - showing filtered results */}
         {!loading && filteredData.length > 0 && (
           <div className="text-xs text-muted-foreground">
             {currentStep === 'items' && totalItemCount !== null ? (
               <>Showing {filteredData.length} items of {totalItemCount}</>
             ) : currentStep === 'assets' && totalAssetCount > 0 ? (
-              <>Showing {filteredData.length} assets of {totalAssetCount}</>
+              <>Showing {filteredData.length} assets of {totalAssetCount}{showSupportedOnly ? ' (supported formats only)' : ''}</>
             ) : (
               <>Showing {filteredData.length} {currentStep}</>
             )}
