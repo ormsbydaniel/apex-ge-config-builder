@@ -586,7 +586,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   const totalAssetCount = selectedItem?.assets ? Object.keys(selectedItem.assets).length : 0;
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4 flex-1 min-h-0">
       {/* Info Card */}
       {renderInfoCard()}
 
@@ -636,7 +636,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       </div>
 
       {/* Content */}
-      <div className="min-h-96 max-h-96 overflow-y-auto border rounded-md relative">
+      <div className="flex-1 overflow-y-auto border rounded-md relative min-h-0">
         {loading && showSkeleton && currentStep === 'collections' ? (
           <div className="grid gap-2 p-2">
             {Array.from({ length: 6 }).map((_, idx) => (

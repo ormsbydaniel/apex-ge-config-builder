@@ -84,7 +84,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
           </DialogHeader>
         )}
         
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4 flex-1 min-h-0">
           {/* Service Info Card - not shown for STAC services (delegated to StacBrowser) */}
           {!isStacService && (
             <Card className={`border-l-4 ${
@@ -137,7 +137,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
               }}
             />
           ) : (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4 flex-1 min-h-0">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Search Layers</label>
                 <input
