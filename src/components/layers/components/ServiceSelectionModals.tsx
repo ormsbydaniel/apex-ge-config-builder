@@ -75,12 +75,14 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
-        <DialogHeader>
-          <DialogTitle>Select Data Source</DialogTitle>
-          <DialogDescription>
-            Select a data source from the {getServiceTypeLabel()} service
-          </DialogDescription>
-        </DialogHeader>
+        {!isStacService && (
+          <DialogHeader>
+            <DialogTitle>Select Data Source</DialogTitle>
+            <DialogDescription>
+              Select a data source from the {getServiceTypeLabel()} service
+            </DialogDescription>
+          </DialogHeader>
+        )}
         
         <div className="space-y-4">
           {/* Service Info Card */}
