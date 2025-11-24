@@ -706,15 +706,17 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
             
             <div className="grid gap-2 p-2">
               {filteredData.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  {searchTerm ? (
-                    <>
-                      <p>No {currentStep} found matching "{searchTerm}"</p>
-                      <p className="text-sm mt-2">Try different search terms</p>
-                    </>
-                  ) : (
-                    <p>No {currentStep} available</p>
-                  )}
+                <div className="p-8 text-center text-muted-foreground min-h-96 flex items-center justify-center">
+                  <div>
+                    {searchTerm ? (
+                      <>
+                        <p>No {currentStep} found matching "{searchTerm}"</p>
+                        <p className="text-sm mt-2">Try different search terms</p>
+                      </>
+                    ) : (
+                      <p>No {currentStep} available</p>
+                    )}
+                  </div>
                 </div>
               ) : currentStep === 'collections' ? (
                 // Collections view
