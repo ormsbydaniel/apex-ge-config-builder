@@ -490,8 +490,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
   const getStepTitle = () => {
     if (currentStep === 'collections') return 'Select Collection';
-    if (currentStep === 'items') return `Items in ${selectedCollection?.title || selectedCollection?.id}`;
-    if (currentStep === 'assets') return `Assets in ${selectedItem?.properties?.title || selectedItem?.id}`;
+    if (currentStep === 'items') return `Back to ${serviceName} list`;
+    if (currentStep === 'assets') return `Back to ${selectedCollection?.title || selectedCollection?.id} items`;
     return '';
   };
 
