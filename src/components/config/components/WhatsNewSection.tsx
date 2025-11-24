@@ -23,7 +23,7 @@ const WhatsNewSection = () => {
   return (
     <Card className="bg-teal-900/40 border-teal-800/50">
       <CardHeader>
-        <CardTitle className="text-white">What's New</CardTitle>
+        <CardTitle className="text-white text-lg">Latest updates</CardTitle>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-48">
