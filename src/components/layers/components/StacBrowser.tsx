@@ -539,7 +539,26 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">{serviceUrl}</p>
+            <p className="text-sm text-muted-foreground">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <a 
+                      href={createStacBrowserUrl(serviceUrl, serviceUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                    >
+                      {serviceUrl}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Open in STAC Browser</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </p>
           </CardContent>
         </Card>
       );
