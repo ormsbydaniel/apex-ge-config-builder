@@ -21,7 +21,7 @@ const getCategoryColor = (category?: Announcement['category']) => {
 
 const WhatsNewSection = () => {
   return (
-    <Card className="bg-teal-900/40 border-teal-800/50">
+    <Card className="bg-transparent border-teal-800/30">
       <CardHeader>
         <CardTitle className="text-white text-lg">Latest updates</CardTitle>
       </CardHeader>
@@ -35,7 +35,7 @@ const WhatsNewSection = () => {
               return (
                 <div
                   key={index}
-                  className="group p-3 rounded-lg bg-teal-950/30 hover:bg-teal-950/50 transition-colors"
+                  className="group p-3 rounded-lg bg-teal-900/40 hover:bg-teal-900/60 transition-colors border border-teal-800/30"
                 >
                   <div className="flex items-start gap-3">
                     <Badge 
