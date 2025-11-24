@@ -497,32 +497,43 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
 
   return (
     <div className="space-y-4">
-      {/* Header with back button and title */}
-      <div className="flex items-center gap-2">
-        {currentStep !== 'collections' && (
+      {/* Header with back button and title - only for items and assets */}
+      {currentStep !== 'collections' && (
+        <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={goBack}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-        )}
-        <div className="flex items-center gap-2">
-          {getStepIcon()}
-          <h3 className="font-medium">{getStepTitle()}</h3>
+          <div className="flex items-center gap-2">
+            {getStepIcon()}
+            <h3 className="font-medium">{getStepTitle()}</h3>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        {searching && (
-          <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+      <div className="space-y-2">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {searching && (
+            <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+          )}
+          <input
+            type="text"
+            placeholder={`Search ${currentStep}...`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-10 p-2 border border-input rounded-md"
+          />
+        </div>
+        
+        {/* Count message - showing filtered results */}
+        {!loading && filteredData.length > 0 && (
+          <div className="text-xs text-muted-foreground">
+            Showing {filteredData.length} {currentStep}
+            {searchTerm && ` matching "${searchTerm}"`}
+            {currentStep === 'items' && nextItemsUrl && ' (more available)'}
+          </div>
         )}
-        <input
-          type="text"
-          placeholder={`Search ${currentStep}...`}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-10 p-2 border border-input rounded-md"
-        />
       </div>
 
       {/* Content */}
@@ -777,15 +788,6 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
           <Plus className="h-4 w-4 mr-2" />
           Add All Filtered Items ({filteredData.length})
         </Button>
-      )}
-
-      {/* Footer info */}
-      {!loading && filteredData.length > 0 && (
-        <div className="text-xs text-muted-foreground">
-          Showing {filteredData.length} {currentStep}
-          {searchTerm && ` matching "${searchTerm}"`}
-          {currentStep === 'items' && nextItemsUrl && ' (more available)'}
-        </div>
       )}
     </div>
   );
