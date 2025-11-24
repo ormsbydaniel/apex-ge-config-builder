@@ -336,6 +336,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     const assetSelections: AssetSelection[] = [];
     let processedCount = 0;
     let failedCount = 0;
+    let unsupportedCount = 0;
 
     try {
       for (const item of filteredItems) {
@@ -352,6 +353,14 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         
         try {
           const format = detectAssetFormat(asset);
+          
+          // Check if format is supported
+          if (!SUPPORTED_FORMATS.includes(format as DataSourceFormat)) {
+            console.warn(`Skipping asset ${assetKey} from item ${item.id}: unsupported format ${format}`);
+            unsupportedCount++;
+            continue;
+          }
+          
           const resolved = resolveAssetUrl(asset.href);
           const datetime = item.properties?.datetime; // Get datetime from item properties
           
@@ -369,21 +378,21 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       if (assetSelections.length > 0) {
         onAssetSelect(assetSelections);
         
-        if (failedCount > 0) {
+        if (failedCount > 0 || unsupportedCount > 0) {
           toast({
             title: "Partial Success",
-            description: `Added ${assetSelections.length} of ${processedCount} data sources (${failedCount} failed).`,
+            description: `Added ${assetSelections.length} of ${processedCount} data sources (${unsupportedCount} unsupported formats, ${failedCount} failed).`,
           });
         } else {
           toast({
             title: "Success",
-            description: `Added ${assetSelections.length} data sources from STAC catalogue.`,
+            description: `Added ${assetSelections.length} supported data sources from STAC catalogue.`,
           });
         }
       } else {
         toast({
-          title: "Failed",
-          description: "Failed to process any items. Check console for details.",
+          title: "No Supported Formats",
+          description: "No supported asset formats found in the selected items. Only COG, GeoJSON, FlatGeobuf, WMS, WMTS, XYZ, and WFS are supported.",
           variant: "destructive"
         });
       }
