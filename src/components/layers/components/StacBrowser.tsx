@@ -45,7 +45,7 @@ interface StacAsset {
 
 export interface AssetSelection {
   url: string;
-  format: DataSourceFormat;
+  format: DataSourceFormat | string;
   datetime?: string;
 }
 
@@ -133,7 +133,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     return nextLink?.href || null;
   };
 
-  const detectAssetFormat = (asset: StacAsset): DataSourceFormat => {
+  const detectAssetFormat = (asset: StacAsset): DataSourceFormat | string => {
     const href = asset.href.toLowerCase();
     const type = asset.type?.toLowerCase() || '';
     
@@ -147,8 +147,23 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     if (href.includes('.json') || href.includes('.geojson')) return 'geojson';
     if (href.includes('.fgb')) return 'flatgeobuf';
     
-    // Default to COG for unknown formats (most STAC assets are raster data)
-    return 'cog';
+    // Return actual MIME type or format for unknown types
+    if (asset.type) {
+      // Clean up common MIME type prefixes for display
+      return asset.type
+        .replace('application/x-', '')
+        .replace('application/', '')
+        .replace('image/', '')
+        .toUpperCase();
+    }
+    
+    // Extract extension from URL as last resort
+    const match = href.match(/\.([a-z0-9]+)(\?|$)/i);
+    if (match) {
+      return match[1].toUpperCase();
+    }
+    
+    return 'UNKNOWN';
   };
 
   const fetchAllCollections = async () => {

@@ -16,7 +16,7 @@ interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat, datetime?: string) => void;
+  onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
 }
 
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: ServiceSelectionModalProps) => {
