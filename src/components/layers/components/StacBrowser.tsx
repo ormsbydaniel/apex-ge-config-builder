@@ -790,7 +790,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                         className="flex-shrink-0"
                         onClick={() => fetchItems(collection)}
                       >
-                        Browse
+                        Browse items
                       </Button>
                     </div>
                   );
