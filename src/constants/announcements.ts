@@ -7,7 +7,7 @@ export interface Announcement {
 export const announcements: Announcement[] = [
   {
     date: '2025-11-24',
-    title: 'Config builder improvements for searching data in STAC catalogues',
+    title: 'Config builder improvements for finding and adding data from STAC catalogues (e.g ESA Project Results Repository)',
     category: 'Improvement',
   },
 ];
