@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronDown, ChevronUp, Search, Folder, FileText, Download, Plus, Loader2 } from 'lucide-react';
 import { DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +31,7 @@ interface StacItem {
     datetime?: string;
   };
   assets?: Record<string, StacAsset>;
+  links?: StacLink[];
 }
 
 interface StacAsset {
@@ -48,12 +50,13 @@ export interface AssetSelection {
 
 interface StacBrowserProps {
   serviceUrl: string;
+  serviceName: string;
   onAssetSelect: (assets: AssetSelection | AssetSelection[]) => void;
 }
 
 type BrowserStep = 'collections' | 'items' | 'assets';
 
-const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
+const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
   const [loading, setLoading] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
@@ -72,6 +75,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
   const [items, setItems] = useState<StacItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<StacItem | null>(null);
   const [nextItemsUrl, setNextItemsUrl] = useState<string | null>(null);
+  const [totalItemCount, setTotalItemCount] = useState<number | null>(null);
 
   // Assets state
   const [assets, setAssets] = useState<[string, StacAsset][]>([]);
@@ -191,6 +195,9 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       if (Array.isArray(itemsList)) {
         setItems(itemsList);
         setNextItemsUrl(extractNextLink(data));
+        // Extract total count from response (numberMatched, context.matched, or context.returned)
+        const total = data.numberMatched || data.context?.matched || data.context?.returned || itemsList.length;
+        setTotalItemCount(total);
       } else {
         throw new Error('Invalid items response');
       }
@@ -199,6 +206,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       // Set empty items to show "No items found" message
       setItems([]);
       setNextItemsUrl(null);
+      setTotalItemCount(null);
       toast({
         title: "STAC Error",
         description: `Failed to fetch items for collection "${collection.title || collection.id}".`,
@@ -364,6 +372,7 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
       setItems([]);
       setNextItemsUrl(null);
       setSelectedCollection(null);
+      setTotalItemCount(null);
       setServerSearchTerm(''); // Clear server search term for items
     }
     setSearchTerm('');
@@ -493,10 +502,89 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
     return null;
   };
 
+  const getSelfLink = (links?: StacLink[]): string | null => {
+    return links?.find(l => l.rel === 'self')?.href || null;
+  };
+
+  const renderInfoCard = () => {
+    if (currentStep === 'collections') {
+      // Service info card for collections view
+      return (
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Folder className="h-4 w-4 text-purple-600" />
+              <h3 className="font-medium text-purple-700">{serviceName}</h3>
+              <Badge variant="outline" className="border-purple-300 text-purple-700">
+                STAC Catalogue
+              </Badge>
+              {collections.length > 0 && (
+                <Badge variant="outline" className="border-green-300 text-green-700">
+                  {collections.length} collections
+                </Badge>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">{serviceUrl}</p>
+          </CardContent>
+        </Card>
+      );
+    } else if (currentStep === 'items' && selectedCollection) {
+      // Collection info card for items view
+      const selfLink = getSelfLink(selectedCollection.links);
+      return (
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Folder className="h-4 w-4 text-purple-600" />
+              <h3 className="font-medium text-purple-700">
+                {selectedCollection.title || selectedCollection.id}
+              </h3>
+              {totalItemCount !== null && (
+                <Badge variant="outline" className="border-green-300 text-green-700">
+                  {totalItemCount} items
+                </Badge>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {selfLink || `Collection: ${selectedCollection.id}`}
+            </p>
+          </CardContent>
+        </Card>
+      );
+    } else if (currentStep === 'assets' && selectedItem) {
+      // Item info card for assets view
+      const selfLink = getSelfLink(selectedItem.links);
+      const totalAssetCount = Object.keys(selectedItem.assets || {}).length;
+      return (
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="h-4 w-4 text-blue-600" />
+              <h3 className="font-medium text-blue-700">
+                {selectedItem.properties?.title || selectedItem.id}
+              </h3>
+              <Badge variant="outline" className="border-green-300 text-green-700">
+                {totalAssetCount} assets
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {selfLink || `Item: ${selectedItem.id}`}
+            </p>
+          </CardContent>
+        </Card>
+      );
+    }
+    return null;
+  };
+
   const filteredData = getFilteredData();
+  const totalAssetCount = selectedItem?.assets ? Object.keys(selectedItem.assets).length : 0;
 
   return (
     <div className="space-y-4">
+      {/* Info Card */}
+      {renderInfoCard()}
+
       {/* Header with back button and title - only for items and assets */}
       {currentStep !== 'collections' && (
         <div className="flex items-center gap-2">
@@ -529,7 +617,13 @@ const StacBrowser = ({ serviceUrl, onAssetSelect }: StacBrowserProps) => {
         {/* Count message - showing filtered results */}
         {!loading && filteredData.length > 0 && (
           <div className="text-xs text-muted-foreground">
-            Showing {filteredData.length} {currentStep}
+            {currentStep === 'items' && totalItemCount !== null ? (
+              <>Showing {filteredData.length} items of {totalItemCount}</>
+            ) : currentStep === 'assets' && totalAssetCount > 0 ? (
+              <>Showing {filteredData.length} assets of {totalAssetCount}</>
+            ) : (
+              <>Showing {filteredData.length} {currentStep}</>
+            )}
             {searchTerm && ` matching "${searchTerm}"`}
             {currentStep === 'items' && nextItemsUrl && ' (more available)'}
           </div>
