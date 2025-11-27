@@ -16,7 +16,7 @@ interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat, datetime?: string) => void;
+  onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
 }
 
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: ServiceSelectionModalProps) => {
@@ -74,47 +74,46 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
-        <DialogHeader>
-          <DialogTitle>Select Data Source</DialogTitle>
-          <DialogDescription>
-            Select a data source from the {getServiceTypeLabel()} service
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+        {!isStacService && (
+          <DialogHeader>
+            <DialogTitle>Select Data Source</DialogTitle>
+            <DialogDescription>
+              Select a data source from the {getServiceTypeLabel()} service
+            </DialogDescription>
+          </DialogHeader>
+        )}
         
-        <div className="space-y-4">
-          {/* Service Info Card */}
-          <Card className={`border-l-4 ${
-            isS3Service ? 'border-l-green-500' : 
-            isStacService ? 'border-l-purple-500' : 
-            'border-l-blue-500'
-          }`}>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-2 mb-2">
-                {getServiceIcon()}
-                <h3 className={`font-medium ${
-                  isS3Service ? 'text-green-700' : 
-                  isStacService ? 'text-purple-700' : 
-                  'text-blue-700'
-                }`}>
-                  {service.name}
-                </h3>
-                <Badge variant="outline" className={getServiceTypeColor()}>
-                  {getServiceTypeLabel()}
-                </Badge>
-                {service.capabilities?.layers.length && (
-                  <Badge variant="outline" className="border-green-300 text-green-700">
-                    {service.capabilities.layers.length} {
-                      isS3Service ? 'objects' : 
-                      isStacService ? 'collections' : 
-                      'layers'
-                    } available
+        <div className="flex flex-col gap-4 flex-1 min-h-0">
+          {/* Service Info Card - not shown for STAC services (delegated to StacBrowser) */}
+          {!isStacService && (
+            <Card className={`border-l-4 ${
+              isS3Service ? 'border-l-green-500' : 'border-l-blue-500'
+            }`}>
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  {getServiceIcon()}
+                  <h3 className={`font-medium ${
+                    isS3Service ? 'text-green-700' : 'text-blue-700'
+                  }`}>
+                    {service.name}
+                  </h3>
+                  <Badge variant="outline" className={getServiceTypeColor()}>
+                    {getServiceTypeLabel()}
                   </Badge>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">{service.url}</p>
-            </CardContent>
-          </Card>
+                  {service.capabilities?.layers.length && (
+                    <Badge variant="outline" className="border-green-300 text-green-700">
+                      {service.capabilities.totalCount || service.capabilities.layers.length} {
+                        isS3Service ? 'objects' : 'layers'
+                      } available
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">{service.url}</p>
+              </CardContent>
+            </Card>
+          )}
+
 
           {/* Selection Interface */}
           {isS3Service ? (
@@ -125,6 +124,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
           ) : isStacService ? (
             <StacBrowser
               serviceUrl={service.url}
+              serviceName={service.name}
               onAssetSelect={(selection) => {
                 // Handle both single and bulk selections
                 if (Array.isArray(selection)) {
@@ -137,7 +137,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
               }}
             />
           ) : (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4 flex-1 min-h-0">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Search Layers</label>
                 <input
