@@ -3,7 +3,7 @@
 # Configuration
 VIEWER_DIR=~/software/apex_geospatial_explorer
 BUILDER_DIR=~/software/apex-ge-config-builder
-VERSION="3.4.1"
+VERSION="3.4.2"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -85,7 +85,10 @@ fi
 echo -e "\n${GREEN}=== Update Complete ===${NC}"
 echo -e "Bundle files are ready in: ${BLUE}$TARGET_DIR${NC}"
 echo -e "\nNext steps:"
-echo -e "1. Commit and push changes from ${BLUE}$BUILDER_DIR${NC}"
+echo -e "1. Commit and push changes from ${BLUE}$BUILDER_DIR${NC} as follows:"
+echo -e "   git add ."
+echo -e "   git commit -m \"describe commit\""
+echo -e "   git push origin \"branch-name\""
 echo -e "2. Deploy the config builder to see the updated viewer"
 echo -e "\nFiles updated:"
 echo -e "  - bundle.js"
