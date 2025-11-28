@@ -1,3 +1,9 @@
+/**
+ * @deprecated This transformation is no longer needed as empty categories can be safely exported.
+ * Preserved for potential future use. See src/utils/deprecated/exportTransformations/README.md
+ * 
+ * Removes empty categories arrays from the configuration.
+ */
 export const removeEmptyCategories = (config: any, enabled: boolean): any => {
   if (!enabled) return config;
 
@@ -32,6 +38,12 @@ export const removeEmptyCategories = (config: any, enabled: boolean): any => {
   return transformedConfig;
 };
 
+/**
+ * @deprecated This transformation is no longer needed as category values can be safely included/excluded via other means.
+ * Preserved for potential future use. See src/utils/deprecated/exportTransformations/README.md
+ * 
+ * Removes or keeps category values based on the includeCategoryValues flag.
+ */
 export const handleCategoryValues = (config: any, includeCategoryValues: boolean): any => {
   // If includeCategoryValues is true, keep the config as-is (include values)
   if (includeCategoryValues) {

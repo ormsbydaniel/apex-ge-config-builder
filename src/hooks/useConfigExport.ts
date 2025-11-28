@@ -12,13 +12,6 @@ export const useConfigExport = () => {
   const { toast } = useToast();
 
   const exportConfig = useCallback((options: ExportOptions = { 
-    singleItemArrayToObject: false, 
-    configureCogsAsImages: false, 
-    removeEmptyCategories: false, 
-    includeCategoryValues: true,
-    addNormalizeFalseToCogs: false,
-    transformSwipeLayersToData: false,
-    changeFormatToType: false,
     sortToMatchUiOrder: false
   }) => {
     try {
@@ -70,7 +63,7 @@ export const useConfigExport = () => {
         exportData.sources = exportData.sources.map(orderSourceProperties) as any;
       }
 
-      // Apply export transformations
+      // Apply export transformations (currently none, but kept for future use)
       const transformedConfig = applyExportTransformations(exportData, options);
 
       
