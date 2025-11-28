@@ -1,6 +1,12 @@
 
 import { DataSource } from '@/types/config';
 
+/**
+ * @deprecated This transformation is no longer needed as the viewer handles swipe layers via meta.swipeConfig.
+ * Preserved for potential future use. See src/utils/deprecated/exportTransformations/README.md
+ * 
+ * Transforms swipe layers from meta.swipeConfig to data object format.
+ */
 export const transformSwipeLayersToData = (config: any, enabled: boolean): any => {
   if (!enabled) return config;
 

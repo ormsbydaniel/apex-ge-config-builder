@@ -1,6 +1,12 @@
 
 import { DataSource } from '@/types/config';
 
+/**
+ * @deprecated This transformation is no longer needed as the viewer handles both array and object formats.
+ * Preserved for potential future use. See src/utils/deprecated/exportTransformations/README.md
+ * 
+ * Transforms single-item arrays to objects in data and statistics fields.
+ */
 export const transformSingleItemArrays = (config: any, enabled: boolean): any => {
   if (!enabled) return config;
 

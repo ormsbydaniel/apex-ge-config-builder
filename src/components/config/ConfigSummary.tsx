@@ -39,13 +39,6 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
 
   const handleQuickExport = () => {
     exportConfig({ 
-      singleItemArrayToObject: false, 
-      configureCogsAsImages: false, 
-      removeEmptyCategories: false, 
-      includeCategoryValues: true, 
-      addNormalizeFalseToCogs: false,
-      transformSwipeLayersToData: false,
-      changeFormatToType: false,
       sortToMatchUiOrder: false
     });
   };
