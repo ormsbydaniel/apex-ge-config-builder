@@ -69,7 +69,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
       includeCategoryValues: true,
       addNormalizeFalseToCogs: false,
       transformSwipeLayersToData: false,
-      changeFormatToType: false
+      changeFormatToType: false,
+      sortToMatchUiOrder: false
     });
   };
 

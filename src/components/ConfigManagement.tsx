@@ -41,7 +41,8 @@ const ConfigManagement = () => {
       includeCategoryValues: true,
       addNormalizeFalseToCogs: false,
       transformSwipeLayersToData: false,
-      changeFormatToType: false
+      changeFormatToType: false,
+      sortToMatchUiOrder: false
     });
   };
 

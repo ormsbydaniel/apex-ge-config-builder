@@ -58,7 +58,8 @@ const ConfigJson = () => {
     includeCategoryValues: true,
     addNormalizeFalseToCogs: false,
     transformSwipeLayersToData: false,
-    changeFormatToType: false
+    changeFormatToType: false,
+    sortToMatchUiOrder: false
   });
 
   const configJson = JSON.stringify(transformedConfig, null, 2);

@@ -14,6 +14,7 @@ export interface ExportOptions {
   addNormalizeFalseToCogs: boolean;
   transformSwipeLayersToData: boolean;
   changeFormatToType: boolean;
+  sortToMatchUiOrder: boolean;
 }
 
 interface ExportOptionsDialogProps {
@@ -31,7 +32,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
       includeCategoryValues: true,
       addNormalizeFalseToCogs: false,
       transformSwipeLayersToData: false,
-      changeFormatToType: false
+      changeFormatToType: false,
+      sortToMatchUiOrder: false
     }
   });
 
@@ -49,7 +51,8 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
       includeCategoryValues: true,
       addNormalizeFalseToCogs: false,
       transformSwipeLayersToData: false,
-      changeFormatToType: false
+      changeFormatToType: false,
+      sortToMatchUiOrder: false
     });
     onOpenChange(false);
   };
@@ -204,6 +207,26 @@ const ExportOptionsDialog = ({ open, onOpenChange, onExport }: ExportOptionsDial
             </div>
             <p className="text-xs text-muted-foreground ml-6">
               Convert format properties to type properties in data objects for external compatibility
+            </p>
+
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="sortToMatchUiOrder"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox 
+                    id="sortToMatchUiOrder"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <Label htmlFor="sortToMatchUiOrder" className="text-sm">
+                Sort JSON to match UI order
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              Orders sources by interface group, services by type, and arranges properties to match the UI layout
             </p>
           </div>
 

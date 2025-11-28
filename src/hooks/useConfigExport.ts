@@ -5,6 +5,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
 import { applyExportTransformations } from '@/utils/exportTransformations';
 import { ExportOptions } from '@/components/ExportOptionsDialog';
+import { sortSources, sortServices, orderSourceProperties } from '@/utils/configSorting';
 
 export const useConfigExport = () => {
   const { config, dispatch } = useConfig();
@@ -17,7 +18,8 @@ export const useConfigExport = () => {
     includeCategoryValues: true,
     addNormalizeFalseToCogs: false,
     transformSwipeLayersToData: false,
-    changeFormatToType: false
+    changeFormatToType: false,
+    sortToMatchUiOrder: false
   }) => {
     try {
       
@@ -61,7 +63,12 @@ export const useConfigExport = () => {
         })),
       };
 
-      
+      // Apply sorting if requested
+      if (options.sortToMatchUiOrder) {
+        exportData.services = sortServices(exportData.services) as any;
+        exportData.sources = sortSources(exportData.sources, config.interfaceGroups) as any;
+        exportData.sources = exportData.sources.map(orderSourceProperties) as any;
+      }
 
       // Apply export transformations
       const transformedConfig = applyExportTransformations(exportData, options);
