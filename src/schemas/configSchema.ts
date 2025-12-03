@@ -163,7 +163,7 @@ const SwipeConfigSchema = z.object({
 
 // Temporal configuration schema
 const TemporalConfigSchema = z.object({
-  timeframe: z.enum(['None', 'Days', 'Months', 'Years']),
+  timeframe: z.enum(['None', 'Time', 'Days', 'Months', 'Years']),
   defaultTimestamp: z.number().optional(),
 });
 
@@ -297,7 +297,7 @@ const BaseDataSourceObjectSchema = z.object({
   isMirrorLayer: z.boolean().optional(),
   isSpotlightLayer: z.boolean().optional(),
   // Temporal configuration fields
-  timeframe: z.enum(['None', 'Days', 'Months', 'Years']).optional(),
+  timeframe: z.enum(['None', 'Time', 'Days', 'Months', 'Years']).optional(),
   defaultTimestamp: z.number().optional(),
 });
 

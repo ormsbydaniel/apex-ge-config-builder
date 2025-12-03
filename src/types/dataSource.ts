@@ -44,7 +44,7 @@ export interface SwipeConfig {
 }
 
 // Temporal configuration
-export type TimeframeType = 'None' | 'Days' | 'Months' | 'Years';
+export type TimeframeType = 'None' | 'Time' | 'Days' | 'Months' | 'Years';
 
 export interface TemporalConfig {
   timeframe: TimeframeType;

@@ -28,7 +28,16 @@ const TimestampManagementDialog = ({
 
   const handleAddTimestamp = () => {
     if (selectedDate && timeframe !== 'None') {
-      const representativeTimestamp = getRepresentativeTimestamp(selectedDate, timeframe);
+      let dateToAdd = selectedDate;
+      
+      // If timeframe is 'Time', apply the time value
+      if (timeframe === 'Time') {
+        const [hours, minutes] = timeValue.split(':').map(Number);
+        dateToAdd = new Date(selectedDate);
+        dateToAdd.setHours(hours, minutes, 0, 0);
+      }
+      
+      const representativeTimestamp = getRepresentativeTimestamp(dateToAdd, timeframe);
       
       // Check if timestamp already exists
       if (!timestamps.includes(representativeTimestamp)) {
@@ -36,6 +45,9 @@ const TimestampManagementDialog = ({
         onUpdate(newTimestamps);
       }
       setSelectedDate(undefined);
+      if (timeframe === 'Time') {
+        setTimeValue('12:00');
+      }
     }
   };
 
@@ -52,9 +64,18 @@ const TimestampManagementDialog = ({
         return 'MMMM yyyy';
       case 'Days':
         return 'PP';
+      case 'Time':
+        return 'PPpp';
       default:
         return 'PP';
     }
+  };
+
+  // State for time input when timeframe is 'Time'
+  const [timeValue, setTimeValue] = React.useState<string>('12:00');
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTimeValue(e.target.value);
   };
 
   return (
@@ -80,9 +101,9 @@ const TimestampManagementDialog = ({
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {selectedDate ? (
-                        format(selectedDate, getDateDisplayFormat())
+                        format(selectedDate, timeframe === 'Time' ? 'PP' : getDateDisplayFormat())
                       ) : (
-                        <span>Select date</span>
+                        <span>Select date{timeframe === 'Time' ? ' & time' : ''}</span>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -96,6 +117,14 @@ const TimestampManagementDialog = ({
                     />
                   </PopoverContent>
                 </Popover>
+                {timeframe === 'Time' && (
+                  <input
+                    type="time"
+                    value={timeValue}
+                    onChange={handleTimeChange}
+                    className="px-3 py-2 border rounded-md bg-background text-foreground"
+                  />
+                )}
                 <Button 
                   onClick={handleAddTimestamp}
                   disabled={!selectedDate}
