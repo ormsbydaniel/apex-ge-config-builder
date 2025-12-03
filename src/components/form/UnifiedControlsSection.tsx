@@ -108,6 +108,7 @@ const UnifiedControlsSection = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="None">None</SelectItem>
+              <SelectItem value="Time">Time</SelectItem>
               <SelectItem value="Days">Days</SelectItem>
               <SelectItem value="Months">Months</SelectItem>
               <SelectItem value="Years">Years</SelectItem>

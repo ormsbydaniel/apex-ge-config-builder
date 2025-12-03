@@ -14,6 +14,8 @@ export function formatTimestampForTimeframe(timestamp: number, timeframe: Timefr
       return format(date, 'MMMM yyyy');
     case 'Days':
       return format(date, 'PP'); // e.g., "Dec 21, 2024"
+    case 'Time':
+      return format(date, 'PPpp'); // Full date and time
     case 'None':
     default:
       return format(date, 'PPpp'); // Full date and time
@@ -60,6 +62,9 @@ export function getRepresentativeTimestamp(date: Date, timeframe: TimeframeType)
     case 'Days':
       // Beginning of the day
       return dateToTimestamp(new Date(year, month, day));
+    case 'Time':
+      // Exact timestamp - no truncation
+      return dateToTimestamp(date);
     case 'None':
     default:
       return dateToTimestamp(date);
