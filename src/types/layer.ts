@@ -3,6 +3,7 @@
  */
 
 import { Category, Colormap } from './category';
+import { ChartConfig } from './chart';
 import { DataField, SwipeConfig, TimeframeType, ConstraintSourceItem, WorkflowItem, DataSourceItem } from './dataSource';
 
 // Enhanced meta interface
@@ -72,6 +73,7 @@ interface BaseDataSource {
   statistics?: DataSourceItem[]; // Add statistics array
   constraints?: ConstraintSourceItem[]; // Add constraints array
   workflows?: WorkflowItem[]; // Add workflows array
+  charts?: ChartConfig[]; // Add charts array for Plotly chart configurations
   hasFeatureStatistics?: boolean;
   isBaseLayer?: boolean; // Add isBaseLayer as optional to base interface
   exclusivitySets?: string[]; // Array of exclusivity set names this layer belongs to
