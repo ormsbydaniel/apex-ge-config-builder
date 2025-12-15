@@ -85,7 +85,9 @@ export const useValidatedConfig = () => {
       // Include constraints if they exist
       ...(validatedConstraints && { constraints: validatedConstraints }),
       // Include workflows if they exist
-      ...(validatedWorkflows && { workflows: validatedWorkflows })
+      ...(validatedWorkflows && { workflows: validatedWorkflows }),
+      // Include charts if they exist (pass through unchanged)
+      ...(source.charts && { charts: source.charts })
     };
 
     // For base layers (now detected at top level), meta and layout are optional

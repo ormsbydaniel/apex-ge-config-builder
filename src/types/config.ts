@@ -7,6 +7,7 @@
 
 // Re-export all types from modular files
 export * from './category';
+export * from './chart';
 export * from './service';
 export * from './dataSource';
 export * from './layer';
