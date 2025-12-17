@@ -111,30 +111,9 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       
       const data = await response.json();
       
-      // Check if it's a FeatureCollection (ItemCollection) - has type: "FeatureCollection" and features array
-      if (data.type === 'FeatureCollection' && Array.isArray(data.features)) {
-        console.log('Detected STAC ItemCollection/FeatureCollection - skipping to items view');
-        const itemsList = data.features as StacItem[];
-        setItems(itemsList);
-        setNextItemsUrl(extractNextLink(data));
-        setTotalItemCount(data.numberMatched || data.context?.matched || itemsList.length);
-        // Create a synthetic collection for display purposes
-        setSelectedCollection({
-          id: data.id || 'results',
-          title: data.title || serviceName || 'STAC Results',
-          description: data.description,
-          links: data.links,
-        });
-        setCurrentStep('items');
-        setLoading(false);
-        return;
-      }
-      
-      // Check if it's a single Feature (Item) - has type: "Feature" and assets
-      // OR if it has assets directly at root (openEO job results pattern)
-      if ((data.type === 'Feature' && data.assets) || 
-          (data.assets && typeof data.assets === 'object' && !data.type && !data.collections)) {
-        console.log('Detected single STAC Item or openEO result - skipping to assets view');
+      // Special-case: openEO job results often return a STAC-like payload with top-level "assets"
+      // but WITHOUT a STAC "type" field. Treat this as a single item and go straight to assets.
+      if (data?.assets && typeof data.assets === 'object') {
         const assetEntries = Object.entries(data.assets) as [string, StacAsset][];
         setAssets(assetEntries);
         setSelectedItem({
@@ -153,10 +132,47 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         setLoading(false);
         return;
       }
-      
+
+      // Check if it's a FeatureCollection (ItemCollection) - has type: "FeatureCollection" and features array
+      if (data.type === 'FeatureCollection' && Array.isArray(data.features)) {
+        const itemsList = data.features as StacItem[];
+        setItems(itemsList);
+        setNextItemsUrl(extractNextLink(data));
+        setTotalItemCount(data.numberMatched || data.context?.matched || itemsList.length);
+        // Create a synthetic collection for display purposes
+        setSelectedCollection({
+          id: data.id || 'results',
+          title: data.title || serviceName || 'STAC Results',
+          description: data.description,
+          links: data.links,
+        });
+        setCurrentStep('items');
+        setLoading(false);
+        return;
+      }
+
+      // Check if it's a single Feature (Item) - has type: "Feature" (standard STAC)
+      if (data.type === 'Feature') {
+        // If it has assets, show them; otherwise keep existing behavior
+        if (data.assets) {
+          const assetEntries = Object.entries(data.assets) as [string, StacAsset][];
+          setAssets(assetEntries);
+          setSelectedItem(data as StacItem);
+          setSelectedCollection({
+            id: 'item',
+            title: data.properties?.title || data.id || 'STAC Item',
+            description: data.properties?.description,
+            links: data.links,
+          });
+          setCurrentStep('assets');
+          setLoading(false);
+          return;
+        }
+      }
+
       // Otherwise, assume it's a Catalog - fetch collections
       await fetchCollectionsFromCatalog();
-      
+
     } catch (error) {
       console.error('Error detecting STAC resource type:', error);
       // Fall back to trying collections endpoint
@@ -168,7 +184,14 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     try {
       setLoading(true);
       let allCollections: StacCollection[] = [];
-      let currentUrl: string | null = ensureSlash(serviceUrl) + 'collections?limit=100';
+
+      // IMPORTANT: do NOT append a trailing slash to signed URLs with query params.
+      // Build the base URL without query/hash before appending STAC paths.
+      const baseUrl = new URL(serviceUrl);
+      baseUrl.search = '';
+      baseUrl.hash = '';
+
+      let currentUrl: string | null = ensureSlash(baseUrl.toString()) + 'collections?limit=100';
       
       while (currentUrl) {
         const response = await fetch(currentUrl);
@@ -459,11 +482,29 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
 
-  // Initial load - detect STAC resource type and load appropriately
+  // When serviceUrl changes (new service selected), reset browser state and load appropriately
   useEffect(() => {
-    if (currentStep === 'collections' && collections.length === 0 && items.length === 0 && assets.length === 0) {
-      detectAndLoadStacResource();
-    }
+    // Reset state so we don't show previous service's collections/items
+    setCurrentStep('collections');
+    setCollections([]);
+    setSelectedCollection(null);
+    setNextCollectionsUrl(null);
+
+    setItems([]);
+    setSelectedItem(null);
+    setNextItemsUrl(null);
+    setTotalItemCount(null);
+
+    setAssets([]);
+    setSearchTerm('');
+    setServerSearchTerm('');
+    setShowSupportedOnly(false);
+    setExpandedCollections(new Set());
+    setExpandedItems(new Set());
+
+    // Then detect what the URL actually returns (catalog vs itemcollection vs assets)
+    detectAndLoadStacResource();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceUrl]);
 
   // Delay skeleton display to prevent flicker on fast responses
