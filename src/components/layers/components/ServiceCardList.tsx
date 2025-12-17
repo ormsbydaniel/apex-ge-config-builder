@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Database, Server, Globe } from "lucide-react";
 import { Service } from "@/types/config";
 
@@ -110,7 +111,16 @@ export const ServiceCardList = ({
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground truncate">{service.url}</p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-sm text-muted-foreground truncate cursor-default">{service.url}</p>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-md break-all">
+                      <p>{service.url}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <Button
                 type="button"
