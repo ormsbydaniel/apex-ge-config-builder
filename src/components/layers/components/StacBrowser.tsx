@@ -608,7 +608,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground overflow-hidden">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -616,10 +616,10 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                       href={createStacBrowserUrl(serviceUrl, serviceUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                      className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-start gap-1 break-all"
                     >
-                      {serviceUrl}
-                      <ExternalLink className="h-3 w-3" />
+                      <span className="break-all">{serviceUrl}</span>
+                      <ExternalLink className="h-3 w-3 flex-shrink-0 mt-0.5" />
                     </a>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -652,7 +652,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                     : `${items.length} items`}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
                 <TooltipProvider>
                   <Tooltip>
@@ -661,10 +661,10 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                         href={createStacBrowserUrl(selfLink, serviceUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-start gap-1 break-all"
                       >
-                        {selfLink}
-                        <ExternalLink className="h-3 w-3" />
+                        <span className="break-all">{selfLink}</span>
+                        <ExternalLink className="h-3 w-3 flex-shrink-0 mt-0.5" />
                       </a>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -697,7 +697,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                 {totalAssetCount} assets
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
                 <TooltipProvider>
                   <Tooltip>
@@ -706,10 +706,10 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                         href={createStacBrowserUrl(selfLink, serviceUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-start gap-1 break-all"
                       >
-                        {selfLink}
-                        <ExternalLink className="h-3 w-3" />
+                        <span className="break-all">{selfLink}</span>
+                        <ExternalLink className="h-3 w-3 flex-shrink-0 mt-0.5" />
                       </a>
                     </TooltipTrigger>
                     <TooltipContent>
