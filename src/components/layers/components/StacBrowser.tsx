@@ -131,15 +131,22 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       }
       
       // Check if it's a single Feature (Item) - has type: "Feature" and assets
-      if (data.type === 'Feature' && data.assets) {
-        console.log('Detected single STAC Item - skipping to assets view');
+      // OR if it has assets directly at root (openEO job results pattern)
+      if ((data.type === 'Feature' && data.assets) || 
+          (data.assets && typeof data.assets === 'object' && !data.type && !data.collections)) {
+        console.log('Detected single STAC Item or openEO result - skipping to assets view');
         const assetEntries = Object.entries(data.assets) as [string, StacAsset][];
         setAssets(assetEntries);
-        setSelectedItem(data as StacItem);
+        setSelectedItem({
+          id: data.id || 'result',
+          properties: data.properties || { title: serviceName || 'STAC Result' },
+          assets: data.assets,
+          links: data.links,
+        } as StacItem);
         setSelectedCollection({
           id: 'item',
-          title: data.properties?.title || data.id || 'STAC Item',
-          description: data.properties?.description,
+          title: data.properties?.title || data.id || serviceName || 'STAC Result',
+          description: data.properties?.description || data.description,
           links: data.links,
         });
         setCurrentStep('assets');
