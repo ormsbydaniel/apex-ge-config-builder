@@ -55,8 +55,11 @@ interface StacBrowserProps {
 
 type BrowserStep = 'collections' | 'items' | 'assets';
 
+type DetectedMode = 'catalog' | 'itemCollection' | 'openEO-assets' | 'stac-item' | null;
+
 const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
+  const [detectedMode, setDetectedMode] = useState<DetectedMode>(null);
   const [loading, setLoading] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -113,7 +116,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       
       // Special-case: openEO job results often return a STAC-like payload with top-level "assets"
       // but WITHOUT a STAC "type" field. Treat this as a single item and go straight to assets.
-      if (data?.assets && typeof data.assets === 'object') {
+      if (data?.assets && typeof data.assets === 'object' && data.type !== 'Feature' && data.type !== 'FeatureCollection') {
+        setDetectedMode('openEO-assets');
         const assetEntries = Object.entries(data.assets) as [string, StacAsset][];
         setAssets(assetEntries);
         setSelectedItem({
@@ -135,6 +139,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
       // Check if it's a FeatureCollection (ItemCollection) - has type: "FeatureCollection" and features array
       if (data.type === 'FeatureCollection' && Array.isArray(data.features)) {
+        setDetectedMode('itemCollection');
         const itemsList = data.features as StacItem[];
         setItems(itemsList);
         setNextItemsUrl(extractNextLink(data));
@@ -155,6 +160,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       if (data.type === 'Feature') {
         // If it has assets, show them; otherwise keep existing behavior
         if (data.assets) {
+          setDetectedMode('stac-item');
           const assetEntries = Object.entries(data.assets) as [string, StacAsset][];
           setAssets(assetEntries);
           setSelectedItem(data as StacItem);
@@ -171,11 +177,13 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       }
 
       // Otherwise, assume it's a Catalog - fetch collections
+      setDetectedMode('catalog');
       await fetchCollectionsFromCatalog();
 
     } catch (error) {
       console.error('Error detecting STAC resource type:', error);
       // Fall back to trying collections endpoint
+      setDetectedMode('catalog');
       await fetchCollectionsFromCatalog();
     }
   };
@@ -485,6 +493,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   // When serviceUrl changes (new service selected), reset browser state and load appropriately
   useEffect(() => {
     // Reset state so we don't show previous service's collections/items
+    setDetectedMode(null);
     setCurrentStep('collections');
     setCollections([]);
     setSelectedCollection(null);
@@ -725,6 +734,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
   return (
     <div className="flex flex-col gap-4 flex-1 min-h-0">
+      {/* Detection mode indicator */}
+      {detectedMode && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>Detected:</span>
+          <Badge variant="outline" className="text-xs px-1.5 py-0">
+            {detectedMode === 'catalog' && 'STAC Catalog'}
+            {detectedMode === 'itemCollection' && 'ItemCollection'}
+            {detectedMode === 'openEO-assets' && 'openEO Assets'}
+            {detectedMode === 'stac-item' && 'STAC Item'}
+          </Badge>
+        </div>
+      )}
+
       {/* Info Card */}
       {renderInfoCard()}
 
