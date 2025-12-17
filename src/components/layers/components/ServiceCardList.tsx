@@ -94,8 +94,8 @@ export const ServiceCardList = ({
       {sortedServices.map((service) => (
         <Card key={service.id} className={`border-l-4 ${getBorderColor(service)}`}>
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
                   {getServiceIcon(service)}
                   <h3 className={`font-medium ${getTextColor(service)}`}>
