@@ -2,8 +2,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Database, Server, Globe } from "lucide-react";
+import { Database, Server, Globe, Copy } from "lucide-react";
 import { Service } from "@/types/config";
+import { toast } from "sonner";
 
 interface ServiceCardListProps {
   services: Service[];
@@ -111,16 +112,40 @@ export const ServiceCardList = ({
                     </Badge>
                   )}
                 </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <p className="text-sm text-muted-foreground truncate cursor-default">{service.url}</p>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-md break-all">
-                      <p>{service.url}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <div className="flex items-center gap-1">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <p className="text-sm text-muted-foreground truncate cursor-default">{service.url}</p>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-md break-all">
+                        <p>{service.url}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 flex-shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(service.url);
+                            toast.success("URL copied to clipboard");
+                          }}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copy URL</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               </div>
               <Button
                 type="button"
