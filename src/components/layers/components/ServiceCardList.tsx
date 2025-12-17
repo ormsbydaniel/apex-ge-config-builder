@@ -92,7 +92,7 @@ export const ServiceCardList = ({
   return (
     <div className="grid gap-4">
       {sortedServices.map((service) => (
-        <Card key={service.id} className={`border-l-4 ${getBorderColor(service)}`}>
+        <Card key={service.id} className={`border-l-4 overflow-hidden ${getBorderColor(service)}`}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between gap-4">
               <div className="flex-1 min-w-0">
