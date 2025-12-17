@@ -6,6 +6,12 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2025-12-17",
+    title:
+      "STAC services now support collection level entry point, rather than assuming a catalogue",
+    category: "Feature",
+  },
+  {
     date: "2025-12-15",
     title:
       "Added 'Time' option to timeframe definition for sub-day temporal granularity with date and time picker support",
