@@ -159,7 +159,11 @@ export const useServices = (services: Service[], onAddService: (service: Service
       }
 
       // Otherwise assume a STAC Catalog and fetch collections
-      const collectionsUrl = ensureSlash(url) + 'collections?limit=100';
+      // IMPORTANT: do NOT append a trailing slash to signed URLs with query params.
+      const baseUrl = new URL(url);
+      baseUrl.search = '';
+      baseUrl.hash = '';
+      const collectionsUrl = ensureSlash(baseUrl.toString()) + 'collections?limit=100';
       const collRes = await fetch(collectionsUrl);
 
       const catalogue = rootJson;
