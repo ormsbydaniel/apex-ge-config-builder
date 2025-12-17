@@ -100,7 +100,64 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     });
   };
 
-  const fetchAllCollections = async () => {
+  // Detect STAC resource type and route appropriately
+  const detectAndLoadStacResource = async () => {
+    try {
+      setLoading(true);
+      
+      // First, fetch the root URL to detect the resource type
+      const response = await fetch(serviceUrl);
+      if (!response.ok) throw new Error('Failed to fetch STAC resource');
+      
+      const data = await response.json();
+      
+      // Check if it's a FeatureCollection (ItemCollection) - has type: "FeatureCollection" and features array
+      if (data.type === 'FeatureCollection' && Array.isArray(data.features)) {
+        console.log('Detected STAC ItemCollection/FeatureCollection - skipping to items view');
+        const itemsList = data.features as StacItem[];
+        setItems(itemsList);
+        setNextItemsUrl(extractNextLink(data));
+        setTotalItemCount(data.numberMatched || data.context?.matched || itemsList.length);
+        // Create a synthetic collection for display purposes
+        setSelectedCollection({
+          id: data.id || 'results',
+          title: data.title || serviceName || 'STAC Results',
+          description: data.description,
+          links: data.links,
+        });
+        setCurrentStep('items');
+        setLoading(false);
+        return;
+      }
+      
+      // Check if it's a single Feature (Item) - has type: "Feature" and assets
+      if (data.type === 'Feature' && data.assets) {
+        console.log('Detected single STAC Item - skipping to assets view');
+        const assetEntries = Object.entries(data.assets) as [string, StacAsset][];
+        setAssets(assetEntries);
+        setSelectedItem(data as StacItem);
+        setSelectedCollection({
+          id: 'item',
+          title: data.properties?.title || data.id || 'STAC Item',
+          description: data.properties?.description,
+          links: data.links,
+        });
+        setCurrentStep('assets');
+        setLoading(false);
+        return;
+      }
+      
+      // Otherwise, assume it's a Catalog - fetch collections
+      await fetchCollectionsFromCatalog();
+      
+    } catch (error) {
+      console.error('Error detecting STAC resource type:', error);
+      // Fall back to trying collections endpoint
+      await fetchCollectionsFromCatalog();
+    }
+  };
+
+  const fetchCollectionsFromCatalog = async () => {
     try {
       setLoading(true);
       let allCollections: StacCollection[] = [];
@@ -395,10 +452,10 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
 
-  // Initial load - fetch all collections
+  // Initial load - detect STAC resource type and load appropriately
   useEffect(() => {
-    if (currentStep === 'collections' && collections.length === 0) {
-      fetchAllCollections();
+    if (currentStep === 'collections' && collections.length === 0 && items.length === 0 && assets.length === 0) {
+      detectAndLoadStacResource();
     }
   }, [serviceUrl]);
 
