@@ -82,6 +82,8 @@ const ChartLayoutSchema = z.object({
   showlegend: z.boolean().optional(),
   legend: ChartLegendSchema.optional(),
   barmode: z.enum(['group', 'stack', 'overlay', 'relative']).optional(),
+  xaxis: ChartAxisSchema.optional(),
+  yaxis: ChartAxisSchema.optional(),
 }).passthrough();
 
 // Pie chart schema
@@ -99,8 +101,6 @@ const ChartConfigSchema = z.object({
   title: z.string().optional(),
   subtitle: z.string().optional(),
   x: z.string().optional(),  // Optional to support pie charts
-  xaxis: ChartAxisSchema.optional(),
-  yaxis: ChartAxisSchema.optional(),
   traces: z.array(ChartTraceSchema).optional(),  // Optional for pie charts
   layout: ChartLayoutSchema.optional(),
   pie: ChartPieSchema.optional(),

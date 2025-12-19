@@ -99,6 +99,8 @@ export interface ChartLayout {
   showlegend?: boolean;
   legend?: ChartLegend;
   barmode?: 'group' | 'stack' | 'overlay' | 'relative';
+  xaxis?: ChartAxis;
+  yaxis?: ChartAxis;
   [key: string]: unknown;
 }
 
@@ -118,8 +120,6 @@ export interface ChartConfig {
   title?: string;
   subtitle?: string;
   x?: string;  // Optional to support pie charts which don't use x-axis
-  xaxis?: ChartAxis;
-  yaxis?: ChartAxis;
   traces?: ChartTrace[];  // Optional for pie charts
   layout?: ChartLayout;
   pie?: ChartPie;
