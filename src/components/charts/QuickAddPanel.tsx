@@ -3,12 +3,13 @@ import { ChartConfig, ChartTrace } from '@/types/chart';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ChevronRight, GripVertical } from 'lucide-react';
+import { ChevronRight, GripVertical, Calendar } from 'lucide-react';
 import { getNextColor, getContrastColor } from '@/utils/colorPalettes';
 
 interface QuickAddPanelProps {
   config: ChartConfig;
   columns: string[];
+  dateColumns?: string[];
   selectedTraceIndex: number | null;
   onConfigChange: (config: ChartConfig) => void;
   onSelectTrace: (index: number | null) => void;
@@ -17,6 +18,7 @@ interface QuickAddPanelProps {
 export function QuickAddPanel({
   config,
   columns,
+  dateColumns = [],
   selectedTraceIndex,
   onConfigChange,
   onSelectTrace,
@@ -28,9 +30,22 @@ export function QuickAddPanel({
   const usedColumns = new Set([config.x, ...traces.map(t => t.y)].filter(Boolean));
   const filteredColumns = columns.filter(col => col !== '');
   const availableColumns = filteredColumns.filter(col => !usedColumns.has(col));
+  const dateColumnSet = new Set(dateColumns);
 
   const handleXAxisSelect = (column: string) => {
-    onConfigChange({ ...config, x: column });
+    const isDateColumn = dateColumnSet.has(column);
+    const newConfig: ChartConfig = {
+      ...config,
+      x: column,
+      layout: {
+        ...config.layout,
+        xaxis: {
+          ...config.layout?.xaxis,
+          type: isDateColumn ? 'date' as const : '-' as const,
+        },
+      },
+    };
+    onConfigChange(newConfig);
     setIsXAxisExpanded(false);
   };
 
@@ -100,6 +115,7 @@ export function QuickAddPanel({
                 className="cursor-pointer hover:bg-primary/80"
                 onClick={() => handleXAxisSelect(col)}
               >
+                {dateColumnSet.has(col) && <Calendar className="h-3 w-3 mr-1" />}
                 {col}
               </Badge>
             ))}
