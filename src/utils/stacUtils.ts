@@ -94,11 +94,13 @@ export const detectAssetFormat = (asset: StacAsset): DataSourceFormat | string =
   if (type.includes('tiff') || type.includes('geotiff')) return 'cog';
   if (type.includes('json')) return 'geojson';
   if (type.includes('flatgeobuf')) return 'flatgeobuf';
+  if (type === 'text/csv' || type.includes('csv')) return 'csv';
   
   // Check by file extension
   if (href.includes('.tif') || href.includes('.tiff')) return 'cog';
   if (href.includes('.json') || href.includes('.geojson')) return 'geojson';
   if (href.includes('.fgb')) return 'flatgeobuf';
+  if (href.includes('.csv')) return 'csv';
   
   // Return actual MIME type or format for unknown types
   if (asset.type) {

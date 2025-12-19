@@ -24,8 +24,8 @@ import {
 } from '@/utils/stacUtils';
 import { rankCollection, filterAndRankCollections } from '@/utils/stacSearchUtils';
 
-// Supported formats for direct connection
-const SUPPORTED_FORMATS: DataSourceFormat[] = ['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf'];
+// Supported formats for direct connection (includes csv for chart data)
+const SUPPORTED_FORMATS: (DataSourceFormat | string)[] = ['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 'csv'];
 
 // Use imported type with local interface extension for items
 interface StacCollection extends StacCollectionType {}
@@ -389,7 +389,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       } else {
         toast({
           title: "No Supported Formats",
-          description: "No supported asset formats found in the selected items. Only COG, GeoJSON, FlatGeobuf, WMS, WMTS, XYZ, and WFS are supported.",
+          description: "No supported asset formats found in the selected items. Only COG, GeoJSON, FlatGeobuf, WMS, WMTS, XYZ, WFS, and CSV are supported.",
           variant: "destructive"
         });
       }
