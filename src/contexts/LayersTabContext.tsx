@@ -48,6 +48,8 @@ export interface LayersTabContextValue {
   onAddChart: (layerIndex: number, chart: ChartConfig) => void;
   onRemoveChart: (layerIndex: number, chartIndex: number) => void;
   onUpdateChart: (layerIndex: number, chartIndex: number, chart: ChartConfig) => void;
+  onStartChartForm?: (layerIndex: number) => void;
+  onEditChartSource?: (layerIndex: number, chartIndex: number) => void;
 }
 
 const LayersTabContext = createContext<LayersTabContextValue | null>(null);

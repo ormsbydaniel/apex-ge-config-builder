@@ -56,6 +56,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     isAddingStatistics,
     showConstraintForm,
     isAddingConstraint,
+    showChartForm,
     expandedLayerAfterDataSource,
     expandedLayerAfterCreation,
     expandedLayerAfterEdit,
@@ -67,6 +68,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     clearCanceledLayerIndex,
     handleStartDataSourceFormWithExpansion,
     handleStartConstraintFormWithExpansion,
+    handleStartChartFormWithExpansion,
     ...restLogic
   } = composedLogic;
 
@@ -203,6 +205,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     isAddingStatistics,
     showConstraintForm,
     isAddingConstraint,
+    showChartForm,
     expandedLayerAfterCreation,
     expandedLayerAfterEdit,
     expandedGroupAfterAction,
@@ -210,6 +213,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     onToggleLayer,
     handleStartDataSourceFormWithExpansion,
     handleStartConstraintFormWithExpansion,
+    handleStartChartFormWithExpansion,
     clearExpandedLayerAfterCreation,
     clearExpandedLayerAfterEdit,
     clearExpandedGroup,
@@ -222,5 +226,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     editingConstraintLayerIndex: composedLogic.editingConstraintLayerIndex,
     editingDataSourceIndex: composedLogic.editingDataSourceIndex,
     editingDataSourceLayerIndex: composedLogic.editingDataSourceLayerIndex,
+    editingChartIndex: composedLogic.editingChartIndex,
+    editingChartLayerIndex: composedLogic.editingChartLayerIndex,
   };
 };

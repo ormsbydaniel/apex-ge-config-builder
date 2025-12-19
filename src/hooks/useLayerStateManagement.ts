@@ -20,6 +20,9 @@ interface DataSourceFormState {
   editingConstraintLayerIndex: number | null; // Track which layer's constraint is being edited
   editingDataSourceIndex: number | null; // Track which data source is being edited
   editingDataSourceLayerIndex: number | null; // Track which layer's data source is being edited
+  showChartForm: boolean; // Track if adding/editing chart
+  editingChartIndex: number | null; // Track which chart is being edited
+  editingChartLayerIndex: number | null; // Track which layer's chart is being edited
 }
 
 interface LayerStateManagementState {
@@ -51,7 +54,11 @@ type LayerStateAction =
   | { type: 'START_EDIT_CONSTRAINT'; layerIndex: number; constraintIndex: number }
   | { type: 'CLEAR_EDIT_CONSTRAINT' }
   | { type: 'START_EDIT_DATA_SOURCE'; layerIndex: number; dataSourceIndex: number }
-  | { type: 'CLEAR_EDIT_DATA_SOURCE' };
+  | { type: 'CLEAR_EDIT_DATA_SOURCE' }
+  | { type: 'START_CHART_FORM'; layerIndex: number }
+  | { type: 'CANCEL_CHART_FORM'; selectedLayerIndex: number | null }
+  | { type: 'COMPLETE_CHART_FORM' }
+  | { type: 'START_EDIT_CHART'; layerIndex: number; chartIndex: number };
 
 // Initial state
 const initialState: LayerStateManagementState = {
@@ -73,6 +80,9 @@ const initialState: LayerStateManagementState = {
     editingConstraintLayerIndex: null,
     editingDataSourceIndex: null,
     editingDataSourceLayerIndex: null,
+    showChartForm: false,
+    editingChartIndex: null,
+    editingChartLayerIndex: null,
   },
 };
 
@@ -246,6 +256,9 @@ function layerStateReducer(
           editingConstraintLayerIndex: null,
           editingDataSourceIndex: null,
           editingDataSourceLayerIndex: null,
+          showChartForm: false,
+          editingChartIndex: null,
+          editingChartLayerIndex: null,
         },
       };
 
@@ -342,6 +355,55 @@ function layerStateReducer(
           ...state.dataSourceForm,
           editingDataSourceIndex: null,
           editingDataSourceLayerIndex: null,
+        },
+      };
+
+    case 'START_CHART_FORM':
+      return {
+        ...state,
+        dataSourceForm: {
+          ...state.dataSourceForm,
+          selectedLayerIndex: action.layerIndex,
+          showChartForm: true,
+          editingChartIndex: null,
+          editingChartLayerIndex: null,
+        },
+      };
+
+    case 'CANCEL_CHART_FORM':
+      return {
+        ...state,
+        dataSourceForm: {
+          ...state.dataSourceForm,
+          canceledLayerIndex: action.selectedLayerIndex,
+          showChartForm: false,
+          selectedLayerIndex: null,
+          editingChartIndex: null,
+          editingChartLayerIndex: null,
+        },
+      };
+
+    case 'COMPLETE_CHART_FORM':
+      return {
+        ...state,
+        dataSourceForm: {
+          ...state.dataSourceForm,
+          showChartForm: false,
+          selectedLayerIndex: null,
+          editingChartIndex: null,
+          editingChartLayerIndex: null,
+        },
+      };
+
+    case 'START_EDIT_CHART':
+      return {
+        ...state,
+        dataSourceForm: {
+          ...state.dataSourceForm,
+          selectedLayerIndex: action.layerIndex,
+          showChartForm: true,
+          editingChartIndex: action.chartIndex,
+          editingChartLayerIndex: action.layerIndex,
         },
       };
 
@@ -493,6 +555,32 @@ export const useLayerStateManagement = () => {
     dispatch({ type: 'CLEAR_EDIT_DATA_SOURCE' });
   }, []);
 
+  // Chart form actions
+  const handleStartChartForm = useCallback((layerIndex: number, layerCardId?: string) => {
+    dispatch({ type: 'START_CHART_FORM', layerIndex });
+    if (layerCardId) {
+      dispatch({ type: 'SET_EXPANDED_AFTER_DATA_SOURCE', cardId: layerCardId });
+    }
+  }, []);
+
+  const handleCancelChart = useCallback(() => {
+    dispatch({ 
+      type: 'CANCEL_CHART_FORM', 
+      selectedLayerIndex: state.dataSourceForm.selectedLayerIndex 
+    });
+  }, [state.dataSourceForm.selectedLayerIndex]);
+
+  const handleChartComplete = useCallback(() => {
+    dispatch({ type: 'COMPLETE_CHART_FORM' });
+  }, []);
+
+  const handleStartEditChart = useCallback((layerIndex: number, chartIndex: number, layerCardId?: string) => {
+    dispatch({ type: 'START_EDIT_CHART', layerIndex, chartIndex });
+    if (layerCardId) {
+      dispatch({ type: 'SET_EXPANDED_AFTER_DATA_SOURCE', cardId: layerCardId });
+    }
+  }, []);
+
   return {
     // Card expansion state and actions
     expandedCards: state.expansion.expandedCards,
@@ -556,5 +644,16 @@ export const useLayerStateManagement = () => {
     // Data source editing actions
     handleStartEditDataSource,
     clearEditDataSource,
+
+    // Chart form state
+    showChartForm: state.dataSourceForm.showChartForm,
+    editingChartIndex: state.dataSourceForm.editingChartIndex,
+    editingChartLayerIndex: state.dataSourceForm.editingChartLayerIndex,
+
+    // Chart form actions
+    handleStartChartForm,
+    handleCancelChart,
+    handleChartComplete,
+    handleStartEditChart,
   };
 };

@@ -128,12 +128,13 @@ const LayersTabCore = ({
   };
 
   // Show form if we're in form mode
-  if (showLayerForm || (layersLogic && layersLogic.showDataSourceForm) || (layersLogic && layersLogic.showConstraintForm)) {
+  if (showLayerForm || (layersLogic && layersLogic.showDataSourceForm) || (layersLogic && layersLogic.showConstraintForm) || (layersLogic && layersLogic.showChartForm)) {
     return (
       <LayerFormHandler
         showLayerForm={showLayerForm}
         showDataSourceForm={layersLogic?.showDataSourceForm || false}
         showConstraintForm={layersLogic?.showConstraintForm || false}
+        showChartForm={layersLogic?.showChartForm || false}
         selectedLayerType={selectedLayerType}
         selectedLayerIndex={layersLogic?.selectedLayerIndex ?? null}
         interfaceGroups={config.interfaceGroups}
@@ -147,6 +148,8 @@ const LayersTabCore = ({
         editingConstraintLayerIndex={layersLogic?.editingConstraintLayerIndex ?? null}
         editingDataSourceIndex={layersLogic?.editingDataSourceIndex ?? null}
         editingDataSourceLayerIndex={layersLogic?.editingDataSourceLayerIndex ?? null}
+        editingChartIndex={layersLogic?.editingChartIndex ?? null}
+        editingChartLayerIndex={layersLogic?.editingChartLayerIndex ?? null}
         onSelectType={handleLayerTypeSelect}
         onLayerSaved={handleLayerSaved}
         onLayerFormCancel={handleLayerFormCancel}
@@ -155,8 +158,11 @@ const LayersTabCore = ({
         onConstraintSourceAdded={layersLogic?.handleConstraintSourceAdded || (() => {})}
         onUpdateConstraintSource={layersLogic?.handleUpdateConstraintSource || (() => {})}
         onUpdateDataSource={layersLogic?.handleUpdateDataSource || (() => {})}
+        onChartAdded={layersLogic?.handleChartAdded || (() => {})}
+        onUpdateChart={layersLogic?.handleUpdateChart || (() => {})}
         onDataSourceCancel={layersLogic?.handleCancelDataSource || (() => {})}
         onConstraintFormCancel={layersLogic?.handleCancelConstraint || (() => {})}
+        onChartFormCancel={layersLogic?.handleCancelChart || (() => {})}
         onAddService={addService}
       />
     );
