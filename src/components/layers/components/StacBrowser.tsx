@@ -55,8 +55,11 @@ interface StacBrowserProps {
 
 type BrowserStep = 'collections' | 'items' | 'assets';
 
+type DetectedMode = 'catalog' | 'itemCollection' | 'openEO-assets' | 'stac-item' | null;
+
 const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
+  const [detectedMode, setDetectedMode] = useState<DetectedMode>(null);
   const [loading, setLoading] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -100,11 +103,103 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     });
   };
 
-  const fetchAllCollections = async () => {
+  // Detect STAC resource type and route appropriately
+  const detectAndLoadStacResource = async () => {
+    try {
+      setLoading(true);
+      
+      // First, fetch the root URL to detect the resource type
+      const response = await fetch(serviceUrl);
+      if (!response.ok) throw new Error('Failed to fetch STAC resource');
+      
+      const data = await response.json();
+      
+      // Special-case: openEO job results often return a STAC-like payload with top-level "assets"
+      // but WITHOUT a STAC "type" field. Treat this as a single item and go straight to assets.
+      if (data?.assets && typeof data.assets === 'object' && data.type !== 'Feature' && data.type !== 'FeatureCollection') {
+        setDetectedMode('openEO-assets');
+        const assetEntries = Object.entries(data.assets) as [string, StacAsset][];
+        setAssets(assetEntries);
+        setSelectedItem({
+          id: data.id || 'result',
+          properties: data.properties || { title: serviceName || 'STAC Result' },
+          assets: data.assets,
+          links: data.links,
+        } as StacItem);
+        setSelectedCollection({
+          id: 'item',
+          title: data.properties?.title || data.id || serviceName || 'STAC Result',
+          description: data.properties?.description || data.description,
+          links: data.links,
+        });
+        setCurrentStep('assets');
+        setLoading(false);
+        return;
+      }
+
+      // Check if it's a FeatureCollection (ItemCollection) - has type: "FeatureCollection" and features array
+      if (data.type === 'FeatureCollection' && Array.isArray(data.features)) {
+        setDetectedMode('itemCollection');
+        const itemsList = data.features as StacItem[];
+        setItems(itemsList);
+        setNextItemsUrl(extractNextLink(data));
+        setTotalItemCount(data.numberMatched || data.context?.matched || itemsList.length);
+        // Create a synthetic collection for display purposes
+        setSelectedCollection({
+          id: data.id || 'results',
+          title: data.title || serviceName || 'STAC Results',
+          description: data.description,
+          links: data.links,
+        });
+        setCurrentStep('items');
+        setLoading(false);
+        return;
+      }
+
+      // Check if it's a single Feature (Item) - has type: "Feature" (standard STAC)
+      if (data.type === 'Feature') {
+        // If it has assets, show them; otherwise keep existing behavior
+        if (data.assets) {
+          setDetectedMode('stac-item');
+          const assetEntries = Object.entries(data.assets) as [string, StacAsset][];
+          setAssets(assetEntries);
+          setSelectedItem(data as StacItem);
+          setSelectedCollection({
+            id: 'item',
+            title: data.properties?.title || data.id || 'STAC Item',
+            description: data.properties?.description,
+            links: data.links,
+          });
+          setCurrentStep('assets');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Otherwise, assume it's a Catalog - fetch collections
+      setDetectedMode('catalog');
+      await fetchCollectionsFromCatalog();
+
+    } catch (error) {
+      console.error('Error detecting STAC resource type:', error);
+      // Fall back to trying collections endpoint
+      setDetectedMode('catalog');
+      await fetchCollectionsFromCatalog();
+    }
+  };
+
+  const fetchCollectionsFromCatalog = async () => {
     try {
       setLoading(true);
       let allCollections: StacCollection[] = [];
-      let currentUrl: string | null = ensureSlash(serviceUrl) + 'collections?limit=100';
+
+      // IMPORTANT: do NOT append a trailing slash to signed URLs with query params.
+      // Build the base URL without query/hash before appending STAC paths.
+      const baseUrl = new URL(serviceUrl);
+      baseUrl.search = '';
+      baseUrl.hash = '';
+
+      let currentUrl: string | null = ensureSlash(baseUrl.toString()) + 'collections?limit=100';
       
       while (currentUrl) {
         const response = await fetch(currentUrl);
@@ -395,11 +490,30 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
 
-  // Initial load - fetch all collections
+  // When serviceUrl changes (new service selected), reset browser state and load appropriately
   useEffect(() => {
-    if (currentStep === 'collections' && collections.length === 0) {
-      fetchAllCollections();
-    }
+    // Reset state so we don't show previous service's collections/items
+    setDetectedMode(null);
+    setCurrentStep('collections');
+    setCollections([]);
+    setSelectedCollection(null);
+    setNextCollectionsUrl(null);
+
+    setItems([]);
+    setSelectedItem(null);
+    setNextItemsUrl(null);
+    setTotalItemCount(null);
+
+    setAssets([]);
+    setSearchTerm('');
+    setServerSearchTerm('');
+    setShowSupportedOnly(false);
+    setExpandedCollections(new Set());
+    setExpandedItems(new Set());
+
+    // Then detect what the URL actually returns (catalog vs itemcollection vs assets)
+    detectAndLoadStacResource();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceUrl]);
 
   // Delay skeleton display to prevent flicker on fast responses
@@ -494,7 +608,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground overflow-hidden">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -502,10 +616,10 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                       href={createStacBrowserUrl(serviceUrl, serviceUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                      className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-start gap-1 break-all"
                     >
-                      {serviceUrl}
-                      <ExternalLink className="h-3 w-3" />
+                      <span className="break-all">{serviceUrl}</span>
+                      <ExternalLink className="h-3 w-3 flex-shrink-0 mt-0.5" />
                     </a>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -538,7 +652,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                     : `${items.length} items`}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
                 <TooltipProvider>
                   <Tooltip>
@@ -547,10 +661,10 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                         href={createStacBrowserUrl(selfLink, serviceUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-start gap-1 break-all"
                       >
-                        {selfLink}
-                        <ExternalLink className="h-3 w-3" />
+                        <span className="break-all">{selfLink}</span>
+                        <ExternalLink className="h-3 w-3 flex-shrink-0 mt-0.5" />
                       </a>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -583,7 +697,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                 {totalAssetCount} assets
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
                 <TooltipProvider>
                   <Tooltip>
@@ -592,10 +706,10 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                         href={createStacBrowserUrl(selfLink, serviceUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                        className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-start gap-1 break-all"
                       >
-                        {selfLink}
-                        <ExternalLink className="h-3 w-3" />
+                        <span className="break-all">{selfLink}</span>
+                        <ExternalLink className="h-3 w-3 flex-shrink-0 mt-0.5" />
                       </a>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -620,6 +734,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
   return (
     <div className="flex flex-col gap-4 flex-1 min-h-0">
+      {/* Detection mode indicator */}
+      {detectedMode && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>Detected:</span>
+          <Badge variant="outline" className="text-xs px-1.5 py-0">
+            {detectedMode === 'catalog' && 'STAC Catalog'}
+            {detectedMode === 'itemCollection' && 'ItemCollection'}
+            {detectedMode === 'openEO-assets' && 'openEO Assets'}
+            {detectedMode === 'stac-item' && 'STAC Item'}
+          </Badge>
+        </div>
+      )}
+
       {/* Info Card */}
       {renderInfoCard()}
 

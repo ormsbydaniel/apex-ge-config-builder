@@ -7,6 +7,108 @@ export const CategorySchema = z.object({
   value: z.number().optional(), // Add optional value field
 });
 
+// ============= Chart Schemas =============
+
+// Chart source schema
+const ChartSourceSchema = z.object({
+  type: z.enum(['externalURL', 'lookupURL']).optional(),  // Optional for flexibility
+  url: z.string().optional(),
+  field: z.string().optional(),
+  format: z.enum(['csv', 'json']).optional(),
+  label: z.string().optional(),
+}).passthrough();
+
+// Chart trace line schema
+const TraceLineSchema = z.object({
+  color: z.string().optional(),
+  width: z.number().optional(),
+  dash: z.string().optional(),
+  shape: z.string().optional(),
+}).passthrough();
+
+// Chart trace marker schema
+const TraceMarkerSchema = z.object({
+  size: z.number().optional(),
+  color: z.string().optional(),
+  symbol: z.string().optional(),
+}).passthrough();
+
+// Chart trace schema
+const ChartTraceSchema = z.object({
+  y: z.string(),
+  name: z.string().optional(),
+  type: z.enum(['scatter', 'bar', 'histogram', 'pie']).optional(),
+  mode: z.enum(['lines', 'markers', 'lines+markers']).optional(),
+  fill: z.enum(['none', 'tozeroy', 'tonexty']).optional(),
+  fillcolor: z.string().optional(),
+  line: TraceLineSchema.optional(),
+  marker: TraceMarkerSchema.optional(),
+  showlegend: z.boolean().optional(),
+}).passthrough();
+
+// Chart font schema
+const ChartFontSchema = z.object({
+  size: z.number().optional(),
+  color: z.string().optional(),
+  family: z.string().optional(),
+}).passthrough();
+
+// Chart axis schema
+const ChartAxisSchema = z.object({
+  title: z.string().optional(),
+  titleFont: ChartFontSchema.optional(),
+  tickfont: ChartFontSchema.optional(),
+  tickformat: z.string().optional(),
+  ticksuffix: z.string().optional(),
+  tickprefix: z.string().optional(),
+  type: z.enum(['date', 'linear', 'category', '-']).optional(),
+  tickangle: z.number().optional(),
+  showgrid: z.boolean().optional(),
+  range: z.array(z.any()).length(2).optional(),
+}).passthrough();
+
+// Chart legend schema
+const ChartLegendSchema = z.object({
+  x: z.number().optional(),
+  y: z.number().optional(),
+  xanchor: z.string().optional(),
+  yanchor: z.string().optional(),
+  orientation: z.enum(['h', 'v']).optional(),
+}).passthrough();
+
+// Chart layout schema
+const ChartLayoutSchema = z.object({
+  height: z.number().optional(),
+  showlegend: z.boolean().optional(),
+  legend: ChartLegendSchema.optional(),
+  barmode: z.enum(['group', 'stack', 'overlay', 'relative']).optional(),
+}).passthrough();
+
+// Pie chart schema
+const ChartPieSchema = z.object({
+  labels: z.string().optional(),  // Optional for flexibility
+  values: z.string().optional(),  // Optional for flexibility
+  hole: z.number().optional(),
+  textinfo: z.string().optional(),
+  colors: z.array(z.string()).optional(),
+}).passthrough();
+
+// Main chart config schema
+const ChartConfigSchema = z.object({
+  chartType: z.enum(['xy', 'pie']).optional(),
+  title: z.string().optional(),
+  subtitle: z.string().optional(),
+  x: z.string().optional(),  // Optional to support pie charts
+  xaxis: ChartAxisSchema.optional(),
+  yaxis: ChartAxisSchema.optional(),
+  traces: z.array(ChartTraceSchema).optional(),  // Optional for pie charts
+  layout: ChartLayoutSchema.optional(),
+  pie: ChartPieSchema.optional(),
+  sources: z.array(ChartSourceSchema).optional(),
+}).passthrough();
+
+// ============= End Chart Schemas =============
+
 export const ServiceCapabilitiesSchema = z.object({
   layers: z.array(z.object({
     name: z.string(),
@@ -163,7 +265,7 @@ const SwipeConfigSchema = z.object({
 
 // Temporal configuration schema
 const TemporalConfigSchema = z.object({
-  timeframe: z.enum(['None', 'Days', 'Months', 'Years']),
+  timeframe: z.enum(['None', 'Time', 'Days', 'Months', 'Years']),
   defaultTimestamp: z.number().optional(),
 });
 
@@ -289,6 +391,7 @@ const BaseDataSourceObjectSchema = z.object({
   statistics: StatisticsFieldSchema.optional(), // Add optional statistics array
   constraints: z.array(ConstraintSourceItemSchema).optional(), // Add optional constraints array
   workflows: z.array(WorkflowItemSchema).optional(), // Add optional workflows array
+  charts: z.array(ChartConfigSchema).optional(), // Add optional charts array
   hasFeatureStatistics: z.boolean().optional(),
   isBaseLayer: z.boolean().optional(), // Add optional isBaseLayer for new format
   exclusivitySets: z.array(z.string()).optional(), // Array of exclusivity set names
@@ -297,7 +400,7 @@ const BaseDataSourceObjectSchema = z.object({
   isMirrorLayer: z.boolean().optional(),
   isSpotlightLayer: z.boolean().optional(),
   // Temporal configuration fields
-  timeframe: z.enum(['None', 'Days', 'Months', 'Years']).optional(),
+  timeframe: z.enum(['None', 'Time', 'Days', 'Months', 'Years']).optional(),
   defaultTimestamp: z.number().optional(),
 });
 

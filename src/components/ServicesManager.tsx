@@ -499,7 +499,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => onRemoveService(index)}
+                        onClick={() => {
+                          const originalIndex = services.findIndex(s => s.id === service.id);
+                          if (originalIndex !== -1) {
+                            onRemoveService(originalIndex);
+                          }
+                        }}
                         className="text-red-500 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />

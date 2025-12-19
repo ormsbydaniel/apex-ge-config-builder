@@ -130,28 +130,55 @@ export const useServices = (services: Service[], onAddService: (service: Service
 
       const ensureSlash = (u: string) => (u.endsWith('/') ? u : u + '/');
       const rootUrl = url;
-      // Add limit parameter to fetch more collections in initial request
-      const collectionsUrl = ensureSlash(url) + 'collections?limit=100';
 
-      // Fetch root catalogue for title/description
-      const [rootRes, collRes] = await Promise.all([
-        fetch(rootUrl),
-        fetch(collectionsUrl)
-      ]);
+      // Fetch root first so we can detect whether this is actually a catalog root,
+      // or a direct openEO job-result style STAC-like response (assets at top-level).
+      const rootRes = await fetch(rootUrl);
+      const rootJson = await rootRes.json();
 
-      const catalogue = await rootRes.json();
+      // openEO job results pattern: no /collections, just a JSON with top-level "assets"
+      if (rootJson?.assets && typeof rootJson.assets === 'object') {
+        const assetCount = Object.keys(rootJson.assets).length;
+        const title = rootJson.title || rootJson.id || 'STAC Assets';
+
+        return {
+          capabilities: {
+            layers: [
+              {
+                name: 'assets',
+                title: `Assets (${assetCount})`,
+                abstract: 'Direct STAC assets response (openEO job results)',
+              },
+            ],
+            title: rootJson.title,
+            abstract: rootJson.description,
+            totalCount: assetCount,
+          },
+          title,
+        };
+      }
+
+      // Otherwise assume a STAC Catalog and fetch collections
+      // IMPORTANT: do NOT append a trailing slash to signed URLs with query params.
+      const baseUrl = new URL(url);
+      baseUrl.search = '';
+      baseUrl.hash = '';
+      const collectionsUrl = ensureSlash(baseUrl.toString()) + 'collections?limit=100';
+      const collRes = await fetch(collectionsUrl);
+
+      const catalogue = rootJson;
       const collectionsJson = await collRes.json();
 
       const title = catalogue.title || catalogue.id || 'STAC Catalogue';
 
       let layers: any[] = [];
       const collections = collectionsJson.collections || collectionsJson; // some servers may return array directly
-      
+
       // Use numberMatched from STAC API if available, otherwise use array length
-      const totalCollections = collectionsJson.numberMatched !== undefined 
-        ? collectionsJson.numberMatched 
+      const totalCollections = collectionsJson.numberMatched !== undefined
+        ? collectionsJson.numberMatched
         : (Array.isArray(collections) ? collections.length : 0);
-      
+
       if (Array.isArray(collections)) {
         layers = collections.map((c: any) => ({
           name: c.id || c.title,

@@ -50,15 +50,9 @@ const ConfigJson = () => {
     })),
   };
 
-  // Apply default export transformations
+  // Apply default export transformations (currently none, but kept for future use)
   const transformedConfig = applyExportTransformations(exportData, {
-    singleItemArrayToObject: false,
-    configureCogsAsImages: false,
-    removeEmptyCategories: false,
-    includeCategoryValues: true,
-    addNormalizeFalseToCogs: false,
-    transformSwipeLayersToData: false,
-    changeFormatToType: false
+    sortToMatchUiOrder: false
   });
 
   const configJson = JSON.stringify(transformedConfig, null, 2);

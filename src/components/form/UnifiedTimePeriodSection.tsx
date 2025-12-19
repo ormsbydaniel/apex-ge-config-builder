@@ -47,6 +47,8 @@ const UnifiedTimePeriodSection = ({
         return 'Select month';
       case 'Days':
         return 'Select date';
+      case 'Time':
+        return 'Select date & time';
       default:
         return 'Select date';
     }
@@ -60,8 +62,33 @@ const UnifiedTimePeriodSection = ({
         return 'MMMM yyyy';
       case 'Days':
         return 'PP';
+      case 'Time':
+        return 'PPpp';
       default:
         return 'PP';
+    }
+  };
+
+  // State for time input when timeframe is 'Time'
+  const [timeValue, setTimeValue] = React.useState<string>(() => {
+    if (selectedDate) {
+      const hours = selectedDate.getHours().toString().padStart(2, '0');
+      const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    return '12:00';
+  });
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = e.target.value;
+    setTimeValue(newTime);
+    
+    if (selectedDate && timeframe === 'Time') {
+      const [hours, minutes] = newTime.split(':').map(Number);
+      const newDate = new Date(selectedDate);
+      newDate.setHours(hours, minutes, 0, 0);
+      onUpdate('defaultTimestamp', dateToTimestamp(newDate));
+      setSelectedDate(newDate);
     }
   };
 
@@ -145,38 +172,48 @@ const UnifiedTimePeriodSection = ({
       
       <div className="space-y-2">
         <Label>Default Time Period</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !selectedDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {selectedDate ? (
-                format(selectedDate, getDateDisplayFormat())
-              ) : (
-                <span>{getDateFormatPlaceholder()}</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              month={month}
-              onMonthChange={setMonth}
-              initialFocus
-              className={cn("p-0 pointer-events-auto")}
-              components={{
-                Caption: CustomCaption
-              }}
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "flex-1 justify-start text-left font-normal",
+                  !selectedDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate ? (
+                  format(selectedDate, timeframe === 'Time' ? 'PP' : getDateDisplayFormat())
+                ) : (
+                  <span>{getDateFormatPlaceholder()}</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
+                month={month}
+                onMonthChange={setMonth}
+                initialFocus
+                className={cn("p-0 pointer-events-auto")}
+                components={{
+                  Caption: CustomCaption
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+          {timeframe === 'Time' && (
+            <input
+              type="time"
+              value={timeValue}
+              onChange={handleTimeChange}
+              className="px-3 py-2 border rounded-md bg-background text-foreground"
             />
-          </PopoverContent>
-        </Popover>
+          )}
+        </div>
         <p className="text-sm text-muted-foreground">
           This sets the default time period for new data sources in this layer.
         </p>

@@ -1,13 +1,32 @@
 export interface Announcement {
   date: string; // ISO format date string
   title: string;
-  category?: 'Feature' | 'Improvement' | 'Fix' | 'Info';
+  category?: "Feature" | "Improvement" | "Fix" | "Info";
 }
 
 export const announcements: Announcement[] = [
   {
-    date: '2025-11-24',
-    title: 'Config builder improvements for finding and adding data from STAC catalogues (e.g ESA Project Results Repository)',
-    category: 'Improvement',
+    date: "2025-12-17",
+    title:
+      "STAC services now support collection level entry point, rather than assuming a catalogue",
+    category: "Feature",
+  },
+  {
+    date: "2025-12-15",
+    title:
+      "Added 'Time' option to timeframe definition for sub-day temporal granularity with date and time picker support",
+    category: "Feature",
+  },
+  {
+    date: "2025-11-28",
+    title:
+      "GE 3.4.2 added to preview. Bug fix for service removal. Clean up of deprecated export options. Addition of JSON file sorting as export option",
+    category: "Improvement",
+  },
+  {
+    date: "2025-11-24",
+    title:
+      "Config builder improvements for finding and adding data from STAC catalogues (e.g ESA Project Results Repository)",
+    category: "Improvement",
   },
 ];
