@@ -74,7 +74,10 @@ const LayerGroup = ({
     onMoveWorkflowUp,
     onMoveWorkflowDown,
     onMoveWorkflowToTop,
-    onMoveWorkflowToBottom
+    onMoveWorkflowToBottom,
+    onAddChart,
+    onRemoveChart,
+    onUpdateChart
   } = useLayersTabContext();
 
   // Calculate QA stats for this group's sources
@@ -204,8 +207,11 @@ const LayerGroup = ({
                             onMoveWorkflowDown={workflowIndex => onMoveWorkflowDown(actualIndex, workflowIndex)}
                             onMoveWorkflowToTop={workflowIndex => onMoveWorkflowToTop(actualIndex, workflowIndex)}
                             onMoveWorkflowToBottom={workflowIndex => onMoveWorkflowToBottom(actualIndex, workflowIndex)}
+                            onAddChart={() => onAddChart(actualIndex, { chartType: 'xy', sources: [] })}
+                            onRemoveChart={chartIndex => onRemoveChart(actualIndex, chartIndex)}
+                            onEditChart={chartIndex => {/* Will open chart editor dialog */}}
                             isExpanded={expandedLayers.has(actualIndex)} 
-                            onToggle={() => onToggleLayer(actualIndex)} 
+                            onToggle={() => onToggleLayer(actualIndex)}
                           />
                         </div>
                         <LayerMoveControls

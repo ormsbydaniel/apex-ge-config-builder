@@ -89,6 +89,10 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onMoveWorkflowDown: layersLogic.handleMoveWorkflowDown,
     onMoveWorkflowToTop: layersLogic.handleMoveWorkflowToTop,
     onMoveWorkflowToBottom: layersLogic.handleMoveWorkflowToBottom,
+    // Chart actions
+    onAddChart: layersLogic.addChart,
+    onRemoveChart: layersLogic.removeChart,
+    onUpdateChart: layersLogic.updateChart,
   };
 
   return (
