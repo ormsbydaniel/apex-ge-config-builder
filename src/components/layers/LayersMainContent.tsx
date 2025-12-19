@@ -49,7 +49,10 @@ const LayersMainContent = ({
     onMoveConstraintUp,
     onMoveConstraintDown,
     onMoveConstraintToTop,
-    onMoveConstraintToBottom
+    onMoveConstraintToBottom,
+    onAddChart,
+    onRemoveChart,
+    onUpdateChart
   } = useLayersTabContext();
 
   return (
@@ -74,6 +77,9 @@ const LayersMainContent = ({
         onMoveConstraintDown={onMoveConstraintDown}
         onMoveConstraintToTop={onMoveConstraintToTop}
         onMoveConstraintToBottom={onMoveConstraintToBottom}
+        onAddChart={onAddChart}
+        onRemoveChart={onRemoveChart}
+        onUpdateChart={onUpdateChart}
         onMoveLayer={onMoveLayer}
         onAddLayer={layersLogic.handleAddLayerForGroup || (() => {})}
         onAddBaseLayer={layersLogic.handleAddBaseLayer}

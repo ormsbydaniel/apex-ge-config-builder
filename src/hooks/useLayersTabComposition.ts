@@ -138,7 +138,12 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     handleMoveWorkflowUp: layerOperations.handleMoveWorkflowUp,
     handleMoveWorkflowDown: layerOperations.handleMoveWorkflowDown,
     handleMoveWorkflowToTop: layerOperations.handleMoveWorkflowToTop,
-    handleMoveWorkflowToBottom: layerOperations.handleMoveWorkflowToBottom
+    handleMoveWorkflowToBottom: layerOperations.handleMoveWorkflowToBottom,
+
+    // Chart handlers
+    addChart: layerOperations.addChart,
+    removeChart: layerOperations.removeChart,
+    updateChart: layerOperations.updateChart
   };
   
   return result;
