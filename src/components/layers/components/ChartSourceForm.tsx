@@ -444,36 +444,40 @@ export function ChartSourceForm({
                           onConfigChange={setChartConfig}
                         />
                       ) : (
-                        <>
+                        <div className="flex gap-4">
                           {/* Quick Add Panel for X/Y selection */}
-                          <QuickAddPanel
-                            config={chartConfig}
-                            columns={availableColumns}
-                            selectedTraceIndex={selectedTraceIndex}
-                            onConfigChange={setChartConfig}
-                            onSelectTrace={setSelectedTraceIndex}
-                          />
+                          <div className="w-[40%]">
+                            <QuickAddPanel
+                              config={chartConfig}
+                              columns={availableColumns}
+                              selectedTraceIndex={selectedTraceIndex}
+                              onConfigChange={setChartConfig}
+                              onSelectTrace={setSelectedTraceIndex}
+                            />
+                          </div>
 
                           {/* Trace Editor */}
                           {selectedTrace && selectedTraceIndex !== null && (
-                            <TraceEditor
-                              trace={selectedTrace}
-                              traceIndex={selectedTraceIndex}
-                              columns={availableColumns}
-                              onUpdate={(updatedTrace) => {
-                                const newTraces = [...(chartConfig.traces || [])];
-                                newTraces[selectedTraceIndex] = updatedTrace;
-                                setChartConfig({ ...chartConfig, traces: newTraces });
-                              }}
-                              onRemove={() => {
-                                const newTraces = [...(chartConfig.traces || [])];
-                                newTraces.splice(selectedTraceIndex, 1);
-                                setChartConfig({ ...chartConfig, traces: newTraces });
-                                setSelectedTraceIndex(null);
-                              }}
-                            />
+                            <div className="w-[60%]">
+                              <TraceEditor
+                                trace={selectedTrace}
+                                traceIndex={selectedTraceIndex}
+                                columns={availableColumns}
+                                onUpdate={(updatedTrace) => {
+                                  const newTraces = [...(chartConfig.traces || [])];
+                                  newTraces[selectedTraceIndex] = updatedTrace;
+                                  setChartConfig({ ...chartConfig, traces: newTraces });
+                                }}
+                                onRemove={() => {
+                                  const newTraces = [...(chartConfig.traces || [])];
+                                  newTraces.splice(selectedTraceIndex, 1);
+                                  setChartConfig({ ...chartConfig, traces: newTraces });
+                                  setSelectedTraceIndex(null);
+                                }}
+                              />
+                            </div>
                           )}
-                        </>
+                        </div>
                       )}
                     </>
                   )}
