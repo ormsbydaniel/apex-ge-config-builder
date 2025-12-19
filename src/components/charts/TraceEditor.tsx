@@ -92,7 +92,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {columns.map(col => (
+              {columns.filter(col => col !== '').map(col => (
                 <SelectItem key={col} value={col}>{col}</SelectItem>
               ))}
             </SelectContent>
