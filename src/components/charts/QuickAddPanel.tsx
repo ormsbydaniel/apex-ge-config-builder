@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChartConfig, ChartTrace } from '@/types/chart';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronRight, GripVertical } from 'lucide-react';
 import { getNextColor, getContrastColor } from '@/utils/colorPalettes';
 
@@ -136,20 +137,28 @@ export function QuickAddPanel({
             const isDragging = draggedIndex === index;
             
             return (
-              <Badge
-                key={index}
-                className={`cursor-pointer transition-opacity ${isDragging ? 'opacity-50' : ''} ${isSelected ? 'ring-2 ring-offset-1 ring-foreground/70' : ''}`}
-                style={{ backgroundColor: bgColor, color: textColor }}
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, index)}
-                onDragEnd={handleDragEnd}
-                onClick={() => onSelectTrace(isSelected ? null : index)}
-              >
-                <GripVertical className="h-3 w-3 mr-1 opacity-50" />
-                {trace.name || trace.y}
-              </Badge>
+              <TooltipProvider key={index}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      className={`cursor-pointer transition-opacity ${isDragging ? 'opacity-50' : ''} ${isSelected ? 'ring-2 ring-offset-1 ring-foreground/70' : ''}`}
+                      style={{ backgroundColor: bgColor, color: textColor }}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      onClick={() => onSelectTrace(isSelected ? null : index)}
+                    >
+                      <GripVertical className="h-3 w-3 mr-1 opacity-50" />
+                      {trace.name || trace.y}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit styling of "{trace.name || trace.y}"</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             );
           })}
 
@@ -160,14 +169,22 @@ export function QuickAddPanel({
 
           {/* Available columns */}
           {availableColumns.map(col => (
-            <Badge
-              key={col}
-              variant="outline"
-              className="cursor-pointer hover:bg-muted"
-              onClick={() => handleAddTrace(col)}
-            >
-              {col}
-            </Badge>
+            <TooltipProvider key={col}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className="cursor-pointer hover:bg-muted"
+                    onClick={() => handleAddTrace(col)}
+                  >
+                    {col}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Add "{col}" data to chart</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           ))}
         </div>
       </div>
