@@ -405,58 +405,76 @@ export function ChartSourceForm({
                 <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
                   {configOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                   <span className="font-medium">Chart Configuration</span>
-                  {csvLoading && <span className="text-xs text-muted-foreground ml-2">(Loading data...)</span>}
+                  {csvLoading && (
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground ml-2">
+                      <span className="h-3 w-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      Loading CSV...
+                    </span>
+                  )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 space-y-4">
-                  {/* Chart Type Selector */}
-                  <ChartTypeSelector
-                    config={chartConfig}
-                    onChange={setChartConfig}
-                  />
-
-                  {/* Conditional editors based on chart type */}
-                  {displayType === 'pie' ? (
-                    <PieEditor
-                      config={chartConfig}
-                      columns={availableColumns}
-                      numericColumns={numericColumns}
-                      onConfigChange={setChartConfig}
-                    />
-                  ) : displayType === 'histogram' ? (
-                    <HistogramEditor
-                      config={chartConfig}
-                      numericColumns={numericColumns}
-                      onConfigChange={setChartConfig}
-                    />
+                  {csvLoading ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                      <span className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
+                      <span className="text-sm">Fetching CSV data...</span>
+                    </div>
+                  ) : availableColumns.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                      <span className="text-sm">No columns found. Please check the CSV URL.</span>
+                    </div>
                   ) : (
                     <>
-                      {/* Quick Add Panel for X/Y selection */}
-                      <QuickAddPanel
+                      {/* Chart Type Selector */}
+                      <ChartTypeSelector
                         config={chartConfig}
-                        columns={availableColumns}
-                        selectedTraceIndex={selectedTraceIndex}
-                        onConfigChange={setChartConfig}
-                        onSelectTrace={setSelectedTraceIndex}
+                        onChange={setChartConfig}
                       />
 
-                      {/* Trace Editor */}
-                      {selectedTrace && selectedTraceIndex !== null && (
-                        <TraceEditor
-                          trace={selectedTrace}
-                          traceIndex={selectedTraceIndex}
+                      {/* Conditional editors based on chart type */}
+                      {displayType === 'pie' ? (
+                        <PieEditor
+                          config={chartConfig}
                           columns={availableColumns}
-                          onUpdate={(updatedTrace) => {
-                            const newTraces = [...(chartConfig.traces || [])];
-                            newTraces[selectedTraceIndex] = updatedTrace;
-                            setChartConfig({ ...chartConfig, traces: newTraces });
-                          }}
-                          onRemove={() => {
-                            const newTraces = [...(chartConfig.traces || [])];
-                            newTraces.splice(selectedTraceIndex, 1);
-                            setChartConfig({ ...chartConfig, traces: newTraces });
-                            setSelectedTraceIndex(null);
-                          }}
+                          numericColumns={numericColumns}
+                          onConfigChange={setChartConfig}
                         />
+                      ) : displayType === 'histogram' ? (
+                        <HistogramEditor
+                          config={chartConfig}
+                          numericColumns={numericColumns}
+                          onConfigChange={setChartConfig}
+                        />
+                      ) : (
+                        <>
+                          {/* Quick Add Panel for X/Y selection */}
+                          <QuickAddPanel
+                            config={chartConfig}
+                            columns={availableColumns}
+                            selectedTraceIndex={selectedTraceIndex}
+                            onConfigChange={setChartConfig}
+                            onSelectTrace={setSelectedTraceIndex}
+                          />
+
+                          {/* Trace Editor */}
+                          {selectedTrace && selectedTraceIndex !== null && (
+                            <TraceEditor
+                              trace={selectedTrace}
+                              traceIndex={selectedTraceIndex}
+                              columns={availableColumns}
+                              onUpdate={(updatedTrace) => {
+                                const newTraces = [...(chartConfig.traces || [])];
+                                newTraces[selectedTraceIndex] = updatedTrace;
+                                setChartConfig({ ...chartConfig, traces: newTraces });
+                              }}
+                              onRemove={() => {
+                                const newTraces = [...(chartConfig.traces || [])];
+                                newTraces.splice(selectedTraceIndex, 1);
+                                setChartConfig({ ...chartConfig, traces: newTraces });
+                                setSelectedTraceIndex(null);
+                              }}
+                            />
+                          )}
+                        </>
                       )}
                     </>
                   )}
