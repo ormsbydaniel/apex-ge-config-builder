@@ -137,7 +137,7 @@ export function QuickAddPanel({
             const isDragging = draggedIndex === index;
             
             return (
-              <TooltipProvider key={index}>
+              <TooltipProvider delayDuration={0} key={index}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Badge
@@ -169,7 +169,7 @@ export function QuickAddPanel({
 
           {/* Available columns */}
           {availableColumns.map(col => (
-            <TooltipProvider key={col}>
+            <TooltipProvider delayDuration={0} key={col}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Badge
