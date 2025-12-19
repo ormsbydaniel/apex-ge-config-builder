@@ -179,7 +179,8 @@ export function LayerCardTabs({
               onRemove={onRemoveChart}
               onUpdate={onEditChart as any}
               onStartChartForm={onStartChartForm}
-              onEditChartSource={onEditChartSource}
+              // Use the same handler as the rest of the app so Edit opens the Chart Source form
+              onEditChartSource={onEditChart}
             />
           </TabsContent>
         </Tabs>
