@@ -119,22 +119,26 @@ export function ChartEditorDialog({ open, onOpenChange, chart, onSave }: ChartEd
                     onConfigChange={setConfig}
                   />
                 ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    <QuickAddPanel
-                      config={config}
-                      columns={parsedData.columns}
-                      selectedTraceIndex={selectedTraceIndex}
-                      onConfigChange={setConfig}
-                      onSelectTrace={setSelectedTraceIndex}
-                    />
-                    {selectedTraceIndex !== null && config.traces?.[selectedTraceIndex] && (
-                      <TraceEditor
-                        trace={config.traces[selectedTraceIndex]}
-                        traceIndex={selectedTraceIndex}
+                  <div className="flex gap-4">
+                    <div className="w-[40%]">
+                      <QuickAddPanel
+                        config={config}
                         columns={parsedData.columns}
-                        onUpdate={(trace) => updateTrace(selectedTraceIndex, trace)}
-                        onRemove={() => removeTrace(selectedTraceIndex)}
+                        selectedTraceIndex={selectedTraceIndex}
+                        onConfigChange={setConfig}
+                        onSelectTrace={setSelectedTraceIndex}
                       />
+                    </div>
+                    {selectedTraceIndex !== null && config.traces?.[selectedTraceIndex] && (
+                      <div className="w-[60%]">
+                        <TraceEditor
+                          trace={config.traces[selectedTraceIndex]}
+                          traceIndex={selectedTraceIndex}
+                          columns={parsedData.columns}
+                          onUpdate={(trace) => updateTrace(selectedTraceIndex, trace)}
+                          onRemove={() => removeTrace(selectedTraceIndex)}
+                        />
+                      </div>
                     )}
                   </div>
                 )}
