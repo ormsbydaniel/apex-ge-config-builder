@@ -58,11 +58,22 @@ export function useChartEditorState({ initialConfig }: UseChartEditorStateProps)
   }, []);
 
   const removeTrace = useCallback((index: number) => {
-    setConfig(prev => ({
-      ...prev,
-      traces: prev.traces?.filter((_, i) => i !== index) || [],
-    }));
-    setSelectedTraceIndex(null);
+    setConfig(prev => {
+      const newTraces = prev.traces?.filter((_, i) => i !== index) || [];
+      
+      // Update selected trace index to focus on another trace
+      if (newTraces.length === 0) {
+        setSelectedTraceIndex(null);
+      } else if (index >= newTraces.length) {
+        // Deleted the last trace, select the new last one
+        setSelectedTraceIndex(newTraces.length - 1);
+      } else {
+        // Keep the same index (which now points to the next trace)
+        setSelectedTraceIndex(index);
+      }
+      
+      return { ...prev, traces: newTraces };
+    });
   }, []);
 
   return {
