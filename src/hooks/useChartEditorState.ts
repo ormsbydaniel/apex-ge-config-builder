@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ChartConfig } from '@/types/chart';
-import { fetchAndParseCSV, ParsedCSVData, getNumericColumns } from '@/utils/csvParser';
+import { fetchAndParseCSV, ParsedCSVData, getNumericColumns, getDateColumns } from '@/utils/csvParser';
 
 interface UseChartEditorStateProps {
   initialConfig?: ChartConfig;
@@ -31,6 +31,7 @@ export function useChartEditorState({ initialConfig }: UseChartEditorStateProps)
   }, [initialConfig]);
 
   const numericColumns = getNumericColumns(parsedData.data, parsedData.columns);
+  const dateColumns = getDateColumns(parsedData.data, parsedData.columns);
 
   // Fetch CSV when sources change
   useEffect(() => {
@@ -88,6 +89,7 @@ export function useChartEditorState({ initialConfig }: UseChartEditorStateProps)
     parsedData,
     isLoading,
     numericColumns,
+    dateColumns,
     selectedTraceIndex,
     setSelectedTraceIndex,
     updateTrace,

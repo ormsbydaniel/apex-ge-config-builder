@@ -28,7 +28,7 @@ export function ChartEditorDialog({ open, onOpenChange, chart, onSave }: ChartEd
 
   const {
     config, setConfig, updateConfig,
-    parsedData, isLoading, numericColumns,
+    parsedData, isLoading, numericColumns, dateColumns,
     selectedTraceIndex, setSelectedTraceIndex,
     updateTrace, removeTrace,
   } = useChartEditorState({ initialConfig: chart });
@@ -124,6 +124,7 @@ export function ChartEditorDialog({ open, onOpenChange, chart, onSave }: ChartEd
                       <QuickAddPanel
                         config={config}
                         columns={parsedData.columns}
+                        dateColumns={dateColumns}
                         selectedTraceIndex={selectedTraceIndex}
                         onConfigChange={setConfig}
                         onSelectTrace={setSelectedTraceIndex}
