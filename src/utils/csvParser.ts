@@ -115,6 +115,26 @@ export function getNumericColumns(data: Record<string, any>[], columns: string[]
 }
 
 /**
+ * Check if a string looks like a date in various formats
+ */
+function isDateLikeString(value: string): boolean {
+  if (typeof value !== 'string') return false;
+  
+  // Check standard ISO format or US format (Date.parse handles these)
+  if (!isNaN(Date.parse(value))) return true;
+  
+  // Check DD-MM-YYYY or DD/MM/YYYY format
+  const ddmmyyyyPattern = /^\d{1,2}[-/]\d{1,2}[-/]\d{4}$/;
+  if (ddmmyyyyPattern.test(value)) return true;
+  
+  // Check YYYY-MM-DD format (ISO)
+  const isoPattern = /^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/;
+  if (isoPattern.test(value)) return true;
+  
+  return false;
+}
+
+/**
  * Get columns that contain date-like values
  */
 export function getDateColumns(data: Record<string, any>[], columns: string[]): string[] {
@@ -124,7 +144,7 @@ export function getDateColumns(data: Record<string, any>[], columns: string[]): 
     
     for (let i = 0; i < sampleSize; i++) {
       const value = data[i][col];
-      if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+      if (isDateLikeString(value)) {
         dateCount++;
       }
     }

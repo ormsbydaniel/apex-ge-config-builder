@@ -3,6 +3,19 @@ import Plot from 'react-plotly.js';
 import { ChartConfig } from '@/types/chart';
 import { ParsedCSVData } from '@/utils/csvParser';
 
+/**
+ * Convert date string from DD-MM-YYYY format to YYYY-MM-DD (ISO format)
+ */
+function convertToISODate(value: string): string {
+  // Check if it's DD-MM-YYYY or DD/MM/YYYY format
+  const ddmmyyyyMatch = value.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+  if (ddmmyyyyMatch) {
+    const [, day, month, year] = ddmmyyyyMatch;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+  return value;
+}
+
 interface PlotlyChartViewerProps {
   config: ChartConfig;
   data: ParsedCSVData;
@@ -60,7 +73,15 @@ export function PlotlyChartViewer({ config, data, height = 400 }: PlotlyChartVie
       return { plotData: [], layout: {}, isValid: false, message: 'Add at least one trace' };
     }
 
-    const xData = config.x ? data.data.map(row => row[config.x!]) : [];
+    const isDateAxis = config.layout?.xaxis?.type === 'date';
+    const xData = config.x ? data.data.map(row => {
+      const value = row[config.x!];
+      // Convert DD-MM-YYYY format to ISO for Plotly
+      if (isDateAxis && typeof value === 'string') {
+        return convertToISODate(value);
+      }
+      return value;
+    }) : [];
 
     const plotTraces = config.traces.map((trace, index) => {
       const plotTrace: any = {
