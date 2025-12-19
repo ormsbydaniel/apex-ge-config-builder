@@ -406,12 +406,13 @@ export function ChartSourceForm({
                     <PieEditor
                       config={chartConfig}
                       columns={availableColumns}
+                      numericColumns={numericColumns}
                       onConfigChange={setChartConfig}
                     />
                   ) : displayType === 'histogram' ? (
                     <HistogramEditor
                       config={chartConfig}
-                      columns={availableColumns}
+                      numericColumns={numericColumns}
                       onConfigChange={setChartConfig}
                     />
                   ) : (
@@ -430,8 +431,18 @@ export function ChartSourceForm({
                         <TraceEditor
                           trace={selectedTrace}
                           traceIndex={selectedTraceIndex}
-                          config={chartConfig}
-                          onConfigChange={setChartConfig}
+                          columns={availableColumns}
+                          onUpdate={(updatedTrace) => {
+                            const newTraces = [...(chartConfig.traces || [])];
+                            newTraces[selectedTraceIndex] = updatedTrace;
+                            setChartConfig({ ...chartConfig, traces: newTraces });
+                          }}
+                          onRemove={() => {
+                            const newTraces = [...(chartConfig.traces || [])];
+                            newTraces.splice(selectedTraceIndex, 1);
+                            setChartConfig({ ...chartConfig, traces: newTraces });
+                            setSelectedTraceIndex(null);
+                          }}
                         />
                       )}
                     </>
