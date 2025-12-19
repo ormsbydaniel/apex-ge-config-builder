@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { DataSource, DataSourceItem, LayerType, isDataSourceItemArray } from '@/types/config';
+import { ChartConfig } from '@/types/chart';
 import { createLayerActionHandlers } from '@/utils/layerActions';
 import { PositionValue, getDefaultPosition, isValidPosition, requiresPosition } from '@/utils/positionUtils';
 
@@ -421,6 +422,62 @@ export const useLayerOperations = ({
     handleDataSourceComplete();
   }, [handleDataSourceComplete]);
 
+  // === CHART OPERATIONS ===
+
+  const addChart = useCallback((layerIndex: number, chart: ChartConfig) => {
+    const layer = config.sources[layerIndex];
+    if (!layer) return;
+    
+    const updatedLayer = {
+      ...layer,
+      charts: [...(layer.charts || []), chart]
+    };
+    updateLayer(layerIndex, updatedLayer);
+    
+    toast({
+      title: "Chart Added",
+      description: "Chart has been added to the layer.",
+    });
+  }, [config.sources, updateLayer, toast]);
+
+  const removeChart = useCallback((layerIndex: number, chartIndex: number) => {
+    const layer = config.sources[layerIndex];
+    if (!layer || !layer.charts) return;
+    
+    const updatedCharts = [...layer.charts];
+    updatedCharts.splice(chartIndex, 1);
+    
+    const updatedLayer = {
+      ...layer,
+      charts: updatedCharts
+    };
+    updateLayer(layerIndex, updatedLayer);
+    
+    toast({
+      title: "Chart Removed",
+      description: "Chart has been removed from the layer.",
+    });
+  }, [config.sources, updateLayer, toast]);
+
+  const updateChart = useCallback((layerIndex: number, chartIndex: number, chart: ChartConfig) => {
+    const layer = config.sources[layerIndex];
+    if (!layer || !layer.charts) return;
+    
+    const updatedCharts = [...layer.charts];
+    updatedCharts[chartIndex] = chart;
+    
+    const updatedLayer = {
+      ...layer,
+      charts: updatedCharts
+    };
+    updateLayer(layerIndex, updatedLayer);
+    
+    toast({
+      title: "Chart Updated",
+      description: "Chart configuration has been updated.",
+    });
+  }, [config.sources, updateLayer, toast]);
+
   // === LAYER ACTIONS ===
 
   const layerActionHandlers = useMemo(() => {
@@ -488,6 +545,11 @@ export const useLayerOperations = ({
     handleEditDataSource,
     handleStartConstraintForm,
     handleCancelConstraintForm,
+    
+    // Chart operations
+    addChart,
+    removeChart,
+    updateChart,
     
     // Layer actions (from utility)
     ...layerActionHandlers
