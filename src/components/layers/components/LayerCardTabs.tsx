@@ -173,7 +173,7 @@ export function LayerCardTabs({
               layerIndex={layerIndex}
               onAdd={onAddChart}
               onRemove={onRemoveChart}
-              onEdit={onEditChart}
+              onUpdate={onEditChart as any}
             />
           </TabsContent>
         </Tabs>
