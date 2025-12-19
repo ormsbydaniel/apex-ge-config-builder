@@ -61,12 +61,11 @@ export function ChartSourceForm({
     numericColumns,
     selectedTraceIndex,
     setSelectedTraceIndex,
-    isLoading: csvLoading
-  } = useChartEditorState({ 
-    initialConfig: editingChart || { 
-      chartType: 'xy', 
-      sources: directUrl ? [{ type: 'externalURL', url: directUrl, format: 'csv' }] : [] 
-    } 
+    isLoading: csvLoading,
+  } = useChartEditorState({
+    // IMPORTANT: pass through the actual chart when editing so the form is populated.
+    // In "add" mode, let the hook initialize its own defaults; we then sync sources from directUrl.
+    initialConfig: editingChart,
   });
   
   // Get available columns from parsed data
