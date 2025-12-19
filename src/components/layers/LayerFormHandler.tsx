@@ -1,19 +1,22 @@
 
 import React, { useMemo } from 'react';
-import { DataSource, ConstraintSourceItem } from '@/types/config';
+import { DataSource, ConstraintSourceItem, Service } from '@/types/config';
 import { LayerTypeOption } from '@/hooks/useLayerOperations';
+import { ChartConfig } from '@/types/chart';
 import LayerFormContainer from './LayerFormContainer';
 import DataSourceForm from './DataSourceForm';
 import ConstraintSourceForm from './components/ConstraintSourceForm';
+import { ChartSourceForm } from './components/ChartSourceForm';
 
 interface LayerFormHandlerProps {
   showLayerForm: boolean;
   showDataSourceForm: boolean;
   showConstraintForm?: boolean;
+  showChartForm?: boolean;
   selectedLayerType: any;
   selectedLayerIndex: number | null;
   interfaceGroups: string[];
-  services: any[];
+  services: Service[];
   editingLayerIndex: number | null;
   config: { sources: DataSource[]; exclusivitySets?: string[] };
   defaultInterfaceGroup?: string;
@@ -23,6 +26,8 @@ interface LayerFormHandlerProps {
   editingConstraintLayerIndex?: number | null;
   editingDataSourceIndex?: number | null;
   editingDataSourceLayerIndex?: number | null;
+  editingChartIndex?: number | null;
+  editingChartLayerIndex?: number | null;
   onSelectType: (type: any) => void;
   onLayerSaved: (layer: DataSource) => void;
   onLayerFormCancel: () => void;
@@ -31,8 +36,11 @@ interface LayerFormHandlerProps {
   onConstraintSourceAdded?: (constraint: ConstraintSourceItem | ConstraintSourceItem[]) => void;
   onUpdateConstraintSource?: (constraint: ConstraintSourceItem, layerIndex: number, constraintIndex: number) => void;
   onUpdateDataSource?: (dataSource: any, layerIndex: number, dataSourceIndex: number) => void;
+  onChartAdded?: (chart: ChartConfig) => void;
+  onUpdateChart?: (chart: ChartConfig, layerIndex: number, chartIndex: number) => void;
   onDataSourceCancel: () => void;
   onConstraintFormCancel?: () => void;
+  onChartFormCancel?: () => void;
   onAddService: (service: any) => void;
 }
 
@@ -40,6 +48,7 @@ const LayerFormHandler = ({
   showLayerForm,
   showDataSourceForm,
   showConstraintForm = false,
+  showChartForm = false,
   selectedLayerType,
   selectedLayerIndex,
   interfaceGroups,
@@ -53,6 +62,8 @@ const LayerFormHandler = ({
   editingConstraintLayerIndex = null,
   editingDataSourceIndex = null,
   editingDataSourceLayerIndex = null,
+  editingChartIndex = null,
+  editingChartLayerIndex = null,
   onSelectType,
   onLayerSaved,
   onLayerFormCancel,
@@ -61,8 +72,11 @@ const LayerFormHandler = ({
   onConstraintSourceAdded,
   onUpdateConstraintSource,
   onUpdateDataSource,
+  onChartAdded,
+  onUpdateChart,
   onDataSourceCancel,
   onConstraintFormCancel,
+  onChartFormCancel,
   onAddService
 }: LayerFormHandlerProps) => {
   // Memoize editing objects at top level to prevent unnecessary form resets
@@ -99,6 +113,21 @@ const LayerFormHandler = ({
     if (!editingConstraintKey) return undefined;
     return JSON.parse(editingConstraintKey);
   }, [editingConstraintKey]);
+
+  // For chart editing - extract the specific chart being edited
+  const editingChartKey = useMemo(() => {
+    if (editingChartIndex === null || editingChartLayerIndex === null) {
+      return null;
+    }
+    const layer = config.sources[editingChartLayerIndex];
+    if (!layer?.charts?.[editingChartIndex]) return null;
+    return JSON.stringify(layer.charts[editingChartIndex]);
+  }, [editingChartIndex, editingChartLayerIndex, config.sources]);
+
+  const editingChart = useMemo(() => {
+    if (!editingChartKey) return undefined;
+    return JSON.parse(editingChartKey);
+  }, [editingChartKey]);
 
   if (showLayerForm) {
     return (
@@ -179,6 +208,35 @@ const LayerFormHandler = ({
         onCancel={onConstraintFormCancel || (() => {})}
         editingConstraint={editingConstraint}
         editingIndex={editingConstraintIndex ?? undefined}
+      />
+    );
+  }
+
+  if (showChartForm && selectedLayerIndex !== null) {
+    const currentLayer = config.sources[selectedLayerIndex];
+    
+    if (!currentLayer) {
+      console.error('No layer found at index:', selectedLayerIndex);
+      return null;
+    }
+    
+    // Create handler that routes to add or update based on editing state
+    const handleChartSubmit = (chart: ChartConfig) => {
+      if (editingChartIndex !== null && editingChartLayerIndex !== null && onUpdateChart) {
+        onUpdateChart(chart, editingChartLayerIndex, editingChartIndex);
+      } else if (onChartAdded) {
+        onChartAdded(chart);
+      }
+    };
+    
+    return (
+      <ChartSourceForm
+        services={services}
+        onAddChart={handleChartSubmit}
+        onCancel={onChartFormCancel || (() => {})}
+        editingChart={editingChart}
+        editingIndex={editingChartIndex ?? undefined}
+        onUpdateChart={onUpdateChart ? (chart, idx) => onUpdateChart(chart, editingChartLayerIndex!, idx) : undefined}
       />
     );
   }

@@ -93,6 +93,8 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onAddChart: layersLogic.addChart,
     onRemoveChart: layersLogic.removeChart,
     onUpdateChart: layersLogic.updateChart,
+    onStartChartForm: layersLogic.handleStartChartFormWithExpansion,
+    onEditChartSource: layersLogic.handleEditChartSource,
   };
 
   return (

@@ -143,7 +143,39 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     // Chart handlers
     addChart: layerOperations.addChart,
     removeChart: layerOperations.removeChart,
-    updateChart: layerOperations.updateChart
+    updateChart: layerOperations.updateChart,
+
+    // Chart form handlers with completion
+    handleChartAdded: (chart: any) => {
+      if (layerState.selectedLayerIndex !== null) {
+        layerOperations.addChart(layerState.selectedLayerIndex, chart);
+        layerState.handleChartComplete();
+      }
+    },
+
+    handleUpdateChart: (chart: any, layerIndex: number, chartIndex: number) => {
+      layerOperations.updateChart(layerIndex, chartIndex, chart);
+      layerState.handleChartComplete();
+    },
+
+    handleCancelChart: layerState.handleCancelChart,
+
+    // Chart form expansion handlers
+    handleStartChartFormWithExpansion: (layerIndex: number) => {
+      const layer = config.sources[layerIndex];
+      const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
+      const cardId = `${groupName}-${layerIndex}`;
+      
+      layerState.handleStartChartForm(layerIndex, cardId);
+    },
+
+    handleEditChartSource: (layerIndex: number, chartIndex: number) => {
+      const layer = config.sources[layerIndex];
+      const groupName = layer?.layout?.interfaceGroup || 'ungrouped';
+      const cardId = `${groupName}-${layerIndex}`;
+      
+      layerState.handleStartEditChart(layerIndex, chartIndex, cardId);
+    },
   };
   
   return result;

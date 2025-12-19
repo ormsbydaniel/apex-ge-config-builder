@@ -41,6 +41,8 @@ interface LayerCardTabsProps {
   onAddChart: (layerIndex: number) => void;
   onRemoveChart: (layerIndex: number, chartIndex: number) => void;
   onEditChart: (layerIndex: number, chartIndex: number) => void;
+  onStartChartForm?: (layerIndex: number) => void;
+  onEditChartSource?: (layerIndex: number, chartIndex: number) => void;
 }
 
 export function LayerCardTabs({
@@ -73,7 +75,9 @@ export function LayerCardTabs({
   onMoveWorkflowToBottom,
   onAddChart,
   onRemoveChart,
-  onEditChart
+  onEditChart,
+  onStartChartForm,
+  onEditChartSource
 }: LayerCardTabsProps) {
   const [activeTab, setActiveTab] = useState('data');
   const [workflowDialogOpen, setWorkflowDialogOpen] = useState(false);
@@ -174,6 +178,8 @@ export function LayerCardTabs({
               onAdd={onAddChart}
               onRemove={onRemoveChart}
               onUpdate={onEditChart as any}
+              onStartChartForm={onStartChartForm}
+              onEditChartSource={onEditChartSource}
             />
           </TabsContent>
         </Tabs>
