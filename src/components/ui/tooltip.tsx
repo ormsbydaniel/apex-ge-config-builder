@@ -5,7 +5,41 @@ import { cn } from "@/lib/utils"
 
 const TooltipProvider = TooltipPrimitive.Provider
 
-const Tooltip = TooltipPrimitive.Root
+// Custom Tooltip that auto-hides after a duration
+const Tooltip = ({ children, ...props }: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root> & { autoHideDuration?: number }) => {
+  const { autoHideDuration = 2000, ...rootProps } = props;
+  const [open, setOpen] = React.useState(false);
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleOpenChange = React.useCallback((isOpen: boolean) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    setOpen(isOpen);
+
+    if (isOpen && autoHideDuration > 0) {
+      timeoutRef.current = setTimeout(() => {
+        setOpen(false);
+      }, autoHideDuration);
+    }
+  }, [autoHideDuration]);
+
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <TooltipPrimitive.Root open={open} onOpenChange={handleOpenChange} {...rootProps}>
+      {children}
+    </TooltipPrimitive.Root>
+  );
+};
 
 const TooltipTrigger = TooltipPrimitive.Trigger
 

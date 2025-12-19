@@ -137,7 +137,7 @@ export function QuickAddPanel({
             const isDragging = draggedIndex === index;
             
             return (
-              <TooltipProvider delayDuration={0} key={index}>
+              <TooltipProvider delayDuration={400} key={index}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Badge
@@ -154,7 +154,7 @@ export function QuickAddPanel({
                       {trace.name || trace.y}
                     </Badge>
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent className="animate-in fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 duration-200">
                     <p>Edit styling of "{trace.name || trace.y}"</p>
                   </TooltipContent>
                 </Tooltip>
@@ -169,7 +169,7 @@ export function QuickAddPanel({
 
           {/* Available columns */}
           {availableColumns.map(col => (
-            <TooltipProvider delayDuration={0} key={col}>
+            <TooltipProvider delayDuration={400} key={col}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Badge
