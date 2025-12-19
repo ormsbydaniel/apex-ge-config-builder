@@ -315,7 +315,7 @@ export function ChartSourceForm({
                 <button
                   type="button"
                   onClick={() => setSourceType('direct')}
-                  className={`p-4 border rounded-lg text-left transition-colors ${
+                  className={`p-4 border rounded-lg text-center flex flex-col items-center transition-colors ${
                     sourceType === 'direct'
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:border-primary/50'
