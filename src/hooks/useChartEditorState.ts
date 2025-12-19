@@ -19,6 +19,17 @@ export function useChartEditorState({ initialConfig }: UseChartEditorStateProps)
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTraceIndex, setSelectedTraceIndex] = useState<number | null>(null);
 
+  // Sync config when initialConfig changes (e.g., when editing a different chart)
+  useEffect(() => {
+    if (initialConfig) {
+      setConfig(initialConfig);
+      // Select the first trace if available
+      if (initialConfig.traces && initialConfig.traces.length > 0) {
+        setSelectedTraceIndex(0);
+      }
+    }
+  }, [initialConfig]);
+
   const numericColumns = getNumericColumns(parsedData.data, parsedData.columns);
 
   // Fetch CSV when sources change
