@@ -77,7 +77,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
     <div className="space-y-4 p-4 border-l">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="font-medium text-sm">{trace.name || trace.y || `Trace ${traceIndex + 1}`}</div>
+        <div className="font-bold text-sm">Styling settings for "{trace.name || trace.y || `Trace ${traceIndex + 1}`}" data</div>
         <Button variant="ghost" size="sm" onClick={onRemove} className="text-destructive h-8 px-2">
           <Trash2 className="h-4 w-4" />
         </Button>
