@@ -25,7 +25,8 @@ export function QuickAddPanel({
 
   const traces = config.traces || [];
   const usedColumns = new Set([config.x, ...traces.map(t => t.y)].filter(Boolean));
-  const availableColumns = columns.filter(col => !usedColumns.has(col));
+  const filteredColumns = columns.filter(col => col !== '');
+  const availableColumns = filteredColumns.filter(col => !usedColumns.has(col));
 
   const handleXAxisSelect = (column: string) => {
     onConfigChange({ ...config, x: column });
@@ -91,7 +92,7 @@ export function QuickAddPanel({
         
         {isXAxisExpanded ? (
           <div className="flex flex-wrap gap-1">
-            {columns.map(col => (
+            {filteredColumns.map(col => (
               <Badge
                 key={col}
                 variant={col === config.x ? 'default' : 'outline'}
