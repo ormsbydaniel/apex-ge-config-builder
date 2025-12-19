@@ -85,6 +85,19 @@ export function ChartSourceForm({
     }
   }, [editingChart]);
 
+  // Sync directUrl to chartConfig.sources so CSV gets fetched
+  useEffect(() => {
+    const trimmedUrl = directUrl.trim();
+    const currentUrl = chartConfig.sources?.[0]?.url;
+    
+    if (trimmedUrl && trimmedUrl !== currentUrl) {
+      setChartConfig(prev => ({
+        ...prev,
+        sources: [{ type: 'externalURL' as const, url: trimmedUrl, format: 'csv' as const }]
+      }));
+    }
+  }, [directUrl, chartConfig.sources, setChartConfig]);
+
   // Track dirty state and update ConfigContext
   useEffect(() => {
     const hasUrl = directUrl.trim() !== '';
