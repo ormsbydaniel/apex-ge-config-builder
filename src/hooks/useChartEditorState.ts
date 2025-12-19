@@ -60,21 +60,26 @@ export function useChartEditorState({ initialConfig }: UseChartEditorStateProps)
   const removeTrace = useCallback((index: number) => {
     setConfig(prev => {
       const newTraces = prev.traces?.filter((_, i) => i !== index) || [];
-      
-      // Update selected trace index to focus on another trace
-      if (newTraces.length === 0) {
-        setSelectedTraceIndex(null);
-      } else if (index >= newTraces.length) {
-        // Deleted the last trace, select the new last one
-        setSelectedTraceIndex(newTraces.length - 1);
-      } else {
-        // Keep the same index (which now points to the next trace)
-        setSelectedTraceIndex(index);
-      }
-      
       return { ...prev, traces: newTraces };
     });
-  }, []);
+    
+    // Calculate and set new selected index after removal
+    setSelectedTraceIndex(currentIndex => {
+      // Get current trace count before removal
+      const currentTraceCount = config.traces?.length || 0;
+      const newTraceCount = currentTraceCount - 1;
+      
+      if (newTraceCount === 0) {
+        return null;
+      } else if (index >= newTraceCount) {
+        // Deleted the last trace, select the new last one
+        return newTraceCount - 1;
+      } else {
+        // Keep the same index (which now points to what was the next trace)
+        return index;
+      }
+    });
+  }, [config.traces?.length]);
 
   return {
     config,
