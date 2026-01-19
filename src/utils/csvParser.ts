@@ -50,9 +50,15 @@ export function parseCSV(text: string): ParsedCSVData {
       const row: Record<string, any> = {};
       columns.forEach((col, index) => {
         const value = values[index] || '';
-        // Try to parse as number
-        const num = parseFloat(value);
-        row[col] = isNaN(num) ? value : num;
+
+        // Parse as number only when the entire cell is numeric.
+        // This prevents values like "29-04-2025" from being coerced to 29.
+        const numericPattern = /^-?(?:\d+\.?\d*|\d*\.?\d+)(?:e[+-]?\d+)?$/i;
+        if (value !== '' && numericPattern.test(value)) {
+          row[col] = parseFloat(value);
+        } else {
+          row[col] = value;
+        }
       });
       data.push(row);
     }
