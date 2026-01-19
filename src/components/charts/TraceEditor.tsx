@@ -235,7 +235,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
             </div>
             
             {hasMarkers && (
-              <div className="space-y-2 pl-6">
+              <div className="space-y-2">
                 <div className="flex items-center gap-1">
                   {hasLines && (
                     <Tooltip>
@@ -246,6 +246,9 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                       </TooltipTrigger>
                       <TooltipContent>Copy from Lines</TooltipContent>
                     </Tooltip>
+                  )}
+                  {!hasLines && (
+                    <div className="w-6" /> 
                   )}
                   <Input
                     type="color"
@@ -266,7 +269,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                   )}
                 </div>
                 
-                <div>
+                <div className="pl-6">
                   <Label className="text-xs">Size</Label>
                   <Slider
                     value={[trace.marker?.size ?? 6]}
@@ -278,7 +281,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                   />
                 </div>
 
-                <div>
+                <div className="pl-6">
                   <Label className="text-xs">Symbol</Label>
                   <Select value={trace.marker?.symbol || 'circle'} onValueChange={(symbol) => updateMarker({ symbol })}>
                     <SelectTrigger className="h-7 text-xs">
@@ -323,7 +326,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
             </div>
             
             {hasFill && (
-              <div className="space-y-2 pl-6">
+              <div className="space-y-2">
                 <div className="flex items-center gap-1">
                   {hasMarkers && (
                     <Tooltip>
@@ -345,6 +348,9 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                       <TooltipContent>Copy from Lines</TooltipContent>
                     </Tooltip>
                   )}
+                  {!hasMarkers && !hasLines && (
+                    <div className="w-6" />
+                  )}
                   <Input
                     type="color"
                     value={fillColor}
@@ -354,7 +360,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                   <span className="text-xs text-muted-foreground">{fillColor}</span>
                 </div>
                 
-                <div>
+                <div className="pl-6">
                   <Label className="text-xs">Opacity</Label>
                   <Slider
                     value={[Math.round(fillOpacity * 100)]}
@@ -367,7 +373,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                   <span className="text-xs text-muted-foreground">{Math.round(fillOpacity * 100)}%</span>
                 </div>
 
-                <div>
+                <div className="pl-6">
                   <Label className="text-xs">Fill To</Label>
                   <Select 
                     value={trace.fill || 'tozeroy'} 
