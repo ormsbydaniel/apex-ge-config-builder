@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-01-19",
+    title: "Addition of chart configuration into data sources",
+    category: "Feature",
+  },
+  {
     date: "2025-12-17",
     title:
       "STAC services now support collection level entry point, rather than assuming a catalogue",
