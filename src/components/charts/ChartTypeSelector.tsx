@@ -59,20 +59,20 @@ export function ChartTypeSelector({ config, onChange }: ChartTypeSelectorProps) 
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <ToggleGroupItem value="histogram" aria-label="Histogram">
-              <BarChart3 className="h-4 w-4 rotate-90" />
-            </ToggleGroupItem>
+            <div className="inline-flex items-center justify-center rounded-md px-3 h-9 opacity-50 cursor-not-allowed">
+              <BarChart3 className="h-4 w-4 rotate-90 text-muted-foreground" />
+            </div>
           </TooltipTrigger>
-          <TooltipContent>Histogram</TooltipContent>
+          <TooltipContent>Histogram chart available in future release</TooltipContent>
         </Tooltip>
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <ToggleGroupItem value="pie" aria-label="Pie Chart">
-              <PieChart className="h-4 w-4" />
-            </ToggleGroupItem>
+            <div className="inline-flex items-center justify-center rounded-md px-3 h-9 opacity-50 cursor-not-allowed">
+              <PieChart className="h-4 w-4 text-muted-foreground" />
+            </div>
           </TooltipTrigger>
-          <TooltipContent>Pie / Donut Chart</TooltipContent>
+          <TooltipContent>Donut chart available in future release</TooltipContent>
         </Tooltip>
       </ToggleGroup>
     </TooltipProvider>
