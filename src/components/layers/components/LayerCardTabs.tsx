@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { DataSource, Service, WorkflowItem } from '@/types/config';
+import { ChartConfig } from '@/types/chart';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { DataSourcesTab } from './DataSourcesTab';
 import { StatisticsSourcesTab } from './StatisticsSourcesTab';
 import { ConstraintSourcesTab } from './ConstraintSourcesTab';
 import { WorkflowsTab } from './WorkflowsTab';
+import { ChartsTab } from './ChartsTab';
 import { WorkflowEditorDialog } from './WorkflowEditorDialog';
 
 interface LayerCardTabsProps {
@@ -35,6 +37,12 @@ interface LayerCardTabsProps {
   onMoveWorkflowDown: (layerIndex: number, workflowIndex: number) => void;
   onMoveWorkflowToTop: (layerIndex: number, workflowIndex: number) => void;
   onMoveWorkflowToBottom: (layerIndex: number, workflowIndex: number) => void;
+  // Chart operations
+  onAddChart: (layerIndex: number) => void;
+  onRemoveChart: (layerIndex: number, chartIndex: number) => void;
+  onEditChart: (layerIndex: number, chartIndex: number) => void;
+  onStartChartForm?: (layerIndex: number) => void;
+  onEditChartSource?: (layerIndex: number, chartIndex: number) => void;
 }
 
 export function LayerCardTabs({
@@ -64,7 +72,12 @@ export function LayerCardTabs({
   onMoveWorkflowUp,
   onMoveWorkflowDown,
   onMoveWorkflowToTop,
-  onMoveWorkflowToBottom
+  onMoveWorkflowToBottom,
+  onAddChart,
+  onRemoveChart,
+  onEditChart,
+  onStartChartForm,
+  onEditChartSource
 }: LayerCardTabsProps) {
   const [activeTab, setActiveTab] = useState('data');
   const [workflowDialogOpen, setWorkflowDialogOpen] = useState(false);
@@ -74,12 +87,13 @@ export function LayerCardTabs({
   const statsCount = source.statistics?.length || 0;
   const constraintsCount = source.constraints?.length || 0;
   const workflowsCount = source.workflows?.length || 0;
+  const chartsCount = source.charts?.length || 0;
 
   return (
     <>
       <div className="space-y-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="data">
               Datasets ({dataCount})
             </TabsTrigger>
@@ -91,6 +105,9 @@ export function LayerCardTabs({
             </TabsTrigger>
             <TabsTrigger value="workflows">
               Workflows ({workflowsCount})
+            </TabsTrigger>
+            <TabsTrigger value="charts">
+              Charts ({chartsCount})
             </TabsTrigger>
           </TabsList>
 
@@ -150,6 +167,20 @@ export function LayerCardTabs({
               onMoveDown={onMoveWorkflowDown}
               onMoveToTop={onMoveWorkflowToTop}
               onMoveToBottom={onMoveWorkflowToBottom}
+            />
+          </TabsContent>
+
+          <TabsContent value="charts">
+            <ChartsTab
+              source={source}
+              services={services}
+              layerIndex={layerIndex}
+              onAdd={onAddChart}
+              onRemove={onRemoveChart}
+              onUpdate={onEditChart as any}
+              onStartChartForm={onStartChartForm}
+              // Use the same handler as the rest of the app so Edit opens the Chart Source form
+              onEditChartSource={onEditChart}
             />
           </TabsContent>
         </Tabs>

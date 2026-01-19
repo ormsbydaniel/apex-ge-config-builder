@@ -35,6 +35,10 @@ interface LayerCardProps {
   onMoveWorkflowDown?: (workflowIndex: number) => void;
   onMoveWorkflowToTop?: (workflowIndex: number) => void;
   onMoveWorkflowToBottom?: (workflowIndex: number) => void;
+  // Chart operations
+  onAddChart?: () => void;
+  onRemoveChart?: (chartIndex: number) => void;
+  onEditChart?: (chartIndex: number) => void;
   isExpanded: boolean;
   onToggle: () => void;
 }
@@ -67,6 +71,9 @@ const LayerCard = ({
   onMoveWorkflowDown,
   onMoveWorkflowToTop,
   onMoveWorkflowToBottom,
+  onAddChart,
+  onRemoveChart,
+  onEditChart,
   isExpanded, 
   onToggle 
 }: LayerCardProps) => {
@@ -148,6 +155,9 @@ const LayerCard = ({
               onMoveWorkflowDown={onMoveWorkflowDown}
               onMoveWorkflowToTop={onMoveWorkflowToTop}
               onMoveWorkflowToBottom={onMoveWorkflowToBottom}
+              onAddChart={onAddChart}
+              onRemoveChart={onRemoveChart}
+              onEditChart={onEditChart}
             />
           </CollapsibleContent>
         </Collapsible>

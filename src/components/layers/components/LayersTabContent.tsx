@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataSource } from '@/types/config';
+import { ChartConfig } from '@/types/chart';
 import LayerHierarchy from '../LayerHierarchy';
 import EmptyLayersState from '../EmptyLayersState';
 import LayersTabHeader from './LayersTabHeader';
@@ -29,6 +30,10 @@ interface LayersTabContentProps {
   onMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
   onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
   onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
+  // Chart actions
+  onAddChart: (layerIndex: number, chart: ChartConfig) => void;
+  onRemoveChart: (layerIndex: number, chartIndex: number) => void;
+  onUpdateChart: (layerIndex: number, chartIndex: number, chart: ChartConfig) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
   onAddLayer: (groupName: string) => void;
   onAddBaseLayer: () => void;
@@ -68,6 +73,9 @@ const LayersTabContent = ({
   onMoveConstraintDown,
   onMoveConstraintToTop,
   onMoveConstraintToBottom,
+  onAddChart,
+  onRemoveChart,
+  onUpdateChart,
   onMoveLayer,
   onAddLayer,
   onAddBaseLayer,
