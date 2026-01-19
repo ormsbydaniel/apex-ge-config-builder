@@ -8,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { Trash2, Undo2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trash2, Undo2, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { extractHexColor, extractOpacity, hexToRgba } from '@/utils/colorPalettes';
 
 interface TraceEditorProps {
@@ -154,7 +154,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button type="button" variant="ghost" size="sm" onClick={copyMarkerToLine} className="h-6 w-6 p-0">
-                          <ChevronLeft className="h-3 w-3" />
+                        <ChevronsLeft className="h-3 w-3" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Copy from Markers</TooltipContent>
@@ -164,7 +164,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button type="button" variant="ghost" size="sm" onClick={copyFillToLine} className="h-6 w-6 p-0">
-                          <ChevronLeft className="h-3 w-3" />
+                        <ChevronsLeft className="h-3 w-3" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Copy from Fill</TooltipContent>
@@ -241,7 +241,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button type="button" variant="ghost" size="sm" onClick={copyLineToMarker} className="h-6 w-6 p-0">
-                          <ChevronLeft className="h-3 w-3" />
+                          <ChevronsLeft className="h-3 w-3" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Copy from Lines</TooltipContent>
@@ -258,7 +258,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button type="button" variant="ghost" size="sm" onClick={copyFillToMarker} className="h-6 w-6 p-0">
-                          <ChevronRight className="h-3 w-3" />
+                          <ChevronsRight className="h-3 w-3" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Copy from Fill</TooltipContent>
@@ -329,7 +329,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button type="button" variant="ghost" size="sm" onClick={copyMarkerToFill} className="h-6 w-6 p-0">
-                          <ChevronLeft className="h-3 w-3" />
+                          <ChevronsLeft className="h-3 w-3" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Copy from Markers</TooltipContent>
@@ -339,7 +339,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button type="button" variant="ghost" size="sm" onClick={copyLineToFill} className="h-6 w-6 p-0">
-                          <ChevronLeft className="h-3 w-3" />
+                          <ChevronsLeft className="h-3 w-3" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Copy from Lines</TooltipContent>
