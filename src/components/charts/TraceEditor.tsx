@@ -122,7 +122,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
 
       {/* Style Section - Three Columns */}
       <TooltipProvider>
-        <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2">
+        <div className="grid grid-cols-3 gap-4">
           {/* Lines Column */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -142,14 +142,34 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
             
             {hasLines && (
               <div className="space-y-2 pl-6">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <Input
                     type="color"
                     value={lineColor}
                     onChange={(e) => updateLine({ color: e.target.value })}
                     className="w-8 h-8 p-1 cursor-pointer"
                   />
-                  <span className="text-xs text-muted-foreground">{lineColor}</span>
+                  <span className="text-xs text-muted-foreground flex-1">{lineColor}</span>
+                  {hasMarkers && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button type="button" variant="ghost" size="sm" onClick={copyMarkerToLine} className="h-6 w-6 p-0">
+                          <ChevronLeft className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy from Markers</TooltipContent>
+                    </Tooltip>
+                  )}
+                  {!hasMarkers && hasFill && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button type="button" variant="ghost" size="sm" onClick={copyFillToLine} className="h-6 w-6 p-0">
+                          <ChevronLeft className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy from Fill</TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 
                 <div>
@@ -197,30 +217,6 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
             )}
           </div>
 
-          {/* Arrow gutters Lines ↔ Markers */}
-          <div className="flex flex-col items-center justify-center gap-1 pt-6">
-            {hasLines && hasMarkers && (
-              <>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" variant="ghost" size="sm" onClick={copyLineToMarker} className="h-6 w-6 p-0">
-                      <ChevronRight className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Copy color</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" variant="ghost" size="sm" onClick={copyMarkerToLine} className="h-6 w-6 p-0">
-                      <ChevronLeft className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Copy color</TooltipContent>
-                </Tooltip>
-              </>
-            )}
-          </div>
-
           {/* Markers Column */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -240,14 +236,34 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
             
             {hasMarkers && (
               <div className="space-y-2 pl-6">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  {hasLines && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button type="button" variant="ghost" size="sm" onClick={copyLineToMarker} className="h-6 w-6 p-0">
+                          <ChevronLeft className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy from Lines</TooltipContent>
+                    </Tooltip>
+                  )}
                   <Input
                     type="color"
                     value={markerColor}
                     onChange={(e) => updateMarker({ color: e.target.value })}
                     className="w-8 h-8 p-1 cursor-pointer"
                   />
-                  <span className="text-xs text-muted-foreground">{markerColor}</span>
+                  <span className="text-xs text-muted-foreground flex-1">{markerColor}</span>
+                  {hasFill && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button type="button" variant="ghost" size="sm" onClick={copyFillToMarker} className="h-6 w-6 p-0">
+                          <ChevronRight className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy from Fill</TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 
                 <div>
@@ -283,50 +299,6 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
             )}
           </div>
 
-          {/* Arrow gutters Markers ↔ Fill */}
-          <div className="flex flex-col items-center justify-center gap-1 pt-6">
-            {hasMarkers && hasFill && (
-              <>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" variant="ghost" size="sm" onClick={copyMarkerToFill} className="h-6 w-6 p-0">
-                      <ChevronRight className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Copy color</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" variant="ghost" size="sm" onClick={copyFillToMarker} className="h-6 w-6 p-0">
-                      <ChevronLeft className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Copy color</TooltipContent>
-                </Tooltip>
-              </>
-            )}
-            {hasLines && !hasMarkers && hasFill && (
-              <>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" variant="ghost" size="sm" onClick={copyLineToFill} className="h-6 w-6 p-0">
-                      <ChevronRight className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Copy color</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" variant="ghost" size="sm" onClick={copyFillToLine} className="h-6 w-6 p-0">
-                      <ChevronLeft className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Copy color</TooltipContent>
-                </Tooltip>
-              </>
-            )}
-          </div>
-
           {/* Fill Column */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -352,7 +324,27 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
             
             {hasFill && (
               <div className="space-y-2 pl-6">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  {hasMarkers && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button type="button" variant="ghost" size="sm" onClick={copyMarkerToFill} className="h-6 w-6 p-0">
+                          <ChevronLeft className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy from Markers</TooltipContent>
+                    </Tooltip>
+                  )}
+                  {hasLines && !hasMarkers && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button type="button" variant="ghost" size="sm" onClick={copyLineToFill} className="h-6 w-6 p-0">
+                          <ChevronLeft className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy from Lines</TooltipContent>
+                    </Tooltip>
+                  )}
                   <Input
                     type="color"
                     value={fillColor}
