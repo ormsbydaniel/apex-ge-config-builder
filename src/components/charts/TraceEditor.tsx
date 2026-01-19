@@ -339,7 +339,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button type="button" variant="ghost" size="sm" onClick={copyLineToFill} className="h-6 w-6 p-0">
-                          <ChevronsLeft className="h-3 w-3" />
+                          <ChevronsRight className="h-3 w-3" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Copy from Lines</TooltipContent>
