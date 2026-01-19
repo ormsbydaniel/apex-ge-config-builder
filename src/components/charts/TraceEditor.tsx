@@ -84,8 +84,8 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
       </div>
 
       {/* Y Column and Legend */}
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
+      <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center">
+        <div>
           <Label className="text-xs">Y Column</Label>
           <Select value={trace.y} onValueChange={(y) => onUpdate({ ...trace, y })}>
             <SelectTrigger className="h-8 text-xs">
@@ -107,6 +107,17 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
           />
           <span className="text-xs text-muted-foreground">Legend</span>
         </div>
+
+        {trace.showlegend !== false && (
+          <div>
+            <Label className="text-xs">Label</Label>
+            <Input
+              value={trace.name || ''}
+              onChange={(e) => onUpdate({ ...trace, name: e.target.value })}
+              className="h-8 text-xs"
+            />
+          </div>
+        )}
       </div>
 
       {/* Style Section - Three Columns */}
