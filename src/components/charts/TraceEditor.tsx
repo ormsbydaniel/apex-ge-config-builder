@@ -203,7 +203,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
               <>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={copyLineToMarker} className="h-6 w-6 p-0">
+                    <Button type="button" variant="ghost" size="sm" onClick={copyLineToMarker} className="h-6 w-6 p-0">
                       <ChevronRight className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
@@ -211,7 +211,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={copyMarkerToLine} className="h-6 w-6 p-0">
+                    <Button type="button" variant="ghost" size="sm" onClick={copyMarkerToLine} className="h-6 w-6 p-0">
                       <ChevronLeft className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
@@ -289,7 +289,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
               <>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={copyMarkerToFill} className="h-6 w-6 p-0">
+                    <Button type="button" variant="ghost" size="sm" onClick={copyMarkerToFill} className="h-6 w-6 p-0">
                       <ChevronRight className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
@@ -297,7 +297,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={copyFillToMarker} className="h-6 w-6 p-0">
+                    <Button type="button" variant="ghost" size="sm" onClick={copyFillToMarker} className="h-6 w-6 p-0">
                       <ChevronLeft className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
@@ -309,7 +309,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
               <>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={copyLineToFill} className="h-6 w-6 p-0">
+                    <Button type="button" variant="ghost" size="sm" onClick={copyLineToFill} className="h-6 w-6 p-0">
                       <ChevronRight className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
@@ -317,7 +317,7 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={copyFillToLine} className="h-6 w-6 p-0">
+                    <Button type="button" variant="ghost" size="sm" onClick={copyFillToLine} className="h-6 w-6 p-0">
                       <ChevronLeft className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
