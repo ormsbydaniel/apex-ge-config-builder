@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-01-22",
+    title: "dev-3.5-candidate version added to Preview",
+    category: "Feature",
+  },
+  {
     date: "2026-01-19",
     title: "Addition of chart configuration into data sources",
     category: "Feature",
