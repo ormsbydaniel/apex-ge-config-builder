@@ -269,6 +269,23 @@ const TemporalConfigSchema = z.object({
   defaultTimestamp: z.number().optional(),
 });
 
+// Field configuration schema for vector dataset attributes
+const FieldConfigSchema = z.object({
+  label: z.string().optional(),
+  prefix: z.string().optional(),
+  suffix: z.string().optional(),
+  precision: z.number().int().optional(),
+  order: z.number().int().optional(),
+  type: z.string().optional(),
+  format: z.string().optional(),
+}).passthrough();  // Allow future extensions
+
+// Fields record schema - keys are field names, values are config or null (to hide)
+const FieldsSchema = z.record(
+  z.string(),
+  z.union([FieldConfigSchema, z.null()])
+).optional();
+
 // Enhanced meta schema with additional fields including swipe config and temporal
 const MetaSchema = z.object({
   description: z.string(),
@@ -294,6 +311,8 @@ const MetaSchema = z.object({
   swipeConfig: SwipeConfigSchema.optional(),
   // Temporal configuration
   temporal: TemporalConfigSchema.optional(),
+  // Vector field display configuration
+  fields: FieldsSchema,
 }).superRefine((meta, ctx) => {
   // Conditional validation: startColor and endColor required for gradient legends WITHOUT colormaps
   // This validation only applies when used with a DataSource that has a gradient legend

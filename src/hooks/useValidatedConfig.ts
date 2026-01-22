@@ -133,6 +133,8 @@ export const useValidatedConfig = () => {
                   ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
               }
             }),
+            // Preserve fields configuration if present
+            ...(source.meta.fields && { fields: source.meta.fields }),
             // Temporal configuration is now at top level - no need to move from meta
           }
         }),
@@ -249,6 +251,8 @@ export const useValidatedConfig = () => {
             ((source.meta.swipeConfig as any).baseSourceName ? [(source.meta.swipeConfig as any).baseSourceName] : [])
         }
       }),
+      // Preserve fields configuration if present
+      ...(source.meta?.fields && { fields: source.meta.fields }),
       // Temporal configuration is now at top level - no need to move from meta
     };
 
