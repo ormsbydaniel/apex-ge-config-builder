@@ -2,7 +2,7 @@
  * Layer type definitions including meta, layout, and data source types
  */
 
-import { Category, Colormap } from './category';
+import { Category, Colormap, FieldsConfig } from './category';
 import { ChartConfig } from './chart';
 import { DataField, SwipeConfig, TimeframeType, ConstraintSourceItem, WorkflowItem, DataSourceItem } from './dataSource';
 
@@ -25,6 +25,8 @@ export interface DataSourceMeta {
   // Temporal configuration - flat structure
   timeframe?: TimeframeType;
   defaultTimestamp?: number;
+  // Vector field display configuration
+  fields?: FieldsConfig;
 }
 
 // Enhanced layout interface with support for both layerCard and infoPanel
