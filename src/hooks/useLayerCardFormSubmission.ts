@@ -1,5 +1,6 @@
 
 import { DataSource, Colormap, TimeframeType } from '@/types/config';
+import { FieldsConfig } from '@/types/category';
 import { useToast } from '@/hooks/use-toast';
 
 interface SubmissionFormData {
@@ -30,6 +31,7 @@ interface SubmissionFormData {
   colormaps: Colormap[];
   timeframe: TimeframeType;
   defaultTimestamp?: number;
+  fields: FieldsConfig;
 }
 
 export const useLayerCardFormSubmission = (
@@ -74,6 +76,8 @@ export const useLayerCardFormSubmission = (
       ...(processedCategories && processedCategories.length > 0 && { categories: processedCategories }),
       ...(formData.colormaps && formData.colormaps.length > 0 && { colormaps: formData.colormaps }),
       ...(formData.units.trim() && { units: formData.units.trim() }),
+      // Add fields if present
+      ...(formData.fields && Object.keys(formData.fields).length > 0 && { fields: formData.fields }),
       // Add gradient fields if legend type is gradient
       ...(formData.legendType === 'gradient' && {
         // Only include startColor and endColor if there are no colormaps
