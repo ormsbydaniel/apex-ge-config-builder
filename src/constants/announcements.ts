@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-01-23",
+    title: "Field configuration for vector layer data values",
+    category: "Feature",
+  },
+  {
     date: "2026-01-22",
     title: "dev-3.5-candidate version added to Preview",
     category: "Feature",
