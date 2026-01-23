@@ -11,6 +11,7 @@ import LayerLegendDisplay from './LayerLegendDisplay';
 import LayerControlsDisplay from './LayerControlsDisplay';
 import LayerAttributionDisplay from './LayerAttributionDisplay';
 import LayerColormapsDisplay from './LayerColormapsDisplay';
+import LayerFieldsDisplay from './LayerFieldsDisplay';
 import { LayerCardTabs } from './LayerCardTabs';
 
 interface LayerCardContentProps {
@@ -147,6 +148,11 @@ const LayerCardContent = ({
       {/* Colormaps */}
       {source.meta?.colormaps && source.meta.colormaps.length > 0 && (
         <LayerColormapsDisplay colormaps={source.meta.colormaps} />
+      )}
+
+      {/* Fields - Vector layer attribute configuration */}
+      {source.meta?.fields && Object.keys(source.meta.fields).length > 0 && (
+        <LayerFieldsDisplay fields={source.meta.fields} />
       )}
       
       {/* Legend Display */}
