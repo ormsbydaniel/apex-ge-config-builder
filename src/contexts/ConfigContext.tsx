@@ -20,6 +20,7 @@ type ConfigAction =
   | { type: 'SET_LAST_EXPORTED' }
   | { type: 'UPDATE_VERSION'; payload: string }
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
+  | { type: 'UPDATE_DESIGN'; payload: { variant: string; parameters?: Record<string, unknown> } | undefined }
   | { type: 'UPDATE_THEME'; payload: { field: string; value: string } }
   | { type: 'UPDATE_INTERFACE_GROUPS'; payload: string[] }
   | { type: 'UPDATE_EXCLUSIVITY_SETS'; payload: string[] }
@@ -188,6 +189,14 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
             ...state.layout.navigation,
             [action.payload.field]: action.payload.value,
           },
+        },
+      };
+    case 'UPDATE_DESIGN':
+      return {
+        ...state,
+        layout: {
+          ...state.layout,
+          design: action.payload,
         },
       };
     case 'UPDATE_THEME':
