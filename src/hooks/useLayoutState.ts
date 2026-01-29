@@ -1,5 +1,6 @@
 
 import { useCallback } from 'react';
+import { DesignConfig } from '@/types/format';
 
 interface UseLayoutStateProps {
   dispatch: (action: any) => void;
@@ -8,6 +9,10 @@ interface UseLayoutStateProps {
 export const useLayoutState = ({ dispatch }: UseLayoutStateProps) => {
   const updateLayout = useCallback((field: string, value: string) => {
     dispatch({ type: 'UPDATE_LAYOUT', payload: { field, value } });
+  }, [dispatch]);
+
+  const updateDesign = useCallback((design: DesignConfig | undefined) => {
+    dispatch({ type: 'UPDATE_DESIGN', payload: design });
   }, [dispatch]);
 
   const updateInterfaceGroups = useCallback((interfaceGroups: string[]) => {
@@ -20,6 +25,7 @@ export const useLayoutState = ({ dispatch }: UseLayoutStateProps) => {
 
   return {
     updateLayout,
+    updateDesign,
     updateInterfaceGroups,
     updateMapConstraints
   };
