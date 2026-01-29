@@ -522,9 +522,16 @@ export const DataSourceSchema = z.union([
   }),
 ]);
 
+// Design configuration schema for global layout
+const DesignSchema = z.object({
+  variant: z.string(),
+  parameters: z.record(z.string(), z.unknown()).optional(),
+}).passthrough();  // Allow future extensions
+
 export const ConfigurationSchema = z.object({
   version: z.string().optional(),
   layout: z.object({
+    design: DesignSchema.optional(),
     navigation: z.object({
       logo: urlOrRelativePathSchema,
       title: z.string().min(1, 'Title is required'),
@@ -547,7 +554,7 @@ export const ConfigurationSchema = z.object({
       'warning-color': z.string().optional(),
       'text-color-on-warning': z.string().optional(),
     }).optional(),
-  }),
+  }).passthrough(),  // Allow design and future extensions
   interfaceGroups: z.array(z.string()),
   exclusivitySets: z.array(z.string()),
   services: z.array(ServiceSchema).optional().default([]), // Make services optional for backwards compatibility
