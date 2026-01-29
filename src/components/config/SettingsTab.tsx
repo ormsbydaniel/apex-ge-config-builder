@@ -241,6 +241,14 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-8">
+          {/* Design Variant Subsection */}
+          <DesignVariantEditor
+            design={config.layout.design}
+            onUpdate={(design: DesignConfig | undefined) => {
+              dispatch({ type: 'UPDATE_DESIGN', payload: design });
+            }}
+          />
+
           {/* Navigation Settings Subsection */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Navigation Settings</h3>
@@ -736,14 +744,6 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Design Variant Editor */}
-      <DesignVariantEditor
-        design={config.layout.design}
-        onUpdate={(design: DesignConfig | undefined) => {
-          dispatch({ type: 'UPDATE_DESIGN', payload: design });
-        }}
-      />
 
       <AdvancedColorSchemeDialog 
         open={advancedColorsOpen}
