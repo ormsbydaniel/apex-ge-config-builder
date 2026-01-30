@@ -117,33 +117,33 @@ const DragPreview = ({ data }: { data: DragData }) => {
   return null;
 };
 
-// Custom collision detection that prioritizes drop-zones over layers
-// This ensures dragging to a different group works correctly
+// Custom collision detection that prioritizes layers over drop-zones
+// This allows precise positioning when dragging between groups
 const customCollisionDetection: CollisionDetection = (args) => {
   // First, check for pointer-within collisions (more accurate for nested droppables)
   const pointerCollisions = pointerWithin(args);
   
   if (pointerCollisions.length > 0) {
-    // Prioritize drop-zones over layers when both are detected
+    // Prioritize LAYERS over drop-zones - this allows precise positioning
+    const layerCollision = pointerCollisions.find(
+      (collision) => (collision.data?.droppableContainer?.data?.current as DragData)?.type === 'layer'
+    );
+    
+    // If we're over a layer, use that (allows positioning within any group)
+    if (layerCollision) {
+      return [layerCollision];
+    }
+    
+    // Fall back to drop-zone if not over a specific layer
     const dropZone = pointerCollisions.find(
       (collision) => (collision.data?.droppableContainer?.data?.current as DragData)?.type === 'drop-zone'
     );
     
     if (dropZone) {
-      // Check if we're actually over a different group than the dragged item
-      const activeData = args.active.data.current as DragData;
-      const dropData = dropZone.data?.droppableContainer?.data?.current as DragData;
-      
-      const isDifferentGroup = 
-        activeData?.interfaceGroup !== dropData?.interfaceGroup ||
-        activeData?.subinterfaceGroup !== dropData?.subinterfaceGroup;
-      
-      if (isDifferentGroup) {
-        return [dropZone];
-      }
+      return [dropZone];
     }
     
-    // Otherwise return all pointer collisions (for reordering within same group)
+    // Return all collisions as fallback
     return pointerCollisions;
   }
   
