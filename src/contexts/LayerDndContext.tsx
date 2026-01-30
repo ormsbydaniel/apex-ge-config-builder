@@ -124,8 +124,17 @@ const customCollisionDetection: CollisionDetection = (args) => {
   const pointerCollisions = pointerWithin(args);
   
   if (pointerCollisions.length > 0) {
+    // Filter out the item being dragged (it shouldn't collide with itself)
+    const validCollisions = pointerCollisions.filter(
+      collision => collision.id !== args.active.id
+    );
+    
+    if (validCollisions.length === 0) {
+      return rectIntersection(args);
+    }
+    
     // Prioritize LAYERS over drop-zones - this allows precise positioning
-    const layerCollision = pointerCollisions.find(
+    const layerCollision = validCollisions.find(
       (collision) => (collision.data?.droppableContainer?.data?.current as DragData)?.type === 'layer'
     );
     
@@ -135,7 +144,7 @@ const customCollisionDetection: CollisionDetection = (args) => {
     }
     
     // Fall back to drop-zone if not over a specific layer
-    const dropZone = pointerCollisions.find(
+    const dropZone = validCollisions.find(
       (collision) => (collision.data?.droppableContainer?.data?.current as DragData)?.type === 'drop-zone'
     );
     
@@ -143,8 +152,8 @@ const customCollisionDetection: CollisionDetection = (args) => {
       return [dropZone];
     }
     
-    // Return all collisions as fallback
-    return pointerCollisions;
+    // Return all valid collisions as fallback
+    return validCollisions;
   }
   
   // Fallback to rect intersection

@@ -53,20 +53,19 @@ const DroppableGroupZone = ({
 
   // Auto-expand collapsed groups when hovering during drag
   useEffect(() => {
+    // Only set up timer if we're hovering over a valid drop target that's collapsed
     if (showValidDrop && isCollapsed && onExpand) {
-      // Start timer to expand
       expandTimerRef.current = setTimeout(() => {
         onExpand();
       }, AUTO_EXPAND_DELAY);
+      
+      return () => {
+        if (expandTimerRef.current) {
+          clearTimeout(expandTimerRef.current);
+          expandTimerRef.current = null;
+        }
+      };
     }
-
-    return () => {
-      // Clear timer when no longer hovering
-      if (expandTimerRef.current) {
-        clearTimeout(expandTimerRef.current);
-        expandTimerRef.current = null;
-      }
-    };
   }, [showValidDrop, isCollapsed, onExpand]);
 
   return (
