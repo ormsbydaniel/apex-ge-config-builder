@@ -71,6 +71,8 @@ const ConfigBuilderContent = () => {
     setEditingLayerIndex,
     defaultInterfaceGroup,
     setDefaultInterfaceGroup,
+    defaultSubinterfaceGroup,
+    setDefaultSubinterfaceGroup,
     updateLayout,
     updateInterfaceGroups,
     addExclusivitySet,
@@ -211,9 +213,11 @@ const ConfigBuilderContent = () => {
                   showLayerForm={showLayerForm} 
                   selectedLayerType={selectedLayerType} 
                   defaultInterfaceGroup={defaultInterfaceGroup}
+                  defaultSubinterfaceGroup={defaultSubinterfaceGroup}
                   setShowLayerForm={setShowLayerForm} 
                   setSelectedLayerType={setSelectedLayerType} 
                   setDefaultInterfaceGroup={setDefaultInterfaceGroup}
+                  setDefaultSubinterfaceGroup={setDefaultSubinterfaceGroup}
                   handleLayerTypeSelect={handleLayerTypeSelect}
                 handleCancelLayerForm={handleCancelLayerForm} 
                 addLayer={addLayer} 

@@ -14,6 +14,7 @@ interface LayersTabCoreProps {
   showLayerForm: boolean;
   selectedLayerType: LayerType | null;
   defaultInterfaceGroup?: string;
+  defaultSubinterfaceGroup?: string;
   handleLayerTypeSelect: (type: LayerType) => void;
   handleCancelLayerForm: () => void;
   addLayer: (layer: DataSource) => void;
@@ -24,6 +25,7 @@ interface LayersTabCoreProps {
   setShowLayerForm: (show: boolean) => void;
   setSelectedLayerType: (type: LayerType | null) => void;
   setDefaultInterfaceGroup: (group: string | undefined) => void;
+  setDefaultSubinterfaceGroup: (subGroup: string | undefined) => void;
   addExclusivitySet: () => void;
   removeExclusivitySet: (index: number) => void;
   newExclusivitySet: string;
@@ -40,6 +42,7 @@ const LayersTabCore = ({
   showLayerForm,
   selectedLayerType,
   defaultInterfaceGroup,
+  defaultSubinterfaceGroup,
   handleLayerTypeSelect,
   handleCancelLayerForm,
   addLayer,
@@ -50,6 +53,7 @@ const LayersTabCore = ({
   setShowLayerForm,
   setSelectedLayerType,
   setDefaultInterfaceGroup,
+  setDefaultSubinterfaceGroup,
   addExclusivitySet,
   removeExclusivitySet,
   newExclusivitySet,
@@ -142,6 +146,7 @@ const LayersTabCore = ({
         editingLayerIndex={editingLayerIndex}
         config={config}
         defaultInterfaceGroup={defaultInterfaceGroup}
+        defaultSubinterfaceGroup={defaultSubinterfaceGroup}
         isAddingStatistics={layersLogic?.isAddingStatistics || false}
         isAddingConstraint={layersLogic?.isAddingConstraint || false}
         editingConstraintIndex={layersLogic?.editingConstraintIndex ?? null}

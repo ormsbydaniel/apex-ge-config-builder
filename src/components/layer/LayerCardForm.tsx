@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,7 @@ interface LayerCardFormProps {
   interfaceGroups: string[];
   availableExclusivitySets?: string[];
   defaultInterfaceGroup?: string;
+  defaultSubinterfaceGroup?: string;
   onAddLayer: (layer: DataSource) => void;
   onCancel: () => void;
   editingLayer?: DataSource;
@@ -41,13 +42,14 @@ interface LayerCardFormProps {
 const LayerCardForm = ({ 
   interfaceGroups, 
   availableExclusivitySets = [],
-  defaultInterfaceGroup, 
+  defaultInterfaceGroup,
+  defaultSubinterfaceGroup,
   onAddLayer, 
   onCancel, 
   editingLayer, 
   isEditing = false 
 }: LayerCardFormProps) => {
-  const { dispatch } = useConfig();
+  const { config, dispatch } = useConfig();
   const { toast } = useToast();
   const {
     formData,
@@ -55,7 +57,7 @@ const LayerCardForm = ({
     clearDraft,
     isDirty,
     isAutoSaving
-  } = useLayerCardFormPersistence(editingLayer, isEditing, defaultInterfaceGroup);
+  } = useLayerCardFormPersistence(editingLayer, isEditing, defaultInterfaceGroup, defaultSubinterfaceGroup);
 
   const { validateForm } = useLayerCardFormValidation();
   const { createLayerFromFormData, handleSuccessfulSubmission } = useLayerCardFormSubmission(editingLayer, isEditing);
@@ -126,9 +128,26 @@ const LayerCardForm = ({
   // Get data sources for position management
   const dataSources = editingLayer?.data || [];
 
+  // Compute available sub-groups based on selected interface group
+  const availableSubinterfaceGroups = useMemo(() => {
+    const subGroups = new Set<string>();
+    config.sources.forEach(source => {
+      if (source.layout?.interfaceGroup === formData.interfaceGroup &&
+          source.layout?.subinterfaceGroup) {
+        subGroups.add(source.layout.subinterfaceGroup);
+      }
+    });
+    return Array.from(subGroups);
+  }, [config.sources, formData.interfaceGroup]);
+
   // Wrapper for updateFormData that handles auto-switch logic
   const handleFieldChange = (field: string, value: any) => {
     updateFormData(field, value);
+    
+    // Clear sub-interface group when interface group changes
+    if (field === 'interfaceGroup') {
+      updateFormData('subinterfaceGroup', '');
+    }
     
     // Auto-switch to gradient when colormap is added
     if (field === 'colormaps' && Array.isArray(value) && value.length > 0) {
@@ -279,6 +298,9 @@ const LayerCardForm = ({
               description={formData.description}
               interfaceGroup={formData.interfaceGroup}
               interfaceGroups={interfaceGroups}
+              subinterfaceGroup={formData.subinterfaceGroup}
+              availableSubinterfaceGroups={availableSubinterfaceGroups}
+              showSubinterfaceGroup={true}
               units={formData.units}
               timeframe={formData.timeframe}
               defaultTimestamp={formData.defaultTimestamp}

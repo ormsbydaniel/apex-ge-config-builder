@@ -15,6 +15,7 @@ interface LayerOperationsState {
   selectedLayerType: LayerType | null;
   editingLayerIndex: number | null;
   defaultInterfaceGroup?: string;
+  defaultSubinterfaceGroup?: string;
   
   // Layer type management  
   selectedLayerTypeOption: LayerTypeOption;
@@ -41,6 +42,7 @@ interface UseLayerOperationsProps {
   setSelectedLayerType?: (type: LayerType | null) => void;
   setEditingLayerIndex?: (index: number | null) => void;
   setDefaultInterfaceGroup?: (group: string | undefined) => void;
+  setDefaultSubinterfaceGroup?: (subGroup: string | undefined) => void;
 }
 
 export const useLayerOperations = ({
@@ -58,7 +60,8 @@ export const useLayerOperations = ({
   setShowLayerForm: externalSetShowLayerForm,
   setSelectedLayerType: externalSetSelectedLayerType,
   setEditingLayerIndex: externalSetEditingLayerIndex,
-  setDefaultInterfaceGroup: externalSetDefaultInterfaceGroup
+  setDefaultInterfaceGroup: externalSetDefaultInterfaceGroup,
+  setDefaultSubinterfaceGroup: externalSetDefaultSubinterfaceGroup
 }: UseLayerOperationsProps) => {
   const { toast } = useToast();
 
@@ -79,6 +82,7 @@ export const useLayerOperations = ({
     selectedLayerType: null,
     editingLayerIndex: null,
     defaultInterfaceGroup: undefined,
+    defaultSubinterfaceGroup: undefined,
     selectedLayerTypeOption: getInitialLayerType(),
     isPositionModalOpen: false,
     editingDataSourceIndex: null
@@ -92,7 +96,8 @@ export const useLayerOperations = ({
       ...prev,
       showLayerForm: false,
       selectedLayerType: null,
-      defaultInterfaceGroup: undefined
+      defaultInterfaceGroup: undefined,
+      defaultSubinterfaceGroup: undefined
     }));
   }, [dispatch]);
 
@@ -174,6 +179,14 @@ export const useLayerOperations = ({
     }
   }, [externalSetDefaultInterfaceGroup]);
 
+  const setDefaultSubinterfaceGroup = useCallback((subGroup: string | undefined) => {
+    if (externalSetDefaultSubinterfaceGroup) {
+      externalSetDefaultSubinterfaceGroup(subGroup);
+    } else {
+      setState(prev => ({ ...prev, defaultSubinterfaceGroup: subGroup }));
+    }
+  }, [externalSetDefaultSubinterfaceGroup]);
+
   const handleLayerTypeSelect = useCallback((type: LayerType) => {
     setSelectedLayerType(type);
   }, [setSelectedLayerType]);
@@ -183,7 +196,8 @@ export const useLayerOperations = ({
     setSelectedLayerType(null);
     setEditingLayerIndex(null);
     setDefaultInterfaceGroup(undefined);
-  }, [setShowLayerForm, setSelectedLayerType, setEditingLayerIndex, setDefaultInterfaceGroup]);
+    setDefaultSubinterfaceGroup(undefined);
+  }, [setShowLayerForm, setSelectedLayerType, setEditingLayerIndex, setDefaultInterfaceGroup, setDefaultSubinterfaceGroup]);
 
   // === LAYER TYPE MANAGEMENT ===
 
@@ -520,6 +534,7 @@ export const useLayerOperations = ({
     setSelectedLayerType,
     setEditingLayerIndex,
     setDefaultInterfaceGroup,
+    setDefaultSubinterfaceGroup,
     handleLayerTypeSelect,
     handleCancelLayerForm,
     
