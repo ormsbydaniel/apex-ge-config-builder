@@ -47,11 +47,6 @@ const SortableInterfaceGroup = ({
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} className="relative">
-      {/* Drop indicator line above when another group is hovering */}
-      {isOver && !isDragging && (
-        <div className="absolute -top-2 left-0 right-0 h-1 bg-primary rounded-full z-10" />
-      )}
-      
       <div className={cn(
         "flex items-start gap-2",
         isDragging && "ring-2 ring-primary rounded-lg"
