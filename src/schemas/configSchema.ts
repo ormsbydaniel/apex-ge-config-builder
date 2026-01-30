@@ -375,6 +375,7 @@ const ControlsSchema = z.union([
 // Only legend and controls move between layerCard and infoPanel based on contentLocation
 const LayoutSchema = z.object({
   interfaceGroup: z.string().optional(),
+  subinterfaceGroup: z.string().optional(),
   contentLocation: z.enum(['layerCard', 'infoPanel']).optional(),
   layerCard: z.object({
     toggleable: z.boolean().optional(), // Always lives here
