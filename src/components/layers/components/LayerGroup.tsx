@@ -195,108 +195,110 @@ const LayerGroup = ({
   return (
     <div className="flex items-center gap-3">
       <div className="flex-1">
-        <Card className="border-primary/20">
-          <Collapsible open={isExpanded} onOpenChange={onToggleGroup}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                {isEditing ? (
-                  <div className="flex items-center gap-2 flex-1 p-2">
-                    <div className="h-4 w-4" />
-                    <Input
-                      value={editValue}
-                      onChange={e => setEditValue(e.target.value)}
-                      onKeyDown={handleKeyPress}
-                      className="text-base font-medium h-7 flex-1"
-                      autoFocus
-                    />
-                    <Button size="sm" onClick={handleConfirmEdit} className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700">
-                      <Check className="h-3 w-3" />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-6 w-6 p-0">
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
-                    {isExpanded ? <ChevronDown className="h-4 w-4 text-primary" /> : <ChevronRight className="h-4 w-4 text-primary" />}
-                    <div className="flex items-center gap-2 flex-1">
-                      <CardTitle className="text-base text-primary">{groupName}</CardTitle>
-                      <Button size="sm" variant="ghost" onClick={handleStartEdit} className="h-6 w-6 p-0 ml-1 opacity-70 hover:opacity-100">
-                        <Edit2 className="h-3 w-3" />
+        <DroppableGroupZone
+          id={`drop-${groupName}`}
+          interfaceGroup={groupName}
+          isCollapsed={!isExpanded}
+          onExpand={onToggleGroup}
+        >
+          <Card className="border-primary/20">
+            <Collapsible open={isExpanded} onOpenChange={onToggleGroup}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  {isEditing ? (
+                    <div className="flex items-center gap-2 flex-1 p-2">
+                      <div className="h-4 w-4" />
+                      <Input
+                        value={editValue}
+                        onChange={e => setEditValue(e.target.value)}
+                        onKeyDown={handleKeyPress}
+                        className="text-base font-medium h-7 flex-1"
+                        autoFocus
+                      />
+                      <Button size="sm" onClick={handleConfirmEdit} className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700">
+                        <Check className="h-3 w-3" />
                       </Button>
-                      <Badge variant="secondary" className="text-xs">
-                        {sources.length} layer{sources.length !== 1 ? 's' : ''}
-                      </Badge>
-
-                      {/* QA Status Indicators */}
-                      <div className="flex items-center gap-2">
-                        {qaStats.success > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Check className="h-3 w-3 text-green-500" />
-                            <span className="text-xs text-green-600">{qaStats.success}</span>
-                          </div>
-                        )}
-                        {qaStats.info > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Triangle className="h-3 w-3 text-blue-500" />
-                            <span className="text-xs text-blue-600">{qaStats.info}</span>
-                          </div>
-                        )}
-                        {qaStats.warning > 0 && (
-                          <div className="flex items-center gap-1">
-                            <AlertTriangle className="h-3 w-3 text-amber-500" />
-                            <span className="text-xs text-amber-600">{qaStats.warning}</span>
-                          </div>
-                        )}
-                        {qaStats.error > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Triangle className="h-3 w-3 text-red-500" />
-                            <span className="text-xs text-red-600">{qaStats.error}</span>
-                          </div>
-                        )}
-                      </div>
+                      <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-6 w-6 p-0">
+                        <X className="h-3 w-3" />
+                      </Button>
                     </div>
-                  </CollapsibleTrigger>
-                )}
-                {!isEditing && (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onAddLayer(groupName)}
-                      className="text-primary hover:bg-primary/10 border-primary/30"
-                    >
-                      <Plus className="h-3 w-3 mr-1" />
-                      Add Layer
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowAddSubGroupDialog(true)}
-                      className="text-amber-700 hover:bg-amber-100 border-amber-300"
-                      title="Add Sub-Group"
-                    >
-                      <FolderPlus className="h-3 w-3 mr-1" />
-                      Add Sub-Group
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onRemoveInterfaceGroup(groupName)}
-                      className="text-destructive hover:bg-destructive/10 border-destructive/30"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="pt-3 bg-slate-200">
-                <DroppableGroupZone
-                  id={`drop-${groupName}`}
-                  interfaceGroup={groupName}
-                >
+                  ) : (
+                    <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
+                      {isExpanded ? <ChevronDown className="h-4 w-4 text-primary" /> : <ChevronRight className="h-4 w-4 text-primary" />}
+                      <div className="flex items-center gap-2 flex-1">
+                        <CardTitle className="text-base text-primary">{groupName}</CardTitle>
+                        <Button size="sm" variant="ghost" onClick={handleStartEdit} className="h-6 w-6 p-0 ml-1 opacity-70 hover:opacity-100">
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                        <Badge variant="secondary" className="text-xs">
+                          {sources.length} layer{sources.length !== 1 ? 's' : ''}
+                        </Badge>
+
+                        {/* QA Status Indicators */}
+                        <div className="flex items-center gap-2">
+                          {qaStats.success > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Check className="h-3 w-3 text-green-500" />
+                              <span className="text-xs text-green-600">{qaStats.success}</span>
+                            </div>
+                          )}
+                          {qaStats.info > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Triangle className="h-3 w-3 text-blue-500" />
+                              <span className="text-xs text-blue-600">{qaStats.info}</span>
+                            </div>
+                          )}
+                          {qaStats.warning > 0 && (
+                            <div className="flex items-center gap-1">
+                              <AlertTriangle className="h-3 w-3 text-amber-500" />
+                              <span className="text-xs text-amber-600">{qaStats.warning}</span>
+                            </div>
+                          )}
+                          {qaStats.error > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Triangle className="h-3 w-3 text-red-500" />
+                              <span className="text-xs text-red-600">{qaStats.error}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </CollapsibleTrigger>
+                  )}
+                  {!isEditing && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onAddLayer(groupName)}
+                        className="text-primary hover:bg-primary/10 border-primary/30"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Layer
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAddSubGroupDialog(true)}
+                        className="text-amber-700 hover:bg-amber-100 border-amber-300"
+                        title="Add Sub-Group"
+                      >
+                        <FolderPlus className="h-3 w-3 mr-1" />
+                        Add Sub-Group
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onRemoveInterfaceGroup(groupName)}
+                        className="text-destructive hover:bg-destructive/10 border-destructive/30"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+              <CollapsibleContent>
+                <CardContent className="pt-3 bg-slate-200">
                   <div className="space-y-3">
                     {/* Render sub-groups first, in order based on first layer appearance */}
                     {orderedSubGroups.map((subGroupName, subGroupIdx) => {
@@ -387,11 +389,11 @@ const LayerGroup = ({
                       })}
                     </SortableContext>
                   </div>
-                </DroppableGroupZone>
-              </CardContent>
-            </CollapsibleContent>
-          </Collapsible>
-        </Card>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+        </DroppableGroupZone>
       </div>
 
       {/* Group move controls positioned in the space between card and panel edge */}
