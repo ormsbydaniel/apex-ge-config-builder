@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useCallback, useMemo } from
 import {
   DndContext,
   DragOverlay,
-  closestCenter,
+  pointerWithin,
+  rectIntersection,
   PointerSensor,
   useSensor,
   useSensors,
@@ -10,6 +11,8 @@ import {
   DragEndEvent,
   DragOverEvent,
   UniqueIdentifier,
+  CollisionDetection,
+  DroppableContainer,
 } from '@dnd-kit/core';
 import { DataSource } from '@/types/config';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,6 +109,40 @@ const DragPreview = ({ data }: { data: DragData }) => {
   }
 
   return null;
+};
+
+// Custom collision detection that prioritizes drop-zones over layers
+// This ensures dragging to a different group works correctly
+const customCollisionDetection: CollisionDetection = (args) => {
+  // First, check for pointer-within collisions (more accurate for nested droppables)
+  const pointerCollisions = pointerWithin(args);
+  
+  if (pointerCollisions.length > 0) {
+    // Prioritize drop-zones over layers when both are detected
+    const dropZone = pointerCollisions.find(
+      (collision) => (collision.data?.droppableContainer?.data?.current as DragData)?.type === 'drop-zone'
+    );
+    
+    if (dropZone) {
+      // Check if we're actually over a different group than the dragged item
+      const activeData = args.active.data.current as DragData;
+      const dropData = dropZone.data?.droppableContainer?.data?.current as DragData;
+      
+      const isDifferentGroup = 
+        activeData?.interfaceGroup !== dropData?.interfaceGroup ||
+        activeData?.subinterfaceGroup !== dropData?.subinterfaceGroup;
+      
+      if (isDifferentGroup) {
+        return [dropZone];
+      }
+    }
+    
+    // Otherwise return all pointer collisions (for reordering within same group)
+    return pointerCollisions;
+  }
+  
+  // Fallback to rect intersection
+  return rectIntersection(args);
 };
 
 export const LayerDndProvider = ({
@@ -222,7 +259,7 @@ export const LayerDndProvider = ({
     <LayerDndContext.Provider value={contextValue}>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={customCollisionDetection}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
