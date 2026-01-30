@@ -34,6 +34,7 @@ export interface DataSourceMeta {
 // Only legend and controls move between layerCard and infoPanel based on contentLocation
 export interface DataSourceLayout {
   interfaceGroup?: string;
+  subinterfaceGroup?: string; // Intermediate interface group within parent group
   contentLocation?: 'layerCard' | 'infoPanel'; // Track where legend/controls are stored
   layerCard: { // REQUIRED - always exists
     toggleable?: boolean; // Always lives here

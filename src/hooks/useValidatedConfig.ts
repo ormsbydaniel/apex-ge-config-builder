@@ -262,6 +262,7 @@ export const useValidatedConfig = () => {
     // Build layout based on content location
     const layout: any = {
       interfaceGroup: source.layout?.interfaceGroup,
+      subinterfaceGroup: source.layout?.subinterfaceGroup,
       contentLocation
     };
 
