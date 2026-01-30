@@ -276,7 +276,25 @@ const LayerGroup = ({
             <CollapsibleContent>
               <CardContent className="pt-3 bg-slate-200">
                 <div className="space-y-3">
-                  {/* Render ungrouped layers first */}
+                  {/* Render sub-groups first */}
+                  {Object.entries(subGrouped).map(([subGroupName, subGroupItems]) => (
+                    <SubInterfaceGroup
+                      key={subGroupName}
+                      subGroupName={subGroupName}
+                      parentInterfaceGroup={groupName}
+                      sources={subGroupItems.map(item => item.source)}
+                      sourceIndices={subGroupItems.map(item => item.index)}
+                      expandedLayers={expandedLayers}
+                      onToggleLayer={onToggleLayer}
+                      isExpanded={expandedSubGroups.has(subGroupName)}
+                      onToggle={() => onToggleSubGroup?.(subGroupName)}
+                      onAddLayer={() => onAddLayer(groupName, subGroupName)}
+                      onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
+                      onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
+                    />
+                  ))}
+
+                  {/* Render ungrouped layers after sub-groups */}
                   {ungrouped.map(({ source, index: actualIndex }) => {
                     const idx = ungrouped.findIndex(item => item.index === actualIndex);
                     return (
@@ -330,24 +348,6 @@ const LayerGroup = ({
                       </div>
                     );
                   })}
-
-                  {/* Render sub-groups */}
-                  {Object.entries(subGrouped).map(([subGroupName, subGroupItems]) => (
-                    <SubInterfaceGroup
-                      key={subGroupName}
-                      subGroupName={subGroupName}
-                      parentInterfaceGroup={groupName}
-                      sources={subGroupItems.map(item => item.source)}
-                      sourceIndices={subGroupItems.map(item => item.index)}
-                      expandedLayers={expandedLayers}
-                      onToggleLayer={onToggleLayer}
-                      isExpanded={expandedSubGroups.has(subGroupName)}
-                      onToggle={() => onToggleSubGroup?.(subGroupName)}
-                      onAddLayer={() => onAddLayer(groupName, subGroupName)}
-                      onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
-                      onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
-                    />
-                  ))}
                 </div>
               </CardContent>
             </CollapsibleContent>
