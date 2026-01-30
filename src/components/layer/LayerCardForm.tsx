@@ -27,6 +27,7 @@ import ColormapsSection from '@/components/form/ColormapsSection';
 import ContentLocationRadioGroup from '@/components/form/ContentLocationRadioGroup';
 import FieldsSection from '@/components/form/FieldsSection';
 import { isVectorFormat } from '@/utils/fieldDetection';
+import { useGroupPlacementOptions } from '@/hooks/useGroupPlacementOptions';
 
 interface LayerCardFormProps {
   interfaceGroups: string[];
@@ -128,17 +129,8 @@ const LayerCardForm = ({
   // Get data sources for position management
   const dataSources = editingLayer?.data || [];
 
-  // Compute available sub-groups based on selected interface group
-  const availableSubinterfaceGroups = useMemo(() => {
-    const subGroups = new Set<string>();
-    config.sources.forEach(source => {
-      if (source.layout?.interfaceGroup === formData.interfaceGroup &&
-          source.layout?.subinterfaceGroup) {
-        subGroups.add(source.layout.subinterfaceGroup);
-      }
-    });
-    return Array.from(subGroups);
-  }, [config.sources, formData.interfaceGroup]);
+  // Compute grouped placement options for the unified dropdown
+  const { groupedOptions: groupedPlacementOptions } = useGroupPlacementOptions(interfaceGroups, config.sources as DataSource[]);
 
   // Wrapper for updateFormData that handles auto-switch logic
   const handleFieldChange = (field: string, value: any) => {
@@ -299,8 +291,7 @@ const LayerCardForm = ({
               interfaceGroup={formData.interfaceGroup}
               interfaceGroups={interfaceGroups}
               subinterfaceGroup={formData.subinterfaceGroup}
-              availableSubinterfaceGroups={availableSubinterfaceGroups}
-              showSubinterfaceGroup={true}
+              groupedPlacementOptions={groupedPlacementOptions}
               units={formData.units}
               timeframe={formData.timeframe}
               defaultTimestamp={formData.defaultTimestamp}
