@@ -15,11 +15,13 @@ interface UseLayersTabLogicProps {
     exclusivitySets: string[];
   };
   defaultInterfaceGroup?: string;
+  defaultSubinterfaceGroup?: string;
   editingLayerIndex: number | null;
   setEditingLayerIndex: (index: number | null) => void;
   setSelectedLayerType: (type: LayerType | null) => void;
   setShowLayerForm: (show: boolean) => void;
   setDefaultInterfaceGroup: (group: string | undefined) => void;
+  setDefaultSubinterfaceGroup: (subGroup: string | undefined) => void;
   updateLayer: (index: number, layer: DataSource) => void;
   addLayer: (layer: DataSource) => void;
   updateConfig: (updates: { interfaceGroups?: string[]; sources?: DataSource[] }) => void;
@@ -27,7 +29,7 @@ interface UseLayersTabLogicProps {
 }
 
 export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
-  const { setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm, setEditingLayerIndex, navigationState } = props;
+  const { setDefaultInterfaceGroup, setDefaultSubinterfaceGroup, setSelectedLayerType, setShowLayerForm, setEditingLayerIndex, navigationState } = props;
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
 
   // Use the composed hook for all layers tab logic
@@ -42,6 +44,7 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
   // Use layer type handlers
   const layerTypeHandlers = useLayerTypeHandlers({
     setDefaultInterfaceGroup,
+    setDefaultSubinterfaceGroup,
     setSelectedLayerType,
     setShowLayerForm,
     setEditingLayerIndex,
