@@ -120,6 +120,8 @@ const DragPreview = ({ data }: { data: DragData }) => {
 // Custom collision detection that prioritizes layers over drop-zones
 // This allows precise positioning when dragging between groups
 const customCollisionDetection: CollisionDetection = (args) => {
+  const activeData = args.active.data.current as DragData | undefined;
+  
   // First, check for pointer-within collisions (more accurate for nested droppables)
   const pointerCollisions = pointerWithin(args);
   
@@ -133,7 +135,19 @@ const customCollisionDetection: CollisionDetection = (args) => {
       return rectIntersection(args);
     }
     
-    // Prioritize LAYERS over drop-zones - this allows precise positioning
+    // If dragging an interface group, prioritize other interface groups
+    if (activeData?.type === 'interface-group') {
+      const interfaceGroupCollision = validCollisions.find(
+        (collision) => (collision.data?.droppableContainer?.data?.current as DragData)?.type === 'interface-group'
+      );
+      if (interfaceGroupCollision) {
+        return [interfaceGroupCollision];
+      }
+      // Fall back to any collision
+      return validCollisions;
+    }
+    
+    // If dragging a layer, prioritize LAYERS over drop-zones for precise positioning
     const layerCollision = validCollisions.find(
       (collision) => (collision.data?.droppableContainer?.data?.current as DragData)?.type === 'layer'
     );
