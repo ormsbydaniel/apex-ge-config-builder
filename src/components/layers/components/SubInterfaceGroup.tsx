@@ -11,7 +11,6 @@ import { useLayersTabContext } from '@/contexts/LayersTabContext';
 import { calculateQAStats } from '@/utils/qaUtils';
 import SortableLayerCard from './SortableLayerCard';
 import DroppableGroupZone from './DroppableGroupZone';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 interface SubInterfaceGroupProps {
   subGroupName: string;
   parentInterfaceGroup: string;
@@ -245,10 +244,6 @@ const SubInterfaceGroup = ({
             </CardHeader>
             <CollapsibleContent>
               <CardContent className="pt-2 pb-3 bg-amber-100/30 dark:bg-amber-950/20">
-                <SortableContext
-                  items={sourceIndices.map(idx => `layer-${idx}`)}
-                  strategy={verticalListSortingStrategy}
-                >
                 <div className="space-y-2">
                   {sources.map((source, idx) => {
                     const actualIndex = sourceIndices[idx];
@@ -307,7 +302,6 @@ const SubInterfaceGroup = ({
                     );
                   })}
                 </div>
-              </SortableContext>
               </CardContent>
             </CollapsibleContent>
           </Collapsible>

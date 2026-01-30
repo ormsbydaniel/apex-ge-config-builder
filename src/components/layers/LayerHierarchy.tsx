@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { DataSource, isDataSourceItemArray } from '@/types/config';
 import LayerGroup from './components/LayerGroup';
 import BaseLayerGroup from './components/BaseLayerGroup';
@@ -520,6 +520,45 @@ const LayerHierarchy = ({
     }
   });
 
+  // Compute all layer IDs in visual order for the global SortableContext
+  // This ensures consistent drag feedback across all groups
+  const allLayerIds = useMemo(() => {
+    const ids: string[] = [];
+    
+    // Add layers from each interface group in order
+    config.interfaceGroups.forEach(groupName => {
+      const groupItems = groupedLayers[groupName] || [];
+      
+      // First, collect subgroups in order and their layers
+      const subGroupMap: Record<string, number[]> = {};
+      const subGroupOrder: string[] = [];
+      const ungroupedInGroup: number[] = [];
+      
+      groupItems.forEach(item => {
+        const subGroup = item.layer.layout?.subinterfaceGroup;
+        if (subGroup) {
+          if (!subGroupMap[subGroup]) {
+            subGroupMap[subGroup] = [];
+            subGroupOrder.push(subGroup);
+          }
+          subGroupMap[subGroup].push(item.originalIndex);
+        } else {
+          ungroupedInGroup.push(item.originalIndex);
+        }
+      });
+      
+      // Add subgroup layers first
+      subGroupOrder.forEach(subGroup => {
+        subGroupMap[subGroup].forEach(idx => ids.push(`layer-${idx}`));
+      });
+      
+      // Then add ungrouped layers
+      ungroupedInGroup.forEach(idx => ids.push(`layer-${idx}`));
+    });
+    
+    return ids;
+  }, [config.sources, config.interfaceGroups, groupedLayers]);
+
   const currentGroupLayerCount = deleteGroupName ? 
     getLayerCountsByGroup().find(g => g.groupName === deleteGroupName)?.layerCount || 0 : 0;
   const currentMigrationOptions = deleteGroupName ? 
@@ -613,44 +652,50 @@ const LayerHierarchy = ({
       onReorderInterfaceGroup={handleReorderInterfaceGroup}
     >
       <div className="space-y-6">
-        {/* Interface Groups - wrapped in SortableContext for drag reordering */}
+        {/* Global SortableContext for all layers - enables consistent greyed-out card feedback across groups */}
         <SortableContext
-          items={config.interfaceGroups.map(g => `interface-group-${g}`)}
+          items={allLayerIds}
           strategy={verticalListSortingStrategy}
         >
-          {config.interfaceGroups.map((groupName, groupIndex) => (
-            <SortableInterfaceGroup
-              key={groupName}
-              id={`interface-group-${groupName}`}
-              groupName={groupName}
-              groupIndex={groupIndex}
-            >
-              <LayerGroup
+          {/* Interface Groups - wrapped in SortableContext for drag reordering */}
+          <SortableContext
+            items={config.interfaceGroups.map(g => `interface-group-${g}`)}
+            strategy={verticalListSortingStrategy}
+          >
+            {config.interfaceGroups.map((groupName, groupIndex) => (
+              <SortableInterfaceGroup
+                key={groupName}
+                id={`interface-group-${groupName}`}
                 groupName={groupName}
                 groupIndex={groupIndex}
-                sources={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.layer) : []}
-                sourceIndices={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.originalIndex) : []}
-                expandedLayers={expandedLayers}
-                onToggleLayer={onToggleLayer}
-                onRemoveInterfaceGroup={handleDeleteGroup}
-                onAddLayer={(gName, subGName) => onAddLayer(gName, subGName)}
-                onMoveGroup={moveInterfaceGroup}
-                onRenameGroup={handleGroupRename}
-                isExpanded={expandedGroups.has(groupName)}
-                onToggleGroup={() => toggleGroup(groupName)}
-                canMoveUp={groupIndex > 0}
-                canMoveDown={groupIndex < config.interfaceGroups.length - 1}
-                // Sub-group management
-                onAddSubGroup={(subGroupName, selectedLayerIndices) => handleAddSubGroup(groupName, subGroupName, selectedLayerIndices)}
-                onRenameSubGroup={(oldName, newName) => handleRenameSubGroup(groupName, oldName, newName)}
-                onRemoveSubGroup={(subGroupName) => handleRemoveSubGroup(groupName, subGroupName)}
-                onUngroupSubGroup={(subGroupName) => handleUngroupSubGroup(groupName, subGroupName)}
-                onMoveSubGroup={(subGroupName, direction) => handleMoveSubGroup(groupName, subGroupName, direction)}
-                expandedSubGroups={getExpandedSubGroupsForGroup(groupName)}
-                onToggleSubGroup={(subGroupName) => toggleSubGroup(groupName, subGroupName)}
-              />
-            </SortableInterfaceGroup>
-          ))}
+              >
+                <LayerGroup
+                  groupName={groupName}
+                  groupIndex={groupIndex}
+                  sources={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.layer) : []}
+                  sourceIndices={groupedLayers[groupName] ? groupedLayers[groupName].map(item => item.originalIndex) : []}
+                  expandedLayers={expandedLayers}
+                  onToggleLayer={onToggleLayer}
+                  onRemoveInterfaceGroup={handleDeleteGroup}
+                  onAddLayer={(gName, subGName) => onAddLayer(gName, subGName)}
+                  onMoveGroup={moveInterfaceGroup}
+                  onRenameGroup={handleGroupRename}
+                  isExpanded={expandedGroups.has(groupName)}
+                  onToggleGroup={() => toggleGroup(groupName)}
+                  canMoveUp={groupIndex > 0}
+                  canMoveDown={groupIndex < config.interfaceGroups.length - 1}
+                  // Sub-group management
+                  onAddSubGroup={(subGroupName, selectedLayerIndices) => handleAddSubGroup(groupName, subGroupName, selectedLayerIndices)}
+                  onRenameSubGroup={(oldName, newName) => handleRenameSubGroup(groupName, oldName, newName)}
+                  onRemoveSubGroup={(subGroupName) => handleRemoveSubGroup(groupName, subGroupName)}
+                  onUngroupSubGroup={(subGroupName) => handleUngroupSubGroup(groupName, subGroupName)}
+                  onMoveSubGroup={(subGroupName, direction) => handleMoveSubGroup(groupName, subGroupName, direction)}
+                  expandedSubGroups={getExpandedSubGroupsForGroup(groupName)}
+                  onToggleSubGroup={(subGroupName) => toggleSubGroup(groupName, subGroupName)}
+                />
+              </SortableInterfaceGroup>
+            ))}
+          </SortableContext>
         </SortableContext>
 
         {/* Base Layers */}

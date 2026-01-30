@@ -4,8 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import LayerCard from '../LayerCard';
-import { DragData, useLayerDndContext } from '@/contexts/LayerDndContext';
-import { cn } from '@/lib/utils';
+import { DragData } from '@/contexts/LayerDndContext';
 
 interface SortableLayerCardProps {
   id: string;
@@ -54,8 +53,6 @@ const SortableLayerCard = ({
   subinterfaceGroup,
   ...layerCardProps
 }: SortableLayerCardProps) => {
-  const { activeData, overId } = useLayerDndContext();
-  
   const dragData: DragData = {
     type: 'layer',
     sourceIndex: index,
@@ -71,18 +68,10 @@ const SortableLayerCard = ({
     transform,
     transition,
     isDragging,
-    isOver,
   } = useSortable({
     id,
     data: dragData,
   });
-
-  // Check if we're receiving a cross-group drop
-  const isReceivingCrossGroupDrop = 
-    isOver && 
-    activeData?.type === 'layer' &&
-    (activeData.interfaceGroup !== interfaceGroup || 
-     activeData.subinterfaceGroup !== subinterfaceGroup);
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -94,15 +83,7 @@ const SortableLayerCard = ({
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} className="relative">
-      {/* Cross-group insertion indicator - shows above this card */}
-      {isReceivingCrossGroupDrop && (
-        <div className="absolute -top-1 left-0 right-0 h-1 bg-primary rounded-full z-10 animate-pulse" />
-      )}
-      
-      <div className={cn(
-        "flex items-center gap-2 transition-all duration-150",
-        isReceivingCrossGroupDrop && "translate-y-1"
-      )}>
+      <div className="flex items-center gap-2">
         {/* Drag handle */}
         <div
           {...listeners}
