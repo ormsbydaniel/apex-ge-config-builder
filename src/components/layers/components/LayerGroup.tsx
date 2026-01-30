@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, ArrowUpToLine, ArrowDownToLine, Edit2, Check, X, AlertTriangle, Triangle } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, ArrowUpToLine, ArrowDownToLine, Edit2, Check, X, AlertTriangle, Triangle, FolderPlus } from 'lucide-react';
 import LayerMoveControls from './LayerMoveControls';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
 import { calculateQAStats } from '@/utils/qaUtils';
 import LayerCard from '../LayerCard';
+import SubInterfaceGroup from './SubInterfaceGroup';
+import AddSubGroupDialog from './AddSubGroupDialog';
+import DeleteSubGroupDialog from './DeleteSubGroupDialog';
+
 interface LayerGroupProps {
   groupName: string;
   groupIndex: number;
@@ -18,14 +22,22 @@ interface LayerGroupProps {
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
   onRemoveInterfaceGroup: (groupName: string) => void;
-  onAddLayer: (groupName: string) => void;
+  onAddLayer: (groupName: string, subGroupName?: string) => void;
   onMoveGroup: (groupIndex: number, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onRenameGroup: (oldName: string, newName: string) => void;
   isExpanded: boolean;
   onToggleGroup: () => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
+  // Sub-group management
+  onAddSubGroup?: (subGroupName: string) => void;
+  onRenameSubGroup?: (oldName: string, newName: string) => void;
+  onRemoveSubGroup?: (subGroupName: string) => void;
+  onUngroupSubGroup?: (subGroupName: string) => void;
+  expandedSubGroups?: Set<string>;
+  onToggleSubGroup?: (subGroupName: string) => void;
 }
+
 const LayerGroup = ({
   groupName,
   groupIndex,
@@ -40,10 +52,19 @@ const LayerGroup = ({
   isExpanded,
   onToggleGroup,
   canMoveUp,
-  canMoveDown
+  canMoveDown,
+  onAddSubGroup,
+  onRenameSubGroup,
+  onRemoveSubGroup,
+  onUngroupSubGroup,
+  expandedSubGroups = new Set(),
+  onToggleSubGroup
 }: LayerGroupProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(groupName);
+  const [showAddSubGroupDialog, setShowAddSubGroupDialog] = useState(false);
+  const [deleteSubGroupName, setDeleteSubGroupName] = useState<string | null>(null);
+
   const {
     onRemoveLayer,
     onEditLayer,
@@ -82,8 +103,28 @@ const LayerGroup = ({
     onEditChartSource
   } = useLayersTabContext();
 
+  // Group layers by subinterfaceGroup property
+  const { subGrouped, ungrouped, existingSubGroups } = useMemo(() => {
+    const subGrouped: Record<string, Array<{ source: DataSource; index: number }>> = {};
+    const ungrouped: Array<{ source: DataSource; index: number }> = [];
+
+    sources.forEach((source, idx) => {
+      const subGroup = source.layout?.subinterfaceGroup;
+      if (subGroup) {
+        if (!subGrouped[subGroup]) subGrouped[subGroup] = [];
+        subGrouped[subGroup].push({ source, index: sourceIndices[idx] });
+      } else {
+        ungrouped.push({ source, index: sourceIndices[idx] });
+      }
+    });
+
+    const existingSubGroups = Object.keys(subGrouped);
+    return { subGrouped, ungrouped, existingSubGroups };
+  }, [sources, sourceIndices]);
+
   // Calculate QA stats for this group's sources
   const qaStats = calculateQAStats(sources);
+
   const handleMoveLayerInGroup = (fromIndex: number, direction: 'up' | 'down') => {
     const currentGroupSources = sourceIndices;
     const fromPosition = currentGroupSources.indexOf(fromIndex);
@@ -93,45 +134,72 @@ const LayerGroup = ({
     const toIndex = currentGroupSources[toPosition];
     onMoveLayer(fromIndex, toIndex);
   };
+
   const handleStartEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsEditing(true);
     setEditValue(groupName);
   };
+
   const handleConfirmEdit = () => {
     if (editValue.trim() && editValue.trim() !== groupName && !config.interfaceGroups.includes(editValue.trim())) {
       onRenameGroup(groupName, editValue.trim());
     }
     setIsEditing(false);
   };
+
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditValue(groupName);
   };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    e.stopPropagation(); // Prevent event from bubbling to CollapsibleTrigger
+    e.stopPropagation();
     if (e.key === 'Enter') {
       handleConfirmEdit();
     } else if (e.key === 'Escape') {
       handleCancelEdit();
     }
   };
-  return <div className="flex items-center gap-3">
+
+  const handleAddSubGroup = (subGroupName: string): boolean => {
+    if (onAddSubGroup) {
+      onAddSubGroup(subGroupName);
+      return true;
+    }
+    return false;
+  };
+
+  const getSubGroupLayerCount = (subGroupName: string): number => {
+    return subGrouped[subGroupName]?.length || 0;
+  };
+
+  return (
+    <div className="flex items-center gap-3">
       <div className="flex-1">
         <Card className="border-primary/20">
           <Collapsible open={isExpanded} onOpenChange={onToggleGroup}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                {isEditing ? <div className="flex items-center gap-2 flex-1 p-2">
-                    <div className="h-4 w-4" /> {/* Spacer to align with chevron */}
-                    <Input value={editValue} onChange={e => setEditValue(e.target.value)} onKeyDown={handleKeyPress} className="text-base font-medium h-7 flex-1" autoFocus />
+                {isEditing ? (
+                  <div className="flex items-center gap-2 flex-1 p-2">
+                    <div className="h-4 w-4" />
+                    <Input
+                      value={editValue}
+                      onChange={e => setEditValue(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      className="text-base font-medium h-7 flex-1"
+                      autoFocus
+                    />
                     <Button size="sm" onClick={handleConfirmEdit} className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700">
                       <Check className="h-3 w-3" />
                     </Button>
                     <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-6 w-6 p-0">
                       <X className="h-3 w-3" />
                     </Button>
-                  </div> : <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
+                  </div>
+                ) : (
+                  <CollapsibleTrigger className="flex items-center gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1">
                     {isExpanded ? <ChevronDown className="h-4 w-4 text-primary" /> : <ChevronRight className="h-4 w-4 text-primary" />}
                     <div className="flex items-center gap-2 flex-1">
                       <CardTitle className="text-base text-primary">{groupName}</CardTitle>
@@ -141,63 +209,96 @@ const LayerGroup = ({
                       <Badge variant="secondary" className="text-xs">
                         {sources.length} layer{sources.length !== 1 ? 's' : ''}
                       </Badge>
-                      
+
                       {/* QA Status Indicators */}
                       <div className="flex items-center gap-2">
-                        {qaStats.success > 0 && <div className="flex items-center gap-1">
+                        {qaStats.success > 0 && (
+                          <div className="flex items-center gap-1">
                             <Check className="h-3 w-3 text-green-500" />
                             <span className="text-xs text-green-600">{qaStats.success}</span>
-                          </div>}
-                        {qaStats.info > 0 && <div className="flex items-center gap-1">
+                          </div>
+                        )}
+                        {qaStats.info > 0 && (
+                          <div className="flex items-center gap-1">
                             <Triangle className="h-3 w-3 text-blue-500" />
                             <span className="text-xs text-blue-600">{qaStats.info}</span>
-                          </div>}
-                        {qaStats.warning > 0 && <div className="flex items-center gap-1">
+                          </div>
+                        )}
+                        {qaStats.warning > 0 && (
+                          <div className="flex items-center gap-1">
                             <AlertTriangle className="h-3 w-3 text-amber-500" />
                             <span className="text-xs text-amber-600">{qaStats.warning}</span>
-                          </div>}
-                        {qaStats.error > 0 && <div className="flex items-center gap-1">
+                          </div>
+                        )}
+                        {qaStats.error > 0 && (
+                          <div className="flex items-center gap-1">
                             <Triangle className="h-3 w-3 text-red-500" />
                             <span className="text-xs text-red-600">{qaStats.error}</span>
-                          </div>}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </CollapsibleTrigger>}
-                {!isEditing && <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => onAddLayer(groupName)} className="text-primary hover:bg-primary/10 border-primary/30">
+                  </CollapsibleTrigger>
+                )}
+                {!isEditing && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onAddLayer(groupName)}
+                      className="text-primary hover:bg-primary/10 border-primary/30"
+                    >
                       <Plus className="h-3 w-3 mr-1" />
                       Add Layer
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => onRemoveInterfaceGroup(groupName)} className="text-destructive hover:bg-destructive/10 border-destructive/30">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowAddSubGroupDialog(true)}
+                      className="text-amber-700 hover:bg-amber-100 border-amber-300"
+                      title="Add Sub-Group"
+                    >
+                      <FolderPlus className="h-3 w-3 mr-1" />
+                      Add Sub-Group
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onRemoveInterfaceGroup(groupName)}
+                      className="text-destructive hover:bg-destructive/10 border-destructive/30"
+                    >
                       <Trash2 className="h-3 w-3" />
                     </Button>
-                  </div>}
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CollapsibleContent>
               <CardContent className="pt-3 bg-slate-200">
                 <div className="space-y-3">
-                  {sources.map((source, idx) => {
-                  const actualIndex = sourceIndices[idx];
-                  return <div key={actualIndex} className="flex items-center gap-2">
+                  {/* Render ungrouped layers first */}
+                  {ungrouped.map(({ source, index: actualIndex }) => {
+                    const idx = ungrouped.findIndex(item => item.index === actualIndex);
+                    return (
+                      <div key={actualIndex} className="flex items-center gap-2">
                         <div className="flex-1">
-                          <LayerCard 
-                            source={source} 
-                            index={actualIndex} 
-                            onRemove={onRemoveLayer} 
-                            onEdit={onEditLayer} 
-                            onEditBaseLayer={onEditBaseLayer} 
-                            onDuplicate={onDuplicateLayer} 
-                            onUpdateLayer={onUpdateLayer} 
-                            onAddDataSource={() => onAddDataSource(actualIndex)} 
-                            onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)} 
-                            onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)} 
-                            onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)} 
-                            onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)} 
-                            onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)} 
-                            onAddConstraintSource={onAddConstraintSource} 
-                            onRemoveConstraintSource={constraintIndex => onRemoveConstraintSource(actualIndex, constraintIndex)} 
-                            onEditConstraintSource={constraintIndex => onEditConstraintSource(actualIndex, constraintIndex)} 
+                          <LayerCard
+                            source={source}
+                            index={actualIndex}
+                            onRemove={onRemoveLayer}
+                            onEdit={onEditLayer}
+                            onEditBaseLayer={onEditBaseLayer}
+                            onDuplicate={onDuplicateLayer}
+                            onUpdateLayer={onUpdateLayer}
+                            onAddDataSource={() => onAddDataSource(actualIndex)}
+                            onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)}
+                            onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)}
+                            onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)}
+                            onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)}
+                            onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)}
+                            onAddConstraintSource={onAddConstraintSource}
+                            onRemoveConstraintSource={constraintIndex => onRemoveConstraintSource(actualIndex, constraintIndex)}
+                            onEditConstraintSource={constraintIndex => onEditConstraintSource(actualIndex, constraintIndex)}
                             onMoveConstraintUp={constraintIndex => onMoveConstraintUp(actualIndex, constraintIndex)}
                             onMoveConstraintDown={constraintIndex => onMoveConstraintDown(actualIndex, constraintIndex)}
                             onMoveConstraintToTop={constraintIndex => onMoveConstraintToTop(actualIndex, constraintIndex)}
@@ -212,7 +313,7 @@ const LayerGroup = ({
                             onAddChart={() => onStartChartForm ? onStartChartForm(actualIndex) : onAddChart(actualIndex, { chartType: 'xy', sources: [] })}
                             onRemoveChart={chartIndex => onRemoveChart(actualIndex, chartIndex)}
                             onEditChart={chartIndex => onEditChartSource ? onEditChartSource(actualIndex, chartIndex) : undefined}
-                            isExpanded={expandedLayers.has(actualIndex)} 
+                            isExpanded={expandedLayers.has(actualIndex)}
                             onToggle={() => onToggleLayer(actualIndex)}
                           />
                         </div>
@@ -222,19 +323,38 @@ const LayerGroup = ({
                           onMoveToTop={() => moveLayerToTop(actualIndex, sourceIndices)}
                           onMoveToBottom={() => moveLayerToBottom(actualIndex, sourceIndices)}
                           canMoveUp={idx > 0}
-                          canMoveDown={idx < sources.length - 1}
+                          canMoveDown={idx < ungrouped.length - 1}
                           canMoveToTop={idx > 0}
-                          canMoveToBottom={idx < sources.length - 1}
+                          canMoveToBottom={idx < ungrouped.length - 1}
                         />
-                      </div>;
-                })}
+                      </div>
+                    );
+                  })}
+
+                  {/* Render sub-groups */}
+                  {Object.entries(subGrouped).map(([subGroupName, subGroupItems]) => (
+                    <SubInterfaceGroup
+                      key={subGroupName}
+                      subGroupName={subGroupName}
+                      parentInterfaceGroup={groupName}
+                      sources={subGroupItems.map(item => item.source)}
+                      sourceIndices={subGroupItems.map(item => item.index)}
+                      expandedLayers={expandedLayers}
+                      onToggleLayer={onToggleLayer}
+                      isExpanded={expandedSubGroups.has(subGroupName)}
+                      onToggle={() => onToggleSubGroup?.(subGroupName)}
+                      onAddLayer={() => onAddLayer(groupName, subGroupName)}
+                      onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
+                      onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
+                    />
+                  ))}
                 </div>
               </CardContent>
             </CollapsibleContent>
           </Collapsible>
         </Card>
       </div>
-      
+
       {/* Group move controls positioned in the space between card and panel edge */}
       <div className="flex gap-1 pt-3">
         <div className="flex flex-col gap-1">
@@ -254,6 +374,38 @@ const LayerGroup = ({
           </Button>
         </div>
       </div>
-    </div>;
+
+      {/* Add Sub-Group Dialog */}
+      <AddSubGroupDialog
+        open={showAddSubGroupDialog}
+        onOpenChange={setShowAddSubGroupDialog}
+        onAdd={handleAddSubGroup}
+        parentInterfaceGroup={groupName}
+        existingSubGroups={existingSubGroups}
+      />
+
+      {/* Delete Sub-Group Dialog */}
+      <DeleteSubGroupDialog
+        open={!!deleteSubGroupName}
+        onOpenChange={(open) => !open && setDeleteSubGroupName(null)}
+        subGroupName={deleteSubGroupName || ''}
+        parentInterfaceGroup={groupName}
+        layerCount={deleteSubGroupName ? getSubGroupLayerCount(deleteSubGroupName) : 0}
+        onDelete={() => {
+          if (deleteSubGroupName && onRemoveSubGroup) {
+            onRemoveSubGroup(deleteSubGroupName);
+            setDeleteSubGroupName(null);
+          }
+        }}
+        onUngroup={() => {
+          if (deleteSubGroupName && onUngroupSubGroup) {
+            onUngroupSubGroup(deleteSubGroupName);
+            setDeleteSubGroupName(null);
+          }
+        }}
+      />
+    </div>
+  );
 };
+
 export default LayerGroup;

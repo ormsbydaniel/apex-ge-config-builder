@@ -16,9 +16,11 @@ interface LayersTabContainerProps {
   showLayerForm: boolean;
   selectedLayerType: LayerType | null;
   defaultInterfaceGroup?: string;
+  defaultSubinterfaceGroup?: string;
   setShowLayerForm: (show: boolean) => void;
   setSelectedLayerType: (type: LayerType | null) => void;
   setDefaultInterfaceGroup: (group: string | undefined) => void;
+  setDefaultSubinterfaceGroup: (subGroup: string | undefined) => void;
   handleLayerTypeSelect: (type: LayerType) => void;
   handleCancelLayerForm: () => void;
   addLayer: (layer: DataSource) => void;
@@ -59,6 +61,7 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     config: props.config,
     editingLayerIndex: props.editingLayerIndex,
     defaultInterfaceGroup: props.defaultInterfaceGroup,
+    defaultSubinterfaceGroup: props.defaultSubinterfaceGroup,
     onRemoveLayer: props.removeLayer,
     onEditLayer: layersLogic.handleEditLayer,
     onEditBaseLayer: layersLogic.handleEditBaseLayer,
@@ -104,6 +107,7 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
         showLayerForm={props.showLayerForm}
         selectedLayerType={props.selectedLayerType}
         defaultInterfaceGroup={props.defaultInterfaceGroup}
+        defaultSubinterfaceGroup={props.defaultSubinterfaceGroup}
         editingLayerIndex={props.editingLayerIndex}
         expandedLayers={layersLogic.expandedLayers}
         onToggleLayer={layersLogic.onToggleLayer}
@@ -116,6 +120,7 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
         setShowLayerForm={props.setShowLayerForm}
         setSelectedLayerType={props.setSelectedLayerType}
         setDefaultInterfaceGroup={props.setDefaultInterfaceGroup}
+        setDefaultSubinterfaceGroup={props.setDefaultSubinterfaceGroup}
         addExclusivitySet={props.addExclusivitySet}
         removeExclusivitySet={props.removeExclusivitySet}
         newExclusivitySet={props.newExclusivitySet}

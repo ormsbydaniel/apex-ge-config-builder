@@ -6,6 +6,7 @@ import UngroupedLayersGroup from './components/UngroupedLayersGroup';
 import AddInterfaceGroupDialog from './components/AddInterfaceGroupDialog';
 import DeleteInterfaceGroupDialog from './components/DeleteInterfaceGroupDialog';
 import { useInterfaceGroupManagement } from '@/hooks/useInterfaceGroupManagement';
+import { useToast } from '@/hooks/use-toast';
 
 interface LayerHierarchyProps {
   config: {
@@ -31,7 +32,7 @@ interface LayerHierarchyProps {
   onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
   onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
   onMoveLayer: (fromIndex: number, toIndex: number) => void;
-  onAddLayer: (groupName: string) => void;
+  onAddLayer: (groupName: string, subGroupName?: string) => void;
   onAddBaseLayer: () => void;
   onAddRecommendedBaseLayers: () => void;
   isLoadingRecommended?: boolean;
@@ -44,8 +45,8 @@ interface LayerHierarchyProps {
   onClearExpandedGroup?: () => void;
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
-  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
-  navigationState?: { expandedGroups: string[]; expandedLayers: string[] };
+  onExpansionStateChange?: (layers: string[], groups: string[], subGroups?: string[]) => void;
+  navigationState?: { expandedGroups: string[]; expandedLayers: string[]; expandedSubGroups?: string[] };
 }
 
 const LayerHierarchy = ({
@@ -85,6 +86,8 @@ const LayerHierarchy = ({
   onExpansionStateChange,
   navigationState
 }: LayerHierarchyProps) => {
+  const { toast } = useToast();
+  
   // Group expansion state - restore from navigationState if available
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
     if (navigationState?.expandedGroups) {
@@ -98,6 +101,15 @@ const LayerHierarchy = ({
   const [expandedUngroupedLayers, setExpandedUngroupedLayers] = useState(() => {
     return navigationState?.expandedGroups?.includes('__UNGROUPED__') || false;
   });
+  
+  // Sub-group expansion state - keyed by "parentGroup::subGroup"
+  const [expandedSubGroups, setExpandedSubGroups] = useState<Set<string>>(() => {
+    if (navigationState?.expandedSubGroups) {
+      return new Set(navigationState.expandedSubGroups);
+    }
+    return new Set();
+  });
+  
   const [showAddGroupDialog, setShowAddGroupDialog] = useState(false);
   const [deleteGroupName, setDeleteGroupName] = useState<string | null>(null);
 
@@ -140,6 +152,131 @@ const LayerHierarchy = ({
       newExpanded.add(newName);
       setExpandedGroups(newExpanded);
     }
+    
+    // Also update sub-group expansion state keys
+    const newExpandedSubGroups = new Set<string>();
+    expandedSubGroups.forEach(key => {
+      if (key.startsWith(`${oldName}::`)) {
+        newExpandedSubGroups.add(key.replace(`${oldName}::`, `${newName}::`));
+      } else {
+        newExpandedSubGroups.add(key);
+      }
+    });
+    setExpandedSubGroups(newExpandedSubGroups);
+  };
+
+  // Sub-group management handlers
+  const handleAddSubGroup = (parentGroup: string, subGroupName: string) => {
+    // Sub-groups are implicit - just trigger layer addition with subinterfaceGroup pre-set
+    toast({
+      title: "Sub-Group Ready",
+      description: `Add a layer to create the "${subGroupName}" sub-group.`,
+    });
+    // Expand the sub-group after creation
+    const key = `${parentGroup}::${subGroupName}`;
+    const newExpanded = new Set(expandedSubGroups);
+    newExpanded.add(key);
+    setExpandedSubGroups(newExpanded);
+    // Trigger layer addition with subGroupName
+    onAddLayer(parentGroup, subGroupName);
+  };
+
+  const handleRenameSubGroup = (parentGroup: string, oldName: string, newName: string) => {
+    // Update all layers in this sub-group
+    const updatedSources = config.sources.map(source =>
+      source.layout?.interfaceGroup === parentGroup &&
+      source.layout?.subinterfaceGroup === oldName
+        ? {
+            ...source,
+            layout: { ...source.layout, subinterfaceGroup: newName }
+          }
+        : source
+    );
+
+    updateConfig({ sources: updatedSources });
+
+    // Preserve expansion state
+    const oldKey = `${parentGroup}::${oldName}`;
+    const newKey = `${parentGroup}::${newName}`;
+    if (expandedSubGroups.has(oldKey)) {
+      const newExpanded = new Set(expandedSubGroups);
+      newExpanded.delete(oldKey);
+      newExpanded.add(newKey);
+      setExpandedSubGroups(newExpanded);
+    }
+
+    toast({
+      title: "Sub-Group Renamed",
+      description: `"${oldName}" has been renamed to "${newName}".`,
+    });
+  };
+
+  const handleRemoveSubGroup = (parentGroup: string, subGroupName: string) => {
+    // Remove all layers in this sub-group
+    const updatedSources = config.sources.filter(source =>
+      !(source.layout?.interfaceGroup === parentGroup &&
+        source.layout?.subinterfaceGroup === subGroupName)
+    );
+
+    updateConfig({ sources: updatedSources });
+
+    // Remove from expansion state
+    const key = `${parentGroup}::${subGroupName}`;
+    const newExpanded = new Set(expandedSubGroups);
+    newExpanded.delete(key);
+    setExpandedSubGroups(newExpanded);
+
+    toast({
+      title: "Sub-Group Deleted",
+      description: `"${subGroupName}" and its layers have been deleted.`,
+    });
+  };
+
+  const handleUngroupSubGroup = (parentGroup: string, subGroupName: string) => {
+    // Remove subinterfaceGroup property but keep layers
+    const updatedSources = config.sources.map(source => {
+      if (source.layout?.interfaceGroup === parentGroup &&
+          source.layout?.subinterfaceGroup === subGroupName) {
+        const { subinterfaceGroup, ...restLayout } = source.layout;
+        return { ...source, layout: restLayout };
+      }
+      return source;
+    });
+
+    updateConfig({ sources: updatedSources });
+
+    // Remove from expansion state
+    const key = `${parentGroup}::${subGroupName}`;
+    const newExpanded = new Set(expandedSubGroups);
+    newExpanded.delete(key);
+    setExpandedSubGroups(newExpanded);
+
+    toast({
+      title: "Layers Ungrouped",
+      description: `Layers from "${subGroupName}" are now directly under "${parentGroup}".`,
+    });
+  };
+
+  const toggleSubGroup = (parentGroup: string, subGroupName: string) => {
+    const key = `${parentGroup}::${subGroupName}`;
+    const newExpanded = new Set(expandedSubGroups);
+    if (newExpanded.has(key)) {
+      newExpanded.delete(key);
+    } else {
+      newExpanded.add(key);
+    }
+    setExpandedSubGroups(newExpanded);
+
+    // Notify parent of expansion state change
+    if (onExpansionStateChange) {
+      const groupsArray = Array.from(expandedGroups);
+      if (expandedBaseLayers) groupsArray.push('__BASE_LAYERS__');
+      if (expandedUngroupedLayers) groupsArray.push('__UNGROUPED__');
+
+      const layersArray = Array.from(expandedLayers).map(idx => `layer-${idx}`);
+      const subGroupsArray = Array.from(newExpanded);
+      onExpansionStateChange(layersArray, groupsArray, subGroupsArray);
+    }
   };
 
   // Handle expanding group after layer creation or data source addition
@@ -149,6 +286,16 @@ const LayerHierarchy = ({
         setExpandedBaseLayers(true);
       } else if (expandedGroupAfterAction === '__UNGROUPED__') {
         setExpandedUngroupedLayers(true);
+      } else if (expandedGroupAfterAction.includes('::')) {
+        // This is a sub-group key
+        const newExpanded = new Set(expandedSubGroups);
+        newExpanded.add(expandedGroupAfterAction);
+        setExpandedSubGroups(newExpanded);
+        // Also expand the parent group
+        const [parentGroup] = expandedGroupAfterAction.split('::');
+        const newGroupsExpanded = new Set(expandedGroups);
+        newGroupsExpanded.add(parentGroup);
+        setExpandedGroups(newGroupsExpanded);
       } else {
         // Regular interface group
         const newExpanded = new Set(expandedGroups);
@@ -157,7 +304,7 @@ const LayerHierarchy = ({
       }
       onClearExpandedGroup?.();
     }
-  }, [expandedGroupAfterAction, expandedGroups, onClearExpandedGroup]);
+  }, [expandedGroupAfterAction, expandedGroups, expandedSubGroups, onClearExpandedGroup]);
 
   // Notify parent when expanded layers change
   useEffect(() => {
@@ -167,9 +314,10 @@ const LayerHierarchy = ({
       if (expandedUngroupedLayers) groupsArray.push('__UNGROUPED__');
       
       const layersArray = Array.from(expandedLayers).map(idx => `layer-${idx}`);
-      onExpansionStateChange(layersArray, groupsArray);
+      const subGroupsArray = Array.from(expandedSubGroups);
+      onExpansionStateChange(layersArray, groupsArray, subGroupsArray);
     }
-  }, [expandedLayers, expandedGroups, expandedBaseLayers, expandedUngroupedLayers, onExpansionStateChange]);
+  }, [expandedLayers, expandedGroups, expandedBaseLayers, expandedUngroupedLayers, expandedSubGroups, onExpansionStateChange]);
 
   const toggleGroup = (groupName: string) => {
     const newExpanded = new Set(expandedGroups);
@@ -187,7 +335,8 @@ const LayerHierarchy = ({
       if (expandedUngroupedLayers) groupsArray.push('__UNGROUPED__');
       
       const layersArray = Array.from(expandedLayers).map(idx => `layer-${idx}`);
-      onExpansionStateChange(layersArray, groupsArray);
+      const subGroupsArray = Array.from(expandedSubGroups);
+      onExpansionStateChange(layersArray, groupsArray, subGroupsArray);
     }
   };
 
@@ -266,6 +415,15 @@ const LayerHierarchy = ({
   const currentMigrationOptions = deleteGroupName ? 
     getMigrationOptions(deleteGroupName) : [];
 
+  // Helper to get expanded sub-groups for a specific interface group
+  const getExpandedSubGroupsForGroup = (groupName: string): Set<string> => {
+    const prefix = `${groupName}::`;
+    const filtered = Array.from(expandedSubGroups)
+      .filter(key => key.startsWith(prefix))
+      .map(key => key.substring(prefix.length));
+    return new Set(filtered);
+  };
+
   return (
     <div className="space-y-6">
       {/* Interface Groups */}
@@ -279,13 +437,20 @@ const LayerHierarchy = ({
           expandedLayers={expandedLayers}
           onToggleLayer={onToggleLayer}
           onRemoveInterfaceGroup={handleDeleteGroup}
-          onAddLayer={onAddLayer}
+          onAddLayer={(gName, subGName) => onAddLayer(gName, subGName)}
           onMoveGroup={moveInterfaceGroup}
           onRenameGroup={handleGroupRename}
           isExpanded={expandedGroups.has(groupName)}
           onToggleGroup={() => toggleGroup(groupName)}
           canMoveUp={groupIndex > 0}
           canMoveDown={groupIndex < config.interfaceGroups.length - 1}
+          // Sub-group management
+          onAddSubGroup={(subGroupName) => handleAddSubGroup(groupName, subGroupName)}
+          onRenameSubGroup={(oldName, newName) => handleRenameSubGroup(groupName, oldName, newName)}
+          onRemoveSubGroup={(subGroupName) => handleRemoveSubGroup(groupName, subGroupName)}
+          onUngroupSubGroup={(subGroupName) => handleUngroupSubGroup(groupName, subGroupName)}
+          expandedSubGroups={getExpandedSubGroupsForGroup(groupName)}
+          onToggleSubGroup={(subGroupName) => toggleSubGroup(groupName, subGroupName)}
         />
       ))}
 
@@ -304,7 +469,8 @@ const LayerHierarchy = ({
             if (expandedUngroupedLayers) groupsArray.push('__UNGROUPED__');
             
             const layersArray = Array.from(expandedLayers).map(idx => `layer-${idx}`);
-            onExpansionStateChange(layersArray, groupsArray);
+            const subGroupsArray = Array.from(expandedSubGroups);
+            onExpansionStateChange(layersArray, groupsArray, subGroupsArray);
           }
         }}
         onRemove={onRemove}
@@ -365,7 +531,8 @@ const LayerHierarchy = ({
               if (newExpanded) groupsArray.push('__UNGROUPED__');
               
               const layersArray = Array.from(expandedLayers).map(idx => `layer-${idx}`);
-              onExpansionStateChange(layersArray, groupsArray);
+              const subGroupsArray = Array.from(expandedSubGroups);
+              onExpansionStateChange(layersArray, groupsArray, subGroupsArray);
             }
           }}
         />

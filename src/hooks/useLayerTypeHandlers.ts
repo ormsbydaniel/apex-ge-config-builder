@@ -6,6 +6,7 @@ import { toast } from '@/hooks/use-toast';
 
 interface UseLayerTypeHandlersProps {
   setDefaultInterfaceGroup: (group: string | undefined) => void;
+  setDefaultSubinterfaceGroup?: (subGroup: string | undefined) => void;
   setSelectedLayerType: (type: LayerType | null) => void;
   setShowLayerForm: (show: boolean) => void;
   setEditingLayerIndex: (index: number | null) => void;
@@ -15,6 +16,7 @@ interface UseLayerTypeHandlersProps {
 
 export const useLayerTypeHandlers = ({
   setDefaultInterfaceGroup,
+  setDefaultSubinterfaceGroup,
   setSelectedLayerType,
   setShowLayerForm,
   setEditingLayerIndex,
@@ -23,11 +25,12 @@ export const useLayerTypeHandlers = ({
 }: UseLayerTypeHandlersProps) => {
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
 
-  const handleAddLayerForGroup = useCallback((groupName: string) => {
+  const handleAddLayerForGroup = useCallback((groupName: string, subGroupName?: string) => {
     setDefaultInterfaceGroup(groupName);
+    setDefaultSubinterfaceGroup?.(subGroupName);
     setSelectedLayerType(null);
     setShowLayerForm(true);
-  }, [setDefaultInterfaceGroup, setSelectedLayerType, setShowLayerForm]);
+  }, [setDefaultInterfaceGroup, setDefaultSubinterfaceGroup, setSelectedLayerType, setShowLayerForm]);
 
   const handleAddBaseLayer = useCallback(() => {
     setSelectedLayerType('base');
