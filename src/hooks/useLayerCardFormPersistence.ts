@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { DataSource, Category, Colormap, TimeframeType } from '@/types/config';
+import { FieldsConfig } from '@/types/category';
 import { useToast } from '@/hooks/use-toast';
 
 interface LayerCardFormData {
@@ -31,6 +32,7 @@ interface LayerCardFormData {
   isActive: boolean;
   timeframe: TimeframeType;
   defaultTimestamp?: number;
+  fields: FieldsConfig;
 }
 
 const STORAGE_KEY = 'layer-card-form-draft';
@@ -93,7 +95,8 @@ export const useLayerCardFormPersistence = (
         hasFeatureStatistics: editingLayer.hasFeatureStatistics || false,
         isActive: editingLayer.isActive || false,
         timeframe: editingLayer.timeframe || 'None',
-        defaultTimestamp: editingLayer.defaultTimestamp
+        defaultTimestamp: editingLayer.defaultTimestamp,
+        fields: editingLayer.meta?.fields || {}
       };
     }
 
@@ -139,7 +142,8 @@ export const useLayerCardFormPersistence = (
       units: '',
       hasFeatureStatistics: false,
       isActive: false,
-      timeframe: 'None'
+      timeframe: 'None',
+      fields: {}
     };
   };
 

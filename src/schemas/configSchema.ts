@@ -269,6 +269,23 @@ const TemporalConfigSchema = z.object({
   defaultTimestamp: z.number().optional(),
 });
 
+// Field configuration schema for vector dataset attributes
+const FieldConfigSchema = z.object({
+  label: z.string().optional(),
+  prefix: z.string().optional(),
+  suffix: z.string().optional(),
+  precision: z.number().int().optional(),
+  order: z.number().int().optional(),
+  type: z.string().optional(),
+  format: z.string().optional(),
+}).passthrough();  // Allow future extensions
+
+// Fields record schema - keys are field names, values are config or null (to hide)
+const FieldsSchema = z.record(
+  z.string(),
+  z.union([FieldConfigSchema, z.null()])
+).optional();
+
 // Enhanced meta schema with additional fields including swipe config and temporal
 const MetaSchema = z.object({
   description: z.string(),
@@ -294,6 +311,8 @@ const MetaSchema = z.object({
   swipeConfig: SwipeConfigSchema.optional(),
   // Temporal configuration
   temporal: TemporalConfigSchema.optional(),
+  // Vector field display configuration
+  fields: FieldsSchema,
 }).superRefine((meta, ctx) => {
   // Conditional validation: startColor and endColor required for gradient legends WITHOUT colormaps
   // This validation only applies when used with a DataSource that has a gradient legend
@@ -356,6 +375,7 @@ const ControlsSchema = z.union([
 // Only legend and controls move between layerCard and infoPanel based on contentLocation
 const LayoutSchema = z.object({
   interfaceGroup: z.string().optional(),
+  subinterfaceGroup: z.string().optional(),
   contentLocation: z.enum(['layerCard', 'infoPanel']).optional(),
   layerCard: z.object({
     toggleable: z.boolean().optional(), // Always lives here
@@ -503,9 +523,16 @@ export const DataSourceSchema = z.union([
   }),
 ]);
 
+// Design configuration schema for global layout
+const DesignSchema = z.object({
+  variant: z.string(),
+  parameters: z.record(z.string(), z.unknown()).optional(),
+}).passthrough();  // Allow future extensions
+
 export const ConfigurationSchema = z.object({
   version: z.string().optional(),
   layout: z.object({
+    design: DesignSchema.optional(),
     navigation: z.object({
       logo: urlOrRelativePathSchema,
       title: z.string().min(1, 'Title is required'),
@@ -528,7 +555,7 @@ export const ConfigurationSchema = z.object({
       'warning-color': z.string().optional(),
       'text-color-on-warning': z.string().optional(),
     }).optional(),
-  }),
+  }).passthrough(),  // Allow design and future extensions
   interfaceGroups: z.array(z.string()),
   exclusivitySets: z.array(z.string()),
   services: z.array(ServiceSchema).optional().default([]), // Make services optional for backwards compatibility

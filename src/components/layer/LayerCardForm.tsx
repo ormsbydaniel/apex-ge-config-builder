@@ -25,6 +25,8 @@ import LayerTypeRadioGroup from '@/components/form/LayerTypeRadioGroup';
 import PositionEditor from '@/components/form/PositionEditor';
 import ColormapsSection from '@/components/form/ColormapsSection';
 import ContentLocationRadioGroup from '@/components/form/ContentLocationRadioGroup';
+import FieldsSection from '@/components/form/FieldsSection';
+import { isVectorFormat } from '@/utils/fieldDetection';
 
 interface LayerCardFormProps {
   interfaceGroups: string[];
@@ -165,7 +167,8 @@ const LayerCardForm = ({
       categories: processedCategories || [],
       colormaps: formData.colormaps || [],
       timeframe: formData.timeframe,
-      defaultTimestamp: formData.defaultTimestamp
+      defaultTimestamp: formData.defaultTimestamp,
+      fields: formData.fields || {}
     });
 
     // Apply layer type flags
@@ -300,6 +303,14 @@ const LayerCardForm = ({
               onUpdate={handleFieldChange}
               metaMin={formData.minValue ? parseFloat(formData.minValue) : undefined}
               metaMax={formData.maxValue ? parseFloat(formData.maxValue) : undefined}
+            />
+
+            {/* Fields section - show for all layers, auto-detect works for vector formats */}
+            <FieldsSection
+              fields={formData.fields || {}}
+              onUpdate={handleFieldChange}
+              sourceUrl={editingLayer?.data?.[0]?.url}
+              sourceFormat={editingLayer?.data?.[0]?.format}
             />
 
             <UnifiedLegendTypeSection

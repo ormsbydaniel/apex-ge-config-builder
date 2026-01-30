@@ -6,6 +6,21 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-01-29",
+    title: "3.5.0 release and support for full screen mode",
+    category: "Feature",
+  },
+  {
+    date: "2026-01-23",
+    title: "Field configuration for vector layer data values",
+    category: "Feature",
+  },
+  {
+    date: "2026-01-22",
+    title: "dev-3.5-candidate version added to Preview",
+    category: "Feature",
+  },
+  {
     date: "2026-01-19",
     title: "Addition of chart configuration into data sources",
     category: "Feature",

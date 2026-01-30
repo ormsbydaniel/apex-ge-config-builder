@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSepa
 import { useConfig } from '@/contexts/ConfigContext';
 import { Settings, MapPin, ZoomIn, Edit, Globe, Map } from 'lucide-react';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
+import DesignVariantEditor from './DesignVariantEditor';
 import { geoLocations, groupedLocations } from '@/constants/geoLocations';
 import { PROJECTION_OPTIONS, DEFAULT_PROJECTION } from '@/constants/projections';
+import { DesignConfig } from '@/types/format';
 
 interface SettingsTabProps {
   config: any;
@@ -239,6 +241,14 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-8">
+          {/* Design Variant Subsection */}
+          <DesignVariantEditor
+            design={config.layout.design}
+            onUpdate={(design: DesignConfig | undefined) => {
+              dispatch({ type: 'UPDATE_DESIGN', payload: design });
+            }}
+          />
+
           {/* Navigation Settings Subsection */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Navigation Settings</h3>

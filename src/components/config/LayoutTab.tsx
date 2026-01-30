@@ -8,11 +8,14 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import InterfaceGroupManager from '../InterfaceGroupManager';
+import DesignVariantEditor from './DesignVariantEditor';
 import { DataSource, Service } from '@/types/config';
+import { DesignConfig } from '@/types/format';
 
 interface LayoutTabProps {
   config: any;
   updateLayout: (field: string, value: string) => void;
+  updateDesign: (design: DesignConfig | undefined) => void;
   updateInterfaceGroups: (interfaceGroups: string[]) => void;
   addExclusivitySet: () => void;
   removeExclusivitySet: (index: number) => void;
@@ -24,6 +27,7 @@ interface LayoutTabProps {
 const LayoutTab = ({
   config,
   updateLayout,
+  updateDesign,
   updateInterfaceGroups,
   addExclusivitySet,
   removeExclusivitySet,
@@ -63,6 +67,11 @@ const LayoutTab = ({
           </div>
         </CardContent>
       </Card>
+
+      <DesignVariantEditor
+        design={config.layout.design}
+        onUpdate={updateDesign}
+      />
 
       <InterfaceGroupManager
         interfaceGroups={config.interfaceGroups}
