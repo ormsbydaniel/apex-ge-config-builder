@@ -166,19 +166,42 @@ const LayerHierarchy = ({
   };
 
   // Sub-group management handlers
-  const handleAddSubGroup = (parentGroup: string, subGroupName: string) => {
-    // Sub-groups are implicit - just trigger layer addition with subinterfaceGroup pre-set
-    toast({
-      title: "Sub-Group Ready",
-      description: `Add a layer to create the "${subGroupName}" sub-group.`,
-    });
+  const handleAddSubGroup = (parentGroup: string, subGroupName: string, selectedLayerIndices: number[]) => {
+    if (selectedLayerIndices.length > 0) {
+      // Move selected layers into the sub-group
+      const updatedSources = config.sources.map((source, idx) => {
+        if (selectedLayerIndices.includes(idx)) {
+          return {
+            ...source,
+            layout: {
+              ...source.layout,
+              subinterfaceGroup: subGroupName
+            }
+          };
+        }
+        return source;
+      });
+      
+      updateConfig({ sources: updatedSources });
+      
+      toast({
+        title: "Sub-Group Created",
+        description: `"${subGroupName}" created with ${selectedLayerIndices.length} layer${selectedLayerIndices.length !== 1 ? 's' : ''}.`,
+      });
+    } else {
+      // No layers selected - just trigger layer creation with subinterfaceGroup pre-set
+      toast({
+        title: "Sub-Group Ready",
+        description: `Add a layer to create the "${subGroupName}" sub-group.`,
+      });
+      onAddLayer(parentGroup, subGroupName);
+    }
+    
     // Expand the sub-group after creation
     const key = `${parentGroup}::${subGroupName}`;
     const newExpanded = new Set(expandedSubGroups);
     newExpanded.add(key);
     setExpandedSubGroups(newExpanded);
-    // Trigger layer addition with subGroupName
-    onAddLayer(parentGroup, subGroupName);
   };
 
   const handleRenameSubGroup = (parentGroup: string, oldName: string, newName: string) => {
@@ -530,7 +553,7 @@ const LayerHierarchy = ({
           canMoveUp={groupIndex > 0}
           canMoveDown={groupIndex < config.interfaceGroups.length - 1}
           // Sub-group management
-          onAddSubGroup={(subGroupName) => handleAddSubGroup(groupName, subGroupName)}
+          onAddSubGroup={(subGroupName, selectedLayerIndices) => handleAddSubGroup(groupName, subGroupName, selectedLayerIndices)}
           onRenameSubGroup={(oldName, newName) => handleRenameSubGroup(groupName, oldName, newName)}
           onRemoveSubGroup={(subGroupName) => handleRemoveSubGroup(groupName, subGroupName)}
           onUngroupSubGroup={(subGroupName) => handleUngroupSubGroup(groupName, subGroupName)}
