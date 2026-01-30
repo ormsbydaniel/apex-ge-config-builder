@@ -28,6 +28,12 @@ const DroppableGroupZone = ({
 }: DroppableGroupZoneProps) => {
   const { activeData } = useLayerDndContext();
   const expandTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const onExpandRef = useRef<(() => void) | undefined>(onExpand);
+
+  // Keep latest callback without restarting hover timers due to function identity changes
+  useEffect(() => {
+    onExpandRef.current = onExpand;
+  }, [onExpand]);
 
   const dropData: DragData = {
     type: 'drop-zone',
@@ -51,22 +57,30 @@ const DroppableGroupZone = ({
 
   const showValidDrop = showDropIndicator && !isSameGroup;
 
-  // Auto-expand collapsed groups when hovering during drag
+  // Auto-expand collapsed groups when hovering during drag.
+  // IMPORTANT: don't depend on `onExpand` identity, otherwise re-renders can keep clearing the timer.
   useEffect(() => {
-    // Only set up timer if we're hovering over a valid drop target that's collapsed
-    if (showValidDrop && isCollapsed && onExpand) {
+    const shouldAutoExpand = showValidDrop && isCollapsed && !!onExpandRef.current;
+
+    if (shouldAutoExpand && !expandTimerRef.current) {
       expandTimerRef.current = setTimeout(() => {
-        onExpand();
+        onExpandRef.current?.();
+        expandTimerRef.current = null;
       }, AUTO_EXPAND_DELAY);
-      
-      return () => {
-        if (expandTimerRef.current) {
-          clearTimeout(expandTimerRef.current);
-          expandTimerRef.current = null;
-        }
-      };
     }
-  }, [showValidDrop, isCollapsed, onExpand]);
+
+    if (!shouldAutoExpand && expandTimerRef.current) {
+      clearTimeout(expandTimerRef.current);
+      expandTimerRef.current = null;
+    }
+
+    return () => {
+      if (expandTimerRef.current) {
+        clearTimeout(expandTimerRef.current);
+        expandTimerRef.current = null;
+      }
+    };
+  }, [showValidDrop, isCollapsed]);
 
   return (
     <div
