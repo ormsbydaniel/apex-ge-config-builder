@@ -30,7 +30,7 @@ interface LayerGroupProps {
   canMoveUp: boolean;
   canMoveDown: boolean;
   // Sub-group management
-  onAddSubGroup?: (subGroupName: string) => void;
+  onAddSubGroup?: (subGroupName: string, selectedLayerIndices: number[]) => void;
   onRenameSubGroup?: (oldName: string, newName: string) => void;
   onRemoveSubGroup?: (subGroupName: string) => void;
   onUngroupSubGroup?: (subGroupName: string) => void;
@@ -168,12 +168,23 @@ const LayerGroup = ({
     }
   };
 
-  const handleAddSubGroup = (subGroupName: string): boolean => {
+  // Compute available layers for sub-group creation (ungrouped layers only)
+  const availableLayersForSubGroup = useMemo(() => {
+    return ungrouped.map(item => ({
+      name: item.source.name,
+      index: item.index
+    }));
+  }, [ungrouped]);
+
+  const handleAddSubGroup = (subGroupName: string, selectedLayerIndices: number[]): void => {
     if (onAddSubGroup) {
-      onAddSubGroup(subGroupName);
-      return true;
+      onAddSubGroup(subGroupName, selectedLayerIndices);
     }
-    return false;
+  };
+
+  const handleCreateNewLayerInSubGroup = (subGroupName: string) => {
+    // Called when user chooses "Create New Layer" in wizard
+    onAddLayer(groupName, subGroupName);
   };
 
   const getSubGroupLayerCount = (subGroupName: string): number => {
@@ -395,8 +406,10 @@ const LayerGroup = ({
         open={showAddSubGroupDialog}
         onOpenChange={setShowAddSubGroupDialog}
         onAdd={handleAddSubGroup}
+        onCreateNewLayer={handleCreateNewLayerInSubGroup}
         parentInterfaceGroup={groupName}
         existingSubGroups={existingSubGroups}
+        availableLayers={availableLayersForSubGroup}
       />
 
       {/* Delete Sub-Group Dialog */}
