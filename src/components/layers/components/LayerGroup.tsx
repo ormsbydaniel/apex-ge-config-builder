@@ -34,6 +34,7 @@ interface LayerGroupProps {
   onRenameSubGroup?: (oldName: string, newName: string) => void;
   onRemoveSubGroup?: (subGroupName: string) => void;
   onUngroupSubGroup?: (subGroupName: string) => void;
+  onMoveSubGroup?: (subGroupName: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   expandedSubGroups?: Set<string>;
   onToggleSubGroup?: (subGroupName: string) => void;
 }
@@ -57,6 +58,7 @@ const LayerGroup = ({
   onRenameSubGroup,
   onRemoveSubGroup,
   onUngroupSubGroup,
+  onMoveSubGroup,
   expandedSubGroups = new Set(),
   onToggleSubGroup
 }: LayerGroupProps) => {
@@ -103,15 +105,19 @@ const LayerGroup = ({
     onEditChartSource
   } = useLayersTabContext();
 
-  // Group layers by subinterfaceGroup property
-  const { subGrouped, ungrouped, existingSubGroups } = useMemo(() => {
+  // Group layers by subinterfaceGroup property, maintaining order based on first appearance
+  const { subGrouped, ungrouped, existingSubGroups, orderedSubGroups } = useMemo(() => {
     const subGrouped: Record<string, Array<{ source: DataSource; index: number }>> = {};
     const ungrouped: Array<{ source: DataSource; index: number }> = [];
+    const orderedSubGroups: string[] = [];
 
     sources.forEach((source, idx) => {
       const subGroup = source.layout?.subinterfaceGroup;
       if (subGroup) {
-        if (!subGrouped[subGroup]) subGrouped[subGroup] = [];
+        if (!subGrouped[subGroup]) {
+          subGrouped[subGroup] = [];
+          orderedSubGroups.push(subGroup);
+        }
         subGrouped[subGroup].push({ source, index: sourceIndices[idx] });
       } else {
         ungrouped.push({ source, index: sourceIndices[idx] });
@@ -119,7 +125,7 @@ const LayerGroup = ({
     });
 
     const existingSubGroups = Object.keys(subGrouped);
-    return { subGrouped, ungrouped, existingSubGroups };
+    return { subGrouped, ungrouped, existingSubGroups, orderedSubGroups };
   }, [sources, sourceIndices]);
 
   // Calculate QA stats for this group's sources
@@ -276,23 +282,32 @@ const LayerGroup = ({
             <CollapsibleContent>
               <CardContent className="pt-3 bg-slate-200">
                 <div className="space-y-3">
-                  {/* Render sub-groups first */}
-                  {Object.entries(subGrouped).map(([subGroupName, subGroupItems]) => (
-                    <SubInterfaceGroup
-                      key={subGroupName}
-                      subGroupName={subGroupName}
-                      parentInterfaceGroup={groupName}
-                      sources={subGroupItems.map(item => item.source)}
-                      sourceIndices={subGroupItems.map(item => item.index)}
-                      expandedLayers={expandedLayers}
-                      onToggleLayer={onToggleLayer}
-                      isExpanded={expandedSubGroups.has(subGroupName)}
-                      onToggle={() => onToggleSubGroup?.(subGroupName)}
-                      onAddLayer={() => onAddLayer(groupName, subGroupName)}
-                      onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
-                      onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
-                    />
-                  ))}
+                  {/* Render sub-groups first, in order based on first layer appearance */}
+                  {orderedSubGroups.map((subGroupName, subGroupIdx) => {
+                    const subGroupItems = subGrouped[subGroupName];
+                    return (
+                      <SubInterfaceGroup
+                        key={subGroupName}
+                        subGroupName={subGroupName}
+                        parentInterfaceGroup={groupName}
+                        sources={subGroupItems.map(item => item.source)}
+                        sourceIndices={subGroupItems.map(item => item.index)}
+                        expandedLayers={expandedLayers}
+                        onToggleLayer={onToggleLayer}
+                        isExpanded={expandedSubGroups.has(subGroupName)}
+                        onToggle={() => onToggleSubGroup?.(subGroupName)}
+                        onAddLayer={() => onAddLayer(groupName, subGroupName)}
+                        onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
+                        onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
+                        onMoveSubGroupUp={() => onMoveSubGroup?.(subGroupName, 'up')}
+                        onMoveSubGroupDown={() => onMoveSubGroup?.(subGroupName, 'down')}
+                        onMoveSubGroupToTop={() => onMoveSubGroup?.(subGroupName, 'top')}
+                        onMoveSubGroupToBottom={() => onMoveSubGroup?.(subGroupName, 'bottom')}
+                        canMoveUp={subGroupIdx > 0}
+                        canMoveDown={subGroupIdx < orderedSubGroups.length - 1}
+                      />
+                    );
+                  })}
 
                   {/* Render ungrouped layers after sub-groups */}
                   {ungrouped.map(({ source, index: actualIndex }) => {

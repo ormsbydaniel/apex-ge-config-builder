@@ -257,6 +257,91 @@ const LayerHierarchy = ({
     });
   };
 
+  const handleMoveSubGroup = (parentGroup: string, subGroupName: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
+    // Get all sources in this parent group
+    const groupSources = config.sources.map((source, idx) => ({ source, idx }))
+      .filter(item => item.source.layout?.interfaceGroup === parentGroup && !item.source.isBaseLayer);
+    
+    // Get ordered list of sub-groups based on first appearance
+    const orderedSubGroups: string[] = [];
+    groupSources.forEach(({ source }) => {
+      const subGroup = source.layout?.subinterfaceGroup;
+      if (subGroup && !orderedSubGroups.includes(subGroup)) {
+        orderedSubGroups.push(subGroup);
+      }
+    });
+    
+    const currentIndex = orderedSubGroups.indexOf(subGroupName);
+    if (currentIndex === -1) return;
+    
+    let targetIndex: number;
+    if (direction === 'up') {
+      targetIndex = currentIndex - 1;
+    } else if (direction === 'down') {
+      targetIndex = currentIndex + 1;
+    } else if (direction === 'top') {
+      targetIndex = 0;
+    } else {
+      targetIndex = orderedSubGroups.length - 1;
+    }
+    
+    if (targetIndex < 0 || targetIndex >= orderedSubGroups.length || targetIndex === currentIndex) return;
+    
+    // Get the target sub-group name
+    const targetSubGroupName = orderedSubGroups[targetIndex];
+    
+    // Find the first source index of the target sub-group
+    const targetFirstSourceIdx = groupSources.find(
+      item => item.source.layout?.subinterfaceGroup === targetSubGroupName
+    )?.idx;
+    
+    // Find all sources of the current sub-group
+    const currentSubGroupSources = groupSources
+      .filter(item => item.source.layout?.subinterfaceGroup === subGroupName)
+      .map(item => item.idx);
+    
+    if (targetFirstSourceIdx === undefined || currentSubGroupSources.length === 0) return;
+    
+    // Reorder sources: move all current sub-group sources to before/after target
+    const newSources = [...config.sources];
+    
+    // Remove current sub-group sources from their positions (in reverse to maintain indices)
+    const removedSources: DataSource[] = [];
+    [...currentSubGroupSources].reverse().forEach(idx => {
+      removedSources.unshift(newSources.splice(idx, 1)[0]);
+    });
+    
+    // Calculate new target position (adjusted for removed items)
+    let insertPosition = targetFirstSourceIdx;
+    currentSubGroupSources.forEach(idx => {
+      if (idx < targetFirstSourceIdx) insertPosition--;
+    });
+    
+    // If moving down, insert after the target sub-group's last item
+    if (direction === 'down' || direction === 'bottom') {
+      const targetSubGroupIndices = groupSources
+        .filter(item => item.source.layout?.subinterfaceGroup === targetSubGroupName)
+        .map(item => {
+          let adjustedIdx = item.idx;
+          currentSubGroupSources.forEach(removedIdx => {
+            if (removedIdx < item.idx) adjustedIdx--;
+          });
+          return adjustedIdx;
+        });
+      insertPosition = Math.max(...targetSubGroupIndices) + 1;
+    }
+    
+    // Insert the removed sources at the new position
+    newSources.splice(insertPosition, 0, ...removedSources);
+    
+    updateConfig({ sources: newSources });
+    
+    toast({
+      title: "Sub-Group Moved",
+      description: `"${subGroupName}" has been moved ${direction}.`,
+    });
+  };
+
   const toggleSubGroup = (parentGroup: string, subGroupName: string) => {
     const key = `${parentGroup}::${subGroupName}`;
     const newExpanded = new Set(expandedSubGroups);
@@ -449,6 +534,7 @@ const LayerHierarchy = ({
           onRenameSubGroup={(oldName, newName) => handleRenameSubGroup(groupName, oldName, newName)}
           onRemoveSubGroup={(subGroupName) => handleRemoveSubGroup(groupName, subGroupName)}
           onUngroupSubGroup={(subGroupName) => handleUngroupSubGroup(groupName, subGroupName)}
+          onMoveSubGroup={(subGroupName, direction) => handleMoveSubGroup(groupName, subGroupName, direction)}
           expandedSubGroups={getExpandedSubGroupsForGroup(groupName)}
           onToggleSubGroup={(subGroupName) => toggleSubGroup(groupName, subGroupName)}
         />
