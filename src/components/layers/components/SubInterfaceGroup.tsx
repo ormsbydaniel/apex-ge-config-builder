@@ -11,6 +11,7 @@ import { useLayersTabContext } from '@/contexts/LayersTabContext';
 import { calculateQAStats } from '@/utils/qaUtils';
 import SortableLayerCard from './SortableLayerCard';
 import DroppableGroupZone from './DroppableGroupZone';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 interface SubInterfaceGroupProps {
   subGroupName: string;
   parentInterfaceGroup: string;
@@ -244,64 +245,69 @@ const SubInterfaceGroup = ({
             </CardHeader>
             <CollapsibleContent>
               <CardContent className="pt-2 pb-3 bg-amber-100/30 dark:bg-amber-950/20">
-                <div className="space-y-2">
-                  {sources.map((source, idx) => {
-                    const actualIndex = sourceIndices[idx];
-                    return (
-                      <div key={actualIndex} className="flex items-center gap-2">
-                        <div className="flex-1">
-                          <SortableLayerCard
-                            id={`layer-${actualIndex}`}
-                            source={source}
-                            index={actualIndex}
-                            interfaceGroup={parentInterfaceGroup}
-                            subinterfaceGroup={subGroupName}
-                            onRemove={onRemoveLayer}
-                            onEdit={onEditLayer}
-                            onEditBaseLayer={onEditBaseLayer}
-                            onDuplicate={onDuplicateLayer}
-                            onUpdateLayer={onUpdateLayer}
-                            onAddDataSource={() => onAddDataSource(actualIndex)}
-                            onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)}
-                            onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)}
-                            onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)}
-                            onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)}
-                            onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)}
-                            onAddConstraintSource={onAddConstraintSource}
-                            onRemoveConstraintSource={constraintIndex => onRemoveConstraintSource(actualIndex, constraintIndex)}
-                            onEditConstraintSource={constraintIndex => onEditConstraintSource(actualIndex, constraintIndex)}
-                            onMoveConstraintUp={constraintIndex => onMoveConstraintUp(actualIndex, constraintIndex)}
-                            onMoveConstraintDown={constraintIndex => onMoveConstraintDown(actualIndex, constraintIndex)}
-                            onMoveConstraintToTop={constraintIndex => onMoveConstraintToTop(actualIndex, constraintIndex)}
-                            onMoveConstraintToBottom={constraintIndex => onMoveConstraintToBottom(actualIndex, constraintIndex)}
-                            onAddWorkflow={workflow => onAddWorkflow(actualIndex, workflow)}
-                            onRemoveWorkflow={workflowIndex => onRemoveWorkflow(actualIndex, workflowIndex)}
-                            onUpdateWorkflow={(workflowIndex, workflow) => onUpdateWorkflow(actualIndex, workflowIndex, workflow)}
-                            onMoveWorkflowUp={workflowIndex => onMoveWorkflowUp(actualIndex, workflowIndex)}
-                            onMoveWorkflowDown={workflowIndex => onMoveWorkflowDown(actualIndex, workflowIndex)}
-                            onMoveWorkflowToTop={workflowIndex => onMoveWorkflowToTop(actualIndex, workflowIndex)}
-                            onMoveWorkflowToBottom={workflowIndex => onMoveWorkflowToBottom(actualIndex, workflowIndex)}
-                            onAddChart={() => onStartChartForm ? onStartChartForm(actualIndex) : onAddChart(actualIndex, { chartType: 'xy', sources: [] })}
-                            onRemoveChart={chartIndex => onRemoveChart(actualIndex, chartIndex)}
-                            onEditChart={chartIndex => onEditChartSource ? onEditChartSource(actualIndex, chartIndex) : undefined}
-                            isExpanded={expandedLayers.has(actualIndex)}
-                            onToggle={() => onToggleLayer(actualIndex)}
+                <SortableContext
+                  items={sourceIndices.map(idx => `layer-${idx}`)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-2">
+                    {sources.map((source, idx) => {
+                      const actualIndex = sourceIndices[idx];
+                      return (
+                        <div key={actualIndex} className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <SortableLayerCard
+                              id={`layer-${actualIndex}`}
+                              source={source}
+                              index={actualIndex}
+                              interfaceGroup={parentInterfaceGroup}
+                              subinterfaceGroup={subGroupName}
+                              onRemove={onRemoveLayer}
+                              onEdit={onEditLayer}
+                              onEditBaseLayer={onEditBaseLayer}
+                              onDuplicate={onDuplicateLayer}
+                              onUpdateLayer={onUpdateLayer}
+                              onAddDataSource={() => onAddDataSource(actualIndex)}
+                              onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)}
+                              onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)}
+                              onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)}
+                              onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)}
+                              onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)}
+                              onAddConstraintSource={onAddConstraintSource}
+                              onRemoveConstraintSource={constraintIndex => onRemoveConstraintSource(actualIndex, constraintIndex)}
+                              onEditConstraintSource={constraintIndex => onEditConstraintSource(actualIndex, constraintIndex)}
+                              onMoveConstraintUp={constraintIndex => onMoveConstraintUp(actualIndex, constraintIndex)}
+                              onMoveConstraintDown={constraintIndex => onMoveConstraintDown(actualIndex, constraintIndex)}
+                              onMoveConstraintToTop={constraintIndex => onMoveConstraintToTop(actualIndex, constraintIndex)}
+                              onMoveConstraintToBottom={constraintIndex => onMoveConstraintToBottom(actualIndex, constraintIndex)}
+                              onAddWorkflow={workflow => onAddWorkflow(actualIndex, workflow)}
+                              onRemoveWorkflow={workflowIndex => onRemoveWorkflow(actualIndex, workflowIndex)}
+                              onUpdateWorkflow={(workflowIndex, workflow) => onUpdateWorkflow(actualIndex, workflowIndex, workflow)}
+                              onMoveWorkflowUp={workflowIndex => onMoveWorkflowUp(actualIndex, workflowIndex)}
+                              onMoveWorkflowDown={workflowIndex => onMoveWorkflowDown(actualIndex, workflowIndex)}
+                              onMoveWorkflowToTop={workflowIndex => onMoveWorkflowToTop(actualIndex, workflowIndex)}
+                              onMoveWorkflowToBottom={workflowIndex => onMoveWorkflowToBottom(actualIndex, workflowIndex)}
+                              onAddChart={() => onStartChartForm ? onStartChartForm(actualIndex) : onAddChart(actualIndex, { chartType: 'xy', sources: [] })}
+                              onRemoveChart={chartIndex => onRemoveChart(actualIndex, chartIndex)}
+                              onEditChart={chartIndex => onEditChartSource ? onEditChartSource(actualIndex, chartIndex) : undefined}
+                              isExpanded={expandedLayers.has(actualIndex)}
+                              onToggle={() => onToggleLayer(actualIndex)}
+                            />
+                          </div>
+                          <LayerMoveControls
+                            onMoveUp={() => handleMoveLayerInGroup(actualIndex, 'up')}
+                            onMoveDown={() => handleMoveLayerInGroup(actualIndex, 'down')}
+                            onMoveToTop={() => moveLayerToTop(actualIndex, sourceIndices)}
+                            onMoveToBottom={() => moveLayerToBottom(actualIndex, sourceIndices)}
+                            canMoveUp={idx > 0}
+                            canMoveDown={idx < sources.length - 1}
+                            canMoveToTop={idx > 0}
+                            canMoveToBottom={idx < sources.length - 1}
                           />
                         </div>
-                        <LayerMoveControls
-                          onMoveUp={() => handleMoveLayerInGroup(actualIndex, 'up')}
-                          onMoveDown={() => handleMoveLayerInGroup(actualIndex, 'down')}
-                          onMoveToTop={() => moveLayerToTop(actualIndex, sourceIndices)}
-                          onMoveToBottom={() => moveLayerToBottom(actualIndex, sourceIndices)}
-                          canMoveUp={idx > 0}
-                          canMoveDown={idx < sources.length - 1}
-                          canMoveToTop={idx > 0}
-                          canMoveToBottom={idx < sources.length - 1}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                </SortableContext>
               </CardContent>
             </CollapsibleContent>
           </Collapsible>
