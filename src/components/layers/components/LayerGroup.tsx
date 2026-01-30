@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,6 @@ import AddSubGroupDialog from './AddSubGroupDialog';
 import DeleteSubGroupDialog from './DeleteSubGroupDialog';
 import SortableLayerCard from './SortableLayerCard';
 import DroppableGroupZone from './DroppableGroupZone';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 interface LayerGroupProps {
   groupName: string;
   groupIndex: number;
@@ -327,67 +326,62 @@ const LayerGroup = ({
                       );
                     })}
 
-                    {/* Render ungrouped layers after sub-groups - with sortable context */}
-                    <SortableContext
-                      items={ungrouped.map(item => `layer-${item.index}`)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {ungrouped.map(({ source, index: actualIndex }) => {
-                        const idx = ungrouped.findIndex(item => item.index === actualIndex);
-                        return (
-                          <div key={actualIndex} className="flex items-center gap-2">
-                            <div className="flex-1">
-                              <SortableLayerCard
-                                id={`layer-${actualIndex}`}
-                                source={source}
-                                index={actualIndex}
-                                interfaceGroup={groupName}
-                                onRemove={onRemoveLayer}
-                                onEdit={onEditLayer}
-                                onEditBaseLayer={onEditBaseLayer}
-                                onDuplicate={onDuplicateLayer}
-                                onUpdateLayer={onUpdateLayer}
-                                onAddDataSource={() => onAddDataSource(actualIndex)}
-                                onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)}
-                                onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)}
-                                onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)}
-                                onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)}
-                                onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)}
-                                onAddConstraintSource={onAddConstraintSource}
-                                onRemoveConstraintSource={constraintIndex => onRemoveConstraintSource(actualIndex, constraintIndex)}
-                                onEditConstraintSource={constraintIndex => onEditConstraintSource(actualIndex, constraintIndex)}
-                                onMoveConstraintUp={constraintIndex => onMoveConstraintUp(actualIndex, constraintIndex)}
-                                onMoveConstraintDown={constraintIndex => onMoveConstraintDown(actualIndex, constraintIndex)}
-                                onMoveConstraintToTop={constraintIndex => onMoveConstraintToTop(actualIndex, constraintIndex)}
-                                onMoveConstraintToBottom={constraintIndex => onMoveConstraintToBottom(actualIndex, constraintIndex)}
-                                onAddWorkflow={workflow => onAddWorkflow(actualIndex, workflow)}
-                                onRemoveWorkflow={workflowIndex => onRemoveWorkflow(actualIndex, workflowIndex)}
-                                onUpdateWorkflow={(workflowIndex, workflow) => onUpdateWorkflow(actualIndex, workflowIndex, workflow)}
-                                onMoveWorkflowUp={workflowIndex => onMoveWorkflowUp(actualIndex, workflowIndex)}
-                                onMoveWorkflowDown={workflowIndex => onMoveWorkflowDown(actualIndex, workflowIndex)}
-                                onMoveWorkflowToTop={workflowIndex => onMoveWorkflowToTop(actualIndex, workflowIndex)}
-                                onMoveWorkflowToBottom={workflowIndex => onMoveWorkflowToBottom(actualIndex, workflowIndex)}
-                                onAddChart={() => onStartChartForm ? onStartChartForm(actualIndex) : onAddChart(actualIndex, { chartType: 'xy', sources: [] })}
-                                onRemoveChart={chartIndex => onRemoveChart(actualIndex, chartIndex)}
-                                onEditChart={chartIndex => onEditChartSource ? onEditChartSource(actualIndex, chartIndex) : undefined}
-                                isExpanded={expandedLayers.has(actualIndex)}
-                                onToggle={() => onToggleLayer(actualIndex)}
-                              />
-                            </div>
-                            <LayerMoveControls
-                              onMoveUp={() => handleMoveLayerInGroup(actualIndex, 'up')}
-                              onMoveDown={() => handleMoveLayerInGroup(actualIndex, 'down')}
-                              onMoveToTop={() => moveLayerToTop(actualIndex, sourceIndices)}
-                              onMoveToBottom={() => moveLayerToBottom(actualIndex, sourceIndices)}
-                              canMoveUp={idx > 0}
-                              canMoveDown={idx < ungrouped.length - 1}
-                              canMoveToTop={idx > 0}
-                              canMoveToBottom={idx < ungrouped.length - 1}
+                    {/* Render ungrouped layers after sub-groups */}
+                    {ungrouped.map(({ source, index: actualIndex }) => {
+                      const idx = ungrouped.findIndex(item => item.index === actualIndex);
+                      return (
+                        <div key={actualIndex} className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <SortableLayerCard
+                              id={`layer-${actualIndex}`}
+                              source={source}
+                              index={actualIndex}
+                              interfaceGroup={groupName}
+                              onRemove={onRemoveLayer}
+                              onEdit={onEditLayer}
+                              onEditBaseLayer={onEditBaseLayer}
+                              onDuplicate={onDuplicateLayer}
+                              onUpdateLayer={onUpdateLayer}
+                              onAddDataSource={() => onAddDataSource(actualIndex)}
+                              onRemoveDataSource={dataSourceIndex => onRemoveDataSource(actualIndex, dataSourceIndex)}
+                              onRemoveStatisticsSource={statsIndex => onRemoveStatisticsSource(actualIndex, statsIndex)}
+                              onEditDataSource={dataIndex => onEditDataSource(actualIndex, dataIndex)}
+                              onEditStatisticsSource={statsIndex => onEditStatisticsSource(actualIndex, statsIndex)}
+                              onAddStatisticsSource={() => onAddStatisticsSource(actualIndex)}
+                              onAddConstraintSource={onAddConstraintSource}
+                              onRemoveConstraintSource={constraintIndex => onRemoveConstraintSource(actualIndex, constraintIndex)}
+                              onEditConstraintSource={constraintIndex => onEditConstraintSource(actualIndex, constraintIndex)}
+                              onMoveConstraintUp={constraintIndex => onMoveConstraintUp(actualIndex, constraintIndex)}
+                              onMoveConstraintDown={constraintIndex => onMoveConstraintDown(actualIndex, constraintIndex)}
+                              onMoveConstraintToTop={constraintIndex => onMoveConstraintToTop(actualIndex, constraintIndex)}
+                              onMoveConstraintToBottom={constraintIndex => onMoveConstraintToBottom(actualIndex, constraintIndex)}
+                              onAddWorkflow={workflow => onAddWorkflow(actualIndex, workflow)}
+                              onRemoveWorkflow={workflowIndex => onRemoveWorkflow(actualIndex, workflowIndex)}
+                              onUpdateWorkflow={(workflowIndex, workflow) => onUpdateWorkflow(actualIndex, workflowIndex, workflow)}
+                              onMoveWorkflowUp={workflowIndex => onMoveWorkflowUp(actualIndex, workflowIndex)}
+                              onMoveWorkflowDown={workflowIndex => onMoveWorkflowDown(actualIndex, workflowIndex)}
+                              onMoveWorkflowToTop={workflowIndex => onMoveWorkflowToTop(actualIndex, workflowIndex)}
+                              onMoveWorkflowToBottom={workflowIndex => onMoveWorkflowToBottom(actualIndex, workflowIndex)}
+                              onAddChart={() => onStartChartForm ? onStartChartForm(actualIndex) : onAddChart(actualIndex, { chartType: 'xy', sources: [] })}
+                              onRemoveChart={chartIndex => onRemoveChart(actualIndex, chartIndex)}
+                              onEditChart={chartIndex => onEditChartSource ? onEditChartSource(actualIndex, chartIndex) : undefined}
+                              isExpanded={expandedLayers.has(actualIndex)}
+                              onToggle={() => onToggleLayer(actualIndex)}
                             />
                           </div>
-                        );
-                      })}
-                    </SortableContext>
+                          <LayerMoveControls
+                            onMoveUp={() => handleMoveLayerInGroup(actualIndex, 'up')}
+                            onMoveDown={() => handleMoveLayerInGroup(actualIndex, 'down')}
+                            onMoveToTop={() => moveLayerToTop(actualIndex, sourceIndices)}
+                            onMoveToBottom={() => moveLayerToBottom(actualIndex, sourceIndices)}
+                            canMoveUp={idx > 0}
+                            canMoveDown={idx < ungrouped.length - 1}
+                            canMoveToTop={idx > 0}
+                            canMoveToBottom={idx < ungrouped.length - 1}
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </CollapsibleContent>
