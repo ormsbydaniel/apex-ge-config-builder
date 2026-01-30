@@ -24,6 +24,13 @@ interface SubInterfaceGroupProps {
   onAddLayer: () => void;
   onRenameSubGroup: (newName: string) => void;
   onRemoveSubGroup: () => void;
+  // Sub-group movement
+  onMoveSubGroupUp?: () => void;
+  onMoveSubGroupDown?: () => void;
+  onMoveSubGroupToTop?: () => void;
+  onMoveSubGroupToBottom?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
 const SubInterfaceGroup = ({
@@ -37,7 +44,13 @@ const SubInterfaceGroup = ({
   onToggle,
   onAddLayer,
   onRenameSubGroup,
-  onRemoveSubGroup
+  onRemoveSubGroup,
+  onMoveSubGroupUp,
+  onMoveSubGroupDown,
+  onMoveSubGroupToTop,
+  onMoveSubGroupToBottom,
+  canMoveUp = false,
+  canMoveDown = false
 }: SubInterfaceGroupProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(subGroupName);
@@ -119,7 +132,8 @@ const SubInterfaceGroup = ({
   };
 
   return (
-    <Card className="border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10">
+    <div className="flex items-center gap-2">
+    <Card className="border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10 flex-1">
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
         <CardHeader className="pb-2 pt-2">
           <div className="flex items-center justify-between">
@@ -281,6 +295,17 @@ const SubInterfaceGroup = ({
         </CollapsibleContent>
       </Collapsible>
     </Card>
+    <LayerMoveControls
+      onMoveUp={() => onMoveSubGroupUp?.()}
+      onMoveDown={() => onMoveSubGroupDown?.()}
+      onMoveToTop={() => onMoveSubGroupToTop?.()}
+      onMoveToBottom={() => onMoveSubGroupToBottom?.()}
+      canMoveUp={canMoveUp}
+      canMoveDown={canMoveDown}
+      canMoveToTop={canMoveUp}
+      canMoveToBottom={canMoveDown}
+    />
+    </div>
   );
 };
 
