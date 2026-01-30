@@ -532,7 +532,7 @@ const LayerHierarchy = ({
     return new Set(filtered);
   };
 
-  // Handle moving a layer to a different group via drag-and-drop
+  // Handle moving a layer to a different group via drag-and-drop (appends to end)
   const handleMoveLayerToGroup = useCallback((
     layerIndex: number,
     newInterfaceGroup: string,
@@ -559,6 +559,39 @@ const LayerHierarchy = ({
     });
   }, [config.sources, updateConfig, toast]);
 
+  // Handle moving a layer to a different group AND positioning it at a specific index
+  const handleMoveLayerToPosition = useCallback((
+    layerIndex: number,
+    newInterfaceGroup: string,
+    newSubinterfaceGroup: string | undefined,
+    targetIndex: number
+  ) => {
+    // First, update the layer's group membership
+    const layerToMove = {
+      ...config.sources[layerIndex],
+      layout: {
+        ...config.sources[layerIndex].layout,
+        interfaceGroup: newInterfaceGroup,
+        subinterfaceGroup: newSubinterfaceGroup,
+      },
+    };
+    
+    // Remove from original position and insert at target position
+    const newSources = [...config.sources];
+    newSources.splice(layerIndex, 1);
+    
+    // Adjust target index if we removed from before the target
+    const adjustedTargetIndex = layerIndex < targetIndex ? targetIndex - 1 : targetIndex;
+    newSources.splice(adjustedTargetIndex, 0, layerToMove);
+    
+    updateConfig({ sources: newSources });
+    
+    toast({
+      title: "Layer Moved",
+      description: `Layer moved to "${newInterfaceGroup}"${newSubinterfaceGroup ? ` → ${newSubinterfaceGroup}` : ''}.`,
+    });
+  }, [config.sources, updateConfig, toast]);
+
   // Handle reordering interface groups via drag
   const handleReorderInterfaceGroup = useCallback((fromIndex: number, toIndex: number) => {
     if (fromIndex === toIndex) return;
@@ -573,6 +606,7 @@ const LayerHierarchy = ({
       sources={config.sources}
       interfaceGroups={config.interfaceGroups}
       onMoveLayerToGroup={handleMoveLayerToGroup}
+      onMoveLayerToPosition={handleMoveLayerToPosition}
       onReorderLayer={onMoveLayer}
       onReorderInterfaceGroup={handleReorderInterfaceGroup}
     >

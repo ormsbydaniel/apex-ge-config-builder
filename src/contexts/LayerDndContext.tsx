@@ -55,6 +55,12 @@ interface LayerDndProviderProps {
     newInterfaceGroup: string,
     newSubinterfaceGroup?: string
   ) => void;
+  onMoveLayerToPosition: (
+    layerIndex: number,
+    newInterfaceGroup: string,
+    newSubinterfaceGroup: string | undefined,
+    targetIndex: number
+  ) => void;
   onReorderLayer: (fromIndex: number, toIndex: number) => void;
   onReorderInterfaceGroup?: (fromIndex: number, toIndex: number) => void;
   onMoveSubGroup?: (
@@ -150,6 +156,7 @@ export const LayerDndProvider = ({
   sources,
   interfaceGroups,
   onMoveLayerToGroup,
+  onMoveLayerToPosition,
   onReorderLayer,
   onReorderInterfaceGroup,
   onMoveSubGroup,
@@ -203,9 +210,24 @@ export const LayerDndProvider = ({
       // Handle layer drag
       if (activeData.type === 'layer') {
         if (overData.type === 'layer') {
-          // Reorder within same or different context
+          // Check if dropping on a layer in a DIFFERENT group
+          const isSameGroup = 
+            activeData.interfaceGroup === overData.interfaceGroup &&
+            activeData.subinterfaceGroup === overData.subinterfaceGroup;
+          
           if (activeData.sourceIndex !== undefined && overData.sourceIndex !== undefined) {
-            onReorderLayer(activeData.sourceIndex, overData.sourceIndex);
+            if (isSameGroup) {
+              // Same group: just reorder
+              onReorderLayer(activeData.sourceIndex, overData.sourceIndex);
+            } else {
+              // Different group: move to that group AND position at drop target
+              onMoveLayerToPosition(
+                activeData.sourceIndex,
+                overData.interfaceGroup!,
+                overData.subinterfaceGroup,
+                overData.sourceIndex
+              );
+            }
           }
         } else if (overData.type === 'drop-zone') {
           // Move layer to a different group/sub-group
@@ -242,7 +264,7 @@ export const LayerDndProvider = ({
         }
       }
     },
-    [onMoveLayerToGroup, onReorderLayer, onReorderInterfaceGroup, interfaceGroups]
+    [onMoveLayerToGroup, onMoveLayerToPosition, onReorderLayer, onReorderInterfaceGroup, interfaceGroups]
   );
 
   const contextValue = useMemo(
