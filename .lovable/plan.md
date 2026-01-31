@@ -1,73 +1,83 @@
 
-# Plan: Unify Drag Visual Feedback for Layers
+# Plan: Add "Load Example Config" Button
 
-## Problem
-Currently, the drag-and-drop visual feedback is inconsistent:
-- **Within-group reordering**: Shows the greyed-out card at target position (via `@dnd-kit/sortable` transforms)
-- **Cross-group moves**: Shows a horizontal insertion line above the target card
-- **Interface group reordering**: Shows the greyed-out card at target position
+## Overview
+Add a button to the Home tab that fetches and loads the example configuration from `/examples/test-config.json`. This allows users to quickly see a working configuration without having to import a file manually.
 
-This inconsistency is confusing for users.
+## Changes
 
-## Root Cause
-Each interface group (and sub-group) currently has its own `SortableContext`. When dragging within a context, `@dnd-kit/sortable` automatically calculates transform positions. When dragging *across* contexts, these transforms don't work, so a manual insertion line was added.
+### 1. Add URL Import Function to useConfigImport Hook
+**File**: `src/hooks/useConfigImport.ts`
 
-## Solution
-Replace the multiple `SortableContext` instances with a **single SortableContext** that contains all layers. The collision detection and drop handling already support cross-group moves, so this change will allow the standard sortable visual feedback to work everywhere.
+Add a new function `importConfigFromUrl` that:
+- Fetches JSON from a given URL
+- Reuses the existing validation and transformation logic
+- Shows appropriate toast messages for success/failure
 
-## Implementation Steps
+### 2. Add "Load Example" Button to HomeTab
+**File**: `src/components/config/HomeTab.tsx`
 
-### 1. Restructure SortableContext in LayerHierarchy
-Move the `SortableContext` for layers from individual group components to a single wrapper that contains all layer IDs in their display order.
+Add a new button next to the existing Load/Export/New buttons that:
+- Has a distinctive style (different colour to distinguish it from regular "Load")
+- Fetches the example config on click
+- Shows loading state while fetching
+- Uses the new `importConfigFromUrl` function
 
-**File**: `src/components/layers/LayerHierarchy.tsx`
-- Create a single `SortableContext` with all layer IDs in visual order
-- Maintain the existing group structure for rendering, but layers share one sortable context
+## Button Placement
 
-### 2. Update LayerGroup Component
-Remove the internal `SortableContext` from `LayerGroup`.
+The button will be added to the existing button row in the Project card header, alongside Load, Export, and New buttons.
 
-**File**: `src/components/layers/components/LayerGroup.tsx`
-- Remove `SortableContext` wrapper around layers
-- Keep the `DroppableGroupZone` for empty-group drops and auto-expand functionality
+```text
++--------+  +--------+  +--------+  +--------------+
+|  Load  |  | Export |  |  New   |  | Load Example |
++--------+  +--------+  +--------+  +--------------+
+```
 
-### 3. Update SubInterfaceGroup Component
-Remove the internal `SortableContext` from `SubInterfaceGroup`.
+## Technical Details
 
-**File**: `src/components/layers/components/SubInterfaceGroup.tsx`
-- Remove `SortableContext` wrapper around layers
-- Keep the droppable zone for targeting sub-groups directly
+### New Function in useConfigImport.ts
 
-### 4. Simplify SortableLayerCard
-Remove the cross-group insertion line and content shift since standard sortable behavior will now handle all cases.
+```typescript
+const importConfigFromUrl = useCallback(async (url: string): Promise<{
+  success: boolean;
+  errors?: ValidationErrorDetails[];
+  jsonError?: any;
+}> => {
+  try {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.statusText}`);
+    }
+    
+    const text = await response.text();
+    // ... reuse existing parsing, validation, transformation logic
+  } catch (error) {
+    // ... error handling
+  }
+}, [dispatch, toast]);
+```
 
-**File**: `src/components/layers/components/SortableLayerCard.tsx`
-- Remove `isReceivingCrossGroupDrop` logic
-- Remove the horizontal insertion line (`bg-primary` div)
-- Remove the `translate-y-1` content shift
-- Keep the opacity and transform styles that power the greyed-out card effect
+### Button in HomeTab.tsx
 
-## Technical Notes
+```tsx
+<Button 
+  onClick={handleLoadExample}
+  variant="outline"
+  size="sm"
+  className="h-9 w-[130px] ... border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+  disabled={config.isLoading}
+>
+  <FileText className="h-4 w-4 mr-2" />
+  Example
+</Button>
+```
 
-### Maintaining Correct Visual Order
-The single `SortableContext` needs layer IDs in their visual render order:
-1. First, layers in Interface Group A's sub-groups
-2. Then, ungrouped layers in Interface Group A  
-3. Then, layers in Interface Group B's sub-groups
-4. And so on...
+## User Experience
 
-This order must be computed in `LayerHierarchy` and passed to a single `SortableContext`.
-
-### No Changes to Drop Logic
-The existing `handleDragEnd` in `LayerDndContext` already correctly handles both same-group and cross-group drops by examining the `interfaceGroup`/`subinterfaceGroup` properties. This will continue to work unchanged.
-
-### Collision Detection Unchanged
-The `customCollisionDetection` logic remains valid and will continue to prioritize layer-over-layer collisions for precise positioning.
-
-## Expected Outcome
-After this change:
-- Dragging a layer within a group: greyed-out card at target position
-- Dragging a layer to a different group: greyed-out card at target position
-- Dragging an interface group: greyed-out card at target position
-
-All three cases will have consistent, unified visual feedback.
+1. User clicks "Example" button
+2. Button shows disabled/loading state briefly
+3. Example config loads and replaces current config
+4. Success toast appears: "Successfully loaded example configuration"
+5. All tabs update to show the example data
