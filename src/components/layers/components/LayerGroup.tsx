@@ -13,6 +13,7 @@ import SubInterfaceGroup from './SubInterfaceGroup';
 import AddSubGroupDialog from './AddSubGroupDialog';
 import DeleteSubGroupDialog from './DeleteSubGroupDialog';
 import SortableLayerCard from './SortableLayerCard';
+import SortableSubInterfaceGroup from './SortableSubInterfaceGroup';
 import DroppableGroupZone from './DroppableGroupZone';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 interface LayerGroupProps {
@@ -304,26 +305,32 @@ const LayerGroup = ({
                     {orderedSubGroups.map((subGroupName, subGroupIdx) => {
                       const subGroupItems = subGrouped[subGroupName];
                       return (
-                        <SubInterfaceGroup
+                        <SortableSubInterfaceGroup
                           key={subGroupName}
+                          id={`subgroup-${groupName}::${subGroupName}`}
                           subGroupName={subGroupName}
                           parentInterfaceGroup={groupName}
-                          sources={subGroupItems.map(item => item.source)}
-                          sourceIndices={subGroupItems.map(item => item.index)}
-                          expandedLayers={expandedLayers}
-                          onToggleLayer={onToggleLayer}
-                          isExpanded={expandedSubGroups.has(subGroupName)}
-                          onToggle={() => onToggleSubGroup?.(subGroupName)}
-                          onAddLayer={() => onAddLayer(groupName, subGroupName)}
-                          onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
-                          onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
-                          onMoveSubGroupUp={() => onMoveSubGroup?.(subGroupName, 'up')}
-                          onMoveSubGroupDown={() => onMoveSubGroup?.(subGroupName, 'down')}
-                          onMoveSubGroupToTop={() => onMoveSubGroup?.(subGroupName, 'top')}
-                          onMoveSubGroupToBottom={() => onMoveSubGroup?.(subGroupName, 'bottom')}
-                          canMoveUp={subGroupIdx > 0}
-                          canMoveDown={subGroupIdx < orderedSubGroups.length - 1}
-                        />
+                        >
+                          <SubInterfaceGroup
+                            subGroupName={subGroupName}
+                            parentInterfaceGroup={groupName}
+                            sources={subGroupItems.map(item => item.source)}
+                            sourceIndices={subGroupItems.map(item => item.index)}
+                            expandedLayers={expandedLayers}
+                            onToggleLayer={onToggleLayer}
+                            isExpanded={expandedSubGroups.has(subGroupName)}
+                            onToggle={() => onToggleSubGroup?.(subGroupName)}
+                            onAddLayer={() => onAddLayer(groupName, subGroupName)}
+                            onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
+                            onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
+                            onMoveSubGroupUp={() => onMoveSubGroup?.(subGroupName, 'up')}
+                            onMoveSubGroupDown={() => onMoveSubGroup?.(subGroupName, 'down')}
+                            onMoveSubGroupToTop={() => onMoveSubGroup?.(subGroupName, 'top')}
+                            onMoveSubGroupToBottom={() => onMoveSubGroup?.(subGroupName, 'bottom')}
+                            canMoveUp={subGroupIdx > 0}
+                            canMoveDown={subGroupIdx < orderedSubGroups.length - 1}
+                          />
+                        </SortableSubInterfaceGroup>
                       );
                     })}
 
