@@ -305,34 +305,39 @@ const LayerGroup = ({
                     {orderedSubGroups.map((subGroupName, subGroupIdx) => {
                       const subGroupItems = subGrouped[subGroupName];
                       return (
-                        <SortableSubInterfaceGroup
-                          key={subGroupName}
-                          id={`subgroup-${groupName}::${subGroupName}`}
-                          subGroupName={subGroupName}
-                          parentInterfaceGroup={groupName}
-                        >
-                          <SubInterfaceGroup
-                            subGroupName={subGroupName}
-                            parentInterfaceGroup={groupName}
-                            sources={subGroupItems.map(item => item.source)}
-                            sourceIndices={subGroupItems.map(item => item.index)}
-                            expandedLayers={expandedLayers}
-                            onToggleLayer={onToggleLayer}
-                            isExpanded={expandedSubGroups.has(subGroupName)}
-                            onToggle={() => onToggleSubGroup?.(subGroupName)}
-                            onAddLayer={() => onAddLayer(groupName, subGroupName)}
-                            onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
-                            onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
-                            onMoveSubGroupUp={() => onMoveSubGroup?.(subGroupName, 'up')}
-                            onMoveSubGroupDown={() => onMoveSubGroup?.(subGroupName, 'down')}
-                            onMoveSubGroupToTop={() => onMoveSubGroup?.(subGroupName, 'top')}
-                            onMoveSubGroupToBottom={() => onMoveSubGroup?.(subGroupName, 'bottom')}
+                        <div key={subGroupName} className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <SortableSubInterfaceGroup
+                              id={`subgroup-${groupName}::${subGroupName}`}
+                              subGroupName={subGroupName}
+                              parentInterfaceGroup={groupName}
+                            >
+                              <SubInterfaceGroup
+                                subGroupName={subGroupName}
+                                parentInterfaceGroup={groupName}
+                                sources={subGroupItems.map(item => item.source)}
+                                sourceIndices={subGroupItems.map(item => item.index)}
+                                expandedLayers={expandedLayers}
+                                onToggleLayer={onToggleLayer}
+                                isExpanded={expandedSubGroups.has(subGroupName)}
+                                onToggle={() => onToggleSubGroup?.(subGroupName)}
+                                onAddLayer={() => onAddLayer(groupName, subGroupName)}
+                                onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
+                                onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
+                              />
+                            </SortableSubInterfaceGroup>
+                          </div>
+                          <LayerMoveControls
+                            onMoveUp={() => onMoveSubGroup?.(subGroupName, 'up')}
+                            onMoveDown={() => onMoveSubGroup?.(subGroupName, 'down')}
+                            onMoveToTop={() => onMoveSubGroup?.(subGroupName, 'top')}
+                            onMoveToBottom={() => onMoveSubGroup?.(subGroupName, 'bottom')}
                             canMoveUp={subGroupIdx > 0}
                             canMoveDown={subGroupIdx < orderedSubGroups.length - 1}
-                             canMoveToTop={subGroupIdx > 0}
-                             canMoveToBottom={subGroupIdx < orderedSubGroups.length - 1}
+                            canMoveToTop={subGroupIdx > 0}
+                            canMoveToBottom={subGroupIdx < orderedSubGroups.length - 1}
                           />
-                        </SortableSubInterfaceGroup>
+                        </div>
                       );
                     })}
 

@@ -25,14 +25,6 @@ interface SubInterfaceGroupProps {
   onAddLayer: () => void;
   onRenameSubGroup: (newName: string) => void;
   onRemoveSubGroup: () => void;
-  // Sub-group movement
-  onMoveSubGroupUp?: () => void;
-  onMoveSubGroupDown?: () => void;
-  onMoveSubGroupToTop?: () => void;
-  onMoveSubGroupToBottom?: () => void;
-  canMoveUp?: boolean;
-  canMoveDown?: boolean;
-  canMoveToTop?: boolean;
   canMoveToBottom?: boolean;
 }
 
@@ -48,14 +40,6 @@ const SubInterfaceGroup = ({
   onAddLayer,
   onRenameSubGroup,
   onRemoveSubGroup,
-  onMoveSubGroupUp,
-  onMoveSubGroupDown,
-  onMoveSubGroupToTop,
-  onMoveSubGroupToBottom,
-  canMoveUp = false,
-  canMoveDown = false,
-  canMoveToTop,
-  canMoveToBottom,
 }: SubInterfaceGroupProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(subGroupName);
@@ -219,24 +203,6 @@ const SubInterfaceGroup = ({
                 )}
                 {!isEditing && (
                   <div className="flex items-center gap-1">
-                    {(onMoveSubGroupUp || onMoveSubGroupDown || onMoveSubGroupToTop || onMoveSubGroupToBottom) && (
-                      <div
-                        onClick={(e) => e.stopPropagation()}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        className="mr-1"
-                      >
-                        <LayerMoveControls
-                          onMoveUp={() => onMoveSubGroupUp?.()}
-                          onMoveDown={() => onMoveSubGroupDown?.()}
-                          onMoveToTop={() => onMoveSubGroupToTop?.()}
-                          onMoveToBottom={() => onMoveSubGroupToBottom?.()}
-                          canMoveUp={!!onMoveSubGroupUp && !!canMoveUp}
-                          canMoveDown={!!onMoveSubGroupDown && !!canMoveDown}
-                          canMoveToTop={!!onMoveSubGroupToTop && (canMoveToTop ?? canMoveUp ?? false)}
-                          canMoveToBottom={!!onMoveSubGroupToBottom && (canMoveToBottom ?? canMoveDown ?? false)}
-                        />
-                      </div>
-                    )}
                     <Button
                       variant="outline"
                       size="sm"
