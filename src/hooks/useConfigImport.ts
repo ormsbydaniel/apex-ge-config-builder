@@ -185,5 +185,143 @@ export const useConfigImport = () => {
     }
   }, [importConfig]);
 
-  return { importConfig, handleFileSelect };
+  const importConfigFromUrl = useCallback(async (url: string): Promise<{ success: boolean; errors?: ValidationErrorDetails[]; jsonError?: any }> => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.statusText}`);
+      }
+
+      const text = await response.text();
+      
+      // Enhanced JSON parsing with line number detection
+      const parseResult = parseJSONWithLineNumbers(text);
+      
+      if (parseResult.error) {
+        dispatch({ type: 'SET_LOADING', payload: false });
+        
+        const errorMessage = parseResult.error.lineNumber 
+          ? `Invalid JSON at line ${parseResult.error.lineNumber}${parseResult.error.columnNumber ? `, column ${parseResult.error.columnNumber}` : ''}: ${parseResult.error.message}`
+          : `Invalid JSON: ${parseResult.error.message}`;
+        
+        toast({
+          title: "JSON Parse Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        
+        return { success: false, jsonError: parseResult.error };
+      }
+      
+      const jsonData = parseResult.data;
+      
+      // Detect transformations before normalization for better user feedback
+      const detectedTransforms = detectTransformations(jsonData);
+      
+      // IMPORTANT: Normalize imported config BEFORE validation
+      const normalizedData = normalizeImportedConfig(jsonData);
+      
+      // Validate the normalized configuration using Zod schema
+      let validatedConfig;
+      try {
+        validatedConfig = ConfigurationSchema.parse(normalizedData);
+      } catch (zodError: any) {
+        console.error('[VALIDATION ERROR] Full Zod error:', JSON.stringify(zodError.errors, null, 2));
+        throw zodError;
+      }
+      
+      // Fetch capabilities for all services if they exist
+      const servicesWithCapabilities = await Promise.all(
+        (validatedConfig.services || []).map(async (service) => {
+          if (service.sourceType === 's3') {
+            try {
+              const { fetchS3BucketContents } = await import('@/utils/s3Utils');
+              const s3Objects = await fetchS3BucketContents(service.url);
+              
+              const layers = s3Objects.map(obj => ({
+                name: obj.key,
+                title: obj.key,
+                abstract: `S3 object: ${obj.key} (${(obj.size / 1024).toFixed(1)} KB)`
+              }));
+              
+              return {
+                ...service,
+                capabilities: {
+                  layers,
+                  title: service.name,
+                  abstract: `S3 bucket with ${layers.length} objects`
+                }
+              };
+            } catch (error) {
+              console.warn(`Failed to fetch S3 bucket contents for ${service.name}:`, error);
+              return service;
+            }
+          } else {
+            if (service.format && service.format !== 's3') {
+              const capabilities = await fetchServiceCapabilities(service.url, service.format as DataSourceFormat);
+              return {
+                ...service,
+                ...(capabilities && { capabilities })
+              };
+            } else {
+              return service;
+            }
+          }
+        })
+      );
+      
+      const configWithCapabilities = {
+        ...validatedConfig,
+        services: servicesWithCapabilities
+      };
+      
+      dispatch({ type: 'LOAD_CONFIG', payload: configWithCapabilities });
+      
+      // Enhanced success message with transformation details
+      const transformationCount = Object.values(detectedTransforms).filter(Boolean).length;
+      
+      let description = 'Successfully loaded example configuration';
+      if (transformationCount > 0) {
+        const transformationTypes = [];
+        if (detectedTransforms.singleItemArrayToObject) transformationTypes.push('array/object');
+        if (detectedTransforms.configureCogsAsImages) transformationTypes.push('COG images');
+        if (detectedTransforms.transformSwipeLayersToData) transformationTypes.push('swipe layers');
+        
+        description += `. Export transformations (${transformationTypes.join(', ')}) were automatically reversed.`;
+      }
+      
+      toast({
+        title: "Configuration Loaded",
+        description,
+      });
+      
+      return { success: true };
+    } catch (error) {
+      dispatch({ type: 'SET_LOADING', payload: false });
+      
+      if (error instanceof Error && error.name === 'ZodError') {
+        const formattedErrors = formatValidationErrors(error as any, null);
+        
+        toast({
+          title: "Invalid Configuration",
+          description: `Found ${formattedErrors.length} validation error${formattedErrors.length !== 1 ? 's' : ''}. See details for specific issues.`,
+          variant: "destructive",
+        });
+        
+        return { success: false, errors: formattedErrors };
+      } else {
+        console.error('Import error:', error);
+        toast({
+          title: "Import Failed",
+          description: error instanceof Error ? error.message : "An unexpected error occurred while loading the configuration.",
+          variant: "destructive",
+        });
+        return { success: false };
+      }
+    }
+  }, [dispatch, toast]);
+
+  return { importConfig, handleFileSelect, importConfigFromUrl };
 };

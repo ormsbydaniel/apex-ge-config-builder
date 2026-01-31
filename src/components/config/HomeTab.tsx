@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
@@ -26,7 +26,8 @@ interface HomeTabProps {
 
 const HomeTab = ({ config }: HomeTabProps) => {
   const { dispatch } = useConfig();
-  const { handleFileSelect, importConfig } = useConfigImport();
+  const { handleFileSelect, importConfig, importConfigFromUrl } = useConfigImport();
+  const [isLoadingExample, setIsLoadingExample] = useState(false);
   const { exportConfig } = useConfigExport();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
@@ -329,6 +330,26 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   >
                     <RotateCcw className="h-4 w-4 mr-2" />
                     New
+                  </Button>
+
+                  <Button 
+                    onClick={async () => {
+                      setIsLoadingExample(true);
+                      const result = await importConfigFromUrl('/examples/test-config.json');
+                      setIsLoadingExample(false);
+                      if (!result.success && result.errors) {
+                        setValidationErrors(result.errors);
+                        setErrorFileName('test-config.json');
+                        setShowErrorDialog(true);
+                      }
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-[130px] text-sm font-medium hover:scale-[1.01] transition-transform border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+                    disabled={config.isLoading || isLoadingExample}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Example
                   </Button>
                 </div>
               </div>
