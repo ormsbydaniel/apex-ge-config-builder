@@ -367,6 +367,78 @@ const LayerHierarchy = ({
     });
   };
 
+  // Handle sub-group drag reordering (when dropping one sub-group onto another)
+  const handleReorderSubGroup = useCallback((parentGroup: string, fromSubGroupName: string, toSubGroupName: string) => {
+    // Get all sources in this parent group
+    const groupSources = config.sources.map((source, idx) => ({ source, idx }))
+      .filter(item => item.source.layout?.interfaceGroup === parentGroup && !item.source.isBaseLayer);
+    
+    // Get ordered list of sub-groups based on first appearance
+    const orderedSubGroups: string[] = [];
+    groupSources.forEach(({ source }) => {
+      const subGroup = source.layout?.subinterfaceGroup;
+      if (subGroup && !orderedSubGroups.includes(subGroup)) {
+        orderedSubGroups.push(subGroup);
+      }
+    });
+    
+    const fromIndex = orderedSubGroups.indexOf(fromSubGroupName);
+    const toIndex = orderedSubGroups.indexOf(toSubGroupName);
+    
+    if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
+    
+    // Find the first source index of the target sub-group
+    const targetFirstSourceIdx = groupSources.find(
+      item => item.source.layout?.subinterfaceGroup === toSubGroupName
+    )?.idx;
+    
+    // Find all sources of the current sub-group
+    const currentSubGroupSources = groupSources
+      .filter(item => item.source.layout?.subinterfaceGroup === fromSubGroupName)
+      .map(item => item.idx);
+    
+    if (targetFirstSourceIdx === undefined || currentSubGroupSources.length === 0) return;
+    
+    // Reorder sources: move all current sub-group sources to before/after target
+    const newSources = [...config.sources];
+    
+    // Remove current sub-group sources from their positions (in reverse to maintain indices)
+    const removedSources: DataSource[] = [];
+    [...currentSubGroupSources].reverse().forEach(idx => {
+      removedSources.unshift(newSources.splice(idx, 1)[0]);
+    });
+    
+    // Calculate new target position (adjusted for removed items)
+    let insertPosition = targetFirstSourceIdx;
+    currentSubGroupSources.forEach(idx => {
+      if (idx < targetFirstSourceIdx) insertPosition--;
+    });
+    
+    // If moving down (fromIndex < toIndex), insert after the target sub-group's last item
+    if (fromIndex < toIndex) {
+      const targetSubGroupIndices = groupSources
+        .filter(item => item.source.layout?.subinterfaceGroup === toSubGroupName)
+        .map(item => {
+          let adjustedIdx = item.idx;
+          currentSubGroupSources.forEach(removedIdx => {
+            if (removedIdx < item.idx) adjustedIdx--;
+          });
+          return adjustedIdx;
+        });
+      insertPosition = Math.max(...targetSubGroupIndices) + 1;
+    }
+    
+    // Insert the removed sources at the new position
+    newSources.splice(insertPosition, 0, ...removedSources);
+    
+    updateConfig({ sources: newSources });
+    
+    toast({
+      title: "Sub-Group Reordered",
+      description: `"${fromSubGroupName}" has been moved.`,
+    });
+  }, [config.sources, updateConfig, toast]);
+
   const toggleSubGroup = (parentGroup: string, subGroupName: string) => {
     const key = `${parentGroup}::${subGroupName}`;
     const newExpanded = new Set(expandedSubGroups);
@@ -611,6 +683,7 @@ const LayerHierarchy = ({
       onMoveLayerToPosition={handleMoveLayerToPosition}
       onReorderLayer={onMoveLayer}
       onReorderInterfaceGroup={handleReorderInterfaceGroup}
+      onReorderSubGroup={handleReorderSubGroup}
     >
       <div className="space-y-6">
         {/* Interface Groups - wrapped in SortableContext for drag reordering */}
