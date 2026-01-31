@@ -68,6 +68,11 @@ interface LayerDndProviderProps {
     subGroupName: string,
     targetParentGroup: string
   ) => void;
+  onReorderSubGroup?: (
+    parentGroup: string,
+    fromSubGroupName: string,
+    toSubGroupName: string
+  ) => void;
 }
 
 // Drag overlay preview component
@@ -183,6 +188,7 @@ export const LayerDndProvider = ({
   onReorderLayer,
   onReorderInterfaceGroup,
   onMoveSubGroup,
+  onReorderSubGroup,
 }: LayerDndProviderProps) => {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [activeData, setActiveData] = useState<DragData | null>(null);
@@ -286,8 +292,23 @@ export const LayerDndProvider = ({
           onReorderInterfaceGroup(fromIndex, toIndex);
         }
       }
+
+      // Handle sub-group reordering within the same parent interface group
+      if (activeData.type === 'sub-group' && overData.type === 'sub-group') {
+        const activeParent = activeData.interfaceGroup;
+        const overParent = overData.interfaceGroup;
+        const activeSubGroup = activeData.subinterfaceGroup;
+        const overSubGroup = overData.subinterfaceGroup;
+        
+        // Only handle reordering within the same parent group
+        if (activeParent && overParent && activeParent === overParent && 
+            activeSubGroup && overSubGroup && activeSubGroup !== overSubGroup &&
+            onReorderSubGroup) {
+          onReorderSubGroup(activeParent, activeSubGroup, overSubGroup);
+        }
+      }
     },
-    [onMoveLayerToGroup, onMoveLayerToPosition, onReorderLayer, onReorderInterfaceGroup, interfaceGroups]
+    [onMoveLayerToGroup, onMoveLayerToPosition, onReorderLayer, onReorderInterfaceGroup, onReorderSubGroup, interfaceGroups]
   );
 
   const contextValue = useMemo(
