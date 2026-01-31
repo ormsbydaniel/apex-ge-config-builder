@@ -329,6 +329,8 @@ const LayerGroup = ({
                             onMoveSubGroupToBottom={() => onMoveSubGroup?.(subGroupName, 'bottom')}
                             canMoveUp={subGroupIdx > 0}
                             canMoveDown={subGroupIdx < orderedSubGroups.length - 1}
+                             canMoveToTop={subGroupIdx > 0}
+                             canMoveToBottom={subGroupIdx < orderedSubGroups.length - 1}
                           />
                         </SortableSubInterfaceGroup>
                       );

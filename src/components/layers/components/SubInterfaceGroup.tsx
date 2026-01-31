@@ -32,6 +32,8 @@ interface SubInterfaceGroupProps {
   onMoveSubGroupToBottom?: () => void;
   canMoveUp?: boolean;
   canMoveDown?: boolean;
+  canMoveToTop?: boolean;
+  canMoveToBottom?: boolean;
 }
 
 const SubInterfaceGroup = ({
@@ -51,7 +53,9 @@ const SubInterfaceGroup = ({
   onMoveSubGroupToTop,
   onMoveSubGroupToBottom,
   canMoveUp = false,
-  canMoveDown = false
+  canMoveDown = false,
+  canMoveToTop,
+  canMoveToBottom,
 }: SubInterfaceGroupProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(subGroupName);
@@ -215,6 +219,24 @@ const SubInterfaceGroup = ({
                 )}
                 {!isEditing && (
                   <div className="flex items-center gap-1">
+                    {(onMoveSubGroupUp || onMoveSubGroupDown || onMoveSubGroupToTop || onMoveSubGroupToBottom) && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        className="mr-1"
+                      >
+                        <LayerMoveControls
+                          onMoveUp={() => onMoveSubGroupUp?.()}
+                          onMoveDown={() => onMoveSubGroupDown?.()}
+                          onMoveToTop={() => onMoveSubGroupToTop?.()}
+                          onMoveToBottom={() => onMoveSubGroupToBottom?.()}
+                          canMoveUp={!!onMoveSubGroupUp && !!canMoveUp}
+                          canMoveDown={!!onMoveSubGroupDown && !!canMoveDown}
+                          canMoveToTop={!!onMoveSubGroupToTop && (canMoveToTop ?? canMoveUp ?? false)}
+                          canMoveToBottom={!!onMoveSubGroupToBottom && (canMoveToBottom ?? canMoveDown ?? false)}
+                        />
+                      </div>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
