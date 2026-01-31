@@ -133,16 +133,15 @@ const SubInterfaceGroup = ({
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <DroppableGroupZone
-        id={`drop-${parentInterfaceGroup}::${subGroupName}`}
-        interfaceGroup={parentInterfaceGroup}
-        subinterfaceGroup={subGroupName}
-        isCollapsed={!isExpanded}
-        onExpand={onToggle}
-        className="flex-1"
-      >
-        <Card className="border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10">
+    <DroppableGroupZone
+      id={`drop-${parentInterfaceGroup}::${subGroupName}`}
+      interfaceGroup={parentInterfaceGroup}
+      subinterfaceGroup={subGroupName}
+      isCollapsed={!isExpanded}
+      onExpand={onToggle}
+      className="flex-1"
+    >
+      <Card className="border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10">
           <Collapsible open={isExpanded} onOpenChange={onToggle}>
             <CardHeader className="pb-2 pt-2">
               <div className="flex items-center justify-between">
@@ -313,17 +312,6 @@ const SubInterfaceGroup = ({
           </Collapsible>
         </Card>
       </DroppableGroupZone>
-    <LayerMoveControls
-      onMoveUp={() => onMoveSubGroupUp?.()}
-      onMoveDown={() => onMoveSubGroupDown?.()}
-      onMoveToTop={() => onMoveSubGroupToTop?.()}
-      onMoveToBottom={() => onMoveSubGroupToBottom?.()}
-      canMoveUp={canMoveUp}
-      canMoveDown={canMoveDown}
-      canMoveToTop={canMoveUp}
-      canMoveToBottom={canMoveDown}
-    />
-    </div>
   );
 };
 
