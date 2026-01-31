@@ -48,13 +48,13 @@ const SortableInterfaceGroup = ({
   return (
     <div ref={setNodeRef} style={style} {...attributes} className="relative">
       <div className={cn(
-        "flex items-start gap-2",
+        "flex items-stretch gap-2",
         isDragging && "ring-2 ring-primary rounded-lg"
       )}>
         {/* Drag handle for interface group */}
         <div
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-2 mt-3 hover:bg-muted/50 rounded transition-colors flex-shrink-0"
+          className="cursor-grab active:cursor-grabbing px-2 hover:bg-muted/50 rounded transition-colors flex-shrink-0 flex items-center"
           title="Drag to reorder interface group"
         >
           <GripVertical className="h-5 w-5 text-primary/70" />
