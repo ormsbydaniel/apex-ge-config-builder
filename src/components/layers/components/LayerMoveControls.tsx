@@ -25,49 +25,49 @@ const LayerMoveControls = ({
   canMoveToBottom
 }: LayerMoveControlsProps) => {
   return (
-    <div className="flex gap-1">
-      <div className="flex flex-col gap-1">
+    <div className="flex gap-0.5">
+      <div className="flex flex-col gap-0.5">
         <Button
           size="sm"
           variant="ghost"
           onClick={onMoveUp}
           disabled={!canMoveUp}
-          className="h-6 w-6 p-0 bg-white border border-muted hover:bg-muted"
+          className="h-5 w-5 p-0 bg-white border border-muted hover:bg-muted"
           title="Move up"
         >
-          <ArrowUp className="h-3 w-3" />
+          <ArrowUp className="h-2.5 w-2.5" />
         </Button>
         <Button
           size="sm"
           variant="ghost"
           onClick={onMoveDown}
           disabled={!canMoveDown}
-          className="h-6 w-6 p-0 bg-white border border-muted hover:bg-muted"
+          className="h-5 w-5 p-0 bg-white border border-muted hover:bg-muted"
           title="Move down"
         >
-          <ArrowDown className="h-3 w-3" />
+          <ArrowDown className="h-2.5 w-2.5" />
         </Button>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-0.5">
         <Button
           size="sm"
           variant="ghost"
           onClick={onMoveToTop}
           disabled={!canMoveToTop}
-          className="h-6 w-6 p-0 bg-white border border-muted hover:bg-muted"
+          className="h-5 w-5 p-0 bg-white border border-muted hover:bg-muted"
           title="Move to top"
         >
-          <ArrowUpToLine className="h-3 w-3" />
+          <ArrowUpToLine className="h-2.5 w-2.5" />
         </Button>
         <Button
           size="sm"
           variant="ghost"
           onClick={onMoveToBottom}
           disabled={!canMoveToBottom}
-          className="h-6 w-6 p-0 bg-white border border-muted hover:bg-muted"
+          className="h-5 w-5 p-0 bg-white border border-muted hover:bg-muted"
           title="Move to bottom"
         >
-          <ArrowDownToLine className="h-3 w-3" />
+          <ArrowDownToLine className="h-2.5 w-2.5" />
         </Button>
       </div>
     </div>
