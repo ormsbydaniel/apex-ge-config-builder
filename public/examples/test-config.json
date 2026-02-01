@@ -21,9 +21,9 @@
   },
   "interfaceGroups": [
     "Soils",
+    "Biodiversity & Ecosystem Accounting",
     "Land Cover",
     "Vegetation",
-    "Biodiversity & Ecosystem Accounting",
     "Energy",
     "Cities"
   ],
@@ -994,6 +994,400 @@
       }
     },
     {
+      "name": "Saddleworth Moor UK - Peatland Classification",
+      "isActive": false,
+      "data": [
+        {
+          "url": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/WhatSARPeat/peat-classification/peat_classification.tif",
+          "format": "cog",
+          "zIndex": 50
+        }
+      ],
+      "constraints": [
+        {
+          "url": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/HYDRO/water-level-trend/trend_wl_S1S2SMAPL4.tif",
+          "format": "cog",
+          "label": "Water Level Trend",
+          "type": "continuous",
+          "interactive": true,
+          "min": -50,
+          "max": 50,
+          "units": "mm",
+          "bandIndex": 2
+        }
+      ],
+      "meta": {
+        "description": "The WorldPeatland method for mapping peatland extent involves the use of multitemporal composites of Sentinel-1 Ground Range Detected (GRD) radar data and Sentinel-2 surface reflectance imagery, trained using a reference peatland agreement map",
+        "attribution": {
+          "text": "World Peatland",
+          "url": "https://www.worldpeatland.org/"
+        },
+        "categories": [
+          {
+            "color": "#D59E52",
+            "label": "Peatland",
+            "value": 1
+          }
+        ]
+      },
+      "layout": {
+        "interfaceGroup": "Soils",
+        "subinterfaceGroup": "Saddleworth Moor Peatland",
+        "contentLocation": "infoPanel",
+        "layerCard": {
+          "toggleable": true
+        },
+        "infoPanel": {
+          "legend": {
+            "type": "swatch"
+          },
+          "controls": {
+            "opacitySlider": true,
+            "zoomToCenter": true,
+            "download": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/WhatSARPeat/peat-classification/peat_classification.tif",
+            "temporalControls": false,
+            "constraintSlider": false,
+            "blendControls": true
+          }
+        }
+      }
+    },
+    {
+      "name": "Saddleworth Moor, UK - Trends in Water Level",
+      "isActive": false,
+      "data": [
+        {
+          "url": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/HYDRO/water-level-trend/trend_wl_S1S2SMAPL4.tif",
+          "format": "cog",
+          "zIndex": 50
+        }
+      ],
+      "constraints": [
+        {
+          "url": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/WhatSARPeat/peat-classification/peat_classification.tif",
+          "format": "cog",
+          "label": "Peatland Classfication",
+          "type": "categorical",
+          "interactive": true,
+          "constrainTo": [
+            {
+              "label": "Not Peatland",
+              "value": 0
+            },
+            {
+              "label": "Peatland",
+              "value": 1
+            }
+          ],
+          "bandIndex": 2
+        }
+      ],
+      "meta": {
+        "description": "This dataset provides water level trend products (in mm/yr), including long-term trends derived from the S1S2SMAPL4 and SMAPL4 products, as well as human-induced water level trends estimated from their difference. Negative values indicate declining water levels, while positive values indicate rising levels. Long-term trends were calculated averaging yearly values from May through September in the Northern Hemisphere and over the full year in the tropical zone. or more reliable information, see \"Trends in water level – high quality only\" which only shows high quality grid cells.",
+        "attribution": {
+          "text": "ESA World Peatland",
+          "url": "https://www.worldpeatland.org/"
+        },
+        "categories": [],
+        "units": "mm / yr",
+        "min": -40,
+        "max": 40,
+        "startColor": "#ffffff",
+        "endColor": "#ffffff",
+        "colormaps": [
+          {
+            "min": -40,
+            "max": 30,
+            "steps": 50,
+            "name": "rdbu",
+            "reverse": false
+          }
+        ]
+      },
+      "layout": {
+        "interfaceGroup": "Soils",
+        "subinterfaceGroup": "Saddleworth Moor Peatland",
+        "contentLocation": "infoPanel",
+        "layerCard": {
+          "toggleable": true
+        },
+        "infoPanel": {
+          "legend": {
+            "type": "gradient"
+          },
+          "controls": {
+            "opacitySlider": true,
+            "zoomToCenter": true,
+            "temporalControls": false,
+            "constraintSlider": false,
+            "blendControls": false
+          }
+        }
+      }
+    },
+    {
+      "name": "Saddleworth Moor, UK - Sentinel 2 ARD time series",
+      "isActive": false,
+      "data": [
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.08.31.S2B_20240831_latn537lonw0022_T30UWE_ORB037_20240831121358_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1725058800
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.09.17.S2B_20240917_latn537lonw0022_T30UWE_ORB137_20240917134320_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1726527600
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.10.10.S2B_20241010_latn537lonw0022_T30UWE_ORB037_20241010163934_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1728514800
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.12.19.S2B_20241219_latn537lonw0022_T30UWE_ORB037_20241219145422_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1734566400
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.01.25.S2B_20250125_latn537lonw0022_T30UWE_ORB137_20250125115614_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1737763200
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.02.27.S2B_20250227_latn537lonw0022_T30UWE_ORB037_20250227145514_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1740614400
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.03.19.S2B_20250319_latn537lonw0022_T30UWE_ORB037_20250319163355_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1742342400
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.04.05.S2A_20250405_latn537lonw0022_T30UWE_ORB037_20250405163654_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1743807600
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.04.10.S2C_20250410_latn537lonw0022_T30UWE_ORB137_20250410134240_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1744239600
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.05.13.S2C_20250513_latn537lonw0022_T30UWE_ORB037_20250513120803_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1747090800
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.06.19.S2C_20250619_latn537lonw0022_T30UWE_ORB137_20250619130908_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1750287600
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.07.12.S2C_20250712_latn537lonw0022_T30UWE_ORB037_20250712133114_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1752274800
+          ]
+        }
+      ],
+      "timeframe": "Months",
+      "meta": {
+        "description": "Selected monthly scenes of Sentinel 2 Analysis Ready Data for the Saddleworth Area, from the UK EO Data Hub platform.",
+        "attribution": {
+          "text": "Sentinel 2 ARD via UK EO Data Hub",
+          "url": "https://eodatahub.org.uk/"
+        },
+        "categories": []
+      },
+      "layout": {
+        "interfaceGroup": "Soils",
+        "subinterfaceGroup": "Saddleworth Moor Peatland",
+        "contentLocation": "infoPanel",
+        "layerCard": {
+          "toggleable": true
+        },
+        "infoPanel": {
+          "legend": {
+            "type": "swatch"
+          },
+          "controls": {
+            "opacitySlider": true,
+            "zoomToCenter": false,
+            "temporalControls": true,
+            "constraintSlider": false,
+            "blendControls": false
+          }
+        }
+      }
+    },
+    {
+      "name": "Saddleworth Moor, UK - Sentinel 2 NDVI time series",
+      "isActive": false,
+      "data": [
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.08.31.S2B_20240831_latn537lonw0022_T30UWE_ORB037_20240831121358_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1725058800
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.09.17.S2B_20240917_latn537lonw0022_T30UWE_ORB137_20240917134320_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1726527600
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.10.10.S2B_20241010_latn537lonw0022_T30UWE_ORB037_20241010163934_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1728514800
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.12.19.S2B_20241219_latn537lonw0022_T30UWE_ORB037_20241219145422_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1734566400
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.01.25.S2B_20250125_latn537lonw0022_T30UWE_ORB137_20250125115614_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1737763200
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.02.27.S2B_20250227_latn537lonw0022_T30UWE_ORB037_20250227145514_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1740614400
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.03.19.S2B_20250319_latn537lonw0022_T30UWE_ORB037_20250319163355_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1742342400
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.04.05.S2A_20250405_latn537lonw0022_T30UWE_ORB037_20250405163654_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1743807600
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.04.10.S2C_20250410_latn537lonw0022_T30UWE_ORB137_20250410134240_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1744239600
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.05.13.S2C_20250513_latn537lonw0022_T30UWE_ORB037_20250513120803_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1747090800
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.06.19.S2C_20250619_latn537lonw0022_T30UWE_ORB137_20250619130908_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1750287600
+          ]
+        },
+        {
+          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.07.12.S2C_20250712_latn537lonw0022_T30UWE_ORB037_20250712133114_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
+          "format": "xyz",
+          "zIndex": 50,
+          "timestamps": [
+            1752274800
+          ]
+        }
+      ],
+      "timeframe": "Months",
+      "meta": {
+        "description": "Selected monthly scenes of Sentinel 2 Analysis Ready Data visualised as NDVI for the Saddleworth Area, from the UK EO Data Hub platform.",
+        "attribution": {
+          "text": "Sentinel 2 ARD via UK EO Data Hub",
+          "url": "https://eodatahub.org.uk/"
+        },
+        "categories": []
+      },
+      "layout": {
+        "interfaceGroup": "Soils",
+        "subinterfaceGroup": "Saddleworth Moor Peatland",
+        "contentLocation": "infoPanel",
+        "layerCard": {
+          "toggleable": true
+        },
+        "infoPanel": {
+          "legend": {
+            "type": "swatch"
+          },
+          "controls": {
+            "opacitySlider": true,
+            "zoomToCenter": false,
+            "temporalControls": true,
+            "constraintSlider": false,
+            "blendControls": false
+          }
+        }
+      }
+    },
+    {
       "name": "Above Ground Biomass, time series - 2017 to 2023",
       "isActive": false,
       "data": [
@@ -1523,6 +1917,7 @@
       },
       "layout": {
         "interfaceGroup": "Biodiversity & Ecosystem Accounting",
+        "subinterfaceGroup": "Greece",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -1647,6 +2042,7 @@
       },
       "layout": {
         "interfaceGroup": "Biodiversity & Ecosystem Accounting",
+        "subinterfaceGroup": "Slovakia",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -1658,6 +2054,50 @@
           "controls": {
             "opacitySlider": true,
             "zoomToCenter": true,
+            "temporalControls": false,
+            "constraintSlider": false,
+            "blendControls": false
+          }
+        }
+      }
+    },
+    {
+      "name": "Slovakia Wood Provision Service Account 2021",
+      "isActive": false,
+      "data": [
+        {
+          "url": "https://eoresults.esa.int/d/ESA_PEOPLE_EA_WOOD_PROVISION/2021/01/01/ESA_PEOPLE_EA_WOOD_PROVISION-SK_FAWS_2021/SK_FAWS_raster_2021.tif",
+          "format": "cog",
+          "zIndex": 50,
+          "normalize": false
+        }
+      ],
+      "meta": {
+        "description": "Quantification of the supply of wood products from forests, woodlands, or other ecosystems over time for Slovakia in 2021.",
+        "attribution": {
+          "text": "ESA People Ecosystem Accounting",
+          "url": "https://esa-people-ea.org/en"
+        },
+        "categories": [],
+        "min": 0.004,
+        "max": 0.54,
+        "startColor": "#046601",
+        "endColor": "#fdfd1f"
+      },
+      "layout": {
+        "interfaceGroup": "Biodiversity & Ecosystem Accounting",
+        "subinterfaceGroup": "Slovakia",
+        "contentLocation": "infoPanel",
+        "layerCard": {
+          "toggleable": true
+        },
+        "infoPanel": {
+          "legend": {
+            "type": "gradient"
+          },
+          "controls": {
+            "opacitySlider": true,
+            "zoomToCenter": false,
             "temporalControls": false,
             "constraintSlider": false,
             "blendControls": false
@@ -1961,7 +2401,7 @@
       },
       "layout": {
         "interfaceGroup": "Biodiversity & Ecosystem Accounting",
-        "subinterfaceGroup": "Test",
+        "subinterfaceGroup": "Slovakia",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -1973,49 +2413,6 @@
           "controls": {
             "opacitySlider": true,
             "zoomToCenter": true,
-            "temporalControls": false,
-            "constraintSlider": false,
-            "blendControls": false
-          }
-        }
-      }
-    },
-    {
-      "name": "Slovakia Wood Provision Service Account 2021",
-      "isActive": false,
-      "data": [
-        {
-          "url": "https://eoresults.esa.int/d/ESA_PEOPLE_EA_WOOD_PROVISION/2021/01/01/ESA_PEOPLE_EA_WOOD_PROVISION-SK_FAWS_2021/SK_FAWS_raster_2021.tif",
-          "format": "cog",
-          "zIndex": 50,
-          "normalize": false
-        }
-      ],
-      "meta": {
-        "description": "Quantification of the supply of wood products from forests, woodlands, or other ecosystems over time for Slovakia in 2021.",
-        "attribution": {
-          "text": "ESA People Ecosystem Accounting",
-          "url": "https://esa-people-ea.org/en"
-        },
-        "categories": [],
-        "min": 0.004,
-        "max": 0.54,
-        "startColor": "#046601",
-        "endColor": "#fdfd1f"
-      },
-      "layout": {
-        "interfaceGroup": "Biodiversity & Ecosystem Accounting",
-        "contentLocation": "infoPanel",
-        "layerCard": {
-          "toggleable": true
-        },
-        "infoPanel": {
-          "legend": {
-            "type": "gradient"
-          },
-          "controls": {
-            "opacitySlider": true,
-            "zoomToCenter": false,
             "temporalControls": false,
             "constraintSlider": false,
             "blendControls": false
@@ -3018,6 +3415,7 @@
       },
       "layout": {
         "interfaceGroup": "Energy",
+        "subinterfaceGroup": "Austria Green Transition",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -3107,6 +3505,7 @@
       },
       "layout": {
         "interfaceGroup": "Energy",
+        "subinterfaceGroup": "Austria Green Transition",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -3119,400 +3518,6 @@
             "opacitySlider": true,
             "zoomToCenter": true,
             "temporalControls": false,
-            "constraintSlider": false,
-            "blendControls": false
-          }
-        }
-      }
-    },
-    {
-      "name": "Saddleworth Moor UK - Peatland Classification",
-      "isActive": false,
-      "data": [
-        {
-          "url": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/WhatSARPeat/peat-classification/peat_classification.tif",
-          "format": "cog",
-          "zIndex": 50
-        }
-      ],
-      "constraints": [
-        {
-          "url": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/HYDRO/water-level-trend/trend_wl_S1S2SMAPL4.tif",
-          "format": "cog",
-          "label": "Water Level Trend",
-          "type": "continuous",
-          "interactive": true,
-          "min": -50,
-          "max": 50,
-          "units": "mm",
-          "bandIndex": 2
-        }
-      ],
-      "meta": {
-        "description": "The WorldPeatland method for mapping peatland extent involves the use of multitemporal composites of Sentinel-1 Ground Range Detected (GRD) radar data and Sentinel-2 surface reflectance imagery, trained using a reference peatland agreement map",
-        "attribution": {
-          "text": "World Peatland",
-          "url": "https://www.worldpeatland.org/"
-        },
-        "categories": [
-          {
-            "color": "#D59E52",
-            "label": "Peatland",
-            "value": 1
-          }
-        ]
-      },
-      "layout": {
-        "interfaceGroup": "Soils",
-        "subinterfaceGroup": "Saddleworth Moor Peatland",
-        "contentLocation": "infoPanel",
-        "layerCard": {
-          "toggleable": true
-        },
-        "infoPanel": {
-          "legend": {
-            "type": "swatch"
-          },
-          "controls": {
-            "opacitySlider": true,
-            "zoomToCenter": true,
-            "download": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/WhatSARPeat/peat-classification/peat_classification.tif",
-            "temporalControls": false,
-            "constraintSlider": false,
-            "blendControls": true
-          }
-        }
-      }
-    },
-    {
-      "name": "Saddleworth Moor, UK - Trends in Water Level",
-      "isActive": false,
-      "data": [
-        {
-          "url": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/HYDRO/water-level-trend/trend_wl_S1S2SMAPL4.tif",
-          "format": "cog",
-          "zIndex": 50
-        }
-      ],
-      "constraints": [
-        {
-          "url": "https://s3.waw3-2.cloudferro.com/swift/v1/wpl-stac/data/sites/Saddleworth/WhatSARPeat/peat-classification/peat_classification.tif",
-          "format": "cog",
-          "label": "Peatland Classfication",
-          "type": "categorical",
-          "interactive": true,
-          "constrainTo": [
-            {
-              "label": "Not Peatland",
-              "value": 0
-            },
-            {
-              "label": "Peatland",
-              "value": 1
-            }
-          ],
-          "bandIndex": 2
-        }
-      ],
-      "meta": {
-        "description": "This dataset provides water level trend products (in mm/yr), including long-term trends derived from the S1S2SMAPL4 and SMAPL4 products, as well as human-induced water level trends estimated from their difference. Negative values indicate declining water levels, while positive values indicate rising levels. Long-term trends were calculated averaging yearly values from May through September in the Northern Hemisphere and over the full year in the tropical zone. or more reliable information, see \"Trends in water level – high quality only\" which only shows high quality grid cells.",
-        "attribution": {
-          "text": "ESA World Peatland",
-          "url": "https://www.worldpeatland.org/"
-        },
-        "categories": [],
-        "units": "mm / yr",
-        "min": -40,
-        "max": 40,
-        "startColor": "#ffffff",
-        "endColor": "#ffffff",
-        "colormaps": [
-          {
-            "min": -40,
-            "max": 30,
-            "steps": 50,
-            "name": "rdbu",
-            "reverse": false
-          }
-        ]
-      },
-      "layout": {
-        "interfaceGroup": "Soils",
-        "subinterfaceGroup": "Saddleworth Moor Peatland",
-        "contentLocation": "infoPanel",
-        "layerCard": {
-          "toggleable": true
-        },
-        "infoPanel": {
-          "legend": {
-            "type": "gradient"
-          },
-          "controls": {
-            "opacitySlider": true,
-            "zoomToCenter": true,
-            "temporalControls": false,
-            "constraintSlider": false,
-            "blendControls": false
-          }
-        }
-      }
-    },
-    {
-      "name": "Saddleworth Moor, UK - Sentinel 2 ARD time series",
-      "isActive": false,
-      "data": [
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.08.31.S2B_20240831_latn537lonw0022_T30UWE_ORB037_20240831121358_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1725058800
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.09.17.S2B_20240917_latn537lonw0022_T30UWE_ORB137_20240917134320_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1726527600
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.10.10.S2B_20241010_latn537lonw0022_T30UWE_ORB037_20241010163934_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1728514800
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.12.19.S2B_20241219_latn537lonw0022_T30UWE_ORB037_20241219145422_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1734566400
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.01.25.S2B_20250125_latn537lonw0022_T30UWE_ORB137_20250125115614_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1737763200
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.02.27.S2B_20250227_latn537lonw0022_T30UWE_ORB037_20250227145514_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1740614400
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.03.19.S2B_20250319_latn537lonw0022_T30UWE_ORB037_20250319163355_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1742342400
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.04.05.S2A_20250405_latn537lonw0022_T30UWE_ORB037_20250405163654_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1743807600
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.04.10.S2C_20250410_latn537lonw0022_T30UWE_ORB137_20250410134240_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1744239600
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.05.13.S2C_20250513_latn537lonw0022_T30UWE_ORB037_20250513120803_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1747090800
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.06.19.S2C_20250619_latn537lonw0022_T30UWE_ORB137_20250619130908_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1750287600
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.07.12.S2C_20250712_latn537lonw0022_T30UWE_ORB037_20250712133114_utm30n_osgb&title=Natural%20Color&assets=cog&bidx=3&bidx=2&bidx=1&nodata=0&color_formula=Gamma%20RGB%206%20Saturation%200.8%20Sigmoidal%20RGB%2025%200.35",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1752274800
-          ]
-        }
-      ],
-      "timeframe": "Months",
-      "meta": {
-        "description": "Selected monthly scenes of Sentinel 2 Analysis Ready Data for the Saddleworth Area, from the UK EO Data Hub platform.",
-        "attribution": {
-          "text": "Sentinel 2 ARD via UK EO Data Hub",
-          "url": "https://eodatahub.org.uk/"
-        },
-        "categories": []
-      },
-      "layout": {
-        "interfaceGroup": "Soils",
-        "subinterfaceGroup": "Saddleworth Moor Peatland",
-        "contentLocation": "infoPanel",
-        "layerCard": {
-          "toggleable": true
-        },
-        "infoPanel": {
-          "legend": {
-            "type": "swatch"
-          },
-          "controls": {
-            "opacitySlider": true,
-            "zoomToCenter": false,
-            "temporalControls": true,
-            "constraintSlider": false,
-            "blendControls": false
-          }
-        }
-      }
-    },
-    {
-      "name": "Saddleworth Moor, UK - Sentinel 2 NDVI time series",
-      "isActive": false,
-      "data": [
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.08.31.S2B_20240831_latn537lonw0022_T30UWE_ORB037_20240831121358_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1725058800
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.09.17.S2B_20240917_latn537lonw0022_T30UWE_ORB137_20240917134320_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1726527600
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.10.10.S2B_20241010_latn537lonw0022_T30UWE_ORB037_20241010163934_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1728514800
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2024.12.19.S2B_20241219_latn537lonw0022_T30UWE_ORB037_20241219145422_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1734566400
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.01.25.S2B_20250125_latn537lonw0022_T30UWE_ORB137_20250125115614_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1737763200
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.02.27.S2B_20250227_latn537lonw0022_T30UWE_ORB037_20250227145514_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1740614400
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.03.19.S2B_20250319_latn537lonw0022_T30UWE_ORB037_20250319163355_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1742342400
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.04.05.S2A_20250405_latn537lonw0022_T30UWE_ORB037_20250405163654_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1743807600
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.04.10.S2C_20250410_latn537lonw0022_T30UWE_ORB137_20250410134240_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1744239600
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.05.13.S2C_20250513_latn537lonw0022_T30UWE_ORB037_20250513120803_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1747090800
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.06.19.S2C_20250619_latn537lonw0022_T30UWE_ORB137_20250619130908_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1750287600
-          ]
-        },
-        {
-          "url": "https://eodatahub.org.uk/titiler/core/stac/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Feodatahub.org.uk%2Fapi%2Fcatalogue%2Fstac%2Fcatalogs%2Fpublic%2Fcatalogs%2Fceda-stac-catalogue%2Fcollections%2Fsentinel2_ard%2Fitems%2Fneodc.sentinel_ard.data.sentinel_2.2025.07.12.S2C_20250712_latn537lonw0022_T30UWE_ORB037_20250712133114_utm30n_osgb&title=Normalized%20difference%20vegetation%20index%20%28NDVI%29&assets=cog&bidx=7&bidx=3&rescale=-1%2C1&nodata=0&colormap_name=rdylgn&expression=%28cog_b7-cog_b3%29%2F%28cog_b7%2Bcog_b3%29&id=NDVI",
-          "format": "xyz",
-          "zIndex": 50,
-          "timestamps": [
-            1752274800
-          ]
-        }
-      ],
-      "timeframe": "Months",
-      "meta": {
-        "description": "Selected monthly scenes of Sentinel 2 Analysis Ready Data visualised as NDVI for the Saddleworth Area, from the UK EO Data Hub platform.",
-        "attribution": {
-          "text": "Sentinel 2 ARD via UK EO Data Hub",
-          "url": "https://eodatahub.org.uk/"
-        },
-        "categories": []
-      },
-      "layout": {
-        "interfaceGroup": "Soils",
-        "subinterfaceGroup": "Saddleworth Moor Peatland",
-        "contentLocation": "infoPanel",
-        "layerCard": {
-          "toggleable": true
-        },
-        "infoPanel": {
-          "legend": {
-            "type": "swatch"
-          },
-          "controls": {
-            "opacitySlider": true,
-            "zoomToCenter": false,
-            "temporalControls": true,
             "constraintSlider": false,
             "blendControls": false
           }
@@ -3786,6 +3791,7 @@
       },
       "layout": {
         "interfaceGroup": "Energy",
+        "subinterfaceGroup": "Austria Green Transition",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
