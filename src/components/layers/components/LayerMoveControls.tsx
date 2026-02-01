@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 
@@ -14,7 +14,7 @@ interface LayerMoveControlsProps {
   canMoveToBottom: boolean;
 }
 
-const DOUBLE_CLICK_DELAY = 400;
+const CLICK_DELAY = 250;
 
 const LayerMoveControls = ({ 
   onMoveUp, 
@@ -26,10 +26,10 @@ const LayerMoveControls = ({
   canMoveToTop,
   canMoveToBottom
 }: LayerMoveControlsProps) => {
-  const upClickCountRef = useRef(0);
-  const downClickCountRef = useRef(0);
   const upTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const downTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const upDoubleClickedRef = useRef(false);
+  const downDoubleClickedRef = useRef(false);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -39,45 +39,63 @@ const LayerMoveControls = ({
     };
   }, []);
 
-  const handleUpClick = () => {
-    upClickCountRef.current += 1;
+  const handleUpClick = useCallback(() => {
+    // Clear any existing timeout
+    if (upTimeoutRef.current) clearTimeout(upTimeoutRef.current);
     
-    if (upClickCountRef.current === 1) {
-      // First click - wait to see if double-click follows
-      upTimeoutRef.current = setTimeout(() => {
-        if (upClickCountRef.current === 1) {
-          // Single click confirmed
-          onMoveUp();
-        }
-        upClickCountRef.current = 0;
-      }, DOUBLE_CLICK_DELAY);
-    } else if (upClickCountRef.current === 2) {
-      // Double-click detected
-      if (upTimeoutRef.current) clearTimeout(upTimeoutRef.current);
-      upClickCountRef.current = 0;
+    // Set a delayed single-click action
+    upTimeoutRef.current = setTimeout(() => {
+      // Only fire if double-click didn't happen
+      if (!upDoubleClickedRef.current && canMoveUp) {
+        onMoveUp();
+      }
+      upDoubleClickedRef.current = false;
+    }, CLICK_DELAY);
+  }, [onMoveUp, canMoveUp]);
+
+  const handleUpDoubleClick = useCallback(() => {
+    // Cancel the pending single-click
+    if (upTimeoutRef.current) clearTimeout(upTimeoutRef.current);
+    upDoubleClickedRef.current = true;
+    
+    if (canMoveToTop) {
       onMoveToTop();
     }
-  };
-
-  const handleDownClick = () => {
-    downClickCountRef.current += 1;
     
-    if (downClickCountRef.current === 1) {
-      // First click - wait to see if double-click follows
-      downTimeoutRef.current = setTimeout(() => {
-        if (downClickCountRef.current === 1) {
-          // Single click confirmed
-          onMoveDown();
-        }
-        downClickCountRef.current = 0;
-      }, DOUBLE_CLICK_DELAY);
-    } else if (downClickCountRef.current === 2) {
-      // Double-click detected
-      if (downTimeoutRef.current) clearTimeout(downTimeoutRef.current);
-      downClickCountRef.current = 0;
+    // Reset flag after a short delay
+    setTimeout(() => {
+      upDoubleClickedRef.current = false;
+    }, 50);
+  }, [onMoveToTop, canMoveToTop]);
+
+  const handleDownClick = useCallback(() => {
+    // Clear any existing timeout
+    if (downTimeoutRef.current) clearTimeout(downTimeoutRef.current);
+    
+    // Set a delayed single-click action
+    downTimeoutRef.current = setTimeout(() => {
+      // Only fire if double-click didn't happen
+      if (!downDoubleClickedRef.current && canMoveDown) {
+        onMoveDown();
+      }
+      downDoubleClickedRef.current = false;
+    }, CLICK_DELAY);
+  }, [onMoveDown, canMoveDown]);
+
+  const handleDownDoubleClick = useCallback(() => {
+    // Cancel the pending single-click
+    if (downTimeoutRef.current) clearTimeout(downTimeoutRef.current);
+    downDoubleClickedRef.current = true;
+    
+    if (canMoveToBottom) {
       onMoveToBottom();
     }
-  };
+    
+    // Reset flag after a short delay
+    setTimeout(() => {
+      downDoubleClickedRef.current = false;
+    }, 50);
+  }, [onMoveToBottom, canMoveToBottom]);
 
   return (
     <div className="flex flex-col gap-0.5">
@@ -85,6 +103,7 @@ const LayerMoveControls = ({
         size="sm"
         variant="ghost"
         onClick={handleUpClick}
+        onDoubleClick={handleUpDoubleClick}
         disabled={!canMoveUp && !canMoveToTop}
         className="h-5 w-5 p-0 bg-white border border-muted hover:bg-muted"
         title="Move up (double-click for top)"
@@ -96,6 +115,7 @@ const LayerMoveControls = ({
         size="sm"
         variant="ghost"
         onClick={handleDownClick}
+        onDoubleClick={handleDownDoubleClick}
         disabled={!canMoveDown && !canMoveToBottom}
         className="h-5 w-5 p-0 bg-white border border-muted hover:bg-muted"
         title="Move down (double-click for bottom)"

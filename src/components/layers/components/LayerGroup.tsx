@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, ArrowUpToLine, ArrowDownToLine, Edit2, Check, X, AlertTriangle, Triangle, FolderPlus } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronRight, ArrowUp, ArrowDown, Edit2, Check, X, AlertTriangle, Triangle, FolderPlus } from 'lucide-react';
 import LayerMoveControls from './LayerMoveControls';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
@@ -415,24 +415,18 @@ const LayerGroup = ({
         </DroppableGroupZone>
       </div>
 
-      {/* Group move controls positioned in the space between card and panel edge */}
-      <div className="flex gap-1 pt-3">
-        <div className="flex flex-col gap-1">
-          <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'up')} disabled={!canMoveUp} className="h-6 w-6 p-0" title="Move group up">
-            <ArrowUp className="h-3 w-3" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'down')} disabled={!canMoveDown} className="h-6 w-6 p-0" title="Move group down">
-            <ArrowDown className="h-3 w-3" />
-          </Button>
-        </div>
-        <div className="flex flex-col gap-1">
-          <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'top')} disabled={!canMoveUp} className="h-6 w-6 p-0" title="Move group to top">
-            <ArrowUpToLine className="h-3 w-3" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => onMoveGroup(groupIndex, 'bottom')} disabled={!canMoveDown} className="h-6 w-6 p-0" title="Move group to bottom">
-            <ArrowDownToLine className="h-3 w-3" />
-          </Button>
-        </div>
+      {/* Group move controls - uses LayerMoveControls for consistent double-click behavior */}
+      <div className="pt-3">
+        <LayerMoveControls
+          onMoveUp={() => onMoveGroup(groupIndex, 'up')}
+          onMoveDown={() => onMoveGroup(groupIndex, 'down')}
+          onMoveToTop={() => onMoveGroup(groupIndex, 'top')}
+          onMoveToBottom={() => onMoveGroup(groupIndex, 'bottom')}
+          canMoveUp={canMoveUp}
+          canMoveDown={canMoveDown}
+          canMoveToTop={canMoveUp}
+          canMoveToBottom={canMoveDown}
+        />
       </div>
 
       {/* Add Sub-Group Dialog */}
