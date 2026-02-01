@@ -1,110 +1,78 @@
 
-# Double-Click Move Controls Implementation Plan
+# Sub-Group Color Scheme Change: Amber to Blue
 
 ## Overview
 
-This plan transforms the layer move controls from 4 buttons (Up, Down, Move to Top, Move to Bottom) into 2 buttons where:
-- **Single click** = Move one position (up or down)
-- **Double click** = Move to boundary (top or bottom)
+This plan updates all sub-group UI elements from an amber color scheme to a blue color scheme. The change affects card styling, buttons, badges, icons, drag handles, and text throughout the sub-group hierarchy.
 
-This halves the horizontal footprint while preserving all functionality.
+## Files to Modify
 
-## Visual Change
+Six files contain amber-colored sub-group styling:
 
-```text
-BEFORE (4 buttons in 2x2 grid):        AFTER (2 buttons stacked):
-┌───┬───┐                              ┌───┐
-│ ↑ │ ⇈ │                              │ ↑ │  Single: up, Double: to top
-├───┼───┤                              ├───┤
-│ ↓ │ ⇊ │                              │ ↓ │  Single: down, Double: to bottom
-└───┴───┘                              └───┘
-~24px wide                             ~12px wide
-```
+| File | Element Types |
+|------|---------------|
+| `src/components/layers/components/SubInterfaceGroup.tsx` | Card borders, backgrounds, chevrons, title text, badges, add button, collapsible triggers |
+| `src/components/layers/components/SortableSubInterfaceGroup.tsx` | Drag ring, drag handle hover state, grip icon |
+| `src/components/layers/components/AddSubGroupDialog.tsx` | "Create New Layer" button, "Next" button, "Create Sub-Group" button |
+| `src/components/layers/components/LayerGroup.tsx` | "Add Sub-Group" button |
+| `src/components/form/UnifiedBasicInfoSection.tsx` | Sub-group chevron icon, "Create new sub-group" option, create button |
+| `src/contexts/LayerDndContext.tsx` | Drag overlay card for sub-groups |
 
-## Implementation Details
+## Color Mapping
 
-### File to Modify
-`src/components/layers/components/LayerMoveControls.tsx`
+All amber colors will be replaced with their blue equivalents:
 
-### Approach
-
-1. **Remove the second column of buttons** (Move to Top / Move to Bottom)
-
-2. **Add double-click detection** using a timing-based approach:
-   - Track last click timestamp in a `useRef`
-   - If second click occurs within 300ms, treat as double-click
-   - Otherwise, execute single-click action
-
-3. **Update button titles** to indicate the dual functionality:
-   - "Move up (double-click for top)"
-   - "Move down (double-click for bottom)"
-
-4. **Maintain the same props interface** - the component still accepts all 8 props, but the "move to top/bottom" actions are now triggered by double-click instead of separate buttons
-
-### Code Logic
-
-```text
-Click Handler Flow:
-┌─────────────────────────────────────────────────────────┐
-│  User clicks Up button                                  │
-│                                                         │
-│  Is there a recent click (< 300ms ago)?                 │
-│    ├─ YES → Clear timeout, call onMoveToTop()           │
-│    │        Reset lastClickTime                         │
-│    │                                                    │
-│    └─ NO  → Set timeout for 300ms                       │
-│             After timeout: call onMoveUp()              │
-│             Store current time as lastClickTime         │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Accessibility Considerations
-
-- **Title/tooltip updated** to inform users of the double-click behavior
-- **aria-label** added for screen readers describing both actions
-- **No functionality removed** - same operations remain available
-- **Keyboard users** can still double-tap Enter/Space on focused button
-
-### Edge Cases Handled
-
-- If `canMoveToTop` is false but `canMoveUp` is true, double-click still attempts `onMoveToTop` (the parent decides if it's a no-op)
-- The timeout is cleared on unmount to prevent memory leaks
-- Disabled state still applies to both single and double-click
-
-## Impact Analysis
-
-| Location | Usage Count | Impact |
-|----------|-------------|--------|
-| `LayerGroup.tsx` | 2 (sub-groups + layers) | Width reduced |
-| `SubInterfaceGroup.tsx` | 1 (layers in sub-group) | Width reduced |
-| `BaseLayerGroup.tsx` | 1 (base layers) | Width reduced |
-| `WorkflowsTab.tsx` | 1 (workflows) | Width reduced |
-| `ConstraintSourcesTab.tsx` | 1 (constraints) | Width reduced |
-
-**Total: 6 usages, all automatically benefit from the change with no code modifications needed at call sites.**
-
-## Space Savings Summary
-
-- **Per control**: ~12px width reduction (from ~24px to ~12px)
-- **Nested layer scenario** (layer in sub-group in interface group):
-  - Before: 3 controls × 24px = ~72px of buttons
-  - After: 3 controls × 12px = ~36px of buttons
-  - **Saves ~36px of horizontal space** for layer card content
+| Amber Class | Blue Replacement |
+|-------------|------------------|
+| `amber-50` | `blue-50` |
+| `amber-100` | `blue-100` |
+| `amber-300` | `blue-300` |
+| `amber-400` | `blue-400` |
+| `amber-500` | `blue-500` |
+| `amber-600` | `blue-600` |
+| `amber-700` | `blue-700` |
+| `amber-900` | `blue-900` |
+| `amber-950` | `blue-950` |
 
 ---
 
 ## Technical Section
 
-### Implementation Steps
+### Detailed Changes by File
 
-1. Add `useRef` to track last click time and pending timeout
-2. Create `handleClick` function with double-click detection logic
-3. Replace `onClick` handlers with the new `handleClick` wrapper
-4. Remove the second column of buttons (lines 51-72)
-5. Update Tailwind classes to single column layout
-6. Update button `title` attributes for discoverability
-7. Add cleanup via `useEffect` to clear timeout on unmount
+**1. SubInterfaceGroup.tsx (12 changes)**
+- Line 132: Card `border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10` → `border-blue-500/30 bg-blue-50/30 dark:bg-blue-950/10`
+- Line 154: Trigger hover `hover:bg-amber-100/50 dark:hover:bg-amber-900/20` → `hover:bg-blue-100/50 dark:hover:bg-blue-900/20`
+- Lines 156, 158: Chevron icons `text-amber-600` → `text-blue-600`
+- Line 161: Title `text-amber-700 dark:text-amber-500` → `text-blue-700 dark:text-blue-500`
+- Line 170: Badge `bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400` → `bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400`
+- Line 213: Add Layer button `text-amber-700 hover:bg-amber-100 border-amber-300` → `text-blue-700 hover:bg-blue-100 border-blue-300`
+- Line 234: Content background `bg-amber-100/30 dark:bg-amber-950/20` → `bg-blue-100/30 dark:bg-blue-950/20`
 
-### Cleanup
+**2. SortableSubInterfaceGroup.tsx (3 changes)**
+- Line 51: Drag ring `ring-amber-500` → `ring-blue-500`
+- Line 56: Handle hover `hover:bg-amber-100/50 dark:hover:bg-amber-900/30` → `hover:bg-blue-100/50 dark:hover:bg-blue-900/30`
+- Line 59: Grip icon `text-amber-600/70` → `text-blue-600/70`
 
-The `ArrowUpToLine` and `ArrowDownToLine` imports can be removed since those icons are no longer displayed.
+**3. AddSubGroupDialog.tsx (3 changes)**
+- Line 160: Create New Layer button `text-amber-700 border-amber-300 hover:bg-amber-50` → `text-blue-700 border-blue-300 hover:bg-blue-50`
+- Line 174: Next button `bg-amber-600 hover:bg-amber-700` → `bg-blue-600 hover:bg-blue-700`
+- Line 190: Create Sub-Group button `bg-amber-600 hover:bg-amber-700` → `bg-blue-600 hover:bg-blue-700`
+
+**4. LayerGroup.tsx (1 change)**
+- Line 283: Add Sub-Group button `text-amber-700 hover:bg-amber-100 border-amber-300` → `text-blue-700 hover:bg-blue-100 border-blue-300`
+
+**5. UnifiedBasicInfoSection.tsx (4 changes)**
+- Line 218: Chevron icon `text-amber-500` → `text-blue-500`
+- Line 226: Create new option `text-amber-600` → `text-blue-600`
+- Line 239: Button styling `text-amber-700 border-amber-300 hover:bg-amber-100` → `text-blue-700 border-blue-300 hover:bg-blue-100`
+- Line 291: Create button `bg-amber-600 hover:bg-amber-700` → `bg-blue-600 hover:bg-blue-700`
+
+**6. LayerDndContext.tsx (3 changes)**
+- Line 98: Card border `border-amber-500` → `border-blue-500`
+- Line 99: Header background `bg-amber-50` → `bg-blue-50`
+- Lines 101-102: Grip and title `text-amber-600`, `text-amber-700` → `text-blue-600`, `text-blue-700`
+
+### Notes
+- The QA warning indicators (AlertTriangle icons) at lines 190-192 in SubInterfaceGroup.tsx remain amber as they are semantic warning colors, not sub-group styling
+- Same applies to line 254-255 in LayerGroup.tsx for warning stats
