@@ -302,44 +302,49 @@ const LayerGroup = ({
                 <CardContent className="pt-3 bg-slate-200">
                   <div className="space-y-3">
                     {/* Render sub-groups first, in order based on first layer appearance */}
-                    {orderedSubGroups.map((subGroupName, subGroupIdx) => {
-                      const subGroupItems = subGrouped[subGroupName];
-                      return (
-                        <div key={subGroupName} className="flex items-center gap-2">
-                          <div className="flex-1">
-                            <SortableSubInterfaceGroup
-                              id={`subgroup-${groupName}::${subGroupName}`}
-                              subGroupName={subGroupName}
-                              parentInterfaceGroup={groupName}
-                            >
-                              <SubInterfaceGroup
+                    <SortableContext
+                      items={orderedSubGroups.map(name => `subgroup-${groupName}::${name}`)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {orderedSubGroups.map((subGroupName, subGroupIdx) => {
+                        const subGroupItems = subGrouped[subGroupName];
+                        return (
+                          <div key={subGroupName} className="flex items-center gap-2">
+                            <div className="flex-1">
+                              <SortableSubInterfaceGroup
+                                id={`subgroup-${groupName}::${subGroupName}`}
                                 subGroupName={subGroupName}
                                 parentInterfaceGroup={groupName}
-                                sources={subGroupItems.map(item => item.source)}
-                                sourceIndices={subGroupItems.map(item => item.index)}
-                                expandedLayers={expandedLayers}
-                                onToggleLayer={onToggleLayer}
-                                isExpanded={expandedSubGroups.has(subGroupName)}
-                                onToggle={() => onToggleSubGroup?.(subGroupName)}
-                                onAddLayer={() => onAddLayer(groupName, subGroupName)}
-                                onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
-                                onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
-                              />
-                            </SortableSubInterfaceGroup>
+                              >
+                                <SubInterfaceGroup
+                                  subGroupName={subGroupName}
+                                  parentInterfaceGroup={groupName}
+                                  sources={subGroupItems.map(item => item.source)}
+                                  sourceIndices={subGroupItems.map(item => item.index)}
+                                  expandedLayers={expandedLayers}
+                                  onToggleLayer={onToggleLayer}
+                                  isExpanded={expandedSubGroups.has(subGroupName)}
+                                  onToggle={() => onToggleSubGroup?.(subGroupName)}
+                                  onAddLayer={() => onAddLayer(groupName, subGroupName)}
+                                  onRenameSubGroup={(newName) => onRenameSubGroup?.(subGroupName, newName)}
+                                  onRemoveSubGroup={() => setDeleteSubGroupName(subGroupName)}
+                                />
+                              </SortableSubInterfaceGroup>
+                            </div>
+                            <LayerMoveControls
+                              onMoveUp={() => onMoveSubGroup?.(subGroupName, 'up')}
+                              onMoveDown={() => onMoveSubGroup?.(subGroupName, 'down')}
+                              onMoveToTop={() => onMoveSubGroup?.(subGroupName, 'top')}
+                              onMoveToBottom={() => onMoveSubGroup?.(subGroupName, 'bottom')}
+                              canMoveUp={subGroupIdx > 0}
+                              canMoveDown={subGroupIdx < orderedSubGroups.length - 1}
+                              canMoveToTop={subGroupIdx > 0}
+                              canMoveToBottom={subGroupIdx < orderedSubGroups.length - 1}
+                            />
                           </div>
-                          <LayerMoveControls
-                            onMoveUp={() => onMoveSubGroup?.(subGroupName, 'up')}
-                            onMoveDown={() => onMoveSubGroup?.(subGroupName, 'down')}
-                            onMoveToTop={() => onMoveSubGroup?.(subGroupName, 'top')}
-                            onMoveToBottom={() => onMoveSubGroup?.(subGroupName, 'bottom')}
-                            canMoveUp={subGroupIdx > 0}
-                            canMoveDown={subGroupIdx < orderedSubGroups.length - 1}
-                            canMoveToTop={subGroupIdx > 0}
-                            canMoveToBottom={subGroupIdx < orderedSubGroups.length - 1}
-                          />
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </SortableContext>
 
                     {/* Render ungrouped layers after sub-groups - with sortable context */}
                     <SortableContext
