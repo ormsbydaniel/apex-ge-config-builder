@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,7 @@ interface InterfaceGroupManagerProps {
   }) => void;
 }
 
-const DOUBLE_CLICK_DELAY = 300;
+const DOUBLE_CLICK_DELAY = 400;
 
 const InterfaceGroupManager = ({
   interfaceGroups,
@@ -37,53 +37,71 @@ const InterfaceGroupManager = ({
     moveInterfaceGroup
   } = useInterfaceGroups(interfaceGroups, sources, onUpdate);
 
-  // Double-click tracking refs (keyed by index and direction)
-  const lastClickRef = useRef<{ index: number; direction: 'up' | 'down'; time: number } | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Track click counts per direction (not per index - indices change after moves)
+  const upClickCountRef = useRef<{ index: number; count: number } | null>(null);
+  const downClickCountRef = useRef<{ index: number; count: number } | null>(null);
+  const upTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const downTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Cleanup timeout on unmount
+  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (upTimeoutRef.current) clearTimeout(upTimeoutRef.current);
+      if (downTimeoutRef.current) clearTimeout(downTimeoutRef.current);
     };
   }, []);
 
-  const handleMoveClick = useCallback((index: number, direction: 'up' | 'down') => {
-    const now = Date.now();
-    const lastClick = lastClickRef.current;
-
-    // Check if this is a double-click (same index, same direction, within delay)
-    if (
-      lastClick &&
-      lastClick.index === index &&
-      lastClick.direction === direction &&
-      now - lastClick.time < DOUBLE_CLICK_DELAY
-    ) {
-      // Double-click detected - move to boundary
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      lastClickRef.current = null;
-      
-      if (direction === 'up') {
-        moveInterfaceGroup(index, 0);
-      } else {
-        moveInterfaceGroup(index, interfaceGroups.length - 1);
-      }
-    } else {
+  const handleUpClick = (index: number) => {
+    // If clicking a different item, reset count
+    if (upClickCountRef.current?.index !== index) {
+      if (upTimeoutRef.current) clearTimeout(upTimeoutRef.current);
+      upClickCountRef.current = { index, count: 0 };
+    }
+    
+    upClickCountRef.current = { index, count: (upClickCountRef.current?.count || 0) + 1 };
+    
+    if (upClickCountRef.current.count === 1) {
       // First click - wait to see if double-click follows
-      lastClickRef.current = { index, direction, time: now };
-      
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        // Single click - move one position
-        if (direction === 'up') {
+      upTimeoutRef.current = setTimeout(() => {
+        if (upClickCountRef.current?.count === 1) {
+          // Single click confirmed - move up one position
           moveInterfaceGroup(index, Math.max(0, index - 1));
-        } else {
+        }
+        upClickCountRef.current = null;
+      }, DOUBLE_CLICK_DELAY);
+    } else if (upClickCountRef.current.count === 2) {
+      // Double-click detected - move to top
+      if (upTimeoutRef.current) clearTimeout(upTimeoutRef.current);
+      upClickCountRef.current = null;
+      moveInterfaceGroup(index, 0);
+    }
+  };
+
+  const handleDownClick = (index: number) => {
+    // If clicking a different item, reset count
+    if (downClickCountRef.current?.index !== index) {
+      if (downTimeoutRef.current) clearTimeout(downTimeoutRef.current);
+      downClickCountRef.current = { index, count: 0 };
+    }
+    
+    downClickCountRef.current = { index, count: (downClickCountRef.current?.count || 0) + 1 };
+    
+    if (downClickCountRef.current.count === 1) {
+      // First click - wait to see if double-click follows
+      downTimeoutRef.current = setTimeout(() => {
+        if (downClickCountRef.current?.count === 1) {
+          // Single click confirmed - move down one position
           moveInterfaceGroup(index, Math.min(interfaceGroups.length - 1, index + 1));
         }
-        lastClickRef.current = null;
+        downClickCountRef.current = null;
       }, DOUBLE_CLICK_DELAY);
+    } else if (downClickCountRef.current.count === 2) {
+      // Double-click detected - move to bottom
+      if (downTimeoutRef.current) clearTimeout(downTimeoutRef.current);
+      downClickCountRef.current = null;
+      moveInterfaceGroup(index, interfaceGroups.length - 1);
     }
-  }, [moveInterfaceGroup, interfaceGroups.length]);
+  };
 
   const handleAddGroup = () => {
     if (addInterfaceGroup(newInterfaceGroup)) {
@@ -176,7 +194,7 @@ const InterfaceGroupManager = ({
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleMoveClick(index, 'up')}
+                          onClick={() => handleUpClick(index)}
                           disabled={index === 0}
                           className="h-8 w-8 p-0 hover:bg-primary/10 border border-primary/20"
                           title="Move up (double-click for top)"
@@ -188,7 +206,7 @@ const InterfaceGroupManager = ({
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleMoveClick(index, 'down')}
+                          onClick={() => handleDownClick(index)}
                           disabled={index === interfaceGroups.length - 1}
                           className="h-8 w-8 p-0 hover:bg-primary/10 border border-primary/20"
                           title="Move down (double-click for bottom)"

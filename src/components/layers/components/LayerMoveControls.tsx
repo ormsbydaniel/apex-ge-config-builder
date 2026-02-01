@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 
@@ -14,7 +14,7 @@ interface LayerMoveControlsProps {
   canMoveToBottom: boolean;
 }
 
-const DOUBLE_CLICK_DELAY = 300;
+const DOUBLE_CLICK_DELAY = 400;
 
 const LayerMoveControls = ({ 
   onMoveUp, 
@@ -26,8 +26,8 @@ const LayerMoveControls = ({
   canMoveToTop,
   canMoveToBottom
 }: LayerMoveControlsProps) => {
-  const upLastClickRef = useRef<number>(0);
-  const downLastClickRef = useRef<number>(0);
+  const upClickCountRef = useRef(0);
+  const downClickCountRef = useRef(0);
   const upTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const downTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -39,43 +39,45 @@ const LayerMoveControls = ({
     };
   }, []);
 
-  const handleUpClick = useCallback(() => {
-    const now = Date.now();
-    const timeSinceLastClick = now - upLastClickRef.current;
-
-    if (timeSinceLastClick < DOUBLE_CLICK_DELAY) {
-      // Double-click detected - move to top
-      if (upTimeoutRef.current) clearTimeout(upTimeoutRef.current);
-      upLastClickRef.current = 0;
-      if (canMoveToTop) onMoveToTop();
-    } else {
+  const handleUpClick = () => {
+    upClickCountRef.current += 1;
+    
+    if (upClickCountRef.current === 1) {
       // First click - wait to see if double-click follows
-      upLastClickRef.current = now;
       upTimeoutRef.current = setTimeout(() => {
-        if (canMoveUp) onMoveUp();
-        upLastClickRef.current = 0;
+        if (upClickCountRef.current === 1) {
+          // Single click confirmed
+          onMoveUp();
+        }
+        upClickCountRef.current = 0;
       }, DOUBLE_CLICK_DELAY);
+    } else if (upClickCountRef.current === 2) {
+      // Double-click detected
+      if (upTimeoutRef.current) clearTimeout(upTimeoutRef.current);
+      upClickCountRef.current = 0;
+      onMoveToTop();
     }
-  }, [onMoveUp, onMoveToTop, canMoveUp, canMoveToTop]);
+  };
 
-  const handleDownClick = useCallback(() => {
-    const now = Date.now();
-    const timeSinceLastClick = now - downLastClickRef.current;
-
-    if (timeSinceLastClick < DOUBLE_CLICK_DELAY) {
-      // Double-click detected - move to bottom
-      if (downTimeoutRef.current) clearTimeout(downTimeoutRef.current);
-      downLastClickRef.current = 0;
-      if (canMoveToBottom) onMoveToBottom();
-    } else {
+  const handleDownClick = () => {
+    downClickCountRef.current += 1;
+    
+    if (downClickCountRef.current === 1) {
       // First click - wait to see if double-click follows
-      downLastClickRef.current = now;
       downTimeoutRef.current = setTimeout(() => {
-        if (canMoveDown) onMoveDown();
-        downLastClickRef.current = 0;
+        if (downClickCountRef.current === 1) {
+          // Single click confirmed
+          onMoveDown();
+        }
+        downClickCountRef.current = 0;
       }, DOUBLE_CLICK_DELAY);
+    } else if (downClickCountRef.current === 2) {
+      // Double-click detected
+      if (downTimeoutRef.current) clearTimeout(downTimeoutRef.current);
+      downClickCountRef.current = 0;
+      onMoveToBottom();
     }
-  }, [onMoveDown, onMoveToBottom, canMoveDown, canMoveToBottom]);
+  };
 
   return (
     <div className="flex flex-col gap-0.5">
