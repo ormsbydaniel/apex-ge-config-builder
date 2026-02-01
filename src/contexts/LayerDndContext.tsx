@@ -151,6 +151,20 @@ const customCollisionDetection: CollisionDetection = (args) => {
       // Fall back to any collision
       return validCollisions;
     }
+
+      // If dragging a sub-group, prioritize other sub-groups (otherwise we often "hit" child layers)
+      if (activeData?.type === 'sub-group') {
+        const subGroupCollision = validCollisions.find(
+          (collision) => (collision.data?.droppableContainer?.data?.current as DragData)?.type === 'sub-group'
+        );
+
+        if (subGroupCollision) {
+          return [subGroupCollision];
+        }
+
+        // Fall back to any collision
+        return validCollisions;
+      }
     
     // If dragging a layer, prioritize LAYERS over drop-zones for precise positioning
     const layerCollision = validCollisions.find(
