@@ -48,15 +48,15 @@ const SortableSubInterfaceGroup = ({
     <div ref={setNodeRef} style={style} {...attributes} className="relative">
       <div className={cn(
         "flex items-stretch gap-2",
-        isDragging && "ring-2 ring-amber-500 rounded-lg"
+        isDragging && "ring-2 ring-blue-500 rounded-lg"
       )}>
         {/* Drag handle for sub-interface group */}
         <div
           {...listeners}
-          className="cursor-grab active:cursor-grabbing px-1.5 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 rounded transition-colors flex-shrink-0 flex items-center"
+          className="cursor-grab active:cursor-grabbing px-1.5 hover:bg-blue-100/50 dark:hover:bg-blue-900/30 rounded transition-colors flex-shrink-0 flex items-center"
           title="Drag to reorder sub-group"
         >
-          <GripVertical className="h-4 w-4 text-amber-600/70" />
+          <GripVertical className="h-4 w-4 text-blue-600/70" />
         </div>
 
         {/* Sub-interface group content */}

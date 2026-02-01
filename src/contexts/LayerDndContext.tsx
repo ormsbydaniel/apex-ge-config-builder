@@ -95,11 +95,11 @@ const DragPreview = ({ data }: { data: DragData }) => {
 
   if (data.type === 'sub-group') {
     return (
-      <Card className="border-amber-500 shadow-lg opacity-90 w-64">
-        <CardHeader className="py-2 px-3 bg-amber-50">
+      <Card className="border-blue-500 shadow-lg opacity-90 w-64">
+        <CardHeader className="py-2 px-3 bg-blue-50">
           <div className="flex items-center gap-2">
-            <GripVertical className="h-4 w-4 text-amber-600" />
-            <CardTitle className="text-sm text-amber-700">{data.subinterfaceGroup}</CardTitle>
+            <GripVertical className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm text-blue-700">{data.subinterfaceGroup}</CardTitle>
           </div>
         </CardHeader>
       </Card>

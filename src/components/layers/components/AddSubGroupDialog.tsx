@@ -157,7 +157,7 @@ const AddSubGroupDialog = ({
             <Button
               variant="outline"
               onClick={handleCreateNewLayer}
-              className="w-full text-amber-700 border-amber-300 hover:bg-amber-50"
+              className="w-full text-blue-700 border-blue-300 hover:bg-blue-50"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create New Layer
@@ -171,7 +171,7 @@ const AddSubGroupDialog = ({
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button onClick={handleNext} className="bg-amber-600 hover:bg-amber-700">
+              <Button onClick={handleNext} className="bg-blue-600 hover:bg-blue-700">
                 Next
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
@@ -187,7 +187,7 @@ const AddSubGroupDialog = ({
               </Button>
               <Button
                 onClick={handleCreate}
-                className="bg-amber-600 hover:bg-amber-700"
+                className="bg-blue-600 hover:bg-blue-700"
                 disabled={isCreateDisabled}
               >
                 Create Sub-Group
