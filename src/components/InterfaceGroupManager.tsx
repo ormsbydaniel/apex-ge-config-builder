@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,8 @@ interface InterfaceGroupManagerProps {
     sources?: DataSource[];
   }) => void;
 }
+
+const DOUBLE_CLICK_DELAY = 300;
 
 const InterfaceGroupManager = ({
   interfaceGroups,
@@ -34,6 +36,54 @@ const InterfaceGroupManager = ({
     confirmRename,
     moveInterfaceGroup
   } = useInterfaceGroups(interfaceGroups, sources, onUpdate);
+
+  // Double-click tracking refs (keyed by index and direction)
+  const lastClickRef = useRef<{ index: number; direction: 'up' | 'down'; time: number } | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const handleMoveClick = useCallback((index: number, direction: 'up' | 'down') => {
+    const now = Date.now();
+    const lastClick = lastClickRef.current;
+
+    // Check if this is a double-click (same index, same direction, within delay)
+    if (
+      lastClick &&
+      lastClick.index === index &&
+      lastClick.direction === direction &&
+      now - lastClick.time < DOUBLE_CLICK_DELAY
+    ) {
+      // Double-click detected - move to boundary
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      lastClickRef.current = null;
+      
+      if (direction === 'up') {
+        moveInterfaceGroup(index, 0);
+      } else {
+        moveInterfaceGroup(index, interfaceGroups.length - 1);
+      }
+    } else {
+      // First click - wait to see if double-click follows
+      lastClickRef.current = { index, direction, time: now };
+      
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        // Single click - move one position
+        if (direction === 'up') {
+          moveInterfaceGroup(index, Math.max(0, index - 1));
+        } else {
+          moveInterfaceGroup(index, Math.min(interfaceGroups.length - 1, index + 1));
+        }
+        lastClickRef.current = null;
+      }, DOUBLE_CLICK_DELAY);
+    }
+  }, [moveInterfaceGroup, interfaceGroups.length]);
 
   const handleAddGroup = () => {
     if (addInterfaceGroup(newInterfaceGroup)) {
@@ -126,10 +176,11 @@ const InterfaceGroupManager = ({
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => moveInterfaceGroup(index, Math.max(0, index - 1))}
+                          onClick={() => handleMoveClick(index, 'up')}
                           disabled={index === 0}
                           className="h-8 w-8 p-0 hover:bg-primary/10 border border-primary/20"
-                          title="Move up"
+                          title="Move up (double-click for top)"
+                          aria-label="Move up, double-click to move to top"
                         >
                           <ArrowUp className="h-3 w-3" />
                         </Button>
@@ -137,10 +188,11 @@ const InterfaceGroupManager = ({
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => moveInterfaceGroup(index, Math.min(interfaceGroups.length - 1, index + 1))}
+                          onClick={() => handleMoveClick(index, 'down')}
                           disabled={index === interfaceGroups.length - 1}
                           className="h-8 w-8 p-0 hover:bg-primary/10 border border-primary/20"
-                          title="Move down"
+                          title="Move down (double-click for bottom)"
+                          aria-label="Move down, double-click to move to bottom"
                         >
                           <ArrowDown className="h-3 w-3" />
                         </Button>
