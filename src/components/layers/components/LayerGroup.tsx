@@ -299,7 +299,7 @@ const LayerGroup = ({
                 </div>
               </CardHeader>
               <CollapsibleContent>
-                <CardContent className="pt-3 bg-slate-200">
+                <CardContent className="pt-3 px-2 bg-slate-200">
                   <div className="space-y-3">
                     {/* Render sub-groups first, in order based on first layer appearance */}
                     <SortableContext
