@@ -348,6 +348,7 @@
       },
       "layout": {
         "interfaceGroup": "Land Cover",
+        "subinterfaceGroup": "World Cover",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -473,6 +474,7 @@
       },
       "layout": {
         "interfaceGroup": "Land Cover",
+        "subinterfaceGroup": "World Cover",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -604,6 +606,7 @@
       },
       "layout": {
         "interfaceGroup": "Land Cover",
+        "subinterfaceGroup": "World Cover",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -2923,6 +2926,7 @@
       },
       "layout": {
         "interfaceGroup": "Land Cover",
+        "subinterfaceGroup": "Land Degradation Neutrality - Portugal",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -3015,6 +3019,7 @@
       },
       "layout": {
         "interfaceGroup": "Land Cover",
+        "subinterfaceGroup": "Land Degradation Neutrality - Portugal",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
@@ -3079,6 +3084,7 @@
       },
       "layout": {
         "interfaceGroup": "Land Cover",
+        "subinterfaceGroup": "Land Degradation Neutrality - Portugal",
         "contentLocation": "infoPanel",
         "layerCard": {
           "toggleable": true
