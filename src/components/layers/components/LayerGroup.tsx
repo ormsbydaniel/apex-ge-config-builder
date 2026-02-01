@@ -280,7 +280,7 @@ const LayerGroup = ({
                         variant="outline"
                         size="sm"
                         onClick={() => setShowAddSubGroupDialog(true)}
-                        className="text-amber-700 hover:bg-amber-100 border-amber-300"
+                        className="text-blue-700 hover:bg-blue-100 border-blue-300"
                         title="Add Sub-Group"
                       >
                         <FolderPlus className="h-3 w-3 mr-1" />

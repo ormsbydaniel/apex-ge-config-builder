@@ -129,7 +129,7 @@ const SubInterfaceGroup = ({
       onExpand={onToggle}
       className="flex-1"
     >
-      <Card className="border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10">
+      <Card className="border-blue-500/30 bg-blue-50/30 dark:bg-blue-950/10">
           <Collapsible open={isExpanded} onOpenChange={onToggle}>
             <CardHeader className="pb-2 pt-2">
               <div className="flex items-center justify-between">
@@ -151,14 +151,14 @@ const SubInterfaceGroup = ({
                     </Button>
                   </div>
                 ) : (
-                  <CollapsibleTrigger className="flex items-center gap-2 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 p-1 rounded-md -ml-1 flex-1">
+                  <CollapsibleTrigger className="flex items-center gap-2 hover:bg-blue-100/50 dark:hover:bg-blue-900/20 p-1 rounded-md -ml-1 flex-1">
                     {isExpanded ? (
-                      <ChevronDown className="h-3.5 w-3.5 text-amber-600" />
+                      <ChevronDown className="h-3.5 w-3.5 text-blue-600" />
                     ) : (
-                      <ChevronRight className="h-3.5 w-3.5 text-amber-600" />
+                      <ChevronRight className="h-3.5 w-3.5 text-blue-600" />
                     )}
                     <div className="flex items-center gap-2 flex-1">
-                      <CardTitle className="text-sm text-amber-700 dark:text-amber-500">{subGroupName}</CardTitle>
+                      <CardTitle className="text-sm text-blue-700 dark:text-blue-500">{subGroupName}</CardTitle>
                       <Button
                         size="sm"
                         variant="ghost"
@@ -167,7 +167,7 @@ const SubInterfaceGroup = ({
                       >
                         <Edit2 className="h-2.5 w-2.5" />
                       </Button>
-                      <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                      <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                         {sources.length} layer{sources.length !== 1 ? 's' : ''}
                       </Badge>
 
@@ -210,7 +210,7 @@ const SubInterfaceGroup = ({
                         e.stopPropagation();
                         onAddLayer();
                       }}
-                      className="text-amber-700 hover:bg-amber-100 border-amber-300 h-7 text-xs"
+                      className="text-blue-700 hover:bg-blue-100 border-blue-300 h-7 text-xs"
                     >
                       <Plus className="h-3 w-3 mr-1" />
                       Add Layer
@@ -231,7 +231,7 @@ const SubInterfaceGroup = ({
               </div>
             </CardHeader>
             <CollapsibleContent>
-              <CardContent className="pt-2 pb-3 bg-amber-100/30 dark:bg-amber-950/20">
+              <CardContent className="pt-2 pb-3 bg-blue-100/30 dark:bg-blue-950/20">
                 <SortableContext
                   items={sourceIndices.map(idx => `layer-${idx}`)}
                   strategy={verticalListSortingStrategy}

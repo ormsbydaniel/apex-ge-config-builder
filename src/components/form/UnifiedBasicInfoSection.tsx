@@ -214,8 +214,8 @@ const UnifiedBasicInfoSection = ({
                           value={subGroup.value}
                           className="pl-8"
                         >
-                          <span className="flex items-center gap-1 text-muted-foreground">
-                            <ChevronRight className="h-3 w-3 text-amber-500" />
+                        <span className="flex items-center gap-1 text-muted-foreground">
+                            <ChevronRight className="h-3 w-3 text-blue-500" />
                             {subGroup.subinterfaceGroup}
                           </span>
                         </SelectItem>
@@ -223,7 +223,7 @@ const UnifiedBasicInfoSection = ({
                     </React.Fragment>
                   ))}
                   {groupedPlacementOptions.length > 0 && <SelectSeparator />}
-                  <SelectItem value="__create_new__" className="text-amber-600">
+                  <SelectItem value="__create_new__" className="text-blue-600">
                     <span className="flex items-center gap-1">
                       <Plus className="h-3 w-3" />
                       Create new sub-group...
@@ -236,7 +236,7 @@ const UnifiedBasicInfoSection = ({
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="text-amber-700 border-amber-300 hover:bg-amber-100"
+                  className="text-blue-700 border-blue-300 hover:bg-blue-100"
                   title="Create new sub-group"
                 >
                   <Plus className="h-4 w-4" />
@@ -288,7 +288,7 @@ const UnifiedBasicInfoSection = ({
                     type="button"
                     size="sm"
                     onClick={handleCreateSubGroup}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-blue-600 hover:bg-blue-700"
                   >
                     Create
                   </Button>
