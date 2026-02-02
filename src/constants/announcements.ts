@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-02-02",
+    title: "Support for sub-interface groups",
+    category: "Feature",
+  },
+  {
     date: "2026-01-29",
     title: "3.5.0 release and support for full screen mode",
     category: "Feature",
