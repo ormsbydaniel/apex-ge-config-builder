@@ -7,7 +7,7 @@ export interface Announcement {
 export const announcements: Announcement[] = [
   {
     date: "2026-02-02",
-    title: "Support for sub-interface groups",
+    title: "Support for sub-interface groups and example config load",
     category: "Feature",
   },
   {
@@ -32,8 +32,7 @@ export const announcements: Announcement[] = [
   },
   {
     date: "2025-12-17",
-    title:
-      "STAC services now support collection level entry point, rather than assuming a catalogue",
+    title: "STAC services now support collection level entry point, rather than assuming a catalogue",
     category: "Feature",
   },
   {
