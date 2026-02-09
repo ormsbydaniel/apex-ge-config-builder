@@ -1,43 +1,90 @@
 
-
-# Unsaved Changes Warning for Load, New, and Example Actions
+# Add `projections` Array to Configuration
 
 ## Overview
 
-When you click **Load**, **New**, or **Example**, the app will now check if you have unexported changes. If so, a confirmation dialog appears: *"Your recent changes have not been exported and will be overwritten. Do you wish to continue?"* with **Cancel** and **Continue** options.
+Add a new top-level `projections` array to the config schema. Each projection object has a required `code` (e.g. "EPSG:3035") and `definition` (the proj4 string), plus an optional `name`. This array will be supported through import, export, the JSON config editor, and will persist through the full data flow.
 
-## How It Works
+## What Changes
 
-The app will track a simple "dirty" flag that turns on whenever you make any change (add/edit/remove layers, change settings, etc.) and turns off whenever you export. When Load, New, or Example is clicked, the flag is checked and the warning shown if needed.
+- A new optional `projections` array appears in the exported/imported JSON at the top level (alongside `services`, `sources`, `mapConstraints`, etc.)
+- Existing configs without `projections` continue to work unchanged
+- The JSON Config editor will show/allow editing the `projections` array
+- Import and export will preserve the array through the full round-trip
 
----
+## Example JSON
+
+```json
+{
+  "version": "1.0.0",
+  "projections": [
+    {
+      "name": "LAEA Europe",
+      "code": "EPSG:3035",
+      "definition": "+proj=laea +lat_0=52 +lon_0=10 ..."
+    },
+    {
+      "code": "EPSG:3413",
+      "definition": "+proj=stere +lat_0=90 ..."
+    }
+  ],
+  "layout": { ... },
+  ...
+}
+```
 
 ## Technical Details
 
-### 1. Add `isDirty` flag to ConfigContext (`src/contexts/ConfigContext.tsx`)
+### 1. Zod Schema (`src/schemas/configSchema.ts`)
 
-- Add `isDirty: boolean` to `ConfigState` (initial: `false`)
-- Set `isDirty: true` on all mutation actions (UPDATE_VERSION, UPDATE_LAYOUT, UPDATE_DESIGN, UPDATE_THEME, UPDATE_INTERFACE_GROUPS, UPDATE_EXCLUSIVITY_SETS, REMOVE_EXCLUSIVITY_SET, UPDATE_MAP_CONSTRAINTS, ADD_SERVICE, REMOVE_SERVICE, ADD_SOURCE, REMOVE_SOURCE, UPDATE_SOURCE, UPDATE_SOURCES)
-- Set `isDirty: false` on SET_LAST_EXPORTED, LOAD_CONFIG, and RESET_CONFIG
+Add a `ProjectionSchema` and include it in `ConfigurationSchema`:
 
-### 2. Create a reusable confirmation hook (`src/hooks/useUnsavedChangesGuard.ts`)
+```typescript
+const ProjectionSchema = z.object({
+  name: z.string().optional(),
+  code: z.string(),
+  definition: z.string(),
+});
+```
 
-A small hook that:
-- Reads `config.isDirty` from ConfigContext
-- Exposes a function like `guardAction(callback)` that either runs the callback immediately (if not dirty) or sets state to show a confirmation dialog
-- Exposes dialog state (`isOpen`, `onConfirm`, `onCancel`) for the consuming component to render an AlertDialog
+Add to `ConfigurationSchema`:
+```typescript
+projections: z.array(ProjectionSchema).optional(),
+```
 
-### 3. Update HomeTab (`src/components/config/HomeTab.tsx`)
+### 2. ConfigContext (`src/contexts/ConfigContext.tsx`)
 
-- Use `useUnsavedChangesGuard` hook
-- Wrap `handleNewConfig`, the file input trigger (Load), and `handleLoadExample` with the guard
-- Render an `AlertDialog` driven by the hook's state, with the warning message
+- Add `projections` to `initialState` (as `undefined` or empty array)
+- Add a new action type `UPDATE_PROJECTIONS` to the reducer that sets `isDirty: true`
+- Preserve `projections` in `LOAD_CONFIG` case (already handled by spread, but ensure it flows through)
 
-### 4. Update ConfigSummary (`src/components/config/ConfigSummary.tsx`)
+### 3. Export (`src/hooks/useConfigExport.ts`)
 
-- Same pattern: wrap New and Load actions with the guard and add the AlertDialog
+Add `projections` to the `exportData` object:
+```typescript
+...(config.projections?.length && { projections: config.projections }),
+```
 
-### 5. No changes to export flow
+### 4. ConfigJson page (`src/pages/ConfigJson.tsx`)
 
-The existing `SET_LAST_EXPORTED` dispatch in the export hook will naturally clear the dirty flag.
+Same pattern -- include `projections` in the export data object.
 
+### 5. Validated Config (`src/hooks/useValidatedConfig.ts`)
+
+Pass through `projections` unchanged in the return value (it's already spread via `...config`, but worth verifying it isn't stripped).
+
+### 6. Config Sanitization (`src/hooks/useConfigSanitization.ts`)
+
+Verify projections aren't stripped during sanitization. If needed, add explicit passthrough.
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `src/schemas/configSchema.ts` | Add `ProjectionSchema`, add `projections` to `ConfigurationSchema` |
+| `src/contexts/ConfigContext.tsx` | Add `UPDATE_PROJECTIONS` action, include in initialState |
+| `src/hooks/useConfigExport.ts` | Include `projections` in export data |
+| `src/pages/ConfigJson.tsx` | Include `projections` in export data |
+| `src/hooks/useValidatedConfig.ts` | Ensure `projections` passes through |
+
+No UI editor for projections is included in this change -- they will be editable via the JSON Config tab. A dedicated UI editor could be added later if needed.
