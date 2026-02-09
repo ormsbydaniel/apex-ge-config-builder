@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
@@ -19,6 +20,7 @@ import { QAStatCard } from './components/QAStatCard';
 import { LayerIssuesDialog } from './components/LayerIssuesDialog';
 import LatestUpdatesSection from './components/LatestUpdatesSection';
 import { DataSource } from '@/types/config';
+import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 
 interface HomeTabProps {
   config: any;
@@ -30,6 +32,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [isLoadingExample, setIsLoadingExample] = useState(false);
   const { exportConfig } = useConfigExport();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { guardAction, isOpen: showUnsavedDialog, onConfirm: onUnsavedConfirm, onCancel: onUnsavedCancel } = useUnsavedChangesGuard();
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
@@ -55,11 +58,11 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [version, setVersion] = useState(config.version || '1.0.0');
 
   const handleImportClick = () => {
-    fileInputRef.current?.click();
+    guardAction(() => fileInputRef.current?.click());
   };
 
   const handleNewConfig = () => {
-    dispatch({ type: 'RESET_CONFIG' });
+    guardAction(() => dispatch({ type: 'RESET_CONFIG' }));
   };
 
   const handleQuickExport = () => {
@@ -333,15 +336,17 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   </Button>
 
                   <Button 
-                    onClick={async () => {
-                      setIsLoadingExample(true);
-                      const result = await importConfigFromUrl('/examples/test-config.json');
-                      setIsLoadingExample(false);
-                      if (!result.success && result.errors) {
-                        setValidationErrors(result.errors);
-                        setErrorFileName('test-config.json');
-                        setShowErrorDialog(true);
-                      }
+                    onClick={() => {
+                      guardAction(async () => {
+                        setIsLoadingExample(true);
+                        const result = await importConfigFromUrl('/examples/test-config.json');
+                        setIsLoadingExample(false);
+                        if (!result.success && result.errors) {
+                          setValidationErrors(result.errors);
+                          setErrorFileName('test-config.json');
+                          setShowErrorDialog(true);
+                        }
+                      });
                     }}
                     variant="outline"
                     size="sm"
@@ -619,6 +624,21 @@ const HomeTab = ({ config }: HomeTabProps) => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showUnsavedDialog} onOpenChange={(open) => { if (!open) onUnsavedCancel(); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your recent changes have not been exported and will be overwritten. Do you wish to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={onUnsavedCancel}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onUnsavedConfirm}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

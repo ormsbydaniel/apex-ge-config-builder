@@ -6,6 +6,7 @@ import { validateImages } from '@/utils/imageValidation';
 
 interface ConfigState extends ValidatedConfiguration {
   isLoading: boolean;
+  isDirty: boolean;
   lastLoaded: Date | null;
   lastExported: Date | null;
   validationResults: Map<number, LayerValidationResult>;
@@ -75,6 +76,7 @@ const initialState: ConfigState = {
     projection: 'EPSG:3857'
   },
   isLoading: false,
+  isDirty: false,
   lastLoaded: null,
   lastExported: null,
   validationResults: new Map(),
@@ -151,15 +153,17 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       return {
         ...normalizedPayload,
         isLoading: false,
+        isDirty: false,
         lastLoaded: new Date(),
-        lastExported: state.lastExported, // Preserve last exported time
-        validationResults: new Map(), // Reset validation results when loading new config
+        lastExported: state.lastExported,
+        validationResults: new Map(),
         hasUnsavedFormChanges: false,
         unsavedFormDescription: null,
       };
     case 'RESET_CONFIG':
       return {
         ...initialState,
+        isDirty: false,
         lastLoaded: null,
         lastExported: null,
         hasUnsavedFormChanges: false,
@@ -173,16 +177,19 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
     case 'SET_LAST_EXPORTED':
       return {
         ...state,
+        isDirty: false,
         lastExported: new Date(),
       };
     case 'UPDATE_VERSION':
       return {
         ...state,
+        isDirty: true,
         version: action.payload,
       };
     case 'UPDATE_LAYOUT':
       return {
         ...state,
+        isDirty: true,
         layout: {
           ...state.layout,
           navigation: {
@@ -194,6 +201,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
     case 'UPDATE_DESIGN':
       return {
         ...state,
+        isDirty: true,
         layout: {
           ...state.layout,
           design: action.payload,
@@ -202,6 +210,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
     case 'UPDATE_THEME':
       return {
         ...state,
+        isDirty: true,
         layout: {
           ...state.layout,
           theme: {
@@ -213,11 +222,13 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
     case 'UPDATE_INTERFACE_GROUPS':
       return {
         ...state,
+        isDirty: true,
         interfaceGroups: action.payload,
       };
     case 'UPDATE_EXCLUSIVITY_SETS':
       return {
         ...state,
+        isDirty: true,
         exclusivitySets: action.payload,
       };
     case 'REMOVE_EXCLUSIVITY_SET': {
@@ -237,6 +248,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       
       return {
         ...state,
+        isDirty: true,
         exclusivitySets: updatedExclusivitySets,
         sources: updatedSources,
       };
@@ -244,6 +256,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
     case 'UPDATE_MAP_CONSTRAINTS':
       return {
         ...state,
+        isDirty: true,
         mapConstraints: {
           ...state.mapConstraints,
           ...action.payload,
@@ -252,6 +265,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
     case 'ADD_SERVICE':
       return {
         ...state,
+        isDirty: true,
         services: [...state.services, action.payload],
       };
     case 'REMOVE_SERVICE': {
@@ -309,6 +323,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       
       return {
         ...state,
+        isDirty: true,
         services: updatedServices,
         sources: updatedSources,
       };
@@ -366,12 +381,14 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       
       return {
         ...state,
+        isDirty: true,
         sources: [...updatedSources, sanitizedSource],
       };
     }
     case 'REMOVE_SOURCE':
       return {
         ...state,
+        isDirty: true,
         sources: state.sources.filter((_, i) => i !== action.payload),
       };
     case 'UPDATE_SOURCE': {
@@ -394,6 +411,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       
       return {
         ...state,
+        isDirty: true,
         sources: updatedSources,
       };
     }
@@ -439,6 +457,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       
       return {
         ...state,
+        isDirty: true,
         sources: sanitizedSources,
       };
     }
