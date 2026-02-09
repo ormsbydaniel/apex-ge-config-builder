@@ -34,7 +34,8 @@ type ConfigAction =
   | { type: 'UPDATE_SOURCE'; payload: { index: number; source: DataSource } }
   | { type: 'UPDATE_SOURCES'; payload: DataSource[] }
   | { type: 'UPDATE_VALIDATION_RESULTS'; payload: Map<number, LayerValidationResult> }
-  | { type: 'SET_UNSAVED_FORM_CHANGES'; payload: { hasChanges: boolean; description: string | null } };
+  | { type: 'SET_UNSAVED_FORM_CHANGES'; payload: { hasChanges: boolean; description: string | null } }
+  | { type: 'UPDATE_PROJECTIONS'; payload: Array<{ name?: string; code: string; definition: string }> };
 
 const initialState: ConfigState = {
   version: '1.0.0',
@@ -471,6 +472,12 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...state,
         hasUnsavedFormChanges: action.payload.hasChanges,
         unsavedFormDescription: action.payload.description,
+      };
+    case 'UPDATE_PROJECTIONS':
+      return {
+        ...state,
+        isDirty: true,
+        projections: action.payload,
       };
     default:
       return state;
