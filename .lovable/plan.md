@@ -1,51 +1,43 @@
 
 
-# Add Export Button to Main Navigation Bar
+# Unsaved Changes Warning for Load, New, and Example Actions
 
 ## Overview
 
-Add a compact Export button to the main navigation bar, positioned to the right of the Preview tab. This gives quick access to export from any tab without navigating back to Home.
+When you click **Load**, **New**, or **Example**, the app will now check if you have unexported changes. If so, a confirmation dialog appears: *"Your recent changes have not been exported and will be overwritten. Do you wish to continue?"* with **Cancel** and **Continue** options.
 
-## What You'll See
+## How It Works
 
-- A compact "Export" button with a download icon will appear on the right side of the main tab bar, next to the Preview button
-- Clicking it performs a quick export (default options) -- same as the "Quick Export" action on the Home tab
-- The button will be styled to fit naturally in the nav bar without looking like a tab
+The app will track a simple "dirty" flag that turns on whenever you make any change (add/edit/remove layers, change settings, etc.) and turns off whenever you export. When Load, New, or Example is clicked, the flag is checked and the warning shown if needed.
+
+---
 
 ## Technical Details
 
-### File: `src/components/ConfigBuilder.tsx`
+### 1. Add `isDirty` flag to ConfigContext (`src/contexts/ConfigContext.tsx`)
 
-**Changes:**
-1. Import `Download` icon from lucide-react
-2. Import `useConfigExport` from `@/hooks/useConfigIO`
-3. Add `const { exportConfig } = useConfigExport();` in the component
-4. Change the `TabsList` grid from `grid-cols-7` to `grid-cols-8` (or use a flex layout with the export button outside the grid)
-5. Add an Export button after the Preview tab trigger, styled as a compact button rather than a tab trigger
+- Add `isDirty: boolean` to `ConfigState` (initial: `false`)
+- Set `isDirty: true` on all mutation actions (UPDATE_VERSION, UPDATE_LAYOUT, UPDATE_DESIGN, UPDATE_THEME, UPDATE_INTERFACE_GROUPS, UPDATE_EXCLUSIVITY_SETS, REMOVE_EXCLUSIVITY_SET, UPDATE_MAP_CONSTRAINTS, ADD_SERVICE, REMOVE_SERVICE, ADD_SOURCE, REMOVE_SOURCE, UPDATE_SOURCE, UPDATE_SOURCES)
+- Set `isDirty: false` on SET_LAST_EXPORTED, LOAD_CONFIG, and RESET_CONFIG
 
-**Approach:** Place the Export button *outside* the `TabsList` but visually inline with it using a flex wrapper. This avoids it behaving like a tab (since export is an action, not a view). The layout would be:
+### 2. Create a reusable confirmation hook (`src/hooks/useUnsavedChangesGuard.ts`)
 
-```text
-[TabsList: Home | Layers | Draw Order | Services | Settings | JSON Config | Preview] [Export]
-```
+A small hook that:
+- Reads `config.isDirty` from ConfigContext
+- Exposes a function like `guardAction(callback)` that either runs the callback immediately (if not dirty) or sets state to show a confirmation dialog
+- Exposes dialog state (`isOpen`, `onConfirm`, `onCancel`) for the consuming component to render an AlertDialog
 
-The wrapper div around TabsList becomes a flex container:
-```
-<div className="flex items-center gap-2 mb-6">
-  <TabsList className="grid flex-1 grid-cols-7 bg-white border border-primary/20">
-    ...existing tabs...
-  </TabsList>
-  <Button 
-    variant="outline" 
-    size="sm"
-    onClick={() => exportConfig()}
-    className="flex items-center gap-1.5 bg-white border-primary/20 hover:bg-primary hover:text-primary-foreground"
-  >
-    <Download className="h-4 w-4" />
-    Export
-  </Button>
-</div>
-```
+### 3. Update HomeTab (`src/components/config/HomeTab.tsx`)
 
-This keeps the export as a standalone action button that is always visible, doesn't interfere with tab navigation, and matches the nav bar styling. The existing Home tab export buttons remain unchanged for users who want the "Export with Options" flow.
+- Use `useUnsavedChangesGuard` hook
+- Wrap `handleNewConfig`, the file input trigger (Load), and `handleLoadExample` with the guard
+- Render an `AlertDialog` driven by the hook's state, with the warning message
+
+### 4. Update ConfigSummary (`src/components/config/ConfigSummary.tsx`)
+
+- Same pattern: wrap New and Load actions with the guard and add the AlertDialog
+
+### 5. No changes to export flow
+
+The existing `SET_LAST_EXPORTED` dispatch in the export hook will naturally clear the dirty flag.
 
