@@ -23,6 +23,7 @@ export const useConfigExport = () => {
         interfaceGroups: config.interfaceGroups,
         exclusivitySets: config.exclusivitySets,
         ...(config.mapConstraints && { mapConstraints: config.mapConstraints }),
+        ...(config.projections?.length && { projections: config.projections }),
         // Export services without capabilities and with sanitized URLs
         services: config.services.map(service => ({
           id: service.id,
