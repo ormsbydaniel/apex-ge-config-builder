@@ -1,78 +1,51 @@
 
-# Sub-Group Color Scheme Change: Amber to Blue
+
+# Add Export Button to Main Navigation Bar
 
 ## Overview
 
-This plan updates all sub-group UI elements from an amber color scheme to a blue color scheme. The change affects card styling, buttons, badges, icons, drag handles, and text throughout the sub-group hierarchy.
+Add a compact Export button to the main navigation bar, positioned to the right of the Preview tab. This gives quick access to export from any tab without navigating back to Home.
 
-## Files to Modify
+## What You'll See
 
-Six files contain amber-colored sub-group styling:
+- A compact "Export" button with a download icon will appear on the right side of the main tab bar, next to the Preview button
+- Clicking it performs a quick export (default options) -- same as the "Quick Export" action on the Home tab
+- The button will be styled to fit naturally in the nav bar without looking like a tab
 
-| File | Element Types |
-|------|---------------|
-| `src/components/layers/components/SubInterfaceGroup.tsx` | Card borders, backgrounds, chevrons, title text, badges, add button, collapsible triggers |
-| `src/components/layers/components/SortableSubInterfaceGroup.tsx` | Drag ring, drag handle hover state, grip icon |
-| `src/components/layers/components/AddSubGroupDialog.tsx` | "Create New Layer" button, "Next" button, "Create Sub-Group" button |
-| `src/components/layers/components/LayerGroup.tsx` | "Add Sub-Group" button |
-| `src/components/form/UnifiedBasicInfoSection.tsx` | Sub-group chevron icon, "Create new sub-group" option, create button |
-| `src/contexts/LayerDndContext.tsx` | Drag overlay card for sub-groups |
+## Technical Details
 
-## Color Mapping
+### File: `src/components/ConfigBuilder.tsx`
 
-All amber colors will be replaced with their blue equivalents:
+**Changes:**
+1. Import `Download` icon from lucide-react
+2. Import `useConfigExport` from `@/hooks/useConfigIO`
+3. Add `const { exportConfig } = useConfigExport();` in the component
+4. Change the `TabsList` grid from `grid-cols-7` to `grid-cols-8` (or use a flex layout with the export button outside the grid)
+5. Add an Export button after the Preview tab trigger, styled as a compact button rather than a tab trigger
 
-| Amber Class | Blue Replacement |
-|-------------|------------------|
-| `amber-50` | `blue-50` |
-| `amber-100` | `blue-100` |
-| `amber-300` | `blue-300` |
-| `amber-400` | `blue-400` |
-| `amber-500` | `blue-500` |
-| `amber-600` | `blue-600` |
-| `amber-700` | `blue-700` |
-| `amber-900` | `blue-900` |
-| `amber-950` | `blue-950` |
+**Approach:** Place the Export button *outside* the `TabsList` but visually inline with it using a flex wrapper. This avoids it behaving like a tab (since export is an action, not a view). The layout would be:
 
----
+```text
+[TabsList: Home | Layers | Draw Order | Services | Settings | JSON Config | Preview] [Export]
+```
 
-## Technical Section
+The wrapper div around TabsList becomes a flex container:
+```
+<div className="flex items-center gap-2 mb-6">
+  <TabsList className="grid flex-1 grid-cols-7 bg-white border border-primary/20">
+    ...existing tabs...
+  </TabsList>
+  <Button 
+    variant="outline" 
+    size="sm"
+    onClick={() => exportConfig()}
+    className="flex items-center gap-1.5 bg-white border-primary/20 hover:bg-primary hover:text-primary-foreground"
+  >
+    <Download className="h-4 w-4" />
+    Export
+  </Button>
+</div>
+```
 
-### Detailed Changes by File
+This keeps the export as a standalone action button that is always visible, doesn't interfere with tab navigation, and matches the nav bar styling. The existing Home tab export buttons remain unchanged for users who want the "Export with Options" flow.
 
-**1. SubInterfaceGroup.tsx (12 changes)**
-- Line 132: Card `border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10` → `border-blue-500/30 bg-blue-50/30 dark:bg-blue-950/10`
-- Line 154: Trigger hover `hover:bg-amber-100/50 dark:hover:bg-amber-900/20` → `hover:bg-blue-100/50 dark:hover:bg-blue-900/20`
-- Lines 156, 158: Chevron icons `text-amber-600` → `text-blue-600`
-- Line 161: Title `text-amber-700 dark:text-amber-500` → `text-blue-700 dark:text-blue-500`
-- Line 170: Badge `bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400` → `bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400`
-- Line 213: Add Layer button `text-amber-700 hover:bg-amber-100 border-amber-300` → `text-blue-700 hover:bg-blue-100 border-blue-300`
-- Line 234: Content background `bg-amber-100/30 dark:bg-amber-950/20` → `bg-blue-100/30 dark:bg-blue-950/20`
-
-**2. SortableSubInterfaceGroup.tsx (3 changes)**
-- Line 51: Drag ring `ring-amber-500` → `ring-blue-500`
-- Line 56: Handle hover `hover:bg-amber-100/50 dark:hover:bg-amber-900/30` → `hover:bg-blue-100/50 dark:hover:bg-blue-900/30`
-- Line 59: Grip icon `text-amber-600/70` → `text-blue-600/70`
-
-**3. AddSubGroupDialog.tsx (3 changes)**
-- Line 160: Create New Layer button `text-amber-700 border-amber-300 hover:bg-amber-50` → `text-blue-700 border-blue-300 hover:bg-blue-50`
-- Line 174: Next button `bg-amber-600 hover:bg-amber-700` → `bg-blue-600 hover:bg-blue-700`
-- Line 190: Create Sub-Group button `bg-amber-600 hover:bg-amber-700` → `bg-blue-600 hover:bg-blue-700`
-
-**4. LayerGroup.tsx (1 change)**
-- Line 283: Add Sub-Group button `text-amber-700 hover:bg-amber-100 border-amber-300` → `text-blue-700 hover:bg-blue-100 border-blue-300`
-
-**5. UnifiedBasicInfoSection.tsx (4 changes)**
-- Line 218: Chevron icon `text-amber-500` → `text-blue-500`
-- Line 226: Create new option `text-amber-600` → `text-blue-600`
-- Line 239: Button styling `text-amber-700 border-amber-300 hover:bg-amber-100` → `text-blue-700 border-blue-300 hover:bg-blue-100`
-- Line 291: Create button `bg-amber-600 hover:bg-amber-700` → `bg-blue-600 hover:bg-blue-700`
-
-**6. LayerDndContext.tsx (3 changes)**
-- Line 98: Card border `border-amber-500` → `border-blue-500`
-- Line 99: Header background `bg-amber-50` → `bg-blue-50`
-- Lines 101-102: Grip and title `text-amber-600`, `text-amber-700` → `text-blue-600`, `text-blue-700`
-
-### Notes
-- The QA warning indicators (AlertTriangle icons) at lines 190-192 in SubInterfaceGroup.tsx remain amber as they are semantic warning colors, not sub-group styling
-- Same applies to line 254-255 in LayerGroup.tsx for warning stats
