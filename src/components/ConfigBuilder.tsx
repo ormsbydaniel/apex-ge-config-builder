@@ -205,15 +205,23 @@ const ConfigBuilderContent = () => {
                 </Tooltip>
               </TooltipProvider>
             </TabsList>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => exportConfig()}
-              className="flex items-center gap-1.5 h-10 bg-white border-primary/20 hover:bg-primary hover:text-primary-foreground"
-            >
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => exportConfig()}
+                    className="h-10 w-10 bg-white border-primary/20 hover:bg-primary hover:text-primary-foreground"
+                  >
+                    <Download className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Export</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             </div>
 
             <TabsContent value="home">
