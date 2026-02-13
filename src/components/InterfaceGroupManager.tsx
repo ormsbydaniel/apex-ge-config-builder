@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,8 @@ interface InterfaceGroupManagerProps {
     sources?: DataSource[];
   }) => void;
 }
+
+const CLICK_DELAY = 250;
 
 const InterfaceGroupManager = ({
   interfaceGroups,
@@ -34,6 +36,94 @@ const InterfaceGroupManager = ({
     confirmRename,
     moveInterfaceGroup
   } = useInterfaceGroups(interfaceGroups, sources, onUpdate);
+
+  // Track pending single-click timeouts and double-click flags per index
+  const upTimeoutRef = useRef<{ index: number; timeout: NodeJS.Timeout } | null>(null);
+  const downTimeoutRef = useRef<{ index: number; timeout: NodeJS.Timeout } | null>(null);
+  const upDoubleClickedRef = useRef<number | null>(null);
+  const downDoubleClickedRef = useRef<number | null>(null);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (upTimeoutRef.current) clearTimeout(upTimeoutRef.current.timeout);
+      if (downTimeoutRef.current) clearTimeout(downTimeoutRef.current.timeout);
+    };
+  }, []);
+
+  const handleUpClick = (index: number) => {
+    // Clear any existing timeout
+    if (upTimeoutRef.current) {
+      clearTimeout(upTimeoutRef.current.timeout);
+    }
+    
+    // Set a delayed single-click action
+    const timeout = setTimeout(() => {
+      // Only fire if double-click didn't happen for this index
+      if (upDoubleClickedRef.current !== index && index > 0) {
+        moveInterfaceGroup(index, index - 1);
+      }
+      upDoubleClickedRef.current = null;
+      upTimeoutRef.current = null;
+    }, CLICK_DELAY);
+    
+    upTimeoutRef.current = { index, timeout };
+  };
+
+  const handleUpDoubleClick = (index: number) => {
+    // Cancel the pending single-click
+    if (upTimeoutRef.current) {
+      clearTimeout(upTimeoutRef.current.timeout);
+      upTimeoutRef.current = null;
+    }
+    upDoubleClickedRef.current = index;
+    
+    if (index > 0) {
+      moveInterfaceGroup(index, 0);
+    }
+    
+    // Reset flag after a short delay
+    setTimeout(() => {
+      upDoubleClickedRef.current = null;
+    }, 50);
+  };
+
+  const handleDownClick = (index: number) => {
+    // Clear any existing timeout
+    if (downTimeoutRef.current) {
+      clearTimeout(downTimeoutRef.current.timeout);
+    }
+    
+    // Set a delayed single-click action
+    const timeout = setTimeout(() => {
+      // Only fire if double-click didn't happen for this index
+      if (downDoubleClickedRef.current !== index && index < interfaceGroups.length - 1) {
+        moveInterfaceGroup(index, index + 1);
+      }
+      downDoubleClickedRef.current = null;
+      downTimeoutRef.current = null;
+    }, CLICK_DELAY);
+    
+    downTimeoutRef.current = { index, timeout };
+  };
+
+  const handleDownDoubleClick = (index: number) => {
+    // Cancel the pending single-click
+    if (downTimeoutRef.current) {
+      clearTimeout(downTimeoutRef.current.timeout);
+      downTimeoutRef.current = null;
+    }
+    downDoubleClickedRef.current = index;
+    
+    if (index < interfaceGroups.length - 1) {
+      moveInterfaceGroup(index, interfaceGroups.length - 1);
+    }
+    
+    // Reset flag after a short delay
+    setTimeout(() => {
+      downDoubleClickedRef.current = null;
+    }, 50);
+  };
 
   const handleAddGroup = () => {
     if (addInterfaceGroup(newInterfaceGroup)) {
@@ -126,10 +216,12 @@ const InterfaceGroupManager = ({
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => moveInterfaceGroup(index, Math.max(0, index - 1))}
+                          onClick={() => handleUpClick(index)}
+                          onDoubleClick={() => handleUpDoubleClick(index)}
                           disabled={index === 0}
                           className="h-8 w-8 p-0 hover:bg-primary/10 border border-primary/20"
-                          title="Move up"
+                          title="Move up (double-click for top)"
+                          aria-label="Move up, double-click to move to top"
                         >
                           <ArrowUp className="h-3 w-3" />
                         </Button>
@@ -137,10 +229,12 @@ const InterfaceGroupManager = ({
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => moveInterfaceGroup(index, Math.min(interfaceGroups.length - 1, index + 1))}
+                          onClick={() => handleDownClick(index)}
+                          onDoubleClick={() => handleDownDoubleClick(index)}
                           disabled={index === interfaceGroups.length - 1}
                           className="h-8 w-8 p-0 hover:bg-primary/10 border border-primary/20"
-                          title="Move down"
+                          title="Move down (double-click for bottom)"
+                          aria-label="Move down, double-click to move to bottom"
                         >
                           <ArrowDown className="h-3 w-3" />
                         </Button>

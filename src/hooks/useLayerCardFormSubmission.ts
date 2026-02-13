@@ -7,13 +7,14 @@ interface SubmissionFormData {
   name: string;
   description: string;
   interfaceGroup: string;
+  subinterfaceGroup: string;
   attributionText: string;
   attributionUrl: string;
   hasFeatureStatistics: boolean;
   isActive: boolean;
   exclusivitySets: string[];
   units: string;
-  contentLocation: 'layerCard' | 'infoPanel'; // NEW: Content location
+  contentLocation: 'layerCard' | 'infoPanel';
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
@@ -93,7 +94,8 @@ export const useLayerCardFormSubmission = (
     // Create layout structure based on contentLocation
     const layoutObject: any = {
       ...(formData.interfaceGroup && { interfaceGroup: formData.interfaceGroup }),
-      contentLocation: formData.contentLocation, // Store content location
+      ...(formData.subinterfaceGroup && { subinterfaceGroup: formData.subinterfaceGroup }),
+      contentLocation: formData.contentLocation,
     };
 
     // Place legend and controls in the correct location

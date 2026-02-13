@@ -529,6 +529,13 @@ const DesignSchema = z.object({
   parameters: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();  // Allow future extensions
 
+// Projection schema for custom CRS definitions
+const ProjectionSchema = z.object({
+  name: z.string().optional(),
+  code: z.string(),
+  definition: z.string(),
+});
+
 export const ConfigurationSchema = z.object({
   version: z.string().optional(),
   layout: z.object({
@@ -565,6 +572,7 @@ export const ConfigurationSchema = z.object({
     center: z.array(z.number()).length(2), // [longitude, latitude]
     projection: z.string().optional(), // EPSG projection code
   }).optional(),
+  projections: z.array(ProjectionSchema).optional(),
 });
 
 export type ValidatedConfiguration = z.infer<typeof ConfigurationSchema>;

@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Upload, Download, RotateCcw, AlertTriangle, Edit, Settings } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
+import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 
 interface ConfigSummaryProps {
   config: any;
@@ -25,16 +27,17 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [errorFileName, setErrorFileName] = useState<string>('');
   const [isEditingLogo, setIsEditingLogo] = useState(false);
+  const { guardAction, isOpen: showUnsavedDialog, onConfirm: onUnsavedConfirm, onCancel: onUnsavedCancel } = useUnsavedChangesGuard();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   const [title, setTitle] = useState(config.layout.navigation.title);
 
   const handleImportClick = () => {
-    fileInputRef.current?.click();
+    guardAction(() => fileInputRef.current?.click());
   };
 
   const handleNewConfig = () => {
-    dispatch({ type: 'RESET_CONFIG' });
+    guardAction(() => dispatch({ type: 'RESET_CONFIG' }));
   };
 
   const handleQuickExport = () => {
@@ -262,6 +265,21 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showUnsavedDialog} onOpenChange={(open) => { if (!open) onUnsavedCancel(); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your recent changes have not been exported and will be overwritten. Do you wish to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={onUnsavedCancel}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onUnsavedConfirm}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

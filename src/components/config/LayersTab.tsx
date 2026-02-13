@@ -9,9 +9,11 @@ interface LayersTabProps {
   showLayerForm: boolean;
   selectedLayerType: LayerType | null;
   defaultInterfaceGroup?: string;
+  defaultSubinterfaceGroup?: string;
   setShowLayerForm: (show: boolean) => void;
   setSelectedLayerType: (type: LayerType | null) => void;
   setDefaultInterfaceGroup: (group: string | undefined) => void;
+  setDefaultSubinterfaceGroup: (subGroup: string | undefined) => void;
   handleLayerTypeSelect: (type: LayerType) => void;
   handleCancelLayerForm: () => void;
   addLayer: (layer: DataSource) => void;

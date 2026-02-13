@@ -20,6 +20,7 @@ interface LayerFormHandlerProps {
   editingLayerIndex: number | null;
   config: { sources: DataSource[]; exclusivitySets?: string[] };
   defaultInterfaceGroup?: string;
+  defaultSubinterfaceGroup?: string;
   isAddingStatistics?: boolean;
   isAddingConstraint?: boolean;
   editingConstraintIndex?: number | null;
@@ -56,6 +57,7 @@ const LayerFormHandler = ({
   editingLayerIndex,
   config,
   defaultInterfaceGroup,
+  defaultSubinterfaceGroup,
   isAddingStatistics = false,
   isAddingConstraint = false,
   editingConstraintIndex = null,
@@ -138,6 +140,7 @@ const LayerFormHandler = ({
           availableSources={config.sources}
           availableExclusivitySets={config.exclusivitySets || []}
           defaultInterfaceGroup={defaultInterfaceGroup}
+          defaultSubinterfaceGroup={defaultSubinterfaceGroup}
           services={services}
           onSelectType={onSelectType}
           onAddLayer={onLayerSaved}

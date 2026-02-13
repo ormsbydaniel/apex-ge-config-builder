@@ -11,6 +11,7 @@ export interface LayersTabContextValue {
   };
   editingLayerIndex: number | null;
   defaultInterfaceGroup?: string;
+  defaultSubinterfaceGroup?: string;
   // Layer actions
   onRemoveLayer: (index: number) => void;
   onEditLayer: (index: number) => void;

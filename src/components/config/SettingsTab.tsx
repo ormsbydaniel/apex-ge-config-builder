@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit, Globe, Map } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus } from 'lucide-react';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import DesignVariantEditor from './DesignVariantEditor';
 import { geoLocations, groupedLocations } from '@/constants/geoLocations';
@@ -36,6 +37,12 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.['text-color-primary'] || '#ffffff');
   const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.['text-color-secondary'] || '#333333');
   const [advancedColorsOpen, setAdvancedColorsOpen] = useState(false);
+  
+  // Add projection dialog state
+  const [addProjectionOpen, setAddProjectionOpen] = useState(false);
+  const [newProjectionName, setNewProjectionName] = useState('');
+  const [newProjectionCode, setNewProjectionCode] = useState('');
+  const [newProjectionDefinition, setNewProjectionDefinition] = useState('');
   
   // Update local state when config changes
   useEffect(() => {
@@ -151,6 +158,27 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
       type: 'UPDATE_MAP_CONSTRAINTS',
       payload: { projection: value }
     });
+  };
+
+  const handleAddProjection = () => {
+    if (!newProjectionCode.trim() || !newProjectionDefinition.trim()) return;
+    const newProjection = {
+      ...(newProjectionName.trim() && { name: newProjectionName.trim() }),
+      code: newProjectionCode.trim(),
+      definition: newProjectionDefinition.trim(),
+    };
+    const existing = config.projections || [];
+    dispatch({
+      type: 'UPDATE_PROJECTIONS',
+      payload: [...existing, newProjection],
+    });
+    // Select the newly added projection
+    handleProjectionChange(newProjection.code);
+    // Reset and close
+    setNewProjectionName('');
+    setNewProjectionCode('');
+    setNewProjectionDefinition('');
+    setAddProjectionOpen(false);
   };
 
   const handleSaveLogo = () => {
@@ -422,41 +450,119 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                 </TooltipProvider>
               </div>
               <div className="flex-1">
-                <Select
-                  value={config.mapConstraints?.projection || DEFAULT_PROJECTION}
-                  onValueChange={handleProjectionChange}
-                >
-                  <SelectTrigger className="w-[400px]">
-                    <SelectValue placeholder="Select projection..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-50">
-                    {/* Default projection */}
-                    <SelectItem value="EPSG:3857">
-                      EPSG:3857 - WGS 84 / Pseudo-Mercator
-                    </SelectItem>
-                    <SelectSeparator />
-                    <SelectGroup>
-                      <SelectLabel>Other supported reference systems:</SelectLabel>
-                      {PROJECTION_OPTIONS
-                        .filter(p => p.code !== 'EPSG:3857')
-                        .sort((a, b) => {
-                          const aNum = parseInt(a.code.split(':')[1]);
-                          const bNum = parseInt(b.code.split(':')[1]);
-                          return aNum - bNum;
-                        })
-                        .map((projection) => (
-                          <SelectItem key={projection.code} value={projection.code}>
-                            {projection.code} - {projection.name}
-                          </SelectItem>
-                        ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={config.mapConstraints?.projection || DEFAULT_PROJECTION}
+                    onValueChange={handleProjectionChange}
+                  >
+                    <SelectTrigger className="w-[400px]">
+                      <SelectValue placeholder="Select projection..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {/* Default projection */}
+                      <SelectItem value="EPSG:3857">
+                        EPSG:3857 - WGS 84 / Pseudo-Mercator
+                      </SelectItem>
+                      {/* Custom projections */}
+                      {config.projections?.length > 0 && (
+                        <>
+                          <SelectSeparator />
+                          <SelectGroup>
+                            <SelectLabel>Custom Projections</SelectLabel>
+                            {config.projections.map((p: { code: string; name?: string; definition: string }) => (
+                              <SelectItem key={p.code} value={p.code}>
+                                {p.code}{p.name ? ` - ${p.name}` : ''}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </>
+                      )}
+                      <SelectSeparator />
+                      <SelectGroup>
+                        <SelectLabel>Other supported reference systems:</SelectLabel>
+                        {PROJECTION_OPTIONS
+                          .filter(p => p.code !== 'EPSG:3857')
+                          .sort((a, b) => {
+                            const aNum = parseInt(a.code.split(':')[1]);
+                            const bNum = parseInt(b.code.split(':')[1]);
+                            return aNum - bNum;
+                          })
+                          .map((projection) => (
+                            <SelectItem key={projection.code} value={projection.code}>
+                              {projection.code} - {projection.name}
+                            </SelectItem>
+                          ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="icon" variant="outline" className="h-9 w-9 shrink-0" onClick={() => setAddProjectionOpen(true)}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Add a custom projection</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Select the coordinate reference system for the map
                 </p>
               </div>
             </div>
+
+            {/* Add Projection Dialog */}
+            <Dialog open={addProjectionOpen} onOpenChange={setAddProjectionOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Add Custom Projection</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="proj-name">Name <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                    <Input
+                      id="proj-name"
+                      value={newProjectionName}
+                      onChange={(e) => setNewProjectionName(e.target.value)}
+                      placeholder="e.g. LAEA Europe"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="proj-code">CRS Code <span className="text-destructive">*</span></Label>
+                    <Input
+                      id="proj-code"
+                      value={newProjectionCode}
+                      onChange={(e) => setNewProjectionCode(e.target.value)}
+                      placeholder="e.g. EPSG:3035"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="proj-def">Proj4js Definition <span className="text-destructive">*</span></Label>
+                    <Input
+                      id="proj-def"
+                      value={newProjectionDefinition}
+                      onChange={(e) => setNewProjectionDefinition(e.target.value)}
+                      placeholder="+proj=laea +lat_0=52 +lon_0=10 ..."
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Copy Proj4js strings from{' '}
+                    <a href="https://epsg.io/" target="_blank" rel="noopener noreferrer" className="underline text-primary hover:text-primary/80">
+                      https://epsg.io/
+                    </a>
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setAddProjectionOpen(false)}>Cancel</Button>
+                  <Button onClick={handleAddProjection} disabled={!newProjectionCode.trim() || !newProjectionDefinition.trim()}>
+                    Add
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Branding Settings Subsection */}

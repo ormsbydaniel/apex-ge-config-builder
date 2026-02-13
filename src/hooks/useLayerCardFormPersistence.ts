@@ -8,10 +8,11 @@ interface LayerCardFormData {
   name: string;
   description: string;
   interfaceGroup: string;
+  subinterfaceGroup: string;
   attributionText: string;
   attributionUrl: string;
   exclusivitySets: string[];
-  contentLocation: 'layerCard' | 'infoPanel'; // NEW: Content location
+  contentLocation: 'layerCard' | 'infoPanel';
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
@@ -41,7 +42,8 @@ const AUTO_SAVE_DELAY = 1000; // 1 second
 export const useLayerCardFormPersistence = (
   editingLayer?: DataSource,
   isEditing: boolean = false,
-  defaultInterfaceGroup?: string
+  defaultInterfaceGroup?: string,
+  defaultSubinterfaceGroup?: string
 ) => {
   const { toast } = useToast();
   const [isAutoSaving, setIsAutoSaving] = useState(false);
@@ -67,10 +69,11 @@ export const useLayerCardFormPersistence = (
         name: editingLayer.name || '',
         description: editingLayer.meta?.description || '',
         interfaceGroup: editingLayer.layout?.interfaceGroup || defaultInterfaceGroup || '',
+        subinterfaceGroup: editingLayer.layout?.subinterfaceGroup || defaultSubinterfaceGroup || '',
         attributionText: editingLayer.meta?.attribution?.text || '',
         attributionUrl: editingLayer.meta?.attribution?.url || '',
         exclusivitySets: editingLayer.exclusivitySets || [],
-        contentLocation, // NEW: Track content location
+        contentLocation,
         toggleable: editingLayer.layout?.layerCard?.toggleable || false,
         opacitySlider: (sourceObj?.controls as any)?.opacitySlider || false,
         zoomToCenter: (sourceObj?.controls as any)?.zoomToCenter || false,
@@ -120,10 +123,11 @@ export const useLayerCardFormPersistence = (
       name: '',
       description: '',
       interfaceGroup: defaultInterfaceGroup || '',
+      subinterfaceGroup: defaultSubinterfaceGroup || '',
       attributionText: '',
       attributionUrl: '',
       exclusivitySets: [],
-      contentLocation: 'infoPanel', // NEW: Default to infoPanel (map panel)
+      contentLocation: 'infoPanel',
       toggleable: true,
       opacitySlider: true,
       zoomToCenter: true,
