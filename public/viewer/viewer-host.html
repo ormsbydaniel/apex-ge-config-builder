@@ -11,18 +11,25 @@
     or by the inline script below which reads the version from the URL path.
   -->
   <script>
-    // Extract version from URL path: /viewer/{version}/viewer-host.html or ?version={version}
+    // Extract version and baseUrl from URL params
     (function() {
       var params = new URLSearchParams(window.location.search);
       var version = params.get('version');
+      var baseUrl = params.get('baseUrl');
+      
       if (!version) {
         // Try to extract from path: /viewer/3.5.0/viewer-host.html
         var match = window.location.pathname.match(/\/viewer\/([^/]+)\//);
         if (match) version = match[1];
       }
+      
       if (version) {
-        // Resolve paths relative to the viewer directory
-        var basePath = '/viewer/' + version + '/';
+        // Use external baseUrl if provided, otherwise fall back to local path
+        var basePath = baseUrl 
+          ? baseUrl + '/' + version + '/'
+          : '/viewer/' + version + '/';
+        
+        console.log('[Viewer Host] Loading bundles from:', basePath);
         
         // Load CSS
         var link = document.createElement('link');
