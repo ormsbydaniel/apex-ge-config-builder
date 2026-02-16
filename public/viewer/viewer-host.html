@@ -18,7 +18,6 @@
       var baseUrl = params.get('baseUrl');
       
       if (!version) {
-        // Try to extract from path: /viewer/3.5.0/viewer-host.html
         var match = window.location.pathname.match(/\/viewer\/([^/]+)\//);
         if (match) version = match[1];
       }
@@ -37,11 +36,42 @@
         link.href = basePath + 'bundle.css';
         document.head.appendChild(link);
         
-        // Load JS bundle as module
-        var script = document.createElement('script');
-        script.type = 'module';
-        script.src = basePath + 'bundle.js';
-        document.head.appendChild(script);
+        if (baseUrl) {
+          // External URL (e.g. raw.githubusercontent.com) serves with text/plain MIME type,
+          // which browsers reject for <script type="module">. Fetch as text, create a blob
+          // with correct MIME type, and load that instead.
+          fetch(basePath + 'bundle.js')
+            .then(function(res) {
+              if (!res.ok) throw new Error('Failed to fetch bundle.js: ' + res.status);
+              return res.text();
+            })
+            .then(function(code) {
+              // Rewrite all relative asset paths to use absolute external base URL.
+              // This handles: import("assets/..."), from "assets/...", and
+              // Vite's __vite__mapDeps array entries like "assets/chunk-xxx.js"
+              var rewritten = code.replace(
+                /["'](\.\/)?(assets\/[^"']+\.(?:js|css))["']/g,
+                function(match, prefix, path) {
+                  return match.replace((prefix || '') + path, basePath + path);
+                }
+              );
+              var blob = new Blob([rewritten], { type: 'application/javascript' });
+              var blobUrl = URL.createObjectURL(blob);
+              var script = document.createElement('script');
+              script.type = 'module';
+              script.src = blobUrl;
+              document.head.appendChild(script);
+            })
+            .catch(function(err) {
+              console.error('[Viewer Host] Failed to load bundle:', err);
+            });
+        } else {
+          // Local path - load directly as module
+          var script = document.createElement('script');
+          script.type = 'module';
+          script.src = basePath + 'bundle.js';
+          document.head.appendChild(script);
+        }
       } else {
         console.error('[Viewer Host] No version specified. Use ?version=x.y.z');
       }
