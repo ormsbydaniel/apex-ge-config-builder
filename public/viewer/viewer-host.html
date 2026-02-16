@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apex Viewer</title>
+  <!--
+    Bootstrap HTML for embedding the viewer in an iframe.
+    The version-specific CSS and JS paths are injected by the config builder
+    by setting the data-version attribute on the <html> element via URL params,
+    or by the inline script below which reads the version from the URL path.
+  -->
+  <script>
+    // Extract version from URL path: /viewer/{version}/viewer-host.html or ?version={version}
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var version = params.get('version');
+      if (!version) {
+        // Try to extract from path: /viewer/3.5.0/viewer-host.html
+        var match = window.location.pathname.match(/\/viewer\/([^/]+)\//);
+        if (match) version = match[1];
+      }
+      if (version) {
+        // Resolve paths relative to the viewer directory
+        var basePath = '/viewer/' + version + '/';
+        
+        // Load CSS
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = basePath + 'bundle.css';
+        document.head.appendChild(link);
+        
+        // Load JS bundle as module
+        var script = document.createElement('script');
+        script.type = 'module';
+        script.src = basePath + 'bundle.js';
+        document.head.appendChild(script);
+      } else {
+        console.error('[Viewer Host] No version specified. Use ?version=x.y.z');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>

@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ViewerAPI } from '@/types/viewer';
 
 interface UseViewerLoaderProps {
   version: string;
-  containerId: string;
   config?: any;
   enabled?: boolean;
 }
@@ -13,145 +11,103 @@ interface UseViewerLoaderReturn {
   isReady: boolean;
   error: string | null;
   reload: () => void;
+  iframeRef: React.RefObject<HTMLIFrameElement | null>;
 }
 
 export function useViewerLoader({
   version,
-  containerId,
   config,
   enabled = true,
 }: UseViewerLoaderProps): UseViewerLoaderReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const scriptRef = useRef<HTMLScriptElement | null>(null);
-  const cssRef = useRef<HTMLLinkElement | null>(null);
-  const viewerApiRef = useRef<ViewerAPI | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const configRef = useRef<any>(config);
+  configRef.current = config;
 
-  const cleanup = useCallback(() => {
-    // Cleanup previous viewer instance
-    if (viewerApiRef.current?.destroy) {
-      viewerApiRef.current.destroy();
+  // Send config to iframe via postMessage
+  const sendConfig = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (iframe?.contentWindow && configRef.current) {
+      console.log('[Config Builder] Sending config to viewer iframe');
+      iframe.contentWindow.postMessage(
+        { type: 'apex-viewer-config', config: configRef.current },
+        '*'
+      );
     }
-    
-    // Remove script tag
-    if (scriptRef.current) {
-      document.head.removeChild(scriptRef.current);
-      scriptRef.current = null;
-    }
-    
-    // Remove CSS link
-    if (cssRef.current) {
-      document.head.removeChild(cssRef.current);
-      cssRef.current = null;
-    }
-    
-    // Clear global viewer reference
-    if (window.ApexViewer) {
-      delete window.ApexViewer;
-    }
-    if (window.initApexViewer) {
-      delete window.initApexViewer;
-    }
-    
-    setIsReady(false);
   }, []);
 
-  const loadViewer = useCallback(() => {
-    cleanup();
-    setIsLoading(true);
-    setError(null);
-
-    // Load CSS first
-    const cssLink = document.createElement('link');
-    cssLink.rel = 'stylesheet';
-    cssLink.href = `/viewer/${version}/bundle.css`;
-    cssRef.current = cssLink;
-    document.head.appendChild(cssLink);
-
-    // Check if initApexViewer is already available (script already loaded)
-    if (window.initApexViewer) {
-      console.log('[Config Builder] Viewer already loaded, initializing directly');
-      const container = document.getElementById(containerId);
-      if (!container) {
-        setIsLoading(false);
-        setError('Viewer container not found');
-        return;
-      }
-
-      try {
-        (window.initApexViewer as (container: HTMLElement, options?: { config?: any }) => void)(container, { config });
+  // Listen for ready message from viewer iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'apex-viewer-ready') {
+        console.log('[Config Builder] Viewer iframe is ready');
         setIsLoading(false);
         setIsReady(true);
-        return;
-      } catch (err) {
-        console.error('Viewer initialization error:', err);
-        setIsLoading(false);
-        setError(err instanceof Error ? err.message : 'Failed to initialize viewer');
-        return;
+        // Send initial config
+        sendConfig();
       }
-    }
-
-    // Load the script with cache busting to ensure fresh load
-    const script = document.createElement('script');
-    const cacheBuster = Date.now();
-    script.src = `/viewer/${version}/bundle.js?v=${cacheBuster}`;
-    script.type = 'module';
-    script.async = true;
-    
-    script.onload = () => {
-      // Give the module time to execute and assign window.initApexViewer
-      setTimeout(() => {
-        setIsLoading(false);
-        
-        const container = document.getElementById(containerId);
-        if (!container) {
-          setError('Viewer container not found');
-          return;
-        }
-
-        try {
-          if (window.initApexViewer) {
-            console.log('[Config Builder] Initializing viewer with config:', config);
-            (window.initApexViewer as (container: HTMLElement, options?: { config?: any }) => void)(container, { config });
-            setIsReady(true);
-          } else if (window.ApexViewer?.init) {
-            console.log('[Config Builder] Found window.ApexViewer.init, initializing...');
-            (window.ApexViewer.init as (container: HTMLElement) => void)(container);
-            viewerApiRef.current = window.ApexViewer;
-            setIsReady(true);
-          } else {
-            console.error('[Config Builder] No initialization function found. window.initApexViewer:', window.initApexViewer, 'window.ApexViewer:', window.ApexViewer);
-            setError('Viewer bundle loaded but no initialization function found');
-          }
-        } catch (err) {
-          console.error('Viewer initialization error:', err);
-          setError(err instanceof Error ? err.message : 'Failed to initialize viewer');
-        }
-      }, 500);
     };
 
-    script.onerror = (event) => {
-      setIsLoading(false);
-      console.error('Script load error:', event);
-      setError(`Failed to load viewer version ${version}. Make sure all build files are copied to /viewer/${version}/`);
-    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [sendConfig]);
 
-    scriptRef.current = script;
-    document.head.appendChild(script);
-  }, [version, containerId, config, cleanup]);
-
+  // Re-send config when it changes
   useEffect(() => {
-    if (enabled && version && config) {
-      loadViewer();
+    if (isReady && config) {
+      sendConfig();
     }
-    return cleanup;
-  }, [enabled, version, config, loadViewer, cleanup]);
+  }, [config, isReady, sendConfig]);
+
+  // Load viewer by setting iframe src
+  const loadViewer = useCallback(() => {
+    setIsLoading(true);
+    setIsReady(false);
+    setError(null);
+
+    const iframe = iframeRef.current;
+    if (!iframe) {
+      setError('Viewer iframe not found');
+      setIsLoading(false);
+      return;
+    }
+
+    const cacheBuster = Date.now();
+    iframe.src = `/viewer/viewer-host.html?version=${version}&t=${cacheBuster}`;
+
+    // Set a timeout for loading
+    const timeout = setTimeout(() => {
+      if (!isReady) {
+        setIsLoading(false);
+        setError(`Viewer version ${version} timed out. Make sure bundle files exist at /viewer/${version}/`);
+      }
+    }, 15000);
+
+    // Handle iframe load errors
+    iframe.onerror = () => {
+      clearTimeout(timeout);
+      setIsLoading(false);
+      setError(`Failed to load viewer version ${version}`);
+    };
+
+    return () => clearTimeout(timeout);
+  }, [version, isReady]);
+
+  // Trigger load when version changes or enabled
+  useEffect(() => {
+    if (enabled && version) {
+      const cleanupTimeout = loadViewer();
+      return cleanupTimeout;
+    }
+  }, [enabled, version, loadViewer]);
 
   return {
     isLoading,
     isReady,
     error,
     reload: loadViewer,
+    iframeRef,
   };
 }

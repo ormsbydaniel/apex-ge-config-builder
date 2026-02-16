@@ -20,7 +20,7 @@ import {
 } from '@/utils/viewerVersions';
 import type { ViewerVersion } from '@/types/viewer';
 
-const VIEWER_CONTAINER_ID = 'apex-viewer-container';
+
 
 const Preview = () => {
   const navigate = useNavigate();
@@ -106,9 +106,8 @@ const Preview = () => {
     setShowUpdateDialog(false);
   };
 
-  const { isLoading, isReady, error, reload } = useViewerLoader({
+  const { isLoading, isReady, error, reload, iframeRef } = useViewerLoader({
     version: selectedVersion,
-    containerId: VIEWER_CONTAINER_ID,
     config: viewerConfig,
     enabled: selectedVersion !== '',
   });
@@ -252,9 +251,10 @@ const Preview = () => {
             </Card>
           </div>
         ) : (
-          <div 
-            id={VIEWER_CONTAINER_ID} 
-            className="w-full h-full"
+          <iframe
+            ref={iframeRef}
+            className="w-full h-full border-0"
+            title="Apex Viewer"
           />
         )}
       </div>
