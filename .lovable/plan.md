@@ -1,89 +1,95 @@
 
 
-# Updating the Viewer Integration for TanStack Router
+# S3-Hosted Viewer Bundles with Dynamic Version Discovery
 
-## Background
+## Overview
 
-The viewer application is moving from a `ConfigFetcher` component with a `window.initApexViewer()` global function to TanStack Router (`RouterProvider` + `createRouter`). This fundamentally changes how the viewer initializes -- it no longer exposes a callable function for embedding. Instead, it self-renders into `#root` and manages its own routing.
+Move viewer bundles from the private GitHub repo to a **public S3 bucket**, and **dynamically discover versions** by listing the S3 bucket contents -- eliminating the need to maintain a static `versions.json` manifest.
 
-## Current Architecture
+## How It Works
 
-The config builder currently:
-1. Loads `bundle.js` via a script tag (`useViewerLoader.ts`)
-2. Calls `window.initApexViewer(container, { config })` to pass the config object directly
-3. The viewer's `ConfigFetcher` accepts this config prop and skips fetching `/config.json`
+The S3 bucket would be structured as:
 
-## Problem
+```text
+s3://apex-viewer-bundles/
+  3.5.0/
+    bundle.js
+    bundle.css
+    assets/
+      chunk-abc123.js
+  3.6.0/
+    bundle.js
+    bundle.css
+    assets/
+      chunk-def456.js
+```
 
-The new viewer bundle will:
-- Self-initialize using TanStack Router -- no `window.initApexViewer` export
-- Use file-based routing (`routeTree.gen`) that expects to control the full page
-- Fetch its own config from `/config.json` if no config is provided directly
+S3 supports listing bucket contents via its **ListObjectsV2** REST API. When the bucket is public, this can be called unauthenticated from the browser using a simple `fetch()` to:
 
-Injecting a full TanStack Router app into a div inside the config builder's own React tree will cause conflicts (two routers, two React roots competing for the same DOM).
+```
+https://<bucket>.s3.<region>.amazonaws.com/?list-type=2&delimiter=/
+```
 
-## Proposed Solution: iframe-based Embedding
+This returns an XML response listing the top-level "folders" (common prefixes), which correspond to version numbers. The app parses these prefixes to build the version dropdown dynamically.
 
-Switch the Preview page to load the viewer in an iframe. The viewer runs independently and fetches its config from the config builder via a proper JSON endpoint.
+## Key Benefits
 
-### Changes Required
+1. **No more `versions.json` to maintain** -- versions are discovered from S3 prefixes automatically.
+2. **Correct MIME types** -- S3 serves `.js` files as `application/javascript`, so the Blob URL workaround and the service worker are no longer needed.
+3. **Dynamic chunks work** -- Since MIME types are correct and URLs are direct, Vite's code-splitting with dynamic `import()` works out of the box.
+4. **Simple deployment** -- Upload a new version folder to S3 and it appears in the dropdown.
 
-#### 1. Update `public/viewer/main.jsx`
-Replace the current `ConfigFetcher`-based code with the new TanStack Router version provided by the user. This file serves as the reference entry point for viewer bundles.
+## Changes Required
 
-#### 2. Create a proper JSON API endpoint for config
-The current `/config.json` route renders an HTML page (a React component with `<pre>` tags). The viewer's `fetch("/config.json")` expects raw JSON. 
+### 1. Update `src/config/viewerBundleConfig.ts`
+- Replace the GitHub raw URL with the S3 bucket URL (e.g., `https://apex-viewer-bundles.s3.eu-west-2.amazonaws.com/viewer`).
+- Remove the GitHub-specific constants.
 
-**Solution**: Add a Vite middleware or a simple handler that serves the config as actual `application/json` at a known path. Alternatively, the Preview page can write the config into the iframe via `postMessage`.
+### 2. Rewrite `src/utils/viewerVersions.ts`
+- Replace `fetch('/viewer/versions.json')` with an S3 ListObjectsV2 request.
+- Parse the XML response to extract common prefixes (folder names) as version strings.
+- Determine `latest` by sorting versions using the existing `compareVersions` function rather than relying on a manifest field.
+- Keep the same `ViewerVersion` return type for compatibility.
 
-**Recommended approach -- postMessage**:
-- Avoids needing a real JSON API endpoint
-- The Preview page posts the config to the iframe after it loads
-- The viewer's main.jsx is updated to listen for a `postMessage` with config data, and passes it to the router context or a global store
+### 3. Simplify `public/viewer/viewer-host.html`
+- Remove the Blob URL / text-fetch workaround. Since S3 serves correct MIME types, load `bundle.js` directly as a `<script type="module">`.
+- Keep the `window.explorerConfig` pattern: the host sets `window.explorerConfig` on the iframe before the script loads.
 
-#### 3. Rewrite `useViewerLoader.ts`
-Replace the script-injection + global-function approach with iframe management:
-- Create an iframe pointing to a lightweight HTML bootstrap page (e.g., `/viewer/{version}/index.html`)
-- After iframe loads, post the config via `postMessage`
-- Listen for ready/error messages back from the iframe
-- Handle cleanup by removing the iframe
+### 4. Update `src/hooks/useViewerLoader.ts`
+- Replace the `postMessage` config delivery with the `window.explorerConfig` approach:
+  - Before setting `iframe.src`, set `iframe.contentWindow.explorerConfig = config` (or do it in the host HTML via a query-param-passed config URL).
+  - For live config updates, access `iframe.contentWindow.queryClient.invalidateQueries(['config'])` after updating the global.
+- Keep the legacy polling for older versions (3.5.0 and below) that use `initApexViewer`.
+- Remove the 30-second timeout error message referencing local `/viewer/` paths; update messaging to reference S3.
 
-#### 4. Create a bootstrap HTML file for each viewer version
-Each version directory needs a small `index.html` that:
-- Includes the CSS link
-- Loads the bundle as a module script
-- The bundle self-initializes (as the new main.jsx does)
+### 5. Clean up
+- Delete `public/viewer/versions.json` (no longer needed).
+- Delete `public/viewer/viewer-sw.js` (no longer needed).
+- Remove any local viewer bundle folders from `public/viewer/` if present (they are served from S3 now).
 
-#### 5. Update `public/viewer/main.jsx` to accept config via postMessage
-Add a `message` event listener that receives config from the parent window and injects it into the router context or Jotai store before/during initialization. This bridges the gap between the config builder passing config and the self-initializing viewer.
+## S3 Bucket Setup (Your Side)
 
-#### 6. Update `src/types/viewer.ts`
-Remove the `initApexViewer` global type declaration since it will no longer be used.
+Before implementation, you will need to:
+1. **Create a public S3 bucket** (or use an existing one) with a suitable name.
+2. **Enable public read access** via a bucket policy allowing `s3:GetObject` and `s3:ListBucket` for `*`.
+3. **Configure CORS** on the bucket to allow requests from your app's origin.
+4. **Upload version folders** with the structure `{version}/bundle.js`, `{version}/bundle.css`, `{version}/assets/*`.
+5. Provide the bucket URL so I can wire it into the config.
 
-#### 7. Update Preview page (`src/pages/Preview.tsx`)
-- Remove the `VIEWER_CONTAINER_ID` div
-- Render an iframe instead, sized to fill the preview area
-- After iframe loads, post the current `viewerConfig` to it
-- Re-post config whenever it changes (for live preview updates)
-- Keep the version selector and status indicators
+## Technical Detail: S3 Version Listing
 
-#### 8. Clean up `useViewerLoader.ts`
-- Remove script tag injection, `window.initApexViewer` references, and CSS link injection
-- Replace with iframe src management and postMessage communication
+The browser-side fetch to list versions would look like:
 
-### Files to Modify
-- `public/viewer/main.jsx` -- replace with TanStack Router version + postMessage listener
-- `src/hooks/useViewerLoader.ts` -- rewrite for iframe-based loading
-- `src/pages/Preview.tsx` -- switch from container div to iframe
-- `src/types/viewer.ts` -- remove obsolete global declarations
+```typescript
+const res = await fetch('https://<bucket>.s3.<region>.amazonaws.com/?list-type=2&delimiter=/');
+const xml = await res.text();
+const parser = new DOMParser();
+const doc = parser.parseFromString(xml, 'application/xml');
+const prefixes = doc.querySelectorAll('CommonPrefixes > Prefix');
+const versions = Array.from(prefixes)
+  .map(p => p.textContent?.replace(/\/$/, '') || '')
+  .filter(v => v.length > 0);
+```
 
-### Files to Create
-- `public/viewer/viewer-host.html` -- generic bootstrap HTML that loads versioned bundles (or one `index.html` per version directory)
-
-### Considerations
-- **Live config updates**: postMessage allows re-sending config whenever the user makes changes in the config builder, maintaining the live preview capability
-- **Cross-origin**: Since the iframe loads from the same origin, postMessage works without CORS issues
-- **Version switching**: Changing the iframe `src` to a different version directory handles version switching naturally
-- **Error handling**: The iframe can post error messages back to the parent for display in the status bar
-- **Existing viewer versions**: Older bundles (3.3.x, 3.4.x, 3.5.0) still use `window.initApexViewer`. A backward-compatible approach could try the old method first and fall back to iframe for newer versions, or we accept that older versions will need the old loader
+This returns folder names like `3.5.0`, `3.6.0`, etc., which become the version dropdown items.
 
