@@ -250,13 +250,12 @@ const Preview = () => {
               </CardContent>
             </Card>
           </div>
-        ) : (
+        ) : null}
           <iframe
             ref={iframeRef}
-            className="w-full h-full border-0"
+            className={`w-full h-full border-0 ${error ? 'hidden' : ''}`}
             title="Apex Viewer"
           />
-        )}
       </div>
     </div>
     </>
