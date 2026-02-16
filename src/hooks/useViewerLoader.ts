@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
+import { compareVersions } from '@/utils/viewerVersions';
 
 interface UseViewerLoaderProps {
   version: string;
@@ -15,6 +16,20 @@ interface UseViewerLoaderReturn {
   iframeRef: React.RefObject<HTMLIFrameElement | null>;
 }
 
+/**
+ * Determine if a version uses the new window.explorerConfig pattern (3.6.0+)
+ * vs the legacy initApexViewer/postMessage approach.
+ */
+function isModernViewer(version: string): boolean {
+  // Dev/candidate builds for 3.6+ are modern
+  if (version.startsWith('dev-3-6') || version.startsWith('dev-3.6')) return true;
+  // Semver 3.6.0+ is modern
+  const semverRegex = /^\d+\.\d+\.\d+$/;
+  if (!semverRegex.test(version)) return false;
+  // compareVersions returns negative if a > b
+  return compareVersions(version, '3.6.0') <= 0;
+}
+
 export function useViewerLoader({
   version,
   config,
@@ -28,11 +43,22 @@ export function useViewerLoader({
   const isReadyRef = useRef(false);
   configRef.current = config;
 
-  // Send config to iframe via postMessage
-  const sendConfig = useCallback(() => {
+  // For modern viewers: set window.explorerConfig on iframe
+  const setExplorerConfig = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe?.contentWindow || !configRef.current) return;
+    try {
+      (iframe.contentWindow as any).explorerConfig = configRef.current;
+    } catch (e) {
+      // Cross-origin access may fail
+    }
+  }, []);
+
+  // For legacy viewers: send config via postMessage
+  const sendConfigLegacy = useCallback(() => {
     const iframe = iframeRef.current;
     if (iframe?.contentWindow && configRef.current) {
-      console.log('[Config Builder] Sending config to viewer iframe');
+      console.log('[Config Builder] Sending config to viewer iframe (legacy)');
       iframe.contentWindow.postMessage(
         { type: 'apex-viewer-config', config: configRef.current },
         '*'
@@ -40,7 +66,24 @@ export function useViewerLoader({
     }
   }, []);
 
-  // Listen for ready message from viewer iframe
+  // Invalidate React Query cache in modern viewer for live updates
+  const invalidateViewerConfig = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe?.contentWindow) return;
+    try {
+      const iframeWindow = iframe.contentWindow as any;
+      // Update the global config
+      iframeWindow.explorerConfig = configRef.current;
+      // Invalidate the React Query cache so the viewer re-reads it
+      if (iframeWindow.__queryClient) {
+        iframeWindow.__queryClient.invalidateQueries({ queryKey: ['config'] });
+      }
+    } catch (e) {
+      // Cross-origin access may fail
+    }
+  }, []);
+
+  // Listen for ready message from viewer iframe (works for both legacy and modern)
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'apex-viewer-ready') {
@@ -48,21 +91,28 @@ export function useViewerLoader({
         setIsLoading(false);
         setIsReady(true);
         isReadyRef.current = true;
-        // Send initial config
-        sendConfig();
+        if (isModernViewer(version)) {
+          setExplorerConfig();
+        } else {
+          sendConfigLegacy();
+        }
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [sendConfig]);
+  }, [version, setExplorerConfig, sendConfigLegacy]);
 
   // Re-send config when it changes
   useEffect(() => {
     if (isReady && config) {
-      sendConfig();
+      if (isModernViewer(version)) {
+        invalidateViewerConfig();
+      } else {
+        sendConfigLegacy();
+      }
     }
-  }, [config, isReady, sendConfig]);
+  }, [config, isReady, version, invalidateViewerConfig, sendConfigLegacy]);
 
   // Load viewer by setting iframe src
   const loadViewer = useCallback(() => {
@@ -78,11 +128,19 @@ export function useViewerLoader({
       return;
     }
 
+    // For modern viewers, set explorerConfig before loading
+    if (isModernViewer(version) && configRef.current) {
+      // We set it after the iframe navigates, via the load event
+      iframe.addEventListener('load', () => {
+        setExplorerConfig();
+      }, { once: true });
+    }
+
     const cacheBuster = Date.now();
     const baseUrlParam = encodeURIComponent(VIEWER_BUNDLE_BASE_URL);
     iframe.src = `/viewer/viewer-host.html?version=${version}&baseUrl=${baseUrlParam}&t=${cacheBuster}`;
 
-    // Poll for legacy viewers that expose window.initApexViewer instead of postMessage
+    // Poll for legacy viewers that expose window.initApexViewer
     const legacyPoll = setInterval(() => {
       try {
         const iframeWindow = iframe.contentWindow as any;
@@ -95,7 +153,7 @@ export function useViewerLoader({
             setIsLoading(false);
             setIsReady(true);
             isReadyRef.current = true;
-            sendConfig();
+            sendConfigLegacy();
           }
         }
       } catch (e) {
@@ -103,16 +161,15 @@ export function useViewerLoader({
       }
     }, 500);
 
-    // Set a timeout for loading
+    // Timeout
     const timeout = setTimeout(() => {
       clearInterval(legacyPoll);
       if (!isReadyRef.current) {
         setIsLoading(false);
-        setError(`Viewer version ${version} timed out. Make sure bundle files exist at /viewer/${version}/`);
+        setError(`Viewer version ${version} timed out. Check that bundle files exist in S3 at ${VIEWER_BUNDLE_BASE_URL}/${version}/`);
       }
     }, 30000);
 
-    // Handle iframe load errors
     iframe.onerror = () => {
       clearTimeout(timeout);
       clearInterval(legacyPoll);
@@ -124,7 +181,7 @@ export function useViewerLoader({
       clearTimeout(timeout);
       clearInterval(legacyPoll);
     };
-  }, [version, sendConfig]);
+  }, [version, setExplorerConfig, sendConfigLegacy]);
 
   // Trigger load when version changes or enabled
   useEffect(() => {
