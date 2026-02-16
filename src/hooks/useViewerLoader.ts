@@ -25,6 +25,7 @@ export function useViewerLoader({
   const [error, setError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const configRef = useRef<any>(config);
+  const isReadyRef = useRef(false);
   configRef.current = config;
 
   // Send config to iframe via postMessage
@@ -46,6 +47,7 @@ export function useViewerLoader({
         console.log('[Config Builder] Viewer iframe is ready');
         setIsLoading(false);
         setIsReady(true);
+        isReadyRef.current = true;
         // Send initial config
         sendConfig();
       }
@@ -66,6 +68,7 @@ export function useViewerLoader({
   const loadViewer = useCallback(() => {
     setIsLoading(true);
     setIsReady(false);
+    isReadyRef.current = false;
     setError(null);
 
     const iframe = iframeRef.current;
@@ -81,7 +84,7 @@ export function useViewerLoader({
 
     // Set a timeout for loading
     const timeout = setTimeout(() => {
-      if (!isReady) {
+      if (!isReadyRef.current) {
         setIsLoading(false);
         setError(`Viewer version ${version} timed out. Make sure bundle files exist at /viewer/${version}/`);
       }
@@ -95,7 +98,7 @@ export function useViewerLoader({
     };
 
     return () => clearTimeout(timeout);
-  }, [version, isReady]);
+  }, [version]);
 
   // Trigger load when version changes or enabled
   useEffect(() => {
