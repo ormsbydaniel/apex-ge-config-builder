@@ -1,11 +1,11 @@
 /**
- * Configuration for loading viewer bundles.
+ * Configuration for loading viewer bundles from GitHub.
  * 
- * Bundles are fetched from jsDelivr CDN (which serves GitHub files with correct MIME types)
- * since they exceed Lovable's file size limits for the local repository.
+ * Bundles are fetched from raw.githubusercontent.com since they exceed
+ * Lovable's file size limits for the local repository.
  * 
- * Older versions that exist locally (committed before the size limit was hit)
- * will fall back to local paths automatically.
+ * Note: raw.githubusercontent.com serves files with text/plain MIME type,
+ * so bundles must be loaded as classic scripts (not ES modules).
  */
 
 const GITHUB_OWNER = 'ormsbydaniel';
@@ -13,11 +13,11 @@ const GITHUB_REPO = 'apex-ge-config-builder';
 const GITHUB_BRANCH = '3-6-release';
 
 /**
- * jsDelivr CDN base URL for serving viewer bundles with correct MIME types.
- * raw.githubusercontent.com doesn't set Content-Type for JS modules, so jsDelivr is required.
+ * Base URL for fetching viewer bundle files from GitHub.
+ * Points to: public/viewer/{version}/ in the repo.
  */
 export const VIEWER_BUNDLE_BASE_URL = 
-  `https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@${GITHUB_BRANCH}/public/viewer`;
+  `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/public/viewer`;
 
 /**
  * Get the full URL for a viewer bundle file.

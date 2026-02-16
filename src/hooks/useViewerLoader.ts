@@ -82,23 +82,49 @@ export function useViewerLoader({
     const baseUrlParam = encodeURIComponent(VIEWER_BUNDLE_BASE_URL);
     iframe.src = `/viewer/viewer-host.html?version=${version}&baseUrl=${baseUrlParam}&t=${cacheBuster}`;
 
+    // Poll for legacy viewers that expose window.initApexViewer instead of postMessage
+    const legacyPoll = setInterval(() => {
+      try {
+        const iframeWindow = iframe.contentWindow as any;
+        if (iframeWindow?.initApexViewer && !isReadyRef.current) {
+          clearInterval(legacyPoll);
+          console.log('[Config Builder] Legacy viewer detected, calling initApexViewer');
+          const root = iframeWindow.document.getElementById('root');
+          if (root) {
+            iframeWindow.initApexViewer(root);
+            setIsLoading(false);
+            setIsReady(true);
+            isReadyRef.current = true;
+            sendConfig();
+          }
+        }
+      } catch (e) {
+        // Cross-origin access may fail, ignore
+      }
+    }, 500);
+
     // Set a timeout for loading
     const timeout = setTimeout(() => {
+      clearInterval(legacyPoll);
       if (!isReadyRef.current) {
         setIsLoading(false);
         setError(`Viewer version ${version} timed out. Make sure bundle files exist at /viewer/${version}/`);
       }
-    }, 15000);
+    }, 30000);
 
     // Handle iframe load errors
     iframe.onerror = () => {
       clearTimeout(timeout);
+      clearInterval(legacyPoll);
       setIsLoading(false);
       setError(`Failed to load viewer version ${version}`);
     };
 
-    return () => clearTimeout(timeout);
-  }, [version]);
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(legacyPoll);
+    };
+  }, [version, sendConfig]);
 
   // Trigger load when version changes or enabled
   useEffect(() => {
