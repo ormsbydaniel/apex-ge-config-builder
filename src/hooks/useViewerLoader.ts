@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
 
 interface UseViewerLoaderProps {
   version: string;
@@ -75,7 +76,8 @@ export function useViewerLoader({
     }
 
     const cacheBuster = Date.now();
-    iframe.src = `/viewer/viewer-host.html?version=${version}&t=${cacheBuster}`;
+    const baseUrlParam = encodeURIComponent(VIEWER_BUNDLE_BASE_URL);
+    iframe.src = `/viewer/viewer-host.html?version=${version}&baseUrl=${baseUrlParam}&t=${cacheBuster}`;
 
     // Set a timeout for loading
     const timeout = setTimeout(() => {
