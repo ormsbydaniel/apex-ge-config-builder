@@ -1,9 +1,9 @@
 /**
  * Configuration for loading viewer bundles from S3.
- * 
+ *
  * Bundles are hosted in a public S3 bucket with versioned folders.
  * S3 serves files with correct MIME types, so no workarounds are needed.
- * 
+ *
  * Bucket structure:
  *   {VIEWER_BUNDLE_BASE_URL}/
  *     3.5.0/bundle.js
@@ -14,7 +14,7 @@
  */
 
 // TODO: Replace with your actual S3 bucket URL once created
-const S3_BUCKET_URL = 'https://apex-viewer-bundles.s3.eu-west-2.amazonaws.com';
+const S3_BUCKET_URL = "https://esa-apex.s3.eu-west-1.amazonaws.com/software/";
 
 /**
  * Base URL for the S3 bucket (used for listing versions).
