@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
 import { useNavigate } from 'react-router-dom';
 import { useViewerLoader } from '@/hooks/useViewerLoader';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -241,7 +242,7 @@ const Preview = () => {
                       <p className="text-sm">{error}</p>
                       <p className="text-sm text-muted-foreground">
                         Make sure the bundle exists at <code className="bg-muted px-1 rounded">
-                          public/viewer/{selectedVersion}/bundle.js
+                          {VIEWER_BUNDLE_BASE_URL}{selectedVersion}/bundle.js
                         </code>
                       </p>
                     </div>
