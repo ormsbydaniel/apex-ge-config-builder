@@ -7,6 +7,11 @@
   <script>
     (function() {
       var params = new URLSearchParams(window.location.search);
+
+      // Reset URL path to '/' so the viewer's router matches its root route.
+      // Without this, the router sees '/viewer/viewer-host.html' and shows "Not Found".
+      history.replaceState(null, '', '/' + window.location.search);
+
       var version = params.get('version');
       var baseUrl = params.get('baseUrl');
 
