@@ -1,13 +1,14 @@
 import { ViewerVersion } from '@/types/viewer';
-import { VIEWER_BUCKET_URL, VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
+import { VIEWER_BUCKET_LIST_URL, VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
 
 /**
  * Fetch available viewer versions by listing S3 bucket prefixes.
- * Uses the ListObjectsV2 API with delimiter=/ to get top-level "folders".
+ * Uses the ListObjectsV2 API with prefix=software/ and delimiter=/ to get version "folders".
+ * S3 returns CommonPrefixes like "software/3.6.0/" — we strip the prefix to get "3.6.0".
  */
 export async function getAvailableViewerVersions(): Promise<ViewerVersion[]> {
   try {
-    const response = await fetch(`${VIEWER_BUCKET_URL}?list-type=2&delimiter=/`);
+    const response = await fetch(VIEWER_BUCKET_LIST_URL);
     if (!response.ok) {
       console.error('Failed to list S3 bucket contents:', response.status);
       return [];
@@ -19,11 +20,15 @@ export async function getAvailableViewerVersions(): Promise<ViewerVersion[]> {
     const prefixes = doc.querySelectorAll('CommonPrefixes > Prefix');
 
     const versions: ViewerVersion[] = Array.from(prefixes)
-      .map(p => p.textContent?.replace(/\/$/, '') || '')
+      .map(p => {
+        // Prefix comes back as "software/3.6.0/" — strip leading prefix and trailing slash
+        const raw = p.textContent || '';
+        return raw.replace(/^software\//, '').replace(/\/$/, '');
+      })
       .filter(v => v.length > 0)
       .map(version => ({
         version,
-        path: `${VIEWER_BUNDLE_BASE_URL}/${version}/bundle.js`,
+        path: `${VIEWER_BUNDLE_BASE_URL}${version}/bundle.js`,
       }));
 
     return versions;
