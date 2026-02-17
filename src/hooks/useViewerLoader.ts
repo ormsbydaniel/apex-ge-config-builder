@@ -23,11 +23,13 @@ interface UseViewerLoaderReturn {
 function isModernViewer(version: string): boolean {
   // Dev/candidate builds for 3.6+ are modern
   if (version.startsWith('dev-3-6') || version.startsWith('dev-3.6')) return true;
-  // Semver 3.6.0+ is modern
+  // Strip pre-release suffix (e.g., "3.6.0-rc" -> "3.6.0", "3.6.0-beta.1" -> "3.6.0")
+  const baseVersion = version.replace(/-.*$/, '');
+  // Must be a valid semver base (x.y.z)
   const semverRegex = /^\d+\.\d+\.\d+$/;
-  if (!semverRegex.test(version)) return false;
+  if (!semverRegex.test(baseVersion)) return false;
   // compareVersions returns negative if a > b
-  return compareVersions(version, '3.6.0') <= 0;
+  return compareVersions(baseVersion, '3.6.0') <= 0;
 }
 
 export function useViewerLoader({
