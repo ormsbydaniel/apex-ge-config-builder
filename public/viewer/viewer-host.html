@@ -20,7 +20,7 @@
         return;
       }
 
-      var basePath = baseUrl + '/' + version + '/';
+      var basePath = baseUrl.replace(/\/+$/, '') + '/' + version + '/';
       console.log('[Viewer Host] Loading bundles from:', basePath);
 
       // Load CSS

@@ -166,7 +166,7 @@ export function useViewerLoader({
       clearInterval(legacyPoll);
       if (!isReadyRef.current) {
         setIsLoading(false);
-        setError(`Viewer version ${version} timed out. Check that bundle files exist in S3 at ${VIEWER_BUNDLE_BASE_URL}/${version}/`);
+        setError(`Viewer version ${version} timed out. Check that bundle files exist in S3 at ${VIEWER_BUNDLE_BASE_URL}${version}/`);
       }
     }, 30000);
 

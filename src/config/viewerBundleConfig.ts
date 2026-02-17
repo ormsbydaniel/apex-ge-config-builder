@@ -13,22 +13,23 @@
  *     3.6.0/assets/chunk-*.js
  */
 
-// TODO: Replace with your actual S3 bucket URL once created
-const S3_BUCKET_URL = "https://esa-apex.s3.eu-west-1.amazonaws.com/software/";
+const S3_BUCKET_ROOT = "https://esa-apex.s3.eu-west-1.amazonaws.com";
+const S3_PREFIX = "software/";
 
 /**
- * Base URL for the S3 bucket (used for listing versions).
+ * URL for listing S3 bucket contents (ListObjectsV2 with prefix).
  */
-export const VIEWER_BUCKET_URL = S3_BUCKET_URL;
+export const VIEWER_BUCKET_LIST_URL = `${S3_BUCKET_ROOT}/?list-type=2&delimiter=/&prefix=${S3_PREFIX}`;
 
 /**
  * Base URL for fetching viewer bundle files from S3.
+ * Files are at: {VIEWER_BUNDLE_BASE_URL}/{version}/bundle.js
  */
-export const VIEWER_BUNDLE_BASE_URL = S3_BUCKET_URL;
+export const VIEWER_BUNDLE_BASE_URL = `${S3_BUCKET_ROOT}/${S3_PREFIX}`;
 
 /**
  * Get the full URL for a viewer bundle file.
  */
 export function getViewerBundleUrl(version: string, filename: string): string {
-  return `${VIEWER_BUNDLE_BASE_URL}/${version}/${filename}`;
+  return `${VIEWER_BUNDLE_BASE_URL}${version}/${filename}`;
 }
