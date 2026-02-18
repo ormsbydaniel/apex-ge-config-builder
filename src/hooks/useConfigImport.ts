@@ -7,6 +7,7 @@ import { formatValidationErrors, parseJSONWithLineNumbers } from '@/utils/valida
 import { ValidationErrorDetails, DataSourceFormat } from '@/types/config';
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
 import { normalizeImportedConfig, detectTransformations } from '@/utils/importTransformations';
+import { parseS3Url } from '@/utils/s3Utils';
 
 export const useConfigImport = () => {
   const { dispatch } = useConfig();
@@ -77,48 +78,25 @@ export const useConfigImport = () => {
       }
       
       
-      // Fetch capabilities for all services if they exist
+      // Fetch capabilities for all services if they exist.
+      // S3 services (detected by sourceType or URL pattern) are skipped during import —
+      // bucket listing is only needed when interactively browsing, not at load time.
       const servicesWithCapabilities = await Promise.all(
         (validatedConfig.services || []).map(async (service) => {
-          // Handle S3 services differently - don't fetch GetCapabilities for them
-          if (service.sourceType === 's3') {
-            try {
-              // Import S3 utilities
-              const { fetchS3BucketContents } = await import('@/utils/s3Utils');
-              const s3Objects = await fetchS3BucketContents(service.url);
-              
-              // Convert S3 objects to layer format for compatibility
-              const layers = s3Objects.map(obj => ({
-                name: obj.key,
-                title: obj.key,
-                abstract: `S3 object: ${obj.key} (${(obj.size / 1024).toFixed(1)} KB)`
-              }));
-              
-              return {
-                ...service,
-                capabilities: {
-                  layers,
-                  title: service.name,
-                  abstract: `S3 bucket with ${layers.length} objects`
-                }
-              };
-            } catch (error) {
-              console.warn(`Failed to fetch S3 bucket contents for ${service.name}:`, error);
-              return service;
-            }
+          const isS3Service = service.sourceType === 's3' || parseS3Url(service.url) !== null;
+          const isSkippedFormat = service.format === 's3' || service.format === 'stac';
+
+          if (isS3Service || isSkippedFormat) {
+            // Skip S3 bucket listing and STAC services during import — not needed at load time
+            return service;
+          } else if (service.format) {
+            const capabilities = await fetchServiceCapabilities(service.url, service.format as DataSourceFormat);
+            return {
+              ...service,
+              ...(capabilities && { capabilities })
+            };
           } else {
-            // For non-S3 services, fetch normal capabilities
-            // Only if format is a valid DataSourceFormat (not 's3')
-            if (service.format && service.format !== 's3') {
-              const capabilities = await fetchServiceCapabilities(service.url, service.format as DataSourceFormat);
-              return {
-                ...service,
-                ...(capabilities && { capabilities })
-              };
-            } else {
-              // Service has no valid format for GetCapabilities
-              return service;
-            }
+            return service;
           }
         })
       );
@@ -235,39 +213,19 @@ export const useConfigImport = () => {
       // Fetch capabilities for all services if they exist
       const servicesWithCapabilities = await Promise.all(
         (validatedConfig.services || []).map(async (service) => {
-          if (service.sourceType === 's3') {
-            try {
-              const { fetchS3BucketContents } = await import('@/utils/s3Utils');
-              const s3Objects = await fetchS3BucketContents(service.url);
-              
-              const layers = s3Objects.map(obj => ({
-                name: obj.key,
-                title: obj.key,
-                abstract: `S3 object: ${obj.key} (${(obj.size / 1024).toFixed(1)} KB)`
-              }));
-              
-              return {
-                ...service,
-                capabilities: {
-                  layers,
-                  title: service.name,
-                  abstract: `S3 bucket with ${layers.length} objects`
-                }
-              };
-            } catch (error) {
-              console.warn(`Failed to fetch S3 bucket contents for ${service.name}:`, error);
-              return service;
-            }
+          const isS3Service = service.sourceType === 's3' || parseS3Url(service.url) !== null;
+          const isSkippedFormat = service.format === 's3' || service.format === 'stac';
+
+          if (isS3Service || isSkippedFormat) {
+            return service;
+          } else if (service.format) {
+            const capabilities = await fetchServiceCapabilities(service.url, service.format as DataSourceFormat);
+            return {
+              ...service,
+              ...(capabilities && { capabilities })
+            };
           } else {
-            if (service.format && service.format !== 's3') {
-              const capabilities = await fetchServiceCapabilities(service.url, service.format as DataSourceFormat);
-              return {
-                ...service,
-                ...(capabilities && { capabilities })
-              };
-            } else {
-              return service;
-            }
+            return service;
           }
         })
       );

@@ -4,8 +4,8 @@ import { DataSourceFormat, ServiceCapabilities } from '@/types/config';
 // Function to fetch capabilities for a service
 export const fetchServiceCapabilities = async (url: string, format: DataSourceFormat): Promise<ServiceCapabilities | null> => {
   try {
-    // Skip capabilities for xyz format
-    if (format === 'xyz') {
+    // Skip capabilities for formats that don't support OGC GetCapabilities
+    if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf') {
       return null;
     }
 
@@ -15,7 +15,15 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
     capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
     capabilitiesUrl.searchParams.set('version', format === 'wms' ? '1.3.0' : '1.0.0');
 
-    const response = await fetch(capabilitiesUrl.toString());
+    // Use AbortController to enforce a 10-second timeout per service
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    let response: Response;
+    try {
+      response = await fetch(capabilitiesUrl.toString(), { signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
     const xmlText = await response.text();
     
     const parser = new DOMParser();
