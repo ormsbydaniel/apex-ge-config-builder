@@ -145,8 +145,9 @@ const Preview = () => {
                   <div className="space-y-2">
                     <p className="font-semibold">No viewer versions found</p>
                     <p className="text-sm">
-                      Please add viewer bundles to the <code className="bg-muted px-1 rounded">public/viewer/</code> directory 
-                      using semantic versioning (e.g., <code className="bg-muted px-1 rounded">public/viewer/3.2.2/bundle.js</code>).
+                      No viewer bundles were found in the S3 bucket. Viewer bundles should be uploaded to{' '}
+                      <code className="bg-muted px-1 rounded">https://esa-apex.s3.eu-west-1.amazonaws.com/software/</code>{' '}
+                      using semantic versioning (e.g., <code className="bg-muted px-1 rounded">software/3.6.0/bundle.js</code>).
                     </p>
                   </div>
                 </AlertDescription>
