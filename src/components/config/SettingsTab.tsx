@@ -504,7 +504,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
                 {/* Custom Projections Pills */}
                 <div>
-                  <Label className="text-sm font-medium mb-1.5 block">Custom Projections</Label>
+                  <Label className="text-sm font-medium mb-1.5 block">Custom CRS</Label>
                   <div className="flex flex-wrap gap-2 items-center">
                     {config.projections?.length > 0 ? (
                       config.projections.map((p: { code: string; name?: string; definition: string }) => (
