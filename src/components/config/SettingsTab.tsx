@@ -524,7 +524,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     )}
                     <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => setAddProjectionOpen(true)}>
                       <Plus className="h-3 w-3" />
-                      Add
+                      Add CRS
                     </Button>
                   </div>
                 </div>
