@@ -459,7 +459,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               <div className="flex-1 space-y-4">
                 {/* Default Map Projection */}
                 <div>
-                  <Label className="text-sm font-medium mb-1.5 block">Default Map Projection</Label>
+                  <Label className="text-sm font-medium mb-1.5 block">Default Coordinate Reference System</Label>
                   <Select
                     value={config.mapConstraints?.projection || DEFAULT_PROJECTION}
                     onValueChange={handleProjectionChange}
