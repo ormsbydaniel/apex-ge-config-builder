@@ -8,7 +8,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import DesignVariantEditor from './DesignVariantEditor';
 import { geoLocations, groupedLocations } from '@/constants/geoLocations';
@@ -172,13 +173,19 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
       type: 'UPDATE_PROJECTIONS',
       payload: [...existing, newProjection],
     });
-    // Select the newly added projection
-    handleProjectionChange(newProjection.code);
-    // Reset and close
+    // Reset and close (don't auto-select)
     setNewProjectionName('');
     setNewProjectionCode('');
     setNewProjectionDefinition('');
     setAddProjectionOpen(false);
+  };
+
+  const handleRemoveProjection = (code: string) => {
+    const filtered = (config.projections || []).filter((p: { code: string }) => p.code !== code);
+    dispatch({ type: 'UPDATE_PROJECTIONS', payload: filtered });
+    if (config.mapConstraints?.projection === code) {
+      dispatch({ type: 'UPDATE_MAP_CONSTRAINTS', payload: { projection: 'EPSG:3857' } });
+    }
   };
 
   const handleSaveLogo = () => {
@@ -449,8 +456,10 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
+              <div className="flex-1 space-y-4">
+                {/* Default Map Projection */}
+                <div>
+                  <Label className="text-sm font-medium mb-1.5 block">Default Map Projection</Label>
                   <Select
                     value={config.mapConstraints?.projection || DEFAULT_PROJECTION}
                     onValueChange={handleProjectionChange}
@@ -459,11 +468,20 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                       <SelectValue placeholder="Select projection..." />
                     </SelectTrigger>
                     <SelectContent className="bg-background z-50">
-                      {/* Default projection */}
-                      <SelectItem value="EPSG:3857">
-                        EPSG:3857 - WGS 84 / Pseudo-Mercator
-                      </SelectItem>
-                      {/* Custom projections */}
+                      <SelectGroup>
+                        <SelectLabel>Built-in Projections</SelectLabel>
+                        {PROJECTION_OPTIONS
+                          .sort((a, b) => {
+                            const aNum = parseInt(a.code.split(':')[1]);
+                            const bNum = parseInt(b.code.split(':')[1]);
+                            return aNum - bNum;
+                          })
+                          .map((projection) => (
+                            <SelectItem key={projection.code} value={projection.code}>
+                              {projection.code} - {projection.name}
+                            </SelectItem>
+                          ))}
+                      </SelectGroup>
                       {config.projections?.length > 0 && (
                         <>
                           <SelectSeparator />
@@ -477,40 +495,39 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                           </SelectGroup>
                         </>
                       )}
-                      <SelectSeparator />
-                      <SelectGroup>
-                        <SelectLabel>Other supported reference systems:</SelectLabel>
-                        {PROJECTION_OPTIONS
-                          .filter(p => p.code !== 'EPSG:3857')
-                          .sort((a, b) => {
-                            const aNum = parseInt(a.code.split(':')[1]);
-                            const bNum = parseInt(b.code.split(':')[1]);
-                            return aNum - bNum;
-                          })
-                          .map((projection) => (
-                            <SelectItem key={projection.code} value={projection.code}>
-                              {projection.code} - {projection.name}
-                            </SelectItem>
-                          ))}
-                      </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button size="icon" variant="outline" className="h-9 w-9 shrink-0" onClick={() => setAddProjectionOpen(true)}>
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Add a custom projection</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Select the coordinate reference system for the map
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Select the coordinate reference system for the map
-                </p>
+
+                {/* Custom Projections Pills */}
+                <div>
+                  <Label className="text-sm font-medium mb-1.5 block">Custom Projections</Label>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {config.projections?.length > 0 ? (
+                      config.projections.map((p: { code: string; name?: string; definition: string }) => (
+                        <Badge key={p.code} variant="outline" className="gap-1 pr-1 py-1">
+                          <span className="text-xs">{p.code}{p.name ? ` - ${p.name}` : ''}</span>
+                          <button
+                            onClick={() => handleRemoveProjection(p.code)}
+                            className="ml-1 rounded-full hover:bg-muted p-0.5"
+                            aria-label={`Remove ${p.code}`}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-xs text-muted-foreground">No custom projections defined</span>
+                    )}
+                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => setAddProjectionOpen(true)}>
+                      <Plus className="h-3 w-3" />
+                      Add
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
 
