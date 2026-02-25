@@ -9,7 +9,6 @@
       var params = new URLSearchParams(window.location.search);
 
       // Reset URL path to '/' so the viewer's router matches its root route.
-      // Without this, the router sees '/viewer/viewer-host.html' and shows "Not Found".
       history.replaceState(null, '', '/' + window.location.search);
 
       var version = params.get('version');
@@ -28,34 +27,56 @@
       var basePath = baseUrl.replace(/\/+$/, '') + '/' + version + '/';
       console.log('[Viewer Host] Loading bundles from:', basePath);
 
-      // Load CSS
+      // Load CSS immediately (no timing issue)
       var link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = basePath + 'bundle.css';
       document.head.appendChild(link);
 
-      // Load JS — S3 serves correct MIME types, so load directly as ES module
-      var script = document.createElement('script');
-      script.type = 'module';
-      script.src = basePath + 'bundle.js';
-      script.onerror = function(e) {
-        console.error('[Viewer Host] Failed to load bundle.js:', e);
-      };
-      script.onload = function() {
-        console.log('[Viewer Host] bundle.js loaded, waiting for render...');
-        // Poll for the viewer to render content into #root, then signal ready
-        var readyPoll = setInterval(function() {
-          var root = document.getElementById('root');
-          if (root && root.children.length > 0) {
-            clearInterval(readyPoll);
-            console.log('[Viewer Host] Viewer rendered, sending ready message');
-            window.parent.postMessage({ type: 'apex-viewer-ready' }, '*');
-          }
-        }, 200);
-        // Stop polling after 30s
-        setTimeout(function() { clearInterval(readyPoll); }, 30000);
-      };
-      document.head.appendChild(script);
+      function loadBundle() {
+        var script = document.createElement('script');
+        script.type = 'module';
+        script.src = basePath + 'bundle.js';
+        script.onerror = function(e) {
+          console.error('[Viewer Host] Failed to load bundle.js:', e);
+        };
+        script.onload = function() {
+          console.log('[Viewer Host] bundle.js loaded, waiting for render...');
+          var readyPoll = setInterval(function() {
+            var root = document.getElementById('root');
+            if (root && root.children.length > 0) {
+              clearInterval(readyPoll);
+              console.log('[Viewer Host] Viewer rendered, sending ready message');
+              window.parent.postMessage({ type: 'apex-viewer-ready' }, '*');
+            }
+          }, 200);
+          setTimeout(function() { clearInterval(readyPoll); }, 30000);
+        };
+        document.head.appendChild(script);
+      }
+
+      // Request config from parent before loading the bundle.
+      // This ensures window.explorerConfig is set before the viewer executes.
+      window.addEventListener('message', function onConfig(event) {
+        if (event.data && event.data.type === 'apex-viewer-config-delivery') {
+          window.removeEventListener('message', onConfig);
+          console.log('[Viewer Host] Received config from parent, setting explorerConfig');
+          window.explorerConfig = event.data.config;
+          loadBundle();
+        }
+      });
+
+      // Ask the parent for the config
+      window.parent.postMessage({ type: 'apex-viewer-request-config' }, '*');
+
+      // Fallback: if parent doesn't respond within 3s, load bundle anyway
+      // (standalone mode or legacy parent)
+      setTimeout(function() {
+        if (!window.explorerConfig) {
+          console.log('[Viewer Host] No config received from parent, loading bundle without config');
+          loadBundle();
+        }
+      }, 3000);
     })();
   </script>
 </head>
