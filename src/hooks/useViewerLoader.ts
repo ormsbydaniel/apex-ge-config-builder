@@ -85,9 +85,22 @@ export function useViewerLoader({
     }
   }, []);
 
-  // Listen for ready message from viewer iframe (works for both legacy and modern)
+  // Listen for messages from viewer iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      // Modern viewer host requests config before loading bundle
+      if (event.data?.type === 'apex-viewer-request-config') {
+        console.log('[Config Builder] Viewer host requested config, delivering...');
+        const iframe = iframeRef.current;
+        if (iframe?.contentWindow && configRef.current) {
+          iframe.contentWindow.postMessage(
+            { type: 'apex-viewer-config-delivery', config: configRef.current },
+            '*'
+          );
+        }
+      }
+
+      // Viewer is ready (rendered content)
       if (event.data?.type === 'apex-viewer-ready') {
         console.log('[Config Builder] Viewer iframe is ready');
         setIsLoading(false);
@@ -130,13 +143,8 @@ export function useViewerLoader({
       return;
     }
 
-    // For modern viewers, set explorerConfig before loading
-    if (isModernViewer(version) && configRef.current) {
-      // We set it after the iframe navigates, via the load event
-      iframe.addEventListener('load', () => {
-        setExplorerConfig();
-      }, { once: true });
-    }
+    // Config is now delivered via postMessage before bundle loads,
+    // so no need to set explorerConfig on iframe load event.
 
     const cacheBuster = Date.now();
     const baseUrlParam = encodeURIComponent(VIEWER_BUNDLE_BASE_URL);
