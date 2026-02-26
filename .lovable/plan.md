@@ -1,45 +1,56 @@
 
 
-# CRS UI Refinement — Pills for Custom Projections
+## Problem
 
-## Design
+Old configuration files have sources with `meta.description` present but **missing `meta.attribution`** entirely. The Zod schema (`MetaSchema`) requires `attribution.text` as a mandatory string field. Currently, the `metaCompletionDetector` and `metaCompletionTransformer` only detect/fix:
+- Missing `description`
+- Empty `meta` objects
+- Missing `meta` when `layout` exists
 
-The CRS section gets split into two parts:
+They do **not** detect or fix the case where `description` exists but `attribution` is absent.
 
-### 1. Default Map Projection (dropdown)
-Same `Select` dropdown, relabelled **"Default Map Projection"**. Contains built-in projections plus any custom projections (in a grouped section). The "+" button moves away from here.
+## Approach
 
-### 2. Custom Projections (pills below)
-Below the dropdown, a **"Custom Projections"** label with a row of `Badge` pills. Each pill shows the projection code (and name if present) plus an **×** close button to remove it. An **"Add Custom Projection"** button (or small "+" pill) sits at the end of the row.
+Extend the **existing** detector and transformer rather than creating new files. This keeps the attribution completion logically grouped with the other meta completion logic.
+
+## Changes
+
+### 1. `src/utils/importTransformations/detection/metaCompletionDetector.ts`
+
+Add a new check after the existing "meta but missing description" block:
+
+- If `source.meta` exists and has `description` but is missing `attribution` or `attribution.text`, return `true` (needs completion).
+
+### 2. `src/utils/importTransformations/transformers/metaCompletionTransformer.ts`
+
+Add a new handling block for sources that have `meta.description` but are missing `attribution`:
+
+- If `source.meta` exists and `source.meta.description` exists but `source.meta.attribution?.text` is missing/empty, add a default `attribution` object:
+  ```ts
+  attribution: {
+    text: 'Data attribution not specified',
+    ...(source.meta.attribution?.url && { url: source.meta.attribution.url })
+  }
+  ```
+- This block should be placed **before** the existing "meta but missing description" block so that sources with description but no attribution are caught specifically, rather than falling through to the broader case.
+
+### 3. No other files need changes
+
+- `types.ts` — `metaCompletionNeeded` flag already exists in `DetectedTransformations`.
+- `iterativeOrchestrator.ts` — does not currently call `reverseMetaCompletionTransformation` in its loop (it's only in the linear orchestrator). This is an existing gap but is out of scope for this change; the linear orchestrator already wires it correctly.
+- Schema and TypeScript types — no changes needed; `attribution` is already defined.
+
+## Summary of Logic
 
 ```text
-Default Map Projection
-┌─────────────────────────────────┐
-│ EPSG:3857 - Pseudo-Mercator  ▼ │
-└─────────────────────────────────┘
+Detector:
+  source.meta exists?
+    → has description but missing attribution.text? → needs completion ✓
 
-Custom Projections
-┌──────────────────┐  ┌─────────────────────┐
-│ EPSG:3035  ×     │  │ EPSG:32632  ×       │  [+ Add]
-└──────────────────┘  └─────────────────────┘
+Transformer:
+  source has meta.description but no meta.attribution.text?
+    → add default attribution { text: 'Data attribution not specified' }
 ```
 
-When empty: "No custom projections defined" in muted text, with the [+ Add] button.
-
-## Changes to `src/components/config/SettingsTab.tsx`
-
-1. **Remove** the "+" icon button from beside the dropdown (line ~499-508)
-2. **Relabel** the CRS dropdown to "Default Map Projection"
-3. **Add** a new subsection below the dropdown:
-   - Label: "Custom Projections"
-   - `flex flex-wrap gap-2` container with `Badge` pills (variant="outline") for each `config.projections` entry
-   - Each pill: code + optional name, with an `X` icon button that calls `handleRemoveProjection(code)`
-   - A small outline `Button` at the end: `+ Add Custom Projection` → opens existing dialog
-4. **Add** `handleRemoveProjection(code: string)`:
-   - Filters `config.projections` to remove the entry
-   - Dispatches `UPDATE_PROJECTIONS`
-   - If removed code was the active `mapConstraints.projection`, resets to `EPSG:3857`
-5. **Modify** `handleAddProjection` to **not** auto-select the new projection (remove line 176: `handleProjectionChange(newProjection.code)`)
-
-No schema, type, or context changes needed — purely UI within SettingsTab.
+Two small, targeted additions to existing files following the established pattern.
 
