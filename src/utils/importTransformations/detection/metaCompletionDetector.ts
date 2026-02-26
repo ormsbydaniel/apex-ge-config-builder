@@ -39,6 +39,13 @@ export const detectMetaCompletionNeeded = (config: any): boolean => {
       return true;
     }
 
+    // Check for sources with meta.description but missing attribution
+    if (source.meta && typeof source.meta === 'object' && source.meta.description && 
+        (!source.meta.attribution || !source.meta.attribution.text || source.meta.attribution.text.trim() === '')) {
+      console.log(`MetaCompletion detector: Source "${source.name}" has description but missing attribution`);
+      return true;
+    }
+
     // Check for sources with empty meta object
     if (source.meta && typeof source.meta === 'object' && Object.keys(source.meta).length === 0) {
       console.log(`MetaCompletion detector: Source "${source.name}" has empty meta object`);
