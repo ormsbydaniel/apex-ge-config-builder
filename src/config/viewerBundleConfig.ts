@@ -6,10 +6,10 @@
  *
  * Bucket structure:
  *   {VIEWER_BUNDLE_BASE_URL}/
- *     3.5.0/bundle.js
- *     3.5.0/bundle.css
- *     3.6.0/bundle.js
- *     3.6.0/bundle.css
+ *     3.5.0/bundle.js          (legacy naming)
+ *     3.5.0/bundle.css         (legacy naming)
+ *     3.6.0/index-AbC123.js    (Vite hashed entry - auto-discovered)
+ *     3.6.0/index-XyZ789.css   (Vite hashed entry - auto-discovered)
  *     3.6.0/assets/chunk-*.js
  */
 

@@ -28,7 +28,7 @@ export async function getAvailableViewerVersions(): Promise<ViewerVersion[]> {
       .filter(v => v.length > 0)
       .map(version => ({
         version,
-        path: `${VIEWER_BUNDLE_BASE_URL}${version}/bundle.js`,
+        path: `${VIEWER_BUNDLE_BASE_URL}${version}/`,
       }));
 
     return versions;
