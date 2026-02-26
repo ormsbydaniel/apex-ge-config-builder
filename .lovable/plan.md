@@ -1,116 +1,68 @@
 
-## Implementation Plan: Make meta attribution completion work for both base layers and regular layer cards
 
-### What I found (root cause)
-1. `metaCompletionNeeded` is detected, but **meta completion is never executed** in the active import flow.
-   - `src/utils/importTransformations/iterativeOrchestrator.ts` imports `reverseMetaCompletionTransformation` but does not call it.
-   - `src/utils/importTransformations/orchestrator.ts` does not import/call it either.
-2. `src/utils/importTransformations/transformers/metaCompletionTransformer.ts` currently **skips base layers early**, so base layers with partial `meta` are never fixed.
-3. `src/utils/importTransformations/detection/metaCompletionDetector.ts` currently **skips base layers early**, so base-layer meta gaps are never flagged.
+## Plan: Auto-discover hashed bundle filenames from S3
 
-That combination explains why you still see failures for both:
-- regular layer cards (transformer not executed),
-- base layers (even if transformer were executed, they were skipped).
+### Problem
+`viewer-host.html` hardcodes `bundle.js` and `bundle.css`. This forces manual renaming of Vite's hashed output (`index-AbC123.js`) before uploading to S3, and defeats browser cache-busting.
+
+### Approach
+At load time in `viewer-host.html`, list the S3 version folder to discover the actual JS/CSS entry files by pattern matching (`index-*.js`, `index-*.css`), falling back to `bundle.js`/`bundle.css` for backward compatibility.
 
 ---
 
-## Design goals
-- Keep changes minimal and localized to existing import-transformation pipeline.
-- Support both source classes:
-  - base layers: only fix `meta` **if `meta` exists**,
-  - regular layer cards: fix missing mandatory attribution as before.
-- Preserve existing data wherever possible (especially `attribution.url`).
-- No schema/type changes unless strictly needed.
+### File changes
+
+#### 1. `public/viewer/viewer-host.html`
+Replace hardcoded `bundle.js`/`bundle.css` loading with S3 file discovery:
+
+- After computing `basePath` and `version`, fetch:
+  ```
+  GET {bucketRoot}/?list-type=2&prefix=software/{version}/
+  ```
+- Parse XML response for `<Key>` entries.
+- Match JS entry: filename matching `index-*.js` (in version root, not `assets/` subfolder). Fall back to `bundle.js`.
+- Match CSS entry: filename matching `index-*.css`. Fall back to `bundle.css`.
+- Then load the discovered files as before.
+
+#### 2. `src/utils/viewerVersions.ts`
+- Change `path` in `ViewerVersion` from `${base}${version}/bundle.js` to `${base}${version}/` (folder URL), since file resolution is now delegated to `viewer-host.html`.
+
+#### 3. `src/config/viewerBundleConfig.ts`
+- Update comments to reflect new expected bucket structure with hashed filenames. No functional changes.
 
 ---
 
-## File-by-file change plan
+### Technical detail: S3 listing in viewer-host.html
 
-### 1) `src/utils/importTransformations/iterativeOrchestrator.ts`
-Add execution of meta completion in the iterative pass.
+```javascript
+var bucketRoot = baseUrl.replace(/\/software\/?$/, '').replace(/\/$/, '');
+var listingUrl = bucketRoot + '/?list-type=2&prefix=software/' + version + '/';
 
-- In the transformation sequence inside the loop, add:
-  - `if (detected.metaCompletionNeeded) currentConfig = reverseMetaCompletionTransformation(currentConfig, true);`
-- Keep it after structural transforms (type/single/base/swipe), before final comparison.
-- Reason: iterative normalization is the primary import path; this is the missing execution point causing regular layer failures.
-
-### 2) `src/utils/importTransformations/orchestrator.ts`
-Wire the same transformer into fallback linear path for parity and resilience.
-
-- Import `reverseMetaCompletionTransformation`.
-- Add it into the ordered pipeline (near other data-normalization transforms, before final cleanup).
-- Prefer conditional execution via `detectedTransforms.metaCompletionNeeded` to stay consistent with existing orchestrator style.
-
-### 3) `src/utils/importTransformations/transformers/metaCompletionTransformer.ts`
-Adjust logic to accommodate base layers and regular layers.
-
-- Remove/replace the blanket early-return:
-  - current: `if (source.isBaseLayer === true) return source;`
-- New behavior:
-  - Base layers are processed **only if they already have a `meta` object** that is incomplete.
-  - Do **not** create `meta` for base layers that do not have it.
-- Keep/extend existing attribution completion rule:
-  - if `meta.description` exists but `meta.attribution.text` missing/empty => inject default attribution text.
-  - preserve `meta.attribution.url` if present.
-- Keep existing layer-card completion behavior (`layout` + missing `meta` => build complete meta) restricted to non-base layers.
-
-### 4) `src/utils/importTransformations/detection/metaCompletionDetector.ts`
-Update detection so both layer classes can trigger the transformer.
-
-- Remove/replace blanket base-layer skip.
-- Detect as “needs meta completion” when any source with `meta` has:
-  - missing description, or
-  - missing/empty `meta.attribution.text`, or
-  - empty `meta` object.
-- Keep “layout but no meta” detection restricted to non-base layers.
-
----
-
-## Expected behavior after implementation
-
-```text
-Import config
-  -> detectTransformations() sets metaCompletionNeeded when needed
-  -> iterative orchestrator runs reverseMetaCompletionTransformation
-  -> missing attribution text is auto-filled
-  -> base layers with no meta remain untouched
-  -> schema validation passes for both base and regular layers
+var xhr = new XMLHttpRequest();
+xhr.open('GET', listingUrl, true);
+xhr.onload = function() {
+  var keys = xhr.responseXML.querySelectorAll('Key');
+  var jsFile = 'bundle.js';   // fallback
+  var cssFile = 'bundle.css'; // fallback
+  keys.forEach(function(key) {
+    var name = key.textContent.split('/').pop();
+    // Only match files in version root, not assets/ subfolder
+    var parts = key.textContent.replace('software/' + version + '/', '').split('/');
+    if (parts.length === 1) {
+      if (/^index-.*\.js$/.test(name)) jsFile = name;
+      if (/^index-.*\.css$/.test(name)) cssFile = name;
+    }
+  });
+  // Load cssFile and jsFile from basePath
+};
 ```
 
----
+### Backward compatibility
+- Versions with `bundle.js`/`bundle.css` still work via fallback.
+- New uploads use Vite's original hashed names directly — no renaming needed.
+- Different hashes = different URLs = automatic cache busting.
 
-## Technical details
-- No changes needed in:
-  - `src/schemas/configSchema.ts` (already requires `meta.attribution.text` inside `MetaSchema`)
-  - `src/types/config.ts` / `useValidatedConfig.ts` (no new fields introduced)
-- This is an execution-path and conditional-logic fix, not a schema evolution.
-- Keep logging targeted (import-time only); avoid adding broad per-iteration noisy logs beyond current pattern.
+### No changes to
+- `public/viewer/update-viewer-bundle.sh` — obsolete (S3 hosting replaces repo-based bundles).
+- Schema, types, or validation files.
 
----
-
-## Validation checklist (end-to-end)
-1. Import a config containing:
-   - a base layer with `meta.description` but no `meta.attribution`,
-   - a regular layer card with `meta.description` but no `meta.attribution`.
-2. Confirm both are normalized and pass `ConfigurationSchema.parse`.
-3. Verify base layer with no `meta` remains valid and unchanged.
-4. Verify `meta.attribution.url` is preserved when present.
-5. Test both import paths:
-   - file upload,
-   - URL import (`importConfigFromUrl`).
-
----
-
-## Risks and mitigations
-- Risk: accidental meta creation on base layers with no meta.
-  - Mitigation: keep base-layer “create missing meta” path disabled.
-- Risk: order-dependent behavior if other transforms introduce meta changes.
-  - Mitigation: run meta completion in orchestrators after structural transforms.
-- Risk: regression in fallback flow.
-  - Mitigation: wire transformer in both iterative and linear orchestrators.
-
-<lov-actions>
-<lov-suggestion message="Test the config import flow end-to-end with one base layer and one regular layer card missing meta.attribution.text, and confirm both pass validation after normalization.">Verify import flow end-to-end</lov-suggestion>
-<lov-suggestion message="Implement the orchestrator wiring so reverseMetaCompletionTransformation runs in both iterativeOrchestrator and fallback orchestrator using the metaCompletionNeeded flag.">Wire meta completion into orchestrators</lov-suggestion>
-<lov-suggestion message="Update metaCompletionTransformer and metaCompletionDetector to process base layers only when meta exists and is incomplete, while preserving existing non-base layer completion behavior.">Support base and regular layers</lov-suggestion>
-</lov-actions>
