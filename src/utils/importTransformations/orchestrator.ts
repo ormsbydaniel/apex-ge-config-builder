@@ -10,6 +10,7 @@ import { reverseExclusivitySetsTransformation } from './transformers/exclusivity
 import { reverseFormatToTypeTransformation } from './transformers/formatToTypeTransformer';
 import { preserveTemporalFields } from './transformers/temporalTransformer';
 import { normalizeServices } from './transformers/serviceNormalizer';
+import { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
 
 /**
  * Apply all reverse transformations in the correct order
@@ -69,6 +70,11 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
   
   // Always preserve temporal fields (timeframe and defaultTimestamp)
   normalizedConfig = preserveTemporalFields(normalizedConfig, true);
+  
+  // 8. Complete missing meta fields (attribution, description) for all layer types
+  if (detectedTransforms.metaCompletionNeeded) {
+    normalizedConfig = reverseMetaCompletionTransformation(normalizedConfig, true);
+  }
   
   // FINAL CLEANUP: Remove empty layout/meta objects on base layers
   // This must happen AFTER all transformations to catch any empty objects they create
