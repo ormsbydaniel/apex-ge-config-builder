@@ -37,11 +37,12 @@ const Preview = () => {
       services: config.services,
       sources: config.sources,
       mapConstraints: config.mapConstraints,
+      projections: config.projections,
     };
     console.log('[Config Builder Preview] viewerConfig.layout:', vConfig.layout);
     console.log('[Config Builder Preview] viewerConfig.layout.theme:', vConfig.layout?.theme);
     return vConfig;
-  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints]);
+  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints, config.projections]);
   
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
