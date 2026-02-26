@@ -6,7 +6,7 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
-    date: "2026-02-13",
+    date: "2026-02-26",
     title: "Addition of 3.6.0-rc version",
     category: "Feature",
   },
