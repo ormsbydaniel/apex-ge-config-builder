@@ -64,6 +64,26 @@ export const reverseMetaCompletionTransformation = (config: any, enabled: boolea
         return source;
       }
 
+      // Check if this source has meta.description but missing attribution
+      if (source.meta && typeof source.meta === 'object' && source.meta.description && 
+          (!source.meta.attribution || !source.meta.attribution.text || source.meta.attribution.text.trim() === '')) {
+        console.log(`MetaCompletion transformer: Adding missing attribution for source "${source.name}" at index ${index}`);
+        
+        const updatedSource = {
+          ...source,
+          meta: {
+            ...source.meta,
+            attribution: {
+              text: 'Data attribution not specified',
+              ...(source.meta.attribution?.url && { url: source.meta.attribution.url })
+            }
+          }
+        };
+        
+        console.log(`MetaCompletion transformer: Added attribution:`, updatedSource.meta.attribution);
+        return updatedSource;
+      }
+
       // Check if this source has meta but is missing description
       if (source.meta && typeof source.meta === 'object' && !source.meta.description) {
         console.log(`MetaCompletion transformer: Adding missing description for source "${source.name}" at index ${index}`);
