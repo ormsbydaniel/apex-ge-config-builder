@@ -12,8 +12,32 @@ export const reverseMetaCompletionTransformation = (config: any, enabled: boolea
   
   if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
     normalizedConfig.sources = normalizedConfig.sources.map((source: any, index: number) => {
-      // Skip base layers - they don't require meta.description
+      // Base layers: only fix if they already have a meta object that's incomplete
       if (source.isBaseLayer === true) {
+        if (source.meta && typeof source.meta === 'object') {
+          const needsDescription = !source.meta.description;
+          const needsAttribution = !source.meta.attribution || !source.meta.attribution.text || source.meta.attribution.text.trim() === '';
+          
+          if (needsDescription || needsAttribution) {
+            console.log(`MetaCompletion transformer: Fixing base layer "${source.name}" meta at index ${index}`);
+            return {
+              ...source,
+              meta: {
+                ...source.meta,
+                description: needsDescription
+                  ? source.meta.description || `Base layer: ${source.name || 'unnamed'}`
+                  : source.meta.description,
+                attribution: {
+                  text: needsAttribution
+                    ? 'Data attribution not specified'
+                    : source.meta.attribution.text,
+                  ...(source.meta.attribution?.url && { url: source.meta.attribution.url })
+                }
+              }
+            };
+          }
+        }
+        // Base layer without meta or with complete meta - leave as-is
         return source;
       }
 
