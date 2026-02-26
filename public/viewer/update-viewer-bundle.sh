@@ -3,7 +3,7 @@
 # Configuration
 VIEWER_DIR=~/software/apex_geospatial_explorer
 BUILDER_DIR=~/software/apex-ge-config-builder
-VERSION="dev-interface-groups"
+VERSION="dev-3-6-0-candidate"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -13,23 +13,8 @@ NC='\033[0m' # No Color
 
 echo -e "${BLUE}=== APEx Viewer Bundle Update Script ===${NC}"
 
-# Step 1: Copy updated files from config builder to viewer
-echo -e "\n${BLUE}Step 1: Copying main.jsx and ConfigFetcher.jsx to viewer...${NC}"
-cp "$BUILDER_DIR/public/viewer/main.jsx" "$VIEWER_DIR/src/main.jsx"
-if [ $? -ne 0 ]; then
-    echo -e "${RED}Failed to copy main.jsx${NC}"
-    exit 1
-fi
-
-cp "$BUILDER_DIR/public/viewer/ConfigFetcher.jsx" "$VIEWER_DIR/src/ConfigFetcher.jsx"
-if [ $? -ne 0 ]; then
-    echo -e "${RED}Failed to copy ConfigFetcher.jsx${NC}"
-    exit 1
-fi
-echo -e "${GREEN}✓ Files copied successfully${NC}"
-
-# Step 2: Build the viewer
-echo -e "\n${BLUE}Step 2: Building viewer...${NC}"
+# Step 1: Build the viewer (uses its own TanStack Router entry point)
+echo -e "\n${BLUE}Step 1: Building viewer...${NC}"
 cd "$VIEWER_DIR" || exit 1
 npm run build
 if [ $? -ne 0 ]; then
@@ -38,14 +23,14 @@ if [ $? -ne 0 ]; then
 fi
 echo -e "${GREEN}✓ Build completed successfully${NC}"
 
-# Step 3: Prepare config builder directory
-echo -e "\n${BLUE}Step 3: Preparing config builder directory...${NC}"
+# Step 2: Prepare config builder directory
+echo -e "\n${BLUE}Step 2: Preparing config builder directory...${NC}"
 TARGET_DIR="$BUILDER_DIR/public/viewer/$VERSION"
 mkdir -p "$TARGET_DIR"
 echo -e "${GREEN}✓ Target directory ready: $TARGET_DIR${NC}"
 
-# Step 4: Copy and rename bundle files
-echo -e "\n${BLUE}Step 4: Copying bundle files...${NC}"
+# Step 3: Copy and rename bundle files
+echo -e "\n${BLUE}Step 3: Copying bundle files...${NC}"
 
 # Find and copy the main JS bundle
 MAIN_JS=$(find "$VIEWER_DIR/dist/assets" -name "index-*.js" | head -n 1)
@@ -65,8 +50,8 @@ else
     echo -e "${BLUE}No CSS bundle found (may not be needed)${NC}"
 fi
 
-# Step 5: Copy all chunk files directly to version folder
-echo -e "\n${BLUE}Step 5: Copying chunk files...${NC}"
+# Step 4: Copy all chunk files directly to version folder
+echo -e "\n${BLUE}Step 4: Copying chunk files...${NC}"
 if [ -d "$VIEWER_DIR/dist/assets" ]; then
     # Copy all files except the renamed ones
     for file in "$VIEWER_DIR/dist/assets"/*; do
@@ -81,7 +66,7 @@ else
     echo -e "${BLUE}No assets directory found${NC}"
 fi
 
-# Step 6: Summary
+# Step 5: Summary
 echo -e "\n${GREEN}=== Update Complete ===${NC}"
 echo -e "Bundle files are ready in: ${BLUE}$TARGET_DIR${NC}"
 echo -e "\nNext steps:"

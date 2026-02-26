@@ -8,8 +8,21 @@ export const detectMetaCompletionNeeded = (config: any): boolean => {
   }
 
   return config.sources.some((source: any) => {
-    // Skip base layers
+    // Base layers: only flag if they have a meta object that's incomplete
     if (source.isBaseLayer === true) {
+      if (source.meta && typeof source.meta === 'object') {
+        // Check if base layer meta is missing attribution.text
+        if (!source.meta.attribution || !source.meta.attribution.text || source.meta.attribution.text.trim() === '') {
+          console.log(`MetaCompletion detector: Base layer "${source.name}" has meta but missing attribution.text`);
+          return true;
+        }
+        // Check if base layer meta is missing description
+        if (!source.meta.description) {
+          console.log(`MetaCompletion detector: Base layer "${source.name}" has meta but missing description`);
+          return true;
+        }
+      }
+      // Base layer without meta is fine - skip
       return false;
     }
 
@@ -36,6 +49,13 @@ export const detectMetaCompletionNeeded = (config: any): boolean => {
     // Check for sources with meta but missing description
     if (source.meta && typeof source.meta === 'object' && !source.meta.description) {
       console.log(`MetaCompletion detector: Source "${source.name}" has meta but missing description`);
+      return true;
+    }
+
+    // Check for sources with meta.description but missing attribution
+    if (source.meta && typeof source.meta === 'object' && source.meta.description && 
+        (!source.meta.attribution || !source.meta.attribution.text || source.meta.attribution.text.trim() === '')) {
+      console.log(`MetaCompletion detector: Source "${source.name}" has description but missing attribution`);
       return true;
     }
 

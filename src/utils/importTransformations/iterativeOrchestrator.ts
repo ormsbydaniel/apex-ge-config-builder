@@ -61,6 +61,11 @@ export const normalizeImportedConfig = (config: any): any => {
       currentConfig = reverseSwipeLayerTransformation(currentConfig, true);
     }
     
+    // Apply meta completion for sources missing attribution/description
+    if (detected.metaCompletionNeeded) {
+      currentConfig = reverseMetaCompletionTransformation(currentConfig, true);
+    }
+    
     // Preserve temporal fields
     currentConfig = preserveTemporalFields(currentConfig);
     

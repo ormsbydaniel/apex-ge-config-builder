@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apex Viewer</title>
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+
+      // Reset URL path to '/' so the viewer's router matches its root route.
+      history.replaceState(null, '', '/' + window.location.search);
+
+      var version = params.get('version');
+      var baseUrl = params.get('baseUrl');
+
+      if (!version) {
+        console.error('[Viewer Host] No version specified. Use ?version=x.y.z');
+        return;
+      }
+
+      if (!baseUrl) {
+        console.error('[Viewer Host] No baseUrl specified.');
+        return;
+      }
+
+      var basePath = baseUrl.replace(/\/+$/, '') + '/' + version + '/';
+      console.log('[Viewer Host] Loading bundles from:', basePath);
+
+      function loadAssets(jsFile, cssFile) {
+        console.log('[Viewer Host] Using JS:', jsFile, 'CSS:', cssFile);
+
+        // Load CSS
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = basePath + cssFile;
+        document.head.appendChild(link);
+
+        // Load JS
+        var script = document.createElement('script');
+        script.type = 'module';
+        script.src = basePath + jsFile;
+        script.onerror = function(e) {
+          console.error('[Viewer Host] Failed to load ' + jsFile + ':', e);
+        };
+        script.onload = function() {
+          console.log('[Viewer Host] ' + jsFile + ' loaded, waiting for render...');
+          var readyPoll = setInterval(function() {
+            var root = document.getElementById('root');
+            if (root && root.children.length > 0) {
+              clearInterval(readyPoll);
+              console.log('[Viewer Host] Viewer rendered, sending ready message');
+              window.parent.postMessage({ type: 'apex-viewer-ready' }, '*');
+            }
+          }, 200);
+          setTimeout(function() { clearInterval(readyPoll); }, 30000);
+        };
+        document.head.appendChild(script);
+      }
+
+      function loadBundle() {
+        // Discover actual entry filenames from S3 listing
+        // This supports hashed Vite output (index-AbC123.js) and falls back to bundle.js/css
+        var bucketRoot = baseUrl.replace(/\/software\/?$/, '').replace(/\/$/, '');
+        var listingUrl = bucketRoot + '/?list-type=2&prefix=software/' + version + '/';
+
+        console.log('[Viewer Host] Discovering bundle files from:', listingUrl);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', listingUrl, true);
+        xhr.responseType = 'document';
+        xhr.onload = function() {
+          var jsFile = 'bundle.js';   // fallback for legacy versions
+          var cssFile = 'bundle.css'; // fallback for legacy versions
+
+          try {
+            var keys = xhr.responseXML ? xhr.responseXML.querySelectorAll('Key') : [];
+            var prefix = 'software/' + version + '/';
+
+            keys.forEach(function(key) {
+              var fullKey = key.textContent || '';
+              // Strip the version prefix to get the relative path
+              var relativePath = fullKey.replace(prefix, '');
+              // Only match files in the version root, not in assets/ subfolder
+              if (relativePath.indexOf('/') === -1) {
+                if (/^index-.*\.js$/.test(relativePath)) {
+                  jsFile = relativePath;
+                } else if (/^index-.*\.css$/.test(relativePath)) {
+                  cssFile = relativePath;
+                }
+              }
+            });
+          } catch (e) {
+            console.warn('[Viewer Host] Failed to parse S3 listing, using fallback filenames:', e);
+          }
+
+          loadAssets(jsFile, cssFile);
+        };
+        xhr.onerror = function() {
+          console.warn('[Viewer Host] S3 listing failed, using fallback filenames');
+          loadAssets('bundle.js', 'bundle.css');
+        };
+        xhr.send();
+      }
+
+      // Request config from parent before loading the bundle.
+      // This ensures window.explorerConfig is set before the viewer executes.
+      window.addEventListener('message', function onConfig(event) {
+        if (event.data && event.data.type === 'apex-viewer-config-delivery') {
+          window.removeEventListener('message', onConfig);
+          console.log('[Viewer Host] Received config from parent, setting explorerConfig');
+          window.explorerConfig = event.data.config;
+          loadBundle();
+        }
+      });
+
+      // Ask the parent for the config
+      window.parent.postMessage({ type: 'apex-viewer-request-config' }, '*');
+
+      // Fallback: if parent doesn't respond within 3s, load bundle anyway
+      // (standalone mode or legacy parent)
+      setTimeout(function() {
+        if (!window.explorerConfig) {
+          console.log('[Viewer Host] No config received from parent, loading bundle without config');
+          loadBundle();
+        }
+      }, 3000);
+    })();
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>

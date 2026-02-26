@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
 import { useNavigate } from 'react-router-dom';
 import { useViewerLoader } from '@/hooks/useViewerLoader';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -20,7 +21,7 @@ import {
 } from '@/utils/viewerVersions';
 import type { ViewerVersion } from '@/types/viewer';
 
-const VIEWER_CONTAINER_ID = 'apex-viewer-container';
+
 
 const Preview = () => {
   const navigate = useNavigate();
@@ -36,11 +37,12 @@ const Preview = () => {
       services: config.services,
       sources: config.sources,
       mapConstraints: config.mapConstraints,
+      projections: config.projections,
     };
     console.log('[Config Builder Preview] viewerConfig.layout:', vConfig.layout);
     console.log('[Config Builder Preview] viewerConfig.layout.theme:', vConfig.layout?.theme);
     return vConfig;
-  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints]);
+  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints, config.projections]);
   
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
@@ -106,9 +108,8 @@ const Preview = () => {
     setShowUpdateDialog(false);
   };
 
-  const { isLoading, isReady, error, reload } = useViewerLoader({
+  const { isLoading, isReady, error, reload, iframeRef } = useViewerLoader({
     version: selectedVersion,
-    containerId: VIEWER_CONTAINER_ID,
     config: viewerConfig,
     enabled: selectedVersion !== '',
   });
@@ -145,8 +146,9 @@ const Preview = () => {
                   <div className="space-y-2">
                     <p className="font-semibold">No viewer versions found</p>
                     <p className="text-sm">
-                      Please add viewer bundles to the <code className="bg-muted px-1 rounded">public/viewer/</code> directory 
-                      using semantic versioning (e.g., <code className="bg-muted px-1 rounded">public/viewer/3.2.2/bundle.js</code>).
+                      No viewer bundles were found in the S3 bucket. Viewer bundles should be uploaded to{' '}
+                      <code className="bg-muted px-1 rounded">https://esa-apex.s3.eu-west-1.amazonaws.com/software/</code>{' '}
+                      using semantic versioning (e.g., <code className="bg-muted px-1 rounded">software/3.6.0/bundle.js</code>).
                     </p>
                   </div>
                 </AlertDescription>
@@ -242,7 +244,7 @@ const Preview = () => {
                       <p className="text-sm">{error}</p>
                       <p className="text-sm text-muted-foreground">
                         Make sure the bundle exists at <code className="bg-muted px-1 rounded">
-                          public/viewer/{selectedVersion}/bundle.js
+                          {VIEWER_BUNDLE_BASE_URL}{selectedVersion}/bundle.js
                         </code>
                       </p>
                     </div>
@@ -251,12 +253,12 @@ const Preview = () => {
               </CardContent>
             </Card>
           </div>
-        ) : (
-          <div 
-            id={VIEWER_CONTAINER_ID} 
-            className="w-full h-full"
+        ) : null}
+          <iframe
+            ref={iframeRef}
+            className={`w-full h-full border-0 ${error ? 'hidden' : ''}`}
+            title="Apex Viewer"
           />
-        )}
       </div>
     </div>
     </>
