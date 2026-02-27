@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import DataSourceItem from './DataSourceItem';
 import {
@@ -25,6 +36,7 @@ interface DataSourceDisplayProps {
   services?: Service[];
   onAddDataSource?: () => void;
   onRemoveDataSource: (dataSourceIndex: number) => void;
+  onRemoveAllDataSources?: () => void;
   onRemoveStatisticsSource?: (statsIndex: number) => void;
   onEditDataSource?: (dataIndex: number) => void;
   onEditStatisticsSource?: (statsIndex: number) => void;
@@ -40,6 +52,7 @@ const DataSourceDisplay = ({
   services = [],
   onAddDataSource,
   onRemoveDataSource,
+  onRemoveAllDataSources,
   onRemoveStatisticsSource,
   onEditDataSource,
   onEditStatisticsSource,
@@ -111,10 +124,38 @@ const DataSourceDisplay = ({
               </>
             )}
           </div>
-          {onAddDataSource && <Button variant="outline" size="sm" onClick={onAddDataSource} className="text-primary hover:bg-primary/10 border-primary/30">
-              <Plus className="h-3 w-3 mr-1" />
-              Add Dataset
-            </Button>}
+          <div className="flex items-center gap-2">
+            {onAddDataSource && <Button variant="outline" size="sm" onClick={onAddDataSource} className="text-primary hover:bg-primary/10 border-primary/30">
+                <Plus className="h-3 w-3 mr-1" />
+                Add Dataset
+              </Button>}
+            {hasDataSources && onRemoveAllDataSources && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Remove all data sources?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Remove all {totalItems} data sources from this layer. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={onRemoveAllDataSources}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Remove all {totalItems} data sources
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
         </div>
 
         {hasDataSources ? <div className="space-y-2">

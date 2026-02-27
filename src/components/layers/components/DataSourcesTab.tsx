@@ -2,6 +2,7 @@ import { DataSource, Service, DataSourceMeta, DataSourceLayout } from '@/types/c
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import DataSourceDisplay from './DataSourceDisplay';
+import { useLayersTabContext } from '@/contexts/LayersTabContext';
 interface DataSourcesTabProps {
   source: DataSource;
   services: Service[];
@@ -22,6 +23,7 @@ export function DataSourcesTab({
   onUpdateMeta,
   onUpdateLayout,
 }: DataSourcesTabProps) {
+  const { onRemoveAllDataSources } = useLayersTabContext();
   const hasDataSources = source.data && source.data.length > 0;
 
   // Create a wrapped source that only contains data (not statistics)
@@ -30,7 +32,7 @@ export function DataSourcesTab({
     statistics: [] // Empty statistics to prevent them showing in data tab
   };
   return <div className="space-y-4">
-      {hasDataSources ? <DataSourceDisplay source={dataOnlySource} services={services} onRemoveDataSource={dataIndex => onRemove(layerIndex, dataIndex)} onEditDataSource={dataIndex => onEdit(layerIndex, dataIndex)} onUpdateMeta={onUpdateMeta} onUpdateLayout={onUpdateLayout} /> : <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
+      {hasDataSources ? <DataSourceDisplay source={dataOnlySource} services={services} onRemoveDataSource={dataIndex => onRemove(layerIndex, dataIndex)} onRemoveAllDataSources={() => onRemoveAllDataSources(layerIndex)} onEditDataSource={dataIndex => onEdit(layerIndex, dataIndex)} onUpdateMeta={onUpdateMeta} onUpdateLayout={onUpdateLayout} /> : <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
             No datasets configured yet
           </p>
