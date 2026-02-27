@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import DataSourceItem from './DataSourceItem';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
+
 interface DataSourceDisplayProps {
   source: DataSource;
   services?: Service[];
@@ -13,8 +23,11 @@ interface DataSourceDisplayProps {
   onEditStatisticsSource?: (statsIndex: number) => void;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
-  showStatsLevelForData?: boolean; // Treat data sources as statistics sources
+  showStatsLevelForData?: boolean;
 }
+
+const ITEMS_PER_PAGE = 10;
+
 const DataSourceDisplay = ({
   source,
   services = [],
@@ -27,17 +40,53 @@ const DataSourceDisplay = ({
   onUpdateLayout,
   showStatsLevelForData = false
 }: DataSourceDisplayProps) => {
-  // Check if this is a swipe layer that needs position display
+  const [currentPage, setCurrentPage] = useState(0);
+
   const isSwipeLayer = (source as any).isSwipeLayer === true || source.meta?.swipeConfig !== undefined;
-  // Get timeframe for temporal display
   const timeframe = source.timeframe;
   const hasDataSources = source.data && isDataSourceItemArray(source.data) && source.data.length > 0;
   const hasStatistics = source.statistics && source.statistics.length > 0;
+
+  const totalItems = hasDataSources ? source.data.length : 0;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const needsPagination = totalItems > ITEMS_PER_PAGE;
+
+  // Reset to page 0 when data length changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [totalItems]);
+
+  const pagedData = hasDataSources
+    ? source.data.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)
+    : [];
+
+  const startItem = currentPage * ITEMS_PER_PAGE + 1;
+  const endItem = Math.min((currentPage + 1) * ITEMS_PER_PAGE, totalItems);
+
+  // Generate page numbers to display (max 5 visible)
+  const getVisiblePages = () => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i);
+    const pages: (number | 'ellipsis')[] = [];
+    pages.push(0);
+    if (currentPage > 2) pages.push('ellipsis');
+    const start = Math.max(1, currentPage - 1);
+    const end = Math.min(totalPages - 2, currentPage + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (currentPage < totalPages - 3) pages.push('ellipsis');
+    pages.push(totalPages - 1);
+    return pages;
+  };
+
   return <div className="space-y-4">
       {/* Datasets Section */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          
+          {needsPagination && (
+            <span className="text-xs text-muted-foreground">
+              Showing {startItem}–{endItem} of {totalItems}
+            </span>
+          )}
+          {!needsPagination && <span />}
           {onAddDataSource && <Button variant="outline" size="sm" onClick={onAddDataSource} className="text-primary hover:bg-primary/10 border-primary/30">
               <Plus className="h-3 w-3 mr-1" />
               Add Dataset
@@ -45,7 +94,59 @@ const DataSourceDisplay = ({
         </div>
 
         {hasDataSources ? <div className="space-y-2">
-            {source.data.map((dataItem, index) => <DataSourceItem key={index} dataSource={dataItem} index={index} onRemove={onRemoveDataSource} onEdit={onEditDataSource} showPosition={isSwipeLayer} showStatsLevel={showStatsLevelForData} timeframe={timeframe} services={services} currentMeta={source.meta} currentLayout={source.layout} sourceName={source.name} onUpdateMeta={onUpdateMeta} onUpdateLayout={onUpdateLayout} />)}
+            {pagedData.map((dataItem, index) => {
+              const absoluteIndex = currentPage * ITEMS_PER_PAGE + index;
+              return <DataSourceItem
+                key={absoluteIndex}
+                dataSource={dataItem}
+                index={absoluteIndex}
+                onRemove={onRemoveDataSource}
+                onEdit={onEditDataSource}
+                showPosition={isSwipeLayer}
+                showStatsLevel={showStatsLevelForData}
+                timeframe={timeframe}
+                services={services}
+                currentMeta={source.meta}
+                currentLayout={source.layout}
+                sourceName={source.name}
+                onUpdateMeta={onUpdateMeta}
+                onUpdateLayout={onUpdateLayout}
+              />;
+            })}
+
+            {needsPagination && (
+              <Pagination className="mt-3">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                      className={currentPage === 0 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  {getVisiblePages().map((page, i) => (
+                    <PaginationItem key={i}>
+                      {page === 'ellipsis' ? (
+                        <PaginationEllipsis />
+                      ) : (
+                        <PaginationLink
+                          isActive={page === currentPage}
+                          onClick={() => setCurrentPage(page)}
+                          className="cursor-pointer"
+                        >
+                          {page + 1}
+                        </PaginationLink>
+                      )}
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                      className={currentPage === totalPages - 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </div> : <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-md border border-dashed">
             <p className="text-sm">No datasets added yet.</p>
             {onAddDataSource && <p className="text-xs mt-1">Click "Add Dataset" to get started.</p>}
