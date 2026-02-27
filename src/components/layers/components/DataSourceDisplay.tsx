@@ -12,6 +12,13 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from '@/components/ui/pagination';
+import {
+  Select,
+  SelectContent,
+  SelectItem as SelectOption,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface DataSourceDisplayProps {
   source: DataSource;
@@ -26,7 +33,7 @@ interface DataSourceDisplayProps {
   showStatsLevelForData?: boolean;
 }
 
-const ITEMS_PER_PAGE = 10;
+const PAGE_SIZE_OPTIONS = [5, 10, 25, 50];
 
 const DataSourceDisplay = ({
   source,
@@ -41,6 +48,7 @@ const DataSourceDisplay = ({
   showStatsLevelForData = false
 }: DataSourceDisplayProps) => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const isSwipeLayer = (source as any).isSwipeLayer === true || source.meta?.swipeConfig !== undefined;
   const timeframe = source.timeframe;
@@ -48,20 +56,20 @@ const DataSourceDisplay = ({
   const hasStatistics = source.statistics && source.statistics.length > 0;
 
   const totalItems = hasDataSources ? source.data.length : 0;
-  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-  const needsPagination = totalItems > ITEMS_PER_PAGE;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const needsPagination = totalItems > itemsPerPage;
 
-  // Reset to page 0 when data length changes
+  // Reset to page 0 when data length or page size changes
   useEffect(() => {
     setCurrentPage(0);
-  }, [totalItems]);
+  }, [totalItems, itemsPerPage]);
 
   const pagedData = hasDataSources
-    ? source.data.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)
+    ? source.data.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
     : [];
 
-  const startItem = currentPage * ITEMS_PER_PAGE + 1;
-  const endItem = Math.min((currentPage + 1) * ITEMS_PER_PAGE, totalItems);
+  const startItem = currentPage * itemsPerPage + 1;
+  const endItem = Math.min((currentPage + 1) * itemsPerPage, totalItems);
 
   // Generate page numbers to display (max 5 visible)
   const getVisiblePages = () => {
@@ -81,12 +89,25 @@ const DataSourceDisplay = ({
       {/* Datasets Section */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          {needsPagination && (
-            <span className="text-xs text-muted-foreground">
-              Showing {startItem}–{endItem} of {totalItems}
-            </span>
-          )}
-          {!needsPagination && <span />}
+          <div className="flex items-center gap-2">
+            {needsPagination && (
+              <span className="text-xs text-muted-foreground">
+                Showing {startItem}–{endItem} of {totalItems}
+              </span>
+            )}
+            {needsPagination && (
+              <Select value={String(itemsPerPage)} onValueChange={(val) => setItemsPerPage(Number(val))}>
+                <SelectTrigger className="h-7 w-[70px] text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGE_SIZE_OPTIONS.map(size => (
+                    <SelectOption key={size} value={String(size)}>{size}</SelectOption>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
           {onAddDataSource && <Button variant="outline" size="sm" onClick={onAddDataSource} className="text-primary hover:bg-primary/10 border-primary/30">
               <Plus className="h-3 w-3 mr-1" />
               Add Dataset
@@ -95,7 +116,7 @@ const DataSourceDisplay = ({
 
         {hasDataSources ? <div className="space-y-2">
             {pagedData.map((dataItem, index) => {
-              const absoluteIndex = currentPage * ITEMS_PER_PAGE + index;
+              const absoluteIndex = currentPage * itemsPerPage + index;
               return <DataSourceItem
                 key={absoluteIndex}
                 dataSource={dataItem}
