@@ -225,8 +225,9 @@ export async function fetchCogBandStatistics(
     const tiff = await fromUrl(url, { signal: abortController.signal } as any);
     
     // Find best overview, capped at 20 IFDs
+    // Target a small overview to minimise data transfer
     let selectedImage = await tiff.getImage(0);
-    const targetPixels = 2_000_000;
+    const targetPixels = 500_000;
     let bestDiff = Math.abs(selectedImage.getWidth() * selectedImage.getHeight() - targetPixels);
     
     for (let i = 1; i < 20; i++) {
@@ -240,26 +241,34 @@ export async function fetchCogBandStatistics(
           selectedImage = img;
         }
       } catch (e) {
-        // No more IFDs
         break;
       }
     }
     
-    // Pixel guard: if smallest overview > 4M pixels, bail
-    const totalPixels = selectedImage.getWidth() * selectedImage.getHeight();
-    if (totalPixels > 4_000_000) {
-      return {
-        dataNature: 'unknown',
-        sampleCount: 0,
-        note: `Smallest available overview is ${(totalPixels / 1_000_000).toFixed(1)}M pixels — too large to sample safely.`,
-      };
+    const imgWidth = selectedImage.getWidth();
+    const imgHeight = selectedImage.getHeight();
+    const totalPixels = imgWidth * imgHeight;
+    
+    // If the overview is still large, read only a central window to cap data transfer
+    const maxReadPixels = 500_000;
+    let readOptions: any = { samples: [bandIndex] };
+    let windowNote = '';
+    
+    if (totalPixels > maxReadPixels) {
+      // Calculate a centred window that keeps ~maxReadPixels
+      const scale = Math.sqrt(maxReadPixels / totalPixels);
+      const winW = Math.max(64, Math.floor(imgWidth * scale));
+      const winH = Math.max(64, Math.floor(imgHeight * scale));
+      const x0 = Math.floor((imgWidth - winW) / 2);
+      const y0 = Math.floor((imgHeight - winH) / 2);
+      readOptions.window = [x0, y0, x0 + winW, y0 + winH];
+      windowNote = ` (sampled ${((winW * winH / totalPixels) * 100).toFixed(1)}% of overview)`;
     }
     
     // Read rasters with 15-second timeout
     const rasterPromise = selectedImage
-      .readRasters({ samples: [bandIndex] })
+      .readRasters(readOptions)
       .catch((readError) => {
-        // Swallow abort-related rejections from the losing Promise.race branch
         if (abortController.signal.aborted) {
           return null;
         }
@@ -291,12 +300,16 @@ export async function fetchCogBandStatistics(
 
     const data = rasters[0] as ArrayLike<number>;
     
+    // Stride through the data to cap iteration at ~100K samples
+    const maxSamples = 100_000;
+    const stride = Math.max(1, Math.floor(data.length / maxSamples));
+    
     let min = Infinity;
     let max = -Infinity;
     const uniqueValuesSet = new Set<number>();
     let validSampleCount = 0;
     
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i += stride) {
       const value = data[i];
       
       if (noDataValue !== undefined && Math.abs(value - noDataValue) < 0.0001) {
@@ -329,12 +342,17 @@ export async function fetchCogBandStatistics(
       }
     }
     
+    const note = stride > 1
+      ? `Subsampled 1:${stride}${windowNote}`
+      : windowNote || undefined;
+    
     return {
       min: min === Infinity ? undefined : min,
       max: max === -Infinity ? undefined : max,
       dataNature,
       uniqueValues,
       sampleCount: validSampleCount,
+      note: note || undefined,
     };
   } catch (error) {
     abortController.abort();
