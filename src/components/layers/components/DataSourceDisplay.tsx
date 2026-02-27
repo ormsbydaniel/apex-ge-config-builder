@@ -96,16 +96,19 @@ const DataSourceDisplay = ({
               </span>
             )}
             {needsPagination && (
-              <Select value={String(itemsPerPage)} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                <SelectTrigger className="h-7 w-[70px] text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PAGE_SIZE_OPTIONS.map(size => (
-                    <SelectOption key={size} value={String(size)}>{size}</SelectOption>
-                  ))}
-                </SelectContent>
-              </Select>
+              <>
+                <Select value={String(itemsPerPage)} onValueChange={(val) => setItemsPerPage(Number(val))}>
+                  <SelectTrigger className="h-7 w-[70px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAGE_SIZE_OPTIONS.map(size => (
+                      <SelectOption key={size} value={String(size)}>{size}</SelectOption>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-xs text-muted-foreground">items per page</span>
+              </>
             )}
           </div>
           {onAddDataSource && <Button variant="outline" size="sm" onClick={onAddDataSource} className="text-primary hover:bg-primary/10 border-primary/30">
@@ -136,7 +139,7 @@ const DataSourceDisplay = ({
             })}
 
             {needsPagination && (
-              <Pagination className="mt-3">
+              <Pagination className="mt-3 [&_a]:text-xs [&_a]:h-7 [&_a]:min-w-7">
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
