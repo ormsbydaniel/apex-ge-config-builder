@@ -100,21 +100,8 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
     const bandIndex = parseInt(value, 10);
     setSelectedBand(bandIndex);
     if (rawMetadata) {
-      // Strip previous statistics before loading new band
-      const headerOnly: CogMetadata = {
-        ...rawMetadata,
-        minValue: undefined,
-        maxValue: undefined,
-        dataNature: undefined,
-        uniqueValues: undefined,
-        sampleCount: undefined,
-        statisticsBand: undefined,
-        statisticsNote: undefined,
-      };
-      // Restore GDAL min/max if present — but for band changes we always re-sample
-      setRawMetadata(headerOnly);
-      setMetadata(formatMetadataForDisplay(headerOnly));
-      loadBandStatistics(bandIndex, headerOnly);
+      // Keep existing metadata visible while loading the next band to avoid transient undefined states
+      loadBandStatistics(bandIndex, rawMetadata);
     }
   };
 
@@ -408,13 +395,13 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
       </DialogContent>
 
       {/* Min/Max Update Dialog */}
-      {currentMeta && rawMetadata && (
+      {currentMeta && rawMetadata && rawMetadata.minValue !== undefined && rawMetadata.maxValue !== undefined && (
         <MinMaxUpdateDialog
           isOpen={showUpdateDialog}
           onClose={() => setShowUpdateDialog(false)}
           currentMeta={currentMeta}
-          newMin={rawMetadata.minValue!}
-          newMax={rawMetadata.maxValue!}
+          newMin={rawMetadata.minValue}
+          newMax={rawMetadata.maxValue}
           onConfirm={handleConfirmUpdate}
         />
       )}
