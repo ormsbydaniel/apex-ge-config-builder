@@ -83,6 +83,15 @@ export const createLayerActionHandlers = (
     }
   };
 
+  const handleRemoveAllDataSources = (layerIndex: number) => {
+    const layer = config.sources[layerIndex];
+    const updatedLayer = {
+      ...layer,
+      data: []
+    };
+    updateLayer(layerIndex, updatedLayer);
+  };
+
   const handleRemoveStatisticsSource = (layerIndex: number, statsIndex: number) => {
     const layer = config.sources[layerIndex];
     if (layer.statistics) {
@@ -277,6 +286,7 @@ export const createLayerActionHandlers = (
     handleEditBaseLayer,
     handleDuplicateLayer,
     handleRemoveDataSource,
+    handleRemoveAllDataSources,
     handleRemoveStatisticsSource,
     handleEditDataSource,
     handleEditStatisticsSource,

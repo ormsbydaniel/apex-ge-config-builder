@@ -74,6 +74,7 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onUpdateConfig: props.updateConfig,
     onAddDataSource,
     onRemoveDataSource: layersLogic.handleRemoveDataSource,
+    onRemoveAllDataSources: layersLogic.handleRemoveAllDataSources,
     onRemoveStatisticsSource: layersLogic.handleRemoveStatisticsSource,
     onEditDataSource: layersLogic.handleEditDataSource,
     onEditStatisticsSource: layersLogic.handleEditStatisticsSource,

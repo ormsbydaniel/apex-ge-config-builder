@@ -26,6 +26,7 @@ export interface LayersTabContextValue {
   // Data source actions
   onAddDataSource: (layerIndex: number) => void;
   onRemoveDataSource: (layerIndex: number, dataSourceIndex: number) => void;
+  onRemoveAllDataSources: (layerIndex: number) => void;
   onRemoveStatisticsSource: (layerIndex: number, statsIndex: number) => void;
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditStatisticsSource: (layerIndex: number, statsIndex: number) => void;
