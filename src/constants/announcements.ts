@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-02-27",
+    title: "Paginated data source tables and remove all option",
+    category: "Feature",
+  },
+  {
     date: "2026-02-26",
     title: "Addition of 3.6.0-rc version",
     category: "Feature",
