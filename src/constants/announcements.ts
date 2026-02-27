@@ -7,7 +7,7 @@ export interface Announcement {
 export const announcements: Announcement[] = [
   {
     date: "2026-02-27",
-    title: "Paginated data source tables and remove all option",
+    title: "Paginated data source lists and remove all option. COG metadata support for multi-band COGs.",
     category: "Feature",
   },
   {
