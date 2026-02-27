@@ -136,7 +136,7 @@ const DataSourceDisplay = ({
                   <Tooltip>
                     <AlertDialogTrigger asChild>
                       <TooltipTrigger asChild>
-                        <div className="flex items-center gap-0 mr-[-4px]">
+                        <div className="flex items-center gap-0 mr-[-8px]">
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10">
                             <Trash2 className="h-3 w-3" />
                           </Button>
