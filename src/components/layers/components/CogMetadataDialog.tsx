@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,8 +7,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { fetchCogMetadata, formatMetadataForDisplay, CogMetadata } from '@/utils/cogMetadata';
+import { fetchCogHeaderMetadata, fetchCogBandStatistics, formatMetadataForDisplay, CogMetadata } from '@/utils/cogMetadata';
 import { DataSourceMeta, Category } from '@/types/config';
 import MinMaxUpdateDialog from './MinMaxUpdateDialog';
 import { generateDivergentColors, rgbToHex } from '@/utils/colorUtils';
@@ -30,6 +37,9 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
   const [metadata, setMetadata] = useState<ReturnType<typeof formatMetadataForDisplay> | null>(null);
   const [rawMetadata, setRawMetadata] = useState<CogMetadata | null>(null);
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+  const [statisticsLoading, setStatisticsLoading] = useState(false);
+  const [statisticsError, setStatisticsError] = useState<string | null>(null);
+  const [selectedBand, setSelectedBand] = useState(0);
 
   useEffect(() => {
     if (isOpen && url) {
@@ -37,21 +47,74 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
     }
   }, [isOpen, url]);
 
+  const loadBandStatistics = useCallback(async (bandIndex: number, headerMeta: CogMetadata) => {
+    setStatisticsLoading(true);
+    setStatisticsError(null);
+    
+    try {
+      const stats = await fetchCogBandStatistics(url, bandIndex, headerMeta.noDataValue);
+      const updated: CogMetadata = {
+        ...headerMeta,
+        minValue: stats.min,
+        maxValue: stats.max,
+        dataNature: stats.dataNature,
+        uniqueValues: stats.uniqueValues,
+        sampleCount: stats.sampleCount,
+        statisticsBand: bandIndex,
+        statisticsNote: stats.note,
+      };
+      setRawMetadata(updated);
+      setMetadata(formatMetadataForDisplay(updated));
+    } catch (err) {
+      setStatisticsError(err instanceof Error ? err.message : 'Failed to load band statistics');
+    } finally {
+      setStatisticsLoading(false);
+    }
+  }, [url]);
+
   const loadMetadata = async () => {
     setLoading(true);
     setError(null);
     setMetadata(null);
     setRawMetadata(null);
+    setSelectedBand(0);
+    setStatisticsError(null);
 
     try {
-      const raw = await fetchCogMetadata(url);
-      const formattedMetadata = formatMetadataForDisplay(raw);
-      setMetadata(formattedMetadata);
-      setRawMetadata(raw);
+      const headerMeta = await fetchCogHeaderMetadata(url);
+      setRawMetadata(headerMeta);
+      setMetadata(formatMetadataForDisplay(headerMeta));
+      setLoading(false);
+      
+      // Auto-load band 0 statistics if min/max not already from GDAL metadata
+      if (headerMeta.minValue === undefined || headerMeta.maxValue === undefined) {
+        loadBandStatistics(0, headerMeta);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load metadata');
-    } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBandChange = (value: string) => {
+    const bandIndex = parseInt(value, 10);
+    setSelectedBand(bandIndex);
+    if (rawMetadata) {
+      // Strip previous statistics before loading new band
+      const headerOnly: CogMetadata = {
+        ...rawMetadata,
+        minValue: undefined,
+        maxValue: undefined,
+        dataNature: undefined,
+        uniqueValues: undefined,
+        sampleCount: undefined,
+        statisticsBand: undefined,
+        statisticsNote: undefined,
+      };
+      // Restore GDAL min/max if present — but for band changes we always re-sample
+      setRawMetadata(headerOnly);
+      setMetadata(formatMetadataForDisplay(headerOnly));
+      loadBandStatistics(bandIndex, headerOnly);
     }
   };
 
@@ -65,7 +128,6 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
       return;
     }
 
-    // Case A: No existing min/max - directly update
     if (currentMeta?.min === undefined && currentMeta?.max === undefined) {
       const updates: Partial<DataSourceMeta> = {
         min: newMin,
@@ -75,7 +137,6 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
       return;
     }
 
-    // Case B: Existing min/max - show comparison dialog
     setShowUpdateDialog(true);
   };
 
@@ -89,11 +150,9 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
 
     const updates: Partial<DataSourceMeta> = {};
 
-    // Update meta min/max
     if (updateMin) updates.min = newMin;
     if (updateMax) updates.max = newMax;
 
-    // Update colormap min/max if requested
     if (updateColormaps && currentMeta?.colormaps) {
       updates.colormaps = currentMeta.colormaps.map(cm => ({
         ...cm,
@@ -135,7 +194,6 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
     const palette = rawMetadata.embeddedColormap;
     const uniqueValues = rawMetadata.uniqueValues;
     
-    // Only create categories for values that exist in uniqueValues
     const newCategories: Category[] = uniqueValues
       .filter(value => palette[value] !== undefined)
       .map(value => {
@@ -154,6 +212,9 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
       description: `${newCategories.length} color entries copied to categories (filtered to unique values in data).`,
     });
   };
+
+  const showBandSelector = rawMetadata && (rawMetadata.multiBand || (rawMetadata.samplesPerPixel && rawMetadata.samplesPerPixel > 1));
+  const bandCount = rawMetadata?.samplesPerPixel || 1;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -204,6 +265,40 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                 <h3 className="text-sm font-semibold mb-3 text-foreground">
                   {section.category}
                 </h3>
+
+                {/* Band selector — shown above Data Statistics for multi-band files */}
+                {section.category.startsWith('Data Statistics') && showBandSelector && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm text-muted-foreground">Band:</span>
+                    <Select
+                      value={selectedBand.toString()}
+                      onValueChange={handleBandChange}
+                      disabled={statisticsLoading}
+                    >
+                      <SelectTrigger className="w-24 h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: bandCount }, (_, i) => (
+                          <SelectItem key={i} value={i.toString()}>
+                            {i + 1}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {statisticsLoading && (
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    )}
+                  </div>
+                )}
+
+                {/* Statistics error */}
+                {section.category.startsWith('Data Statistics') && statisticsError && (
+                  <div className="mb-3 p-2 rounded border border-destructive/30 bg-destructive/5 text-sm text-destructive">
+                    {statisticsError}
+                  </div>
+                )}
+
                 <div className="border rounded-lg overflow-hidden">
                   <table className="w-full">
                     <tbody>
@@ -225,7 +320,7 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                 </div>
 
                 {/* Data Statistics Note */}
-                {section.category === 'Data Statistics' && (
+                {section.category.startsWith('Data Statistics') && rawMetadata?.sampleCount !== undefined && rawMetadata.sampleCount > 0 && (
                   <div className="mt-3 p-3 bg-muted/20 border rounded-lg">
                     <p className="text-xs text-muted-foreground">
                       <strong>NOTE:</strong> The above data statistics are based on the sample of pixels indicated and is therefore a guide rather than definitive. Other values or categories may be present in pixels that have not been sampled.
@@ -234,7 +329,7 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                 )}
 
                 {/* Data Statistics Actions */}
-                {section.category === 'Data Statistics' && (
+                {section.category.startsWith('Data Statistics') && (
                   <div className="mt-3 space-y-3">
                     {/* Embedded Colormap Preview for Unique Values */}
                     {onUpdateMeta && rawMetadata?.embeddedColormap && rawMetadata?.uniqueValues && (
@@ -268,6 +363,7 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                           variant="outline"
                           size="sm"
                           onClick={handleCopyEmbeddedColormap}
+                          disabled={statisticsLoading}
                           className="mt-2"
                         >
                           Copy embedded colormap to config categories
@@ -281,7 +377,7 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                           variant="outline"
                           size="sm"
                           onClick={handleCopyMinMax}
-                          disabled={rawMetadata?.minValue === undefined || rawMetadata?.maxValue === undefined || !onUpdateMeta}
+                          disabled={statisticsLoading || rawMetadata?.minValue === undefined || rawMetadata?.maxValue === undefined || !onUpdateMeta}
                         >
                           Copy min/max to config
                         </Button>
@@ -290,7 +386,7 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
                             variant="outline"
                             size="sm"
                             onClick={handleCopyCategories}
-                            disabled={!rawMetadata?.uniqueValues || !onUpdateMeta}
+                            disabled={statisticsLoading || !rawMetadata?.uniqueValues || !onUpdateMeta}
                           >
                             Copy unique values to config categories
                           </Button>
