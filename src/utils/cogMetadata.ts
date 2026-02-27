@@ -21,6 +21,7 @@ export interface CogMetadata {
   // File Properties
   fileSize?: number;
   overviewCount?: number;
+  ifdCountCapped?: boolean;
   
   // Geospatial
   modelPixelScale?: number[];
@@ -45,24 +46,60 @@ export interface CogMetadata {
   dataNature?: 'continuous' | 'categorical' | 'unknown';
   uniqueValues?: number[];
   sampleCount?: number;
+  statisticsBand?: number;
+  multiBand?: boolean;
+  statisticsNote?: string;
   
   // Embedded Colormap (TIFF ColorMap tag 320)
   embeddedColormap?: Record<number, [number, number, number, number]>;
   hasEmbeddedColormap?: boolean;
 }
 
-export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
+export interface BandStatistics {
+  min?: number;
+  max?: number;
+  dataNature: 'continuous' | 'categorical' | 'unknown';
+  uniqueValues?: number[];
+  sampleCount: number;
+  note?: string;
+}
+
+/**
+ * Phase 1: Fetch header metadata only (no statistics computation).
+ * Uses a time-limited IFD walk instead of getImageCount() to avoid
+ * hanging on hyperspectral files with hundreds of IFDs.
+ */
+export async function fetchCogHeaderMetadata(url: string): Promise<CogMetadata> {
   try {
     const tiff = await fromUrl(url);
     const image = await tiff.getImage();
     const fileDirectory = image.fileDirectory;
     
-    // Phase 1: Extract metadata
+    // Time-limited IFD walk (5-second wall-clock limit)
+    let ifdCount = 0;
+    let ifdCountCapped = false;
+    const startTime = Date.now();
+    
+    try {
+      while (true) {
+        if (Date.now() - startTime > 5000) {
+          ifdCountCapped = true;
+          break;
+        }
+        await tiff.getImage(ifdCount);
+        ifdCount++;
+      }
+    } catch (e) {
+      // End of IFDs reached
+    }
+    
+    const samplesPerPixel = fileDirectory.SamplesPerPixel || 1;
+    
     const metadata: CogMetadata = {
       // Image Properties
       width: image.getWidth(),
       height: image.getHeight(),
-      samplesPerPixel: fileDirectory.SamplesPerPixel,
+      samplesPerPixel,
       bitsPerSample: fileDirectory.BitsPerSample,
       compression: fileDirectory.Compression,
       photometricInterpretation: fileDirectory.PhotometricInterpretation,
@@ -72,7 +109,11 @@ export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
       tileLength: fileDirectory.TileLength,
       
       // File Properties
-      overviewCount: await tiff.getImageCount() - 1,
+      overviewCount: Math.max(0, ifdCount - 1),
+      ifdCountCapped,
+      
+      // Multi-band flag
+      multiBand: samplesPerPixel > 1,
       
       // Geospatial
       modelPixelScale: fileDirectory.ModelPixelScale,
@@ -93,7 +134,6 @@ export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
     // Extract EPSG code from GeoKeyDirectory
     if (metadata.geoKeyDirectory) {
       const geoKeys = metadata.geoKeyDirectory;
-      // EPSG code is typically at index for key 3072 (ProjectedCSTypeGeoKey) or 2048 (GeographicTypeGeoKey)
       for (let i = 4; i < geoKeys.length; i += 4) {
         const keyId = geoKeys[i];
         if (keyId === 3072 || keyId === 2048) {
@@ -116,10 +156,10 @@ export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
         metadata.fileSize = parseInt(contentLength, 10);
       }
     } catch (e) {
-      // File size not critical, continue without it
+      // File size not critical
     }
     
-    // Calculate bounding box if we have the necessary geospatial info
+    // Calculate bounding box
     if (metadata.modelPixelScale && metadata.modelTiepoint) {
       const [scaleX, scaleY] = metadata.modelPixelScale;
       const [, , , originX, originY] = metadata.modelTiepoint;
@@ -143,11 +183,11 @@ export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
         if (minMatch) metadata.minValue = parseFloat(minMatch[1]);
         if (maxMatch) metadata.maxValue = parseFloat(maxMatch[1]);
       } catch (e) {
-        // GDAL metadata parsing failed, will compute from samples
+        // GDAL metadata parsing failed
       }
     }
     
-    // Phase 2: Check for embedded colormap (palette)
+    // Check for embedded colormap (palette)
     try {
       const palette = await getPalette(image);
       if (palette && Object.keys(palette).length > 0) {
@@ -155,82 +195,81 @@ export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
         metadata.hasEmbeddedColormap = true;
       }
     } catch (e) {
-      // No colormap or error reading it - not critical
+      // No colormap or error reading it
     }
     
-    // Phase 3: Compute statistics from overviews if min/max not available
-    if (metadata.minValue === undefined || metadata.maxValue === undefined) {
-      const stats = await computeStatisticsFromOverview(tiff, metadata.noDataValue);
-      metadata.minValue = stats.min;
-      metadata.maxValue = stats.max;
-      metadata.dataNature = stats.dataNature;
-      metadata.uniqueValues = stats.uniqueValues;
-      metadata.sampleCount = stats.sampleCount;
-    }
-    
-    // Phase 4: Validate COG compliance
+    // Validate COG compliance
     const cogValidation = validateCogCompliance(metadata);
     metadata.isCloudOptimized = cogValidation.isValid;
     metadata.cogValidationIssues = cogValidation.issues;
     
     return metadata;
   } catch (error) {
-    throw new Error(`Failed to fetch COG metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(`Failed to fetch COG header metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
-async function computeStatisticsFromOverview(
-  tiff: any,
+/**
+ * Phase 2: Fetch band statistics for a specific band.
+ * Opens the file independently, finds the best overview (capped at 20 IFDs),
+ * and samples raster data with a 15-second timeout and 4M pixel guard.
+ */
+export async function fetchCogBandStatistics(
+  url: string,
+  bandIndex: number = 0,
   noDataValue?: number
-): Promise<{
-  min?: number;
-  max?: number;
-  dataNature: 'continuous' | 'categorical' | 'unknown';
-  uniqueValues?: number[];
-  sampleCount: number;
-}> {
+): Promise<BandStatistics> {
   try {
-    const imageCount = await tiff.getImageCount();
-    let selectedImage = await tiff.getImage(0);
+    const tiff = await fromUrl(url);
     
-    // If overviews exist, select an intermediate one
-    if (imageCount > 1) {
-      const targetPixels = 2_000_000; // Target ~2M pixels for good balance
-      let bestIndex = 0;
-      let bestDiff = Infinity;
-      
-      for (let i = 0; i < imageCount; i++) {
+    // Find best overview, capped at 20 IFDs
+    let selectedImage = await tiff.getImage(0);
+    const targetPixels = 2_000_000;
+    let bestDiff = Math.abs(selectedImage.getWidth() * selectedImage.getHeight() - targetPixels);
+    
+    for (let i = 1; i < 20; i++) {
+      try {
         const img = await tiff.getImage(i);
         const pixels = img.getWidth() * img.getHeight();
         const diff = Math.abs(pixels - targetPixels);
         
         if (diff < bestDiff && pixels <= targetPixels * 2) {
           bestDiff = diff;
-          bestIndex = i;
           selectedImage = img;
         }
+      } catch (e) {
+        // No more IFDs
+        break;
       }
     }
     
-    // Read raster data from selected overview
-    const width = selectedImage.getWidth();
-    const height = selectedImage.getHeight();
-    const samplesPerPixel = selectedImage.fileDirectory.SamplesPerPixel || 1;
+    // Pixel guard: if smallest overview > 4M pixels, bail
+    const totalPixels = selectedImage.getWidth() * selectedImage.getHeight();
+    if (totalPixels > 4_000_000) {
+      return {
+        dataNature: 'unknown',
+        sampleCount: 0,
+        note: `Smallest available overview is ${(totalPixels / 1_000_000).toFixed(1)}M pixels — too large to sample safely.`,
+      };
+    }
     
-    // For multi-band, just analyze first band
-    const rasters = await selectedImage.readRasters({ samples: [0] });
-    const data = rasters[0];
+    // Read rasters with 15-second timeout
+    const rasterPromise = selectedImage.readRasters({ samples: [bandIndex] });
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Band statistics timed out after 15 seconds')), 15000)
+    );
+    
+    const rasters = await Promise.race([rasterPromise, timeoutPromise]) as any[];
+    const data = rasters[0] as ArrayLike<number>;
     
     let min = Infinity;
     let max = -Infinity;
     const uniqueValuesSet = new Set<number>();
     let validSampleCount = 0;
     
-    // Analyze the data
     for (let i = 0; i < data.length; i++) {
       const value = data[i];
       
-      // Skip no-data values
       if (noDataValue !== undefined && Math.abs(value - noDataValue) < 0.0001) {
         continue;
       }
@@ -240,7 +279,6 @@ async function computeStatisticsFromOverview(
       if (value < min) min = value;
       if (value > max) max = value;
       
-      // Track unique values (up to a limit)
       if (uniqueValuesSet.size < 1000) {
         uniqueValuesSet.add(value);
       }
@@ -254,7 +292,6 @@ async function computeStatisticsFromOverview(
       const uniqueCount = uniqueValuesSet.size;
       const uniqueRatio = uniqueCount / validSampleCount;
       
-      // Heuristic: if unique values are < 50 and represent < 1% of samples, likely categorical
       if (uniqueCount < 50 && uniqueRatio < 0.01) {
         dataNature = 'categorical';
         uniqueValues = Array.from(uniqueValuesSet).sort((a, b) => a - b);
@@ -271,54 +308,34 @@ async function computeStatisticsFromOverview(
       sampleCount: validSampleCount,
     };
   } catch (error) {
-    // If sampling fails, return minimal info
     return {
       dataNature: 'unknown',
       sampleCount: 0,
+      note: error instanceof Error ? error.message : 'Failed to compute band statistics',
     };
   }
 }
 
-function getSampleFormatName(sampleFormat: number, bitsPerSample?: number): string {
-  const bitsStr = bitsPerSample ? `${bitsPerSample}-bit ` : '';
+/**
+ * Convenience wrapper — calls header then band statistics for band 0.
+ * Preserves the existing API used by constraintMetadataHelpers.ts.
+ */
+export async function fetchCogMetadata(url: string): Promise<CogMetadata> {
+  const metadata = await fetchCogHeaderMetadata(url);
   
-  switch (sampleFormat) {
-    case 1: return `${bitsStr}Unsigned Integer`;
-    case 2: return `${bitsStr}Signed Integer`;
-    case 3: return `${bitsStr}IEEE Floating Point`;
-    case 4: return 'Undefined';
-    default: return `Unknown (${sampleFormat})`;
-  }
-}
-
-function validateCogCompliance(metadata: CogMetadata): { isValid: boolean; issues: string[] } {
-  const issues: string[] = [];
-  
-  // Check 1: Must be tiled (not striped)
-  if (!metadata.tileWidth || !metadata.tileLength) {
-    issues.push('Not tiled - uses strip-based layout instead of tiles');
-  }
-  
-  // Check 2: Should have overviews for multi-resolution access
-  if (!metadata.overviewCount || metadata.overviewCount === 0) {
-    issues.push('No overviews (pyramids) - inefficient for zooming');
+  // Fetch statistics for band 0 if min/max not already available from GDAL metadata
+  if (metadata.minValue === undefined || metadata.maxValue === undefined) {
+    const stats = await fetchCogBandStatistics(url, 0, metadata.noDataValue);
+    metadata.minValue = stats.min;
+    metadata.maxValue = stats.max;
+    metadata.dataNature = stats.dataNature;
+    metadata.uniqueValues = stats.uniqueValues;
+    metadata.sampleCount = stats.sampleCount;
+    metadata.statisticsBand = 0;
+    if (stats.note) metadata.statisticsNote = stats.note;
   }
   
-  // Check 3: Tiles should be reasonably sized (typically 256 or 512)
-  if (metadata.tileWidth && (metadata.tileWidth < 128 || metadata.tileWidth > 1024)) {
-    issues.push(`Tile size ${metadata.tileWidth} is non-standard (recommended: 256 or 512)`);
-  }
-  
-  // Check 4: Should use efficient compression
-  const efficientCompressions = [1, 5, 7, 8, 34712]; // None, LZW, JPEG, Deflate, JPEG2000
-  if (metadata.compression && !efficientCompressions.includes(metadata.compression)) {
-    issues.push('Uses inefficient compression method');
-  }
-  
-  return {
-    isValid: issues.length === 0,
-    issues
-  };
+  return metadata;
 }
 
 export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ category: string; items: Array<{ label: string; value: string }> }> {
@@ -362,8 +379,17 @@ export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ categor
     sections.push({ category: 'Embedded Colormap', items: colormapProps });
   }
   
-  // Data Statistics
+  // Data Statistics — label includes band number if set
+  const statsLabel = metadata.statisticsBand !== undefined
+    ? `Data Statistics (Band ${metadata.statisticsBand + 1})`
+    : 'Data Statistics';
+    
   const dataProps = [];
+  
+  if (metadata.statisticsNote) {
+    dataProps.push({ label: 'Note', value: metadata.statisticsNote });
+  }
+  
   if (metadata.sampleCount !== undefined) {
     let sampleValue = metadata.sampleCount.toString();
     if (metadata.width && metadata.height) {
@@ -398,8 +424,13 @@ export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ categor
     });
   }
   
+  // Show placeholder message for multi-band files with no statistics yet
+  if (dataProps.length === 0 && metadata.multiBand) {
+    dataProps.push({ label: 'Status', value: 'Select a band to view statistics.' });
+  }
+  
   if (dataProps.length > 0) {
-    sections.push({ category: 'Data Statistics', items: dataProps });
+    sections.push({ category: statsLabel, items: dataProps });
   }
   
   // File Properties
@@ -408,13 +439,17 @@ export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ categor
     fileProps.push({ label: 'File Size', value: formatFileSize(metadata.fileSize) });
   }
   if (metadata.overviewCount !== undefined) {
+    const countDisplay = metadata.ifdCountCapped
+      ? `≥ ${metadata.overviewCount} (enumeration capped)`
+      : metadata.overviewCount.toString();
+      
     fileProps.push({ 
       label: 'Has Overviews', 
       value: metadata.overviewCount > 0 ? 'Yes' : 'No' 
     });
     fileProps.push({ 
       label: 'Overview Levels', 
-      value: metadata.overviewCount.toString() 
+      value: countDisplay
     });
   }
   if (fileProps.length > 0) {
@@ -500,4 +535,42 @@ function getCompressionName(compression: number): string {
   };
   
   return compressionMap[compression] || `Unknown (${compression})`;
+}
+
+function getSampleFormatName(sampleFormat: number, bitsPerSample?: number): string {
+  const bitsStr = bitsPerSample ? `${bitsPerSample}-bit ` : '';
+  
+  switch (sampleFormat) {
+    case 1: return `${bitsStr}Unsigned Integer`;
+    case 2: return `${bitsStr}Signed Integer`;
+    case 3: return `${bitsStr}IEEE Floating Point`;
+    case 4: return 'Undefined';
+    default: return `Unknown (${sampleFormat})`;
+  }
+}
+
+function validateCogCompliance(metadata: CogMetadata): { isValid: boolean; issues: string[] } {
+  const issues: string[] = [];
+  
+  if (!metadata.tileWidth || !metadata.tileLength) {
+    issues.push('Not tiled - uses strip-based layout instead of tiles');
+  }
+  
+  if (!metadata.overviewCount || metadata.overviewCount === 0) {
+    issues.push('No overviews (pyramids) - inefficient for zooming');
+  }
+  
+  if (metadata.tileWidth && (metadata.tileWidth < 128 || metadata.tileWidth > 1024)) {
+    issues.push(`Tile size ${metadata.tileWidth} is non-standard (recommended: 256 or 512)`);
+  }
+  
+  const efficientCompressions = [1, 5, 7, 8, 34712];
+  if (metadata.compression && !efficientCompressions.includes(metadata.compression)) {
+    issues.push('Uses inefficient compression method');
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
 }
