@@ -256,7 +256,16 @@ export async function fetchCogBandStatistics(
     }
     
     // Read rasters with 15-second timeout
-    const rasterPromise = selectedImage.readRasters({ samples: [bandIndex] });
+    const rasterPromise = selectedImage
+      .readRasters({ samples: [bandIndex] })
+      .catch((readError) => {
+        // Swallow abort-related rejections from the losing Promise.race branch
+        if (abortController.signal.aborted) {
+          return null;
+        }
+        throw readError;
+      });
+
     let timeoutId: ReturnType<typeof setTimeout>;
     const timeoutPromise = new Promise<never>((_, reject) => {
       timeoutId = setTimeout(() => {
@@ -264,13 +273,22 @@ export async function fetchCogBandStatistics(
         reject(new Error('Band statistics timed out after 15 seconds'));
       }, 15000);
     });
-    
-    let rasters: any[];
+
+    let rasters: any[] | null;
     try {
-      rasters = await Promise.race([rasterPromise, timeoutPromise]) as any[];
+      rasters = await Promise.race([rasterPromise, timeoutPromise]) as any[] | null;
     } finally {
       clearTimeout(timeoutId!);
     }
+
+    if (!rasters || !rasters[0]) {
+      return {
+        dataNature: 'unknown',
+        sampleCount: 0,
+        note: 'Band statistics request was cancelled.',
+      };
+    }
+
     const data = rasters[0] as ArrayLike<number>;
     
     let min = Infinity;
