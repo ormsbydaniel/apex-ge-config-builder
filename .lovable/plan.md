@@ -1,22 +1,12 @@
 
 
-## Paginate Data Sources in DataSourceDisplay
+## Change Default Page Size to 5 and Add Page Size Selector
 
-### Problem
-Layers with 800+ data sources render all items at once, making the UI unwieldy.
+### Changes — `src/components/layers/components/DataSourceDisplay.tsx`
 
-### Approach
-Add pagination (10 items per page) to `DataSourceDisplay.tsx` using the existing `Pagination` UI components.
-
-### Implementation
-
-#### `src/components/layers/components/DataSourceDisplay.tsx`
-
-1. Add `useState` for `currentPage` (default 0), reset to 0 when `source.data.length` changes.
-2. Slice `source.data` to show only 10 items per page: `source.data.slice(page * 10, (page + 1) * 10)`.
-3. Pass the **original index** (`page * 10 + index`) to callbacks so edit/remove target the correct item.
-4. Show item count summary ("Showing 1–10 of 823") and `Pagination` controls (Prev/Next + page numbers) below the list when there are more than 10 items.
-5. Statistics section stays unpaginated (typically small).
-
-No other files need changes — the pagination is fully contained within this component.
+1. Change `ITEMS_PER_PAGE` from a constant to state: `const [itemsPerPage, setItemsPerPage] = useState(5)`
+2. Replace all references to `ITEMS_PER_PAGE` with `itemsPerPage`
+3. Reset `currentPage` to 0 when `itemsPerPage` changes (add to existing `useEffect` deps)
+4. Add a `<Select>` dropdown next to the "Showing X–Y of Z" text with options: 5, 10, 25, 50
+5. On select change, update `itemsPerPage` and reset page to 0
 
