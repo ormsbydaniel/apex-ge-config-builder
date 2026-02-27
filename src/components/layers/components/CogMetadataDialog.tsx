@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -45,14 +45,27 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
     if (isOpen && url) {
       loadMetadata();
     }
+
+    if (!isOpen) {
+      // Invalidate in-flight statistics updates when dialog closes
+      activeStatsRequestRef.current += 1;
+      setStatisticsLoading(false);
+    }
   }, [isOpen, url]);
 
+  const activeStatsRequestRef = useRef(0);
+
   const loadBandStatistics = useCallback(async (bandIndex: number, headerMeta: CogMetadata) => {
+    const requestId = ++activeStatsRequestRef.current;
     setStatisticsLoading(true);
     setStatisticsError(null);
     
     try {
       const stats = await fetchCogBandStatistics(url, bandIndex, headerMeta.noDataValue);
+
+      // Ignore stale results from previous band requests
+      if (requestId !== activeStatsRequestRef.current) return;
+
       const updated: CogMetadata = {
         ...headerMeta,
         minValue: stats.min,
@@ -66,13 +79,19 @@ const CogMetadataDialog = ({ url, filename, isOpen, onClose, currentMeta, onUpda
       setRawMetadata(updated);
       setMetadata(formatMetadataForDisplay(updated));
     } catch (err) {
+      if (requestId !== activeStatsRequestRef.current) return;
       setStatisticsError(err instanceof Error ? err.message : 'Failed to load band statistics');
     } finally {
-      setStatisticsLoading(false);
+      if (requestId === activeStatsRequestRef.current) {
+        setStatisticsLoading(false);
+      }
     }
   }, [url]);
 
   const loadMetadata = async () => {
+    // Invalidate any previous statistics request when loading a new file
+    activeStatsRequestRef.current += 1;
+
     setLoading(true);
     setError(null);
     setMetadata(null);
