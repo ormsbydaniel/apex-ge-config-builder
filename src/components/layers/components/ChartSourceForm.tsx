@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,6 +90,10 @@ export function ChartSourceForm({
   // Get available columns from parsed data
   const availableColumns = parsedData.columns;
 
+  // Stabilize cogSources to prevent effect re-triggers from parent re-renders
+  const cogSourcesKey = cogSources.map(s => s.url || '').join('|');
+  const stableCogSources = useMemo(() => cogSources, [cogSourcesKey]);
+
   // Track dirty state
   const [isDirty, setIsDirty] = useState(false);
 
@@ -113,8 +117,8 @@ export function ChartSourceForm({
 
   // Fetch COG header metadata to detect band count when source changes
   useEffect(() => {
-    if (sourceType !== 'pixelValues' || cogSources.length === 0) return;
-    const source = cogSources[selectedCogIndex];
+    if (sourceType !== 'pixelValues' || stableCogSources.length === 0) return;
+    const source = stableCogSources[selectedCogIndex];
     if (!source?.url) return;
 
     const requestId = ++bandFetchRef.current;
@@ -142,7 +146,7 @@ export function ChartSourceForm({
       .finally(() => {
         if (requestId === bandFetchRef.current) setBandLoading(false);
       });
-  }, [sourceType, selectedCogIndex, cogSources]);
+  }, [sourceType, selectedCogIndex, stableCogSources]);
 
   // Sync band labels to chartConfig.x and ensure a default trace exists
   useEffect(() => {
@@ -159,11 +163,11 @@ export function ChartSourceForm({
 
   // Fetch sample pixel values from COG center when bands are ready
   useEffect(() => {
-    if (sourceType !== 'pixelValues' || cogSources.length === 0 || bandCount === 0) {
+    if (sourceType !== 'pixelValues' || stableCogSources.length === 0 || bandCount === 0) {
       setSamplePixelValues(null);
       return;
     }
-    const source = cogSources[selectedCogIndex];
+    const source = stableCogSources[selectedCogIndex];
     if (!source?.url) return;
 
     const requestId = ++sampleFetchRef.current;
@@ -181,7 +185,7 @@ export function ChartSourceForm({
       .finally(() => {
         if (requestId === sampleFetchRef.current) setSampleLoading(false);
       });
-  }, [sourceType, selectedCogIndex, cogSources, bandCount]);
+  }, [sourceType, selectedCogIndex, stableCogSources, bandCount]);
 
 
   useEffect(() => {
