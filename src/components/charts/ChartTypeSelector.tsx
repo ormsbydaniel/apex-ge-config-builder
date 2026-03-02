@@ -99,7 +99,7 @@ function convertChartType(config: ChartConfig, newType: ChartDisplayType): Chart
   if (newType === 'pie') {
     updatedConfig.chartType = 'pie';
     updatedConfig.pie = {
-      labels: config.x || '',
+      labels: (typeof config.x === 'string' ? config.x : '') || '',
       values: config.traces?.[0]?.y || '',
       hole: 0,
       textinfo: 'percent',

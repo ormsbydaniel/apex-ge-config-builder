@@ -11,7 +11,7 @@ export const CategorySchema = z.object({
 
 // Chart source schema
 const ChartSourceSchema = z.object({
-  type: z.enum(['externalURL', 'lookupURL']).optional(),  // Optional for flexibility
+  type: z.enum(['externalURL', 'lookupURL', 'pixelValues']).optional(),  // Optional for flexibility
   url: z.string().optional(),
   field: z.string().optional(),
   format: z.enum(['csv', 'json']).optional(),
@@ -35,7 +35,7 @@ const TraceMarkerSchema = z.object({
 
 // Chart trace schema
 const ChartTraceSchema = z.object({
-  y: z.string(),
+  y: z.string().optional(),
   name: z.string().optional(),
   type: z.enum(['scatter', 'bar', 'histogram', 'pie']).optional(),
   mode: z.enum(['lines', 'markers', 'lines+markers']).optional(),
@@ -100,7 +100,7 @@ const ChartConfigSchema = z.object({
   chartType: z.enum(['xy', 'pie']).optional(),
   title: z.string().optional(),
   subtitle: z.string().optional(),
-  x: z.string().optional(),  // Optional to support pie charts
+  x: z.union([z.string(), z.array(z.string())]).optional(),  // Optional to support pie charts and pixel-value band labels
   traces: z.array(ChartTraceSchema).optional(),  // Optional for pie charts
   layout: ChartLayoutSchema.optional(),
   pie: ChartPieSchema.optional(),

@@ -5,7 +5,7 @@
 
 // Chart data source - can be external URL or field lookup
 export interface ChartSource {
-  type?: 'externalURL' | 'lookupURL';  // Optional due to Zod passthrough behavior
+  type?: 'externalURL' | 'lookupURL' | 'pixelValues';
   url?: string;      // For externalURL type
   field?: string;    // For lookupURL type
   format?: 'csv' | 'json';
@@ -119,7 +119,7 @@ export interface ChartConfig {
   chartType?: 'xy' | 'pie';
   title?: string;
   subtitle?: string;
-  x?: string;  // Optional to support pie charts which don't use x-axis
+  x?: string | string[];  // String for field name, array for band labels (pixelValues)
   traces?: ChartTrace[];  // Optional for pie charts
   layout?: ChartLayout;
   pie?: ChartPie;
