@@ -1,29 +1,42 @@
 
 
-## Design Decision: COG Source Selection for Pixel Values Charts
+## Problem
 
-Currently `ChartSourceForm` has no access to the parent layer's data sources. To support pixelValues charts, we'd pass the layer's `data: DataSourceItem[]` array as a new prop.
+The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
 
-### Proposed UI Behavior
+## Proposed Approach: Numeric Defaults with Optional Label Overrides
 
-**Single COG source**: No selector shown — that source is used automatically for band label detection and sample pixel fetch.
+### Default behavior
+Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
 
-**Multiple COG sources**: Show a `Select` dropdown labeled "Sample Source" listing each COG by a derived label (filename from URL, or `"Source 1"`, `"Source 2"` etc.). The selected source determines:
-- Which COG's bands populate the X-axis label editor
-- Which COG is sampled for the preview pixel values
+### Optional label customization via modal
+A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
 
-Only `format: 'cog'` entries from the data array would appear in the dropdown (non-COG sources like WMS aren't relevant for pixel sampling).
+- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
+- **Bulk operations toolbar** at the top:
+  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
+  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
+  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
+- **Search/filter** to quickly find and edit specific bands
 
-### Implementation
+### Adaptive inline editor for small band counts
+For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
 
-1. **`LayerFormHandler.tsx`** — Pass `currentLayer.data` (filtered to COG items) to `ChartSourceForm` as a new `cogSources` prop.
+## Implementation
 
-2. **`ChartSourceForm.tsx`** — Accept `cogSources?: DataSourceItem[]`. When pixelValues source type is selected:
-   - If `cogSources.length === 1`: auto-select it, no dropdown
-   - If `cogSources.length > 1`: render a `Select` with source labels derived from URLs
-   - If `cogSources.length === 0`: show a warning that no COG sources are configured on this layer
+### Changes to `ChartSourceForm.tsx`
+- Replace the current band labels grid with:
+  - Summary text showing band count
+  - For ≤12 bands: keep existing inline grid
+  - For >12 bands: show summary + "Customize Band Labels" button
+- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
 
-3. The selected COG source feeds into the band label editor and sample pixel utility — no config storage needed since pixelValues charts read from whichever bands the runtime map click handler provides. The selector is purely for the editor preview.
+### New component: `BandLabelEditorDialog.tsx`
+- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
+- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
+- Search input to filter rows
+- Returns updated labels array on save
 
-This keeps the scope small — just one conditional `Select` component and a prop thread-through.
+### No changes needed to schemas or types
+The `x: string[]` config already supports any label strings.
 
