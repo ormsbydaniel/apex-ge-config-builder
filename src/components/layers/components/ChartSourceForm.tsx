@@ -790,7 +790,11 @@ export function ChartSourceForm({
                     ) : (
                       <>
                         <PlotlyChartViewer
-                          config={{...chartConfig, title: chartTitle || chartConfig.title}}
+                          config={{
+                            ...chartConfig,
+                            title: chartTitle || chartConfig.title,
+                            ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {})
+                          }}
                           data={parsedData}
                           sampleData={samplePixelValues || undefined}
                         />
