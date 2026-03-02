@@ -553,65 +553,25 @@ export function ChartSourceForm({
                       )}
                     </div>
                     {!bandLoading && bandCount > 0 && (
-                      <>
-                        {bandCount <= 12 ? (
-                          /* Inline grid for small band counts */
-                          <>
-                            <p className="text-xs text-muted-foreground">
-                              {bandCount} band{bandCount !== 1 ? 's' : ''} detected. Customize labels for the chart X-axis.
-                            </p>
-                            <div className="grid grid-cols-2 gap-2">
-                              {bandLabels.map((label, i) => (
-                                <div key={i} className="flex items-center gap-2">
-                                  <span className="text-xs text-muted-foreground w-6 text-right shrink-0">{i + 1}</span>
-                                  <Input
-                                    value={label}
-                                    onChange={(e) => {
-                                      const newLabels = [...bandLabels];
-                                      newLabels[i] = e.target.value;
-                                      setBandLabels(newLabels);
-                                    }}
-                                    className="h-8 text-sm"
-                                    placeholder={String(i + 1)}
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="text-xs"
-                                onClick={() => setBandLabels(Array.from({ length: bandCount }, (_, i) => String(i + 1)))}
-                              >
-                                Reset to band numbers
-                              </Button>
-                            </div>
-                          </>
-                        ) : (
-                          /* Summary + modal button for large band counts */
-                          <div className="flex items-center justify-between p-3 rounded-md border bg-muted/30">
-                            <div>
-                              <p className="text-sm font-medium">
-                                {bandCount} bands detected
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Using band numbers as X-axis labels
-                              </p>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setBandLabelDialogOpen(true)}
-                            >
-                              <Settings2 className="h-3.5 w-3.5 mr-1.5" />
-                              Customize Labels
-                            </Button>
-                          </div>
-                        )}
-                      </>
+                      <div className="flex items-center justify-between p-3 rounded-md border bg-muted/30">
+                        <div>
+                          <p className="text-sm font-medium">
+                            {bandCount} band{bandCount !== 1 ? 's' : ''} detected
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Using band numbers as X-axis labels
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setBandLabelDialogOpen(true)}
+                        >
+                          <Settings2 className="h-3.5 w-3.5 mr-1.5" />
+                          Customize Labels
+                        </Button>
+                      </div>
                     )}
                   </div>
                 )}
