@@ -21,6 +21,7 @@ import { PlotlyChartViewer } from '@/components/charts/PlotlyChartViewer';
 import { useChartEditorState } from '@/hooks/useChartEditorState';
 import { fetchAndParseCSV } from '@/utils/csvParser';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
+import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Activity, Loader2, Tag } from 'lucide-react';
 
@@ -54,6 +55,9 @@ export function ChartSourceForm({
   const [bandCount, setBandCount] = useState<number>(0);
   const [bandLoading, setBandLoading] = useState(false);
   const bandFetchRef = useRef(0);
+  const [samplePixelValues, setSamplePixelValues] = useState<number[] | null>(null);
+  const [sampleLoading, setSampleLoading] = useState(false);
+  const sampleFetchRef = useRef(0);
   const [directUrl, setDirectUrl] = useState(editingChart?.sources?.[0]?.url || '');
   const [chartTitle, setChartTitle] = useState(editingChart?.title || '');
   const [chartLabel, setChartLabel] = useState(editingChart?.sources?.[0]?.label || '');
@@ -150,6 +154,32 @@ export function ChartSourceForm({
       return { ...prev, ...updates };
     });
   }, [bandLabels, sourceType, setChartConfig, setSelectedTraceIndex]);
+
+  // Fetch sample pixel values from COG center when bands are ready
+  useEffect(() => {
+    if (sourceType !== 'pixelValues' || cogSources.length === 0 || bandCount === 0) {
+      setSamplePixelValues(null);
+      return;
+    }
+    const source = cogSources[selectedCogIndex];
+    if (!source?.url) return;
+
+    const requestId = ++sampleFetchRef.current;
+    setSampleLoading(true);
+
+    fetchCogCenterPixel(source.url)
+      .then((result) => {
+        if (requestId !== sampleFetchRef.current) return;
+        setSamplePixelValues(result.bandValues);
+      })
+      .catch(() => {
+        if (requestId !== sampleFetchRef.current) return;
+        setSamplePixelValues(null);
+      })
+      .finally(() => {
+        if (requestId === sampleFetchRef.current) setSampleLoading(false);
+      });
+  }, [sourceType, selectedCogIndex, cogSources, bandCount]);
 
 
   useEffect(() => {
@@ -759,10 +789,30 @@ export function ChartSourceForm({
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4">
                   <div className="border rounded-lg p-4 bg-background">
-                    <PlotlyChartViewer
-                      config={{...chartConfig, title: chartTitle || chartConfig.title}}
-                      data={parsedData}
-                    />
+                    {sampleLoading && isPixelValuesReady ? (
+                      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                        <Loader2 className="h-6 w-6 animate-spin mb-2" />
+                        <span className="text-sm">Fetching sample pixel data...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <PlotlyChartViewer
+                          config={{...chartConfig, title: chartTitle || chartConfig.title}}
+                          data={parsedData}
+                          sampleData={samplePixelValues || undefined}
+                        />
+                        {isPixelValuesReady && samplePixelValues && (
+                          <p className="text-xs text-muted-foreground text-center mt-1 italic">
+                            Sample data from center pixel — actual chart will use clicked location
+                          </p>
+                        )}
+                        {isPixelValuesReady && !samplePixelValues && !sampleLoading && (
+                          <p className="text-xs text-destructive text-center mt-1">
+                            Could not fetch sample pixel data. Preview shows placeholder values.
+                          </p>
+                        )}
+                      </>
+                    )}
                   </div>
                 </CollapsibleContent>
               </Collapsible>
