@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Save, X, Database, Globe, ChevronDown, ChevronRight } from 'lucide-react';
 import { Service } from '@/types/config';
+import { DataSourceItem } from '@/types/dataSource';
 import { ChartConfig, ChartSource, ChartTrace } from '@/types/chart';
 import { useToast } from '@/hooks/use-toast';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -19,6 +20,8 @@ import { HistogramEditor } from '@/components/charts/HistogramEditor';
 import { PlotlyChartViewer } from '@/components/charts/PlotlyChartViewer';
 import { useChartEditorState } from '@/hooks/useChartEditorState';
 import { fetchAndParseCSV } from '@/utils/csvParser';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertTriangle, Activity } from 'lucide-react';
 
 interface ChartSourceFormProps {
   services: Service[];
@@ -27,6 +30,7 @@ interface ChartSourceFormProps {
   editingChart?: ChartConfig;
   editingIndex?: number;
   onUpdateChart?: (chart: ChartConfig, chartIndex: number) => void;
+  cogSources?: DataSourceItem[];
 }
 
 export function ChartSourceForm({
@@ -35,12 +39,16 @@ export function ChartSourceForm({
   onCancel,
   editingChart,
   editingIndex,
-  onUpdateChart
+  onUpdateChart,
+  cogSources = []
 }: ChartSourceFormProps) {
   const { toast } = useToast();
   const { dispatch } = useConfig();
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct'>('direct');
+  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues'>(
+    editingChart?.sources?.[0]?.type === 'pixelValues' ? 'pixelValues' : 'direct'
+  );
+  const [selectedCogIndex, setSelectedCogIndex] = useState<number>(0);
   const [directUrl, setDirectUrl] = useState(editingChart?.sources?.[0]?.url || '');
   const [chartTitle, setChartTitle] = useState(editingChart?.title || '');
   const [chartLabel, setChartLabel] = useState(editingChart?.sources?.[0]?.label || '');
@@ -238,6 +246,42 @@ export function ChartSourceForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (sourceType === 'pixelValues') {
+      if (cogSources.length === 0) {
+        toast({
+          title: "No COG Sources",
+          description: "This layer has no COG data sources configured.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const chartSource: ChartSource = {
+        type: 'pixelValues',
+        ...(chartLabel.trim() && { label: chartLabel.trim() })
+      };
+
+      const finalConfig: ChartConfig = {
+        ...chartConfig,
+        ...(chartTitle.trim() && { title: chartTitle.trim() }),
+        sources: [chartSource]
+      };
+
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: false, description: null }
+      });
+
+      if (editingChart && editingIndex !== undefined && onUpdateChart) {
+        onUpdateChart(finalConfig, editingIndex);
+        toast({ title: "Chart Updated", description: "Chart configuration has been updated." });
+      } else {
+        onAddChart(finalConfig);
+        toast({ title: "Chart Added", description: "Chart has been added to the layer." });
+      }
+      return;
+    }
+
     if (!directUrl.trim()) {
       toast({
         title: "Missing URL",
@@ -311,7 +355,7 @@ export function ChartSourceForm({
             {/* Source Type Selection */}
             <div className="space-y-4">
               <Label className="text-base font-medium">Data Source</Label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <button
                   type="button"
                   onClick={() => setSourceType('direct')}
@@ -342,8 +386,66 @@ export function ChartSourceForm({
                     Select from configured services
                   </div>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setSourceType('pixelValues')}
+                  className={`p-4 border rounded-lg text-center flex flex-col items-center transition-colors ${
+                    sourceType === 'pixelValues'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <Activity className="h-5 w-5 mb-2 text-primary" />
+                  <div className="font-medium">Pixel Values</div>
+                  <div className="text-sm text-muted-foreground">
+                    Spectral signature from COG bands
+                  </div>
+                </button>
               </div>
             </div>
+
+            {/* Pixel Values: COG source selector */}
+            {sourceType === 'pixelValues' && (
+              <div className="space-y-4">
+                {cogSources.length === 0 ? (
+                  <div className="flex items-center gap-2 p-4 border border-dashed rounded-lg text-sm text-muted-foreground">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    No COG data sources are configured on this layer. Add a COG data source first.
+                  </div>
+                ) : cogSources.length > 1 ? (
+                  <div className="space-y-2">
+                    <Label>Sample Source</Label>
+                    <Select
+                      value={String(selectedCogIndex)}
+                      onValueChange={(v) => setSelectedCogIndex(Number(v))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a COG source" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cogSources.map((src, i) => {
+                          const label = src.url
+                            ? src.url.split('/').pop()?.split('?')[0] || `Source ${i + 1}`
+                            : `Source ${i + 1}`;
+                          return (
+                            <SelectItem key={i} value={String(i)}>
+                              {label}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Choose which COG source to use for band detection and sample preview
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    Using: {cogSources[0]?.url?.split('/').pop()?.split('?')[0] || 'COG source'}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Service Selection */}
             {sourceType === 'service' && (
@@ -373,19 +475,21 @@ export function ChartSourceForm({
               />
             </div>
 
-            {/* URL Input */}
-            <div className="space-y-2">
-              <Label htmlFor="url">CSV URL</Label>
-              <Input
-                id="url"
-                value={directUrl}
-                onChange={(e) => setDirectUrl(e.target.value)}
-                placeholder="https://example.com/data.csv"
-              />
-              <p className="text-xs text-muted-foreground">
-                Enter the URL to your CSV data file
-              </p>
-            </div>
+            {/* URL Input - only for CSV-based sources */}
+            {sourceType !== 'pixelValues' && (
+              <div className="space-y-2">
+                <Label htmlFor="url">CSV URL</Label>
+                <Input
+                  id="url"
+                  value={directUrl}
+                  onChange={(e) => setDirectUrl(e.target.value)}
+                  placeholder="https://example.com/data.csv"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter the URL to your CSV data file
+                </p>
+              </div>
+            )}
 
             {/* Source Label */}
             <div className="space-y-2">
