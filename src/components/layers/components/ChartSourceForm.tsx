@@ -681,6 +681,7 @@ export function ChartSourceForm({
                           trace={selectedTrace}
                           traceIndex={selectedTraceIndex}
                           columns={bandLabels}
+                          hideYColumn
                           onUpdate={(updatedTrace) => {
                             const newTraces = [...(chartConfig.traces || [])];
                             newTraces[selectedTraceIndex] = updatedTrace;

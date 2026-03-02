@@ -17,9 +17,10 @@ interface TraceEditorProps {
   columns: string[];
   onUpdate: (trace: ChartTrace) => void;
   onRemove: () => void;
+  hideYColumn?: boolean;
 }
 
-export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: TraceEditorProps) {
+export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove, hideYColumn }: TraceEditorProps) {
   const hasLines = trace.mode?.includes('lines') ?? true;
   const hasMarkers = trace.mode?.includes('markers') ?? false;
   const hasFill = trace.fill && trace.fill !== 'none';
@@ -84,20 +85,22 @@ export function TraceEditor({ trace, traceIndex, columns, onUpdate, onRemove }: 
       </div>
 
       {/* Y Column and Legend */}
-      <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center">
-        <div>
-          <Label className="text-xs">Y Column</Label>
-          <Select value={trace.y} onValueChange={(y) => onUpdate({ ...trace, y })}>
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {columns.filter(col => col !== '').map(col => (
-                <SelectItem key={col} value={col}>{col}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className={`grid ${hideYColumn ? 'grid-cols-[auto_1fr]' : 'grid-cols-[1fr_auto_1fr]'} gap-2 items-center`}>
+        {!hideYColumn && (
+          <div>
+            <Label className="text-xs">Y Column</Label>
+            <Select value={trace.y} onValueChange={(y) => onUpdate({ ...trace, y })}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {columns.filter(col => col !== '').map(col => (
+                  <SelectItem key={col} value={col}>{col}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div className="flex items-center gap-1 pt-4">
           <Switch
