@@ -152,7 +152,7 @@ export function ChartSourceForm({
       setChartConfig({
         ...chartConfig,
         pie: {
-          labels: chartConfig.x || '',
+          labels: (typeof chartConfig.x === 'string' ? chartConfig.x : '') || '',
           values: firstTrace?.y || '',
           hole: 0
         },
@@ -165,7 +165,7 @@ export function ChartSourceForm({
         ...chartConfig,
         pie: undefined,
         traces: [{
-          y: firstTrace?.y || chartConfig.x || '',
+          y: firstTrace?.y || (typeof chartConfig.x === 'string' ? chartConfig.x : '') || '',
           type: 'histogram',
           name: 'Histogram'
         }]

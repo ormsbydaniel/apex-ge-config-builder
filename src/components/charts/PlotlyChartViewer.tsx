@@ -74,14 +74,17 @@ export function PlotlyChartViewer({ config, data, height = 400 }: PlotlyChartVie
     }
 
     const isDateAxis = config.layout?.xaxis?.type === 'date';
-    const xData = config.x ? data.data.map(row => {
-      const value = row[config.x!];
-      // Convert DD-MM-YYYY format to ISO for Plotly
-      if (isDateAxis && typeof value === 'string') {
-        return convertToISODate(value);
-      }
-      return value;
-    }) : [];
+    const xData = config.x
+      ? (Array.isArray(config.x)
+        ? config.x
+        : data.data.map(row => {
+            const value = row[config.x as string];
+            if (isDateAxis && typeof value === 'string') {
+              return convertToISODate(value);
+            }
+            return value;
+          }))
+      : [];
 
     const plotTraces = config.traces.map((trace, index) => {
       const plotTrace: any = {
