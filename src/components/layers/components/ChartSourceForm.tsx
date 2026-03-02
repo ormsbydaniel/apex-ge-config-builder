@@ -23,7 +23,8 @@ import { fetchAndParseCSV } from '@/utils/csvParser';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
 import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, Activity, Loader2, Tag } from 'lucide-react';
+import { AlertTriangle, Activity, Loader2, Tag, Settings2 } from 'lucide-react';
+import { BandLabelEditorDialog } from './BandLabelEditorDialog';
 
 interface ChartSourceFormProps {
   services: Service[];
@@ -52,6 +53,7 @@ export function ChartSourceForm({
   );
   const [selectedCogIndex, setSelectedCogIndex] = useState<number>(0);
   const [bandLabels, setBandLabels] = useState<string[]>([]);
+  const [bandLabelDialogOpen, setBandLabelDialogOpen] = useState(false);
   const [bandCount, setBandCount] = useState<number>(0);
   const [bandLoading, setBandLoading] = useState(false);
   const bandFetchRef = useRef(0);
@@ -127,14 +129,14 @@ export function ChartSourceForm({
         // Only auto-populate if labels are empty or count changed
         setBandLabels(prev => {
           if (prev.length === count) return prev;
-          return Array.from({ length: count }, (_, i) => `Band ${i + 1}`);
+          return Array.from({ length: count }, (_, i) => String(i + 1));
         });
       })
       .catch(() => {
         if (requestId !== bandFetchRef.current) return;
         if (bandCount === 0) {
           setBandCount(1);
-          setBandLabels(['Band 1']);
+          setBandLabels(['1']);
         }
       })
       .finally(() => {
@@ -552,37 +554,63 @@ export function ChartSourceForm({
                     </div>
                     {!bandLoading && bandCount > 0 && (
                       <>
-                        <p className="text-xs text-muted-foreground">
-                          {bandCount} band{bandCount !== 1 ? 's' : ''} detected. Customize labels for the chart X-axis.
-                        </p>
-                        <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-                          {bandLabels.map((label, i) => (
-                            <div key={i} className="flex items-center gap-2">
-                              <span className="text-xs text-muted-foreground w-6 text-right shrink-0">{i + 1}</span>
-                              <Input
-                                value={label}
-                                onChange={(e) => {
-                                  const newLabels = [...bandLabels];
-                                  newLabels[i] = e.target.value;
-                                  setBandLabels(newLabels);
-                                }}
-                                className="h-8 text-sm"
-                                placeholder={`Band ${i + 1}`}
-                              />
+                        {bandCount <= 12 ? (
+                          /* Inline grid for small band counts */
+                          <>
+                            <p className="text-xs text-muted-foreground">
+                              {bandCount} band{bandCount !== 1 ? 's' : ''} detected. Customize labels for the chart X-axis.
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              {bandLabels.map((label, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground w-6 text-right shrink-0">{i + 1}</span>
+                                  <Input
+                                    value={label}
+                                    onChange={(e) => {
+                                      const newLabels = [...bandLabels];
+                                      newLabels[i] = e.target.value;
+                                      setBandLabels(newLabels);
+                                    }}
+                                    className="h-8 text-sm"
+                                    placeholder={String(i + 1)}
+                                  />
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="text-xs"
-                            onClick={() => setBandLabels(Array.from({ length: bandCount }, (_, i) => `Band ${i + 1}`))}
-                          >
-                            Reset to defaults
-                          </Button>
-                        </div>
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs"
+                                onClick={() => setBandLabels(Array.from({ length: bandCount }, (_, i) => String(i + 1)))}
+                              >
+                                Reset to band numbers
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          /* Summary + modal button for large band counts */
+                          <div className="flex items-center justify-between p-3 rounded-md border bg-muted/30">
+                            <div>
+                              <p className="text-sm font-medium">
+                                {bandCount} bands detected
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Using band numbers as X-axis labels
+                              </p>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setBandLabelDialogOpen(true)}
+                            >
+                              <Settings2 className="h-3.5 w-3.5 mr-1.5" />
+                              Customize Labels
+                            </Button>
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
@@ -842,6 +870,14 @@ export function ChartSourceForm({
           onSelect={handleServiceModalSelection}
         />
       )}
+
+      {/* Band Label Editor Dialog */}
+      <BandLabelEditorDialog
+        open={bandLabelDialogOpen}
+        onOpenChange={setBandLabelDialogOpen}
+        labels={bandLabels}
+        onSave={setBandLabels}
+      />
     </>
   );
 }
