@@ -1,22 +1,29 @@
 
 
-## Investigation Results
+## Design Decision: COG Source Selection for Pixel Values Charts
 
-The import failure is **not** about missing meta/attribution fields. It's caused by **chart schema mismatches** in `src/schemas/configSchema.ts`. Because the source schema uses a `z.union()`, when chart validation fails, Zod tries all union branches and surfaces misleading errors from other branches (like missing meta from `BaseLayerSchema`).
+Currently `ChartSourceForm` has no access to the parent layer's data sources. To support pixelValues charts, we'd pass the layer's `data: DataSourceItem[]` array as a new prop.
 
-There are three specific mismatches between your chart JSON and the current Zod schemas:
+### Proposed UI Behavior
 
-1. **`ChartSourceSchema.type`** only allows `'externalURL' | 'lookupURL'` — your config uses `"pixelValues"` which is rejected
-2. **`ChartConfigSchema.x`** is typed as `z.string().optional()` — your config passes an array `["red", "green", "blue"]`
-3. **`ChartTraceSchema.y`** is required (`z.string()`) — your traces don't have a `y` field (pixel-value charts derive Y from the data)
+**Single COG source**: No selector shown — that source is used automatically for band label detection and sample pixel fetch.
 
-## Plan
+**Multiple COG sources**: Show a `Select` dropdown labeled "Sample Source" listing each COG by a derived label (filename from URL, or `"Source 1"`, `"Source 2"` etc.). The selected source determines:
+- Which COG's bands populate the X-axis label editor
+- Which COG is sampled for the preview pixel values
 
-Update the chart schemas in `src/schemas/configSchema.ts` to accept these valid chart configurations:
+Only `format: 'cog'` entries from the data array would appear in the dropdown (non-COG sources like WMS aren't relevant for pixel sampling).
 
-1. **`ChartSourceSchema`** — add `'pixelValues'` to the `type` enum (line 14)
-2. **`ChartConfigSchema`** — change `x` from `z.string().optional()` to `z.union([z.string(), z.array(z.string())]).optional()` to accept both a single field name and an array of band labels (line 103)
-3. **`ChartTraceSchema`** — make `y` optional (`z.string().optional()`) since pixel-value charts don't use a named Y field (line 38)
+### Implementation
 
-These are three small, targeted changes to the schema file. No other files need modification.
+1. **`LayerFormHandler.tsx`** — Pass `currentLayer.data` (filtered to COG items) to `ChartSourceForm` as a new `cogSources` prop.
+
+2. **`ChartSourceForm.tsx`** — Accept `cogSources?: DataSourceItem[]`. When pixelValues source type is selected:
+   - If `cogSources.length === 1`: auto-select it, no dropdown
+   - If `cogSources.length > 1`: render a `Select` with source labels derived from URLs
+   - If `cogSources.length === 0`: show a warning that no COG sources are configured on this layer
+
+3. The selected COG source feeds into the band label editor and sample pixel utility — no config storage needed since pixelValues charts read from whichever bands the runtime map click handler provides. The selector is purely for the editor preview.
+
+This keeps the scope small — just one conditional `Select` component and a prop thread-through.
 
