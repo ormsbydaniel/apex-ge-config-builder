@@ -367,6 +367,17 @@ const DataSourceItem = ({
           onUpdateLayout={onUpdateLayout}
         />
       )}
+      {/* Band Selector Dialog */}
+      {isCog && cogBandCount !== null && cogBandCount > 1 && (
+        <BandSelectorDialog
+          open={showBandSelector}
+          onOpenChange={setShowBandSelector}
+          cogBandCount={cogBandCount}
+          currentBands={Array.isArray(dataSource.bands) ? dataSource.bands : []}
+          onSave={(bands, applyToAll) => onUpdateBands?.(bands, applyToAll)}
+          cogCount={cogCount}
+        />
+      )}
     </div>
   );
 };
