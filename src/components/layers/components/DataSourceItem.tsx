@@ -47,10 +47,13 @@ const DataSourceItem = ({
   currentLayout,
   sourceName,
   onUpdateMeta,
-  onUpdateLayout
+  onUpdateLayout,
+  onUpdateBands,
+  cogCount = 0
 }: DataSourceItemProps) => {
   const { toast } = useToast();
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
+  const [showBandSelector, setShowBandSelector] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
   const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
   const [cogBandCount, setCogBandCount] = useState<number | null>(null);
