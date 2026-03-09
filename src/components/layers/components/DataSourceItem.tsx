@@ -161,10 +161,14 @@ const DataSourceItem = ({
           </Badge>
         )}
 
-        {/* Configured bands array badge */}
-        {Array.isArray(dataSource.bands) && dataSource.bands.length > 0 && (
+        {/* Configured bands array badge or undefined warning */}
+        {Array.isArray(dataSource.bands) && dataSource.bands.length > 0 ? (
           <Badge variant="secondary" className="text-xs flex-shrink-0">
             Bands: {dataSource.bands.slice(0, 5).join(', ')}{dataSource.bands.length > 5 ? '…' : ''}
+          </Badge>
+        ) : isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
+          <Badge variant="outline" className="text-xs flex-shrink-0 text-destructive border-destructive">
+            Bands: undefined
           </Badge>
         )}
 
