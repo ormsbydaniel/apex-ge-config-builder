@@ -34,12 +34,14 @@ export function BandSelectorDialog({
   const [selectedBands, setSelectedBands] = useState<number[]>([]);
   const [applyToAll, setApplyToAll] = useState(true);
 
+  const currentBandsKey = JSON.stringify(currentBands || []);
   useEffect(() => {
     if (open) {
       setSelectedBands([...(currentBands || [])]);
       setApplyToAll(true);
     }
-  }, [open, currentBands]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, currentBandsKey]);
 
   const allBands = useMemo(
     () => Array.from({ length: cogBandCount }, (_, i) => i + 1),
