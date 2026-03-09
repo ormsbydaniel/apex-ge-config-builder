@@ -32,13 +32,11 @@ export function BandSelectorDialog({
   bandLabels,
 }: BandSelectorDialogProps) {
   const [selectedBands, setSelectedBands] = useState<number[]>([]);
-  const [highlightedBand, setHighlightedBand] = useState<number | null>(null);
   const [applyToAll, setApplyToAll] = useState(false);
 
   useEffect(() => {
     if (open) {
       setSelectedBands([...currentBands]);
-      setHighlightedBand(null);
       setApplyToAll(false);
     }
   }, [open, currentBands]);
