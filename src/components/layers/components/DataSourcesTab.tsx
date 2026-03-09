@@ -12,6 +12,7 @@ interface DataSourcesTabProps {
   onEdit: (layerIndex: number, dataIndex: number) => void;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateDataBands?: (dataIndex: number, bands: number[], applyToAll: boolean) => void;
 }
 export function DataSourcesTab({
   source,
