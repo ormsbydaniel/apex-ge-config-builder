@@ -43,6 +43,7 @@ interface DataSourceDisplayProps {
   onEditStatisticsSource?: (statsIndex: number) => void;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateDataBands?: (dataIndex: number, bands: number[], applyToAll: boolean) => void;
   showStatsLevelForData?: boolean;
 }
 
