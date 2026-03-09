@@ -194,6 +194,8 @@ const DataSourceDisplay = ({
                 sourceName={source.name}
                 onUpdateMeta={onUpdateMeta}
                 onUpdateLayout={onUpdateLayout}
+                onUpdateBands={(bands, applyToAll) => onUpdateDataBands?.(absoluteIndex, bands, applyToAll)}
+                cogCount={cogCount}
               />;
             })}
 

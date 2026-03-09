@@ -123,6 +123,7 @@ export function LayerCardTabs({
               onEdit={onEditDataSource}
               onUpdateMeta={onUpdateMeta}
               onUpdateLayout={onUpdateLayout}
+              onUpdateDataBands={onUpdateDataBands}
             />
           </TabsContent>
 
