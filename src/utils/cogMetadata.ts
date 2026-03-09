@@ -529,6 +529,12 @@ export function formatMetadataForDisplay(metadata: CogMetadata): Array<{ categor
   if (metadata.bitsPerSample) imageProps.push({ label: 'Bits per Sample', value: metadata.bitsPerSample.join(', ') });
   if (metadata.compression !== undefined) imageProps.push({ label: 'Compression', value: getCompressionName(metadata.compression) });
   if (metadata.tileWidth) imageProps.push({ label: 'Tile Size', value: `${metadata.tileWidth} × ${metadata.tileLength || metadata.tileWidth}` });
+  if (metadata.samplesPerPixel !== undefined && metadata.samplesPerPixel > 1) {
+    const interleave = metadata.planarConfiguration === 2
+      ? 'Band Sequential (BSQ)'
+      : 'Pixel Interleaved (BIP)';
+    imageProps.push({ label: 'Interleave', value: interleave });
+  }
   
   if (imageProps.length > 0) {
     sections.push({ category: 'Image Properties', items: imageProps });
