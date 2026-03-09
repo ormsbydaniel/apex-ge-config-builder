@@ -29,6 +29,8 @@ interface DataSourceItemProps {
   sourceName?: string;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateBands?: (bands: number[], applyToAll: boolean) => void;
+  cogCount?: number;
 }
 
 const DataSourceItem = ({ 
