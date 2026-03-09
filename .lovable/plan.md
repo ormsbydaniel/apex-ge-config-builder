@@ -1,28 +1,42 @@
 
 
-## Right-align info badges and draw order indicators
+## Problem
 
-### Problem
-Currently, the band count badge, bands array badge, metadata info icon, and draw order (Z-index, level, opacity) are inline with the filename in a single flex group. Their position shifts depending on filename length, making the layout inconsistent.
+The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
 
-### Solution
-Split the current middle `div` (lines 160–287) into two sections:
+## Proposed Approach: Numeric Defaults with Optional Label Overrides
 
-1. **Filename area** (left, flexible, truncates) — just the format badge + filename tooltip (already there, lines 143–158)
-2. **Info badges area** (right-aligned, non-shrinking) — all the badges and indicators moved to sit adjacent to the action buttons
+### Default behavior
+Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
 
-The row layout becomes:
+### Optional label customization via modal
+A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
 
-```text
-[FORMAT] [filename...truncated]     [bands] [info] [Z:0] [opacity] [...] | [⏱] [📋] [✏️] [🗑️]
- ← flex, truncates →                ← flex-shrink-0, right-aligned →      ← existing actions →
-```
+- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
+- **Bulk operations toolbar** at the top:
+  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
+  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
+  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
+- **Search/filter** to quickly find and edit specific bands
 
-### Changes in `src/components/layers/components/DataSourceItem.tsx`
+### Adaptive inline editor for small band counts
+For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
 
-1. **Remove** the wrapping `<div className="flex items-center gap-1 flex-shrink-0 flex-wrap">` from inside the left flex group (lines 160–287)
-2. **Move** all those badges/indicators into a new `<div>` placed between the left filename group and the right action buttons group — as a sibling at the top level of the row, with `flex-shrink-0 flex items-center gap-1 flex-wrap`
-3. The filename span gets `flex-1 min-w-0 truncate` so it fills remaining space and truncates
+## Implementation
 
-Result: three flex children in the row — `[left: format+name]` `[middle: badges]` `[right: actions]`, with the filename being the only flexible element.
+### Changes to `ChartSourceForm.tsx`
+- Replace the current band labels grid with:
+  - Summary text showing band count
+  - For ≤12 bands: keep existing inline grid
+  - For >12 bands: show summary + "Customize Band Labels" button
+- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
+
+### New component: `BandLabelEditorDialog.tsx`
+- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
+- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
+- Search input to filter rows
+- Returns updated labels array on save
+
+### No changes needed to schemas or types
+The `x: string[]` config already supports any label strings.
 
