@@ -173,29 +173,6 @@ export function BandSelectorDialog({
             </ScrollArea>
           </div>
 
-          {/* Reorder Buttons */}
-          <div className="flex flex-col items-center justify-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={moveUp}
-              disabled={highlightedBand === null || selectedBands.indexOf(highlightedBand) <= 0}
-              title="Move up"
-            >
-              <ChevronUp className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={moveDown}
-              disabled={highlightedBand === null || selectedBands.indexOf(highlightedBand) >= selectedBands.length - 1}
-              title="Move down"
-            >
-              <ChevronDown className="h-3.5 w-3.5" />
-            </Button>
-          </div>
         </div>
 
         {/* Apply to all checkbox */}
