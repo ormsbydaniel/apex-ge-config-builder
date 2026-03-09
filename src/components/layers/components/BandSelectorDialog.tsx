@@ -132,7 +132,7 @@ export function BandSelectorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Configure Band Selection</DialogTitle>
           <DialogDescription>
@@ -140,7 +140,7 @@ export function BandSelectorDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex gap-2 items-stretch min-h-[280px]">
+        <div className="flex gap-2 items-stretch h-[320px] flex-shrink-0">
           {/* Available Bands */}
           <div className="flex-1 flex flex-col">
             <div className="text-xs font-medium text-muted-foreground mb-1">
