@@ -71,6 +71,11 @@ const DataSourceDisplay = ({
   const hasDataSources = source.data && isDataSourceItemArray(source.data) && source.data.length > 0;
   const hasStatistics = source.statistics && source.statistics.length > 0;
 
+  // Count COG sources for the "apply to all" checkbox
+  const cogCount = hasDataSources
+    ? source.data.filter(d => d.format?.toLowerCase() === 'cog').length
+    : 0;
+
   const totalItems = hasDataSources ? source.data.length : 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const needsPagination = totalItems > itemsPerPage;
