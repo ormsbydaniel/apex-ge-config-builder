@@ -43,6 +43,7 @@ interface DataSourceDisplayProps {
   onEditStatisticsSource?: (statsIndex: number) => void;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateDataBands?: (dataIndex: number, bands: number[], applyToAll: boolean) => void;
   showStatsLevelForData?: boolean;
 }
 
@@ -59,6 +60,7 @@ const DataSourceDisplay = ({
   onEditStatisticsSource,
   onUpdateMeta,
   onUpdateLayout,
+  onUpdateDataBands,
   showStatsLevelForData = false
 }: DataSourceDisplayProps) => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -68,6 +70,11 @@ const DataSourceDisplay = ({
   const timeframe = source.timeframe;
   const hasDataSources = source.data && isDataSourceItemArray(source.data) && source.data.length > 0;
   const hasStatistics = source.statistics && source.statistics.length > 0;
+
+  // Count COG sources for the "apply to all" checkbox
+  const cogCount = hasDataSources
+    ? source.data.filter(d => d.format?.toLowerCase() === 'cog').length
+    : 0;
 
   const totalItems = hasDataSources ? source.data.length : 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -187,6 +194,8 @@ const DataSourceDisplay = ({
                 sourceName={source.name}
                 onUpdateMeta={onUpdateMeta}
                 onUpdateLayout={onUpdateLayout}
+                onUpdateBands={(bands, applyToAll) => onUpdateDataBands?.(absoluteIndex, bands, applyToAll)}
+                cogCount={cogCount}
               />;
             })}
 

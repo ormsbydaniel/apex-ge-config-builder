@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Copy, Trash2, Clock, Info, Edit } from 'lucide-react';
+import { Copy, Trash2, Clock, Info, Edit, Layers } from 'lucide-react';
 import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
+import { BandSelectorDialog } from './BandSelectorDialog';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
@@ -28,6 +29,8 @@ interface DataSourceItemProps {
   sourceName?: string;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateBands?: (bands: number[], applyToAll: boolean) => void;
+  cogCount?: number;
 }
 
 const DataSourceItem = ({ 
@@ -44,10 +47,13 @@ const DataSourceItem = ({
   currentLayout,
   sourceName,
   onUpdateMeta,
-  onUpdateLayout
+  onUpdateLayout,
+  onUpdateBands,
+  cogCount = 0
 }: DataSourceItemProps) => {
   const { toast } = useToast();
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
+  const [showBandSelector, setShowBandSelector] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
   const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
   const [cogBandCount, setCogBandCount] = useState<number | null>(null);
@@ -163,11 +169,21 @@ const DataSourceItem = ({
 
         {/* Configured bands array badge or undefined warning */}
         {Array.isArray(dataSource.bands) && dataSource.bands.length > 0 ? (
-          <Badge variant="secondary" className="text-xs flex-shrink-0">
+          <Badge
+            variant="secondary"
+            className="text-xs flex-shrink-0 cursor-pointer hover:bg-secondary/80 gap-1"
+            onClick={() => setShowBandSelector(true)}
+          >
+            <Layers className="h-3 w-3" />
             Bands: {dataSource.bands.slice(0, 5).join(', ')}{dataSource.bands.length > 5 ? '…' : ''}
           </Badge>
         ) : isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
-          <Badge variant="outline" className="text-xs flex-shrink-0 text-destructive border-destructive">
+          <Badge
+            variant="outline"
+            className="text-xs flex-shrink-0 text-destructive border-destructive cursor-pointer hover:bg-destructive/10 gap-1"
+            onClick={() => setShowBandSelector(true)}
+          >
+            <Layers className="h-3 w-3" />
             Bands: undefined
           </Badge>
         )}
@@ -349,6 +365,17 @@ const DataSourceItem = ({
           sourceName={sourceName}
           currentLayout={currentLayout}
           onUpdateLayout={onUpdateLayout}
+        />
+      )}
+      {/* Band Selector Dialog */}
+      {isCog && cogBandCount !== null && cogBandCount > 1 && (
+        <BandSelectorDialog
+          open={showBandSelector}
+          onOpenChange={setShowBandSelector}
+          cogBandCount={cogBandCount}
+          currentBands={Array.isArray(dataSource.bands) ? dataSource.bands : []}
+          onSave={(bands, applyToAll) => onUpdateBands?.(bands, applyToAll)}
+          cogCount={cogCount}
         />
       )}
     </div>

@@ -12,6 +12,7 @@ interface DataSourcesTabProps {
   onEdit: (layerIndex: number, dataIndex: number) => void;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateDataBands?: (dataIndex: number, bands: number[], applyToAll: boolean) => void;
 }
 export function DataSourcesTab({
   source,
@@ -22,6 +23,7 @@ export function DataSourcesTab({
   onEdit,
   onUpdateMeta,
   onUpdateLayout,
+  onUpdateDataBands,
 }: DataSourcesTabProps) {
   const { onRemoveAllDataSources } = useLayersTabContext();
   const hasDataSources = source.data && source.data.length > 0;
@@ -32,7 +34,7 @@ export function DataSourcesTab({
     statistics: [] // Empty statistics to prevent them showing in data tab
   };
   return <div className="space-y-4">
-      {hasDataSources ? <DataSourceDisplay source={dataOnlySource} services={services} onRemoveDataSource={dataIndex => onRemove(layerIndex, dataIndex)} onRemoveAllDataSources={() => onRemoveAllDataSources(layerIndex)} onEditDataSource={dataIndex => onEdit(layerIndex, dataIndex)} onUpdateMeta={onUpdateMeta} onUpdateLayout={onUpdateLayout} /> : <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
+      {hasDataSources ? <DataSourceDisplay source={dataOnlySource} services={services} onRemoveDataSource={dataIndex => onRemove(layerIndex, dataIndex)} onRemoveAllDataSources={() => onRemoveAllDataSources(layerIndex)} onEditDataSource={dataIndex => onEdit(layerIndex, dataIndex)} onUpdateMeta={onUpdateMeta} onUpdateLayout={onUpdateLayout} onUpdateDataBands={onUpdateDataBands} /> : <div className="rounded-lg border border-dashed border-border bg-muted/50 p-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
             No datasets configured yet
           </p>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { CardContent } from '@/components/ui/card';
-import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout, DataSourceItem } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useToast } from '@/hooks/use-toast';
 import LayerMetadata from './LayerMetadata';
@@ -133,6 +133,35 @@ const LayerCardContent = ({
     });
   };
 
+  // Handler to update bands on data source items
+  const handleUpdateDataBands = (dataIndex: number, bands: number[], applyToAll: boolean) => {
+    if (sourceIndex === -1 || !isDataSourceItemArray(source.data)) return;
+
+    const updatedData = source.data.map((item: DataSourceItem, idx: number) => {
+      const isTarget = idx === dataIndex;
+      const isCog = item.format?.toLowerCase() === 'cog';
+      if (isTarget || (applyToAll && isCog)) {
+        return { ...item, bands: bands.length > 0 ? bands : undefined };
+      }
+      return item;
+    });
+
+    dispatch({
+      type: 'UPDATE_SOURCE',
+      payload: {
+        index: sourceIndex,
+        source: { ...source, data: updatedData }
+      }
+    });
+
+    toast({
+      title: "Bands Updated",
+      description: applyToAll
+        ? `Band selection applied to all COG sources in this layer`
+        : `Band selection updated for this data source`,
+    });
+  };
+
   return (
     <CardContent className="space-y-4 pl-[46px]">
       <LayerMetadata source={source} />
@@ -172,6 +201,7 @@ const LayerCardContent = ({
           layerIndex={sourceIndex}
           onUpdateMeta={handleUpdateMeta}
           onUpdateLayout={handleUpdateLayout}
+          onUpdateDataBands={handleUpdateDataBands}
           onAddDataSource={() => onAddDataSource?.()}
           onAddStatisticsSource={onAddStatisticsSource}
           onAddConstraintSource={onAddConstraintSource}
