@@ -10,7 +10,24 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface BandSelectorDialogProps {
   open: boolean;
@@ -20,6 +37,78 @@ interface BandSelectorDialogProps {
   onSave: (bands: number[], applyToAll: boolean) => void;
   cogCount: number;
   bandLabels?: string[];
+}
+
+interface SortableBandRowProps {
+  band: number;
+  idx: number;
+  total: number;
+  getBandLabel: (band: number) => string;
+  onDeselect: (band: number) => void;
+  onMoveUp: (idx: number) => void;
+  onMoveDown: (idx: number) => void;
+}
+
+function SortableBandRow({ band, idx, total, getBandLabel, onDeselect, onMoveUp, onMoveDown }: SortableBandRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: band.toString() });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-1.5 px-1.5 py-1.5 text-xs rounded select-none hover:bg-muted transition-colors"
+    >
+      <button
+        type="button"
+        className="cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground flex-shrink-0"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-3 w-3" />
+      </button>
+      <Checkbox
+        checked={true}
+        onCheckedChange={() => onDeselect(band)}
+      />
+      <span className="text-muted-foreground w-4 text-right flex-shrink-0">{idx + 1}.</span>
+      <span className="flex-1 truncate">{getBandLabel(band)}</span>
+      <div className="ml-auto flex gap-0.5">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-5 w-5 p-0"
+          onClick={() => onMoveUp(idx)}
+          disabled={idx === 0}
+          title="Move up"
+        >
+          <ChevronUp className="h-3 w-3" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-5 w-5 p-0"
+          onClick={() => onMoveDown(idx)}
+          disabled={idx === total - 1}
+          title="Move down"
+        >
+          <ChevronDown className="h-3 w-3" />
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 export function BandSelectorDialog({
@@ -68,17 +157,36 @@ export function BandSelectorDialog({
 
   const moveBandUp = (idx: number) => {
     if (idx === 0) return;
-    const next = [...selectedBands];
-    [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
-    setSelectedBands(next);
+    setSelectedBands((prev) => arrayMove(prev, idx, idx - 1));
   };
 
   const moveBandDown = (idx: number) => {
-    if (idx >= selectedBands.length - 1) return;
-    const next = [...selectedBands];
-    [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
-    setSelectedBands(next);
+    setSelectedBands((prev) => {
+      if (idx >= prev.length - 1) return prev;
+      return arrayMove(prev, idx, idx + 1);
+    });
   };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setSelectedBands((prev) => {
+        const oldIndex = prev.indexOf(Number(active.id));
+        const newIndex = prev.indexOf(Number(over.id));
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const sortableIds = useMemo(
+    () => selectedBands.map((b) => b.toString()),
+    [selectedBands]
+  );
 
   const handleSave = () => {
     onSave(selectedBands, applyToAll);
@@ -91,7 +199,7 @@ export function BandSelectorDialog({
         <DialogHeader>
           <DialogTitle>Configure Band Selection</DialogTitle>
           <DialogDescription>
-            Tick a band to select it. Untick to remove. Reorder selected bands with the arrows.
+            Tick a band to select it. Untick to remove. Drag or use arrows to reorder.
           </DialogDescription>
         </DialogHeader>
 
@@ -131,41 +239,26 @@ export function BandSelectorDialog({
             </div>
             <ScrollArea className="flex-1 border rounded-md">
               <div className="p-1">
-                {selectedBands.map((band, idx) => (
-                  <div
-                    key={band}
-                    className="flex items-center gap-2 px-2 py-1.5 text-xs rounded select-none hover:bg-muted transition-colors"
-                  >
-                    <Checkbox
-                      checked={true}
-                      onCheckedChange={() => deselectBand(band)}
-                    />
-                    <span className="text-muted-foreground w-4 text-right flex-shrink-0">{idx + 1}.</span>
-                    <span className="flex-1">{getBandLabel(band)}</span>
-                    <div className="ml-auto flex gap-0.5">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0"
-                        onClick={() => moveBandUp(idx)}
-                        disabled={idx === 0}
-                        title="Move up"
-                      >
-                        <ChevronUp className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0"
-                        onClick={() => moveBandDown(idx)}
-                        disabled={idx === selectedBands.length - 1}
-                        title="Move down"
-                      >
-                        <ChevronDown className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+                    {selectedBands.map((band, idx) => (
+                      <SortableBandRow
+                        key={band}
+                        band={band}
+                        idx={idx}
+                        total={selectedBands.length}
+                        getBandLabel={getBandLabel}
+                        onDeselect={deselectBand}
+                        onMoveUp={moveBandUp}
+                        onMoveDown={moveBandDown}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
                 {selectedBands.length === 0 && (
                   <div className="text-xs text-muted-foreground text-center py-4">
                     No bands selected
