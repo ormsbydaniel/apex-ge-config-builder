@@ -151,8 +151,18 @@ const DataSourceItem = ({
           </Tooltip>
         </TooltipProvider>
         
+        {/* Band count badge for COG files */}
+        {isCog && cogBandLoading && (
+          <span className="text-xs text-muted-foreground flex-shrink-0 animate-pulse">bands…</span>
+        )}
+        {isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
+          <Badge variant="secondary" className="text-xs flex-shrink-0">
+            {cogBandCount} bands
+          </Badge>
+        )}
+
         {/* Info icon for COG files */}
-        {dataSource.format?.toLowerCase() === 'cog' && dataSource.url && (
+        {isCog && dataSource.url && (
           <Button
             size="sm"
             variant="ghost"
