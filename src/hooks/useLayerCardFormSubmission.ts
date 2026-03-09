@@ -89,6 +89,8 @@ export const useLayerCardFormSubmission = (
         min: parseFloat(formData.minValue),
         max: parseFloat(formData.maxValue)
       }),
+      // Preserve swipeConfig from existing layer when editing
+      ...(editingLayer?.meta?.swipeConfig && { swipeConfig: editingLayer.meta.swipeConfig }),
     };
 
     // Create layout structure based on contentLocation
@@ -106,13 +108,17 @@ export const useLayerCardFormSubmission = (
       };
       // Keep toggleable in layerCard even when content is in infoPanel
       layoutObject.layerCard = {
-        toggleable: formData.toggleable
+        toggleable: formData.toggleable,
+        // Preserve showStatistics from existing layer
+        ...(editingLayer?.layout?.layerCard?.showStatistics !== undefined && { showStatistics: editingLayer.layout.layerCard.showStatistics }),
       };
     } else {
       layoutObject.layerCard = {
         toggleable: formData.toggleable,
         legend: legendObject,
-        controls: controlsObject
+        controls: controlsObject,
+        // Preserve showStatistics from existing layer
+        ...(editingLayer?.layout?.layerCard?.showStatistics !== undefined && { showStatistics: editingLayer.layout.layerCard.showStatistics }),
       };
     }
 
@@ -135,7 +141,9 @@ export const useLayerCardFormSubmission = (
       ...(editingLayer?.statistics && { statistics: editingLayer.statistics }),
       ...(editingLayer?.constraints && { constraints: editingLayer.constraints }),
       ...(editingLayer?.workflows && { workflows: editingLayer.workflows }),
-      ...(editingLayer?.charts && { charts: editingLayer.charts })
+      ...(editingLayer?.charts && { charts: editingLayer.charts }),
+      // Preserve preview (base layers)
+      ...((editingLayer as any)?.preview && { preview: (editingLayer as any).preview }),
     };
 
     return layerCard;
