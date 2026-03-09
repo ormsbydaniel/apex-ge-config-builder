@@ -11,6 +11,7 @@ import { formatTimestampForTimeframe } from '@/utils/dateUtils';
 import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 import WmsWmtsMetadataDialog from './WmsWmtsMetadataDialog';
+import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
