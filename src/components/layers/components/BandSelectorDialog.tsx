@@ -132,20 +132,36 @@ export function BandSelectorDialog({
                 {selectedBands.map((band, idx) => (
                   <div
                     key={band}
-                    onClick={() => setHighlightedBand(highlightedBand === band ? null : band)}
-                    className={`flex items-center gap-2 px-2 py-1.5 text-xs rounded cursor-pointer select-none transition-colors ${
-                      highlightedBand === band
-                        ? 'bg-primary/15 text-primary font-medium'
-                        : 'hover:bg-muted'
-                    }`}
+                    className="flex items-center gap-2 px-2 py-1.5 text-xs rounded select-none hover:bg-muted transition-colors"
                   >
                     <Checkbox
                       checked={true}
                       onCheckedChange={() => deselectBand(band)}
-                      onClick={(e) => e.stopPropagation()}
                     />
                     <span className="text-muted-foreground w-4 text-right flex-shrink-0">{idx + 1}.</span>
-                    {getBandLabel(band)}
+                    <span className="flex-1">{getBandLabel(band)}</span>
+                    <div className="ml-auto flex gap-0.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0"
+                        onClick={() => moveBandUp(idx)}
+                        disabled={idx === 0}
+                        title="Move up"
+                      >
+                        <ChevronUp className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0"
+                        onClick={() => moveBandDown(idx)}
+                        disabled={idx === selectedBands.length - 1}
+                        title="Move down"
+                      >
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
                 {selectedBands.length === 0 && (
