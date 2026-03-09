@@ -201,6 +201,7 @@ const LayerCardContent = ({
           layerIndex={sourceIndex}
           onUpdateMeta={handleUpdateMeta}
           onUpdateLayout={handleUpdateLayout}
+          onUpdateDataBands={handleUpdateDataBands}
           onAddDataSource={() => onAddDataSource?.()}
           onAddStatisticsSource={onAddStatisticsSource}
           onAddConstraintSource={onAddConstraintSource}
