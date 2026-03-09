@@ -15,6 +15,7 @@ interface LayerCardTabsProps {
   layerIndex: number;
   onUpdateMeta?: (updates: Partial<import('@/types/config').DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<import('@/types/config').DataSourceLayout>) => void;
+  onUpdateDataBands?: (dataIndex: number, bands: number[], applyToAll: boolean) => void;
   onAddDataSource: (layerIndex: number, isAddingStatistics: boolean) => void;
   onRemoveDataSource: (layerIndex: number, dataIndex: number) => void;
   onEditDataSource: (layerIndex: number, dataIndex: number) => void;
