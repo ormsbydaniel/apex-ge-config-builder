@@ -169,11 +169,21 @@ const DataSourceItem = ({
 
         {/* Configured bands array badge or undefined warning */}
         {Array.isArray(dataSource.bands) && dataSource.bands.length > 0 ? (
-          <Badge variant="secondary" className="text-xs flex-shrink-0">
+          <Badge
+            variant="secondary"
+            className="text-xs flex-shrink-0 cursor-pointer hover:bg-secondary/80 gap-1"
+            onClick={() => setShowBandSelector(true)}
+          >
+            <Layers className="h-3 w-3" />
             Bands: {dataSource.bands.slice(0, 5).join(', ')}{dataSource.bands.length > 5 ? '…' : ''}
           </Badge>
         ) : isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
-          <Badge variant="outline" className="text-xs flex-shrink-0 text-destructive border-destructive">
+          <Badge
+            variant="outline"
+            className="text-xs flex-shrink-0 text-destructive border-destructive cursor-pointer hover:bg-destructive/10 gap-1"
+            onClick={() => setShowBandSelector(true)}
+          >
+            <Layers className="h-3 w-3" />
             Bands: undefined
           </Badge>
         )}
