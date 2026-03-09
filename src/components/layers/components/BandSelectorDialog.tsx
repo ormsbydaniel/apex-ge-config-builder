@@ -62,22 +62,17 @@ export function BandSelectorDialog({
 
   const deselectBand = (band: number) => {
     setSelectedBands((prev) => prev.filter((b) => b !== band));
-    if (highlightedBand === band) setHighlightedBand(null);
   };
 
-  const moveUp = () => {
-    if (highlightedBand === null) return;
-    const idx = selectedBands.indexOf(highlightedBand);
-    if (idx <= 0) return;
+  const moveBandUp = (idx: number) => {
+    if (idx === 0) return;
     const next = [...selectedBands];
     [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
     setSelectedBands(next);
   };
 
-  const moveDown = () => {
-    if (highlightedBand === null) return;
-    const idx = selectedBands.indexOf(highlightedBand);
-    if (idx === -1 || idx >= selectedBands.length - 1) return;
+  const moveBandDown = (idx: number) => {
+    if (idx >= selectedBands.length - 1) return;
     const next = [...selectedBands];
     [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
     setSelectedBands(next);
