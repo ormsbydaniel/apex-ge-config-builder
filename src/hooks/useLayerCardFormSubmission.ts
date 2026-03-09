@@ -89,6 +89,8 @@ export const useLayerCardFormSubmission = (
         min: parseFloat(formData.minValue),
         max: parseFloat(formData.maxValue)
       }),
+      // Preserve swipeConfig from existing layer when editing
+      ...(editingLayer?.meta?.swipeConfig && { swipeConfig: editingLayer.meta.swipeConfig }),
     };
 
     // Create layout structure based on contentLocation
