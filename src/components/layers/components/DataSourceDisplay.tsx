@@ -60,6 +60,7 @@ const DataSourceDisplay = ({
   onEditStatisticsSource,
   onUpdateMeta,
   onUpdateLayout,
+  onUpdateDataBands,
   showStatsLevelForData = false
 }: DataSourceDisplayProps) => {
   const [currentPage, setCurrentPage] = useState(0);
