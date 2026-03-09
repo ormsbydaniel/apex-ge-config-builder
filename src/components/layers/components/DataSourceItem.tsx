@@ -138,8 +138,8 @@ const DataSourceItem = ({
   const hasTimeParameter = isWmsOrWmts && timeframe !== 'None' && !hasTimestamps;
 
   return (
-    <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50">
-      <div className="flex items-center gap-3 flex-1 min-w-0">
+    <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50 overflow-hidden">
+      <div className="flex items-center gap-3 flex-1 min-w-0 overflow-hidden">
         <Badge variant="outline" className="text-xs flex-shrink-0">
           {dataSource.format?.toUpperCase() || 'UNKNOWN'}
         </Badge>
@@ -147,7 +147,7 @@ const DataSourceItem = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-sm font-medium truncate flex-1 cursor-help">
+              <span className="text-sm font-medium truncate flex-1 min-w-0 max-w-[200px] cursor-help">
                 {getDisplayName()}
               </span>
             </TooltipTrigger>
