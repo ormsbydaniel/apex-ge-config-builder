@@ -50,6 +50,29 @@ const DataSourceItem = ({
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
   const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
+  const [cogBandCount, setCogBandCount] = useState<number | null>(null);
+  const [cogBandLoading, setCogBandLoading] = useState(false);
+
+  // Fetch COG band count from header metadata
+  const isCog = dataSource.format?.toLowerCase() === 'cog';
+  useEffect(() => {
+    if (!isCog || !dataSource.url) return;
+    let cancelled = false;
+    setCogBandLoading(true);
+    fetchCogHeaderMetadata(dataSource.url)
+      .then((meta) => {
+        if (!cancelled) {
+          setCogBandCount(meta.samplesPerPixel ?? null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setCogBandCount(null);
+      })
+      .finally(() => {
+        if (!cancelled) setCogBandLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [isCog, dataSource.url]);
 
   const handleCopyUrl = () => {
     if (dataSource.url) {
