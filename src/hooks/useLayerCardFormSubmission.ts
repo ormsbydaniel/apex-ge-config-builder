@@ -141,7 +141,9 @@ export const useLayerCardFormSubmission = (
       ...(editingLayer?.statistics && { statistics: editingLayer.statistics }),
       ...(editingLayer?.constraints && { constraints: editingLayer.constraints }),
       ...(editingLayer?.workflows && { workflows: editingLayer.workflows }),
-      ...(editingLayer?.charts && { charts: editingLayer.charts })
+      ...(editingLayer?.charts && { charts: editingLayer.charts }),
+      // Preserve preview (base layers)
+      ...((editingLayer as any)?.preview && { preview: (editingLayer as any).preview }),
     };
 
     return layerCard;
