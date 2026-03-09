@@ -69,7 +69,23 @@ export interface BandStatistics {
  * Uses a time-limited IFD walk instead of getImageCount() to avoid
  * hanging on hyperspectral files with hundreds of IFDs.
  */
+const headerMetadataCache = new Map<string, Promise<CogMetadata>>();
+
+export function clearCogHeaderCache(): void {
+  headerMetadataCache.clear();
+}
+
 export async function fetchCogHeaderMetadata(url: string): Promise<CogMetadata> {
+  const cached = headerMetadataCache.get(url);
+  if (cached) return cached;
+
+  const promise = fetchCogHeaderMetadataInternal(url);
+  headerMetadataCache.set(url, promise);
+  promise.catch(() => headerMetadataCache.delete(url));
+  return promise;
+}
+
+async function fetchCogHeaderMetadataInternal(url: string): Promise<CogMetadata> {
   try {
     const tiff = await fromUrl(url);
     const image = await tiff.getImage();
