@@ -134,7 +134,8 @@ export const useLayerCardFormSubmission = (
       // Preserve existing arrays when editing
       ...(editingLayer?.statistics && { statistics: editingLayer.statistics }),
       ...(editingLayer?.constraints && { constraints: editingLayer.constraints }),
-      ...(editingLayer?.workflows && { workflows: editingLayer.workflows })
+      ...(editingLayer?.workflows && { workflows: editingLayer.workflows }),
+      ...(editingLayer?.charts && { charts: editingLayer.charts })
     };
 
     return layerCard;
