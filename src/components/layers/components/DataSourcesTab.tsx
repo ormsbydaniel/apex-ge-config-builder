@@ -23,6 +23,7 @@ export function DataSourcesTab({
   onEdit,
   onUpdateMeta,
   onUpdateLayout,
+  onUpdateDataBands,
 }: DataSourcesTabProps) {
   const { onRemoveAllDataSources } = useLayersTabContext();
   const hasDataSources = source.data && source.data.length > 0;
