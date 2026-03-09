@@ -52,6 +52,7 @@ export function LayerCardTabs({
   layerIndex,
   onUpdateMeta,
   onUpdateLayout,
+  onUpdateDataBands,
   onAddDataSource,
   onRemoveDataSource,
   onEditDataSource,
