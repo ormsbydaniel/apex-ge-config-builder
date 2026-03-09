@@ -32,13 +32,11 @@ export function BandSelectorDialog({
   bandLabels,
 }: BandSelectorDialogProps) {
   const [selectedBands, setSelectedBands] = useState<number[]>([]);
-  const [highlightedBand, setHighlightedBand] = useState<number | null>(null);
   const [applyToAll, setApplyToAll] = useState(false);
 
   useEffect(() => {
     if (open) {
       setSelectedBands([...currentBands]);
-      setHighlightedBand(null);
       setApplyToAll(false);
     }
   }, [open, currentBands]);
@@ -64,22 +62,17 @@ export function BandSelectorDialog({
 
   const deselectBand = (band: number) => {
     setSelectedBands((prev) => prev.filter((b) => b !== band));
-    if (highlightedBand === band) setHighlightedBand(null);
   };
 
-  const moveUp = () => {
-    if (highlightedBand === null) return;
-    const idx = selectedBands.indexOf(highlightedBand);
-    if (idx <= 0) return;
+  const moveBandUp = (idx: number) => {
+    if (idx === 0) return;
     const next = [...selectedBands];
     [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
     setSelectedBands(next);
   };
 
-  const moveDown = () => {
-    if (highlightedBand === null) return;
-    const idx = selectedBands.indexOf(highlightedBand);
-    if (idx === -1 || idx >= selectedBands.length - 1) return;
+  const moveBandDown = (idx: number) => {
+    if (idx >= selectedBands.length - 1) return;
     const next = [...selectedBands];
     [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
     setSelectedBands(next);
@@ -139,20 +132,36 @@ export function BandSelectorDialog({
                 {selectedBands.map((band, idx) => (
                   <div
                     key={band}
-                    onClick={() => setHighlightedBand(highlightedBand === band ? null : band)}
-                    className={`flex items-center gap-2 px-2 py-1.5 text-xs rounded cursor-pointer select-none transition-colors ${
-                      highlightedBand === band
-                        ? 'bg-primary/15 text-primary font-medium'
-                        : 'hover:bg-muted'
-                    }`}
+                    className="flex items-center gap-2 px-2 py-1.5 text-xs rounded select-none hover:bg-muted transition-colors"
                   >
                     <Checkbox
                       checked={true}
                       onCheckedChange={() => deselectBand(band)}
-                      onClick={(e) => e.stopPropagation()}
                     />
                     <span className="text-muted-foreground w-4 text-right flex-shrink-0">{idx + 1}.</span>
-                    {getBandLabel(band)}
+                    <span className="flex-1">{getBandLabel(band)}</span>
+                    <div className="ml-auto flex gap-0.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0"
+                        onClick={() => moveBandUp(idx)}
+                        disabled={idx === 0}
+                        title="Move up"
+                      >
+                        <ChevronUp className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0"
+                        onClick={() => moveBandDown(idx)}
+                        disabled={idx === selectedBands.length - 1}
+                        title="Move down"
+                      >
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
                 {selectedBands.length === 0 && (
@@ -164,29 +173,6 @@ export function BandSelectorDialog({
             </ScrollArea>
           </div>
 
-          {/* Reorder Buttons */}
-          <div className="flex flex-col items-center justify-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={moveUp}
-              disabled={highlightedBand === null || selectedBands.indexOf(highlightedBand) <= 0}
-              title="Move up"
-            >
-              <ChevronUp className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={moveDown}
-              disabled={highlightedBand === null || selectedBands.indexOf(highlightedBand) >= selectedBands.length - 1}
-              title="Move down"
-            >
-              <ChevronDown className="h-3.5 w-3.5" />
-            </Button>
-          </div>
         </div>
 
         {/* Apply to all checkbox */}
