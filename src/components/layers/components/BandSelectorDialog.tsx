@@ -36,8 +36,8 @@ export function BandSelectorDialog({
 
   useEffect(() => {
     if (open) {
-      setSelectedBands([...currentBands]);
-      setApplyToAll(false);
+      setSelectedBands([...(currentBands || [])]);
+      setApplyToAll(true);
     }
   }, [open, currentBands]);
 
