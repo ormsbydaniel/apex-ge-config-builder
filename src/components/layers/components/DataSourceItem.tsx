@@ -139,7 +139,7 @@ const DataSourceItem = ({
 
   return (
     <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50 overflow-hidden">
-      <div className="flex items-center gap-3 flex-1 min-w-0 overflow-hidden">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
         <Badge variant="outline" className="text-xs flex-shrink-0">
           {dataSource.format?.toUpperCase() || 'UNKNOWN'}
         </Badge>
@@ -147,7 +147,7 @@ const DataSourceItem = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-sm font-medium truncate flex-1 min-w-0 max-w-[200px] cursor-help">
+              <span className="text-sm font-medium truncate min-w-0 cursor-help">
                 {getDisplayName()}
               </span>
             </TooltipTrigger>
@@ -157,132 +157,134 @@ const DataSourceItem = ({
           </Tooltip>
         </TooltipProvider>
         
-        {/* Band count badge for COG files */}
-        {isCog && cogBandLoading && (
-          <span className="text-xs text-muted-foreground flex-shrink-0 animate-pulse">bands…</span>
-        )}
-        {isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
-          <Badge variant="secondary" className="text-xs flex-shrink-0">
-            {cogBandCount} bands
-          </Badge>
-        )}
+        <div className="flex items-center gap-1 flex-shrink-0 flex-wrap">
+          {/* Band count badge for COG files */}
+          {isCog && cogBandLoading && (
+            <span className="text-xs text-muted-foreground animate-pulse">bands…</span>
+          )}
+          {isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
+            <Badge variant="secondary" className="text-xs">
+              {cogBandCount} bands
+            </Badge>
+          )}
 
-        {/* Configured bands array badge or undefined warning */}
-        {Array.isArray(dataSource.bands) && dataSource.bands.length > 0 ? (
-          <Badge
-            variant="secondary"
-            className="text-xs flex-shrink-0 cursor-pointer hover:bg-secondary/80 gap-1"
-            onClick={() => setShowBandSelector(true)}
-          >
-            <Layers className="h-3 w-3" />
-            Bands: {dataSource.bands.slice(0, 5).join(', ')}{dataSource.bands.length > 5 ? '…' : ''}
-          </Badge>
-        ) : isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
-          <Badge
-            variant="outline"
-            className="text-xs flex-shrink-0 text-destructive border-destructive cursor-pointer hover:bg-destructive/10 gap-1"
-            onClick={() => setShowBandSelector(true)}
-          >
-            <Layers className="h-3 w-3" />
-            Bands: undefined
-          </Badge>
-        )}
+          {/* Configured bands array badge or undefined warning */}
+          {Array.isArray(dataSource.bands) && dataSource.bands.length > 0 ? (
+            <Badge
+              variant="secondary"
+              className="text-xs cursor-pointer hover:bg-secondary/80 gap-1"
+              onClick={() => setShowBandSelector(true)}
+            >
+              <Layers className="h-3 w-3" />
+              Bands: {dataSource.bands.slice(0, 5).join(', ')}{dataSource.bands.length > 5 ? '…' : ''}
+            </Badge>
+          ) : isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
+            <Badge
+              variant="outline"
+              className="text-xs text-destructive border-destructive cursor-pointer hover:bg-destructive/10 gap-1"
+              onClick={() => setShowBandSelector(true)}
+            >
+              <Layers className="h-3 w-3" />
+              Bands: undefined
+            </Badge>
+          )}
 
-        {/* Info icon for COG files */}
-        {isCog && dataSource.url && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setShowMetadataDialog(true)}
-            className="h-6 w-6 p-0 flex-shrink-0"
-            title="View COG Metadata"
-          >
-            <Info className="h-3 w-3" />
-          </Button>
-        )}
-        
-        {/* Info icon for FlatGeobuf files */}
-        {dataSource.format?.toLowerCase() === 'flatgeobuf' && dataSource.url && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setShowFlatGeobufDialog(true)}
-            className="h-6 w-6 p-0 flex-shrink-0"
-            title="View FlatGeobuf Metadata"
-          >
-            <Info className="h-3 w-3" />
-          </Button>
-        )}
-        
-        {/* Info icon for WMS/WMTS layers */}
-        {(dataSource.format?.toLowerCase() === 'wms' || dataSource.format?.toLowerCase() === 'wmts') && dataSource.url && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setShowWmsWmtsDialog(true)}
-            className="h-6 w-6 p-0 flex-shrink-0"
-            title={`View ${dataSource.format.toUpperCase()} Capabilities`}
-          >
-            <Info className="h-3 w-3" />
-          </Button>
-        )}
-        
-        {/* Date pill for temporal layers */}
-        {hasTimestamps && timeframe !== 'None' && dataSource.timestamps && dataSource.timestamps[0] && (
-          <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-            {formatTimestampForTimeframe(dataSource.timestamps[0], timeframe)}
-          </Badge>
-        )}
-        
-        {showStatsLevel && (
-          <span className="text-xs text-gray-500 flex-shrink-0">
-            L: {getLevel()}
-          </span>
-        )}
-        
-        <span className="text-xs text-gray-500 flex-shrink-0">
-          Z: {getZIndex()}
-        </span>
-        
-        {dataSource.opacity !== undefined && (
-          <span className="text-xs text-gray-500 flex-shrink-0">
-            Opacity: {Math.round(dataSource.opacity * 100)}%
-          </span>
-        )}
-        
-        {/* TIME parameter badge for WMS/WMTS layers with temporal control but no timestamps */}
-        {hasTimeParameter && (
-          <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-            TIME PARAM
-          </Badge>
-        )}
-        
-        {showPosition && (
-          <Badge variant="secondary" className="text-xs flex-shrink-0">
-            {getPosition()}
-          </Badge>
-        )}
-        
-        {hasZoomLevels && (
-          <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
-            <span>Zoom:</span>
-            <span>
-              {dataSource.minZoom !== undefined ? dataSource.minZoom : '∞'}-{dataSource.maxZoom !== undefined ? dataSource.maxZoom : '∞'}
+          {/* Info icon for COG files */}
+          {isCog && dataSource.url && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowMetadataDialog(true)}
+              className="h-6 w-6 p-0"
+              title="View COG Metadata"
+            >
+              <Info className="h-3 w-3" />
+            </Button>
+          )}
+          
+          {/* Info icon for FlatGeobuf files */}
+          {dataSource.format?.toLowerCase() === 'flatgeobuf' && dataSource.url && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowFlatGeobufDialog(true)}
+              className="h-6 w-6 p-0"
+              title="View FlatGeobuf Metadata"
+            >
+              <Info className="h-3 w-3" />
+            </Button>
+          )}
+          
+          {/* Info icon for WMS/WMTS layers */}
+          {(dataSource.format?.toLowerCase() === 'wms' || dataSource.format?.toLowerCase() === 'wmts') && dataSource.url && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowWmsWmtsDialog(true)}
+              className="h-6 w-6 p-0"
+              title={`View ${dataSource.format.toUpperCase()} Capabilities`}
+            >
+              <Info className="h-3 w-3" />
+            </Button>
+          )}
+          
+          {/* Date pill for temporal layers */}
+          {hasTimestamps && timeframe !== 'None' && dataSource.timestamps && dataSource.timestamps[0] && (
+            <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+              {formatTimestampForTimeframe(dataSource.timestamps[0], timeframe)}
+            </Badge>
+          )}
+          
+          {showStatsLevel && (
+            <span className="text-xs text-gray-500">
+              L: {getLevel()}
             </span>
-          </div>
-        )}
-
-        {showTemporalInfo && (
-          <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
-            <Clock className="h-3 w-3" />
-            <span>
-              {hasTimestamps 
-                ? `${dataSource.timestamps!.length} timestamp${dataSource.timestamps!.length !== 1 ? 's' : ''}`
-                : 'No timestamps'
-              }
+          )}
+          
+          <span className="text-xs text-gray-500">
+            Z: {getZIndex()}
+          </span>
+          
+          {dataSource.opacity !== undefined && (
+            <span className="text-xs text-gray-500">
+              Opacity: {Math.round(dataSource.opacity * 100)}%
             </span>
-          </div>
-        )}
+          )}
+          
+          {/* TIME parameter badge for WMS/WMTS layers with temporal control but no timestamps */}
+          {hasTimeParameter && (
+            <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+              TIME PARAM
+            </Badge>
+          )}
+          
+          {showPosition && (
+            <Badge variant="secondary" className="text-xs">
+              {getPosition()}
+            </Badge>
+          )}
+          
+          {hasZoomLevels && (
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <span>Zoom:</span>
+              <span>
+                {dataSource.minZoom !== undefined ? dataSource.minZoom : '∞'}-{dataSource.maxZoom !== undefined ? dataSource.maxZoom : '∞'}
+              </span>
+            </div>
+          )}
+
+          {showTemporalInfo && (
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <Clock className="h-3 w-3" />
+              <span>
+                {hasTimestamps 
+                  ? `${dataSource.timestamps!.length} timestamp${dataSource.timestamps!.length !== 1 ? 's' : ''}`
+                  : 'No timestamps'
+                }
+              </span>
+            </div>
+          )}
+        </div>
       </div>
       
       <div className="flex items-center gap-1 flex-shrink-0">
