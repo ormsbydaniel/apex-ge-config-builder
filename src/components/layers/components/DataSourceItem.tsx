@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -11,6 +11,7 @@ import { formatTimestampForTimeframe } from '@/utils/dateUtils';
 import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 import WmsWmtsMetadataDialog from './WmsWmtsMetadataDialog';
+import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
@@ -49,6 +50,29 @@ const DataSourceItem = ({
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
   const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
+  const [cogBandCount, setCogBandCount] = useState<number | null>(null);
+  const [cogBandLoading, setCogBandLoading] = useState(false);
+
+  // Fetch COG band count from header metadata
+  const isCog = dataSource.format?.toLowerCase() === 'cog';
+  useEffect(() => {
+    if (!isCog || !dataSource.url) return;
+    let cancelled = false;
+    setCogBandLoading(true);
+    fetchCogHeaderMetadata(dataSource.url)
+      .then((meta) => {
+        if (!cancelled) {
+          setCogBandCount(meta.samplesPerPixel ?? null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setCogBandCount(null);
+      })
+      .finally(() => {
+        if (!cancelled) setCogBandLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [isCog, dataSource.url]);
 
   const handleCopyUrl = () => {
     if (dataSource.url) {
@@ -127,8 +151,18 @@ const DataSourceItem = ({
           </Tooltip>
         </TooltipProvider>
         
+        {/* Band count badge for COG files */}
+        {isCog && cogBandLoading && (
+          <span className="text-xs text-muted-foreground flex-shrink-0 animate-pulse">bands…</span>
+        )}
+        {isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
+          <Badge variant="secondary" className="text-xs flex-shrink-0">
+            {cogBandCount} bands
+          </Badge>
+        )}
+
         {/* Info icon for COG files */}
-        {dataSource.format?.toLowerCase() === 'cog' && dataSource.url && (
+        {isCog && dataSource.url && (
           <Button
             size="sm"
             variant="ghost"
