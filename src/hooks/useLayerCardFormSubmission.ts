@@ -108,13 +108,17 @@ export const useLayerCardFormSubmission = (
       };
       // Keep toggleable in layerCard even when content is in infoPanel
       layoutObject.layerCard = {
-        toggleable: formData.toggleable
+        toggleable: formData.toggleable,
+        // Preserve showStatistics from existing layer
+        ...(editingLayer?.layout?.layerCard?.showStatistics !== undefined && { showStatistics: editingLayer.layout.layerCard.showStatistics }),
       };
     } else {
       layoutObject.layerCard = {
         toggleable: formData.toggleable,
         legend: legendObject,
-        controls: controlsObject
+        controls: controlsObject,
+        // Preserve showStatistics from existing layer
+        ...(editingLayer?.layout?.layerCard?.showStatistics !== undefined && { showStatistics: editingLayer.layout.layerCard.showStatistics }),
       };
     }
 
