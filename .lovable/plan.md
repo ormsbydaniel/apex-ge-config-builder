@@ -1,42 +1,48 @@
 
 
-## Problem
+## Band Selector with Dual-List Component
 
-The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
+### What
+Replace the current bands badge with a clickable badge (with COG icon) that opens a dual-list transfer dialog. Users pick bands from "Available" on the left, transfer them to "Selected" on the right, reorder selected bands, and optionally apply to all COGs in the layer.
 
-## Proposed Approach: Numeric Defaults with Optional Label Overrides
+### New Component: `src/components/layers/components/BandSelectorDialog.tsx`
 
-### Default behavior
-Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
+A dialog containing a dual-list transfer UI:
 
-### Optional label customization via modal
-A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
+```text
+Available Bands          Selected Bands
+┌───────────────┐       ┌───────────────┐
+│ Band 1        │   >   │ Band 3        │  ▲
+│ Band 2        │  >>   │ Band 5        │  ▼
+│ Band 4        │   <   │               │
+│ Band 6        │  <<   │               │
+└───────────────┘       └───────────────┘
+☐ Apply to all COG sources in this layer
+```
 
-- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
-- **Bulk operations toolbar** at the top:
-  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
-  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
-  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
-- **Search/filter** to quickly find and edit specific bands
+- **Props**: `open`, `onOpenChange`, `cogBandCount`, `currentBands: number[]`, `onSave: (bands: number[], applyToAll: boolean) => void`, `cogCount: number`, `bandLabels?: string[]`
+- **Left list**: All bands not currently selected (1 through `cogBandCount`), with click-to-highlight selection
+- **Center buttons**: `>` (move selected right), `>>` (move all right), `<` (move selected left), `<<` (move all left)
+- **Right list**: Currently selected bands in configured order, with click-to-highlight selection
+- **Up/Down buttons** on the right side to reorder selected bands
+- **"Apply to all COGs" checkbox** shown only when `cogCount > 1`
+- Band labels displayed alongside numbers if available (e.g., "Band 3 (Red)")
+- No external dependencies needed — pure React with existing UI primitives (Button, Checkbox, Dialog, ScrollArea)
 
-### Adaptive inline editor for small band counts
-For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
+### Update: `DataSourceItem.tsx`
+- Add `Layers` icon from lucide inside both bands badges
+- Make badges clickable (open `BandSelectorDialog`)
+- New props: `onUpdateBands?: (bands: number[], applyToAll: boolean) => void`, `cogCount?: number`
 
-## Implementation
+### Prop Propagation Chain
+Add `onUpdateDataBands` callback through:
+- `DataSourceDisplay.tsx` → new prop, passes `(dataIndex, bands, applyToAll)` up
+- `DataSourcesTab.tsx` → passes through
+- `LayerCardTabs.tsx` → passes through  
+- `LayerCardContent.tsx` → implements the update logic:
+  - If `applyToAll`: update `bands` on every COG in `source.data`
+  - Otherwise: update only the targeted data source item
+  - Dispatch via `UPDATE_SOURCE`
 
-### Changes to `ChartSourceForm.tsx`
-- Replace the current band labels grid with:
-  - Summary text showing band count
-  - For ≤12 bands: keep existing inline grid
-  - For >12 bands: show summary + "Customize Band Labels" button
-- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
-
-### New component: `BandLabelEditorDialog.tsx`
-- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
-- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
-- Search input to filter rows
-- Returns updated labels array on save
-
-### No changes needed to schemas or types
-The `x: string[]` config already supports any label strings.
+Also pass `cogCount` (count of COG items in `source.data`) down the same chain so the dialog knows whether to show the "apply to all" checkbox.
 
