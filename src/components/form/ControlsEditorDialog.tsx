@@ -107,7 +107,7 @@ const ControlsEditorDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Controls</DialogTitle>
           <DialogDescription>
@@ -154,10 +154,10 @@ const ControlsEditorDialog = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="None">None</SelectItem>
-                    <SelectItem value="time">Time</SelectItem>
-                    <SelectItem value="days">Days</SelectItem>
-                    <SelectItem value="months">Months</SelectItem>
-                    <SelectItem value="years">Years</SelectItem>
+                    <SelectItem value="Time">Time</SelectItem>
+                    <SelectItem value="Days">Days</SelectItem>
+                    <SelectItem value="Months">Months</SelectItem>
+                    <SelectItem value="Years">Years</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
