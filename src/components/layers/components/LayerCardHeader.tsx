@@ -68,32 +68,34 @@ const LayerCardHeader = ({
   };
 
   return <CardHeader className="py-3 relative">
-      <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
-        <LayerBadge source={source} />
-        <Badge variant="outline" className="flex items-center gap-1 text-xs border-teal-500 text-teal-600">
-          {contentLocation === 'infoPanel' ? (
-            <>
-              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="1" y="2" width="14" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                <rect x="10" y="4" width="4" height="8" rx="0.5" fill="currentColor"/>
-              </svg>
-              <span>info panel</span>
-            </>
-          ) : (
-            <>
-              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="1" y="4" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                <line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" strokeWidth="1"/>
-                <line x1="2.5" y1="9" x2="8.5" y2="9" stroke="currentColor" strokeWidth="1"/>
-              </svg>
-              <span>layer card</span>
-            </>
-          )}
-        </Badge>
-        <LayerActions index={index} source={source} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
-      </div>
+      {!isEditing && (
+        <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
+          <LayerBadge source={source} />
+          <Badge variant="outline" className="flex items-center gap-1 text-xs border-teal-500 text-teal-600">
+            {contentLocation === 'infoPanel' ? (
+              <>
+                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="2" width="14" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                  <rect x="10" y="4" width="4" height="8" rx="0.5" fill="currentColor"/>
+                </svg>
+                <span>info panel</span>
+              </>
+            ) : (
+              <>
+                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="4" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                  <line x1="2.5" y1="7" x2="8.5" y2="7" stroke="currentColor" strokeWidth="1"/>
+                  <line x1="2.5" y1="9" x2="8.5" y2="9" stroke="currentColor" strokeWidth="1"/>
+                </svg>
+                <span>layer card</span>
+              </>
+            )}
+          </Badge>
+          <LayerActions index={index} source={source} onRemove={onRemove} onEdit={onEdit} onDuplicate={onDuplicate} onEditJson={onEditJson} handleEdit={handleEdit} />
+        </div>
+      )}
       
-      <div className="flex pr-40">
+      <div className={`flex ${isEditing ? '' : 'pr-40'}`}>
         {isEditing ? (
           <div className="flex items-center gap-2 flex-1 p-2 -ml-2 mx-[6px] px-[6px]">
             <div className="h-4 w-4 flex-shrink-0" />
@@ -109,10 +111,21 @@ const LayerCardHeader = ({
               onClick={(e) => e.stopPropagation()}
               className="text-sm font-bold h-6 flex-1"
             />
-            <Button size="sm" onClick={(e) => { e.stopPropagation(); handleConfirmEdit(); }} className="h-5 w-5 p-0 bg-green-600 hover:bg-green-700">
+            <Button
+              type="button"
+              size="sm"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleConfirmEdit(); }}
+              className="h-5 w-5 p-0 bg-green-600 hover:bg-green-700 flex-shrink-0"
+            >
               <Check className="h-3 w-3" />
             </Button>
-            <Button size="sm" variant="outline" onClick={(e) => handleCancelEdit(e)} className="h-5 w-5 p-0">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCancelEdit(); }}
+              className="h-5 w-5 p-0 flex-shrink-0"
+            >
               <X className="h-3 w-3" />
             </Button>
           </div>
