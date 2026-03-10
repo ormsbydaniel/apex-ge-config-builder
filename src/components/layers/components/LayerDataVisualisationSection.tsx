@@ -116,6 +116,21 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
           )}
         </div>
 
+        {/* RGB Composites sub-section */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              RGB Composites {hasRgbComposites ? `(${rgbComposites.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
+            </span>
+          </div>
+          {hasRgbComposites && (
+            <div className="ml-5">
+              <LayerRgbCompositesDisplay rgbComposites={rgbComposites} />
+            </div>
+          )}
+        </div>
+
         {/* Legend sub-section */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -157,21 +172,6 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
               {legend.type === 'swatch' && (
                 <span className="text-sm text-muted-foreground">See categories</span>
               )}
-            </div>
-          )}
-        </div>
-
-        {/* RGB Composites sub-section */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Layers className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              RGB Composites {hasRgbComposites ? `(${rgbComposites.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
-            </span>
-          </div>
-          {hasRgbComposites && (
-            <div className="ml-5">
-              <LayerRgbCompositesDisplay rgbComposites={rgbComposites} />
             </div>
           )}
         </div>
