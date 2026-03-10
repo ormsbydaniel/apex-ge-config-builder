@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ExternalLink, Image } from 'lucide-react';
+import { ExternalLink, Image, LayoutGrid } from 'lucide-react';
 import { DataSource } from '@/types/config';
 
 interface LayerLegendDisplayProps {
