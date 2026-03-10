@@ -40,7 +40,7 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
       )}
       
       {legend.type === 'gradient' && source.meta && (
-        <div className="space-y-2">
+        <div className="space-y-2 ml-6">
           <div 
             className="h-4 rounded border"
             style={{
