@@ -191,9 +191,6 @@ const LayerCardContent = ({
       {/* Legend Display */}
       <LayerLegendDisplay source={source} />
 
-      {/* Controls Display */}
-      <LayerControlsDisplay source={source} />
-
       {/* Fields - Vector layer attribute configuration */}
       {firstVectorSource && (
         <LayerFieldsDisplay
@@ -203,6 +200,9 @@ const LayerCardContent = ({
           sourceFormat={firstVectorSource.format}
         />
       )}
+
+      {/* Controls Display */}
+      <LayerControlsDisplay source={source} />
 
       {/* Data Sources Section - only show for non-swipe layers */}
       {!isSwipeLayer && (
