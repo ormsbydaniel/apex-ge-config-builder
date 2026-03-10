@@ -9,11 +9,10 @@ import ControlsEditorDialog from '@/components/form/ControlsEditorDialog';
 
 interface LayerControlsDisplayProps {
   source: DataSource;
-  onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
-  onUpdateSource: (field: string, value: any) => void;
+  onSave: (layoutUpdates: Partial<DataSourceLayout>, sourceFieldUpdates: Record<string, any>) => void;
 }
 
-const LayerControlsDisplay = ({ source, onUpdateLayout, onUpdateSource }: LayerControlsDisplayProps) => {
+const LayerControlsDisplay = ({ source, onSave }: LayerControlsDisplayProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const rawControls = source.layout?.layerCard?.controls || source.layout?.infoPanel?.controls;
@@ -82,8 +81,7 @@ const LayerControlsDisplay = ({ source, onUpdateLayout, onUpdateSource }: LayerC
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         source={source}
-        onUpdateLayout={onUpdateLayout}
-        onUpdateSource={onUpdateSource}
+        onSave={onSave}
       />
     </div>
   );

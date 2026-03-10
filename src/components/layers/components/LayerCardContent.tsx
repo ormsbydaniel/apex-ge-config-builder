@@ -184,12 +184,18 @@ const LayerCardContent = ({
       {/* Controls Display */}
       <LayerControlsDisplay
         source={source}
-        onUpdateLayout={handleUpdateLayout}
-        onUpdateSource={(field, value) => {
+        onSave={(layoutUpdates, sourceFieldUpdates) => {
           if (sourceIndex === -1) return;
-          const updatedSource = { ...source, [field]: value };
+          const updatedSource = {
+            ...source,
+            ...sourceFieldUpdates,
+            layout: {
+              ...source.layout,
+              ...layoutUpdates,
+            },
+          };
           dispatch({ type: 'UPDATE_SOURCE', payload: { index: sourceIndex, source: updatedSource } });
-          toast({ title: "Layer Updated", description: `Successfully updated ${field}` });
+          toast({ title: "Controls Updated", description: "Layer controls have been updated successfully" });
         }}
       />
 

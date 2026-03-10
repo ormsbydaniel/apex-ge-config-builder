@@ -25,16 +25,14 @@ interface ControlsEditorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   source: DataSource;
-  onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
-  onUpdateSource: (field: string, value: any) => void;
+  onSave: (layoutUpdates: Partial<DataSourceLayout>, sourceFieldUpdates: Record<string, any>) => void;
 }
 
 const ControlsEditorDialog = ({
   open,
   onOpenChange,
   source,
-  onUpdateLayout,
-  onUpdateSource,
+  onSave,
 }: ControlsEditorDialogProps) => {
   const rawControls = source.layout?.layerCard?.controls || source.layout?.infoPanel?.controls;
   const isControlsObject = rawControls && typeof rawControls === 'object' && !Array.isArray(rawControls);
@@ -80,15 +78,19 @@ const ControlsEditorDialog = ({
     if (temporalControls) newControls.temporalControls = true;
     if (downloadEnabled) newControls.download = downloadUrl || '';
 
-    onUpdateLayout({
+    const layoutUpdates: Partial<DataSourceLayout> = {
       layerCard: {
         ...source.layout?.layerCard,
         toggleable,
         controls: Object.keys(newControls).length > 0 ? newControls : undefined,
       },
-    });
+    };
 
-    onUpdateSource('timeframe', timeframe === 'None' ? undefined : timeframe);
+    const sourceFieldUpdates: Record<string, any> = {
+      timeframe: timeframe === 'None' ? undefined : timeframe,
+    };
+
+    onSave(layoutUpdates, sourceFieldUpdates);
     onOpenChange(false);
   };
 
