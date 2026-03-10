@@ -247,6 +247,7 @@ const LayerCardContent = ({
           onEditChart={(_, chartIndex) => onEditChart?.(chartIndex)}
           />
           </div>
+        </div>
       )}
 
       {/* Show swipe configuration for swipe layers */}
