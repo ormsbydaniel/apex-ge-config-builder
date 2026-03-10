@@ -7,13 +7,13 @@ interface LayerMetadataProps {
 }
 
 const LayerMetadata = ({ source }: LayerMetadataProps) => {
+  if (!source.hasFeatureStatistics) return null;
+
   return (
     <div className="grid grid-cols-2 gap-4 text-sm text-slate-600">
-      {source.hasFeatureStatistics && (
-        <div>
-          <span className="font-medium">Statistics:</span> Yes
-        </div>
-      )}
+      <div>
+        <span className="font-medium">Statistics:</span> Yes
+      </div>
     </div>
   );
 };
