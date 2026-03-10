@@ -81,8 +81,7 @@ const LayerControlsDisplay = ({ source, onSave }: LayerControlsDisplayProps) => 
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         source={source}
-        onUpdateLayout={onUpdateLayout}
-        onUpdateSource={onUpdateSource}
+        onSave={onSave}
       />
     </div>
   );
