@@ -1,37 +1,42 @@
 
 
-## Add Legend Editor Dialog
+## Problem
 
-Add a pencil icon to the Legend sub-section header and a modal dialog for editing legend settings, following the same pattern as the RGB Composites and other editor dialogs.
+The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
 
-### New File: `src/components/form/LegendEditorDialog.tsx`
+## Proposed Approach: Numeric Defaults with Optional Label Overrides
 
-A dialog component that allows editing legend configuration:
-- **Legend type** selector: `swatch | gradient | image` (Select dropdown)
-- **Conditional fields** based on type:
-  - `image`: URL input field
-  - `gradient`: Start/end color pickers, min/max value inputs (only when no colormaps exist)
-  - `swatch`: No additional fields (references categories)
-- Props: `legend` (current value), `meta` (for gradient colors/range), `onUpdateLegend` callback, `onUpdateMeta` callback
-- Save button applies changes; cancel discards
+### Default behavior
+Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
 
-The dialog will update both `layout.layerCard.legend` (type/url) and `meta` fields (startColor, endColor, min, max) as needed, mirroring the existing `LayerControlsSection` field set but in a modal context.
+### Optional label customization via modal
+A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
 
-### Modified: `src/components/layers/components/LayerDataVisualisationSection.tsx`
+- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
+- **Bulk operations toolbar** at the top:
+  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
+  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
+  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
+- **Search/filter** to quickly find and edit specific bands
 
-- Import `LegendEditorDialog`
-- Add pencil icon button next to the "Legend" label (same pattern as Categories/Colormaps/RGB)
-- Wire the dialog with current legend and meta values
-- Handle updates via a new handler that calls `onUpdateMeta` for gradient fields and dispatches layout changes for legend type/url
+### Adaptive inline editor for small band counts
+For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
 
-Since layout updates aren't currently exposed through `onUpdateMeta`, I need to check how layout updates work.
+## Implementation
 
-### Layout update path
+### Changes to `ChartSourceForm.tsx`
+- Replace the current band labels grid with:
+  - Summary text showing band count
+  - For ≤12 bands: keep existing inline grid
+  - For >12 bands: show summary + "Customize Band Labels" button
+- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
 
-Looking at `LayerCardContent.tsx` summary — it has `handleUpdateLayout`. The `LayerDataVisualisationSection` only receives `onUpdateMeta`. I'll need to add an `onUpdateLayout` prop to pass layout changes up.
+### New component: `BandLabelEditorDialog.tsx`
+- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
+- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
+- Search input to filter rows
+- Returns updated labels array on save
 
-### Changes summary:
-1. **New file** `LegendEditorDialog.tsx` — modal with legend type selector + conditional fields
-2. **Modified** `LayerDataVisualisationSection.tsx` — add pencil icon, import dialog, accept new `onUpdateLayout` prop
-3. **Modified** `LayerCardContent.tsx` — pass `onUpdateLayout` to `LayerDataVisualisationSection`
+### No changes needed to schemas or types
+The `x: string[]` config already supports any label strings.
 

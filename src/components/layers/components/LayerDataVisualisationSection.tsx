@@ -10,6 +10,7 @@ import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import LayerRgbCompositesDisplay from './LayerRgbCompositesDisplay';
+import LegendEditorDialog from '@/components/form/LegendEditorDialog';
 import { ExternalLink, Image } from 'lucide-react';
 import {
   Dialog,
@@ -18,14 +19,17 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { DataSourceLayout } from '@/types/layer';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
   onUpdateMeta: (updates: Partial<DataSourceMeta>) => void;
+  onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
 }
 
-const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisualisationSectionProps) => {
+const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }: LayerDataVisualisationSectionProps) => {
   const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
+  const [legendDialogOpen, setLegendDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
   const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
@@ -168,7 +172,26 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Legend {hasLegend ? `- ${legend.type}` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
+            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setLegendDialogOpen(true)}>
+              <Pencil className="h-3 w-3" />
+            </Button>
           </div>
+
+          <LegendEditorDialog
+            open={legendDialogOpen}
+            onOpenChange={setLegendDialogOpen}
+            legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
+            meta={source.meta}
+            onUpdateLegend={(updatedLegend) => {
+              onUpdateLayout({
+                layerCard: {
+                  ...source.layout?.layerCard,
+                  legend: updatedLegend,
+                },
+              });
+            }}
+            onUpdateMeta={onUpdateMeta}
+          />
           {hasLegend && (
             <div className="ml-5">
               {legend.type === 'image' && legend.url && (

@@ -169,7 +169,7 @@ const LayerCardContent = ({
       <LayerDescriptionAttributionDisplay source={source} onUpdateMeta={handleUpdateMeta} />
 
       {/* Data Visualisation: Categories, Colormaps, Legend, RGB Composites */}
-      <LayerDataVisualisationSection source={source} onUpdateMeta={handleUpdateMeta} />
+      <LayerDataVisualisationSection source={source} onUpdateMeta={handleUpdateMeta} onUpdateLayout={handleUpdateLayout} />
 
       {/* Fields - Vector layer attribute configuration */}
       {firstVectorSource && (
