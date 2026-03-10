@@ -7,7 +7,7 @@ export const useValidatedConfig = () => {
   const { config, dispatch } = useConfig();
 
   // Ensure sources have required fields with defaults
-  const validatedSources: DataSource[] = config.sources.map(source => {
+  const validatedSources: DataSource[] = config.sources.map((source): DataSource => {
     // Data is always an array now, so we can simplify validation
     const validatedData = source.data.map(dataItem => ({
       ...dataItem,
