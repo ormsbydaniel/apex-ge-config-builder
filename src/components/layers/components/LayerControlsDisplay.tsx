@@ -12,7 +12,7 @@ interface LayerControlsDisplayProps {
   onSave: (layoutUpdates: Partial<DataSourceLayout>, sourceFieldUpdates: Record<string, any>) => void;
 }
 
-const LayerControlsDisplay = ({ source, onUpdateLayout, onUpdateSource }: LayerControlsDisplayProps) => {
+const LayerControlsDisplay = ({ source, onSave }: LayerControlsDisplayProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const rawControls = source.layout?.layerCard?.controls || source.layout?.infoPanel?.controls;
