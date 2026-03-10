@@ -53,7 +53,7 @@ const ColormapsSection = ({
                   const updatedColormaps = colormaps.filter((_, i) => i !== index);
                   onUpdate?.('colormaps', updatedColormaps);
                 }}
-                className="text-red-500 hover:text-red-700"
+                className="ml-1 text-destructive/60 hover:text-destructive transition-colors"
               >
                 <Trash2 className="h-3 w-3" />
               </button>
