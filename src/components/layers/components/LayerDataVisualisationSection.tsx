@@ -54,7 +54,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Tags className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex-1">
               Categories {hasCategories ? `(${categories.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
             <CategoryEditorDialog
@@ -90,7 +90,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Palette className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex-1">
               Colormaps {hasColormaps ? `(${colormaps.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
             <ColormapEditorDialog
@@ -140,7 +140,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Layers className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex-1">
               RGB Composites {hasRgbComposites ? `(${rgbComposites.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
             <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setRgbDialogOpen(true)}>
@@ -169,7 +169,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex-1">
               Legend {hasLegend ? `- ${legend.type}` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
             <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setLegendDialogOpen(true)}>
