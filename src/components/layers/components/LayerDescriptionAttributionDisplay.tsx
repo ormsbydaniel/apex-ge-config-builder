@@ -92,7 +92,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle>Description &amp; Attribution</DialogTitle>
           </DialogHeader>
@@ -104,7 +104,8 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Layer description..."
-                rows={3}
+                rows={8}
+                className="min-h-[180px]"
               />
             </div>
             <div className="space-y-2">
