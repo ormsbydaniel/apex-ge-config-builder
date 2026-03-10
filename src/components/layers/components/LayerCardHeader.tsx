@@ -1,12 +1,14 @@
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, LayoutPanelLeft, Menu } from 'lucide-react';
+import { ChevronDown, ChevronRight, Pencil } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import LayerBadge from './LayerBadge';
 import LayerActions from './LayerActions';
+
 interface LayerCardHeaderProps {
   source: DataSource;
   index: number;
@@ -17,7 +19,9 @@ interface LayerCardHeaderProps {
   onDuplicate: (index: number) => void;
   onEditJson: (index: number) => void;
   handleEdit: () => void;
+  onRename?: (newName: string) => void;
 }
+
 const LayerCardHeader = ({
   source,
   index,
@@ -27,12 +31,44 @@ const LayerCardHeader = ({
   onEdit,
   onDuplicate,
   onEditJson,
-  handleEdit
+  handleEdit,
+  onRename
 }: LayerCardHeaderProps) => {
   const contentLocation = source.layout?.contentLocation || 'layerCard';
-  
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(source.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const handleStartEditing = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditName(source.name);
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    const trimmed = editName.trim();
+    if (trimmed && trimmed !== source.name) {
+      onRename?.(trimmed);
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
   return <CardHeader className="py-3 relative">
-      {/* Badge and Actions positioned to align with layer name */}
       <div className="absolute top-[21px] right-2 z-10 flex items-center gap-2">
         <LayerBadge source={source} />
         <Badge variant="outline" className="flex items-center gap-1 text-xs border-teal-500 text-teal-600">
@@ -69,9 +105,29 @@ const LayerCardHeader = ({
             minHeight: '16px'
           }} />}
           </div>
-          <div className="text-left">
-            <h3 className="text-sm font-bold">{source.name}</h3>
-            
+          <div className="text-left flex items-center gap-1.5">
+            {isEditing ? (
+              <Input
+                ref={inputRef}
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={handleKeyDown}
+                onClick={(e) => e.stopPropagation()}
+                className="h-6 text-sm font-bold py-0 px-1.5 w-auto min-w-[120px]"
+              />
+            ) : (
+              <>
+                <h3 className="text-sm font-bold">{source.name}</h3>
+                <button
+                  onClick={handleStartEditing}
+                  className="opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 p-0.5 rounded hover:bg-muted/80 transition-opacity text-muted-foreground hover:text-foreground"
+                  title="Rename layer"
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+              </>
+            )}
           </div>
         </CollapsibleTrigger>
       </div>
