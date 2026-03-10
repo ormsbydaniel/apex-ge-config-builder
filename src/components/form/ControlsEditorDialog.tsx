@@ -48,7 +48,7 @@ const ControlsEditorDialog = ({
   const [temporalControls, setTemporalControls] = useState(!!controls?.temporalControls);
   const [downloadEnabled, setDownloadEnabled] = useState(controls?.download !== undefined);
   const [downloadUrl, setDownloadUrl] = useState(typeof controls?.download === 'string' ? controls.download : '');
-  const [timeframe, setTimeframe] = useState(source.timeframe || 'None');
+  const [timeframe, setTimeframe] = useState<string>(source.timeframe || 'None');
 
   // Reset local state when dialog opens
   useEffect(() => {
