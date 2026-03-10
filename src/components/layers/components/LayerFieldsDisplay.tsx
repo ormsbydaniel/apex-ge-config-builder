@@ -63,8 +63,8 @@ const LayerFieldsDisplay = ({ fields, onUpdate, sourceUrl, sourceFormat }: Layer
             {visibleFields.map(([fieldName, config]) => (
               <Badge 
                 key={fieldName} 
-                variant="outline" 
-                className="text-xs font-mono"
+                variant="secondary" 
+                className="text-[11px] font-normal text-muted-foreground bg-muted/50 border-0 rounded px-1.5 py-0.5"
                 title={[
                   config?.prefix && `Prefix: ${config.prefix}`,
                   config?.suffix && `Suffix: ${config.suffix}`,
@@ -75,7 +75,7 @@ const LayerFieldsDisplay = ({ fields, onUpdate, sourceUrl, sourceFormat }: Layer
               >
                 {config?.label || fieldName}
                 {config?.order !== undefined && (
-                  <span className="ml-1 text-muted-foreground">#{config.order}</span>
+                  <span className="ml-1 text-muted-foreground/70">#{config.order}</span>
                 )}
               </Badge>
             ))}
