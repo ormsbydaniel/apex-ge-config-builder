@@ -2,7 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Pencil } from 'lucide-react';
+import { Pencil, Tags } from 'lucide-react';
 import { Category } from '@/types/config';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 
