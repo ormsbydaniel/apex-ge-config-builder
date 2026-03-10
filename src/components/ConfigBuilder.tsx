@@ -92,7 +92,7 @@ const ConfigBuilderContent = () => {
   } = useConfigBuilderState();
 
   // Track navigation state for Preview transitions
-  const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setScrollPosition } = useNavigationState();
+  const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setExpandedSubGroups, setScrollPosition } = useNavigationState();
   const layersScrollRef = React.useRef<HTMLDivElement>(null);
 
   const handleTabChange = (value: string) => {
