@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CardContent } from '@/components/ui/card';
 import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout, DataSourceItem } from '@/types/config';
@@ -13,6 +12,7 @@ import LayerAttributionDisplay from './LayerAttributionDisplay';
 import LayerColormapsDisplay from './LayerColormapsDisplay';
 import LayerFieldsDisplay from './LayerFieldsDisplay';
 import { LayerCardTabs } from './LayerCardTabs';
+import { isVectorFormat } from '@/utils/fieldDetection';
 
 interface LayerCardContentProps {
   source: DataSource;
@@ -75,6 +75,11 @@ const LayerCardContent = ({
   // Find the index of this source in the config
   const sourceIndex = config.sources.findIndex(s => s.name === source.name);
 
+  // Extract first vector data source for fields editor
+  const firstVectorSource = isDataSourceItemArray(source.data)
+    ? source.data.find((item: DataSourceItem) => item.format && isVectorFormat(item.format))
+    : undefined;
+
   // Handler to update meta fields
   const handleUpdateMeta = (updates: Partial<DataSourceMeta>) => {
     if (sourceIndex === -1) return;
@@ -95,15 +100,10 @@ const LayerCardContent = ({
       }
     });
 
-    // Show success toast
-    const updateDescription = [];
-    if (updates.min !== undefined) updateDescription.push('min');
-    if (updates.max !== undefined) updateDescription.push('max');
-    if (updates.colormaps !== undefined) updateDescription.push('colormaps');
-
+    const updateKeys = Object.keys(updates);
     toast({
-      title: "Metadata Updated",
-      description: `Successfully updated ${updateDescription.join(', ')} values from COG metadata`,
+      title: "Layer Updated",
+      description: `Successfully updated ${updateKeys.join(', ')}`,
     });
   };
 
@@ -171,17 +171,31 @@ const LayerCardContent = ({
 
       {/* Categories */}
       {source.meta?.categories && source.meta.categories.length > 0 && (
-        <LayerCategories categories={source.meta.categories} />
+        <LayerCategories
+          categories={source.meta.categories}
+          onUpdate={(categories) => handleUpdateMeta({ categories })}
+          layerName={source.name}
+        />
       )}
 
       {/* Colormaps */}
       {source.meta?.colormaps && source.meta.colormaps.length > 0 && (
-        <LayerColormapsDisplay colormaps={source.meta.colormaps} />
+        <LayerColormapsDisplay
+          colormaps={source.meta.colormaps}
+          onUpdate={(colormaps) => handleUpdateMeta({ colormaps })}
+          metaMin={source.meta?.min}
+          metaMax={source.meta?.max}
+        />
       )}
 
       {/* Fields - Vector layer attribute configuration */}
       {source.meta?.fields && Object.keys(source.meta.fields).length > 0 && (
-        <LayerFieldsDisplay fields={source.meta.fields} />
+        <LayerFieldsDisplay
+          fields={source.meta.fields}
+          onUpdate={(fields) => handleUpdateMeta({ fields })}
+          sourceUrl={firstVectorSource?.url}
+          sourceFormat={firstVectorSource?.format}
+        />
       )}
       
       {/* Legend Display */}

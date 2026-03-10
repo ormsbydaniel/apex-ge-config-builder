@@ -1,17 +1,23 @@
+
 /**
  * Read-only display of field configurations in the layer card content.
  */
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { List, EyeOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { List, EyeOff, Pencil } from 'lucide-react';
 import { FieldsConfig } from '@/types/category';
+import FieldsEditorDialog from '@/components/form/FieldsEditorDialog';
 
 interface LayerFieldsDisplayProps {
   fields: FieldsConfig;
+  onUpdate?: (fields: FieldsConfig) => void;
+  sourceUrl?: string;
+  sourceFormat?: string;
 }
 
-const LayerFieldsDisplay = ({ fields }: LayerFieldsDisplayProps) => {
+const LayerFieldsDisplay = ({ fields, onUpdate, sourceUrl, sourceFormat }: LayerFieldsDisplayProps) => {
   const fieldEntries = Object.entries(fields);
   
   if (fieldEntries.length === 0) {
@@ -30,10 +36,25 @@ const LayerFieldsDisplay = ({ fields }: LayerFieldsDisplayProps) => {
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-        <List className="h-4 w-4" />
-        Fields ({fieldEntries.length})
-      </h4>
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+          <List className="h-4 w-4" />
+          Fields ({fieldEntries.length})
+        </h4>
+        {onUpdate && (
+          <FieldsEditorDialog
+            fields={fields}
+            onUpdate={onUpdate}
+            sourceUrl={sourceUrl}
+            sourceFormat={sourceFormat}
+            trigger={
+              <Button variant="ghost" size="icon" className="h-6 w-6">
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            }
+          />
+        )}
+      </div>
       
       <div className="space-y-2">
         {/* Visible fields */}
