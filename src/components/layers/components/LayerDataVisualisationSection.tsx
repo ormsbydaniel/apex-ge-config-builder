@@ -24,6 +24,7 @@ import { DataSourceLayout } from '@/types/layer';
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
   onUpdateMeta: (updates: Partial<DataSourceMeta>) => void;
+  onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
 }
 
 const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisualisationSectionProps) => {
