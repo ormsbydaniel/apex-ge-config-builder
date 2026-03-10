@@ -89,7 +89,7 @@ const LayerFieldsDisplay = ({ fields, onUpdate, sourceUrl, sourceFormat }: Layer
           )}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground">All fields (default display)</p>
+        <p className="text-xs text-muted-foreground ml-6">All fields (default display)</p>
       )}
     </div>
   );

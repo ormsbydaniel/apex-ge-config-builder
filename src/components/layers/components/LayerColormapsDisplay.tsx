@@ -38,7 +38,7 @@ const LayerColormapsDisplay = ({ colormaps, onUpdate, metaMin, metaMax }: LayerC
           />
         )}
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 ml-6">
         {colormaps.map((colormap, index) => (
           <Badge key={index} variant="secondary" className="flex items-center gap-2 px-3 py-1">
             <ColorRampPreview 

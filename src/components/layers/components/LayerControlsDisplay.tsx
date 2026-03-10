@@ -42,7 +42,7 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
         <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
         <h4 className="text-sm font-medium text-foreground">Controls</h4>
       </div>
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1 ml-6">
         {controlsList.map((control, index) => (
           <Badge key={index} variant="outline" className="text-xs border-blue-500/30 text-blue-600">
             {control}

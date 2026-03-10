@@ -35,7 +35,7 @@ const LayerCategories = ({ categories, onUpdate, layerName }: LayerCategoriesPro
           />
         )}
       </div>
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1 ml-6">
         {categories.map((cat, catIndex) => (
           <Badge key={catIndex} variant="outline" className="text-xs border-primary/30">
             <div
