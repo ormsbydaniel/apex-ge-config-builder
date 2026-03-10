@@ -141,7 +141,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
                     href={legend.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1 text-sm"
+                    className="text-primary hover:text-primary/80 underline inline-flex items-center gap-1 text-sm"
                   >
                     View Legend Image
                     <ExternalLink className="h-3 w-3" />
