@@ -172,7 +172,26 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Legend {hasLegend ? `- ${legend.type}` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
+            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setLegendDialogOpen(true)}>
+              <Pencil className="h-3 w-3" />
+            </Button>
           </div>
+
+          <LegendEditorDialog
+            open={legendDialogOpen}
+            onOpenChange={setLegendDialogOpen}
+            legend={legend}
+            meta={source.meta}
+            onUpdateLegend={(updatedLegend) => {
+              onUpdateLayout({
+                layerCard: {
+                  ...source.layout?.layerCard,
+                  legend: updatedLegend,
+                },
+              });
+            }}
+            onUpdateMeta={onUpdateMeta}
+          />
           {hasLegend && (
             <div className="ml-5">
               {legend.type === 'image' && legend.url && (
