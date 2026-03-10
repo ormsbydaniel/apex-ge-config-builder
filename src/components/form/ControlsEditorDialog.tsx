@@ -78,12 +78,23 @@ const ControlsEditorDialog = ({
     if (temporalControls) newControls.temporalControls = true;
     if (downloadEnabled) newControls.download = downloadUrl || '';
 
+    const controlsValue = Object.keys(newControls).length > 0 ? newControls : undefined;
+    const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
+
     const layoutUpdates: Partial<DataSourceLayout> = {
       layerCard: {
         ...source.layout?.layerCard,
         toggleable,
-        controls: Object.keys(newControls).length > 0 ? newControls : undefined,
+        ...(isInfoPanel ? {} : { controls: controlsValue }),
       },
+      ...(isInfoPanel
+        ? {
+            infoPanel: {
+              ...source.layout?.infoPanel,
+              controls: controlsValue,
+            },
+          }
+        : {}),
     };
 
     const sourceFieldUpdates: Record<string, any> = {
