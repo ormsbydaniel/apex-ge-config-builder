@@ -2,7 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, Pencil } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit2, Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
