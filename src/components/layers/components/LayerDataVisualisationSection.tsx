@@ -43,22 +43,20 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
           <div className="flex items-center gap-2">
             <Tags className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Categories {hasCategories && `(${categories.length})`}
+              Categories {hasCategories ? `(${categories.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
-            {hasCategories && (
-              <CategoryEditorDialog
-                categories={categories}
-                onUpdate={(cats) => onUpdateMeta({ categories: cats })}
-                layerName={source.name}
-                trigger={
-                  <Button variant="ghost" size="icon" className="h-5 w-5">
-                    <Pencil className="h-3 w-3" />
-                  </Button>
-                }
-              />
-            )}
+            <CategoryEditorDialog
+              categories={categories}
+              onUpdate={(cats) => onUpdateMeta({ categories: cats })}
+              layerName={source.name}
+              trigger={
+                <Button variant="ghost" size="icon" className="h-5 w-5">
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              }
+            />
           </div>
-          {hasCategories ? (
+          {hasCategories && (
             <div className="flex flex-wrap gap-1 ml-5">
               {categories.map((cat, catIndex) => (
                 <Badge key={catIndex} variant="outline" className="text-xs border-primary/30">
@@ -73,8 +71,6 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
                 </Badge>
               ))}
             </div>
-          ) : (
-            <span className="text-xs text-muted-foreground italic ml-5">(none defined)</span>
           )}
         </div>
 
@@ -83,23 +79,21 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
           <div className="flex items-center gap-2">
             <Palette className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Colormaps {hasColormaps && `(${colormaps.length})`}
+              Colormaps {hasColormaps ? `(${colormaps.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
-            {hasColormaps && (
-              <ColormapEditorDialog
-                colormaps={colormaps}
-                onUpdate={(cmaps) => onUpdateMeta({ colormaps: cmaps })}
-                metaMin={source.meta?.min}
-                metaMax={source.meta?.max}
-                trigger={
-                  <Button variant="ghost" size="icon" className="h-5 w-5">
-                    <Pencil className="h-3 w-3" />
-                  </Button>
-                }
-              />
-            )}
+            <ColormapEditorDialog
+              colormaps={colormaps}
+              onUpdate={(cmaps) => onUpdateMeta({ colormaps: cmaps })}
+              metaMin={source.meta?.min}
+              metaMax={source.meta?.max}
+              trigger={
+                <Button variant="ghost" size="icon" className="h-5 w-5">
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              }
+            />
           </div>
-          {hasColormaps ? (
+          {hasColormaps && (
             <div className="flex flex-wrap gap-2 ml-5">
               {colormaps.map((colormap, index) => (
                 <Badge key={index} variant="secondary" className="flex items-center gap-2 px-3 py-1">
@@ -119,8 +113,6 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
                 </Badge>
               ))}
             </div>
-          ) : (
-            <span className="text-xs text-muted-foreground italic ml-5">(none defined)</span>
           )}
         </div>
 
@@ -129,10 +121,10 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
           <div className="flex items-center gap-2">
             <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Legend {hasLegend && `- ${legend.type}`}
+              Legend {hasLegend ? `- ${legend.type}` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
           </div>
-          {hasLegend ? (
+          {hasLegend && (
             <div className="ml-5">
               {legend.type === 'image' && legend.url && (
                 <div className="flex items-center gap-2">
@@ -166,8 +158,6 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
                 <span className="text-sm text-muted-foreground">See categories</span>
               )}
             </div>
-          ) : (
-            <span className="text-xs text-muted-foreground italic ml-5">(none defined)</span>
           )}
         </div>
 
@@ -176,49 +166,15 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
           <div className="flex items-center gap-2">
             <Layers className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              RGB Composites {hasRgbComposites && `(${rgbComposites.length})`}
+              RGB Composites {hasRgbComposites ? `(${rgbComposites.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
           </div>
-          <div className="ml-5">
-            <LayerRgbCompositesDisplay rgbComposites={rgbComposites} />
-          </div>
+          {hasRgbComposites && (
+            <div className="ml-5">
+              <LayerRgbCompositesDisplay rgbComposites={rgbComposites} />
+            </div>
+          )}
         </div>
-
-        {/* Add buttons for empty sub-sections */}
-        {(!hasCategories || !hasColormaps || !hasLegend || !hasRgbComposites) && (
-          <div className="flex flex-wrap gap-2 pt-1">
-            {!hasCategories && (
-              <CategoryEditorDialog
-                categories={[]}
-                onUpdate={(cats) => onUpdateMeta({ categories: cats })}
-                layerName={source.name}
-                trigger={
-                  <Button variant="outline" size="sm" className="h-7 text-xs">
-                    + Add Categories
-                  </Button>
-                }
-              />
-            )}
-            {!hasColormaps && (
-              <ColormapEditorDialog
-                colormaps={[]}
-                onUpdate={(cmaps) => onUpdateMeta({ colormaps: cmaps })}
-                metaMin={source.meta?.min}
-                metaMax={source.meta?.max}
-                trigger={
-                  <Button variant="outline" size="sm" className="h-7 text-xs">
-                    + Add Colormap
-                  </Button>
-                }
-              />
-            )}
-            {!hasRgbComposites && (
-              <Button variant="outline" size="sm" className="h-7 text-xs" disabled>
-                + Add RGB Composite
-              </Button>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
