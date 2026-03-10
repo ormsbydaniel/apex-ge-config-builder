@@ -182,7 +182,16 @@ const LayerCardContent = ({
       )}
 
       {/* Controls Display */}
-      <LayerControlsDisplay source={source} />
+      <LayerControlsDisplay
+        source={source}
+        onUpdateLayout={handleUpdateLayout}
+        onUpdateSource={(field, value) => {
+          if (sourceIndex === -1) return;
+          const updatedSource = { ...source, [field]: value };
+          dispatch({ type: 'UPDATE_SOURCE', payload: { index: sourceIndex, source: updatedSource } });
+          toast({ title: "Layer Updated", description: `Successfully updated ${field}` });
+        }}
+      />
 
       {/* Data Sources Section - only show for non-swipe layers */}
       {!isSwipeLayer && (
