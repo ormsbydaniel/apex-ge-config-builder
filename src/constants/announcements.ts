@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-03-09",
+    title: "Config UI for multi-band COG support added",
+    category: "Feature",
+  },
+  {
     date: "2026-02-27",
     title: "Paginated data source lists and remove all option. COG metadata support for multi-band COGs.",
     category: "Feature",
