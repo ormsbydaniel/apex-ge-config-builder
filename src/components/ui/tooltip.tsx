@@ -9,7 +9,7 @@ const TooltipProvider = TooltipPrimitive.Provider
 const Tooltip = ({ children, ...props }: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root> & { autoHideDuration?: number }) => {
   const { autoHideDuration = 2000, ...rootProps } = props;
   const [open, setOpen] = React.useState(false);
-  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleOpenChange = React.useCallback((isOpen: boolean) => {
     if (timeoutRef.current) {

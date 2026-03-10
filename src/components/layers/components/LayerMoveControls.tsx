@@ -26,8 +26,8 @@ const LayerMoveControls = ({
   canMoveToTop,
   canMoveToBottom
 }: LayerMoveControlsProps) => {
-  const upTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const downTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const upTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const downTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const upDoubleClickedRef = useRef(false);
   const downDoubleClickedRef = useRef(false);
 
