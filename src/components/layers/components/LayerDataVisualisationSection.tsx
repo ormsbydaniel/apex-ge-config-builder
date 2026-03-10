@@ -10,6 +10,7 @@ import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import LayerRgbCompositesDisplay from './LayerRgbCompositesDisplay';
+import LegendEditorDialog from '@/components/form/LegendEditorDialog';
 import { ExternalLink, Image } from 'lucide-react';
 import {
   Dialog,
@@ -18,6 +19,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { DataSourceLayout } from '@/types/layer';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
