@@ -59,7 +59,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
           {hasCategories && (
             <div className="flex flex-wrap gap-1 ml-5">
               {categories.map((cat, catIndex) => (
-                <Badge key={catIndex} variant="outline" className="text-xs border-primary/30">
+                <Badge key={catIndex} variant="outline" className="text-[11px] font-normal text-muted-foreground border-border/50 py-0 px-1.5">
                   <div
                     className="w-2 h-2 rounded-full mr-1"
                     style={{ backgroundColor: cat.color }}
