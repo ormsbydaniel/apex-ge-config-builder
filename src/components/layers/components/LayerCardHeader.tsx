@@ -2,7 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CardHeader } from '@/components/ui/card';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, Pencil } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit2, Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -52,7 +53,7 @@ const LayerCardHeader = ({
     setIsEditing(true);
   };
 
-  const handleSave = () => {
+  const handleConfirmEdit = () => {
     const trimmed = editName.trim();
     if (trimmed && trimmed !== source.name) {
       onRename?.(trimmed);
@@ -60,12 +61,10 @@ const LayerCardHeader = ({
     setIsEditing(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSave();
-    } else if (e.key === 'Escape') {
-      setIsEditing(false);
-    }
+  const handleCancelEdit = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setIsEditing(false);
+    setEditName(source.name);
   };
 
   return <CardHeader className="py-3 relative">
@@ -95,41 +94,51 @@ const LayerCardHeader = ({
       </div>
       
       <div className="flex pr-40">
-        <CollapsibleTrigger className="group flex gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1 py-2 mx-[6px] px-[6px]">
-          <div className="flex-shrink-0 mt-[2px]">
-            {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" style={{
-            minWidth: '16px',
-            minHeight: '16px'
-          }} /> : <ChevronRight className="h-4 w-4 text-muted-foreground" style={{
-            minWidth: '16px',
-            minHeight: '16px'
-          }} />}
+        {isEditing ? (
+          <div className="flex items-center gap-2 flex-1 p-2 -ml-2 mx-[6px] px-[6px]">
+            <div className="h-4 w-4 flex-shrink-0" />
+            <Input
+              ref={inputRef}
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              onKeyDown={(e) => {
+                e.stopPropagation();
+                if (e.key === 'Enter') handleConfirmEdit();
+                else if (e.key === 'Escape') handleCancelEdit();
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="text-sm font-bold h-6 flex-1"
+            />
+            <Button size="sm" onClick={(e) => { e.stopPropagation(); handleConfirmEdit(); }} className="h-5 w-5 p-0 bg-green-600 hover:bg-green-700">
+              <Check className="h-3 w-3" />
+            </Button>
+            <Button size="sm" variant="outline" onClick={(e) => handleCancelEdit(e)} className="h-5 w-5 p-0">
+              <X className="h-3 w-3" />
+            </Button>
           </div>
-          <div className="text-left flex items-center gap-1.5 flex-1 min-w-0">
-            {isEditing ? (
-              <Input
-                ref={inputRef}
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                onBlur={handleSave}
-                onKeyDown={handleKeyDown}
-                onClick={(e) => e.stopPropagation()}
-                className="h-6 text-sm font-bold py-0 px-1.5 w-full"
-              />
-            ) : (
-              <>
-                <h3 className="text-sm font-bold">{source.name}</h3>
-                <button
-                  onClick={handleStartEditing}
-                  className="opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 p-0.5 rounded hover:bg-muted/80 transition-opacity text-muted-foreground hover:text-foreground"
-                  title="Rename layer"
-                >
-                  <Pencil className="h-3 w-3" />
-                </button>
-              </>
-            )}
-          </div>
-        </CollapsibleTrigger>
+        ) : (
+          <CollapsibleTrigger className="group flex gap-2 hover:bg-muted/50 p-2 rounded-md -ml-2 flex-1 py-2 mx-[6px] px-[6px]">
+            <div className="flex-shrink-0 mt-[2px]">
+              {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" style={{
+              minWidth: '16px',
+              minHeight: '16px'
+            }} /> : <ChevronRight className="h-4 w-4 text-muted-foreground" style={{
+              minWidth: '16px',
+              minHeight: '16px'
+            }} />}
+            </div>
+            <div className="text-left flex items-center gap-1.5 flex-1 min-w-0">
+              <h3 className="text-sm font-bold">{source.name}</h3>
+              <button
+                onClick={handleStartEditing}
+                className="opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 p-0.5 rounded hover:bg-muted/80 transition-opacity text-muted-foreground hover:text-foreground"
+                title="Rename layer"
+              >
+                <Edit2 className="h-3 w-3" />
+              </button>
+            </div>
+          </CollapsibleTrigger>
+        )}
       </div>
     </CardHeader>;
 };
