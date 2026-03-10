@@ -73,7 +73,9 @@ const LayersTabCore = ({
         if (editingLayer.isBaseLayer) {
           groupName = '__BASE_LAYERS__';
         } else if (editingLayer.layout?.interfaceGroup) {
-          groupName = editingLayer.layout.interfaceGroup;
+          groupName = editingLayer.layout.subinterfaceGroup 
+            ? `${editingLayer.layout.interfaceGroup}::${editingLayer.layout.subinterfaceGroup}`
+            : editingLayer.layout.interfaceGroup;
         } else {
           groupName = '__UNGROUPED__';
         }
