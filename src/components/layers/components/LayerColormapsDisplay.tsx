@@ -2,7 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Pencil } from 'lucide-react';
+import { Pencil, Palette } from 'lucide-react';
 import { Colormap } from '@/types/config';
 import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
