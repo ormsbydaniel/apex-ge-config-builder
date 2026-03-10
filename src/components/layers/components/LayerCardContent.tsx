@@ -212,6 +212,7 @@ const LayerCardContent = ({
             <Database className="h-4 w-4 text-muted-foreground" />
             <h4 className="text-sm font-medium text-foreground">Data Sources</h4>
           </div>
+          <div className="ml-6">
           <LayerCardTabs
           source={source}
           services={(config.services || []) as Service[]}
