@@ -1,39 +1,42 @@
 
 
-## Add Controls Editor Dialog
+## Problem
 
-Create a modal dialog for editing layer controls (toggleable, opacity, zoom, download, blend, constraints, temporal, timeframe), triggered by a pencil icon on the Controls section header.
+The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
 
-### New File: `src/components/form/ControlsEditorDialog.tsx`
+## Proposed Approach: Numeric Defaults with Optional Label Overrides
 
-A dialog with:
-- **Toggle switches** for: Toggleable, Zoom to Center, Opacity Slider, Blend Controls, Constraint Slider, Temporal Controls
-- **Download** switch + conditional URL input field
-- **Timeframe** select dropdown (None / Time / Days / Months / Years)
-- Local state initialized from current source values; Save/Cancel buttons
-- On save: calls `onUpdateLayout` for controls/toggleable changes and `onUpdateSource` for top-level `timeframe`
+### Default behavior
+Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
 
-Props: `open`, `onOpenChange`, current `source` (to read controls/toggleable/timeframe), `onUpdateLayout`, `onUpdateSource` (for timeframe which lives on the source root)
+### Optional label customization via modal
+A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
 
-Layout: Two-column grid of switches for compact presentation, download URL below if enabled, timeframe select at the bottom.
+- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
+- **Bulk operations toolbar** at the top:
+  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
+  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
+  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
+- **Search/filter** to quickly find and edit specific bands
 
-### Modified: `src/components/layers/components/LayerControlsDisplay.tsx`
+### Adaptive inline editor for small band counts
+For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
 
-- Add pencil icon button next to "Controls" header
-- Add state for dialog open/close
-- Accept new props: `onUpdateLayout`, `onUpdateSource`
-- Import and render `ControlsEditorDialog`
-- Remove the early `return null` when no controls exist — always show the section header so users can add controls via the pencil icon
+## Implementation
 
-### Modified: `src/components/layers/components/LayerCardContent.tsx`
+### Changes to `ChartSourceForm.tsx`
+- Replace the current band labels grid with:
+  - Summary text showing band count
+  - For ≤12 bands: keep existing inline grid
+  - For >12 bands: show summary + "Customize Band Labels" button
+- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
 
-- Pass `handleUpdateLayout` and a new `handleUpdateSource` (dispatches full source update for timeframe) to `LayerControlsDisplay`
+### New component: `BandLabelEditorDialog.tsx`
+- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
+- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
+- Search input to filter rows
+- Returns updated labels array on save
 
-### Data flow
-
-```text
-ControlsEditorDialog
-  ├─ onUpdateLayout → updates layout.layerCard.controls + layout.layerCard.toggleable
-  └─ onUpdateSource → updates source.timeframe (top-level field)
-```
+### No changes needed to schemas or types
+The `x: string[]` config already supports any label strings.
 

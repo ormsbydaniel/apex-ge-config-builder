@@ -1,20 +1,25 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { DataSource } from '@/types/config';
+import { DataSourceLayout } from '@/types/layer';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, Pencil } from 'lucide-react';
+import ControlsEditorDialog from '@/components/form/ControlsEditorDialog';
 
 interface LayerControlsDisplayProps {
   source: DataSource;
+  onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateSource: (field: string, value: any) => void;
 }
 
-const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
-  // Check both layerCard and infoPanel for controls (backward compatibility)
+const LayerControlsDisplay = ({ source, onUpdateLayout, onUpdateSource }: LayerControlsDisplayProps) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const rawControls = source.layout?.layerCard?.controls || source.layout?.infoPanel?.controls;
   const toggleable = source.layout?.layerCard?.toggleable;
   const timeframe = source.timeframe;
   
-  // Type guard: check if controls is an object (not a string array)
   const isControlsObject = rawControls && typeof rawControls === 'object' && !Array.isArray(rawControls);
   const controls = isControlsObject ? rawControls : undefined;
   
@@ -22,13 +27,8 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   const hasTimeframe = timeframe && timeframe !== 'None';
   const hasToggleable = toggleable;
   const hasDownload = controls?.download !== undefined;
-  
-  useEffect(() => {
-  }, [hasDownload, controls?.download]);
-  
-  if (!hasControls && !hasTimeframe && !hasToggleable) return null;
 
-  const controlsList = [];
+  const controlsList: string[] = [];
   if (hasToggleable) controlsList.push('Toggleable');
   if (controls?.zoomToCenter) controlsList.push('Zoom to Center');
   if (controls?.opacitySlider) controlsList.push('Opacity Slider');
@@ -36,40 +36,55 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
   if (controls?.constraintSlider) controlsList.push('Constraint Slider');
   if (controls?.blendControls) controlsList.push('Blend Controls');
 
+  const hasAny = hasControls || hasTimeframe || hasToggleable;
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
         <h4 className="text-sm font-medium text-foreground">Controls</h4>
+        {!hasAny && <span className="text-xs italic text-muted-foreground">(None)</span>}
+        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setDialogOpen(true)}>
+          <Pencil className="h-3 w-3" />
+        </Button>
       </div>
-      <div className="flex flex-wrap gap-1 ml-6">
-        {controlsList.map((control, index) => (
-          <Badge key={index} variant="outline" className="text-xs border-blue-500/30 text-blue-600">
-            {control}
-          </Badge>
-        ))}
-        {hasTimeframe && (
-          <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
-            Time: {timeframe}
-          </Badge>
-        )}
-        {hasDownload && (
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Badge variant="outline" className="text-xs border-green-500/30 text-green-600 cursor-help">
-                  Download
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                <p className="max-w-xs break-all text-sm">
-                  {controls?.download || 'No URL configured'}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-      </div>
+      {hasAny && (
+        <div className="flex flex-wrap gap-1 ml-6">
+          {controlsList.map((control, index) => (
+            <Badge key={index} variant="outline" className="text-xs border-blue-500/30 text-blue-600">
+              {control}
+            </Badge>
+          ))}
+          {hasTimeframe && (
+            <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
+              Time: {timeframe}
+            </Badge>
+          )}
+          {hasDownload && (
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="text-xs border-green-500/30 text-green-600 cursor-help">
+                    Download
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p className="max-w-xs break-all text-sm">
+                    {controls?.download || 'No URL configured'}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+      )}
+      <ControlsEditorDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        source={source}
+        onUpdateLayout={onUpdateLayout}
+        onUpdateSource={onUpdateSource}
+      />
     </div>
   );
 };
