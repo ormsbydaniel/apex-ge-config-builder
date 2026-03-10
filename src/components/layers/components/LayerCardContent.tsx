@@ -166,8 +166,8 @@ const LayerCardContent = ({
     <CardContent className="space-y-4 pl-[46px]">
       <LayerMetadata source={source} />
       
-      {/* Attribution Display */}
-      <LayerAttributionDisplay source={source} />
+      {/* Description & Attribution Display */}
+      <LayerDescriptionAttributionDisplay source={source} onUpdateMeta={handleUpdateMeta} />
 
       {/* Categories */}
       {source.meta?.categories && source.meta.categories.length > 0 && (
