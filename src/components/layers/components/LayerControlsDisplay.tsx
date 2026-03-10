@@ -55,7 +55,7 @@ const LayerControlsDisplay = ({ source, onSave }: LayerControlsDisplayProps) => 
             </Badge>
           ))}
           {hasTimeframe && (
-            <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
+            <Badge variant="outline" className="text-[11px] font-normal text-muted-foreground border-border/50">
               Time: {timeframe}
             </Badge>
           )}
