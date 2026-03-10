@@ -8,7 +8,7 @@ import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
 import LayerLegendDisplay from './LayerLegendDisplay';
 import LayerControlsDisplay from './LayerControlsDisplay';
-import LayerAttributionDisplay from './LayerAttributionDisplay';
+import LayerDescriptionAttributionDisplay from './LayerDescriptionAttributionDisplay';
 import LayerColormapsDisplay from './LayerColormapsDisplay';
 import LayerFieldsDisplay from './LayerFieldsDisplay';
 import { LayerCardTabs } from './LayerCardTabs';
