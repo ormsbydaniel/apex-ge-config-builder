@@ -3,6 +3,7 @@ import { CardContent } from '@/components/ui/card';
 import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout, DataSourceItem } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useToast } from '@/hooks/use-toast';
+import { Database } from 'lucide-react';
 import LayerMetadata from './LayerMetadata';
 import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
