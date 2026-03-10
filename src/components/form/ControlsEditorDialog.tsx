@@ -25,8 +25,7 @@ interface ControlsEditorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   source: DataSource;
-  onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
-  onUpdateSource: (field: string, value: any) => void;
+  onSave: (layoutUpdates: Partial<DataSourceLayout>, sourceFieldUpdates: Record<string, any>) => void;
 }
 
 const ControlsEditorDialog = ({
