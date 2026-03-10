@@ -1,48 +1,42 @@
 
 
-## Redesign Controls Editor Dialog — Compact Checklist
+## Problem
 
-**Goal**: Replace the two-column switch grid with a single-column compact checklist using checkboxes. Conditionally show the Timeframe dropdown only when Temporal Controls is checked (mirroring the Download URL pattern).
+The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
 
-### Changes — `src/components/form/ControlsEditorDialog.tsx`
+## Proposed Approach: Numeric Defaults with Optional Label Overrides
 
-1. **Add Checkbox import** from `@/components/ui/checkbox`.
+### Default behavior
+Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
 
-2. **Replace the 2-column switch grid** (lines 118-145) with a single-column list of checkbox rows:
-   - Toggleable
-   - Zoom to Center
-   - Opacity Slider
-   - Blend Controls
-   - Constraint Slider
-   - Temporal Controls
-   - Download
+### Optional label customization via modal
+A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
 
-   Each row: `<div className="flex items-center gap-2"><Checkbox .../><Label ...>Name</Label></div>`
+- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
+- **Bulk operations toolbar** at the top:
+  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
+  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
+  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
+- **Search/filter** to quickly find and edit specific bands
 
-3. **Conditional sub-fields** (indented below their parent checkbox):
-   - **Temporal Controls** → when checked, show the Timeframe `Select` dropdown beneath it
-   - **Download** → when checked, show the URL `Input` beneath it (already works this way)
+### Adaptive inline editor for small band counts
+For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
 
-4. **Auto-clear timeframe** when Temporal Controls is unchecked: set `timeframe` to `'None'`.
+## Implementation
 
-5. **Narrow the dialog** slightly: keep `sm:max-w-md` or reduce to `sm:max-w-sm` since single-column needs less width.
+### Changes to `ChartSourceForm.tsx`
+- Replace the current band labels grid with:
+  - Summary text showing band count
+  - For ≤12 bands: keep existing inline grid
+  - For >12 bands: show summary + "Customize Band Labels" button
+- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
 
-### Visual sketch
+### New component: `BandLabelEditorDialog.tsx`
+- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
+- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
+- Search input to filter rows
+- Returns updated labels array on save
 
-```text
-┌─ Edit Controls ─────────────────┐
-│                                 │
-│  ☑ Toggleable                   │
-│  ☐ Zoom to Center               │
-│  ☑ Opacity Slider               │
-│  ☐ Blend Controls               │
-│  ☐ Constraint Slider            │
-│  ☑ Temporal Controls            │
-│     Timeframe: [Days ▾]         │
-│  ☑ Download                     │
-│     URL: [https://...]          │
-│                                 │
-│            [Cancel] [Save]      │
-└─────────────────────────────────┘
-```
+### No changes needed to schemas or types
+The `x: string[]` config already supports any label strings.
 
