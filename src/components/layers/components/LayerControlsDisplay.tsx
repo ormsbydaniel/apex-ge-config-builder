@@ -50,12 +50,12 @@ const LayerControlsDisplay = ({ source, onSave }: LayerControlsDisplayProps) => 
       {hasAny && (
         <div className="flex flex-wrap gap-1 ml-6">
           {controlsList.map((control, index) => (
-            <Badge key={index} variant="outline" className="text-xs border-blue-500/30 text-blue-600">
+            <Badge key={index} variant="outline" className="text-[11px] font-normal border-blue-500/20 text-blue-600/80">
               {control}
             </Badge>
           ))}
           {hasTimeframe && (
-            <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
+            <Badge variant="outline" className="text-[11px] font-normal border-purple-500/20 text-purple-600/80">
               Time: {timeframe}
             </Badge>
           )}
@@ -63,7 +63,7 @@ const LayerControlsDisplay = ({ source, onSave }: LayerControlsDisplayProps) => 
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Badge variant="outline" className="text-xs border-green-500/30 text-green-600 cursor-help">
+                  <Badge variant="outline" className="text-[11px] font-normal border-green-500/20 text-green-600/80 cursor-help">
                     Download
                   </Badge>
                 </TooltipTrigger>
