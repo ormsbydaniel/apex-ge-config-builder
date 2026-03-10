@@ -77,7 +77,12 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
                       href={source.meta!.attribution.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 underline"
+                      className="text-primary hover:text-primary/80 underline"
+                    >
+                      link
+                    </a>)
+                  </span>
+                )}
                     >
                       link
                     </a>)
