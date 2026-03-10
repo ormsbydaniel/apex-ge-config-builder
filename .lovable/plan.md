@@ -1,42 +1,43 @@
 
 
-## Problem
+## Phase 1: Wire Existing Editor Dialogs into Layer Card Display Components
 
-The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
+Phase 1 adds edit buttons to three display components that already have corresponding editor dialogs, allowing inline editing directly from the layer card.
 
-## Proposed Approach: Numeric Defaults with Optional Label Overrides
+### Changes Overview
 
-### Default behavior
-Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
+**1. `LayerCategories.tsx`** — Add a pencil icon button next to the "Categories" header. When clicked, opens `CategoryEditorDialog`. New props: `categories` (already has), `onUpdate: (categories: Category[]) => void`, `layerName?: string`.
 
-### Optional label customization via modal
-A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
+**2. `LayerColormapsDisplay.tsx`** — Add a pencil icon button next to the "Colormaps" header. When clicked, opens `ColormapEditorDialog`. New props: `onUpdate: (colormaps: Colormap[]) => void`, `metaMin?: number`, `metaMax?: number`.
 
-- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
-- **Bulk operations toolbar** at the top:
-  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
-  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
-  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
-- **Search/filter** to quickly find and edit specific bands
+**3. `LayerFieldsDisplay.tsx`** — Add a pencil icon button next to the "Fields" header. When clicked, opens `FieldsEditorDialog`. New props: `onUpdate: (fields: FieldsConfig) => void`, `sourceUrl?: string`, `sourceFormat?: string`.
 
-### Adaptive inline editor for small band counts
-For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
+**4. `LayerCardContent.tsx`** — Wire the new props through to each display component using the existing `handleUpdateMeta` handler:
+- `LayerCategories`: `onUpdate` calls `handleUpdateMeta({ categories: newCategories })`
+- `LayerColormapsDisplay`: `onUpdate` calls `handleUpdateMeta({ colormaps: newColormaps })`; pass `source.meta?.min` and `source.meta?.max` for colormap defaults
+- `LayerFieldsDisplay`: `onUpdate` calls `handleUpdateMeta({ fields: newFields })`; extract first vector data source URL/format from `source.data`
 
-## Implementation
+### UI Pattern
 
-### Changes to `ChartSourceForm.tsx`
-- Replace the current band labels grid with:
-  - Summary text showing band count
-  - For ≤12 bands: keep existing inline grid
-  - For >12 bands: show summary + "Customize Band Labels" button
-- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
+Each display component's header line becomes:
 
-### New component: `BandLabelEditorDialog.tsx`
-- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
-- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
-- Search input to filter rows
-- Returns updated labels array on save
+```text
+┌────────────────────────────────────┐
+│ Categories (3)              ✏️     │
+│ [badge] [badge] [badge]           │
+└────────────────────────────────────┘
+```
 
-### No changes needed to schemas or types
-The `x: string[]` config already supports any label strings.
+The pencil icon is a small ghost-style button (`variant="ghost" size="icon"`) using `Pencil` from lucide-react, placed inline with the section header via `flex items-center justify-between`.
+
+### File Changes
+
+| File | Change |
+|------|--------|
+| `src/components/layers/components/LayerCategories.tsx` | Add optional `onUpdate` + `layerName` props; import and render `CategoryEditorDialog` with pencil trigger |
+| `src/components/layers/components/LayerColormapsDisplay.tsx` | Add optional `onUpdate`, `metaMin`, `metaMax` props; import and render `ColormapEditorDialog` with pencil trigger |
+| `src/components/layers/components/LayerFieldsDisplay.tsx` | Add optional `onUpdate`, `sourceUrl`, `sourceFormat` props; import and render `FieldsEditorDialog` with pencil trigger |
+| `src/components/layers/components/LayerCardContent.tsx` | Pass `onUpdate` callbacks and supporting props to the three display components; extract first vector source URL/format for fields |
+
+All `onUpdate` props are optional so the display components remain backward-compatible as read-only when no handler is provided — the edit button simply won't render.
 
