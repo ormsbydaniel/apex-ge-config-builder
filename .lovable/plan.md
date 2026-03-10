@@ -1,42 +1,42 @@
 
 
-## Problem
+## Make Colormap Badges More Subtle
 
-The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
+Apply the same subtle styling pattern used for category badges to the colormap badges on the layer card.
 
-## Proposed Approach: Numeric Defaults with Optional Label Overrides
+### Changes — `LayerDataVisualisationSection.tsx`
 
-### Default behavior
-Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
+**Badge container (line 99):** Change from `variant="secondary"` with default padding to a lighter outline style:
+```tsx
+// From:
+<Badge key={index} variant="secondary" className="flex items-center gap-2 px-3 py-1">
 
-### Optional label customization via modal
-A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
+// To:
+<Badge key={index} variant="outline" className="flex items-center gap-2 px-2 py-0.5 border-border/50">
+```
 
-- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
-- **Bulk operations toolbar** at the top:
-  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
-  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
-  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
-- **Search/filter** to quickly find and edit specific bands
+**Text styling (lines 106-111):** Reduce size and weight to match the subtle metadata pattern:
+```tsx
+// From:
+<div className="flex flex-col text-xs">
+  <span className="font-medium">{colormap.name}</span>
+  <span className="text-muted-foreground">
 
-### Adaptive inline editor for small band counts
-For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
+// To:
+<div className="flex flex-col text-[11px]">
+  <span className="font-normal text-muted-foreground">{colormap.name}</span>
+  <span className="text-muted-foreground/70">
+```
 
-## Implementation
+**Delete icon (line 119):** Slightly smaller to match:
+```tsx
+<Trash2 className="h-3 w-3" />
+```
 
-### Changes to `ChartSourceForm.tsx`
-- Replace the current band labels grid with:
-  - Summary text showing band count
-  - For ≤12 bands: keep existing inline grid
-  - For >12 bands: show summary + "Customize Band Labels" button
-- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
+**Color ramp preview (lines 103-104):** Slightly smaller to fit the more compact badge:
+```tsx
+width={50} height={14}
+```
 
-### New component: `BandLabelEditorDialog.tsx`
-- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
-- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
-- Search input to filter rows
-- Returns updated labels array on save
-
-### No changes needed to schemas or types
-The `x: string[]` config already supports any label strings.
+Single file, four small tweaks.
 
