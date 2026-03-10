@@ -115,65 +115,70 @@ const ControlsEditorDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
-          {/* Switches grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ctrl-toggleable" className="text-sm">Toggleable</Label>
-              <Switch id="ctrl-toggleable" checked={toggleable} onCheckedChange={setToggleable} />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ctrl-zoom" className="text-sm">Zoom to Center</Label>
-              <Switch id="ctrl-zoom" checked={zoomToCenter} onCheckedChange={setZoomToCenter} />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ctrl-opacity" className="text-sm">Opacity Slider</Label>
-              <Switch id="ctrl-opacity" checked={opacitySlider} onCheckedChange={setOpacitySlider} />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ctrl-blend" className="text-sm">Blend Controls</Label>
-              <Switch id="ctrl-blend" checked={blendControls} onCheckedChange={setBlendControls} />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ctrl-constraint" className="text-sm">Constraint Slider</Label>
-              <Switch id="ctrl-constraint" checked={constraintSlider} onCheckedChange={setConstraintSlider} />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ctrl-temporal" className="text-sm">Temporal Controls</Label>
-              <Switch id="ctrl-temporal" checked={temporalControls} onCheckedChange={setTemporalControls} />
-            </div>
+        <div className="space-y-1.5 py-2">
+          <div className="flex items-center gap-2">
+            <Checkbox id="ctrl-toggleable" checked={toggleable} onCheckedChange={(v) => setToggleable(!!v)} />
+            <Label htmlFor="ctrl-toggleable" className="text-sm font-normal">Toggleable</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox id="ctrl-zoom" checked={zoomToCenter} onCheckedChange={(v) => setZoomToCenter(!!v)} />
+            <Label htmlFor="ctrl-zoom" className="text-sm font-normal">Zoom to Center</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox id="ctrl-opacity" checked={opacitySlider} onCheckedChange={(v) => setOpacitySlider(!!v)} />
+            <Label htmlFor="ctrl-opacity" className="text-sm font-normal">Opacity Slider</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox id="ctrl-blend" checked={blendControls} onCheckedChange={(v) => setBlendControls(!!v)} />
+            <Label htmlFor="ctrl-blend" className="text-sm font-normal">Blend Controls</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox id="ctrl-constraint" checked={constraintSlider} onCheckedChange={(v) => setConstraintSlider(!!v)} />
+            <Label htmlFor="ctrl-constraint" className="text-sm font-normal">Constraint Slider</Label>
           </div>
 
-          {/* Download */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="ctrl-download" className="text-sm">Download</Label>
-              <Switch id="ctrl-download" checked={downloadEnabled} onCheckedChange={setDownloadEnabled} />
+          <div>
+            <div className="flex items-center gap-2">
+              <Checkbox id="ctrl-temporal" checked={temporalControls} onCheckedChange={(v) => {
+                const checked = !!v;
+                setTemporalControls(checked);
+                if (!checked) setTimeframe('None');
+              }} />
+              <Label htmlFor="ctrl-temporal" className="text-sm font-normal">Temporal Controls</Label>
             </div>
-            {downloadEnabled && (
-              <Input
-                placeholder="Download URL (optional)"
-                value={downloadUrl}
-                onChange={(e) => setDownloadUrl(e.target.value)}
-              />
+            {temporalControls && (
+              <div className="ml-6 mt-1.5">
+                <Select value={timeframe} onValueChange={setTimeframe}>
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="None">None</SelectItem>
+                    <SelectItem value="time">Time</SelectItem>
+                    <SelectItem value="days">Days</SelectItem>
+                    <SelectItem value="months">Months</SelectItem>
+                    <SelectItem value="years">Years</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </div>
 
-          {/* Timeframe */}
-          <div className="space-y-2">
-            <Label className="text-sm">Timeframe</Label>
-            <Select value={timeframe} onValueChange={setTimeframe}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="None">None</SelectItem>
-                <SelectItem value="time">Time</SelectItem>
-                <SelectItem value="days">Days</SelectItem>
-                <SelectItem value="months">Months</SelectItem>
-                <SelectItem value="years">Years</SelectItem>
-              </SelectContent>
-            </Select>
+          <div>
+            <div className="flex items-center gap-2">
+              <Checkbox id="ctrl-download" checked={downloadEnabled} onCheckedChange={(v) => setDownloadEnabled(!!v)} />
+              <Label htmlFor="ctrl-download" className="text-sm font-normal">Download</Label>
+            </div>
+            {downloadEnabled && (
+              <div className="ml-6 mt-1.5">
+                <Input
+                  className="h-8 text-sm"
+                  placeholder="Download URL (optional)"
+                  value={downloadUrl}
+                  onChange={(e) => setDownloadUrl(e.target.value)}
+                />
+              </div>
+            )}
           </div>
         </div>
 
