@@ -1,13 +1,14 @@
 
 import { useConfig } from '@/contexts/ConfigContext';
 import { DataSource, Service, Category, DataSourceFormat } from '@/types/config';
+import { RgbComposite } from '@/types/layer';
 import { validateImages } from '@/utils/imageValidation';
 
 export const useValidatedConfig = () => {
   const { config, dispatch } = useConfig();
 
   // Ensure sources have required fields with defaults
-  const validatedSources: DataSource[] = config.sources.map(source => {
+  const validatedSources: DataSource[] = config.sources.map((source): DataSource => {
     // Data is always an array now, so we can simplify validation
     const validatedData = source.data.map(dataItem => ({
       ...dataItem,
@@ -135,6 +136,8 @@ export const useValidatedConfig = () => {
             }),
             // Preserve fields configuration if present
             ...(source.meta.fields && { fields: source.meta.fields }),
+            // Preserve RGB composites if present
+            ...(source.meta.rgbComposites && { rgbComposites: source.meta.rgbComposites as RgbComposite[] }),
             // Temporal configuration is now at top level - no need to move from meta
           }
         }),
@@ -253,6 +256,8 @@ export const useValidatedConfig = () => {
       }),
       // Preserve fields configuration if present
       ...(source.meta?.fields && { fields: source.meta.fields }),
+      // Preserve RGB composites if present
+      ...(source.meta?.rgbComposites && { rgbComposites: source.meta.rgbComposites as RgbComposite[] }),
       // Temporal configuration is now at top level - no need to move from meta
     };
 

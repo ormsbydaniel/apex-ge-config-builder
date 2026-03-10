@@ -1,70 +1,42 @@
 
 
-## Group Categories, Colormaps, Legends & RGB Composites Under "Data Visualisation"
+## Problem
 
-### Current State
-Categories, Colormaps, and Legend are rendered as independent top-level sections in the layer card. Each is conditionally hidden when empty (no way to add one if it doesn't exist).
+The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
 
-### Proposed UI
+## Proposed Approach: Numeric Defaults with Optional Label Overrides
 
-```text
-┌─ 🎨 Data Visualisation ──────────────────────────┐
-│                                                    │
-│  Categories (2)            ✏️                      │
-│      🔴 Urban  🟢 Forest                          │
-│                                                    │
-│  Colormaps (1)             ✏️                      │
-│      [viridis ramp] viridis 0-100 (10 steps)      │
-│                                                    │
-│  Legend - gradient         ✏️                      │
-│      [gradient bar]                                │
-│                                                    │
-│  RGB Composites            ✏️                      │
-│      (none defined)                                │
-│                                                    │
-│  ┌──────────────────────────────────────────┐      │
-│  │ + Add Categories  + Add Colormap         │      │
-│  │ + Add Legend      + Add RGB Composite    │      │
-│  └──────────────────────────────────────────┘      │
-└────────────────────────────────────────────────────┘
-```
+### Default behavior
+Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
 
-### Key Design Decisions
+### Optional label customization via modal
+A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
 
-1. **Parent section with `Eye` icon** — "Data Visualisation" uses the same header pattern (icon + label) as other sections, with `ml-6` on all child content.
+- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
+- **Bulk operations toolbar** at the top:
+  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
+  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
+  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
+- **Search/filter** to quickly find and edit specific bands
 
-2. **Always-visible sub-sections** — Categories, Colormaps, Legend, and RGB Composites are always shown (not hidden when empty). When empty, they display "(none defined)" in muted text.
+### Adaptive inline editor for small band counts
+For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
 
-3. **Add buttons row** — At the bottom of the section, compact `+ Add ...` buttons appear only for sub-sections that are currently empty. Clicking them opens the existing editor dialogs (CategoryEditorDialog, ColormapEditorDialog) or a new one for RGB Composites / Legend.
+## Implementation
 
-4. **Sub-section headers are lighter weight** — Use `text-xs font-medium text-muted-foreground uppercase tracking-wide` to distinguish them from top-level section headers. Each keeps its existing icon (Tags, Palette, LayoutGrid) at a smaller size.
+### Changes to `ChartSourceForm.tsx`
+- Replace the current band labels grid with:
+  - Summary text showing band count
+  - For ≤12 bands: keep existing inline grid
+  - For >12 bands: show summary + "Customize Band Labels" button
+- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
 
-### Files to Change
+### New component: `BandLabelEditorDialog.tsx`
+- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
+- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
+- Search input to filter rows
+- Returns updated labels array on save
 
-| File | Change |
-|------|--------|
-| `LayerCardContent.tsx` | Replace the three separate Categories/Colormaps/Legend blocks with a single `<LayerDataVisualisationSection>` component, passing source + handlers |
-| **New:** `LayerDataVisualisationSection.tsx` | Parent component rendering the "Data Visualisation" header and four sub-sections. Contains "Add" buttons that open existing editor dialogs when sections are empty |
-| `LayerColormapsDisplay.tsx` | Remove early `return null` — always render content (show "(none defined)" when empty). Remove the outer header (parent provides it) |
-| `LayerCategories.tsx` | Same — remove early `return null`, remove outer header |
-| `LayerLegendDisplay.tsx` | Same — remove early `return null`, remove outer header |
-| **New:** `LayerRgbCompositesDisplay.tsx` | New sub-section component for RGB composite band configurations (initially just the empty state + add button wiring) |
-| `src/types/dataSource.ts` | Add optional `rgbComposites` field to `DataSourceMeta` for future RGB composite configs |
-
-### RGB Composites — Initial Scope
-
-For this first pass, RGB Composites will be a placeholder sub-section with an "Add" button. The editor dialog and data model will be a follow-up feature. The type will be:
-
-```ts
-interface RgbComposite {
-  name: string;
-  red: number;    // band index
-  green: number;
-  blue: number;
-}
-```
-
-### Section Order Within Data Visualisation
-
-Categories → Colormaps → Legend → RGB Composites (matching current visual order, with RGB appended).
+### No changes needed to schemas or types
+The `x: string[]` config already supports any label strings.
 
