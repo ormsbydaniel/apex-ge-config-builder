@@ -8,6 +8,7 @@ export interface NavigationState {
   activeTab: string;
   expandedGroups: string[];
   expandedLayers: string[];
+  expandedSubGroups: string[];
   scrollPosition: number;
 }
 
@@ -17,6 +18,7 @@ const defaultState: NavigationState = {
   activeTab: 'home',
   expandedGroups: [],
   expandedLayers: [],
+  expandedSubGroups: [],
   scrollPosition: 0
 };
 
