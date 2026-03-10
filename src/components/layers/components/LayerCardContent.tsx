@@ -245,8 +245,8 @@ const LayerCardContent = ({
           onAddChart={() => onAddChart?.()}
           onRemoveChart={(_, chartIndex) => onRemoveChart?.(chartIndex)}
           onEditChart={(_, chartIndex) => onEditChart?.(chartIndex)}
-        />
-        </div>
+          />
+          </div>
       )}
 
       {/* Show swipe configuration for swipe layers */}
