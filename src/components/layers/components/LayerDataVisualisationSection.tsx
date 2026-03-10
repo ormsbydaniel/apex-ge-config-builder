@@ -2,7 +2,7 @@ import React from 'react';
 import { Eye, Tags, Palette, LayoutGrid, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { DataSourceMeta } from '@/types/layer';
 import { Category, Colormap } from '@/types/category';
@@ -110,6 +110,14 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
                       {colormap.reverse && ' • reversed'}
                     </span>
                   </div>
+                  <button
+                    type="button"
+                    aria-label={`Delete colormap ${colormap.name}`}
+                    onClick={() => onUpdateMeta({ colormaps: colormaps.filter((_, i) => i !== index) })}
+                    className="ml-1 text-destructive hover:text-destructive/80 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </Badge>
               ))}
             </div>
