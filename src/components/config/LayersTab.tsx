@@ -29,7 +29,7 @@ interface LayersTabProps {
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
   navigationState: NavigationState;
-  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
+  onExpansionStateChange?: (layers: string[], groups: string[], subGroups?: string[]) => void;
 }
 
 const ConfigLayersTab = (props: LayersTabProps) => {

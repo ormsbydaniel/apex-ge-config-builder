@@ -49,8 +49,8 @@ interface LayersTabContentProps {
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
   onUpdateLayer: (index: number, layer: DataSource) => void;
-  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
-  navigationState?: { expandedGroups: string[]; expandedLayers: string[] };
+  onExpansionStateChange?: (layers: string[], groups: string[], subGroups?: string[]) => void;
+  navigationState?: { expandedGroups: string[]; expandedLayers: string[]; expandedSubGroups?: string[] };
 }
 
 const LayersTabContent = ({
