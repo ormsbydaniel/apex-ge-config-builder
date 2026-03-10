@@ -50,7 +50,8 @@ const ControlsEditorDialog = ({
   const [downloadUrl, setDownloadUrl] = useState(typeof controls?.download === 'string' ? controls.download : '');
   const [timeframe, setTimeframe] = useState<string>(source.timeframe || 'None');
 
-  // Reset local state when dialog opens
+  // Reset local state when dialog opens - only depend on `open` to avoid
+  // re-initializing state when dispatches update the source mid-save
   useEffect(() => {
     if (open) {
       const raw = source.layout?.layerCard?.controls || source.layout?.infoPanel?.controls;
@@ -67,7 +68,8 @@ const ControlsEditorDialog = ({
       setDownloadUrl(typeof ctrl?.download === 'string' ? ctrl.download : '');
       setTimeframe(source.timeframe || 'None');
     }
-  }, [open, source]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleSave = () => {
     const newControls: Record<string, any> = {};
