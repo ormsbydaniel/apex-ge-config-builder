@@ -50,7 +50,7 @@ const LayerControlsDisplay = ({ source, onSave }: LayerControlsDisplayProps) => 
       {hasAny && (
         <div className="flex flex-wrap gap-1 ml-6">
           {controlsList.map((control, index) => (
-            <Badge key={index} variant="outline" className="text-xs border-blue-500/30 text-blue-600">
+            <Badge key={index} variant="outline" className="text-[11px] font-normal text-muted-foreground border-border/50">
               {control}
             </Badge>
           ))}
