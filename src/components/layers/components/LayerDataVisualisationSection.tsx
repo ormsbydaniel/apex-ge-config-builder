@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Eye, Tags, Palette, LayoutGrid, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,13 @@ import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import LayerRgbCompositesDisplay from './LayerRgbCompositesDisplay';
 import { ExternalLink, Image } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
