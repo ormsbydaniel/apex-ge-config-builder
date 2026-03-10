@@ -5,13 +5,11 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { useToast } from '@/hooks/use-toast';
 import { Database } from 'lucide-react';
 import LayerMetadata from './LayerMetadata';
-import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
-import LayerLegendDisplay from './LayerLegendDisplay';
 import LayerControlsDisplay from './LayerControlsDisplay';
 import LayerDescriptionAttributionDisplay from './LayerDescriptionAttributionDisplay';
-import LayerColormapsDisplay from './LayerColormapsDisplay';
 import LayerFieldsDisplay from './LayerFieldsDisplay';
+import LayerDataVisualisationSection from './LayerDataVisualisationSection';
 import { LayerCardTabs } from './LayerCardTabs';
 import { isVectorFormat } from '@/utils/fieldDetection';
 
