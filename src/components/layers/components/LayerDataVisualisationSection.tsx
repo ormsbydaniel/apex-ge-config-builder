@@ -65,7 +65,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
             />
           </div>
           {hasCategories && (
-            <div className="flex flex-wrap gap-1 ml-5">
+            <div className="flex flex-wrap gap-1">
               {categories.map((cat, catIndex) => (
                 <Badge key={catIndex} variant="outline" className="text-[11px] font-normal text-muted-foreground border-border/50 py-0 px-1.5">
                   <div
@@ -102,7 +102,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
             />
           </div>
           {hasColormaps && (
-            <div className="flex flex-wrap gap-2 ml-5">
+            <div className="flex flex-wrap gap-2">
               {colormaps.map((colormap, index) => (
                 <Badge key={index} variant="outline" className="flex items-center gap-2 px-2 py-0.5 border-border/50">
                   <ColorRampPreview
