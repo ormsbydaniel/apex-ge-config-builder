@@ -8,7 +8,7 @@ import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
 import LayerLegendDisplay from './LayerLegendDisplay';
 import LayerControlsDisplay from './LayerControlsDisplay';
-import LayerAttributionDisplay from './LayerAttributionDisplay';
+import LayerDescriptionAttributionDisplay from './LayerDescriptionAttributionDisplay';
 import LayerColormapsDisplay from './LayerColormapsDisplay';
 import LayerFieldsDisplay from './LayerFieldsDisplay';
 import { LayerCardTabs } from './LayerCardTabs';
@@ -166,8 +166,8 @@ const LayerCardContent = ({
     <CardContent className="space-y-4 pl-[46px]">
       <LayerMetadata source={source} />
       
-      {/* Attribution Display */}
-      <LayerAttributionDisplay source={source} />
+      {/* Description & Attribution Display */}
+      <LayerDescriptionAttributionDisplay source={source} onUpdateMeta={handleUpdateMeta} />
 
       {/* Categories */}
       {source.meta?.categories && source.meta.categories.length > 0 && (
