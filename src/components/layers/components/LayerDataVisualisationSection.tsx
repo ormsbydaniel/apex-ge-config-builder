@@ -96,16 +96,16 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
           {hasColormaps && (
             <div className="flex flex-wrap gap-2 ml-5">
               {colormaps.map((colormap, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center gap-2 px-3 py-1">
+                <Badge key={index} variant="outline" className="flex items-center gap-2 px-2 py-0.5 border-border/50">
                   <ColorRampPreview
                     colormap={colormap.name}
                     reverse={colormap.reverse}
-                    width={60}
-                    height={16}
+                    width={50}
+                    height={14}
                   />
-                  <div className="flex flex-col text-xs">
-                    <span className="font-medium">{colormap.name}</span>
-                    <span className="text-muted-foreground">
+                  <div className="flex flex-col text-[11px]">
+                    <span className="font-normal text-muted-foreground">{colormap.name}</span>
+                    <span className="text-muted-foreground/70">
                       {colormap.min}-{colormap.max} ({colormap.steps} steps)
                       {colormap.reverse && ' • reversed'}
                     </span>
@@ -116,7 +116,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
                     onClick={() => onUpdateMeta({ colormaps: colormaps.filter((_, i) => i !== index) })}
                     className="ml-1 text-destructive hover:text-destructive/80 transition-colors"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-3 w-3" />
                   </button>
                 </Badge>
               ))}
