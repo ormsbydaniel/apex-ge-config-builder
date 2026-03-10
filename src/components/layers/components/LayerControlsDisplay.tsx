@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { DataSource } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { SlidersHorizontal } from 'lucide-react';
 
 interface LayerControlsDisplayProps {
   source: DataSource;
