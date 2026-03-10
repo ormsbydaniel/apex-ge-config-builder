@@ -518,7 +518,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
   // Delay skeleton display to prevent flicker on fast responses
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     
     if (loading) {
       // Show skeleton after 500ms delay
