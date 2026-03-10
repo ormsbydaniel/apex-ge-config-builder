@@ -180,7 +180,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
           <LegendEditorDialog
             open={legendDialogOpen}
             onOpenChange={setLegendDialogOpen}
-            legend={legend}
+            legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
             meta={source.meta}
             onUpdateLegend={(updatedLegend) => {
               onUpdateLayout({
