@@ -7,7 +7,7 @@ export interface Announcement {
 export const announcements: Announcement[] = [
   {
     date: "2026-03-09",
-    title: "Config UI for multi-band COG support added",
+    title: "Config UI for multi-band COG support added and dev-pixel-charts preview.",
     category: "Feature",
   },
   {
