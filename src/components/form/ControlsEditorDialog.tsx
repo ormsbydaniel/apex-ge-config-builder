@@ -107,7 +107,7 @@ const ControlsEditorDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Controls</DialogTitle>
           <DialogDescription>
