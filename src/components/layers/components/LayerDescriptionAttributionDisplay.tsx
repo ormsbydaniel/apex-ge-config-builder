@@ -81,7 +81,8 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
                     >
                       link
                     </a>)
-                  </span>
+                   </span>
+                )}
               </div>
             )}
           </div>
