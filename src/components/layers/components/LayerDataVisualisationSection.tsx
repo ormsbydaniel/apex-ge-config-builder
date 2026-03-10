@@ -2,7 +2,7 @@ import React from 'react';
 import { Eye, Tags, Palette, LayoutGrid, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { DataSourceMeta } from '@/types/layer';
 import { Category, Colormap } from '@/types/category';
