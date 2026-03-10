@@ -53,7 +53,7 @@ const LayerCardHeader = ({
     setIsEditing(true);
   };
 
-  const handleSave = () => {
+  const handleConfirmEdit = () => {
     const trimmed = editName.trim();
     if (trimmed && trimmed !== source.name) {
       onRename?.(trimmed);
@@ -61,12 +61,10 @@ const LayerCardHeader = ({
     setIsEditing(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSave();
-    } else if (e.key === 'Escape') {
-      setIsEditing(false);
-    }
+  const handleCancelEdit = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setIsEditing(false);
+    setEditName(source.name);
   };
 
   return <CardHeader className="py-3 relative">
