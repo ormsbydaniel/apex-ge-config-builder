@@ -9,8 +9,7 @@ import ControlsEditorDialog from '@/components/form/ControlsEditorDialog';
 
 interface LayerControlsDisplayProps {
   source: DataSource;
-  onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
-  onUpdateSource: (field: string, value: any) => void;
+  onSave: (layoutUpdates: Partial<DataSourceLayout>, sourceFieldUpdates: Record<string, any>) => void;
 }
 
 const LayerControlsDisplay = ({ source, onUpdateLayout, onUpdateSource }: LayerControlsDisplayProps) => {
