@@ -15,9 +15,12 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700">
-        Legend - {legend.type}
-      </h4>
+      <div className="flex items-center gap-2">
+        <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+        <h4 className="text-sm font-medium text-foreground">
+          Legend - {legend.type}
+        </h4>
+      </div>
       
       {legend.type === 'image' && legend.url && (
         <div className="space-y-2">
