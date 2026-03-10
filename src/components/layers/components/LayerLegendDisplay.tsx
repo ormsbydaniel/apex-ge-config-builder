@@ -55,7 +55,7 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
       )}
       
       {legend.type === 'swatch' && (
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground ml-6">
           See categories
         </div>
       )}
