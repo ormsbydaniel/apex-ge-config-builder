@@ -189,12 +189,12 @@ const LayerCardContent = ({
       )}
 
       {/* Fields - Vector layer attribute configuration */}
-      {source.meta?.fields && Object.keys(source.meta.fields).length > 0 && (
+      {firstVectorSource && (
         <LayerFieldsDisplay
-          fields={source.meta.fields}
+          fields={source.meta?.fields || {}}
           onUpdate={(fields) => handleUpdateMeta({ fields })}
-          sourceUrl={firstVectorSource?.url}
-          sourceFormat={firstVectorSource?.format}
+          sourceUrl={firstVectorSource.url}
+          sourceFormat={firstVectorSource.format}
         />
       )}
       
