@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Eye, Tags, Palette, LayoutGrid, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,13 @@ import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import LayerRgbCompositesDisplay from './LayerRgbCompositesDisplay';
 import { ExternalLink, Image } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
@@ -18,6 +25,7 @@ interface LayerDataVisualisationSectionProps {
 }
 
 const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisualisationSectionProps) => {
+  const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
   const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
@@ -131,12 +139,26 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               RGB Composites {hasRgbComposites ? `(${rgbComposites.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
+            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setRgbDialogOpen(true)}>
+              <Pencil className="h-3 w-3" />
+            </Button>
           </div>
           {hasRgbComposites && (
             <div className="ml-5">
               <LayerRgbCompositesDisplay rgbComposites={rgbComposites} />
             </div>
           )}
+
+          <Dialog open={rgbDialogOpen} onOpenChange={setRgbDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>RGB Composites Editor</DialogTitle>
+                <DialogDescription>
+                  RGB Composite editing functionality is coming soon. Stay tuned!
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Legend sub-section */}
