@@ -32,8 +32,7 @@ const ControlsEditorDialog = ({
   open,
   onOpenChange,
   source,
-  onUpdateLayout,
-  onUpdateSource,
+  onSave,
 }: ControlsEditorDialogProps) => {
   const rawControls = source.layout?.layerCard?.controls || source.layout?.infoPanel?.controls;
   const isControlsObject = rawControls && typeof rawControls === 'object' && !Array.isArray(rawControls);
