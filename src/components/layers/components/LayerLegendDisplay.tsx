@@ -23,7 +23,7 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
       </div>
       
       {legend.type === 'image' && legend.url && (
-        <div className="space-y-2">
+        <div className="space-y-2 ml-6">
           <div className="flex items-center gap-2">
             <Image className="h-4 w-4" />
             <a 
@@ -40,7 +40,7 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
       )}
       
       {legend.type === 'gradient' && source.meta && (
-        <div className="space-y-2">
+        <div className="space-y-2 ml-6">
           <div 
             className="h-4 rounded border"
             style={{
@@ -55,7 +55,7 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
       )}
       
       {legend.type === 'swatch' && (
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground ml-6">
           See categories
         </div>
       )}

@@ -54,7 +54,7 @@ const LayerFieldsDisplay = ({ fields, onUpdate, sourceUrl, sourceFormat }: Layer
       </div>
       
       {hasFields ? (
-        <div className="space-y-2">
+        <div className="space-y-2 ml-6">
           {/* Visible fields */}
           {visibleFields.length > 0 && (
             <div className="flex flex-wrap gap-1">
@@ -89,7 +89,7 @@ const LayerFieldsDisplay = ({ fields, onUpdate, sourceUrl, sourceFormat }: Layer
           )}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground">All fields (default display)</p>
+        <p className="text-xs text-muted-foreground ml-6">All fields (default display)</p>
       )}
     </div>
   );
