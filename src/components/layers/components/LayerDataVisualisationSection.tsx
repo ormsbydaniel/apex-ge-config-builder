@@ -27,8 +27,9 @@ interface LayerDataVisualisationSectionProps {
   onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
 }
 
-const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisualisationSectionProps) => {
+const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }: LayerDataVisualisationSectionProps) => {
   const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
+  const [legendDialogOpen, setLegendDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
   const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
