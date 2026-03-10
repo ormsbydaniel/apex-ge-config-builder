@@ -105,7 +105,7 @@ const LayerCardHeader = ({
             minHeight: '16px'
           }} />}
           </div>
-          <div className="text-left flex items-center gap-1.5">
+          <div className="text-left flex items-center gap-1.5 flex-1 min-w-0">
             {isEditing ? (
               <Input
                 ref={inputRef}
@@ -114,7 +114,7 @@ const LayerCardHeader = ({
                 onBlur={handleSave}
                 onKeyDown={handleKeyDown}
                 onClick={(e) => e.stopPropagation()}
-                className="h-6 text-sm font-bold py-0 px-1.5 w-auto min-w-[120px]"
+                className="h-6 text-sm font-bold py-0 px-1.5 w-full"
               />
             ) : (
               <>
