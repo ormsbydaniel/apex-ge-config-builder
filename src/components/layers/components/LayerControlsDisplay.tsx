@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { DataSource } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { SlidersHorizontal } from 'lucide-react';
 
 interface LayerControlsDisplayProps {
   source: DataSource;
@@ -37,7 +38,10 @@ const LayerControlsDisplay = ({ source }: LayerControlsDisplayProps) => {
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700">Controls</h4>
+      <div className="flex items-center gap-2">
+        <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+        <h4 className="text-sm font-medium text-foreground">Controls</h4>
+      </div>
       <div className="flex flex-wrap gap-1">
         {controlsList.map((control, index) => (
           <Badge key={index} variant="outline" className="text-xs border-blue-500/30 text-blue-600">

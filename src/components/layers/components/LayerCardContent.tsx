@@ -3,6 +3,7 @@ import { CardContent } from '@/components/ui/card';
 import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout, DataSourceItem } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useToast } from '@/hooks/use-toast';
+import { Database } from 'lucide-react';
 import LayerMetadata from './LayerMetadata';
 import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
@@ -207,7 +208,10 @@ const LayerCardContent = ({
       {/* Data Sources Section - only show for non-swipe layers */}
       {!isSwipeLayer && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700">Data Sources</h4>
+          <div className="flex items-center gap-2">
+            <Database className="h-4 w-4 text-muted-foreground" />
+            <h4 className="text-sm font-medium text-foreground">Data Sources</h4>
+          </div>
           <LayerCardTabs
           source={source}
           services={(config.services || []) as Service[]}
