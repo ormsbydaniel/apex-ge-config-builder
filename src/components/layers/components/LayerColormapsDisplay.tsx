@@ -21,7 +21,7 @@ const LayerColormapsDisplay = ({ colormaps, onUpdate, metaMin, metaMax }: LayerC
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1">
         <h4 className="text-sm font-medium text-muted-foreground">Colormaps ({colormaps.length})</h4>
         {onUpdate && (
           <ColormapEditorDialog

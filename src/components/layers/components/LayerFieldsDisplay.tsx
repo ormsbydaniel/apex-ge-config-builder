@@ -36,7 +36,7 @@ const LayerFieldsDisplay = ({ fields, onUpdate, sourceUrl, sourceFormat }: Layer
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1">
         <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
           <List className="h-4 w-4" />
           Fields ({fieldEntries.length})
