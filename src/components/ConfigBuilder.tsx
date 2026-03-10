@@ -117,10 +117,13 @@ const ConfigBuilderContent = () => {
   };
   
   // Save expanded layers state (simplified - will be managed by LayerHierarchy)
-  const handleExpansionStateChange = React.useCallback((layers: string[], groups: string[]) => {
+  const handleExpansionStateChange = React.useCallback((layers: string[], groups: string[], subGroups?: string[]) => {
     setExpandedLayers(layers);
     setExpandedGroups(groups);
-  }, [setExpandedLayers, setExpandedGroups]);
+    if (subGroups) {
+      setExpandedSubGroups(subGroups);
+    }
+  }, [setExpandedLayers, setExpandedGroups, setExpandedSubGroups]);
 
   // Restore scroll position when returning to layers tab
   React.useEffect(() => {

@@ -13,8 +13,8 @@ interface LayersMainContentProps {
   layersLogic: any;
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
-  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
-  navigationState?: { expandedGroups: string[]; expandedLayers: string[] };
+  onExpansionStateChange?: (layers: string[], groups: string[], subGroups?: string[]) => void;
+  navigationState?: { expandedGroups: string[]; expandedLayers: string[]; expandedSubGroups?: string[] };
 }
 
 const LayersMainContent = ({

@@ -122,7 +122,9 @@ const LayersTabCore = ({
       if (layer.isBaseLayer) {
         groupName = '__BASE_LAYERS__';
       } else if (layer.layout?.interfaceGroup) {
-        groupName = layer.layout.interfaceGroup;
+        groupName = layer.layout.subinterfaceGroup 
+          ? `${layer.layout.interfaceGroup}::${layer.layout.subinterfaceGroup}`
+          : layer.layout.interfaceGroup;
       } else {
         groupName = '__UNGROUPED__';
       }
