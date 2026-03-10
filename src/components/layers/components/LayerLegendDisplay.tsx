@@ -23,7 +23,7 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
       </div>
       
       {legend.type === 'image' && legend.url && (
-        <div className="space-y-2">
+        <div className="space-y-2 ml-6">
           <div className="flex items-center gap-2">
             <Image className="h-4 w-4" />
             <a 
