@@ -168,27 +168,8 @@ const LayerCardContent = ({
       {/* Description & Attribution Display */}
       <LayerDescriptionAttributionDisplay source={source} onUpdateMeta={handleUpdateMeta} />
 
-      {/* Categories */}
-      {source.meta?.categories && source.meta.categories.length > 0 && (
-        <LayerCategories
-          categories={source.meta.categories}
-          onUpdate={(categories) => handleUpdateMeta({ categories })}
-          layerName={source.name}
-        />
-      )}
-
-      {/* Colormaps */}
-      {source.meta?.colormaps && source.meta.colormaps.length > 0 && (
-        <LayerColormapsDisplay
-          colormaps={source.meta.colormaps}
-          onUpdate={(colormaps) => handleUpdateMeta({ colormaps })}
-          metaMin={source.meta?.min}
-          metaMax={source.meta?.max}
-        />
-      )}
-
-      {/* Legend Display */}
-      <LayerLegendDisplay source={source} />
+      {/* Data Visualisation: Categories, Colormaps, Legend, RGB Composites */}
+      <LayerDataVisualisationSection source={source} onUpdateMeta={handleUpdateMeta} />
 
       {/* Fields - Vector layer attribute configuration */}
       {firstVectorSource && (
