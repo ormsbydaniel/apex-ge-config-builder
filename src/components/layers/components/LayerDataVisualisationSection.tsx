@@ -35,7 +35,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
 
   const hasCategories = categories.length > 0;
   const hasColormaps = colormaps.length > 0;
-  const hasLegend = !!legend;
+  
   const hasRgbComposites = rgbComposites.length > 0;
   const hasValues = categories.some(cat => cat.value !== undefined);
   const hasGradient = !!(source.meta?.startColor || source.meta?.endColor || source.meta?.min !== undefined || source.meta?.max !== undefined);
