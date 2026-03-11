@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Tags, Palette, LayoutGrid, Layers } from 'lucide-react';
+import { Eye, Tags, Palette, LayoutGrid, Layers, Blend } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -11,6 +11,7 @@ import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import LayerRgbCompositesDisplay from './LayerRgbCompositesDisplay';
 import LegendEditorDialog from '@/components/form/LegendEditorDialog';
+import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { ExternalLink, Image } from 'lucide-react';
 import {
   Dialog,
@@ -30,6 +31,7 @@ interface LayerDataVisualisationSectionProps {
 const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }: LayerDataVisualisationSectionProps) => {
   const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
   const [legendDialogOpen, setLegendDialogOpen] = useState(false);
+  const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
   const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
@@ -40,6 +42,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
   const hasLegend = !!legend;
   const hasRgbComposites = rgbComposites.length > 0;
   const hasValues = categories.some(cat => cat.value !== undefined);
+  const hasGradient = !!(source.meta?.startColor || source.meta?.endColor || source.meta?.min !== undefined || source.meta?.max !== undefined);
 
   return (
     <div className="space-y-2">
@@ -165,6 +168,47 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
           </Dialog>
         </div>
 
+        {/* Gradient sub-section */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Blend className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
+              Gradient {hasGradient ? '' : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
+            </span>
+            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setGradientDialogOpen(true)}>
+              <Pencil className="h-3 w-3" />
+            </Button>
+          </div>
+          {hasGradient && source.meta && (
+            <div className="ml-5 space-y-1">
+              {source.meta.startColor && source.meta.endColor && !hasColormaps && (
+                <div
+                  className="h-4 rounded border border-border"
+                  style={{
+                    background: `linear-gradient(to right, ${source.meta.startColor}, ${source.meta.endColor})`
+                  }}
+                />
+              )}
+              {hasColormaps && (
+                <p className="text-xs text-muted-foreground italic">Colors derived from colormaps</p>
+              )}
+              {(source.meta.min !== undefined || source.meta.max !== undefined) && (
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{source.meta.min ?? '–'}</span>
+                  <span>{source.meta.max ?? '–'}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <GradientEditorDialog
+            open={gradientDialogOpen}
+            onOpenChange={setGradientDialogOpen}
+            meta={source.meta}
+            onUpdateMeta={onUpdateMeta}
+          />
+        </div>
+
         {/* Legend sub-section */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -181,7 +225,6 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             open={legendDialogOpen}
             onOpenChange={setLegendDialogOpen}
             legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
-            meta={source.meta}
             onUpdateLegend={(updatedLegend) => {
               const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
               if (isInfoPanel) {
@@ -200,7 +243,6 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
                 });
               }
             }}
-            onUpdateMeta={onUpdateMeta}
           />
           {hasLegend && (
             <div className="ml-5">
@@ -218,22 +260,11 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
                   </a>
                 </div>
               )}
-              {legend.type === 'gradient' && source.meta && (
-                <div className="space-y-1">
-                  <div
-                    className="h-4 rounded border"
-                    style={{
-                      background: `linear-gradient(to right, ${source.meta.startColor}, ${source.meta.endColor})`
-                    }}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{source.meta.min}</span>
-                    <span>{source.meta.max}</span>
-                  </div>
-                </div>
-              )}
               {legend.type === 'swatch' && (
                 <span className="text-sm text-muted-foreground">See categories</span>
+              )}
+              {legend.type === 'gradient' && (
+                <span className="text-sm text-muted-foreground">See gradient settings</span>
               )}
             </div>
           )}
