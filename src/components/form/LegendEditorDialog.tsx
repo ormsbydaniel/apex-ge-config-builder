@@ -62,10 +62,14 @@ const LegendEditorDialog = ({
   const hasColormaps = (meta?.colormaps?.length || 0) > 0;
 
   const handleSave = () => {
+    // Resolve 'auto' to actual legend type
+    const resolvedType: 'swatch' | 'gradient' | 'image' = 
+      legendType === 'auto' ? 'swatch' : legendType;
+
     const updatedLegend: { type: 'swatch' | 'gradient' | 'image'; url?: string } = {
-      type: legendType,
+      type: resolvedType,
     };
-    if (legendType === 'image' && legendUrl) {
+    if (resolvedType === 'image' && legendUrl) {
       updatedLegend.url = legendUrl;
     }
     onUpdateLegend(updatedLegend);
