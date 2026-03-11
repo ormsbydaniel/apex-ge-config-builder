@@ -30,7 +30,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
   const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
-  const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
+  
   const rgbComposites = source.meta?.rgbComposites || [];
 
   const hasCategories = categories.length > 0;
