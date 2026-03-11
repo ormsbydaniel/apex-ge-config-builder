@@ -1,7 +1,6 @@
 
 import { useConfig } from '@/contexts/ConfigContext';
 import { DataSource, Service, Category, DataSourceFormat } from '@/types/config';
-import { RgbComposite } from '@/types/layer';
 import { validateImages } from '@/utils/imageValidation';
 
 export const useValidatedConfig = () => {
