@@ -11,9 +11,7 @@ import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import LayerRgbCompositesDisplay from './LayerRgbCompositesDisplay';
-import LegendEditorDialog from '@/components/form/LegendEditorDialog';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
-import { ExternalLink, Image } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
