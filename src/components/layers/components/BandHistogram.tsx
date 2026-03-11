@@ -32,6 +32,7 @@ interface BandHistogramProps {
   max: number;
   onMinChange: (v: number) => void;
   onMaxChange: (v: number) => void;
+  onStretch?: (min: number, max: number) => void;
 }
 
 function formatTickValue(v: number): string {
