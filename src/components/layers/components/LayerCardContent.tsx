@@ -10,6 +10,7 @@ import LayerControlsDisplay from './LayerControlsDisplay';
 import LayerDescriptionAttributionDisplay from './LayerDescriptionAttributionDisplay';
 import LayerFieldsDisplay from './LayerFieldsDisplay';
 import LayerDataVisualisationSection from './LayerDataVisualisationSection';
+import LayerLegendSection from './LayerLegendSection';
 import { LayerCardTabs } from './LayerCardTabs';
 import { isVectorFormat } from '@/utils/fieldDetection';
 
