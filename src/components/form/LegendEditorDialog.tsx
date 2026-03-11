@@ -45,9 +45,10 @@ const LegendEditorDialog = ({
   const [minValue, setMinValue] = useState(meta?.min?.toString() || '');
   const [maxValue, setMaxValue] = useState(meta?.max?.toString() || '');
 
-  // Reset local state when dialog opens
+  // Reset local state only when dialog opens (not on every legend/meta reference change)
+  const prevOpenRef = React.useRef(false);
   useEffect(() => {
-    if (open) {
+    if (open && !prevOpenRef.current) {
       setLegendType(
         legend?.type === 'gradient' ? 'gradient' : legend?.type === 'image' ? 'image' : 'auto'
       );
@@ -57,6 +58,7 @@ const LegendEditorDialog = ({
       setMinValue(meta?.min?.toString() || '');
       setMaxValue(meta?.max?.toString() || '');
     }
+    prevOpenRef.current = open;
   }, [open, legend, meta]);
 
   const hasColormaps = (meta?.colormaps?.length || 0) > 0;
