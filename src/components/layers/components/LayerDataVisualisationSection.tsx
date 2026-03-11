@@ -183,12 +183,22 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
             meta={source.meta}
             onUpdateLegend={(updatedLegend) => {
-              onUpdateLayout({
-                layerCard: {
-                  ...source.layout?.layerCard,
-                  legend: updatedLegend,
-                },
-              });
+              const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
+              if (isInfoPanel) {
+                onUpdateLayout({
+                  infoPanel: {
+                    ...source.layout?.infoPanel,
+                    legend: updatedLegend,
+                  },
+                });
+              } else {
+                onUpdateLayout({
+                  layerCard: {
+                    ...source.layout?.layerCard,
+                    legend: updatedLegend,
+                  },
+                });
+              }
             }}
             onUpdateMeta={onUpdateMeta}
           />
