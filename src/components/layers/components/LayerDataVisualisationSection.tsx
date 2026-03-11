@@ -222,13 +222,32 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
               </Button>
             )}
           </div>
-          {hasRgbComposites && (
-            <div className="ml-5">
-              <span className="text-xs text-muted-foreground italic">
-                Enabled on {convertToRgbCount} data source{convertToRgbCount !== 1 ? 's' : ''}
-              </span>
-            </div>
-          )}
+          {hasRgbComposites && (() => {
+            const firstRgbSource = convertToRgbSources[0];
+            const bands = firstRgbSource?.bands && firstRgbSource.bands.length >= 3
+              ? firstRgbSource.bands
+              : [1, 2, 3];
+            const rgbColors = ['#ef4444', '#22c55e', '#3b82f6']; // red, green, blue
+            const rgbLabels = ['R', 'G', 'B'];
+            return (
+              <div className="flex items-center gap-1.5 ml-5">
+                {rgbLabels.map((label, i) => (
+                  <span
+                    key={label}
+                    className="inline-flex items-center justify-center rounded text-[10px] font-bold text-white px-1.5 py-0.5 min-w-[28px]"
+                    style={{ backgroundColor: rgbColors[i] }}
+                  >
+                    {label}:{bands[i]}
+                  </span>
+                ))}
+                {convertToRgbCount > 1 && (
+                  <span className="text-[10px] text-muted-foreground italic ml-1">
+                    ({convertToRgbCount} sources)
+                  </span>
+                )}
+              </div>
+            );
+          })()}
 
           <Dialog open={rgbDialogOpen} onOpenChange={setRgbDialogOpen}>
             <DialogContent>
