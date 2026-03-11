@@ -1,42 +1,38 @@
 
 
-## Problem
+## Revised Plan: Remove `meta.rgbComposites`, detect `convertToRGB` from data sources
 
-The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
+### Summary
 
-## Proposed Approach: Numeric Defaults with Optional Label Overrides
+Remove `meta.rgbComposites` entirely. RGB Composites in the Data Visualisation section will instead be driven by detecting `convertToRGB: true` on items in `source.data[]`. The pencil/delete buttons and modal remain — they will operate on `source.data` items rather than `meta`.
 
-### Default behavior
-Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
+### Changes
 
-### Optional label customization via modal
-A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
+**1. Types cleanup**
 
-- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
-- **Bulk operations toolbar** at the top:
-  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
-  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
-  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
-- **Search/filter** to quickly find and edit specific bands
+- `src/types/layer.ts` — Remove `RgbComposite` interface and `rgbComposites` from `DataSourceMeta`.
+- `src/types/dataSource.ts` — Add explicit `convertToRGB?: boolean` to `DataSourceItem`.
+- `src/schemas/configSchema.ts` — Remove `rgbComposites` from the meta Zod schema.
+- `src/hooks/useValidatedConfig.ts` — Remove `rgbComposites` references.
 
-### Adaptive inline editor for small band counts
-For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
+**2. Delete `LayerRgbCompositesDisplay.tsx`** — No longer needed.
 
-## Implementation
+**3. Update `LayerDataVisualisationSection.tsx`**
 
-### Changes to `ChartSourceForm.tsx`
-- Replace the current band labels grid with:
-  - Summary text showing band count
-  - For ≤12 bands: keep existing inline grid
-  - For >12 bands: show summary + "Customize Band Labels" button
-- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
+- Accept new prop: `onUpdateDataSources: (updatedData: DataSourceItem[]) => void` (to bulk-update `source.data`).
+- Detect RGB composites: `const convertToRgbCount = (source.data || []).filter(d => d.convertToRGB).length`.
+- Display count: `RGB Composites (N)` or `(None)`.
+- When active, show simple text: "Enabled on N data source(s)".
+- **Delete button**: Iterates `source.data`, sets `convertToRGB` to `false` (or removes the property) on all items, calls `onUpdateDataSources`.
+- **Pencil button**: Opens the "coming soon" modal (placeholder for future RGB composites editor that will manage `convertToRGB` and band settings across data sources).
+- Participates in mutual exclusivity as before.
 
-### New component: `BandLabelEditorDialog.tsx`
-- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
-- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
-- Search input to filter rows
-- Returns updated labels array on save
+**4. Update `LayerCardContent.tsx`**
 
-### No changes needed to schemas or types
-The `x: string[]` config already supports any label strings.
+- Pass `onUpdateDataSources` handler that dispatches `UPDATE_SOURCE` with modified `source.data`.
+
+**5. Clean up remaining references**
+
+- `src/hooks/useLayerCardFormSubmission.ts` — Remove any `rgbComposites` handling.
+- Any other files referencing `RgbComposite` or `meta.rgbComposites`.
 
