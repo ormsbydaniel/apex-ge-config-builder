@@ -120,9 +120,12 @@ const LegendEditorDialog = ({
               <Label>Image URL</Label>
               <Input
                 value={legendUrl}
-                onChange={(e) => setLegendUrl(e.target.value)}
+                onChange={(e) => { setLegendUrl(e.target.value); setUrlError(null); }}
                 placeholder="https://example.com/legend.png"
               />
+              {urlError && (
+                <p className="text-sm text-destructive">{urlError}</p>
+              )}
             </div>
           )}
 
