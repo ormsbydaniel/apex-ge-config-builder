@@ -81,11 +81,13 @@ const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta }: LayerLegen
         onOpenChange={setLegendDialogOpen}
         legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
         units={source.meta?.units}
-        onUpdateUnits={(u) => onUpdateMeta({ units: u || undefined })}
-        onUpdateLegend={(updatedLegend) => {
+        onSave={(updatedLegend, updatedUnits) => {
+          // Update units via meta
+          onUpdateMeta({ units: updatedUnits || undefined });
+
+          // Update legend via layout
           const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
           if (updatedLegend === null) {
-            // Remove legend property entirely
             if (isInfoPanel) {
               const { legend: _removed, ...restInfoPanel } = source.layout?.infoPanel || {};
               onUpdateLayout({ infoPanel: restInfoPanel });
