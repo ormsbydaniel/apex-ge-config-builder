@@ -253,8 +253,6 @@ export const useValidatedConfig = () => {
       }),
       // Preserve fields configuration if present
       ...(source.meta?.fields && { fields: source.meta.fields }),
-      // Preserve RGB composites if present
-      ...(source.meta?.rgbComposites && { rgbComposites: source.meta.rgbComposites as RgbComposite[] }),
       // Temporal configuration is now at top level - no need to move from meta
     };
 
