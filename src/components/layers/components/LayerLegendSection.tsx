@@ -8,9 +8,10 @@ import LegendEditorDialog from '@/components/form/LegendEditorDialog';
 interface LayerLegendSectionProps {
   source: DataSource;
   onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateMeta: (updates: Record<string, any>) => void;
 }
 
-const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps) => {
+const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta }: LayerLegendSectionProps) => {
   const [legendDialogOpen, setLegendDialogOpen] = useState(false);
   const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
   const hasLegend = !!legend;
@@ -74,6 +75,8 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
         open={legendDialogOpen}
         onOpenChange={setLegendDialogOpen}
         legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
+        units={source.meta?.units}
+        onUpdateUnits={(u) => onUpdateMeta({ units: u || undefined })}
         onUpdateLegend={(updatedLegend) => {
           const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
           if (updatedLegend === null) {

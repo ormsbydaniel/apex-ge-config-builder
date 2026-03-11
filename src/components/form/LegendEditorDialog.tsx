@@ -23,6 +23,8 @@ interface LegendEditorDialogProps {
   onOpenChange: (open: boolean) => void;
   legend?: { type: 'swatch' | 'gradient' | 'image'; url?: string };
   onUpdateLegend: (legend: { type: 'swatch' | 'gradient' | 'image'; url?: string } | null) => void;
+  units?: string;
+  onUpdateUnits?: (units: string) => void;
 }
 
 const LegendEditorDialog = ({
@@ -30,11 +32,14 @@ const LegendEditorDialog = ({
   onOpenChange,
   legend,
   onUpdateLegend,
+  units,
+  onUpdateUnits,
 }: LegendEditorDialogProps) => {
   const [legendType, setLegendType] = useState<'none' | 'auto' | 'image'>(
     !legend ? 'none' : legend.type === 'image' ? 'image' : 'auto'
   );
   const [legendUrl, setLegendUrl] = useState(legend?.url || '');
+  const [unitsValue, setUnitsValue] = useState(units || '');
   const [isValidating, setIsValidating] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
 
@@ -43,6 +48,7 @@ const LegendEditorDialog = ({
     if (open && !prevOpenRef.current) {
       setLegendType(!legend ? 'none' : legend.type === 'image' ? 'image' : 'auto');
       setLegendUrl(legend?.url || '');
+      setUnitsValue(units || '');
       setUrlError(null);
     }
     prevOpenRef.current = open;
@@ -60,6 +66,7 @@ const LegendEditorDialog = ({
   const handleSave = async () => {
     if (legendType === 'none') {
       onUpdateLegend(null);
+      onUpdateUnits?.(unitsValue);
       onOpenChange(false);
       return;
     }
@@ -85,6 +92,7 @@ const LegendEditorDialog = ({
       updatedLegend.url = legendUrl;
     }
     onUpdateLegend(updatedLegend);
+    onUpdateUnits?.(unitsValue);
     onOpenChange(false);
   };
 
@@ -92,9 +100,9 @@ const LegendEditorDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Legend Settings</DialogTitle>
+          <DialogTitle>Legend and Units</DialogTitle>
           <DialogDescription>
-            Configure the legend type and appearance for this layer.
+            Configure the legend and units for this layer.
           </DialogDescription>
         </DialogHeader>
 
@@ -141,6 +149,16 @@ const LegendEditorDialog = ({
               No legend will be displayed for this layer.
             </p>
           )}
+
+          {/* Units */}
+          <div className="space-y-2">
+            <Label>Units</Label>
+            <Input
+              value={unitsValue}
+              onChange={(e) => setUnitsValue(e.target.value)}
+              placeholder="e.g. kg/m², °C, mm/day"
+            />
+          </div>
         </div>
 
         <DialogFooter>

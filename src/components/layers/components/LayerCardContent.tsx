@@ -173,7 +173,7 @@ const LayerCardContent = ({
       <LayerDataVisualisationSection source={source} onUpdateMeta={handleUpdateMeta} />
 
       {/* Legend */}
-      <LayerLegendSection source={source} onUpdateLayout={handleUpdateLayout} />
+      <LayerLegendSection source={source} onUpdateLayout={handleUpdateLayout} onUpdateMeta={handleUpdateMeta} />
 
       {/* Fields - Vector layer attribute configuration */}
       {firstVectorSource && (

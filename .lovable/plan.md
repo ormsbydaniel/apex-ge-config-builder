@@ -1,28 +1,42 @@
 
 
-## Legend and Units Dialog Enhancement
+## Problem
 
-### What changes
+The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
 
-1. **`LegendEditorDialog.tsx`** — Rename title to "Legend and Units", add `units` prop and `onUpdateUnits` callback, add a text input for units below the legend settings.
+## Proposed Approach: Numeric Defaults with Optional Label Overrides
 
-2. **`LayerLegendSection.tsx`** — Pass `source.meta?.units` and an `onUpdateMeta` handler to the dialog so units can be read/written via `meta.units`.
+### Default behavior
+Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
 
-3. **`LayerCardContent.tsx`** — Pass `handleUpdateMeta` to `LayerLegendSection`.
+### Optional label customization via modal
+A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
 
-### Detail
+- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
+- **Bulk operations toolbar** at the top:
+  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
+  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
+  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
+- **Search/filter** to quickly find and edit specific bands
 
-**LegendEditorDialog.tsx:**
-- New props: `units?: string`, `onUpdateUnits?: (units: string) => void`
-- New state: `unitsValue` initialized from `units` prop, reset on open
-- Add a "Units" text input field after the legend type section (always visible)
-- On save, call `onUpdateUnits(unitsValue)` alongside the existing legend save
-- Title: "Legend and Units", description updated accordingly
+### Adaptive inline editor for small band counts
+For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
 
-**LayerLegendSection.tsx:**
-- Add `onUpdateMeta` prop: `(updates: Record<string, any>) => void`
-- Pass `units={source.meta?.units}` and `onUpdateUnits={(u) => onUpdateMeta({ units: u || undefined })}` to `LegendEditorDialog`
+## Implementation
 
-**LayerCardContent.tsx:**
-- Change `<LayerLegendSection source={source} onUpdateLayout={handleUpdateLayout} />` to also pass `onUpdateMeta={handleUpdateMeta}`
+### Changes to `ChartSourceForm.tsx`
+- Replace the current band labels grid with:
+  - Summary text showing band count
+  - For ≤12 bands: keep existing inline grid
+  - For >12 bands: show summary + "Customize Band Labels" button
+- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
+
+### New component: `BandLabelEditorDialog.tsx`
+- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
+- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
+- Search input to filter rows
+- Returns updated labels array on save
+
+### No changes needed to schemas or types
+The `x: string[]` config already supports any label strings.
 
