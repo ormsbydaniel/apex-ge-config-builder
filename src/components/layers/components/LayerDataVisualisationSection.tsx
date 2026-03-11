@@ -12,13 +12,7 @@ import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
@@ -249,16 +243,12 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             );
           })()}
 
-          <Dialog open={rgbDialogOpen} onOpenChange={setRgbDialogOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>RGB Composites Editor</DialogTitle>
-                <DialogDescription>
-                  RGB Composite editing functionality is coming soon. Stay tuned!
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+          <RgbCompositeEditorDialog
+            open={rgbDialogOpen}
+            onOpenChange={setRgbDialogOpen}
+            source={source}
+            onUpdateDataSources={onUpdateDataSources}
+          />
         </div>
 
         {/* Gradient sub-section */}
