@@ -70,6 +70,11 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
                 </Button>
               }
             />
+            {hasCategories && (
+              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ categories: [] })}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
           </div>
           {hasCategories && (
             <div className="flex flex-wrap gap-1">
@@ -107,6 +112,11 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
                 </Button>
               }
             />
+            {hasColormaps && (
+              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ colormaps: [] })}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
           </div>
           {hasColormaps && (
             <div className="flex flex-wrap gap-2">
@@ -149,6 +159,11 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setRgbDialogOpen(true)}>
               <Pencil className="h-3 w-3" />
             </Button>
+            {hasRgbComposites && (
+              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ rgbComposites: [] })}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
           </div>
           {hasRgbComposites && (
             <div className="ml-5">
@@ -178,6 +193,11 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setGradientDialogOpen(true)}>
               <Pencil className="h-3 w-3" />
             </Button>
+            {hasGradient && (
+              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ startColor: undefined, endColor: undefined, min: undefined, max: undefined })}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
           </div>
           {hasGradient && source.meta && (
             <div className="ml-5 space-y-1">
