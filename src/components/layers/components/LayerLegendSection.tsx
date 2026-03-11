@@ -22,7 +22,7 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
 
   const getLegendStatusText = () => {
     if (!hasLegend) return null;
-    if (legend.type === 'image') return 'Image';
+    if (legend.type === 'image') return null;
     // swatch or gradient type → derive from active vis
     if (categories.length > 0) return 'Auto (from categories)';
     if (colormaps.length > 0) return 'Auto (from colormaps)';
