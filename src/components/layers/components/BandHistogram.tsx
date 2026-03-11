@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -11,7 +11,8 @@ import {
 } from 'recharts';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, Wand2 } from 'lucide-react';
 
 interface HistogramBin {
   x: number;
