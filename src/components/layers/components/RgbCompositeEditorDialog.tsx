@@ -124,16 +124,15 @@ interface ChannelMinMax {
 }
 
 function buildRgbStyle(
-  bands: number[],
   r: ChannelMinMax,
   g: ChannelMinMax,
   b: ChannelMinMax
 ) {
   return {
     variables: {
-      rBand: bands[0],
-      gBand: bands[1],
-      bBand: bands[2],
+      rBand: 1,
+      gBand: 2,
+      bBand: 3,
       rMin: r.min,
       rMax: r.max,
       gMin: g.min,
