@@ -292,7 +292,7 @@ export function RgbCompositeEditorDialog({
                   </div>
                   <div className="flex flex-1 border rounded-md overflow-hidden">
                     {/* Fixed R/G/B channel labels */}
-                    <div className="flex flex-col bg-muted/50 border-r pt-1">
+                    <div className="flex flex-col bg-muted/50 border-r">
                       {RGB_LABELS.map((label, i) => (
                         <div
                           key={label}
