@@ -111,12 +111,12 @@ const LegendEditorDialog = ({
           {/* Legend Type */}
           <div className="space-y-2">
             <Label>Legend Type</Label>
-            <Select value={legendType} onValueChange={(v) => setLegendType(v as 'swatch' | 'gradient' | 'image')}>
+            <Select value={legendType} onValueChange={(v) => setLegendType(v as 'auto' | 'image' | 'gradient')}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="swatch">Swatch</SelectItem>
+                <SelectItem value="auto">Auto</SelectItem>
                 <SelectItem value="gradient">Gradient</SelectItem>
                 <SelectItem value="image">Image</SelectItem>
               </SelectContent>
