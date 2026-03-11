@@ -1,42 +1,60 @@
 
 
-## Problem
+## Per-Band Histogram in Advanced Settings
 
-The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
+### Concept
 
-## Proposed Approach: Numeric Defaults with Optional Label Overrides
+When the user clicks a channel row (R, G, or B) in the Advanced Settings panel, the dialog widens and shows a large histogram for that band alongside the min/max inputs. Only one band's histogram is shown at a time.
 
-### Default behavior
-Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
+### Layout
 
-### Optional label customization via modal
-A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
+```text
+┌─────────────────────────────────────────────────────────┐
+│ RGB Composite Editor                                     │
+├──────────────────────┬──────────────────────────────────┤
+│  ← Back              │                                  │
+│                      │   Band 4 – Red Channel           │
+│  [R] Band 4  ← ●    │   ┌──────────────────────────┐   │
+│  [G] Band 2         │   │                          │   │
+│  [B] Band 7         │   │    ▐▐▐█▐▐▐▐▐            │   │
+│                      │   │   ▐▐▐████▐▐▐▐           │   │
+│                      │   │  ▐▐▐██████▐▐▐▐▐         │   │
+│                      │   │ ▐▐▐████████▐▐▐▐▐▐       │   │
+│                      │   └──────────────────────────┘   │
+│                      │   Min: [____]   Max: [____]      │
+│                      │   ↑ data range: 234 – 8901       │
+├──────────────────────┴──────────────────────────────────┤
+│                              [Cancel]  [Save]            │
+└─────────────────────────────────────────────────────────┘
+```
 
-- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
-- **Bulk operations toolbar** at the top:
-  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
-  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
-  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
-- **Search/filter** to quickly find and edit specific bands
+- Left side: compact channel list (R/G/B rows). Clicking a row selects it for histogram display. The active row is highlighted.
+- Right side: a tall Recharts `BarChart` histogram (~300px height) for the selected band, plus min/max inputs below it.
+- When no band is selected for refinement, the right panel shows a prompt ("Click a channel to view its pixel distribution").
+- Dialog width expands from `sm:max-w-[600px]` to `sm:max-w-[850px]` when in advanced mode.
 
-### Adaptive inline editor for small band counts
-For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
+### Implementation
 
-## Implementation
+**New utility: `fetchBandHistogram`** in `src/utils/cogMetadata.ts`
+- Reuses the existing pattern from `fetchCogBandStatistics`: find best overview, read rasters with timeout/abort, stride sampling.
+- Buckets sampled values into ~50 bins, returns `{ bins: { x: number; count: number }[]; min: number; max: number }`.
+- Skips noData values.
 
-### Changes to `ChartSourceForm.tsx`
-- Replace the current band labels grid with:
-  - Summary text showing band count
-  - For ≤12 bands: keep existing inline grid
-  - For >12 bands: show summary + "Customize Band Labels" button
-- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
+**New component: `BandHistogram.tsx`** in `src/components/layers/components/`
+- Props: `data`, `loading`, `error`, `channelColor`, `minMax`, `onMinMaxChange`
+- Renders a Recharts `BarChart` with bars colored by the channel color. Bars outside the min/max range are dimmed/grayed.
+- Min/max number inputs below the chart.
+- Shows the data's actual min/max range as helper text.
 
-### New component: `BandLabelEditorDialog.tsx`
-- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
-- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
-- Search input to filter rows
-- Returns updated labels array on save
+**Updates to `RgbCompositeEditorDialog.tsx`**
+- New state: `activeChannel: number | null` (0/1/2), `histogramData: Record<number, { bins, min, max } | null>`, `histogramLoading: Record<number, boolean>`.
+- When a channel row is clicked, fetch histogram for that band (cached if already fetched). Set `activeChannel`.
+- Advanced panel switches to a two-column layout: narrow channel list on the left, histogram + inputs on the right.
+- Dialog class conditionally uses wider max-width when `showAdvanced` is true.
+- Auto-populate min/max from histogram data range when first loaded (if still at defaults).
 
-### No changes needed to schemas or types
-The `x: string[]` config already supports any label strings.
+### Files to modify
+- **`src/utils/cogMetadata.ts`** — Add `fetchBandHistogram()` 
+- **`src/components/layers/components/BandHistogram.tsx`** — New component
+- **`src/components/layers/components/RgbCompositeEditorDialog.tsx`** — Wider dialog, channel selector, histogram integration
 
