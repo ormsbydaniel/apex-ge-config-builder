@@ -132,7 +132,7 @@ export function RgbCompositeEditorDialog({
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
 
-  const bandLabels = source.meta?.bandLabels as string[] | undefined;
+  const bandLabels = (source.meta as any)?.bandLabels as string[] | undefined;
 
   // Find first COG source URL for band count
   const firstCogUrl = useMemo(() => {
