@@ -45,19 +45,19 @@ const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta, onUpdateLayo
       </div>
 
       <div className="ml-6 space-y-1">
+        {source.meta?.units && (
+          <span className="text-xs text-muted-foreground block">
+            Units: {source.meta.units}
+          </span>
+        )}
         {statusText && (
           <span className="text-xs text-muted-foreground">
-            {statusText}
+            Legend: {statusText}
           </span>
         )}
         {!statusText && !(hasLegend && legend.type === 'image') && (
           <span className="text-xs text-muted-foreground">
-            No legend displayed.
-          </span>
-        )}
-        {source.meta?.units && (
-          <span className="text-xs text-muted-foreground block">
-            Units: {source.meta.units}
+            Legend: No legend displayed.
           </span>
         )}
 
