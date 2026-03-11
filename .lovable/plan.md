@@ -1,42 +1,38 @@
 
 
-## Problem
+## Advanced Settings with OpenLayers Style Object
 
-The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
+### Approach
 
-## Proposed Approach: Numeric Defaults with Optional Label Overrides
+Instead of a custom `bandSettings` property, the Advanced Settings will generate and persist a full OpenLayers `style` object on each COG `DataSourceItem`. The `style` property already exists on `DataSourceItem` as `any`, so no type/schema changes are needed.
 
-### Default behavior
-Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
+### How it works
 
-### Optional label customization via modal
-A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
+**State**: When entering advanced mode, initialize per-channel min/max from the existing `style.variables` (if present) or defaults (0/10000). The band numbers come from `selectedBands`.
 
-- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
-- **Bulk operations toolbar** at the top:
-  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
-  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
-  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
-- **Search/filter** to quickly find and edit specific bands
+**UI**: An "Advanced Settings >>>" button below Selected Bands, enabled when 3 bands are selected. Clicking it hides the band selection columns and shows:
+- A "<<< Back to Band Selection" link
+- A compact summary: R = Band X, G = Band Y, B = Band Z
+- Per-channel min/max number inputs (6 fields total)
 
-### Adaptive inline editor for small band counts
-For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
+**Save logic**: `handleSave` builds the full OpenLayers style object from the selected bands + min/max values:
+```json
+{
+  "variables": { "rBand": 1, "gBand": 2, "bBand": 3, "rMin": 0, "rMax": 10000, ... },
+  "color": ["array", ["interpolate", ...], ..., ["case", ...]]
+}
+```
+This is set as `style` on each COG data source item (alongside `convertToRGB` and `bands`).
 
-## Implementation
+### Files to modify
 
-### Changes to `ChartSourceForm.tsx`
-- Replace the current band labels grid with:
-  - Summary text showing band count
-  - For ≤12 bands: keep existing inline grid
-  - For >12 bands: show summary + "Customize Band Labels" button
-- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
+- **`src/components/layers/components/RgbCompositeEditorDialog.tsx`**
+  - Add `showAdvanced` state, per-channel min/max state
+  - Add helper `buildRgbStyle(bands, mins, maxes)` to generate the OpenLayers style object
+  - Add "Advanced Settings >>>" button (disabled when < 3 bands selected)
+  - Conditionally render advanced panel vs band selection
+  - Update `handleSave` to include `style` on COG sources when advanced values are set
+  - Initialize min/max from existing `style.variables` when dialog opens
 
-### New component: `BandLabelEditorDialog.tsx`
-- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
-- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
-- Search input to filter rows
-- Returns updated labels array on save
-
-### No changes needed to schemas or types
-The `x: string[]` config already supports any label strings.
+No changes needed to `dataSource.ts` or `configSchema.ts` — `style` is already supported as `any`.
 
