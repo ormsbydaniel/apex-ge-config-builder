@@ -67,14 +67,21 @@ export function BandHistogram({
   max,
   onMinChange,
   onMaxChange,
+  onStretch,
 }: BandHistogramProps) {
   const applyStretch = useCallback(
     (lo: number, hi: number) => {
       if (!data || data.length === 0) return;
-      onMinChange(percentileFromHistogram(data, lo));
-      onMaxChange(percentileFromHistogram(data, hi));
+      const newMin = percentileFromHistogram(data, lo);
+      const newMax = percentileFromHistogram(data, hi);
+      if (onStretch) {
+        onStretch(newMin, newMax);
+      } else {
+        onMinChange(newMin);
+        onMaxChange(newMax);
+      }
     },
-    [data, onMinChange, onMaxChange],
+    [data, onMinChange, onMaxChange, onStretch],
   );
   if (loading) {
     return (
