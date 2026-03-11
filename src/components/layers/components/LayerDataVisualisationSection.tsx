@@ -187,14 +187,6 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
                   <span className="text-[11px] font-normal text-muted-foreground whitespace-nowrap">
                     {colormap.name} {colormap.min}-{colormap.max} ({colormap.steps} steps){colormap.reverse && ' • reversed'}
                   </span>
-                  <button
-                    type="button"
-                    aria-label={`Delete colormap ${colormap.name}`}
-                    onClick={() => onUpdateMeta({ colormaps: colormaps.filter((_, i) => i !== index) })}
-                    className="ml-1 text-destructive hover:text-destructive/80 transition-colors"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
                 </Badge>
               ))}
             </div>
