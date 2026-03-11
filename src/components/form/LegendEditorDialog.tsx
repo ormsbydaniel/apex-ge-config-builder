@@ -109,6 +109,12 @@ const LegendEditorDialog = ({
               Legend type will be determined automatically based on layer configuration (e.g. categories → swatch, gradient → gradient).
             </p>
           )}
+
+          {legendType === 'none' && (
+            <p className="text-sm text-muted-foreground italic">
+              No legend will be displayed for this layer.
+            </p>
+          )}
         </div>
 
         <DialogFooter>
