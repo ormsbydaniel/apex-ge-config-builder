@@ -332,7 +332,7 @@ export function RgbCompositeEditorDialog({
                         </DndContext>
                         {selectedBands.length === 0 && (
                           <div className="text-xs text-muted-foreground text-center py-4">
-                            Select 3 bands for R, G, B channels
+                            Select 3 bands for RGB composite. The first band selected will use Red, the second Blue, the third Green. The order can be changed after selection.
                           </div>
                         )}
                       </div>
