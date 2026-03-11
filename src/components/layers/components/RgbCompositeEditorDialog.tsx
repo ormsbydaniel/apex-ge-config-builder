@@ -127,7 +127,6 @@ export function RgbCompositeEditorDialog({
   source,
   onUpdateDataSources,
 }: RgbCompositeEditorDialogProps) {
-  const [enableRgb, setEnableRgb] = useState(false);
   const [selectedBands, setSelectedBands] = useState<number[]>([1, 2, 3]);
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
@@ -143,9 +142,7 @@ export function RgbCompositeEditorDialog({
   const prevOpenRef = React.useRef(false);
   useEffect(() => {
     if (open && !prevOpenRef.current) {
-      const rgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
-      setEnableRgb(rgbSources.length > 0);
-      const firstRgb = rgbSources[0];
+      const firstRgb = (source.data || []).find((d: DataSourceItem) => d.convertToRGB === true);
       const bands = firstRgb?.bands && firstRgb.bands.length >= 3
         ? firstRgb.bands.slice(0, 3)
         : [1, 2, 3];
@@ -232,12 +229,7 @@ export function RgbCompositeEditorDialog({
   const handleSave = () => {
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
       if (d.format === 'cog') {
-        if (enableRgb) {
-          return { ...d, convertToRGB: true, bands: [...selectedBands] };
-        } else {
-          const { convertToRGB, ...rest } = d;
-          return rest as DataSourceItem;
-        }
+        return { ...d, convertToRGB: true, bands: [...selectedBands] };
       }
       return d;
     });
@@ -253,21 +245,12 @@ export function RgbCompositeEditorDialog({
         <DialogHeader>
           <DialogTitle>RGB Composite Editor</DialogTitle>
           <DialogDescription>
-            Enable RGB rendering and assign bands to the Red, Green, and Blue channels. Changes apply to all COG sources in this layer.
+            Assign bands to the Red, Green, and Blue channels. Changes apply to all COG sources in this layer.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Enable toggle */}
-        <label className="flex items-center gap-2 cursor-pointer py-1">
-          <Checkbox
-            checked={enableRgb}
-            onCheckedChange={(checked) => setEnableRgb(checked === true)}
-          />
-          <span className="text-sm font-medium">Enable RGB Composite rendering</span>
-        </label>
-
         {/* Band selector — only shown when enabled */}
-        {enableRgb && (
+        {(
           <>
             {loading ? (
               <div className="text-xs text-muted-foreground py-4 text-center">Loading band information…</div>
@@ -353,7 +336,7 @@ export function RgbCompositeEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={enableRgb && selectedBands.length !== MAX_BANDS}>
+          <Button onClick={handleSave} disabled={selectedBands.length !== MAX_BANDS}>
             Save
           </Button>
         </DialogFooter>
