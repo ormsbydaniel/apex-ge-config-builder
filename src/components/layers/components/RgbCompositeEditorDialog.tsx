@@ -250,7 +250,7 @@ export function RgbCompositeEditorDialog({
             ) : (
               <div className="flex gap-2 items-stretch h-[320px] flex-shrink-0">
                 {/* Available Bands */}
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 min-w-0 flex flex-col">
                   <div className="text-xs font-medium text-muted-foreground mb-1">
                     Available Bands ({availableBands.length})
                   </div>
@@ -286,7 +286,7 @@ export function RgbCompositeEditorDialog({
                 </div>
 
                 {/* Selected Bands (R, G, B) */}
-                <div className="flex flex-col">
+                <div className="flex-1 min-w-0 flex flex-col">
                   <div className="text-xs font-medium text-muted-foreground mb-1">
                     Selected Bands ({selectedBands.length}/{MAX_BANDS})
                   </div>
