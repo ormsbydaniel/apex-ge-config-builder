@@ -299,7 +299,7 @@ export function RgbCompositeEditorDialog({
                           className="flex items-center justify-center px-1.5 h-[34px]"
                         >
                           <span
-                            className="inline-flex items-center justify-center rounded text-[9px] font-bold text-white w-4 h-4 flex-shrink-0"
+                            className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-5 h-5 flex-shrink-0"
                             style={{ backgroundColor: RGB_COLORS[i] }}
                           >
                             {label}
