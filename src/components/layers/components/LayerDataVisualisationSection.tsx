@@ -19,15 +19,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { DataSourceLayout } from '@/types/layer';
-
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
   onUpdateMeta: (updates: Partial<DataSourceMeta>) => void;
-  onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
 }
 
-const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }: LayerDataVisualisationSectionProps) => {
+const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisualisationSectionProps) => {
   const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
   const [legendDialogOpen, setLegendDialogOpen] = useState(false);
   const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
