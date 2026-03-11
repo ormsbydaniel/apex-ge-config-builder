@@ -8,6 +8,7 @@ import LegendEditorDialog from '@/components/form/LegendEditorDialog';
 interface LayerLegendSectionProps {
   source: DataSource;
   onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateMeta: (updates: Record<string, any>) => void;
 }
 
 const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps) => {
