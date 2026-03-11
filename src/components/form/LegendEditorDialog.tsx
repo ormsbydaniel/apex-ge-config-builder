@@ -48,6 +48,7 @@ const LegendEditorDialog = ({
     if (open && !prevOpenRef.current) {
       setLegendType(!legend ? 'none' : legend.type === 'image' ? 'image' : 'auto');
       setLegendUrl(legend?.url || '');
+      setUnitsValue(units || '');
       setUrlError(null);
     }
     prevOpenRef.current = open;
