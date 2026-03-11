@@ -12,13 +12,7 @@ import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
