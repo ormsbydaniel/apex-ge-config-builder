@@ -69,20 +69,31 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
         legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
         onUpdateLegend={(updatedLegend) => {
           const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
-          if (isInfoPanel) {
-            onUpdateLayout({
-              infoPanel: {
-                ...source.layout?.infoPanel,
-                legend: updatedLegend,
-              },
-            });
+          if (updatedLegend === null) {
+            // Remove legend property entirely
+            if (isInfoPanel) {
+              const { legend: _removed, ...restInfoPanel } = source.layout?.infoPanel || {};
+              onUpdateLayout({ infoPanel: restInfoPanel });
+            } else {
+              const { legend: _removed, ...restLayerCard } = source.layout?.layerCard || {};
+              onUpdateLayout({ layerCard: restLayerCard });
+            }
           } else {
-            onUpdateLayout({
-              layerCard: {
-                ...source.layout?.layerCard,
-                legend: updatedLegend,
-              },
-            });
+            if (isInfoPanel) {
+              onUpdateLayout({
+                infoPanel: {
+                  ...source.layout?.infoPanel,
+                  legend: updatedLegend,
+                },
+              });
+            } else {
+              onUpdateLayout({
+                layerCard: {
+                  ...source.layout?.layerCard,
+                  legend: updatedLegend,
+                },
+              });
+            }
           }
         }}
       />
