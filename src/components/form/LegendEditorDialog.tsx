@@ -35,21 +35,44 @@ const LegendEditorDialog = ({
     !legend ? 'none' : legend.type === 'image' ? 'image' : 'auto'
   );
   const [legendUrl, setLegendUrl] = useState(legend?.url || '');
+  const [isValidating, setIsValidating] = useState(false);
+  const [urlError, setUrlError] = useState<string | null>(null);
 
   const prevOpenRef = React.useRef(false);
   useEffect(() => {
     if (open && !prevOpenRef.current) {
       setLegendType(!legend ? 'none' : legend.type === 'image' ? 'image' : 'auto');
       setLegendUrl(legend?.url || '');
+      setUrlError(null);
     }
     prevOpenRef.current = open;
   }, [open, legend]);
 
-  const handleSave = () => {
+  const validateImageUrl = (url: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+  };
+
+  const handleSave = async () => {
     if (legendType === 'none') {
       onUpdateLegend(null);
       onOpenChange(false);
       return;
+    }
+
+    if (legendType === 'image' && legendUrl.trim()) {
+      setIsValidating(true);
+      setUrlError(null);
+      const isValid = await validateImageUrl(legendUrl.trim());
+      setIsValidating(false);
+      if (!isValid) {
+        setUrlError('No image found at this URL. Please check the URL and try again.');
+        return;
+      }
     }
 
     const resolvedType: 'swatch' | 'gradient' | 'image' =
