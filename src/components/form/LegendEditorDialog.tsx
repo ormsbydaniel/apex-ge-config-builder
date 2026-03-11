@@ -91,6 +91,7 @@ const LegendEditorDialog = ({
       updatedLegend.url = legendUrl;
     }
     onUpdateLegend(updatedLegend);
+    onUpdateUnits?.(unitsValue);
     onOpenChange(false);
   };
 
