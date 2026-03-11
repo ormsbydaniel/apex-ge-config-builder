@@ -245,18 +245,9 @@ export function RgbCompositeEditorDialog({
         <DialogHeader>
           <DialogTitle>RGB Composite Editor</DialogTitle>
           <DialogDescription>
-            Enable RGB rendering and assign bands to the Red, Green, and Blue channels. Changes apply to all COG sources in this layer.
+            Assign bands to the Red, Green, and Blue channels. Changes apply to all COG sources in this layer.
           </DialogDescription>
         </DialogHeader>
-
-        {/* Enable toggle */}
-        <label className="flex items-center gap-2 cursor-pointer py-1">
-          <Checkbox
-            checked={enableRgb}
-            onCheckedChange={(checked) => setEnableRgb(checked === true)}
-          />
-          <span className="text-sm font-medium">Enable RGB Composite rendering</span>
-        </label>
 
         {/* Band selector — only shown when enabled */}
         {enableRgb && (
