@@ -455,8 +455,9 @@ export function RgbCompositeEditorDialog({
                     dataMax={activeHistData?.max ?? 1}
                     min={activeConfig.minMax.min}
                     max={activeConfig.minMax.max}
-                    onMinChange={(v) => activeConfig.setMinMax({ ...activeConfig.minMax, min: v })}
-                    onMaxChange={(v) => activeConfig.setMinMax({ ...activeConfig.minMax, max: v })}
+                     onMinChange={(v) => activeConfig.setMinMax({ ...activeConfig.minMax, min: v })}
+                     onMaxChange={(v) => activeConfig.setMinMax({ ...activeConfig.minMax, max: v })}
+                     onStretch={(newMin, newMax) => activeConfig.setMinMax({ min: newMin, max: newMax })}
                   />
                 ) : null}
               </div>
