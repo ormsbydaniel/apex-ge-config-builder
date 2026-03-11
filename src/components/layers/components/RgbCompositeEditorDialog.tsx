@@ -286,11 +286,11 @@ export function RgbCompositeEditorDialog({
                 </div>
 
                 {/* Selected Bands (R, G, B) */}
-                <div className="flex-1 flex flex-col">
+                <div className="flex flex-col">
                   <div className="text-xs font-medium text-muted-foreground mb-1">
                     Selected Bands ({selectedBands.length}/{MAX_BANDS})
                   </div>
-                  <div className="flex flex-1 border rounded-md overflow-hidden">
+                  <div className="flex border rounded-md overflow-hidden">
                     {/* Fixed R/G/B channel labels */}
                     <div className="flex flex-col bg-muted/50 border-r">
                       {RGB_LABELS.map((label, i) => (
