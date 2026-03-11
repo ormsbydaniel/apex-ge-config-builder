@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Pencil, Trash2 } from 'lucide-react';
 import { DataSource } from '@/types/config';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { DataSourceMeta } from '@/types/layer';
 import { Category, Colormap } from '@/types/category';
 import ColorRampPreview from '@/components/ui/ColorRampPreview';
