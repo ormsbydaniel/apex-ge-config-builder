@@ -22,7 +22,7 @@ interface LegendEditorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   legend?: { type: 'swatch' | 'gradient' | 'image'; url?: string };
-  onUpdateLegend: (legend: { type: 'swatch' | 'gradient' | 'image'; url?: string }) => void;
+  onUpdateLegend: (legend: { type: 'swatch' | 'gradient' | 'image'; url?: string } | null) => void;
 }
 
 const LegendEditorDialog = ({
@@ -31,21 +31,27 @@ const LegendEditorDialog = ({
   legend,
   onUpdateLegend,
 }: LegendEditorDialogProps) => {
-  const [legendType, setLegendType] = useState<'auto' | 'image'>(
-    legend?.type === 'image' ? 'image' : 'auto'
+  const [legendType, setLegendType] = useState<'none' | 'auto' | 'image'>(
+    !legend ? 'none' : legend.type === 'image' ? 'image' : 'auto'
   );
   const [legendUrl, setLegendUrl] = useState(legend?.url || '');
 
   const prevOpenRef = React.useRef(false);
   useEffect(() => {
     if (open && !prevOpenRef.current) {
-      setLegendType(legend?.type === 'image' ? 'image' : 'auto');
+      setLegendType(!legend ? 'none' : legend.type === 'image' ? 'image' : 'auto');
       setLegendUrl(legend?.url || '');
     }
     prevOpenRef.current = open;
   }, [open, legend]);
 
   const handleSave = () => {
+    if (legendType === 'none') {
+      onUpdateLegend(null);
+      onOpenChange(false);
+      return;
+    }
+
     const resolvedType: 'swatch' | 'gradient' | 'image' =
       legendType === 'auto' ? 'swatch' : legendType;
 
