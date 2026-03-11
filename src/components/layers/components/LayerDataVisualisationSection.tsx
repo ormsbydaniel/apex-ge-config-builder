@@ -45,6 +45,58 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
   const hasValues = categories.some(cat => cat.value !== undefined);
   const hasGradient = !!(source.meta?.startColor || source.meta?.endColor || source.meta?.min !== undefined || source.meta?.max !== undefined);
 
+  // Mutual exclusivity logic
+  const activeVisType: 'categories' | 'colormaps' | 'composites' | 'gradient' | null =
+    hasCategories ? 'categories' :
+    hasColormaps ? 'colormaps' :
+    hasRgbComposites ? 'composites' :
+    hasGradient ? 'gradient' :
+    null;
+
+  const visTypeLabels: Record<string, string> = {
+    categories: 'categories',
+    colormaps: 'colormaps',
+    composites: 'RGB composites',
+    gradient: 'gradient',
+  };
+
+  const isVisDisabled = (type: string) => activeVisType !== null && activeVisType !== type;
+  const getDisabledTooltip = (type: string) =>
+    `${type.charAt(0).toUpperCase() + type.slice(1)} editing disabled as ${visTypeLabels[activeVisType!]} defined`;
+
+  const renderPencilButton = (type: string, onClick: () => void, dialogTrigger?: React.ReactNode) => {
+    const disabled = isVisDisabled(type);
+    if (dialogTrigger && !disabled) {
+      return dialogTrigger;
+    }
+    const btn = (
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`h-4 w-4 p-0 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        disabled={disabled}
+        onClick={disabled ? undefined : onClick}
+      >
+        <Pencil className="h-2.5 w-2.5" />
+      </Button>
+    );
+    if (disabled) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>{btn}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{getDisabledTooltip(type)}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+    return btn;
+  };
+
   return (
     <div className="space-y-2">
       {/* Section header */}
@@ -61,16 +113,20 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
               Categories {hasCategories ? `(${categories.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
-            <CategoryEditorDialog
-              categories={categories}
-              onUpdate={(cats) => onUpdateMeta({ categories: cats })}
-              layerName={source.name}
-              trigger={
-                <Button variant="ghost" size="icon" className="h-4 w-4 p-0">
-                  <Pencil className="h-2.5 w-2.5" />
-                </Button>
-              }
-            />
+            {isVisDisabled('categories') ? (
+              renderPencilButton('categories', () => {})
+            ) : (
+              <CategoryEditorDialog
+                categories={categories}
+                onUpdate={(cats) => onUpdateMeta({ categories: cats })}
+                layerName={source.name}
+                trigger={
+                  <Button variant="ghost" size="icon" className="h-4 w-4 p-0">
+                    <Pencil className="h-2.5 w-2.5" />
+                  </Button>
+                }
+              />
+            )}
             {hasCategories && (
               <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ categories: [] })}>
                 <Trash2 className="h-2.5 w-2.5" />
@@ -102,17 +158,21 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
               Colormaps {hasColormaps ? `(${colormaps.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
-            <ColormapEditorDialog
-              colormaps={colormaps}
-              onUpdate={(cmaps) => onUpdateMeta({ colormaps: cmaps })}
-              metaMin={source.meta?.min}
-              metaMax={source.meta?.max}
-              trigger={
-                <Button variant="ghost" size="icon" className="h-4 w-4 p-0">
-                  <Pencil className="h-2.5 w-2.5" />
-                </Button>
-              }
-            />
+            {isVisDisabled('colormaps') ? (
+              renderPencilButton('colormaps', () => {})
+            ) : (
+              <ColormapEditorDialog
+                colormaps={colormaps}
+                onUpdate={(cmaps) => onUpdateMeta({ colormaps: cmaps })}
+                metaMin={source.meta?.min}
+                metaMax={source.meta?.max}
+                trigger={
+                  <Button variant="ghost" size="icon" className="h-4 w-4 p-0">
+                    <Pencil className="h-2.5 w-2.5" />
+                  </Button>
+                }
+              />
+            )}
             {hasColormaps && (
               <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ colormaps: [] })}>
                 <Trash2 className="h-2.5 w-2.5" />
@@ -157,9 +217,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
               RGB Composites {hasRgbComposites ? `(${rgbComposites.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
-            <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setRgbDialogOpen(true)}>
-              <Pencil className="h-2.5 w-2.5" />
-            </Button>
+            {renderPencilButton('composites', () => setRgbDialogOpen(true))}
             {hasRgbComposites && (
               <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ rgbComposites: [] })}>
                 <Trash2 className="h-2.5 w-2.5" />
@@ -191,9 +249,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
               Gradient {hasGradient ? '' : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
-            <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setGradientDialogOpen(true)}>
-              <Pencil className="h-2.5 w-2.5" />
-            </Button>
+            {renderPencilButton('gradient', () => setGradientDialogOpen(true))}
             {hasGradient && (
               <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ startColor: undefined, endColor: undefined, min: undefined, max: undefined })}>
                 <Trash2 className="h-2.5 w-2.5" />
