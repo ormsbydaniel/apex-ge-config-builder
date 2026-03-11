@@ -54,6 +54,11 @@ const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta }: LayerLegen
             No legend displayed.
           </span>
         )}
+        {source.meta?.units && (
+          <span className="text-xs text-muted-foreground block">
+            Units: {source.meta.units}
+          </span>
+        )}
 
         {hasLegend && legend.type === 'image' && legend.url && (
           <div className="flex items-center gap-2">
