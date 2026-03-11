@@ -56,7 +56,7 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
               rel="noopener noreferrer"
               className="text-primary hover:text-primary/80 underline inline-flex items-center gap-1 text-sm"
             >
-              View Legend Image
+              Legend Image
               <ExternalLink className="h-3 w-3" />
             </a>
           </div>
