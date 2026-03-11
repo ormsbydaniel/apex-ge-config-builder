@@ -159,6 +159,11 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setRgbDialogOpen(true)}>
               <Pencil className="h-3 w-3" />
             </Button>
+            {hasRgbComposites && (
+              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ rgbComposites: [] })}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
           </div>
           {hasRgbComposites && (
             <div className="ml-5">
