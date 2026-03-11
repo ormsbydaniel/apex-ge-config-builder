@@ -190,12 +190,12 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
               Gradient {hasGradient ? '' : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
-            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setGradientDialogOpen(true)}>
-              <Pencil className="h-3 w-3" />
+            <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setGradientDialogOpen(true)}>
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
             {hasGradient && (
-              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ startColor: undefined, endColor: undefined, min: undefined, max: undefined })}>
-                <Trash2 className="h-3 w-3" />
+              <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ startColor: undefined, endColor: undefined, min: undefined, max: undefined })}>
+                <Trash2 className="h-2.5 w-2.5" />
               </Button>
             )}
           </div>
