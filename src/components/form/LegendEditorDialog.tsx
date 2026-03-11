@@ -30,9 +30,8 @@ const LegendEditorDialog = ({
   open,
   onOpenChange,
   legend,
-  onUpdateLegend,
   units,
-  onUpdateUnits,
+  onSave,
 }: LegendEditorDialogProps) => {
   const [legendType, setLegendType] = useState<'none' | 'auto' | 'image'>(
     !legend ? 'none' : legend.type === 'image' ? 'image' : 'auto'
