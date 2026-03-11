@@ -44,7 +44,7 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
 
       <div className="ml-6 space-y-1">
         <span className="text-xs text-muted-foreground">
-          {statusText ? statusText : <span className="italic">(None)</span>}
+          {statusText ? statusText : <span className="italic">No legend displayed.</span>}
         </span>
 
         {hasLegend && legend.type === 'image' && legend.url && (
