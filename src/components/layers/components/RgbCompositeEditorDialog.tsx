@@ -476,20 +476,19 @@ export function RgbCompositeEditorDialog({
                     </div>
                   </ScrollArea>
                 </div>
+                {/* Advanced Settings button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="self-start gap-1 text-xs text-muted-foreground hover:text-foreground mt-1"
+                  disabled={selectedBands.length !== MAX_BANDS}
+                  onClick={() => setShowAdvanced(true)}
+                >
+                  <Settings className="h-3 w-3" />
+                  Advanced Settings &gt;&gt;&gt;
+                </Button>
               </div>
             </div>
-
-            {/* Advanced Settings button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="self-end gap-1 text-xs text-muted-foreground hover:text-foreground"
-              disabled={selectedBands.length !== MAX_BANDS}
-              onClick={() => setShowAdvanced(true)}
-            >
-              <Settings className="h-3 w-3" />
-              Advanced Settings &gt;&gt;&gt;
-            </Button>
           </>
         )}
 
