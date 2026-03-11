@@ -10,7 +10,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ChevronUp, ChevronDown, GripVertical, Settings, ArrowLeft } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -114,6 +116,59 @@ function SortableRgbBandRow({ band, idx, total, getBandLabel, onDeselect, onMove
   );
 }
 
+interface ChannelMinMax {
+  min: number;
+  max: number;
+}
+
+function buildRgbStyle(
+  bands: number[],
+  r: ChannelMinMax,
+  g: ChannelMinMax,
+  b: ChannelMinMax
+) {
+  return {
+    variables: {
+      rBand: bands[0],
+      gBand: bands[1],
+      bBand: bands[2],
+      rMin: r.min,
+      rMax: r.max,
+      gMin: g.min,
+      gMax: g.max,
+      bMin: b.min,
+      bMax: b.max,
+    },
+    color: [
+      "array",
+      [
+        "interpolate", ["linear"],
+        ["band", ["var", "rBand"]],
+        ["var", "rMin"], 0,
+        ["var", "rMax"], 1,
+      ],
+      [
+        "interpolate", ["linear"],
+        ["band", ["var", "gBand"]],
+        ["var", "gMin"], 0,
+        ["var", "gMax"], 1,
+      ],
+      [
+        "interpolate", ["linear"],
+        ["band", ["var", "bBand"]],
+        ["var", "bMin"], 0,
+        ["var", "bMax"], 1,
+      ],
+      [
+        "case",
+        ["==", ["band", ["var", "rBand"]], 0],
+        0,
+        1,
+      ],
+    ],
+  };
+}
+
 export function RgbCompositeEditorDialog({
   open,
   onOpenChange,
@@ -123,6 +178,10 @@ export function RgbCompositeEditorDialog({
   const [selectedBands, setSelectedBands] = useState<number[]>([1, 2, 3]);
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [rMinMax, setRMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
+  const [gMinMax, setGMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
+  const [bMinMax, setBMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
 
   const bandLabels = (source.meta as any)?.bandLabels as string[] | undefined;
 
@@ -131,7 +190,7 @@ export function RgbCompositeEditorDialog({
     return (source.data || []).find((d: DataSourceItem) => d.format === 'cog')?.url;
   }, [source.data]);
 
-  // Initialize state only when dialog opens (not on source.data changes during editing)
+  // Initialize state only when dialog opens
   const prevOpenRef = React.useRef(false);
   useEffect(() => {
     if (open && !prevOpenRef.current) {
@@ -140,6 +199,19 @@ export function RgbCompositeEditorDialog({
         ? firstRgb.bands.slice(0, 3)
         : [1, 2, 3];
       setSelectedBands(bands);
+      setShowAdvanced(false);
+
+      // Initialize min/max from existing style variables
+      const vars = (firstRgb as any)?.style?.variables;
+      if (vars) {
+        setRMinMax({ min: vars.rMin ?? 0, max: vars.rMax ?? 10000 });
+        setGMinMax({ min: vars.gMin ?? 0, max: vars.gMax ?? 10000 });
+        setBMinMax({ min: vars.bMin ?? 0, max: vars.bMax ?? 10000 });
+      } else {
+        setRMinMax({ min: 0, max: 10000 });
+        setGMinMax({ min: 0, max: 10000 });
+        setBMinMax({ min: 0, max: 10000 });
+      }
     }
     prevOpenRef.current = open;
   }, [open, source.data]);
@@ -219,10 +291,18 @@ export function RgbCompositeEditorDialog({
     [selectedBands]
   );
 
+  const hasAdvancedValues = rMinMax.min !== 0 || rMinMax.max !== 10000 ||
+    gMinMax.min !== 0 || gMinMax.max !== 10000 ||
+    bMinMax.min !== 0 || bMinMax.max !== 10000;
+
   const handleSave = () => {
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
       if (d.format === 'cog') {
-        return { ...d, convertToRGB: true, bands: [...selectedBands] };
+        const updated: any = { ...d, convertToRGB: true, bands: [...selectedBands] };
+        if (hasAdvancedValues) {
+          updated.style = buildRgbStyle(selectedBands, rMinMax, gMinMax, bMinMax);
+        }
+        return updated;
       }
       return d;
     });
@@ -231,6 +311,12 @@ export function RgbCompositeEditorDialog({
   };
 
   const atLimit = selectedBands.length >= MAX_BANDS;
+
+  const channelConfigs = [
+    { label: 'Red', color: RGB_COLORS[0], band: selectedBands[0], minMax: rMinMax, setMinMax: setRMinMax },
+    { label: 'Green', color: RGB_COLORS[1], band: selectedBands[1], minMax: gMinMax, setMinMax: setGMinMax },
+    { label: 'Blue', color: RGB_COLORS[2], band: selectedBands[2], minMax: bMinMax, setMinMax: setBMinMax },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -242,105 +328,168 @@ export function RgbCompositeEditorDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Band selector — only shown when enabled */}
-        {(
-          <>
-            {loading ? (
-              <div className="text-xs text-muted-foreground py-4 text-center">Loading band information…</div>
-            ) : (
-              <div className="flex gap-2 items-stretch h-[320px] flex-shrink-0">
-                {/* Available Bands */}
-                <div className="flex-1 min-w-0 flex flex-col">
-                  <div className="text-xs font-medium text-muted-foreground mb-1">
-                    Available Bands ({availableBands.length})
+        {loading ? (
+          <div className="text-xs text-muted-foreground py-4 text-center">Loading band information…</div>
+        ) : showAdvanced ? (
+          /* ── Advanced Settings Panel ── */
+          <div className="flex flex-col gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="self-start gap-1 text-xs text-muted-foreground hover:text-foreground -ml-2"
+              onClick={() => setShowAdvanced(false)}
+            >
+              <ArrowLeft className="h-3 w-3" />
+              Back to Band Selection
+            </Button>
+
+            <div className="space-y-3">
+              {channelConfigs.map(({ label, color, band, minMax, setMinMax }) => (
+                <div key={label} className="flex items-center gap-3 p-3 rounded-md border bg-muted/30">
+                  <span
+                    className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-6 h-6 flex-shrink-0"
+                    style={{ backgroundColor: color }}
+                  >
+                    {label[0]}
+                  </span>
+                  <span className="text-xs font-medium min-w-[80px]">
+                    {getBandLabel(band)}
+                  </span>
+                  <div className="flex items-center gap-2 flex-1">
+                    <div className="flex items-center gap-1">
+                      <Label className="text-[10px] text-muted-foreground">Min</Label>
+                      <Input
+                        type="number"
+                        className="h-7 w-20 text-xs"
+                        value={minMax.min}
+                        onChange={(e) => setMinMax({ ...minMax, min: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Label className="text-[10px] text-muted-foreground">Max</Label>
+                      <Input
+                        type="number"
+                        className="h-7 w-20 text-xs"
+                        value={minMax.max}
+                        onChange={(e) => setMinMax({ ...minMax, max: Number(e.target.value) })}
+                      />
+                    </div>
                   </div>
-                  <ScrollArea className="flex-1 border rounded-md">
-                    <div className="p-1">
-                      {availableBands.map((band) => (
-                        <label
-                          key={band}
-                          className={`flex items-center gap-2 px-2 py-1.5 text-xs rounded select-none transition-colors ${
-                            atLimit ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-muted'
-                          }`}
+                </div>
+              ))}
+            </div>
+
+            <p className="text-[10px] text-muted-foreground">
+              Set the min/max value range for each channel. Values are mapped linearly to 0–1 for display.
+            </p>
+          </div>
+        ) : (
+          /* ── Band Selection Panel ── */
+          <>
+            <div className="flex gap-2 items-stretch h-[320px] flex-shrink-0">
+              {/* Available Bands */}
+              <div className="flex-1 min-w-0 flex flex-col">
+                <div className="text-xs font-medium text-muted-foreground mb-1">
+                  Available Bands ({availableBands.length})
+                </div>
+                <ScrollArea className="flex-1 border rounded-md">
+                  <div className="p-1">
+                    {availableBands.map((band) => (
+                      <label
+                        key={band}
+                        className={`flex items-center gap-2 px-2 py-1.5 text-xs rounded select-none transition-colors ${
+                          atLimit ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-muted'
+                        }`}
+                      >
+                        <Checkbox
+                          checked={false}
+                          disabled={atLimit}
+                          onCheckedChange={() => selectBand(band)}
+                        />
+                        {getBandLabel(band)}
+                      </label>
+                    ))}
+                    {availableBands.length === 0 && (
+                      <div className="text-xs text-muted-foreground text-center py-4">
+                        All bands selected
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+                {atLimit && (
+                  <div className="text-[10px] text-muted-foreground mt-1">
+                    Maximum 3 bands (R, G, B). Deselect one to change.
+                  </div>
+                )}
+              </div>
+
+              {/* Selected Bands (R, G, B) */}
+              <div className="flex-1 min-w-0 flex flex-col">
+                <div className="text-xs font-medium text-muted-foreground mb-1">
+                  Selected Bands ({selectedBands.length}/{MAX_BANDS})
+                </div>
+                <div className="flex border rounded-md overflow-hidden">
+                  {/* Fixed R/G/B channel labels */}
+                  <div className="flex flex-col bg-muted/50 border-r">
+                    {RGB_LABELS.map((label, i) => (
+                      <div
+                        key={label}
+                        className="flex items-center justify-center px-1.5 h-[34px]"
+                      >
+                        <span
+                          className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-5 h-5 flex-shrink-0"
+                          style={{ backgroundColor: RGB_COLORS[i] }}
                         >
-                          <Checkbox
-                            checked={false}
-                            disabled={atLimit}
-                            onCheckedChange={() => selectBand(band)}
-                          />
-                          {getBandLabel(band)}
-                        </label>
-                      ))}
-                      {availableBands.length === 0 && (
+                          {label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Sortable band rows */}
+                  <ScrollArea className="flex-1">
+                    <div className="p-1">
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+                          {selectedBands.map((band, idx) => (
+                            <SortableRgbBandRow
+                              key={band}
+                              band={band}
+                              idx={idx}
+                              total={selectedBands.length}
+                              getBandLabel={getBandLabel}
+                              onDeselect={deselectBand}
+                              onMoveUp={moveBandUp}
+                              onMoveDown={moveBandDown}
+                            />
+                          ))}
+                        </SortableContext>
+                      </DndContext>
+                      {selectedBands.length === 0 && (
                         <div className="text-xs text-muted-foreground text-center py-4">
-                          All bands selected
+                          Select 3 bands for RGB composite. The first band selected will use Red, the second Blue, the third Green. The order can be changed after selection.
                         </div>
                       )}
                     </div>
                   </ScrollArea>
-                  {atLimit && (
-                    <div className="text-[10px] text-muted-foreground mt-1">
-                      Maximum 3 bands (R, G, B). Deselect one to change.
-                    </div>
-                  )}
-                </div>
-
-                {/* Selected Bands (R, G, B) */}
-                <div className="flex-1 min-w-0 flex flex-col">
-                  <div className="text-xs font-medium text-muted-foreground mb-1">
-                    Selected Bands ({selectedBands.length}/{MAX_BANDS})
-                  </div>
-                  <div className="flex border rounded-md overflow-hidden">
-                    {/* Fixed R/G/B channel labels */}
-                    <div className="flex flex-col bg-muted/50 border-r">
-                      {RGB_LABELS.map((label, i) => (
-                        <div
-                          key={label}
-                          className="flex items-center justify-center px-1.5 h-[34px]"
-                        >
-                          <span
-                            className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-5 h-5 flex-shrink-0"
-                            style={{ backgroundColor: RGB_COLORS[i] }}
-                          >
-                            {label}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Sortable band rows */}
-                    <ScrollArea className="flex-1">
-                      <div className="p-1">
-                        <DndContext
-                          sensors={sensors}
-                          collisionDetection={closestCenter}
-                          onDragEnd={handleDragEnd}
-                        >
-                          <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-                            {selectedBands.map((band, idx) => (
-                              <SortableRgbBandRow
-                                key={band}
-                                band={band}
-                                idx={idx}
-                                total={selectedBands.length}
-                                getBandLabel={getBandLabel}
-                                onDeselect={deselectBand}
-                                onMoveUp={moveBandUp}
-                                onMoveDown={moveBandDown}
-                              />
-                            ))}
-                          </SortableContext>
-                        </DndContext>
-                        {selectedBands.length === 0 && (
-                          <div className="text-xs text-muted-foreground text-center py-4">
-                            Select 3 bands for RGB composite. The first band selected will use Red, the second Blue, the third Green. The order can be changed after selection.
-                          </div>
-                        )}
-                      </div>
-                    </ScrollArea>
-                  </div>
                 </div>
               </div>
-            )}
+            </div>
+
+            {/* Advanced Settings button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="self-end gap-1 text-xs text-muted-foreground hover:text-foreground"
+              disabled={selectedBands.length !== MAX_BANDS}
+              onClick={() => setShowAdvanced(true)}
+            >
+              <Settings className="h-3 w-3" />
+              Advanced Settings &gt;&gt;&gt;
+            </Button>
           </>
         )}
 
