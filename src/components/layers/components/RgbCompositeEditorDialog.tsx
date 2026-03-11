@@ -313,7 +313,7 @@ export function RgbCompositeEditorDialog({
       if (d.format === 'cog') {
         const updated: any = { ...d, convertToRGB: true, bands: [...selectedBands] };
         if (hasAdvancedValues) {
-          updated.style = buildRgbStyle(selectedBands, rMinMax, gMinMax, bMinMax);
+          updated.style = buildRgbStyle(rMinMax, gMinMax, bMinMax);
         }
         return updated;
       }
