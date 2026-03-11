@@ -100,9 +100,9 @@ const LegendEditorDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Legend Settings</DialogTitle>
+          <DialogTitle>Legend and Units</DialogTitle>
           <DialogDescription>
-            Configure the legend type and appearance for this layer.
+            Configure the legend and units for this layer.
           </DialogDescription>
         </DialogHeader>
 
