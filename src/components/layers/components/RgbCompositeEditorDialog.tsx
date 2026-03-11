@@ -75,27 +75,12 @@ function SortableRgbBandRow({ band, idx, total, getBandLabel, onDeselect, onMove
       style={style}
       className="flex items-center gap-1.5 px-1.5 py-1.5 text-xs rounded select-none hover:bg-muted transition-colors"
     >
-      <button
-        type="button"
-        className="cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground flex-shrink-0"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="h-3 w-3" />
-      </button>
       <Checkbox
         checked={true}
         onCheckedChange={() => onDeselect(band)}
       />
-      {/* RGB color dot */}
-      <span
-        className="inline-flex items-center justify-center rounded text-[9px] font-bold text-white w-4 h-4 flex-shrink-0"
-        style={{ backgroundColor: RGB_COLORS[idx] || 'hsl(var(--muted-foreground))' }}
-      >
-        {RGB_LABELS[idx] || '?'}
-      </span>
       <span className="flex-1 truncate">{getBandLabel(band)}</span>
-      <div className="ml-auto flex gap-0.5">
+      <div className="flex gap-0.5 items-center">
         <Button
           variant="ghost"
           size="sm"
@@ -116,6 +101,14 @@ function SortableRgbBandRow({ band, idx, total, getBandLabel, onDeselect, onMove
         >
           <ChevronDown className="h-3 w-3" />
         </Button>
+        <button
+          type="button"
+          className="cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground flex-shrink-0"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-3 w-3" />
+        </button>
       </div>
     </div>
   );
