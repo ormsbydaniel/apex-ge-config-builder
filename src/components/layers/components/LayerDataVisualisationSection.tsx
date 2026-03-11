@@ -26,7 +26,7 @@ interface LayerDataVisualisationSectionProps {
 
 const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisualisationSectionProps) => {
   const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
-  const [legendDialogOpen, setLegendDialogOpen] = useState(false);
+  
   const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
