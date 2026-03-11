@@ -124,8 +124,8 @@ export function BandHistogram({
                 return (
                   <Cell
                     key={index}
-                    fill={inRange ? channelColor : 'hsl(var(--muted))'}
-                    fillOpacity={inRange ? 0.85 : 0.3}
+                    fill={inRange ? channelColor : '#9ca3af'}
+                    fillOpacity={inRange ? 0.85 : 0.5}
                   />
                 );
               })}
