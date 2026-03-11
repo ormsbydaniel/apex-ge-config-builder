@@ -184,13 +184,9 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
                     width={50}
                     height={14}
                   />
-                  <div className="flex flex-col text-[11px]">
-                    <span className="font-normal text-muted-foreground">{colormap.name}</span>
-                    <span className="text-muted-foreground/70">
-                      {colormap.min}-{colormap.max} ({colormap.steps} steps)
-                      {colormap.reverse && ' • reversed'}
-                    </span>
-                  </div>
+                  <span className="text-[11px] font-normal text-muted-foreground whitespace-nowrap">
+                    {colormap.name} {colormap.min}-{colormap.max} ({colormap.steps} steps){colormap.reverse && ' • reversed'}
+                  </span>
                   <button
                     type="button"
                     aria-label={`Delete colormap ${colormap.name}`}
