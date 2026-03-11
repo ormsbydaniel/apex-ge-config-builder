@@ -22,7 +22,7 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
 
   const getLegendStatusText = () => {
     if (!hasLegend) return null;
-    if (legend.type === 'image') return 'Image';
+    if (legend.type === 'image') return null;
     // swatch or gradient type → derive from active vis
     if (categories.length > 0) return 'Auto (from categories)';
     if (colormaps.length > 0) return 'Auto (from colormaps)';
@@ -56,7 +56,7 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
               rel="noopener noreferrer"
               className="text-primary hover:text-primary/80 underline inline-flex items-center gap-1 text-sm"
             >
-              View Legend Image
+              Legend Image
               <ExternalLink className="h-3 w-3" />
             </a>
           </div>
