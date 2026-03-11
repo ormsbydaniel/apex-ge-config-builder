@@ -229,12 +229,7 @@ export function RgbCompositeEditorDialog({
   const handleSave = () => {
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
       if (d.format === 'cog') {
-        if (enableRgb) {
-          return { ...d, convertToRGB: true, bands: [...selectedBands] };
-        } else {
-          const { convertToRGB, ...rest } = d;
-          return rest as DataSourceItem;
-        }
+        return { ...d, convertToRGB: true, bands: [...selectedBands] };
       }
       return d;
     });
