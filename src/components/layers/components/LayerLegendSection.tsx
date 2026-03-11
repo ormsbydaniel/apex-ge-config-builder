@@ -36,7 +36,7 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-        <h4 className="text-sm font-medium text-foreground">Legend</h4>
+        <h4 className="text-sm font-medium text-foreground">Legend and Units</h4>
         <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setLegendDialogOpen(true)}>
           <Pencil className="h-2.5 w-2.5" />
         </Button>
