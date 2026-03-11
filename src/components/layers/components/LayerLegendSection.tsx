@@ -43,9 +43,16 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
       </div>
 
       <div className="ml-6 space-y-1">
-        <span className="text-xs text-muted-foreground">
-          {statusText ? statusText : 'No legend displayed.'}
-        </span>
+        {statusText && (
+          <span className="text-xs text-muted-foreground">
+            {statusText}
+          </span>
+        )}
+        {!statusText && !(hasLegend && legend.type === 'image') && (
+          <span className="text-xs text-muted-foreground">
+            No legend displayed.
+          </span>
+        )}
 
         {hasLegend && legend.type === 'image' && legend.url && (
           <div className="flex items-center gap-2">
