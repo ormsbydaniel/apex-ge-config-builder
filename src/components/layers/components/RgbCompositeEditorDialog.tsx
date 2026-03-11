@@ -127,7 +127,6 @@ export function RgbCompositeEditorDialog({
   source,
   onUpdateDataSources,
 }: RgbCompositeEditorDialogProps) {
-  const [enableRgb, setEnableRgb] = useState(false);
   const [selectedBands, setSelectedBands] = useState<number[]>([1, 2, 3]);
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
