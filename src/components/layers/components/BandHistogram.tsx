@@ -40,6 +40,19 @@ function formatTickValue(v: number): string {
   return v.toFixed(1);
 }
 
+/** Compute the value at a given percentile (0-100) from histogram bins. */
+function percentileFromHistogram(bins: HistogramBin[], percentile: number): number {
+  const totalCount = bins.reduce((sum, b) => sum + b.count, 0);
+  if (totalCount === 0) return bins[0]?.x ?? 0;
+  const target = totalCount * (percentile / 100);
+  let cumulative = 0;
+  for (const bin of bins) {
+    cumulative += bin.count;
+    if (cumulative >= target) return bin.x;
+  }
+  return bins[bins.length - 1].x;
+}
+
 export function BandHistogram({
   data,
   loading,
@@ -54,6 +67,14 @@ export function BandHistogram({
   onMinChange,
   onMaxChange,
 }: BandHistogramProps) {
+  const applyStretch = useCallback(
+    (lo: number, hi: number) => {
+      if (!data || data.length === 0) return;
+      onMinChange(percentileFromHistogram(data, lo));
+      onMaxChange(percentileFromHistogram(data, hi));
+    },
+    [data, onMinChange, onMaxChange],
+  );
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center text-muted-foreground gap-2">
