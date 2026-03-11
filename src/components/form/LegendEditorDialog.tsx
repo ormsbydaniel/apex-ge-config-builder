@@ -66,6 +66,7 @@ const LegendEditorDialog = ({
   const handleSave = async () => {
     if (legendType === 'none') {
       onUpdateLegend(null);
+      onUpdateUnits?.(unitsValue);
       onOpenChange(false);
       return;
     }
