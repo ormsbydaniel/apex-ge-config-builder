@@ -336,7 +336,7 @@ export function RgbCompositeEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={enableRgb && selectedBands.length !== MAX_BANDS}>
+          <Button onClick={handleSave} disabled={selectedBands.length !== MAX_BANDS}>
             Save
           </Button>
         </DialogFooter>
