@@ -23,6 +23,8 @@ interface LegendEditorDialogProps {
   onOpenChange: (open: boolean) => void;
   legend?: { type: 'swatch' | 'gradient' | 'image'; url?: string };
   onUpdateLegend: (legend: { type: 'swatch' | 'gradient' | 'image'; url?: string } | null) => void;
+  units?: string;
+  onUpdateUnits?: (units: string) => void;
 }
 
 const LegendEditorDialog = ({
@@ -30,6 +32,8 @@ const LegendEditorDialog = ({
   onOpenChange,
   legend,
   onUpdateLegend,
+  units,
+  onUpdateUnits,
 }: LegendEditorDialogProps) => {
   const [legendType, setLegendType] = useState<'none' | 'auto' | 'image'>(
     !legend ? 'none' : legend.type === 'image' ? 'image' : 'auto'
