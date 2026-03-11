@@ -380,6 +380,141 @@ export async function fetchCogBandStatistics(
   }
 }
 
+export interface HistogramBin {
+  x: number;
+  count: number;
+}
+
+export interface BandHistogramResult {
+  bins: HistogramBin[];
+  min: number;
+  max: number;
+}
+
+/**
+ * Fetch a histogram of pixel values for a specific band.
+ * Reuses the same overview-selection and sampling strategy as fetchCogBandStatistics.
+ * Returns ~50 evenly-spaced bins plus the actual data min/max.
+ */
+export async function fetchBandHistogram(
+  url: string,
+  bandIndex: number = 0,
+  noDataValue?: number
+): Promise<BandHistogramResult> {
+  const abortController = new AbortController();
+
+  try {
+    const tiff = await fromUrl(url, { signal: abortController.signal } as any);
+
+    // Find best overview, capped at 20 IFDs
+    let selectedImage = await tiff.getImage(0);
+    const targetPixels = 500_000;
+    let bestDiff = Math.abs(selectedImage.getWidth() * selectedImage.getHeight() - targetPixels);
+
+    for (let i = 1; i < 20; i++) {
+      try {
+        const img = await tiff.getImage(i);
+        const pixels = img.getWidth() * img.getHeight();
+        const diff = Math.abs(pixels - targetPixels);
+        if (diff < bestDiff && pixels <= targetPixels * 2) {
+          bestDiff = diff;
+          selectedImage = img;
+        }
+      } catch (e) {
+        break;
+      }
+    }
+
+    const imgWidth = selectedImage.getWidth();
+    const imgHeight = selectedImage.getHeight();
+    const totalPixels = imgWidth * imgHeight;
+
+    const maxReadPixels = 500_000;
+    let readOptions: any = { samples: [bandIndex] };
+
+    if (totalPixels > maxReadPixels) {
+      const scale = Math.sqrt(maxReadPixels / totalPixels);
+      const winW = Math.max(64, Math.floor(imgWidth * scale));
+      const winH = Math.max(64, Math.floor(imgHeight * scale));
+      const x0 = Math.floor((imgWidth - winW) / 2);
+      const y0 = Math.floor((imgHeight - winH) / 2);
+      readOptions.window = [x0, y0, x0 + winW, y0 + winH];
+    }
+
+    // Read rasters with 15-second timeout
+    const rasterPromise = selectedImage
+      .readRasters(readOptions)
+      .catch((readError) => {
+        if (abortController.signal.aborted) return null;
+        throw readError;
+      });
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        abortController.abort();
+        reject(new Error('Histogram fetch timed out after 15 seconds'));
+      }, 15000);
+    });
+
+    let rasters: any[] | null;
+    try {
+      rasters = await Promise.race([rasterPromise, timeoutPromise]) as any[] | null;
+    } finally {
+      clearTimeout(timeoutId!);
+    }
+
+    if (!rasters || !rasters[0]) {
+      throw new Error('Histogram request was cancelled or returned no data.');
+    }
+
+    const data = rasters[0] as ArrayLike<number>;
+
+    // Stride through to cap at ~100K samples
+    const maxSamples = 100_000;
+    const stride = Math.max(1, Math.floor(data.length / maxSamples));
+
+    // First pass: find min/max
+    let min = Infinity;
+    let max = -Infinity;
+
+    for (let i = 0; i < data.length; i += stride) {
+      const value = data[i];
+      if (noDataValue !== undefined && Math.abs(value - noDataValue) < 0.0001) continue;
+      if (!isFinite(value)) continue;
+      if (value < min) min = value;
+      if (value > max) max = value;
+    }
+
+    if (min === Infinity || max === -Infinity || min === max) {
+      return { bins: [{ x: min === Infinity ? 0 : min, count: 1 }], min: min === Infinity ? 0 : min, max: max === -Infinity ? 0 : max };
+    }
+
+    // Second pass: bucket into ~50 bins
+    const numBins = 50;
+    const binWidth = (max - min) / numBins;
+    const counts = new Array(numBins).fill(0);
+
+    for (let i = 0; i < data.length; i += stride) {
+      const value = data[i];
+      if (noDataValue !== undefined && Math.abs(value - noDataValue) < 0.0001) continue;
+      if (!isFinite(value)) continue;
+      const binIdx = Math.min(numBins - 1, Math.floor((value - min) / binWidth));
+      counts[binIdx]++;
+    }
+
+    const bins: HistogramBin[] = counts.map((count, i) => ({
+      x: min + (i + 0.5) * binWidth,
+      count,
+    }));
+
+    return { bins, min, max };
+  } catch (error) {
+    abortController.abort();
+    throw error;
+  }
+}
+
 /**
  * Convenience wrapper — calls header then band statistics for band 0.
  * Preserves the existing API used by constraintMetadataHelpers.ts.

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -32,7 +32,8 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
-import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
+import { fetchCogHeaderMetadata, fetchBandHistogram, BandHistogramResult } from '@/utils/cogMetadata';
+import { BandHistogram } from './BandHistogram';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
@@ -43,6 +44,7 @@ interface RgbCompositeEditorDialogProps {
 
 const RGB_COLORS = ['hsl(0, 84%, 60%)', 'hsl(142, 71%, 45%)', 'hsl(217, 91%, 60%)'];
 const RGB_LABELS = ['R', 'G', 'B'];
+const CHANNEL_NAMES = ['Red', 'Green', 'Blue'];
 const MAX_BANDS = 3;
 
 interface SortableRgbBandRowProps {
@@ -183,6 +185,13 @@ export function RgbCompositeEditorDialog({
   const [gMinMax, setGMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
   const [bMinMax, setBMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
 
+  // Histogram state
+  const [activeChannel, setActiveChannel] = useState<number | null>(null);
+  const [histogramCache, setHistogramCache] = useState<Record<number, BandHistogramResult>>({});
+  const [histogramLoading, setHistogramLoading] = useState<Record<number, boolean>>({});
+  const [histogramError, setHistogramError] = useState<Record<number, string | null>>({});
+  const [noDataValue, setNoDataValue] = useState<number | undefined>(undefined);
+
   const bandLabels = (source.meta as any)?.bandLabels as string[] | undefined;
 
   // Find first COG source URL for band count
@@ -200,6 +209,10 @@ export function RgbCompositeEditorDialog({
         : [1, 2, 3];
       setSelectedBands(bands);
       setShowAdvanced(false);
+      setActiveChannel(null);
+      setHistogramCache({});
+      setHistogramLoading({});
+      setHistogramError({});
 
       // Initialize min/max from existing style variables
       const vars = (firstRgb as any)?.style?.variables;
@@ -216,15 +229,16 @@ export function RgbCompositeEditorDialog({
     prevOpenRef.current = open;
   }, [open, source.data]);
 
-  // Fetch band count from first COG
+  // Fetch band count and noData from first COG
   useEffect(() => {
     if (!open || !firstCogUrl) return;
     let cancelled = false;
     setLoading(true);
     fetchCogHeaderMetadata(firstCogUrl)
       .then((meta) => {
-        if (!cancelled && meta.samplesPerPixel) {
-          setCogBandCount(meta.samplesPerPixel);
+        if (!cancelled) {
+          if (meta.samplesPerPixel) setCogBandCount(meta.samplesPerPixel);
+          setNoDataValue(meta.noDataValue);
         }
       })
       .catch(() => {})
@@ -318,9 +332,58 @@ export function RgbCompositeEditorDialog({
     { label: 'Blue', color: RGB_COLORS[2], band: selectedBands[2], minMax: bMinMax, setMinMax: setBMinMax },
   ];
 
+  // Fetch histogram for a channel
+  const fetchHistogramForChannel = useCallback((channelIdx: number) => {
+    const band = selectedBands[channelIdx];
+    if (!band || !firstCogUrl) return;
+
+    // Use band number as cache key
+    if (histogramCache[band]) return;
+
+    setHistogramLoading(prev => ({ ...prev, [band]: true }));
+    setHistogramError(prev => ({ ...prev, [band]: null }));
+
+    fetchBandHistogram(firstCogUrl, band - 1, noDataValue)
+      .then((result) => {
+        setHistogramCache(prev => ({ ...prev, [band]: result }));
+
+        // Auto-populate min/max if at defaults
+        const cfg = channelConfigs[channelIdx];
+        if (cfg && cfg.minMax.min === 0 && cfg.minMax.max === 10000) {
+          cfg.setMinMax({ min: Math.floor(result.min), max: Math.ceil(result.max) });
+        }
+      })
+      .catch((err) => {
+        setHistogramError(prev => ({
+          ...prev,
+          [band]: err instanceof Error ? err.message : 'Failed to load histogram',
+        }));
+      })
+      .finally(() => {
+        setHistogramLoading(prev => ({ ...prev, [band]: false }));
+      });
+  }, [selectedBands, firstCogUrl, noDataValue, histogramCache, channelConfigs]);
+
+  const handleChannelClick = useCallback((channelIdx: number) => {
+    setActiveChannel(channelIdx);
+    fetchHistogramForChannel(channelIdx);
+  }, [fetchHistogramForChannel]);
+
+  // Derive active histogram data
+  const activeBand = activeChannel !== null ? selectedBands[activeChannel] : null;
+  const activeHistData = activeBand !== null ? histogramCache[activeBand] ?? null : null;
+  const activeHistLoading = activeBand !== null ? histogramLoading[activeBand] ?? false : false;
+  const activeHistError = activeBand !== null ? histogramError[activeBand] ?? null : null;
+  const activeConfig = activeChannel !== null ? channelConfigs[activeChannel] : null;
+
+  // Dialog width: wider when in advanced mode
+  const dialogClass = showAdvanced
+    ? "sm:max-w-[850px] max-h-[80vh] flex flex-col"
+    : "sm:max-w-[600px] max-h-[80vh] flex flex-col";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
+      <DialogContent className={dialogClass}>
         <DialogHeader>
           <DialogTitle>RGB Composite Editor</DialogTitle>
           <DialogDescription>
@@ -332,56 +395,72 @@ export function RgbCompositeEditorDialog({
           <div className="text-xs text-muted-foreground py-4 text-center">Loading band information…</div>
         ) : showAdvanced ? (
           /* ── Advanced Settings Panel ── */
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 flex-1 min-h-0">
             <Button
               variant="ghost"
               size="sm"
               className="self-start gap-1 text-xs text-muted-foreground hover:text-foreground -ml-2"
-              onClick={() => setShowAdvanced(false)}
+              onClick={() => { setShowAdvanced(false); setActiveChannel(null); }}
             >
               <ArrowLeft className="h-3 w-3" />
               Back to Band Selection
             </Button>
 
-            <div className="space-y-3">
-              {channelConfigs.map(({ label, color, band, minMax, setMinMax }) => (
-                <div key={label} className="flex items-center gap-3 p-3 rounded-md border bg-muted/30">
-                  <span
-                    className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-6 h-6 flex-shrink-0"
-                    style={{ backgroundColor: color }}
+            <div className="flex gap-4 flex-1 min-h-0" style={{ minHeight: 320 }}>
+              {/* Left: Channel list */}
+              <div className="flex flex-col gap-1 w-[180px] flex-shrink-0">
+                <div className="text-xs font-medium text-muted-foreground mb-1">Channels</div>
+                {channelConfigs.map(({ label, color, band }, idx) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => handleChannelClick(idx)}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-md border text-left transition-colors ${
+                      activeChannel === idx
+                        ? 'border-primary bg-accent'
+                        : 'border-transparent hover:bg-muted'
+                    }`}
                   >
-                    {label[0]}
-                  </span>
-                  <span className="text-xs font-medium min-w-[80px]">
-                    {getBandLabel(band)}
-                  </span>
-                  <div className="flex items-center gap-2 flex-1">
-                    <div className="flex items-center gap-1">
-                      <Label className="text-[10px] text-muted-foreground">Min</Label>
-                      <Input
-                        type="number"
-                        className="h-7 w-20 text-xs"
-                        value={minMax.min}
-                        onChange={(e) => setMinMax({ ...minMax, min: Number(e.target.value) })}
-                      />
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Label className="text-[10px] text-muted-foreground">Max</Label>
-                      <Input
-                        type="number"
-                        className="h-7 w-20 text-xs"
-                        value={minMax.max}
-                        onChange={(e) => setMinMax({ ...minMax, max: Number(e.target.value) })}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    <span
+                      className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-6 h-6 flex-shrink-0"
+                      style={{ backgroundColor: color }}
+                    >
+                      {label[0]}
+                    </span>
+                    <span className="text-xs font-medium truncate">
+                      {getBandLabel(band)}
+                    </span>
+                  </button>
+                ))}
+                <p className="text-[10px] text-muted-foreground mt-2">
+                  Click a channel to view its pixel distribution and set min/max thresholds.
+                </p>
+              </div>
 
-            <p className="text-[10px] text-muted-foreground">
-              Set the min/max value range for each channel. Values are mapped linearly to 0–1 for display.
-            </p>
+              {/* Right: Histogram */}
+              <div className="flex-1 flex flex-col min-w-0 border-l pl-4">
+                {activeChannel === null ? (
+                  <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
+                    Click a channel to view its pixel distribution
+                  </div>
+                ) : activeConfig ? (
+                  <BandHistogram
+                    data={activeHistData?.bins ?? null}
+                    loading={activeHistLoading}
+                    error={activeHistError}
+                    channelColor={activeConfig.color}
+                    channelLabel={activeConfig.label[0]}
+                    bandLabel={`${getBandLabel(activeConfig.band)} – ${activeConfig.label} Channel`}
+                    dataMin={activeHistData?.min ?? 0}
+                    dataMax={activeHistData?.max ?? 1}
+                    min={activeConfig.minMax.min}
+                    max={activeConfig.minMax.max}
+                    onMinChange={(v) => activeConfig.setMinMax({ ...activeConfig.minMax, min: v })}
+                    onMaxChange={(v) => activeConfig.setMinMax({ ...activeConfig.minMax, max: v })}
+                  />
+                ) : null}
+              </div>
+            </div>
           </div>
         ) : (
           /* ── Band Selection Panel ── */
