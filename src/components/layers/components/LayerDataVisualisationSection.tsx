@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Tags, Palette, LayoutGrid, Layers, Blend } from 'lucide-react';
+import { Eye, Tags, Palette, Layers, Blend } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -11,9 +11,7 @@ import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import LayerRgbCompositesDisplay from './LayerRgbCompositesDisplay';
-import LegendEditorDialog from '@/components/form/LegendEditorDialog';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
-import { ExternalLink, Image } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -21,26 +19,23 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { DataSourceLayout } from '@/types/layer';
-
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
   onUpdateMeta: (updates: Partial<DataSourceMeta>) => void;
-  onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
 }
 
-const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }: LayerDataVisualisationSectionProps) => {
+const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisualisationSectionProps) => {
   const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
-  const [legendDialogOpen, setLegendDialogOpen] = useState(false);
+  
   const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
-  const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
+  
   const rgbComposites = source.meta?.rgbComposites || [];
 
   const hasCategories = categories.length > 0;
   const hasColormaps = colormaps.length > 0;
-  const hasLegend = !!legend;
+  
   const hasRgbComposites = rgbComposites.length > 0;
   const hasValues = categories.some(cat => cat.value !== undefined);
   const hasGradient = !!(source.meta?.startColor || source.meta?.endColor || source.meta?.min !== undefined || source.meta?.max !== undefined);
@@ -286,66 +281,6 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
           />
         </div>
 
-        {/* Legend sub-section */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
-              Legend {hasLegend ? `- ${legend.type}` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
-            </span>
-            <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setLegendDialogOpen(true)}>
-              <Pencil className="h-2.5 w-2.5" />
-            </Button>
-          </div>
-
-          <LegendEditorDialog
-            open={legendDialogOpen}
-            onOpenChange={setLegendDialogOpen}
-            legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
-            onUpdateLegend={(updatedLegend) => {
-              const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
-              if (isInfoPanel) {
-                onUpdateLayout({
-                  infoPanel: {
-                    ...source.layout?.infoPanel,
-                    legend: updatedLegend,
-                  },
-                });
-              } else {
-                onUpdateLayout({
-                  layerCard: {
-                    ...source.layout?.layerCard,
-                    legend: updatedLegend,
-                  },
-                });
-              }
-            }}
-          />
-          {hasLegend && (
-            <div className="ml-5">
-              {legend.type === 'image' && legend.url && (
-                <div className="flex items-center gap-2">
-                  <Image className="h-4 w-4" />
-                  <a
-                    href={legend.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 underline inline-flex items-center gap-1 text-sm"
-                  >
-                    View Legend Image
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
-              )}
-              {legend.type === 'swatch' && (
-                <span className="text-sm text-muted-foreground">See categories</span>
-              )}
-              {legend.type === 'gradient' && (
-                <span className="text-sm text-muted-foreground">See gradient settings</span>
-              )}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

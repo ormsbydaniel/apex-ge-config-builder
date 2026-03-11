@@ -10,6 +10,7 @@ import LayerControlsDisplay from './LayerControlsDisplay';
 import LayerDescriptionAttributionDisplay from './LayerDescriptionAttributionDisplay';
 import LayerFieldsDisplay from './LayerFieldsDisplay';
 import LayerDataVisualisationSection from './LayerDataVisualisationSection';
+import LayerLegendSection from './LayerLegendSection';
 import { LayerCardTabs } from './LayerCardTabs';
 import { isVectorFormat } from '@/utils/fieldDetection';
 
@@ -168,8 +169,11 @@ const LayerCardContent = ({
       {/* Description & Attribution Display */}
       <LayerDescriptionAttributionDisplay source={source} onUpdateMeta={handleUpdateMeta} />
 
-      {/* Data Visualisation: Categories, Colormaps, Legend, RGB Composites */}
-      <LayerDataVisualisationSection source={source} onUpdateMeta={handleUpdateMeta} onUpdateLayout={handleUpdateLayout} />
+      {/* Data Visualisation: Categories, Colormaps, RGB Composites, Gradient */}
+      <LayerDataVisualisationSection source={source} onUpdateMeta={handleUpdateMeta} />
+
+      {/* Legend */}
+      <LayerLegendSection source={source} onUpdateLayout={handleUpdateLayout} />
 
       {/* Fields - Vector layer attribute configuration */}
       {firstVectorSource && (

@@ -1,41 +1,42 @@
 
 
-## Move Legend to its own top-level section
+## Problem
 
-### Changes
+The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
 
-**1. New file: `src/components/layers/components/LayerLegendSection.tsx`**
-- A new section component at the same level as Data Visualisation, with `LayoutGrid` icon and "Legend" title.
-- Below the header, show the current legend status:
-  - No legend: "(None)" italic
-  - `type === 'image'`: "Image" + existing URL link
-  - `type === 'gradient'`: "Auto (from gradient)"
-  - `type === 'swatch'`: Derive label from active vis type — "Auto (from categories)" if categories exist, "Auto (from colormaps)" if colormaps exist, otherwise just "Auto"
-- Pencil button to open `LegendEditorDialog`
-- Contains the `LegendEditorDialog` and its `onUpdateLegend` logic (moved from DataVisualisationSection)
-- Props: `source`, `onUpdateLayout`, `activeVisType` (passed from parent so it knows what's active)
+## Proposed Approach: Numeric Defaults with Optional Label Overrides
 
-**2. Update `LayerDataVisualisationSection.tsx`**
-- Remove the entire Legend sub-section (lines 289-348): state, dialog, imports (`LegendEditorDialog`, `ExternalLink`, `Image`, `LayoutGrid`)
-- Remove `onUpdateLayout` from props (no longer needed here) and the interface
-- Export `activeVisType` concept — actually simpler: just remove legend, keep props as-is minus `onUpdateLayout`
+### Default behavior
+Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
 
-**3. Update `LayerCardContent.tsx`**
-- Import `LayerLegendSection`
-- Add it right after `LayerDataVisualisationSection`
-- Pass `source`, `onUpdateLayout={handleUpdateLayout}`, and the active vis type info (or let the new component derive it itself from `source`)
+### Optional label customization via modal
+A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
 
-**4. Update `LegendEditorDialog.tsx`**
-- Change the resolved type from `'swatch'` to keep using `'swatch'` internally (for backward compat) but no user-facing "swatch" text — this is handled in the display component
+- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
+- **Bulk operations toolbar** at the top:
+  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
+  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
+  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
+- **Search/filter** to quickly find and edit specific bands
 
-### Legend status text logic
-```
-if no legend → "(None)"
-if legend.type === 'image' → "Image"  
-if legend.type === 'swatch' or 'gradient' →
-  hasCategories ? "Auto (from categories)" :
-  hasColormaps ? "Auto (from colormaps)" :
-  hasGradient ? "Auto (from gradient)" :
-  "Auto"
-```
+### Adaptive inline editor for small band counts
+For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
+
+## Implementation
+
+### Changes to `ChartSourceForm.tsx`
+- Replace the current band labels grid with:
+  - Summary text showing band count
+  - For ≤12 bands: keep existing inline grid
+  - For >12 bands: show summary + "Customize Band Labels" button
+- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
+
+### New component: `BandLabelEditorDialog.tsx`
+- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
+- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
+- Search input to filter rows
+- Returns updated labels array on save
+
+### No changes needed to schemas or types
+The `x: string[]` config already supports any label strings.
 
