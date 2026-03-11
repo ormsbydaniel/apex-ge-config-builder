@@ -22,9 +22,8 @@ interface LegendEditorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   legend?: { type: 'swatch' | 'gradient' | 'image'; url?: string };
-  onUpdateLegend: (legend: { type: 'swatch' | 'gradient' | 'image'; url?: string } | null) => void;
   units?: string;
-  onUpdateUnits?: (units: string) => void;
+  onSave: (legend: { type: 'swatch' | 'gradient' | 'image'; url?: string } | null, units: string) => void;
 }
 
 const LegendEditorDialog = ({
