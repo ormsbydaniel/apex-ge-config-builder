@@ -75,6 +75,8 @@ const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta }: LayerLegen
         open={legendDialogOpen}
         onOpenChange={setLegendDialogOpen}
         legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
+        units={source.meta?.units}
+        onUpdateUnits={(u) => onUpdateMeta({ units: u || undefined })}
         onUpdateLegend={(updatedLegend) => {
           const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
           if (updatedLegend === null) {
