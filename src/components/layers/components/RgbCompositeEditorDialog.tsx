@@ -142,9 +142,7 @@ export function RgbCompositeEditorDialog({
   const prevOpenRef = React.useRef(false);
   useEffect(() => {
     if (open && !prevOpenRef.current) {
-      const rgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
-      setEnableRgb(rgbSources.length > 0);
-      const firstRgb = rgbSources[0];
+      const firstRgb = (source.data || []).find((d: DataSourceItem) => d.convertToRGB === true);
       const bands = firstRgb?.bands && firstRgb.bands.length >= 3
         ? firstRgb.bands.slice(0, 3)
         : [1, 2, 3];
