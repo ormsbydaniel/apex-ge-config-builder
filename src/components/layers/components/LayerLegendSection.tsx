@@ -56,12 +56,12 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
 
         {hasLegend && legend.type === 'image' && legend.url && (
           <div className="flex items-center gap-2">
-            <Image className="h-4 w-4" />
+            <Image className="h-4 w-4 text-muted-foreground" />
             <a
               href={legend.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary hover:text-primary/80 underline inline-flex items-center gap-1 text-sm"
+              className="text-muted-foreground hover:text-muted-foreground/80 underline inline-flex items-center gap-1 text-sm"
             >
               Legend Image
               <ExternalLink className="h-3 w-3" />
