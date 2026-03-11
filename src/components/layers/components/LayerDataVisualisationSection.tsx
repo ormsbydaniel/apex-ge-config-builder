@@ -193,6 +193,11 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setGradientDialogOpen(true)}>
               <Pencil className="h-3 w-3" />
             </Button>
+            {hasGradient && (
+              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ startColor: undefined, endColor: undefined, min: undefined, max: undefined })}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
           </div>
           {hasGradient && source.meta && (
             <div className="ml-5 space-y-1">
