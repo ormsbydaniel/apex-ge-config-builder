@@ -63,8 +63,7 @@ const LegendEditorDialog = ({
 
   const handleSave = async () => {
     if (legendType === 'none') {
-      onUpdateLegend(null);
-      onUpdateUnits?.(unitsValue);
+      onSave(null, unitsValue);
       onOpenChange(false);
       return;
     }
@@ -89,8 +88,7 @@ const LegendEditorDialog = ({
     if (resolvedType === 'image' && legendUrl) {
       updatedLegend.url = legendUrl;
     }
-    onUpdateLegend(updatedLegend);
-    onUpdateUnits?.(unitsValue);
+    onSave(updatedLegend, unitsValue);
     onOpenChange(false);
   };
 
