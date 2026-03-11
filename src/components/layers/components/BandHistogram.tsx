@@ -54,6 +54,193 @@ function percentileFromHistogram(bins: HistogramBin[], percentile: number): numb
   return bins[bins.length - 1].x;
 }
 
+/** Chart margins must match Recharts margin prop */
+const CHART_MARGIN = { top: 4, right: 8, bottom: 20, left: 8 };
+
+interface DraggableChartProps {
+  data: HistogramBin[];
+  dataMin: number;
+  dataMax: number;
+  min: number;
+  max: number;
+  channelColor: string;
+  onMinChange: (v: number) => void;
+  onMaxChange: (v: number) => void;
+  onStretch?: (min: number, max: number) => void;
+}
+
+function DraggableChart({
+  data, dataMin, dataMax, min, max, channelColor, onMinChange, onMaxChange, onStretch,
+}: DraggableChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dragging, setDragging] = useState<'min' | 'max' | null>(null);
+
+  /** Convert a pixel X position (relative to container) to a data value */
+  const pxToValue = useCallback(
+    (clientX: number): number => {
+      const el = containerRef.current;
+      if (!el) return min;
+      const rect = el.getBoundingClientRect();
+      const plotLeft = CHART_MARGIN.left;
+      const plotRight = rect.width - CHART_MARGIN.right;
+      const plotWidth = plotRight - plotLeft;
+      const relX = clientX - rect.left - plotLeft;
+      const ratio = Math.max(0, Math.min(1, relX / plotWidth));
+      return dataMin + ratio * (dataMax - dataMin);
+    },
+    [dataMin, dataMax, min],
+  );
+
+  /** Convert a data value to a percentage position within the plot area */
+  const valueToPct = useCallback(
+    (v: number): number => {
+      if (dataMax === dataMin) return 0;
+      return ((v - dataMin) / (dataMax - dataMin)) * 100;
+    },
+    [dataMin, dataMax],
+  );
+
+  const handlePointerDown = useCallback(
+    (which: 'min' | 'max') => (e: React.PointerEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      setDragging(which);
+    },
+    [],
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragging) return;
+      const val = Math.round(pxToValue(e.clientX) * 100) / 100;
+      if (dragging === 'min') {
+        const clamped = Math.min(val, max);
+        onMinChange(clamped);
+      } else {
+        const clamped = Math.max(val, min);
+        onMaxChange(clamped);
+      }
+    },
+    [dragging, pxToValue, min, max, onMinChange, onMaxChange],
+  );
+
+  const handlePointerUp = useCallback(() => {
+    setDragging(null);
+  }, []);
+
+  const minPct = valueToPct(min);
+  const maxPct = valueToPct(max);
+
+  return (
+    <div
+      ref={containerRef}
+      className="flex-1 min-h-0 relative select-none"
+      style={{ minHeight: 200 }}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={CHART_MARGIN} barCategoryGap={0}>
+          <XAxis
+            dataKey="x"
+            type="number"
+            domain={[dataMin, dataMax]}
+            tickFormatter={formatTickValue}
+            tick={{ fontSize: 10 }}
+            axisLine={{ stroke: 'hsl(var(--border))' }}
+            tickLine={{ stroke: 'hsl(var(--border))' }}
+          />
+          <YAxis hide />
+          <Tooltip
+            formatter={(value: number) => [value.toLocaleString(), 'Pixels']}
+            labelFormatter={(label: number) => `Value: ${formatTickValue(label)}`}
+            contentStyle={{
+              fontSize: 11,
+              backgroundColor: 'hsl(var(--popover))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: 6,
+              color: 'hsl(var(--popover-foreground))',
+            }}
+          />
+          <Bar dataKey="count" isAnimationActive={false}>
+            {data.map((entry, index) => {
+              const inRange = entry.x >= min && entry.x <= max;
+              return (
+                <Cell
+                  key={index}
+                  fill={inRange ? channelColor : '#9ca3af'}
+                  fillOpacity={inRange ? 0.85 : 0.5}
+                />
+              );
+            })}
+          </Bar>
+          <ReferenceLine
+            x={min}
+            stroke={channelColor}
+            strokeDasharray="4 2"
+            strokeWidth={1.5}
+          />
+          <ReferenceLine
+            x={max}
+            stroke={channelColor}
+            strokeDasharray="4 2"
+            strokeWidth={1.5}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+
+      {/* Draggable handle overlays */}
+      {(['min', 'max'] as const).map((which) => {
+        const pct = which === 'min' ? minPct : maxPct;
+        const plotLeftPx = CHART_MARGIN.left;
+        const plotRightPx = CHART_MARGIN.right;
+        return (
+          <div
+            key={which}
+            onPointerDown={handlePointerDown(which)}
+            className="absolute top-0"
+            style={{
+              left: `calc(${plotLeftPx}px + ${pct}% * (100% - ${plotLeftPx + plotRightPx}px) / 100)`,
+              transform: 'translateX(-50%)',
+              width: 12,
+              height: `calc(100% - ${CHART_MARGIN.bottom}px)`,
+              cursor: 'ew-resize',
+              zIndex: 10,
+            }}
+          >
+            {/* Visual grip */}
+            <div
+              className="absolute top-0 left-1/2 -translate-x-1/2 rounded-b"
+              style={{
+                width: 8,
+                height: 20,
+                backgroundColor: channelColor,
+                opacity: dragging === which ? 1 : 0.8,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+              }}
+            >
+              <div className="flex flex-col items-center justify-center h-full gap-[2px] pt-1">
+                <div className="w-[4px] h-[1px] bg-white/70 rounded" />
+                <div className="w-[4px] h-[1px] bg-white/70 rounded" />
+                <div className="w-[4px] h-[1px] bg-white/70 rounded" />
+              </div>
+            </div>
+            {/* Label */}
+            <div
+              className="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-medium whitespace-nowrap"
+              style={{ color: channelColor }}
+            >
+              {which === 'min' ? 'Min' : 'Max'}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function BandHistogram({
   data,
   loading,
