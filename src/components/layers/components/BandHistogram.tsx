@@ -191,52 +191,60 @@ function DraggableChart({
         </BarChart>
       </ResponsiveContainer>
 
-      {/* Draggable handle overlays */}
-      {(['min', 'max'] as const).map((which) => {
-        const pct = which === 'min' ? minPct : maxPct;
-        const plotLeftPx = CHART_MARGIN.left;
-        const plotRightPx = CHART_MARGIN.right;
-        return (
-          <div
-            key={which}
-            onPointerDown={handlePointerDown(which)}
-            className="absolute top-0"
-            style={{
-              left: `calc(${plotLeftPx}px + ${pct}% * (100% - ${plotLeftPx + plotRightPx}px) / 100)`,
-              transform: 'translateX(-50%)',
-              width: 12,
-              height: `calc(100% - ${CHART_MARGIN.bottom}px)`,
-              cursor: 'ew-resize',
-              zIndex: 10,
-            }}
-          >
-            {/* Visual grip */}
+      {/* Drag handle overlay — positioned over the plot area */}
+      <div
+        className="absolute"
+        style={{
+          left: CHART_MARGIN.left,
+          right: CHART_MARGIN.right,
+          top: CHART_MARGIN.top,
+          bottom: CHART_MARGIN.bottom,
+        }}
+      >
+        {(['min', 'max'] as const).map((which) => {
+          const pct = which === 'min' ? minPct : maxPct;
+          return (
             <div
-              className="absolute top-0 left-1/2 -translate-x-1/2 rounded-b"
+              key={which}
+              onPointerDown={handlePointerDown(which)}
+              className="absolute top-0 h-full"
               style={{
-                width: 8,
-                height: 20,
-                backgroundColor: channelColor,
-                opacity: dragging === which ? 1 : 0.8,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                left: `${pct}%`,
+                transform: 'translateX(-50%)',
+                width: 14,
+                cursor: 'ew-resize',
+                zIndex: 10,
               }}
             >
-              <div className="flex flex-col items-center justify-center h-full gap-[2px] pt-1">
-                <div className="w-[4px] h-[1px] bg-white/70 rounded" />
-                <div className="w-[4px] h-[1px] bg-white/70 rounded" />
-                <div className="w-[4px] h-[1px] bg-white/70 rounded" />
+              {/* Visual grip tab */}
+              <div
+                className="absolute top-0 left-1/2 -translate-x-1/2 rounded-b"
+                style={{
+                  width: 10,
+                  height: 22,
+                  backgroundColor: channelColor,
+                  opacity: dragging === which ? 1 : 0.75,
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                  transition: dragging ? 'none' : 'opacity 0.15s',
+                }}
+              >
+                <div className="flex flex-col items-center justify-center h-full gap-[2px] pt-1">
+                  <div className="w-[5px] h-[1px] bg-white/80 rounded" />
+                  <div className="w-[5px] h-[1px] bg-white/80 rounded" />
+                  <div className="w-[5px] h-[1px] bg-white/80 rounded" />
+                </div>
+              </div>
+              {/* Label */}
+              <div
+                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[9px] font-semibold whitespace-nowrap pointer-events-none"
+                style={{ color: channelColor }}
+              >
+                {which === 'min' ? 'Min' : 'Max'}
               </div>
             </div>
-            {/* Label */}
-            <div
-              className="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-medium whitespace-nowrap"
-              style={{ color: channelColor }}
-            >
-              {which === 'min' ? 'Min' : 'Max'}
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
