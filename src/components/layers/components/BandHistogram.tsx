@@ -121,63 +121,18 @@ export function BandHistogram({
         <span className="text-sm font-medium">{bandLabel}</span>
       </div>
 
-      {/* Chart */}
-      <div className="flex-1 min-h-0" style={{ minHeight: 200 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 4, right: 8, bottom: 20, left: 8 }} barCategoryGap={0}>
-            <XAxis
-              dataKey="x"
-              type="number"
-              domain={[dataMin, dataMax]}
-              tickFormatter={formatTickValue}
-              tick={{ fontSize: 10 }}
-              axisLine={{ stroke: 'hsl(var(--border))' }}
-              tickLine={{ stroke: 'hsl(var(--border))' }}
-            />
-            <YAxis
-              hide
-            />
-            <Tooltip
-              formatter={(value: number) => [value.toLocaleString(), 'Pixels']}
-              labelFormatter={(label: number) => `Value: ${formatTickValue(label)}`}
-              contentStyle={{
-                fontSize: 11,
-                backgroundColor: 'hsl(var(--popover))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: 6,
-                color: 'hsl(var(--popover-foreground))',
-              }}
-            />
-            <Bar dataKey="count" isAnimationActive={false}>
-              {data.map((entry, index) => {
-                const inRange = entry.x >= min && entry.x <= max;
-                return (
-                  <Cell
-                    key={index}
-                    fill={inRange ? channelColor : '#9ca3af'}
-                    fillOpacity={inRange ? 0.85 : 0.5}
-                  />
-                );
-              })}
-            </Bar>
-            {/* Min/Max reference lines */}
-            <ReferenceLine
-              x={min}
-              stroke={channelColor}
-              strokeDasharray="4 2"
-              strokeWidth={1.5}
-              label={{ value: 'Min', position: 'top', fontSize: 9, fill: channelColor }}
-            />
-            <ReferenceLine
-              x={max}
-              stroke={channelColor}
-              strokeDasharray="4 2"
-              strokeWidth={1.5}
-              label={{ value: 'Max', position: 'top', fontSize: 9, fill: channelColor }}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      {/* Chart with draggable min/max lines */}
+      <DraggableChart
+        data={data}
+        dataMin={dataMin}
+        dataMax={dataMax}
+        min={min}
+        max={max}
+        channelColor={channelColor}
+        onMinChange={onMinChange}
+        onMaxChange={onMaxChange}
+        onStretch={onStretch}
+      />
 
       {/* Min/Max inputs + auto-stretch */}
       <div className="flex items-center gap-4 flex-wrap">
