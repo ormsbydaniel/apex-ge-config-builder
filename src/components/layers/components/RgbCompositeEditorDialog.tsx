@@ -250,7 +250,7 @@ export function RgbCompositeEditorDialog({
         </DialogHeader>
 
         {/* Band selector — only shown when enabled */}
-        {enableRgb && (
+        {(
           <>
             {loading ? (
               <div className="text-xs text-muted-foreground py-4 text-center">Loading band information…</div>
