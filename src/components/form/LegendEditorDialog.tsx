@@ -96,13 +96,23 @@ const LegendEditorDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Legend and Units</DialogTitle>
+          <DialogTitle>Units and Legend</DialogTitle>
           <DialogDescription>
-            Configure the legend and units for this layer.
+            Configure the units and legend for this layer.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
+          {/* Units */}
+          <div className="space-y-2">
+            <Label>Units</Label>
+            <Input
+              value={unitsValue}
+              onChange={(e) => setUnitsValue(e.target.value)}
+              placeholder="e.g. kg/m², °C, mm/day"
+            />
+          </div>
+
           {/* Legend Type */}
           <div className="space-y-2">
             <Label>Legend Type</Label>
@@ -145,16 +155,6 @@ const LegendEditorDialog = ({
               No legend will be displayed for this layer.
             </p>
           )}
-
-          {/* Units */}
-          <div className="space-y-2">
-            <Label>Units</Label>
-            <Input
-              value={unitsValue}
-              onChange={(e) => setUnitsValue(e.target.value)}
-              placeholder="e.g. kg/m², °C, mm/day"
-            />
-          </div>
         </div>
 
         <DialogFooter>
