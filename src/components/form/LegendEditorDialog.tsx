@@ -36,7 +36,9 @@ const LegendEditorDialog = ({
   onUpdateLegend,
   onUpdateMeta,
 }: LegendEditorDialogProps) => {
-  const [legendType, setLegendType] = useState<'swatch' | 'gradient' | 'image'>(legend?.type || 'swatch');
+  const [legendType, setLegendType] = useState<'auto' | 'image' | 'gradient'>(
+    legend?.type === 'gradient' ? 'gradient' : legend?.type === 'image' ? 'image' : 'auto'
+  );
   const [legendUrl, setLegendUrl] = useState(legend?.url || '');
   const [startColor, setStartColor] = useState(meta?.startColor || '#000000');
   const [endColor, setEndColor] = useState(meta?.endColor || '#ffffff');
@@ -46,7 +48,9 @@ const LegendEditorDialog = ({
   // Reset local state when dialog opens
   useEffect(() => {
     if (open) {
-      setLegendType(legend?.type || 'swatch');
+      setLegendType(
+        legend?.type === 'gradient' ? 'gradient' : legend?.type === 'image' ? 'image' : 'auto'
+      );
       setLegendUrl(legend?.url || '');
       setStartColor(meta?.startColor || '#000000');
       setEndColor(meta?.endColor || '#ffffff');
@@ -58,10 +62,14 @@ const LegendEditorDialog = ({
   const hasColormaps = (meta?.colormaps?.length || 0) > 0;
 
   const handleSave = () => {
+    // Resolve 'auto' to actual legend type
+    const resolvedType: 'swatch' | 'gradient' | 'image' = 
+      legendType === 'auto' ? 'swatch' : legendType;
+
     const updatedLegend: { type: 'swatch' | 'gradient' | 'image'; url?: string } = {
-      type: legendType,
+      type: resolvedType,
     };
-    if (legendType === 'image' && legendUrl) {
+    if (resolvedType === 'image' && legendUrl) {
       updatedLegend.url = legendUrl;
     }
     onUpdateLegend(updatedLegend);
@@ -103,12 +111,12 @@ const LegendEditorDialog = ({
           {/* Legend Type */}
           <div className="space-y-2">
             <Label>Legend Type</Label>
-            <Select value={legendType} onValueChange={(v) => setLegendType(v as 'swatch' | 'gradient' | 'image')}>
+            <Select value={legendType} onValueChange={(v) => setLegendType(v as 'auto' | 'image' | 'gradient')}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="swatch">Swatch</SelectItem>
+                <SelectItem value="auto">Auto</SelectItem>
                 <SelectItem value="gradient">Gradient</SelectItem>
                 <SelectItem value="image">Image</SelectItem>
               </SelectContent>
@@ -209,9 +217,9 @@ const LegendEditorDialog = ({
           )}
 
           {/* Swatch info */}
-          {legendType === 'swatch' && (
+          {legendType === 'auto' && (
             <p className="text-sm text-muted-foreground italic">
-              Swatch legends use the defined categories. Edit categories to update the legend.
+              Legend type will be determined automatically based on layer configuration (e.g. categories → swatch).
             </p>
           )}
         </div>
