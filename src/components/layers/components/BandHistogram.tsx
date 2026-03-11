@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -11,7 +11,8 @@ import {
 } from 'recharts';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, Wand2 } from 'lucide-react';
 
 interface HistogramBin {
   x: number;
@@ -39,6 +40,19 @@ function formatTickValue(v: number): string {
   return v.toFixed(1);
 }
 
+/** Compute the value at a given percentile (0-100) from histogram bins. */
+function percentileFromHistogram(bins: HistogramBin[], percentile: number): number {
+  const totalCount = bins.reduce((sum, b) => sum + b.count, 0);
+  if (totalCount === 0) return bins[0]?.x ?? 0;
+  const target = totalCount * (percentile / 100);
+  let cumulative = 0;
+  for (const bin of bins) {
+    cumulative += bin.count;
+    if (cumulative >= target) return bin.x;
+  }
+  return bins[bins.length - 1].x;
+}
+
 export function BandHistogram({
   data,
   loading,
@@ -53,6 +67,14 @@ export function BandHistogram({
   onMinChange,
   onMaxChange,
 }: BandHistogramProps) {
+  const applyStretch = useCallback(
+    (lo: number, hi: number) => {
+      if (!data || data.length === 0) return;
+      onMinChange(percentileFromHistogram(data, lo));
+      onMaxChange(percentileFromHistogram(data, hi));
+    },
+    [data, onMinChange, onMaxChange],
+  );
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center text-muted-foreground gap-2">
@@ -149,8 +171,8 @@ export function BandHistogram({
         </ResponsiveContainer>
       </div>
 
-      {/* Min/Max inputs */}
-      <div className="flex items-center gap-4">
+      {/* Min/Max inputs + auto-stretch */}
+      <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-1.5">
           <Label className="text-xs text-muted-foreground">Min</Label>
           <Input
@@ -168,6 +190,33 @@ export function BandHistogram({
             value={max}
             onChange={(e) => onMaxChange(Number(e.target.value))}
           />
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[11px] px-2"
+            onClick={() => applyStretch(2, 98)}
+          >
+            <Wand2 className="h-3 w-3 mr-1" />
+            2–98%
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[11px] px-2"
+            onClick={() => applyStretch(1, 99)}
+          >
+            1–99%
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[11px] px-2"
+            onClick={() => applyStretch(0, 100)}
+          >
+            Full
+          </Button>
         </div>
       </div>
 
