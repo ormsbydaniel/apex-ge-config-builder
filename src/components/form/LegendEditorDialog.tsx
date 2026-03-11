@@ -121,7 +121,7 @@ const LegendEditorDialog = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} disabled={legendType === 'image' && !legendUrl.trim()}>
             Save Changes
           </Button>
         </DialogFooter>
