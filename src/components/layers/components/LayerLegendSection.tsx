@@ -83,36 +83,37 @@ const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta, onUpdateLayo
         legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
         units={source.meta?.units}
         onSave={(updatedLegend, updatedUnits) => {
-          // Update units via meta
-          onUpdateMeta({ units: updatedUnits || undefined });
-
-          // Update legend via layout
+          const metaUpdates: Record<string, any> = { units: updatedUnits || undefined };
           const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
+          let layoutUpdates: Partial<DataSourceLayout>;
+
           if (updatedLegend === null) {
             if (isInfoPanel) {
               const { legend: _removed, ...restInfoPanel } = source.layout?.infoPanel || {};
-              onUpdateLayout({ infoPanel: restInfoPanel });
+              layoutUpdates = { infoPanel: restInfoPanel };
             } else {
               const { legend: _removed, ...restLayerCard } = source.layout?.layerCard || {};
-              onUpdateLayout({ layerCard: restLayerCard });
+              layoutUpdates = { layerCard: restLayerCard };
             }
           } else {
             if (isInfoPanel) {
-              onUpdateLayout({
+              layoutUpdates = {
                 infoPanel: {
                   ...source.layout?.infoPanel,
                   legend: updatedLegend,
                 },
-              });
+              };
             } else {
-              onUpdateLayout({
+              layoutUpdates = {
                 layerCard: {
                   ...source.layout?.layerCard,
                   legend: updatedLegend,
                 },
-              });
+              };
             }
           }
+
+          onUpdateLayoutAndMeta(layoutUpdates, metaUpdates);
         }}
       />
     </div>
