@@ -313,13 +313,6 @@ const MetaSchema = z.object({
   temporal: TemporalConfigSchema.optional(),
   // Vector field display configuration
   fields: FieldsSchema,
-  // RGB Composite configurations
-  rgbComposites: z.array(z.object({
-    name: z.string().min(1),
-    red: z.number().int().nonnegative(),
-    green: z.number().int().nonnegative(),
-    blue: z.number().int().nonnegative(),
-  }).required()).optional(),
 }).superRefine((meta, ctx) => {
   // Conditional validation: startColor and endColor required for gradient legends WITHOUT colormaps
   // This validation only applies when used with a DataSource that has a gradient legend

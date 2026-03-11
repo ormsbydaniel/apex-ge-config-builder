@@ -199,7 +199,24 @@ const LayerCardContent = ({
       <LayerDescriptionAttributionDisplay source={source} onUpdateMeta={handleUpdateMeta} />
 
       {/* Data Visualisation: Categories, Colormaps, RGB Composites, Gradient */}
-      <LayerDataVisualisationSection source={source} onUpdateMeta={handleUpdateMeta} />
+      <LayerDataVisualisationSection
+        source={source}
+        onUpdateMeta={handleUpdateMeta}
+        onUpdateDataSources={(updatedData) => {
+          if (sourceIndex === -1) return;
+          dispatch({
+            type: 'UPDATE_SOURCE',
+            payload: {
+              index: sourceIndex,
+              source: { ...source, data: updatedData }
+            }
+          });
+          toast({
+            title: "Layer Updated",
+            description: "RGB composite settings updated across data sources",
+          });
+        }}
+      />
 
       {/* Legend */}
       <LayerLegendSection source={source} onUpdateLayout={handleUpdateLayout} onUpdateMeta={handleUpdateMeta} onUpdateLayoutAndMeta={handleUpdateLayoutAndMeta} />

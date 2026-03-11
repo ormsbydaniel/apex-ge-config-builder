@@ -6,11 +6,11 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { DataSourceMeta } from '@/types/layer';
+import { DataSourceItem } from '@/types/dataSource';
 import { Category, Colormap } from '@/types/category';
 import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
-import LayerRgbCompositesDisplay from './LayerRgbCompositesDisplay';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import {
   Dialog,
@@ -19,24 +19,28 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
   onUpdateMeta: (updates: Partial<DataSourceMeta>) => void;
+  onUpdateDataSources: (updatedData: DataSourceItem[]) => void;
 }
 
-const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisualisationSectionProps) => {
+const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSources }: LayerDataVisualisationSectionProps) => {
   const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
   
   const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
   
-  const rgbComposites = source.meta?.rgbComposites || [];
+  // Detect RGB composites from data source items
+  const convertToRgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
+  const convertToRgbCount = convertToRgbSources.length;
 
   const hasCategories = categories.length > 0;
   const hasColormaps = colormaps.length > 0;
   
-  const hasRgbComposites = rgbComposites.length > 0;
+  const hasRgbComposites = convertToRgbCount > 0;
   const hasValues = categories.some(cat => cat.value !== undefined);
   const hasGradient = !!(source.meta?.startColor || source.meta?.endColor || source.meta?.min !== undefined || source.meta?.max !== undefined);
 
@@ -90,6 +94,17 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
       );
     }
     return btn;
+  };
+
+  const handleDeleteRgbComposites = () => {
+    const updatedData = (source.data || []).map((d: DataSourceItem) => {
+      if (d.convertToRGB) {
+        const { convertToRGB, ...rest } = d;
+        return rest as DataSourceItem;
+      }
+      return d;
+    });
+    onUpdateDataSources(updatedData);
   };
 
   return (
@@ -198,18 +213,20 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta }: LayerDataVisual
           <div className="flex items-center gap-2">
             <Layers className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
-              RGB Composites {hasRgbComposites ? `(${rgbComposites.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
+              RGB Composites {hasRgbComposites ? `(${convertToRgbCount})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
             {renderPencilButton('composites', () => setRgbDialogOpen(true))}
             {hasRgbComposites && (
-              <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ rgbComposites: [] })}>
+              <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={handleDeleteRgbComposites}>
                 <Trash2 className="h-2.5 w-2.5" />
               </Button>
             )}
           </div>
           {hasRgbComposites && (
             <div className="ml-5">
-              <LayerRgbCompositesDisplay rgbComposites={rgbComposites} />
+              <span className="text-xs text-muted-foreground italic">
+                Enabled on {convertToRgbCount} data source{convertToRgbCount !== 1 ? 's' : ''}
+              </span>
             </div>
           )}
 

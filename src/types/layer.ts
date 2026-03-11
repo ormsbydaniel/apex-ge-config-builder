@@ -27,16 +27,6 @@ export interface DataSourceMeta {
   defaultTimestamp?: number;
   // Vector field display configuration
   fields?: FieldsConfig;
-  // RGB Composite configurations
-  rgbComposites?: RgbComposite[];
-}
-
-// RGB Composite band mapping
-export interface RgbComposite {
-  name: string;
-  red: number;    // band index
-  green: number;  // band index
-  blue: number;   // band index
 }
 
 // Enhanced layout interface with support for both layerCard and infoPanel
