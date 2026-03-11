@@ -9,6 +9,7 @@ interface LayerLegendSectionProps {
   source: DataSource;
   onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
   onUpdateMeta: (updates: Record<string, any>) => void;
+  onUpdateLayoutAndMeta: (layoutUpdates: Partial<DataSourceLayout>, metaUpdates: Record<string, any>) => void;
 }
 
 const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta }: LayerLegendSectionProps) => {
