@@ -171,8 +171,8 @@ export function BandHistogram({
         </ResponsiveContainer>
       </div>
 
-      {/* Min/Max inputs */}
-      <div className="flex items-center gap-4">
+      {/* Min/Max inputs + auto-stretch */}
+      <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-1.5">
           <Label className="text-xs text-muted-foreground">Min</Label>
           <Input
@@ -190,6 +190,33 @@ export function BandHistogram({
             value={max}
             onChange={(e) => onMaxChange(Number(e.target.value))}
           />
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[11px] px-2"
+            onClick={() => applyStretch(2, 98)}
+          >
+            <Wand2 className="h-3 w-3 mr-1" />
+            2–98%
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[11px] px-2"
+            onClick={() => applyStretch(1, 99)}
+          >
+            1–99%
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[11px] px-2"
+            onClick={() => applyStretch(0, 100)}
+          >
+            Full
+          </Button>
         </div>
       </div>
 
