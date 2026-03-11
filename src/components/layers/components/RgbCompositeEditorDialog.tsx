@@ -139,16 +139,19 @@ export function RgbCompositeEditorDialog({
     return (source.data || []).find((d: DataSourceItem) => d.format === 'cog')?.url;
   }, [source.data]);
 
-  // Reset state on open
+  // Initialize state only when dialog opens (not on source.data changes during editing)
+  const prevOpenRef = React.useRef(false);
   useEffect(() => {
-    if (!open) return;
-    const rgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
-    setEnableRgb(rgbSources.length > 0);
-    const firstRgb = rgbSources[0];
-    const bands = firstRgb?.bands && firstRgb.bands.length >= 3
-      ? firstRgb.bands.slice(0, 3)
-      : [1, 2, 3];
-    setSelectedBands(bands);
+    if (open && !prevOpenRef.current) {
+      const rgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
+      setEnableRgb(rgbSources.length > 0);
+      const firstRgb = rgbSources[0];
+      const bands = firstRgb?.bands && firstRgb.bands.length >= 3
+        ? firstRgb.bands.slice(0, 3)
+        : [1, 2, 3];
+      setSelectedBands(bands);
+    }
+    prevOpenRef.current = open;
   }, [open, source.data]);
 
   // Fetch band count from first COG
