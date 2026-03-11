@@ -243,16 +243,12 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             );
           })()}
 
-          <Dialog open={rgbDialogOpen} onOpenChange={setRgbDialogOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>RGB Composites Editor</DialogTitle>
-                <DialogDescription>
-                  RGB Composite editing functionality is coming soon. Stay tuned!
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+          <RgbCompositeEditorDialog
+            open={rgbDialogOpen}
+            onOpenChange={setRgbDialogOpen}
+            source={source}
+            onUpdateDataSources={onUpdateDataSources}
+          />
         </div>
 
         {/* Gradient sub-section */}

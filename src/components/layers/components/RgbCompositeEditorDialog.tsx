@@ -158,8 +158,8 @@ export function RgbCompositeEditorDialog({
     setLoading(true);
     fetchCogHeaderMetadata(firstCogUrl)
       .then((meta) => {
-        if (!cancelled && meta.bandCount) {
-          setCogBandCount(meta.bandCount);
+        if (!cancelled && meta.samplesPerPixel) {
+          setCogBandCount(meta.samplesPerPixel);
         }
       })
       .catch(() => {})
