@@ -296,7 +296,7 @@ export function RgbCompositeEditorDialog({
                       {RGB_LABELS.map((label, i) => (
                         <div
                           key={label}
-                          className="flex items-center justify-center px-1.5 h-[30px]"
+                          className="flex items-center justify-center px-1.5 h-[34px]"
                         >
                           <span
                             className="inline-flex items-center justify-center rounded text-[9px] font-bold text-white w-4 h-4 flex-shrink-0"
