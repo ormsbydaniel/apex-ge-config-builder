@@ -48,7 +48,9 @@ const LegendEditorDialog = ({
   // Reset local state when dialog opens
   useEffect(() => {
     if (open) {
-      setLegendType(legend?.type || 'swatch');
+      setLegendType(
+        legend?.type === 'gradient' ? 'gradient' : legend?.type === 'image' ? 'image' : 'auto'
+      );
       setLegendUrl(legend?.url || '');
       setStartColor(meta?.startColor || '#000000');
       setEndColor(meta?.endColor || '#ffffff');
