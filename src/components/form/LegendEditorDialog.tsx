@@ -39,6 +39,7 @@ const LegendEditorDialog = ({
     !legend ? 'none' : legend.type === 'image' ? 'image' : 'auto'
   );
   const [legendUrl, setLegendUrl] = useState(legend?.url || '');
+  const [unitsValue, setUnitsValue] = useState(units || '');
   const [isValidating, setIsValidating] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
 
