@@ -36,7 +36,9 @@ const LegendEditorDialog = ({
   onUpdateLegend,
   onUpdateMeta,
 }: LegendEditorDialogProps) => {
-  const [legendType, setLegendType] = useState<'swatch' | 'gradient' | 'image'>(legend?.type || 'swatch');
+  const [legendType, setLegendType] = useState<'auto' | 'image' | 'gradient'>(
+    legend?.type === 'gradient' ? 'gradient' : legend?.type === 'image' ? 'image' : 'auto'
+  );
   const [legendUrl, setLegendUrl] = useState(legend?.url || '');
   const [startColor, setStartColor] = useState(meta?.startColor || '#000000');
   const [endColor, setEndColor] = useState(meta?.endColor || '#ffffff');
