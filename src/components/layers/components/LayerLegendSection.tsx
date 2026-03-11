@@ -12,7 +12,7 @@ interface LayerLegendSectionProps {
   onUpdateLayoutAndMeta: (layoutUpdates: Partial<DataSourceLayout>, metaUpdates: Record<string, any>) => void;
 }
 
-const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta }: LayerLegendSectionProps) => {
+const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta, onUpdateLayoutAndMeta }: LayerLegendSectionProps) => {
   const [legendDialogOpen, setLegendDialogOpen] = useState(false);
   const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
   const hasLegend = !!legend;
