@@ -217,9 +217,9 @@ const LegendEditorDialog = ({
           )}
 
           {/* Swatch info */}
-          {legendType === 'swatch' && (
+          {legendType === 'auto' && (
             <p className="text-sm text-muted-foreground italic">
-              Swatch legends use the defined categories. Edit categories to update the legend.
+              Legend type will be determined automatically based on layer configuration (e.g. categories → swatch).
             </p>
           )}
         </div>
