@@ -147,8 +147,8 @@ const LegendEditorDialog = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={legendType === 'image' && !legendUrl.trim()}>
-            Save Changes
+          <Button onClick={handleSave} disabled={(legendType === 'image' && !legendUrl.trim()) || isValidating}>
+            {isValidating ? 'Validating...' : 'Save Changes'}
           </Button>
         </DialogFooter>
       </DialogContent>
