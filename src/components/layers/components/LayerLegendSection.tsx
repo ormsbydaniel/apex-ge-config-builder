@@ -37,17 +37,15 @@ const LayerLegendSection = ({ source, onUpdateLayout }: LayerLegendSectionProps)
       <div className="flex items-center gap-2">
         <LayoutGrid className="h-4 w-4 text-muted-foreground" />
         <h4 className="text-sm font-medium text-foreground">Legend</h4>
+        <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setLegendDialogOpen(true)}>
+          <Pencil className="h-2.5 w-2.5" />
+        </Button>
       </div>
 
       <div className="ml-6 space-y-1">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground min-w-[175px]">
-            {statusText ? statusText : <span className="italic">(None)</span>}
-          </span>
-          <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setLegendDialogOpen(true)}>
-            <Pencil className="h-2.5 w-2.5" />
-          </Button>
-        </div>
+        <span className="text-xs text-muted-foreground">
+          {statusText ? statusText : <span className="italic">(None)</span>}
+        </span>
 
         {hasLegend && legend.type === 'image' && legend.url && (
           <div className="flex items-center gap-2">
