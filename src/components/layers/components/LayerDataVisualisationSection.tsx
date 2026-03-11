@@ -156,12 +156,12 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateLayout }:
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
               RGB Composites {hasRgbComposites ? `(${rgbComposites.length})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
-            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setRgbDialogOpen(true)}>
-              <Pencil className="h-3 w-3" />
+            <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setRgbDialogOpen(true)}>
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
             {hasRgbComposites && (
-              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ rgbComposites: [] })}>
-                <Trash2 className="h-3 w-3" />
+              <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={() => onUpdateMeta({ rgbComposites: [] })}>
+                <Trash2 className="h-2.5 w-2.5" />
               </Button>
             )}
           </div>
