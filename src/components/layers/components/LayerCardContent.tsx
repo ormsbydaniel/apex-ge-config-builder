@@ -133,7 +133,36 @@ const LayerCardContent = ({
     });
   };
 
-  // Handler to update bands on data source items
+  // Combined handler for atomic layout + meta updates (avoids race conditions)
+  const handleUpdateLayoutAndMeta = (layoutUpdates: Partial<DataSourceLayout>, metaUpdates: Partial<DataSourceMeta>) => {
+    if (sourceIndex === -1) return;
+
+    const updatedSource = {
+      ...source,
+      layout: {
+        ...source.layout,
+        ...layoutUpdates
+      },
+      meta: {
+        ...source.meta,
+        ...metaUpdates
+      }
+    };
+
+    dispatch({
+      type: 'UPDATE_SOURCE',
+      payload: {
+        index: sourceIndex,
+        source: updatedSource
+      }
+    });
+
+    toast({
+      title: "Layer Updated",
+      description: "Legend and units updated successfully",
+    });
+  };
+
   const handleUpdateDataBands = (dataIndex: number, bands: number[], applyToAll: boolean) => {
     if (sourceIndex === -1 || !isDataSourceItemArray(source.data)) return;
 
@@ -173,7 +202,7 @@ const LayerCardContent = ({
       <LayerDataVisualisationSection source={source} onUpdateMeta={handleUpdateMeta} />
 
       {/* Legend */}
-      <LayerLegendSection source={source} onUpdateLayout={handleUpdateLayout} onUpdateMeta={handleUpdateMeta} />
+      <LayerLegendSection source={source} onUpdateLayout={handleUpdateLayout} onUpdateMeta={handleUpdateMeta} onUpdateLayoutAndMeta={handleUpdateLayoutAndMeta} />
 
       {/* Fields - Vector layer attribute configuration */}
       {firstVectorSource && (

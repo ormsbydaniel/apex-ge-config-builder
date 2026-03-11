@@ -22,18 +22,16 @@ interface LegendEditorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   legend?: { type: 'swatch' | 'gradient' | 'image'; url?: string };
-  onUpdateLegend: (legend: { type: 'swatch' | 'gradient' | 'image'; url?: string } | null) => void;
   units?: string;
-  onUpdateUnits?: (units: string) => void;
+  onSave: (legend: { type: 'swatch' | 'gradient' | 'image'; url?: string } | null, units: string) => void;
 }
 
 const LegendEditorDialog = ({
   open,
   onOpenChange,
   legend,
-  onUpdateLegend,
   units,
-  onUpdateUnits,
+  onSave,
 }: LegendEditorDialogProps) => {
   const [legendType, setLegendType] = useState<'none' | 'auto' | 'image'>(
     !legend ? 'none' : legend.type === 'image' ? 'image' : 'auto'
@@ -65,8 +63,7 @@ const LegendEditorDialog = ({
 
   const handleSave = async () => {
     if (legendType === 'none') {
-      onUpdateLegend(null);
-      onUpdateUnits?.(unitsValue);
+      onSave(null, unitsValue);
       onOpenChange(false);
       return;
     }
@@ -91,8 +88,7 @@ const LegendEditorDialog = ({
     if (resolvedType === 'image' && legendUrl) {
       updatedLegend.url = legendUrl;
     }
-    onUpdateLegend(updatedLegend);
-    onUpdateUnits?.(unitsValue);
+    onSave(updatedLegend, unitsValue);
     onOpenChange(false);
   };
 

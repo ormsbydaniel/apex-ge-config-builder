@@ -9,9 +9,10 @@ interface LayerLegendSectionProps {
   source: DataSource;
   onUpdateLayout: (updates: Partial<DataSourceLayout>) => void;
   onUpdateMeta: (updates: Record<string, any>) => void;
+  onUpdateLayoutAndMeta: (layoutUpdates: Partial<DataSourceLayout>, metaUpdates: Record<string, any>) => void;
 }
 
-const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta }: LayerLegendSectionProps) => {
+const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta, onUpdateLayoutAndMeta }: LayerLegendSectionProps) => {
   const [legendDialogOpen, setLegendDialogOpen] = useState(false);
   const legend = source.layout?.layerCard?.legend || source.layout?.infoPanel?.legend;
   const hasLegend = !!legend;
@@ -81,35 +82,38 @@ const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta }: LayerLegen
         onOpenChange={setLegendDialogOpen}
         legend={legend?.type ? legend as { type: 'swatch' | 'gradient' | 'image'; url?: string } : undefined}
         units={source.meta?.units}
-        onUpdateUnits={(u) => onUpdateMeta({ units: u || undefined })}
-        onUpdateLegend={(updatedLegend) => {
+        onSave={(updatedLegend, updatedUnits) => {
+          const metaUpdates: Record<string, any> = { units: updatedUnits || undefined };
           const isInfoPanel = source.layout?.contentLocation === 'infoPanel';
+          let layoutUpdates: Partial<DataSourceLayout>;
+
           if (updatedLegend === null) {
-            // Remove legend property entirely
             if (isInfoPanel) {
               const { legend: _removed, ...restInfoPanel } = source.layout?.infoPanel || {};
-              onUpdateLayout({ infoPanel: restInfoPanel });
+              layoutUpdates = { infoPanel: restInfoPanel };
             } else {
               const { legend: _removed, ...restLayerCard } = source.layout?.layerCard || {};
-              onUpdateLayout({ layerCard: restLayerCard });
+              layoutUpdates = { layerCard: restLayerCard };
             }
           } else {
             if (isInfoPanel) {
-              onUpdateLayout({
+              layoutUpdates = {
                 infoPanel: {
                   ...source.layout?.infoPanel,
                   legend: updatedLegend,
                 },
-              });
+              };
             } else {
-              onUpdateLayout({
+              layoutUpdates = {
                 layerCard: {
                   ...source.layout?.layerCard,
                   legend: updatedLegend,
                 },
-              });
+              };
             }
           }
+
+          onUpdateLayoutAndMeta(layoutUpdates, metaUpdates);
         }}
       />
     </div>
