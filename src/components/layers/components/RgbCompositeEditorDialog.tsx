@@ -124,16 +124,15 @@ interface ChannelMinMax {
 }
 
 function buildRgbStyle(
-  bands: number[],
   r: ChannelMinMax,
   g: ChannelMinMax,
   b: ChannelMinMax
 ) {
   return {
     variables: {
-      rBand: bands[0],
-      gBand: bands[1],
-      bBand: bands[2],
+      rBand: 1,
+      gBand: 2,
+      bBand: 3,
       rMin: r.min,
       rMax: r.max,
       gMin: g.min,
@@ -314,7 +313,7 @@ export function RgbCompositeEditorDialog({
       if (d.format === 'cog') {
         const updated: any = { ...d, convertToRGB: true, bands: [...selectedBands] };
         if (hasAdvancedValues) {
-          updated.style = buildRgbStyle(selectedBands, rMinMax, gMinMax, bMinMax);
+          updated.style = buildRgbStyle(rMinMax, gMinMax, bMinMax);
         }
         return updated;
       }
