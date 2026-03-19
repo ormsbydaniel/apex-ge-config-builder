@@ -7,12 +7,13 @@ export interface Announcement {
 export const announcements: Announcement[] = [
   {
     date: "2026-03-19",
-    title: "Revamp of layer card user interface with direct editing via dialogue popups. Includes initial release of RGB composite styling.",
+    title:
+      "Revamp of layer card user interface with direct editing via dialogue popups. Includes initial release of RGB composite styling.  Added latest GE development as 3.7.0 release candidate.",
     category: "Feature",
   },
   {
     date: "2026-03-09",
-    title: "Config UI for multi-band COG support added and dev-pixel-charts preview.",
+    title: "Added dev-pixel-charts to preview.",
     category: "Feature",
   },
   {
