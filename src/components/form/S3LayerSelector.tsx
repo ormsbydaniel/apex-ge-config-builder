@@ -239,36 +239,36 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
         </select>
       </div>
 
-        {/* Breadcrumb navigation */}
-        <div className="flex items-center gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md border border-border/50 flex-wrap">
-          <button
-            onClick={() => navigateToFolder('')}
-            className={`flex items-center gap-1 hover:text-primary transition-colors ${
-              currentPrefix === '' ? 'text-foreground font-medium' : 'text-muted-foreground'
-            }`}
-          >
-            <Home className="h-3.5 w-3.5" />
-            <span>Root</span>
-          </button>
-          {breadcrumbSegments.map((segment, index) => {
-            const segmentPrefix = breadcrumbSegments.slice(0, index + 1).join('/') + '/';
-            const isLast = index === breadcrumbSegments.length - 1;
-            return (
-              <React.Fragment key={segmentPrefix}>
-                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
-                <button
-                  onClick={() => !isLast && navigateToFolder(segmentPrefix)}
-                  className={`hover:text-primary transition-colors ${
-                    isLast ? 'text-foreground font-medium' : 'text-muted-foreground'
-                  } ${isLast ? 'cursor-default' : 'cursor-pointer'}`}
-                  disabled={isLast}
-                >
-                  {segment}
-                </button>
-              </React.Fragment>
-            );
-          })}
-        </div>
+      {/* Breadcrumb navigation */}
+      <div className="flex items-center gap-1 text-xs bg-muted/50 px-2 py-1 rounded border border-border/50 flex-wrap">
+        <button
+          onClick={() => navigateToFolder('')}
+          className={`flex items-center gap-1 hover:text-primary transition-colors ${
+            currentPrefix === '' ? 'text-foreground font-medium' : 'text-muted-foreground'
+          }`}
+        >
+          <Home className="h-3 w-3" />
+          <span>Root</span>
+        </button>
+        {breadcrumbSegments.map((segment, index) => {
+          const segmentPrefix = breadcrumbSegments.slice(0, index + 1).join('/') + '/';
+          const isLast = index === breadcrumbSegments.length - 1;
+          return (
+            <React.Fragment key={segmentPrefix}>
+              <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+              <button
+                onClick={() => !isLast && navigateToFolder(segmentPrefix)}
+                className={`hover:text-primary transition-colors ${
+                  isLast ? 'text-foreground font-medium' : 'text-muted-foreground'
+                } ${isLast ? 'cursor-default' : 'cursor-pointer'}`}
+                disabled={isLast}
+              >
+                {segment}
+              </button>
+            </React.Fragment>
+          );
+        })}
+      </div>
 
         {/* Folder and file list - scrollable */}
         <div className="flex-1 min-h-0 overflow-y-auto border rounded-md">
