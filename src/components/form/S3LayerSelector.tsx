@@ -333,37 +333,36 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
         ) : null}
       </div>
 
-        {/* Add All Objects Button */}
+      {/* Add All Objects Button + Status */}
+      <div className="flex items-center gap-2">
         {filteredFiles.length > 0 && (
           <Button
             onClick={handleAddAllObjects}
             disabled={isBulkAdding}
-            className="w-full"
+            size="sm"
             variant="default"
           >
             {isBulkAdding ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Adding {filteredFiles.length} objects...
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                Adding {filteredFiles.length}...
               </>
             ) : (
               <>
-                <ListPlus className="h-4 w-4 mr-2" />
-                Add All Objects ({filteredFiles.length})
+                <ListPlus className="h-3.5 w-3.5 mr-1.5" />
+                Add All ({filteredFiles.length})
               </>
             )}
           </Button>
         )}
-
-        {/* Status text */}
         {(files.length > 0 || folders.length > 0) && (
-          <div className="text-xs text-muted-foreground">
-            Showing {filteredFiles.length} file{filteredFiles.length !== 1 ? 's' : ''}
+          <span className="text-xs text-muted-foreground">
+            {filteredFiles.length} file{filteredFiles.length !== 1 ? 's' : ''}
             {folders.length > 0 && `, ${folders.length} folder${folders.length !== 1 ? 's' : ''}`}
-          </div>
+          </span>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
