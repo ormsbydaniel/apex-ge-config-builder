@@ -98,6 +98,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
         )}
 
 
+        <div className="flex flex-col gap-2 flex-1 min-h-0">
           {/* Selection Interface */}
           {isS3Service ? (
             <S3LayerSelector
@@ -109,43 +110,40 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
               serviceUrl={service.url}
               serviceName={service.name}
               onAssetSelect={(selection) => {
-                // Handle both single and bulk selections
                 if (Array.isArray(selection)) {
                   onSelect(selection);
                 } else {
-                  // Convert single selection to old format for compatibility
                   onSelect(selection.url, '', selection.format, selection.datetime);
                 }
                 handleClose();
               }}
             />
           ) : (
-            <div className="flex flex-col gap-4 flex-1 min-h-0">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Search Layers</label>
+            <div className="flex flex-col gap-2 flex-1 min-h-0">
+              <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search by name..."
+                  placeholder="Search layers..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full p-2 border border-input rounded-md"
                 />
               </div>
               {service.capabilities?.layers.length ? (
-                <div className="max-h-96 overflow-y-auto border rounded-md">
-                  <div className="grid gap-2 p-2">
+                <div className="flex-1 min-h-0 overflow-y-auto border rounded-md">
+                  <div className="grid gap-px p-1">
                     {filteredLayers.map((layer) => (
-                      <div key={layer.name} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
-                        <div className="flex-1 min-w-0 pr-2">
+                      <div key={layer.name} className="flex items-center gap-2 py-1.5 px-2 border rounded hover:bg-muted/50">
+                        <div className="flex-1 min-w-0">
                           <div className="font-medium text-sm">{layer.title || layer.name}</div>
                           {layer.title !== layer.name && (
-                            <div className="text-xs text-muted-foreground mt-1">{layer.name}</div>
+                            <div className="text-xs text-muted-foreground">{layer.name}</div>
                           )}
                         </div>
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          className="flex-shrink-0"
+                          className="shrink-0 h-7 text-xs"
                           onClick={() => {
                             onSelect(service.url, layer.name, service.format as DataSourceFormat);
                             handleClose();
@@ -158,16 +156,16 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
                   </div>
                 </div>
               ) : (
-                <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
                   <p className="text-sm text-orange-700">
-                    No layers found via GetCapabilities. You can proceed and manually configure the layer name in the next step.
+                    No layers found. You can manually configure the layer name in the next step.
                   </p>
                 </div>
               )}
               {service.capabilities?.layers.length && (
-                <div className="text-xs text-muted-foreground">
-                  Showing {filteredLayers.length} of {service.capabilities.layers.length} layers
-                </div>
+                <span className="text-xs text-muted-foreground">
+                  {filteredLayers.length} of {service.capabilities.layers.length} layers
+                </span>
               )}
             </div>
           )}
