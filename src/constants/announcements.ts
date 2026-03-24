@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-03-24",
+    title: "Footer links configuration added to Settings",
+    category: "Feature",
+  },
+  {
     date: "2026-03-19",
     title:
       "Revamp of layer card user interface with direct editing via dialogue popups. Includes initial release of RGB composite styling.  Added latest GE development as 3.7.0 release candidate.",
