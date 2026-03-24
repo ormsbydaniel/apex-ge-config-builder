@@ -1,40 +1,20 @@
 
 
-## Maximize File List Space in S3 Modal
+## Add Visual Separation Between Folders and Files
 
 ### Problem
-Multiple layers of padding, cards-within-cards, labels, and generous spacing consume significant vertical space, leaving limited room for the actual file list.
+Folders and files in the S3 browser list blend together with no clear visual boundary, making it harder to scan.
 
-### Changes
+### Changes — `src/components/form/S3LayerSelector.tsx`
 
-**1. `src/components/form/S3LayerSelector.tsx` — Remove card wrapper, compact controls**
+1. **Add a subtle divider** between the folders section and files section — insert a `<Separator />` (from `@/components/ui/separator`) or a simple `<div className="border-t" />` between the two `grid` blocks when both folders and files exist.
 
-- Remove the outer `<Card>` / `<CardContent>` wrapper entirely — it's already inside a modal, so the extra card border and padding are redundant
-- Remove `<Label>` elements above Search and Format Filter — use placeholder text instead
-- Reduce `space-y-4` gaps to `space-y-2`
-- Compact breadcrumb: reduce `px-3 py-2` to `px-2 py-1`
-- Compact folder rows: reduce `p-3` to `p-2`
-- Compact file rows: reduce `p-3` to `py-1.5 px-2`, tighten inner spacing
-- Reduce the empty-state icon/padding size
+2. **Differentiate folder row styling** — give folder rows a slightly different background (`bg-muted/30`) and remove the per-row border that files have, so folders feel like a distinct "navigation" section vs. the "selectable items" section below.
 
-**2. `src/components/layers/components/ServiceSelectionModals.tsx` — Compact service info**
+3. **Differentiate file icon color** — change the file `<File>` icon from `text-primary` to `text-muted-foreground` so it contrasts with the folder `<Folder>` icon which stays `text-primary`.
 
-- Reduce the service info card padding (`pt-4` → `py-2 px-3`)
-- Remove `mb-2` from the icon/name row, make it inline with URL
-- Collapse service name, badges, and URL into a single compact row
-- Reduce `gap-4` between sections to `gap-2`
-- Remove `DialogDescription` text (the service card already provides context)
-
-### Estimated space savings
-- ~40px from removing Card wrapper + its padding
-- ~20px from removing labels
-- ~16px from reducing gaps
-- ~20px from compacting service info card
-- ~8-12px per file row from tighter padding
-
-Total: roughly 100-120px more vertical space for the file list, which at the current row height would show ~3-4 additional files.
+4. **Add section micro-headers** — add tiny `text-[10px] uppercase tracking-wide text-muted-foreground` labels "Folders" and "Files" above each section within the scrollable area for explicit grouping.
 
 ### Files Modified
 1. `src/components/form/S3LayerSelector.tsx`
-2. `src/components/layers/components/ServiceSelectionModals.tsx`
 
