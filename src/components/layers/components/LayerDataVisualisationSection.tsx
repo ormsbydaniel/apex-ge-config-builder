@@ -302,7 +302,12 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
           <div className="flex items-center gap-2">
             <PenTool className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
-              Vector Styling <span className="normal-case tracking-normal font-normal italic">(None)</span>
+            Vector Styling <span className="normal-case tracking-normal font-normal italic">
+              {(() => {
+                const vectorItem = source.data.find(item => isVectorFormat(item.format) && Array.isArray(item.style) && item.style.length > 0);
+                return vectorItem ? `(${vectorItem.style.length} rule${vectorItem.style.length !== 1 ? 's' : ''})` : '(None)';
+              })()}
+            </span>
             </span>
             <Button
               variant="ghost"
