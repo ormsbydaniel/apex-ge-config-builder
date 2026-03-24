@@ -317,8 +317,8 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
                 return (
                   <div
                     key={index}
-                    className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-muted/50 cursor-pointer"
-                    onClick={() => handleObjectSelect(object)}
+                    className={`flex items-center gap-2 py-1.5 px-2 rounded ${detectedFormat ? 'hover:bg-muted/50 cursor-pointer' : 'opacity-60'}`}
+                    onClick={() => detectedFormat && handleObjectSelect(object)}
                   >
                     <File className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -336,9 +336,13 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
                         <span className="text-[10px] text-muted-foreground">{formatSize(object.size)}</span>
                       )}
                     </div>
-                    <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
-                      Select
-                    </Button>
+                    {detectedFormat ? (
+                      <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
+                        Select
+                      </Button>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground italic shrink-0">Unsupported</span>
+                    )}
                   </div>
                 );
               })}
