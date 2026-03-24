@@ -1,12 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, File, Search, AlertCircle, ListPlus, FileUp } from 'lucide-react';
-import { fetchS3BucketContents, getFormatFromExtension, S3Object, S3Selection } from '@/utils/s3Utils';
+import { Loader2, File, Search, AlertCircle, ListPlus, FileUp, Folder, ChevronRight, Home } from 'lucide-react';
+import { fetchS3BucketFolder, deriveFolderListingFromObjects, getFormatFromExtension, getS3DisplayName, S3Object, S3Selection } from '@/utils/s3Utils';
 import { DataSourceFormat, ServiceCapabilities } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,70 +18,81 @@ interface S3LayerSelectorProps {
 
 const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSelectorProps) => {
   const { toast } = useToast();
-  const [objects, setObjects] = useState<S3Object[]>([]);
-  const [filteredObjects, setFilteredObjects] = useState<S3Object[]>([]);
+  const [allCachedObjects, setAllCachedObjects] = useState<S3Object[]>([]);
+  const [files, setFiles] = useState<S3Object[]>([]);
+  const [folders, setFolders] = useState<string[]>([]);
+  const [filteredFiles, setFilteredFiles] = useState<S3Object[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isBulkAdding, setIsBulkAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<string>('all');
   const [usingCachedData, setUsingCachedData] = useState(false);
+  const [currentPrefix, setCurrentPrefix] = useState('');
 
-  useEffect(() => {
-    if (bucketUrl) {
-      fetchObjects();
-    }
-  }, [bucketUrl, capabilities]);
-
-  useEffect(() => {
-    filterObjects();
-  }, [objects, searchTerm, selectedFormat]);
-
-  const fetchObjects = async () => {
+  const fetchFolder = useCallback(async (prefix: string) => {
     setIsLoading(true);
     setError(null);
-    setUsingCachedData(false);
-    
+
     try {
-      // If we have cached capabilities from file upload, use those instead of fetching
-      if (capabilities?.layers && capabilities.layers.length > 0) {
-        // Transform capabilities layers to S3Object format
-        const cachedObjects: S3Object[] = capabilities.layers.map(layer => ({
-          key: layer.name,
-          lastModified: 'From file upload',
-          size: 0,
-          url: `${bucketUrl}/${layer.name}`
-        }));
-        
-        setObjects(cachedObjects);
-        setUsingCachedData(true);
+      if (usingCachedData && allCachedObjects.length > 0) {
+        const listing = deriveFolderListingFromObjects(allCachedObjects, prefix);
+        setFolders(listing.folders);
+        setFiles(listing.files);
       } else {
-        // Fetch live from S3 bucket (requires CORS)
-        const fetchedObjects = await fetchS3BucketContents(bucketUrl);
-        
-        // Filter out folders (keys ending with /)
-        const files = fetchedObjects.filter(obj => !obj.key.endsWith('/'));
-        
-        setObjects(files);
+        const listing = await fetchS3BucketFolder(bucketUrl, prefix);
+        setFolders(listing.folders);
+        setFiles(listing.files.filter(obj => !obj.key.endsWith('/')));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch bucket contents');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [bucketUrl, usingCachedData, allCachedObjects]);
 
-  const filterObjects = () => {
-    let filtered = objects;
+  // Initial load: check for cached data, then fetch root
+  useEffect(() => {
+    if (!bucketUrl) return;
 
-    // Filter by search term
+    if (capabilities?.layers && capabilities.layers.length > 0) {
+      const cachedObjects: S3Object[] = capabilities.layers.map(layer => ({
+        key: layer.name,
+        lastModified: 'From file upload',
+        size: 0,
+        url: `${bucketUrl}/${layer.name}`
+      }));
+      setAllCachedObjects(cachedObjects);
+      setUsingCachedData(true);
+      // Derive folder listing from cached data at root
+      const listing = deriveFolderListingFromObjects(cachedObjects, '');
+      setFolders(listing.folders);
+      setFiles(listing.files);
+    } else {
+      setUsingCachedData(false);
+      setAllCachedObjects([]);
+      setCurrentPrefix('');
+      fetchFolder('');
+    }
+  }, [bucketUrl, capabilities]);
+
+  // When prefix changes (after initial load), refetch
+  useEffect(() => {
+    if (!bucketUrl) return;
+    // Skip if this is the initial mount (handled above)
+    fetchFolder(currentPrefix);
+  }, [currentPrefix, fetchFolder]);
+
+  // Filter files when search/format changes
+  useEffect(() => {
+    let filtered = files;
+
     if (searchTerm) {
-      filtered = filtered.filter(obj => 
-        obj.key.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(obj =>
+        getS3DisplayName(obj.key).toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by format
     if (selectedFormat !== 'all') {
       filtered = filtered.filter(obj => {
         const detectedFormat = getFormatFromExtension(obj.key);
@@ -89,8 +100,8 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
       });
     }
 
-    setFilteredObjects(filtered);
-  };
+    setFilteredFiles(filtered);
+  }, [files, searchTerm, selectedFormat]);
 
   const handleObjectSelect = (object: S3Object) => {
     const detectedFormat = getFormatFromExtension(object.key);
@@ -106,12 +117,12 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
 
   const handleAddAllObjects = async () => {
     setIsBulkAdding(true);
-    
+
     try {
       const selections: S3Selection[] = [];
       const skipped: string[] = [];
 
-      filteredObjects.forEach(object => {
+      filteredFiles.forEach(object => {
         const detectedFormat = getFormatFromExtension(object.key);
         if (detectedFormat) {
           selections.push({
@@ -126,7 +137,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
 
       if (selections.length > 0) {
         onObjectSelect(selections);
-        
+
         toast({
           title: "Objects Added",
           description: `Added ${selections.length} data sources${skipped.length > 0 ? ` (${skipped.length} skipped due to unrecognized format)` : ''}.`,
@@ -151,7 +162,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
 
   const getAvailableFormats = () => {
     const formats = new Set<string>();
-    objects.forEach(obj => {
+    files.forEach(obj => {
       const format = getFormatFromExtension(obj.key);
       if (format) {
         formats.add(format);
@@ -166,6 +177,17 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
+
+  const navigateToFolder = (prefix: string) => {
+    setSearchTerm('');
+    setSelectedFormat('all');
+    setCurrentPrefix(prefix);
+  };
+
+  // Build breadcrumb segments from currentPrefix
+  const breadcrumbSegments = currentPrefix
+    ? currentPrefix.replace(/\/$/, '').split('/')
+    : [];
 
   if (isLoading) {
     return (
@@ -189,7 +211,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
             <span>Error loading bucket contents</span>
           </div>
           <p className="text-sm text-red-500 mb-4">{error}</p>
-          <Button onClick={fetchObjects} variant="outline" size="sm">
+          <Button onClick={() => fetchFolder(currentPrefix)} variant="outline" size="sm">
             Retry
           </Button>
         </CardContent>
@@ -200,14 +222,45 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
   return (
     <Card className="border-primary/20">
       <CardContent className="space-y-4 pt-6">
-        {/* Show indicator if using cached data */}
+        {/* Cached data indicator */}
         {usingCachedData && (
           <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md p-2">
             <FileUp className="h-4 w-4" />
             <span>Using cached data from file upload (no CORS required)</span>
           </div>
         )}
-        
+
+        {/* Breadcrumb navigation */}
+        <div className="flex items-center gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md border border-border/50 flex-wrap">
+          <button
+            onClick={() => navigateToFolder('')}
+            className={`flex items-center gap-1 hover:text-primary transition-colors ${
+              currentPrefix === '' ? 'text-foreground font-medium' : 'text-muted-foreground'
+            }`}
+          >
+            <Home className="h-3.5 w-3.5" />
+            <span>Root</span>
+          </button>
+          {breadcrumbSegments.map((segment, index) => {
+            const segmentPrefix = breadcrumbSegments.slice(0, index + 1).join('/') + '/';
+            const isLast = index === breadcrumbSegments.length - 1;
+            return (
+              <React.Fragment key={segmentPrefix}>
+                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                <button
+                  onClick={() => !isLast && navigateToFolder(segmentPrefix)}
+                  className={`hover:text-primary transition-colors ${
+                    isLast ? 'text-foreground font-medium' : 'text-muted-foreground'
+                  } ${isLast ? 'cursor-default' : 'cursor-pointer'}`}
+                  disabled={isLast}
+                >
+                  {segment}
+                </button>
+              </React.Fragment>
+            );
+          })}
+        </div>
+
         {/* Search and Filter Controls */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -229,7 +282,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
               id="formatFilter"
               value={selectedFormat}
               onChange={(e) => setSelectedFormat(e.target.value)}
-              className="w-full p-2 border border-input rounded-md"
+              className="w-full p-2 border border-input rounded-md bg-background text-foreground"
             >
               <option value="all">All formats</option>
               {getAvailableFormats().map(format => (
@@ -242,7 +295,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
         </div>
 
         {/* Add All Objects Button */}
-        {filteredObjects.length > 0 && (
+        {filteredFiles.length > 0 && (
           <Button
             onClick={handleAddAllObjects}
             disabled={isBulkAdding}
@@ -252,30 +305,48 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
             {isBulkAdding ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Adding {filteredObjects.length} objects...
+                Adding {filteredFiles.length} objects...
               </>
             ) : (
               <>
                 <ListPlus className="h-4 w-4 mr-2" />
-                Add All Objects ({filteredObjects.length})
+                Add All Objects ({filteredFiles.length})
               </>
             )}
           </Button>
         )}
 
-        {/* Objects List */}
-        {filteredObjects.length === 0 ? (
+        {/* Folder list */}
+        {folders.length > 0 && (
+          <div className="border rounded-md">
+            <div className="grid gap-1 p-2">
+              {folders.map(folder => (
+                <button
+                  key={folder}
+                  onClick={() => navigateToFolder(folder)}
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors text-left w-full"
+                >
+                  <Folder className="h-4 w-4 text-primary shrink-0" />
+                  <span className="font-medium text-sm">{getS3DisplayName(folder)}/</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Files list */}
+        {filteredFiles.length === 0 && folders.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <File className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No supported files found in bucket</p>
+            <p>No supported files found at this location</p>
             <p className="text-sm mt-1">
               Supported formats: FlatGeoBuf (.fgb), COG (.tif/.tiff), GeoJSON (.geojson/.json)
             </p>
           </div>
-        ) : (
+        ) : filteredFiles.length > 0 ? (
           <div className="max-h-96 overflow-y-auto border rounded-md">
             <div className="grid gap-2 p-2">
-              {filteredObjects.map((object, index) => {
+              {filteredFiles.map((object, index) => {
                 const detectedFormat = getFormatFromExtension(object.key);
                 return (
                   <div
@@ -287,15 +358,21 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
                       <div className="flex items-start gap-2 mb-1">
                         <File className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
-                          <span className="font-medium text-sm break-words line-clamp-2 block">{object.key}</span>
+                          <span className="font-medium text-sm break-words line-clamp-2 block">
+                            {getS3DisplayName(object.key)}
+                          </span>
                           <div className="flex items-center gap-2 mt-1">
                             {detectedFormat && (
                               <Badge variant="secondary" className="text-xs">
                                 {detectedFormat.toUpperCase()}
                               </Badge>
                             )}
-                            <span className="text-xs text-muted-foreground">{formatSize(object.size)}</span>
-                            <span className="text-xs text-muted-foreground">{new Date(object.lastModified).toLocaleDateString()}</span>
+                            {object.size > 0 && (
+                              <span className="text-xs text-muted-foreground">{formatSize(object.size)}</span>
+                            )}
+                            {object.lastModified !== 'From file upload' && (
+                              <span className="text-xs text-muted-foreground">{new Date(object.lastModified).toLocaleDateString()}</span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -308,11 +385,13 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
               })}
             </div>
           </div>
-        )}
+        ) : null}
 
-        {objects.length > 0 && (
+        {/* Status text */}
+        {(files.length > 0 || folders.length > 0) && (
           <div className="text-xs text-muted-foreground">
-            Showing {filteredObjects.length} of {objects.length} objects
+            Showing {filteredFiles.length} file{filteredFiles.length !== 1 ? 's' : ''}
+            {folders.length > 0 && `, ${folders.length} folder${folders.length !== 1 ? 's' : ''}`}
           </div>
         )}
       </CardContent>
