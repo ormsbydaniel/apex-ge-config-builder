@@ -244,7 +244,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
         <button
           onClick={() => navigateToFolder('')}
           className={`flex items-center gap-1 hover:text-primary transition-colors ${
-            currentPrefix === '' ? 'text-foreground font-medium' : 'text-muted-foreground'
+            currentPrefix === '' ? 'text-foreground font-medium cursor-default' : 'text-primary underline'
           }`}
         >
           <Home className="h-3 w-3" />
@@ -259,8 +259,8 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
               <button
                 onClick={() => !isLast && navigateToFolder(segmentPrefix)}
                 className={`hover:text-primary transition-colors ${
-                  isLast ? 'text-foreground font-medium' : 'text-muted-foreground'
-                } ${isLast ? 'cursor-default' : 'cursor-pointer'}`}
+                  isLast ? 'text-foreground font-medium cursor-default' : 'text-primary underline cursor-pointer'
+                }`}
                 disabled={isLast}
               >
                 {segment}
@@ -281,10 +281,13 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
                 <button
                   key={folder}
                   onClick={() => navigateToFolder(folder)}
-                  className="flex items-center gap-2 py-1.5 px-2 rounded bg-muted/30 hover:bg-muted/60 transition-colors text-left w-full"
+                  className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/30 hover:bg-muted/60 transition-colors text-left w-full group"
                 >
-                  <Folder className="h-4 w-4 text-primary shrink-0" />
-                  <span className="font-medium text-sm">{getS3DisplayName(folder)}/</span>
+                  <div className="flex items-center gap-2">
+                    <Folder className="h-4 w-4 text-primary shrink-0" />
+                    <span className="font-medium text-sm text-primary underline">{getS3DisplayName(folder)}/</span>
+                  </div>
+                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
                 </button>
               ))}
             </div>
