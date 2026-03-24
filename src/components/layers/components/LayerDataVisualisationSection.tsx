@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Tags, Palette, Layers, Blend } from 'lucide-react';
+import { Eye, Tags, Palette, Layers, Blend, PenTool } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -13,6 +13,7 @@ import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
+import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
@@ -24,6 +25,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
   
   const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
+  const [vectorStylingDialogOpen, setVectorStylingDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
   
@@ -291,6 +293,31 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             open={gradientDialogOpen}
             onOpenChange={setGradientDialogOpen}
             meta={source.meta}
+            onUpdateMeta={onUpdateMeta}
+          />
+        </div>
+
+        {/* Vector Styling sub-section */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <PenTool className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
+              Vector Styling <span className="normal-case tracking-normal font-normal italic">(None)</span>
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-4 w-4 p-0"
+              onClick={() => setVectorStylingDialogOpen(true)}
+            >
+              <Pencil className="h-2.5 w-2.5" />
+            </Button>
+          </div>
+
+          <VectorStylingDialog
+            open={vectorStylingDialogOpen}
+            onOpenChange={setVectorStylingDialogOpen}
+            source={source}
             onUpdateMeta={onUpdateMeta}
           />
         </div>
