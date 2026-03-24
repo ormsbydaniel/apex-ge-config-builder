@@ -74,7 +74,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl h-[85vh] overflow-hidden flex flex-col">
         {!isStacService && (
           <DialogHeader>
             <DialogTitle>Select Data Source</DialogTitle>
