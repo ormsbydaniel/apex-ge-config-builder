@@ -1,18 +1,24 @@
 
 
-## Make Folders and Breadcrumbs More Obviously Clickable
+## Hide Select Button for Unsupported Formats
 
-### Changes — `src/components/form/S3LayerSelector.tsx`
+### Problem
+Files with unsupported formats still show a "Select" button, which is misleading since selecting them won't work properly.
 
-**Breadcrumbs (lines 244-267):**
-- Add `underline` decoration on non-active breadcrumb segments and the Root button (when not current)
-- Use `text-primary` instead of `text-muted-foreground` for clickable segments
-- Keep the active/last segment as `text-foreground font-medium cursor-default` (no underline)
+### Change — `src/components/form/S3LayerSelector.tsx`
 
-**Folder rows (lines 281-289):**
-- Add `underline` to folder name text
-- Use `text-primary` color on the folder name to signal it's a link
-- Add a subtle right-pointing chevron or arrow indicator at the end of each row
+In the file row rendering (around line 315-343), conditionally render the "Select" button only when `detectedFormat` is truthy (i.e., a supported format was detected). For unsupported files, show a muted "Unsupported" text label instead.
+
+```tsx
+// Replace the unconditional Select button with:
+{detectedFormat ? (
+  <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
+    Select
+  </Button>
+) : (
+  <span className="text-[10px] text-muted-foreground italic shrink-0">Unsupported</span>
+)}
+```
 
 ### Files Modified
 1. `src/components/form/S3LayerSelector.tsx`
