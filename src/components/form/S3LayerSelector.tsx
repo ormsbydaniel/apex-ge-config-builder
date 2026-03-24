@@ -213,8 +213,8 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
   }
 
   return (
-    <Card className="border-primary/20">
-      <CardContent className="space-y-4 pt-6">
+    <Card className="border-primary/20 flex-1 flex flex-col min-h-0">
+      <CardContent className="space-y-4 pt-6 flex-1 flex flex-col min-h-0">
         {/* Cached data indicator */}
         {usingCachedData && (
           <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md p-2">
