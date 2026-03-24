@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Database, Globe, Server } from 'lucide-react';
 import { Service, DataSourceFormat } from '@/types/config';
-import { Service, DataSourceFormat } from '@/types/config';
 import { validateS3Url, S3Selection } from '@/utils/s3Utils';
 import S3LayerSelector from '@/components/form/S3LayerSelector';
 import StacBrowser from './StacBrowser';
