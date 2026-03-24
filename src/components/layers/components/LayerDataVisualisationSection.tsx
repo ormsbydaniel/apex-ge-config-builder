@@ -25,6 +25,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   const [rgbDialogOpen, setRgbDialogOpen] = useState(false);
   
   const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
+  const [vectorStylingDialogOpen, setVectorStylingDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
   
