@@ -324,6 +324,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             onOpenChange={setVectorStylingDialogOpen}
             source={source}
             onUpdateMeta={onUpdateMeta}
+            onUpdateDataSources={onUpdateDataSources}
           />
         </div>
 
