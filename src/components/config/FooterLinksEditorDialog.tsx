@@ -331,7 +331,7 @@ const FooterLinksEditorDialog: React.FC<FooterLinksEditorDialogProps> = ({
 
         {/* Label */}
         <div className="flex items-center gap-3">
-          <Label className="w-24 text-sm shrink-0">Label *</Label>
+          <Label className="w-24 text-sm shrink-0">Footer label *</Label>
           <Input
             value={editForm.title}
             onChange={(e) => handleEditFormChange('title', e.target.value)}
@@ -384,13 +384,14 @@ const FooterLinksEditorDialog: React.FC<FooterLinksEditorDialogProps> = ({
                 className="flex-1"
               />
             </div>
-            <div className="flex items-center gap-3">
-              <Label className="w-24 text-sm shrink-0">Draft body</Label>
-              <Input
+            <div className="flex items-start gap-3">
+              <Label className="w-24 text-sm shrink-0 mt-2">Draft body</Label>
+              <textarea
                 value={editForm.body}
                 onChange={(e) => handleEditFormChange('body', e.target.value)}
                 placeholder="Pre-filled email body text"
-                className="flex-1"
+                rows={3}
+                className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
             </div>
             <div className="flex items-start gap-2 ml-[calc(6rem+0.75rem)] text-xs text-muted-foreground">
