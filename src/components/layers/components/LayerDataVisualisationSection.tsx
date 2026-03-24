@@ -8,6 +8,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 import { DataSourceMeta } from '@/types/layer';
 import { DataSourceItem } from '@/types/dataSource';
 import { Category, Colormap } from '@/types/category';
+import { isVectorFormat } from '@/utils/fieldDetection';
 import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
