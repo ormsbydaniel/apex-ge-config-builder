@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2, ArrowUp, ArrowDown, Mail, ExternalLink, Info } from 'lucide-react';
+import { Plus, Trash2, ArrowUp, ArrowDown, Mail, ExternalLink, Info, Pencil } from 'lucide-react';
 import { FooterLink } from '@/types/format';
 
 interface FooterLinksEditorDialogProps {
@@ -40,7 +40,6 @@ const parseMailtoUrl = (url: string): { email: string; cc: string; subject: stri
   if (!url.startsWith('mailto:')) return result;
 
   try {
-    // Split on '?' to get email and params
     const withoutScheme = url.slice(7);
     const qIndex = withoutScheme.indexOf('?');
     if (qIndex === -1) {
@@ -68,7 +67,7 @@ const buildMailtoUrl = (email: string, cc: string, subject: string, body: string
   return `mailto:${encodeURIComponent(email.trim())}${paramString ? '?' + paramString : ''}`;
 };
 
-/** Convert a FooterLink into form state for editing */
+/** Convert a FooterLink into form state */
 const linkToFormState = (link: FooterLink): LinkFormState => {
   if (link.url.startsWith('mailto:')) {
     const parsed = parseMailtoUrl(link.url);
@@ -90,6 +89,35 @@ const linkToFormState = (link: FooterLink): LinkFormState => {
   };
 };
 
+/** Convert a LinkFormState to a FooterLink */
+const formStateToLink = (form: LinkFormState): FooterLink => {
+  if (form.type === 'mailto') {
+    return {
+      title: form.title.trim(),
+      url: buildMailtoUrl(form.email, form.cc, form.subject, form.body),
+    };
+  }
+  return {
+    title: form.title.trim(),
+    url: form.url.trim(),
+  };
+};
+
+/** Get a display URL for a link form state */
+const getDisplayUrl = (link: LinkFormState): string => {
+  if (link.type === 'mailto') {
+    return link.email || 'No email set';
+  }
+  return link.url || 'No URL set';
+};
+
+const isFormValid = (form: LinkFormState): boolean => {
+  if (!form.title.trim()) return false;
+  if (form.type === 'standard' && !form.url.trim()) return false;
+  if (form.type === 'mailto' && !form.email.trim()) return false;
+  return true;
+};
+
 const FooterLinksEditorDialog: React.FC<FooterLinksEditorDialogProps> = ({
   open,
   onOpenChange,
@@ -97,28 +125,21 @@ const FooterLinksEditorDialog: React.FC<FooterLinksEditorDialogProps> = ({
   onSave,
 }) => {
   const [links, setLinks] = useState<LinkFormState[]>([]);
+  const [page, setPage] = useState<'list' | 'edit'>('list');
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<LinkFormState>(createEmptyForm());
 
   // Initialize local state when dialog opens
   useEffect(() => {
     if (open) {
-      setLinks(
-        footerLinks.length > 0
-          ? footerLinks.map(linkToFormState)
-          : []
-      );
+      setLinks(footerLinks.length > 0 ? footerLinks.map(linkToFormState) : []);
+      setPage('list');
+      setEditingIndex(null);
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const addLink = () => {
-    setLinks(prev => [...prev, createEmptyForm()]);
-  };
-
   const removeLink = (index: number) => {
     setLinks(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const updateLink = (index: number, field: keyof LinkFormState, value: string) => {
-    setLinks(prev => prev.map((link, i) => (i === index ? { ...link, [field]: value } : link)));
   };
 
   const moveLink = (index: number, direction: 'up' | 'down') => {
@@ -131,200 +152,270 @@ const FooterLinksEditorDialog: React.FC<FooterLinksEditorDialogProps> = ({
     });
   };
 
-  const handleSave = () => {
+  const handleAddNew = () => {
+    setEditForm(createEmptyForm());
+    setEditingIndex(null);
+    setPage('edit');
+  };
+
+  const handleEditLink = (index: number) => {
+    setEditForm({ ...links[index] });
+    setEditingIndex(index);
+    setPage('edit');
+  };
+
+  const handleEditFormChange = (field: keyof LinkFormState, value: string) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveEdit = () => {
+    if (editingIndex !== null) {
+      // Update existing
+      setLinks(prev => prev.map((link, i) => (i === editingIndex ? { ...editForm } : link)));
+    } else {
+      // Add new
+      setLinks(prev => [...prev, { ...editForm }]);
+    }
+    setPage('list');
+  };
+
+  const handleCancelEdit = () => {
+    setPage('list');
+  };
+
+  const handleDone = () => {
     const footerLinksOut: FooterLink[] = links
-      .filter(link => link.title.trim()) // Must have a title
-      .map(link => {
-        if (link.type === 'mailto') {
-          return {
-            title: link.title.trim(),
-            url: buildMailtoUrl(link.email, link.cc, link.subject, link.body),
-          };
-        }
-        return {
-          title: link.title.trim(),
-          url: link.url.trim(),
-        };
-      });
+      .filter(link => link.title.trim())
+      .map(formStateToLink);
     onSave(footerLinksOut);
     onOpenChange(false);
   };
 
-  const isLinkValid = (link: LinkFormState): boolean => {
-    if (!link.title.trim()) return false;
-    if (link.type === 'standard' && !link.url.trim()) return false;
-    if (link.type === 'mailto' && !link.email.trim()) return false;
-    return true;
-  };
+  // ---- Page 1: List View ----
+  const renderListPage = () => (
+    <>
+      <DialogHeader>
+        <DialogTitle>Footer Links</DialogTitle>
+        <DialogDescription>
+          Manage links displayed in the application footer. Links appear in the order shown below.
+        </DialogDescription>
+      </DialogHeader>
 
-  const allValid = links.every(isLinkValid);
+      <div className="space-y-2 py-4">
+        {links.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6">
+            No footer links configured. Click the button below to add one.
+          </p>
+        ) : (
+          links.map((link, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-3 border rounded-lg px-3 py-2.5 bg-muted/30"
+            >
+              {/* Icon */}
+              {link.type === 'mailto' ? (
+                <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+              ) : (
+                <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
+              )}
+
+              {/* Title and URL */}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{link.title || 'Untitled'}</div>
+                <div className="text-xs text-muted-foreground truncate">{getDisplayUrl(link)}</div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-0.5 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => handleEditLink(index)}
+                  title="Edit"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => moveLink(index, 'up')}
+                  disabled={index === 0}
+                  title="Move up"
+                >
+                  <ArrowUp className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => moveLink(index, 'down')}
+                  disabled={index === links.length - 1}
+                  title="Move down"
+                >
+                  <ArrowDown className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-destructive hover:text-destructive"
+                  onClick={() => removeLink(index)}
+                  title="Remove"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+
+        <Button variant="outline" onClick={handleAddNew} className="w-full mt-2">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Footer Link
+        </Button>
+      </div>
+
+      <DialogFooter>
+        <Button variant="outline" onClick={() => onOpenChange(false)}>
+          Cancel
+        </Button>
+        <Button onClick={handleDone}>
+          Done
+        </Button>
+      </DialogFooter>
+    </>
+  );
+
+  // ---- Page 2: Edit/Add Form ----
+  const renderEditPage = () => (
+    <>
+      <DialogHeader>
+        <DialogTitle>{editingIndex !== null ? 'Edit Footer Link' : 'Add Footer Link'}</DialogTitle>
+        <DialogDescription>
+          {editingIndex !== null
+            ? 'Update the details for this footer link.'
+            : 'Configure the details for the new footer link.'}
+        </DialogDescription>
+      </DialogHeader>
+
+      <div className="space-y-4 py-4">
+        {/* Link type selector */}
+        <div className="flex items-center gap-3">
+          <Label className="w-24 text-sm shrink-0">Type</Label>
+          <Select
+            value={editForm.type}
+            onValueChange={(value: 'standard' | 'mailto') =>
+              handleEditFormChange('type', value)
+            }
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="standard">
+                <span className="flex items-center gap-2">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Standard Link
+                </span>
+              </SelectItem>
+              <SelectItem value="mailto">
+                <span className="flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5" />
+                  Email (mailto)
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Label */}
+        <div className="flex items-center gap-3">
+          <Label className="w-24 text-sm shrink-0">Label *</Label>
+          <Input
+            value={editForm.title}
+            onChange={(e) => handleEditFormChange('title', e.target.value)}
+            placeholder="Link display text"
+            className="flex-1"
+          />
+        </div>
+
+        {/* Standard link fields */}
+        {editForm.type === 'standard' && (
+          <div className="flex items-center gap-3">
+            <Label className="w-24 text-sm shrink-0">URL *</Label>
+            <Input
+              value={editForm.url}
+              onChange={(e) => handleEditFormChange('url', e.target.value)}
+              placeholder="https://example.com"
+              className="flex-1"
+            />
+          </div>
+        )}
+
+        {/* Mailto fields */}
+        {editForm.type === 'mailto' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Label className="w-24 text-sm shrink-0">Email *</Label>
+              <Input
+                value={editForm.email}
+                onChange={(e) => handleEditFormChange('email', e.target.value)}
+                placeholder="contact@example.com"
+                type="email"
+                className="flex-1"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Label className="w-24 text-sm shrink-0">CC</Label>
+              <Input
+                value={editForm.cc}
+                onChange={(e) => handleEditFormChange('cc', e.target.value)}
+                placeholder="cc@example.com"
+                className="flex-1"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Label className="w-24 text-sm shrink-0">Draft subject</Label>
+              <Input
+                value={editForm.subject}
+                onChange={(e) => handleEditFormChange('subject', e.target.value)}
+                placeholder="Pre-filled email subject"
+                className="flex-1"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Label className="w-24 text-sm shrink-0">Draft body</Label>
+              <Input
+                value={editForm.body}
+                onChange={(e) => handleEditFormChange('body', e.target.value)}
+                placeholder="Pre-filled email body text"
+                className="flex-1"
+              />
+            </div>
+            <div className="flex items-start gap-2 ml-[calc(6rem+0.75rem)] text-xs text-muted-foreground">
+              <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              <span>Subject and body text will be pre-populated in the user's email client when they click this link.</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <DialogFooter>
+        <Button variant="outline" onClick={handleCancelEdit}>
+          Cancel
+        </Button>
+        <Button onClick={handleSaveEdit} disabled={!isFormValid(editForm)}>
+          {editingIndex !== null ? 'Update' : 'Add'}
+        </Button>
+      </DialogFooter>
+    </>
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Footer Links</DialogTitle>
-          <DialogDescription>
-            Add links that appear in the application footer. Links are displayed in the order shown below.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4 py-4">
-          {links.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No footer links configured. Click the button below to add one.
-            </p>
-          )}
-
-          {links.map((link, index) => (
-            <div key={index} className="border rounded-lg p-4 space-y-3 bg-muted/30">
-              {/* Header row with reorder and delete */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">Link {index + 1}</span>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => moveLink(index, 'up')}
-                    disabled={index === 0}
-                  >
-                    <ArrowUp className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => moveLink(index, 'down')}
-                    disabled={index === links.length - 1}
-                  >
-                    <ArrowDown className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-destructive hover:text-destructive"
-                    onClick={() => removeLink(index)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Link type selector */}
-              <div className="flex items-center gap-3">
-                <Label className="w-20 text-sm">Type</Label>
-                <Select
-                  value={link.type}
-                  onValueChange={(value: 'standard' | 'mailto') => updateLink(index, 'type', value)}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="standard">
-                      <span className="flex items-center gap-2">
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        Standard Link
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="mailto">
-                      <span className="flex items-center gap-2">
-                        <Mail className="h-3.5 w-3.5" />
-                        Email (mailto)
-                      </span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Title field (common) */}
-              <div className="flex items-center gap-3">
-                <Label className="w-20 text-sm">Label</Label>
-                <Input
-                  value={link.title}
-                  onChange={(e) => updateLink(index, 'title', e.target.value)}
-                  placeholder="Link display text"
-                  className="flex-1"
-                />
-              </div>
-
-              {/* Standard link fields */}
-              {link.type === 'standard' && (
-                <div className="flex items-center gap-3">
-                  <Label className="w-20 text-sm">URL</Label>
-                  <Input
-                    value={link.url}
-                    onChange={(e) => updateLink(index, 'url', e.target.value)}
-                    placeholder="https://example.com"
-                    className="flex-1"
-                  />
-                </div>
-              )}
-
-              {/* Mailto fields */}
-              {link.type === 'mailto' && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Label className="w-20 text-sm">Email *</Label>
-                    <Input
-                      value={link.email}
-                      onChange={(e) => updateLink(index, 'email', e.target.value)}
-                      placeholder="contact@example.com"
-                      type="email"
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Label className="w-20 text-sm">CC</Label>
-                    <Input
-                      value={link.cc}
-                      onChange={(e) => updateLink(index, 'cc', e.target.value)}
-                      placeholder="cc@example.com"
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Label className="w-20 text-sm">Draft subject</Label>
-                    <Input
-                      value={link.subject}
-                      onChange={(e) => updateLink(index, 'subject', e.target.value)}
-                      placeholder="Pre-filled email subject"
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Label className="w-20 text-sm">Draft body</Label>
-                    <Input
-                      value={link.body}
-                      onChange={(e) => updateLink(index, 'body', e.target.value)}
-                      placeholder="Pre-filled email body text"
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex items-start gap-2 ml-[calc(5rem+0.75rem)] text-xs text-muted-foreground">
-                    <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                    <span>Subject and body text will be pre-populated in the user's email client when they click this link.</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-
-          <Button variant="outline" onClick={addLink} className="w-full">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Footer Link
-          </Button>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={links.length > 0 && !allValid}>
-            Save
-          </Button>
-        </DialogFooter>
+        {page === 'list' ? renderListPage() : renderEditPage()}
       </DialogContent>
     </Dialog>
   );
