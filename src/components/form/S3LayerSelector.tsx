@@ -274,18 +274,26 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
       <div className="flex-1 min-h-0 overflow-y-auto border rounded-md">
         {/* Folder list */}
         {folders.length > 0 && (
-          <div className="grid gap-px p-1">
-            {folders.map(folder => (
-              <button
-                key={folder}
-                onClick={() => navigateToFolder(folder)}
-                className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-muted/50 transition-colors text-left w-full"
-              >
-                <Folder className="h-4 w-4 text-primary shrink-0" />
-                <span className="font-medium text-sm">{getS3DisplayName(folder)}/</span>
-              </button>
-            ))}
+          <div className="p-1">
+            <div className="px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Folders</div>
+            <div className="grid gap-px">
+              {folders.map(folder => (
+                <button
+                  key={folder}
+                  onClick={() => navigateToFolder(folder)}
+                  className="flex items-center gap-2 py-1.5 px-2 rounded bg-muted/30 hover:bg-muted/60 transition-colors text-left w-full"
+                >
+                  <Folder className="h-4 w-4 text-primary shrink-0" />
+                  <span className="font-medium text-sm">{getS3DisplayName(folder)}/</span>
+                </button>
+              ))}
+            </div>
           </div>
+        )}
+
+        {/* Divider between folders and files */}
+        {folders.length > 0 && filteredFiles.length > 0 && (
+          <div className="border-t border-border/60 mx-1" />
         )}
 
         {/* Files list */}
@@ -298,37 +306,40 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
             </p>
           </div>
         ) : filteredFiles.length > 0 ? (
-          <div className="grid gap-px p-1">
-            {filteredFiles.map((object, index) => {
-              const detectedFormat = getFormatFromExtension(object.key);
-              return (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 py-1.5 px-2 border rounded hover:bg-muted/50 cursor-pointer"
-                  onClick={() => handleObjectSelect(object)}
-                >
-                  <File className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <span className="font-medium text-sm truncate block">
-                      {getS3DisplayName(object.key)}
-                    </span>
+          <div className="p-1">
+            <div className="px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Files</div>
+            <div className="grid gap-px">
+              {filteredFiles.map((object, index) => {
+                const detectedFormat = getFormatFromExtension(object.key);
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-muted/50 cursor-pointer"
+                    onClick={() => handleObjectSelect(object)}
+                  >
+                    <File className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <span className="font-medium text-sm truncate block">
+                        {getS3DisplayName(object.key)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {detectedFormat && (
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                          {detectedFormat.toUpperCase()}
+                        </Badge>
+                      )}
+                      {object.size > 0 && (
+                        <span className="text-[10px] text-muted-foreground">{formatSize(object.size)}</span>
+                      )}
+                    </div>
+                    <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
+                      Select
+                    </Button>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {detectedFormat && (
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                        {detectedFormat.toUpperCase()}
-                      </Badge>
-                    )}
-                    {object.size > 0 && (
-                      <span className="text-[10px] text-muted-foreground">{formatSize(object.size)}</span>
-                    )}
-                  </div>
-                  <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
-                    Select
-                  </Button>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         ) : null}
       </div>
