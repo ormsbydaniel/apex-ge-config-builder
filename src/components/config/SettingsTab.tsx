@@ -8,13 +8,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, ExternalLink, Mail } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import DesignVariantEditor from './DesignVariantEditor';
+import FooterLinksEditorDialog from './FooterLinksEditorDialog';
 import { geoLocations, groupedLocations } from '@/constants/geoLocations';
 import { PROJECTION_OPTIONS, DEFAULT_PROJECTION } from '@/constants/projections';
-import { DesignConfig } from '@/types/format';
+import { DesignConfig, FooterLink } from '@/types/format';
 
 interface SettingsTabProps {
   config: any;

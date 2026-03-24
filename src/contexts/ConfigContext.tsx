@@ -480,6 +480,15 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         isDirty: true,
         projections: action.payload,
       };
+    case 'UPDATE_FOOTER':
+      return {
+        ...state,
+        isDirty: true,
+        layout: {
+          ...state.layout,
+          footer: action.payload,
+        },
+      };
     default:
       return state;
   }
