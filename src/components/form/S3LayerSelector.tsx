@@ -288,7 +288,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
         </div>
 
         {/* Folder and file list - scrollable */}
-        <div className="max-h-64 overflow-y-auto border rounded-md">
+        <div className="flex-1 min-h-0 overflow-y-auto border rounded-md">
           {/* Folder list */}
           {folders.length > 0 && (
             <div className="grid gap-1 p-2">
