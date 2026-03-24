@@ -182,14 +182,10 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
 
   if (isLoading) {
     return (
-      <Card className="border-primary/20">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Loading bucket contents...</span>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex-1 flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+        <span>Loading bucket contents...</span>
+      </div>
     );
   }
 
