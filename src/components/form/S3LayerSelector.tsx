@@ -191,18 +191,16 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
 
   if (error) {
     return (
-      <Card className="border-red-200">
-        <CardContent className="pt-6">
-          <div className="flex items-center text-red-600 mb-4">
-            <AlertCircle className="h-5 w-5 mr-2" />
-            <span>Error loading bucket contents</span>
-          </div>
-          <p className="text-sm text-red-500 mb-4">{error}</p>
-          <Button onClick={() => fetchFolder(currentPrefix)} variant="outline" size="sm">
-            Retry
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="flex-1 flex flex-col gap-2 py-4">
+        <div className="flex items-center text-red-600">
+          <AlertCircle className="h-5 w-5 mr-2" />
+          <span>Error loading bucket contents</span>
+        </div>
+        <p className="text-sm text-red-500">{error}</p>
+        <Button onClick={() => fetchFolder(currentPrefix)} variant="outline" size="sm" className="self-start">
+          Retry
+        </Button>
+      </div>
     );
   }
 
