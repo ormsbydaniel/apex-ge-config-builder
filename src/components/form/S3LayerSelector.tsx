@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, File, Search, AlertCircle, ListPlus, FileUp, Folder, ChevronRight, Home } from 'lucide-react';
 import { fetchS3BucketFolder, deriveFolderListingFromObjects, getFormatFromExtension, getS3DisplayName, S3Object, S3Selection } from '@/utils/s3Utils';
