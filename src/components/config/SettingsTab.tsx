@@ -39,7 +39,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.['text-color-primary'] || '#ffffff');
   const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.['text-color-secondary'] || '#333333');
   const [advancedColorsOpen, setAdvancedColorsOpen] = useState(false);
-  
+  const [footerEditorOpen, setFooterEditorOpen] = useState(false);
   // Add projection dialog state
   const [addProjectionOpen, setAddProjectionOpen] = useState(false);
   const [newProjectionName, setNewProjectionName] = useState('');
