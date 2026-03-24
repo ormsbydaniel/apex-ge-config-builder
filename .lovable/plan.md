@@ -1,25 +1,32 @@
 
 
-## Hide Select Button for Unsupported Formats
+## Add JSON Editor to Vector Styling Dialog
 
-### Problem
-Files with unsupported formats still show a "Select" button, which is misleading since selecting them won't work properly.
+### What it does
+Replaces the placeholder content in the Vector Styling dialog with a Monaco JSON editor pre-loaded with a `style` array. On save, the style array is applied to every vector-format data source item (GeoJSON, FlatGeoBuf, WFS) in the layer's `data` array.
 
-### Change — `src/components/form/S3LayerSelector.tsx`
+### Changes
 
-In the file row rendering (around line 315-343), conditionally render the "Select" button only when `detectedFormat` is truthy (i.e., a supported format was detected). For unsupported files, show a muted "Unsupported" text label instead.
+**1. `src/components/layers/components/VectorStylingDialog.tsx` — Full rewrite**
 
-```tsx
-// Replace the unconditional Select button with:
-{detectedFormat ? (
-  <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
-    Select
-  </Button>
-) : (
-  <span className="text-[10px] text-muted-foreground italic shrink-0">Unsupported</span>
-)}
-```
+- Add `onUpdateDataSources` prop (same pattern as `RgbCompositeEditorDialog`)
+- On open: scan `source.data` for the first vector-format item that has a `style` property; use that as the initial value, otherwise default to `[]`
+- Render a `MonacoJsonEditor` with the style JSON (formatted as the contents of the `"style"` array)
+- Add Save and Cancel buttons in a `DialogFooter`
+- On Save: parse the JSON, validate it's an array, then map over `source.data` — for every item where `isVectorFormat(item.format)` is true, set `item.style = parsedArray`. Call `onUpdateDataSources(updatedData)` and close
+- Show a toast on parse errors
 
-### Files Modified
-1. `src/components/form/S3LayerSelector.tsx`
+**2. `src/components/layers/components/LayerDataVisualisationSection.tsx` — Wire up new prop**
+
+- Pass `onUpdateDataSources` to `VectorStylingDialog`
+- Update the label to show style count instead of "(None)" when vector styles exist (e.g., "(3 rules)")
+
+### Technical details
+- Reuses `MonacoJsonEditor` from `src/components/config/components/MonacoJsonEditor.tsx`
+- Reuses `isVectorFormat` from `src/utils/fieldDetection.ts` to identify which data items get the style applied
+- Dialog size: `max-w-2xl` with editor height ~400px
+
+### Files modified
+1. `src/components/layers/components/VectorStylingDialog.tsx`
+2. `src/components/layers/components/LayerDataVisualisationSection.tsx`
 
