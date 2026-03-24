@@ -13,6 +13,7 @@ import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
+import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
