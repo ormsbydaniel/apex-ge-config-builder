@@ -76,42 +76,26 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl h-[85vh] overflow-hidden flex flex-col">
         {!isStacService && (
-          <DialogHeader>
-            <DialogTitle>Select Data Source</DialogTitle>
-            <DialogDescription>
-              Select a data source from the {getServiceTypeLabel()} service
-            </DialogDescription>
+          <DialogHeader className="pb-0">
+            <DialogTitle className="flex items-center gap-2 text-base">
+              Select Data Source
+              <span className="text-muted-foreground font-normal text-sm">—</span>
+              {getServiceIcon()}
+              <span className={`font-medium text-sm ${isS3Service ? 'text-green-700' : 'text-blue-700'}`}>
+                {service.name}
+              </span>
+              <Badge variant="outline" className={`${getServiceTypeColor()} text-xs`}>
+                {getServiceTypeLabel()}
+              </Badge>
+              {service.capabilities?.layers.length && (
+                <Badge variant="outline" className="border-green-300 text-green-700 text-xs">
+                  {service.capabilities.totalCount || service.capabilities.layers.length} {isS3Service ? 'objects' : 'layers'}
+                </Badge>
+              )}
+            </DialogTitle>
+            <p className="text-xs text-muted-foreground truncate">{service.url}</p>
           </DialogHeader>
         )}
-        
-        <div className="flex flex-col gap-4 flex-1 min-h-0">
-          {!isStacService && (
-            <Card className={`border-l-4 ${
-              isS3Service ? 'border-l-green-500' : 'border-l-blue-500'
-            }`}>
-              <CardContent className="pt-4">
-                <div className="flex items-center gap-2 mb-2">
-                  {getServiceIcon()}
-                  <h3 className={`font-medium ${
-                    isS3Service ? 'text-green-700' : 'text-blue-700'
-                  }`}>
-                    {service.name}
-                  </h3>
-                  <Badge variant="outline" className={getServiceTypeColor()}>
-                    {getServiceTypeLabel()}
-                  </Badge>
-                  {service.capabilities?.layers.length && (
-                    <Badge variant="outline" className="border-green-300 text-green-700">
-                      {service.capabilities.totalCount || service.capabilities.layers.length} {
-                        isS3Service ? 'objects' : 'layers'
-                      } available
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground">{service.url}</p>
-              </CardContent>
-            </Card>
-          )}
 
 
           {/* Selection Interface */}
