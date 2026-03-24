@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Database, Globe, Server } from 'lucide-react';
 import { Database, Globe, Server } from 'lucide-react';
 import { Service, DataSourceFormat } from '@/types/config';
 import { validateS3Url, S3Selection } from '@/utils/s3Utils';
