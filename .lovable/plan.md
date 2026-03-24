@@ -1,42 +1,43 @@
 
 
-## Problem
+## Footer Links Editor Redesign
 
-The current band label editor renders individual text inputs for every band in a scrollable grid. With 200+ bands (hyperspectral data), this produces an unusable wall of inputs.
+### Overview
+Move the Footer Links section inside the main Settings Card as a peer of "Navigation Settings" and "Branding", using an `<h3>` heading. Rewrite the modal as a two-page dialog: Page 1 lists links with reorder/remove/edit actions and an "Add Footer Link" button; Page 2 is the add/edit form for a single link. Saving on Page 2 returns to Page 1.
 
-## Proposed Approach: Numeric Defaults with Optional Label Overrides
+### Changes
 
-### Default behavior
-Use plain band numbers (1, 2, 3, ..., 224) as the X-axis values by default. No inputs rendered — just a summary line like **"224 bands detected — using band numbers as X-axis"**. This is the sensible default for hyperspectral data and requires zero configuration.
+**1. SettingsTab.tsx**
+- Remove the separate Footer Links `<Card>` (lines 879-917)
+- Add a new `<div>` section inside the main `<CardContent>` (after the last existing section, before the closing `</CardContent>`) with `<h3 className="text-lg font-semibold">Footer Links</h3>`
+- Below the heading, show the badge-based preview of current links (same as now) and the "Edit Footer Links" button
+- Keep the `FooterLinksEditorDialog` mount inside the same component
 
-### Optional label customization via modal
-A **"Customize Band Labels"** button opens a modal dialog with a more capable editor:
+**2. FooterLinksEditorDialog.tsx — Two-page modal rewrite**
+- Add a `page` state: `'list' | 'edit'`
+- Add `editingIndex` state: `number | null` (null = adding new)
+- Add `editForm` state: `LinkFormState` for the single link being edited
 
-- **Table view** with virtual scrolling (only renders visible rows) — columns: Band #, Label, with inline editing
-- **Bulk operations toolbar** at the top:
-  - **"Set All to Band Numbers"** — resets to 1, 2, 3...
-  - **"Set All to Wavelengths"** — prompts for start wavelength and increment (e.g., start: 400nm, step: 2.5nm), then generates "400", "402.5", "405"... This is the most common hyperspectral labeling pattern
-  - **"Paste from CSV"** — paste a column of labels from a spreadsheet
-- **Search/filter** to quickly find and edit specific bands
+**Page 1 (List view):**
+- Title: "Footer Links"
+- Each link shown as a row: icon (Mail/ExternalLink), title, truncated URL, then Edit / Move Up / Move Down / Remove buttons
+- "Add Footer Link" button at bottom → sets `editForm` to empty, `editingIndex = null`, switches to Page 2
+- "Done" button in footer closes the dialog and calls `onSave`
 
-### Adaptive inline editor for small band counts
-For layers with ≤12 bands (typical multispectral), keep a compact inline grid of inputs as it is now — no modal needed. The modal button only appears for >12 bands.
+**Page 2 (Add/Edit form):**
+- Title: "Add Footer Link" or "Edit Footer Link" based on `editingIndex`
+- Same form fields as current (type selector, label, URL or mailto fields with cc/subject/body)
+- "Cancel" → returns to Page 1 without changes
+- "Add" / "Update" button → inserts new link at end of list (add) or updates in-place (edit), then returns to Page 1
 
-## Implementation
+**Key behaviours:**
+- On dialog open, `page` resets to `'list'`
+- Reorder arrows work on Page 1 directly against the local `links` array
+- `onSave` is called only when closing from Page 1 (via "Done"), converting all `LinkFormState` entries to `FooterLink` objects
+- Mailto URL parsing/reconstruction logic unchanged
 
-### Changes to `ChartSourceForm.tsx`
-- Replace the current band labels grid with:
-  - Summary text showing band count
-  - For ≤12 bands: keep existing inline grid
-  - For >12 bands: show summary + "Customize Band Labels" button
-- Default `bandLabels` to numeric strings (`["1", "2", "3", ...]`) instead of `"Band 1"`, `"Band 2"` etc.
-
-### New component: `BandLabelEditorDialog.tsx`
-- Dialog with a virtualized table (simple `div` with `overflow-y-auto` and fixed row heights — no new dependency needed, just render a window of ~30 rows based on scroll position)
-- Bulk operations: wavelength generator (start + step inputs), reset to numbers, paste handler
-- Search input to filter rows
-- Returns updated labels array on save
-
-### No changes needed to schemas or types
-The `x: string[]` config already supports any label strings.
+### Technical Notes
+- The `links` state (array of `LinkFormState`) remains the source of truth within the dialog
+- Page 2 operates on a separate `editForm` state so cancelling discards changes
+- No schema, type, or context changes needed — only the two files above
 
