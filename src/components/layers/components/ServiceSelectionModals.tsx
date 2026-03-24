@@ -76,17 +76,23 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
         {!isStacService && (
-          <div className="flex items-start gap-4">
-            <DialogHeader className="flex-shrink-0">
-              <DialogTitle>Select Data Source</DialogTitle>
-            </DialogHeader>
-            <Card className={`flex-1 border-l-4 ${
+          <DialogHeader>
+            <DialogTitle>Select Data Source</DialogTitle>
+            <DialogDescription>
+              Select a data source from the {getServiceTypeLabel()} service
+            </DialogDescription>
+          </DialogHeader>
+        )}
+        
+        <div className="flex flex-col gap-4 flex-1 min-h-0">
+          {!isStacService && (
+            <Card className={`border-l-4 ${
               isS3Service ? 'border-l-green-500' : 'border-l-blue-500'
             }`}>
-              <CardContent className="py-2 px-4">
-                <div className="flex items-center gap-2">
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-2 mb-2">
                   {getServiceIcon()}
-                  <h3 className={`font-medium text-sm ${
+                  <h3 className={`font-medium ${
                     isS3Service ? 'text-green-700' : 'text-blue-700'
                   }`}>
                     {service.name}
@@ -102,13 +108,10 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
                     </Badge>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground truncate">{service.url}</p>
+                <p className="text-sm text-muted-foreground">{service.url}</p>
               </CardContent>
             </Card>
-          </div>
-        )}
-        
-        <div className="flex flex-col gap-4 flex-1 min-h-0">
+          )}
 
 
           {/* Selection Interface */}
