@@ -331,7 +331,7 @@ const FooterLinksEditorDialog: React.FC<FooterLinksEditorDialogProps> = ({
 
         {/* Label */}
         <div className="flex items-center gap-3">
-          <Label className="w-24 text-sm shrink-0">Label *</Label>
+          <Label className="w-24 text-sm shrink-0">Footer label *</Label>
           <Input
             value={editForm.title}
             onChange={(e) => handleEditFormChange('title', e.target.value)}
