@@ -244,7 +244,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
         <button
           onClick={() => navigateToFolder('')}
           className={`flex items-center gap-1 hover:text-primary transition-colors ${
-            currentPrefix === '' ? 'text-foreground font-medium' : 'text-muted-foreground'
+            currentPrefix === '' ? 'text-foreground font-medium cursor-default' : 'text-primary underline'
           }`}
         >
           <Home className="h-3 w-3" />
@@ -259,8 +259,8 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
               <button
                 onClick={() => !isLast && navigateToFolder(segmentPrefix)}
                 className={`hover:text-primary transition-colors ${
-                  isLast ? 'text-foreground font-medium' : 'text-muted-foreground'
-                } ${isLast ? 'cursor-default' : 'cursor-pointer'}`}
+                  isLast ? 'text-foreground font-medium cursor-default' : 'text-primary underline cursor-pointer'
+                }`}
                 disabled={isLast}
               >
                 {segment}
