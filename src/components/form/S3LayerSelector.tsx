@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,7 +50,6 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
     }
   }, [bucketUrl, usingCachedData, allCachedObjects]);
 
-  // Initial load: check for cached data, then fetch root
   useEffect(() => {
     if (!bucketUrl) return;
 
@@ -64,7 +62,6 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
       }));
       setAllCachedObjects(cachedObjects);
       setUsingCachedData(true);
-      // Derive folder listing from cached data at root
       const listing = deriveFolderListingFromObjects(cachedObjects, '');
       setFolders(listing.folders);
       setFiles(listing.files);
@@ -76,14 +73,11 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
     }
   }, [bucketUrl, capabilities]);
 
-  // When prefix changes (after initial load), refetch
   useEffect(() => {
     if (!bucketUrl) return;
-    // Skip if this is the initial mount (handled above)
     fetchFolder(currentPrefix);
   }, [currentPrefix, fetchFolder]);
 
-  // Filter files when search/format changes
   useEffect(() => {
     let filtered = files;
 
@@ -184,7 +178,6 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
     setCurrentPrefix(prefix);
   };
 
-  // Build breadcrumb segments from currentPrefix
   const breadcrumbSegments = currentPrefix
     ? currentPrefix.replace(/\/$/, '').split('/')
     : [];
@@ -230,37 +223,6 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
           </div>
         )}
 
-        {/* Breadcrumb navigation */}
-        <div className="flex items-center gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md border border-border/50 flex-wrap">
-          <button
-            onClick={() => navigateToFolder('')}
-            className={`flex items-center gap-1 hover:text-primary transition-colors ${
-              currentPrefix === '' ? 'text-foreground font-medium' : 'text-muted-foreground'
-            }`}
-          >
-            <Home className="h-3.5 w-3.5" />
-            <span>Root</span>
-          </button>
-          {breadcrumbSegments.map((segment, index) => {
-            const segmentPrefix = breadcrumbSegments.slice(0, index + 1).join('/') + '/';
-            const isLast = index === breadcrumbSegments.length - 1;
-            return (
-              <React.Fragment key={segmentPrefix}>
-                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
-                <button
-                  onClick={() => !isLast && navigateToFolder(segmentPrefix)}
-                  className={`hover:text-primary transition-colors ${
-                    isLast ? 'text-foreground font-medium' : 'text-muted-foreground'
-                  } ${isLast ? 'cursor-default' : 'cursor-pointer'}`}
-                  disabled={isLast}
-                >
-                  {segment}
-                </button>
-              </React.Fragment>
-            );
-          })}
-        </div>
-
         {/* Search and Filter Controls */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -294,31 +256,41 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
           </div>
         </div>
 
-        {/* Add All Objects Button */}
-        {filteredFiles.length > 0 && (
-          <Button
-            onClick={handleAddAllObjects}
-            disabled={isBulkAdding}
-            className="w-full"
-            variant="default"
+        {/* Breadcrumb navigation */}
+        <div className="flex items-center gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md border border-border/50 flex-wrap">
+          <button
+            onClick={() => navigateToFolder('')}
+            className={`flex items-center gap-1 hover:text-primary transition-colors ${
+              currentPrefix === '' ? 'text-foreground font-medium' : 'text-muted-foreground'
+            }`}
           >
-            {isBulkAdding ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Adding {filteredFiles.length} objects...
-              </>
-            ) : (
-              <>
-                <ListPlus className="h-4 w-4 mr-2" />
-                Add All Objects ({filteredFiles.length})
-              </>
-            )}
-          </Button>
-        )}
+            <Home className="h-3.5 w-3.5" />
+            <span>Root</span>
+          </button>
+          {breadcrumbSegments.map((segment, index) => {
+            const segmentPrefix = breadcrumbSegments.slice(0, index + 1).join('/') + '/';
+            const isLast = index === breadcrumbSegments.length - 1;
+            return (
+              <React.Fragment key={segmentPrefix}>
+                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                <button
+                  onClick={() => !isLast && navigateToFolder(segmentPrefix)}
+                  className={`hover:text-primary transition-colors ${
+                    isLast ? 'text-foreground font-medium' : 'text-muted-foreground'
+                  } ${isLast ? 'cursor-default' : 'cursor-pointer'}`}
+                  disabled={isLast}
+                >
+                  {segment}
+                </button>
+              </React.Fragment>
+            );
+          })}
+        </div>
 
-        {/* Folder list */}
-        {folders.length > 0 && (
-          <div className="border rounded-md">
+        {/* Folder and file list - scrollable */}
+        <div className="max-h-64 overflow-y-auto border rounded-md">
+          {/* Folder list */}
+          {folders.length > 0 && (
             <div className="grid gap-1 p-2">
               {folders.map(folder => (
                 <button
@@ -331,20 +303,18 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
                 </button>
               ))}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Files list */}
-        {filteredFiles.length === 0 && folders.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <File className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No supported files found at this location</p>
-            <p className="text-sm mt-1">
-              Supported formats: FlatGeoBuf (.fgb), COG (.tif/.tiff), GeoJSON (.geojson/.json)
-            </p>
-          </div>
-        ) : filteredFiles.length > 0 ? (
-          <div className="max-h-96 overflow-y-auto border rounded-md">
+          {/* Files list */}
+          {filteredFiles.length === 0 && folders.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <File className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No supported files found at this location</p>
+              <p className="text-sm mt-1">
+                Supported formats: FlatGeoBuf (.fgb), COG (.tif/.tiff), GeoJSON (.geojson/.json)
+              </p>
+            </div>
+          ) : filteredFiles.length > 0 ? (
             <div className="grid gap-2 p-2">
               {filteredFiles.map((object, index) => {
                 const detectedFormat = getFormatFromExtension(object.key);
@@ -384,8 +354,30 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
                 );
               })}
             </div>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
+
+        {/* Add All Objects Button */}
+        {filteredFiles.length > 0 && (
+          <Button
+            onClick={handleAddAllObjects}
+            disabled={isBulkAdding}
+            className="w-full"
+            variant="default"
+          >
+            {isBulkAdding ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Adding {filteredFiles.length} objects...
+              </>
+            ) : (
+              <>
+                <ListPlus className="h-4 w-4 mr-2" />
+                Add All Objects ({filteredFiles.length})
+              </>
+            )}
+          </Button>
+        )}
 
         {/* Status text */}
         {(files.length > 0 || folders.length > 0) && (
