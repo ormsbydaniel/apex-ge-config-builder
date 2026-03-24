@@ -536,6 +536,12 @@ const ProjectionSchema = z.object({
   definition: z.string(),
 });
 
+// Footer link schema for layout footer configuration
+export const FooterLinkSchema = z.object({
+  title: z.string().min(1, 'Footer link title is required'),
+  url: z.string().min(1, 'Footer link URL is required'),
+});
+
 export const ConfigurationSchema = z.object({
   version: z.string().optional(),
   layout: z.object({
@@ -544,6 +550,7 @@ export const ConfigurationSchema = z.object({
       logo: urlOrRelativePathSchema,
       title: z.string().min(1, 'Title is required'),
     }),
+    footer: z.array(FooterLinkSchema).optional(),
     theme: z.object({
       'primary-color': z.string().optional(),
       'secondary-color': z.string().optional(),
