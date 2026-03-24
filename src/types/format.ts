@@ -5,6 +5,12 @@
 // DataSourceFormat no longer includes 's3'
 export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf';
 
+// Footer link configuration for layout footer
+export interface FooterLink {
+  title: string;
+  url: string;
+}
+
 // Design configuration for global layout variants
 export interface DesignConfig {
   variant: string;           // Required: the design variant (e.g., "fullscreen")
