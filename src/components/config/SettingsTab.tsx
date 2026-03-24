@@ -875,6 +875,55 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
         config={config}
         dispatch={dispatch}
       />
+
+      {/* Footer Links Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ExternalLink className="h-5 w-5" />
+            Footer Links
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Configure links displayed in the application footer, such as external resources or contact email addresses.
+          </p>
+
+          {/* Preview of current footer links */}
+          {(config.layout.footer && config.layout.footer.length > 0) ? (
+            <div className="flex flex-wrap items-center gap-2 p-3 bg-muted/30 rounded-lg border">
+              {config.layout.footer.map((link: FooterLink, index: number) => (
+                <Badge key={index} variant="secondary" className="flex items-center gap-1.5">
+                  {link.url.startsWith('mailto:') ? (
+                    <Mail className="h-3 w-3" />
+                  ) : (
+                    <ExternalLink className="h-3 w-3" />
+                  )}
+                  {link.title}
+                </Badge>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground italic p-3 bg-muted/30 rounded-lg border">
+              No footer links configured.
+            </p>
+          )}
+
+          <Button variant="outline" onClick={() => setFooterEditorOpen(true)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit Footer Links
+          </Button>
+        </CardContent>
+      </Card>
+
+      <FooterLinksEditorDialog
+        open={footerEditorOpen}
+        onOpenChange={setFooterEditorOpen}
+        footerLinks={config.layout.footer || []}
+        onSave={(links) => {
+          dispatch({ type: 'UPDATE_FOOTER', payload: links });
+        }}
+      />
     </div>
   );
 };
