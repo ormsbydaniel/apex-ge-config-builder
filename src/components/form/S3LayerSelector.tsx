@@ -205,48 +205,39 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
   }
 
   return (
-    <Card className="border-primary/20 flex-1 flex flex-col min-h-0">
-      <CardContent className="space-y-4 pt-6 flex-1 flex flex-col min-h-0">
-        {/* Cached data indicator */}
-        {usingCachedData && (
-          <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md p-2">
-            <FileUp className="h-4 w-4" />
-            <span>Using cached data from file upload (no CORS required)</span>
-          </div>
-        )}
-
-        {/* Search and Filter Controls */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="search">Search Objects</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="search"
-                placeholder="Search by filename..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="formatFilter">Filter by Format</Label>
-            <select
-              id="formatFilter"
-              value={selectedFormat}
-              onChange={(e) => setSelectedFormat(e.target.value)}
-              className="w-full p-2 border border-input rounded-md bg-background text-foreground"
-            >
-              <option value="all">All formats</option>
-              {getAvailableFormats().map(format => (
-                <option key={format} value={format}>
-                  {format.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </div>
+    <div className="flex-1 flex flex-col min-h-0 space-y-2">
+      {/* Cached data indicator */}
+      {usingCachedData && (
+        <div className="flex items-center gap-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded-md px-2 py-1">
+          <FileUp className="h-3.5 w-3.5" />
+          <span>Using cached data from file upload (no CORS required)</span>
         </div>
+      )}
+
+      {/* Search and Filter Controls */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search objects..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8 h-9"
+          />
+        </div>
+        <select
+          value={selectedFormat}
+          onChange={(e) => setSelectedFormat(e.target.value)}
+          className="h-9 px-2 border border-input rounded-md bg-background text-foreground text-sm"
+        >
+          <option value="all">All formats</option>
+          {getAvailableFormats().map(format => (
+            <option key={format} value={format}>
+              {format.toUpperCase()}
+            </option>
+          ))}
+        </select>
+      </div>
 
         {/* Breadcrumb navigation */}
         <div className="flex items-center gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md border border-border/50 flex-wrap">
