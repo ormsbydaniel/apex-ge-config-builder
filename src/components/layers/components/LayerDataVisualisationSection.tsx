@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Tags, Palette, Layers, Blend } from 'lucide-react';
+import { Eye, Tags, Palette, Layers, Blend, PenTool } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Pencil, Trash2 } from 'lucide-react';
