@@ -111,7 +111,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: Se
                 <p className="text-sm text-muted-foreground">{service.url}</p>
               </CardContent>
             </Card>
-          )
+          )}
 
 
           {/* Selection Interface */}
