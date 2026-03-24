@@ -297,6 +297,31 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
           />
         </div>
 
+        {/* Vector Styling sub-section */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <PenTool className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
+              Vector Styling <span className="normal-case tracking-normal font-normal italic">(None)</span>
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-4 w-4 p-0"
+              onClick={() => setVectorStylingDialogOpen(true)}
+            >
+              <Pencil className="h-2.5 w-2.5" />
+            </Button>
+          </div>
+
+          <VectorStylingDialog
+            open={vectorStylingDialogOpen}
+            onOpenChange={setVectorStylingDialogOpen}
+            source={source}
+            onUpdateMeta={onUpdateMeta}
+          />
+        </div>
+
       </div>
     </div>
   );
