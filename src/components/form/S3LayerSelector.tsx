@@ -270,75 +270,68 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
         })}
       </div>
 
-        {/* Folder and file list - scrollable */}
-        <div className="flex-1 min-h-0 overflow-y-auto border rounded-md">
-          {/* Folder list */}
-          {folders.length > 0 && (
-            <div className="grid gap-1 p-2">
-              {folders.map(folder => (
-                <button
-                  key={folder}
-                  onClick={() => navigateToFolder(folder)}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors text-left w-full"
-                >
-                  <Folder className="h-4 w-4 text-primary shrink-0" />
-                  <span className="font-medium text-sm">{getS3DisplayName(folder)}/</span>
-                </button>
-              ))}
-            </div>
-          )}
+      {/* Folder and file list - scrollable */}
+      <div className="flex-1 min-h-0 overflow-y-auto border rounded-md">
+        {/* Folder list */}
+        {folders.length > 0 && (
+          <div className="grid gap-px p-1">
+            {folders.map(folder => (
+              <button
+                key={folder}
+                onClick={() => navigateToFolder(folder)}
+                className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-muted/50 transition-colors text-left w-full"
+              >
+                <Folder className="h-4 w-4 text-primary shrink-0" />
+                <span className="font-medium text-sm">{getS3DisplayName(folder)}/</span>
+              </button>
+            ))}
+          </div>
+        )}
 
-          {/* Files list */}
-          {filteredFiles.length === 0 && folders.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <File className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No supported files found at this location</p>
-              <p className="text-sm mt-1">
-                Supported formats: FlatGeoBuf (.fgb), COG (.tif/.tiff), GeoJSON (.geojson/.json)
-              </p>
-            </div>
-          ) : filteredFiles.length > 0 ? (
-            <div className="grid gap-2 p-2">
-              {filteredFiles.map((object, index) => {
-                const detectedFormat = getFormatFromExtension(object.key);
-                return (
-                  <div
-                    key={index}
-                    className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                    onClick={() => handleObjectSelect(object)}
-                  >
-                    <div className="flex-1 min-w-0 pr-2">
-                      <div className="flex items-start gap-2 mb-1">
-                        <File className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <span className="font-medium text-sm break-words line-clamp-2 block">
-                            {getS3DisplayName(object.key)}
-                          </span>
-                          <div className="flex items-center gap-2 mt-1">
-                            {detectedFormat && (
-                              <Badge variant="secondary" className="text-xs">
-                                {detectedFormat.toUpperCase()}
-                              </Badge>
-                            )}
-                            {object.size > 0 && (
-                              <span className="text-xs text-muted-foreground">{formatSize(object.size)}</span>
-                            )}
-                            {object.lastModified !== 'From file upload' && (
-                              <span className="text-xs text-muted-foreground">{new Date(object.lastModified).toLocaleDateString()}</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <Button size="sm" variant="outline" className="flex-shrink-0 self-center">
-                      Select
-                    </Button>
+        {/* Files list */}
+        {filteredFiles.length === 0 && folders.length === 0 ? (
+          <div className="text-center py-6 text-muted-foreground">
+            <File className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No supported files found</p>
+            <p className="text-xs mt-1">
+              Supported: .fgb, .tif/.tiff, .geojson/.json
+            </p>
+          </div>
+        ) : filteredFiles.length > 0 ? (
+          <div className="grid gap-px p-1">
+            {filteredFiles.map((object, index) => {
+              const detectedFormat = getFormatFromExtension(object.key);
+              return (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 py-1.5 px-2 border rounded hover:bg-muted/50 cursor-pointer"
+                  onClick={() => handleObjectSelect(object)}
+                >
+                  <File className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="font-medium text-sm truncate block">
+                      {getS3DisplayName(object.key)}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          ) : null}
-        </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {detectedFormat && (
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                        {detectedFormat.toUpperCase()}
+                      </Badge>
+                    )}
+                    {object.size > 0 && (
+                      <span className="text-[10px] text-muted-foreground">{formatSize(object.size)}</span>
+                    )}
+                  </div>
+                  <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
+                    Select
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
 
         {/* Add All Objects Button */}
         {filteredFiles.length > 0 && (
