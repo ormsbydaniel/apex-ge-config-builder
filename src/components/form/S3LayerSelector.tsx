@@ -238,7 +238,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedForma
           onChange={(e) => setSelectedFormat(e.target.value)}
           className="h-9 px-2 border border-input rounded-md bg-background text-foreground text-sm"
         >
-          <option value="all">All formats</option>
+          <option value="all">All supported {sourceContext} formats</option>
           {getAvailableFormats().map(format => (
             <option key={format} value={format}>
               {format.toUpperCase()}

@@ -115,6 +115,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
               bucketUrl={service.url}
               onObjectSelect={handleS3ObjectSelect}
               allowedFormats={allowedFormats}
+              sourceContext={sourceContext}
             />
           ) : isStacService ? (
             <StacBrowser
