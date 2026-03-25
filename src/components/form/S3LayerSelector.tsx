@@ -344,7 +344,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedForma
                         <span className="text-[10px] text-muted-foreground">{formatSize(object.size)}</span>
                       )}
                     </div>
-                    {detectedFormat ? (
+                    {formatAllowed ? (
                       <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
                         Select
                       </Button>
