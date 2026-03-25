@@ -1,23 +1,17 @@
 
 
-## Enhance Vector Styling Dialog with Tabs and Wrapped JSON
+## Change JSON Editor to Show Only the Style Array
 
-### Changes — `src/components/layers/components/VectorStylingDialog.tsx`
+### Problem
+The editor currently shows `{ "style": [...] }` which is confusing — users might think they're editing the entire data object. Since the editor is specifically for the `style` property, it should only show the array contents directly.
 
-**1. Wrap JSON in `"style": [...]` envelope**
-- Change `initialJson` to output `{ "style": [...] }` instead of just the array
-- On save, parse the full object, extract `.style`, validate it's an array, then apply as before
+### Change — `src/components/layers/components/VectorStylingDialog.tsx`
 
-**2. Add tabbed interface**
-- Import `Tabs, TabsList, TabsTrigger, TabsContent` from `@/components/ui/tabs`
-- Two tabs: **Basic Styling** and **JSON Style Editor**
-- "Basic Styling" tab shows a placeholder message: *"Marker, line, fill and label styling coming soon"* in muted text
-- "JSON Style Editor" tab contains the existing Monaco editor and description text
+**Initial JSON**: Change from `JSON.stringify({ style: styleArray }, null, 2)` to just `JSON.stringify(styleArray, null, 2)` — so the editor shows `[]` or `[{ ... }, ...]` directly.
 
-**3. Remember last-used tab across opens (session-level)**
-- Use a module-level `let` variable (outside the component) to store the last selected tab value
-- Initialize `Tabs` `defaultValue` from this variable; update it via `onValueChange`
-- This persists across dialog open/close within the same browser session without needing context or localStorage
+**Save logic**: Parse the JSON and validate it's an array (not an object with a `.style` property). Apply the parsed array directly.
+
+**Description text**: Update to say something like: *Edit the style array below. On save, it will be set as the `"style"` property on all vector data sources in this layer.*
 
 ### Files modified
 1. `src/components/layers/components/VectorStylingDialog.tsx`
