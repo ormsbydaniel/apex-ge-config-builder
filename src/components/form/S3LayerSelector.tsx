@@ -123,7 +123,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedForma
 
       filteredFiles.forEach(object => {
         const detectedFormat = getFormatFromExtension(object.key);
-        if (detectedFormat) {
+        if (detectedFormat && isFormatAllowed(detectedFormat)) {
           selections.push({
             url: object.url,
             format: detectedFormat,
