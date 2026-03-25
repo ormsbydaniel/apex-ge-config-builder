@@ -16,9 +16,10 @@ interface ServiceSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
+  allowedFormats?: string[];
 }
 
-export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect }: ServiceSelectionModalProps) => {
+export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats }: ServiceSelectionModalProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   if (!service) return null;
