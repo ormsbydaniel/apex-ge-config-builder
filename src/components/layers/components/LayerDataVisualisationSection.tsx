@@ -310,15 +310,35 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
               })()}
             </span>
             </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-4 w-4 p-0"
-              disabled={!source.data.some(item => isVectorFormat(item.format))}
-              onClick={() => setVectorStylingDialogOpen(true)}
-            >
-              <Pencil className="h-2.5 w-2.5" />
-            </Button>
+            {(() => {
+              const hasVectorData = source.data.some(item => isVectorFormat(item.format));
+              const btn = (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-4 w-4 p-0"
+                  disabled={!hasVectorData}
+                  onClick={() => setVectorStylingDialogOpen(true)}
+                >
+                  <Pencil className="h-2.5 w-2.5" />
+                </Button>
+              );
+              if (!hasVectorData) {
+                return (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>{btn}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>No vector data sources (GeoJSON, FlatGeoBuf, WFS) in this layer</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              }
+              return btn;
+            })()}
           </div>
 
           <VectorStylingDialog
