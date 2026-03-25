@@ -86,7 +86,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
           </TabsContent>
           <TabsContent value="json">
             <div className="text-xs text-muted-foreground mb-1">
-              Define a <code className="bg-muted px-1 rounded">"style"</code> array. On save, it will be applied to all vector data sources in this layer.
+              Edit the <code className="bg-muted px-1 rounded">style</code> array below. On save, it will be set as the <code className="bg-muted px-1 rounded">"style"</code> property on all vector data sources in this layer.
             </div>
             <MonacoJsonEditor
               value={editedJson}
