@@ -25,12 +25,12 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const [activeTab, setActiveTab] = useState(lastActiveTab);
 
   const initialJson = useMemo(() => {
-    if (!open) return '{\n  "style": []\n}';
+    if (!open) return '[]';
     const vectorItem = source.data.find(
       (item) => isVectorFormat(item.format) && Array.isArray(item.style)
     );
     const styleArray = vectorItem?.style ?? [];
-    return JSON.stringify({ style: styleArray }, null, 2);
+    return JSON.stringify(styleArray, null, 2);
   }, [open, source.data]);
 
   useEffect(() => {
@@ -48,12 +48,12 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const handleSave = () => {
     try {
       const parsed = JSON.parse(editedJson);
-      if (!parsed || !Array.isArray(parsed.style)) {
-        toast({ title: 'Invalid style', description: 'JSON must contain a "style" property that is an array.', variant: 'destructive' });
+      if (!Array.isArray(parsed)) {
+        toast({ title: 'Invalid style', description: 'The style must be a JSON array.', variant: 'destructive' });
         return;
       }
       const updatedData = source.data.map((item) =>
-        isVectorFormat(item.format) ? { ...item, style: parsed.style } : item
+        isVectorFormat(item.format) ? { ...item, style: parsed } : item
       );
       onUpdateDataSources(updatedData);
       onOpenChange(false);
@@ -86,7 +86,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
           </TabsContent>
           <TabsContent value="json">
             <div className="text-xs text-muted-foreground mb-1">
-              Define a <code className="bg-muted px-1 rounded">"style"</code> array. On save, it will be applied to all vector data sources in this layer.
+              Edit the <code className="bg-muted px-1 rounded">style</code> array below. On save, it will be set as the <code className="bg-muted px-1 rounded">"style"</code> property on all vector data sources in this layer.
             </div>
             <MonacoJsonEditor
               value={editedJson}
