@@ -15,7 +15,7 @@ interface S3LayerSelectorProps {
   sourceContext?: string;
 }
 
-const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedFormats }: S3LayerSelectorProps) => {
+const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedFormats, sourceContext = 'data' }: S3LayerSelectorProps) => {
   const { toast } = useToast();
   const [allCachedObjects, setAllCachedObjects] = useState<S3Object[]>([]);
   const [files, setFiles] = useState<S3Object[]>([]);
