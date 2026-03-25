@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Pencil, FileText } from 'lucide-react';
+import { Pencil, FileText, ArrowLeft } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +13,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@/components/ui/table';
 
 interface LayerDescriptionAttributionDisplayProps {
   source: DataSource;
@@ -21,6 +29,7 @@ interface LayerDescriptionAttributionDisplayProps {
 
 const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescriptionAttributionDisplayProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [description, setDescription] = useState('');
   const [attributionText, setAttributionText] = useState('');
   const [attributionUrl, setAttributionUrl] = useState('');
@@ -91,46 +100,123 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
         )}
       </div>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setShowHelp(false); }}>
         <DialogContent className="sm:max-w-[700px]">
-          <DialogHeader>
-            <DialogTitle>Description &amp; Attribution</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="layer-description">Description</Label>
-              <Textarea
-                id="layer-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Layer description..."
-                rows={8}
-                className="min-h-[180px]"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="layer-attribution-text">Attribution Text</Label>
-              <Input
-                id="layer-attribution-text"
-                value={attributionText}
-                onChange={(e) => setAttributionText(e.target.value)}
-                placeholder="Data provider name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="layer-attribution-url">Attribution URL</Label>
-              <Input
-                id="layer-attribution-url"
-                value={attributionUrl}
-                onChange={(e) => setAttributionUrl(e.target.value)}
-                placeholder="https://example.com"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
-          </DialogFooter>
+          {showHelp ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Markdown Reference</DialogTitle>
+              </DialogHeader>
+              <div className="py-2">
+                <p className="text-sm text-muted-foreground mb-4">
+                  The description field supports the following markdown:
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Feature</TableHead>
+                      <TableHead>Syntax</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Hyperlink</TableCell>
+                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">[text](https://url/)</code></TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Italics</TableCell>
+                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">*text*</code></TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Bold</TableCell>
+                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">**text**</code></TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Heading 1</TableCell>
+                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded"># text</code></TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Heading 2</TableCell>
+                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">## text</code></TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">List</TableCell>
+                      <TableCell>
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">- item 1</code>
+                        <br />
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">- item 2</code>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Quote</TableCell>
+                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">&gt; text</code></TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Code</TableCell>
+                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">`code`</code></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowHelp(false)}>
+                  <ArrowLeft className="h-4 w-4 mr-1.5" />
+                  Back
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Description &amp; Attribution</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label htmlFor="layer-description">Description</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Description supports basic markdown.{' '}
+                    <button
+                      type="button"
+                      className="text-primary hover:text-primary/80 underline cursor-pointer"
+                      onClick={() => setShowHelp(true)}
+                    >
+                      Tell me more
+                    </button>
+                  </p>
+                  <Textarea
+                    id="layer-description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Layer description..."
+                    rows={8}
+                    className="min-h-[180px]"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="layer-attribution-text">Attribution Text</Label>
+                  <Input
+                    id="layer-attribution-text"
+                    value={attributionText}
+                    onChange={(e) => setAttributionText(e.target.value)}
+                    placeholder="Data provider name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="layer-attribution-url">Attribution URL</Label>
+                  <Input
+                    id="layer-attribution-url"
+                    value={attributionUrl}
+                    onChange={(e) => setAttributionUrl(e.target.value)}
+                    placeholder="https://example.com"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+                <Button onClick={handleSave}>Save</Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </>
