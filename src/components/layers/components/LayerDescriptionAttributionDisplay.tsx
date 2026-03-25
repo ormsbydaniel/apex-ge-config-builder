@@ -101,13 +101,20 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
       </div>
 
       <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setShowHelp(false); }}>
-        <DialogContent className="sm:max-w-[700px]">
+        <DialogContent className="sm:max-w-[700px] h-[480px] flex flex-col">
           {showHelp ? (
             <>
               <DialogHeader>
                 <DialogTitle>Markdown Reference</DialogTitle>
               </DialogHeader>
-              <div className="py-2">
+              <button
+                type="button"
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 underline cursor-pointer"
+                onClick={() => setShowHelp(false)}
+              >
+                <ArrowLeft className="h-3 w-3" /> Back
+              </button>
+              <div className="flex-1 overflow-y-auto pr-2">
                 <p className="text-sm text-muted-foreground mb-4">
                   The description field supports the following markdown:
                 </p>
@@ -158,57 +165,53 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
                   </TableBody>
                 </Table>
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setShowHelp(false)}>
-                  <ArrowLeft className="h-4 w-4 mr-1.5" />
-                  Back
-                </Button>
-              </DialogFooter>
             </>
           ) : (
             <>
               <DialogHeader>
                 <DialogTitle>Description &amp; Attribution</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-2">
-                <div className="space-y-2">
-                  <Label htmlFor="layer-description">Description</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Description supports basic markdown.{' '}
-                    <button
-                      type="button"
-                      className="text-primary hover:text-primary/80 underline cursor-pointer"
-                      onClick={() => setShowHelp(true)}
-                    >
-                      Tell me more
-                    </button>
-                  </p>
-                  <Textarea
-                    id="layer-description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Layer description..."
-                    rows={8}
-                    className="min-h-[180px]"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="layer-attribution-text">Attribution Text</Label>
-                  <Input
-                    id="layer-attribution-text"
-                    value={attributionText}
-                    onChange={(e) => setAttributionText(e.target.value)}
-                    placeholder="Data provider name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="layer-attribution-url">Attribution URL</Label>
-                  <Input
-                    id="layer-attribution-url"
-                    value={attributionUrl}
-                    onChange={(e) => setAttributionUrl(e.target.value)}
-                    placeholder="https://example.com"
-                  />
+              <div className="flex-1 overflow-y-auto pr-2">
+                <div className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="layer-description">Description</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Description supports basic markdown.{' '}
+                      <button
+                        type="button"
+                        className="text-primary hover:text-primary/80 underline cursor-pointer"
+                        onClick={() => setShowHelp(true)}
+                      >
+                        Tell me more
+                      </button>
+                    </p>
+                    <Textarea
+                      id="layer-description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Layer description..."
+                      rows={8}
+                      className="min-h-[180px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="layer-attribution-text">Attribution Text</Label>
+                    <Input
+                      id="layer-attribution-text"
+                      value={attributionText}
+                      onChange={(e) => setAttributionText(e.target.value)}
+                      placeholder="Data provider name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="layer-attribution-url">Attribution URL</Label>
+                    <Input
+                      id="layer-attribution-url"
+                      value={attributionUrl}
+                      onChange={(e) => setAttributionUrl(e.target.value)}
+                      placeholder="https://example.com"
+                    />
+                  </div>
                 </div>
               </div>
               <DialogFooter>
