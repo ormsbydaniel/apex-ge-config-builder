@@ -151,7 +151,7 @@ export const ServiceSchema = z.object({
   name: z.string(),
   url: urlOrRelativePathSchema,
   sourceType: z.enum(['s3', 'service', 'stac']).optional(),
-  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 's3', 'stac']).optional(),
+  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 'csv', 's3', 'stac']).optional(),
   capabilities: ServiceCapabilitiesSchema.optional(),
 });
 
