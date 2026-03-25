@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-03-25",
+    title: "Improvements to S3 browser. Addition of vector data styling UI control for direct JSON entry.",
+    category: "Improvement",
+  },
+  {
     date: "2026-03-24",
     title: "Footer links configuration added to Settings",
     category: "Feature",
