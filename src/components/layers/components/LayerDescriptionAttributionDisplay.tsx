@@ -116,7 +116,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
               </button>
               <div className="flex-1 overflow-y-auto pr-2">
                 <p className="text-sm text-muted-foreground mb-4">
-                  The description field supports the following markdown:
+                  {"\n"}
                 </p>
                 <Table>
                   <TableHeader>
