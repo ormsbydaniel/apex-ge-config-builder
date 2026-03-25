@@ -586,7 +586,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
           {/* Branding Settings Subsection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Branding Settings</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Paintbrush className="h-4 w-4" />Branding Settings</h3>
             
             <div className="space-y-1">
               <div className="flex items-center gap-2">
