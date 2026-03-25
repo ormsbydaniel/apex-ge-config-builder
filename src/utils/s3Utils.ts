@@ -98,7 +98,7 @@ export const isSupportedFormat = (filename: string): boolean => {
 // Get error message for unsupported formats
 export const getUnsupportedFormatMessage = (filename: string): string => {
   const extension = filename.toLowerCase().split('.').pop();
-  return `Unrecognized format: ${extension}. Supported formats: .fgb (FlatGeoBuf), .tif/.tiff (COG), .geojson/.json (GeoJSON)`;
+  return `Unrecognized format: ${extension}. Supported formats: .fgb (FlatGeoBuf), .tif/.tiff (COG), .geojson/.json (GeoJSON), .csv (CSV)`;
 };
 
 // Fetch S3 bucket contents using XML API

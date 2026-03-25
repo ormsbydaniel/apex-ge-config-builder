@@ -488,6 +488,7 @@ const DataSourceForm = ({
         isOpen={showServiceModal}
         onClose={handleServiceModalClose}
         onSelect={handleServiceModalSelection}
+        allowedFormats={allowedFormats || ['cog', 'geojson', 'flatgeobuf']}
       />
       
       <Card className={cn(

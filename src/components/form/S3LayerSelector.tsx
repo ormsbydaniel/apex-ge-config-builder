@@ -312,7 +312,9 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedForma
             <File className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No supported files found</p>
             <p className="text-xs mt-1">
-              Supported: .fgb, .tif/.tiff, .geojson/.json
+              {allowedFormats 
+                ? `Supported: ${allowedFormats.map(f => f.toUpperCase()).join(', ')}`
+                : 'Supported: .fgb, .tif/.tiff, .geojson/.json, .csv'}
             </p>
           </div>
         ) : filteredFiles.length > 0 ? (
