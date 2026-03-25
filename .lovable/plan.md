@@ -1,25 +1,24 @@
 
 
-## Fix Modal Height & Replace Back Button with Link
+## Plan: Add "URL Parameters" Section to Settings Tab
+
+Add a new section beneath the Footer Links section in `SettingsTab.tsx` with a descriptive paragraph and a two-column table showing URL parameters and examples.
 
 ### Changes
 
-**`src/components/layers/components/LayerDescriptionAttributionDisplay.tsx`**
+**File: `src/components/config/SettingsTab.tsx`**
 
-1. **Fixed modal height**: Add `h-[480px] flex flex-col` to `DialogContent` so the modal stays the same size for both views. Wrap the inner content in a `flex-1 overflow-y-auto` div.
+After the Footer Links `</div>` (line 900), insert a new "URL Parameters" section containing:
+- An `<h3>` heading: "URL Parameters"
+- A paragraph explaining these are URL parameters for deployed configurations
+- A `Table` using the existing shadcn table components with two columns: "Parameter" and "Examples"
+- Five rows of data:
+  - `variant=<fullscreen|standard>` | `&variant=fullscreen`
+  - `zoom=<zoomlevel>` | `&zoom=10`
+  - `layerGroups=<groupname>` | `&layerGroups=Soils&layerGroups=Cities`
+  - `lat=<latitude>` | `&lat=52.0`
+  - `long=<longitude>` | `&long=-2.0`
+- Parameter/example values styled in monospace (`font-mono`) for clarity
 
-2. **Replace Back button with a link**: Remove the `DialogFooter` with the Back `Button` from the help view. Instead, add a `< Back` text link directly below the "Markdown Reference" title, using the same styling as "Tell me more" (small text, underline, primary color, with an `ArrowLeft` icon inline).
-
-### Specific edits
-
-- **Line 104**: Change `DialogContent` className to `"sm:max-w-[700px] h-[480px] flex flex-col"`
-- **Lines 106-167** (help branch): After `DialogHeader`, add the `< Back` link as:
-  ```tsx
-  <button type="button" className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 underline cursor-pointer" onClick={() => setShowHelp(false)}>
-    <ArrowLeft className="h-3 w-3" /> Back
-  </button>
-  ```
-  Wrap the table area in `<div className="flex-1 overflow-y-auto ...">`. Remove the `DialogFooter` with the Back button entirely.
-
-- **Lines 169-218** (edit branch): Wrap content in `<div className="flex-1 overflow-y-auto">` to match the flex layout.
+Will import `Table, TableHeader, TableBody, TableRow, TableHead, TableCell` from `@/components/ui/table` at the top of the file.
 
