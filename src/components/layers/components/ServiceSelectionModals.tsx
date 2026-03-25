@@ -11,15 +11,25 @@ import StacBrowser from './StacBrowser';
 
 import { AssetSelection } from './StacBrowser';
 
+type SourceContext = 'data' | 'chart' | 'statistics' | 'constraint';
+
+const SOURCE_CONTEXT_LABELS: Record<SourceContext, string> = {
+  data: 'Data',
+  chart: 'Chart',
+  statistics: 'Statistics',
+  constraint: 'Constraint',
+};
+
 interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
   onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
   allowedFormats?: string[];
+  sourceContext?: SourceContext;
 }
 
-export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats }: ServiceSelectionModalProps) => {
+export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats, sourceContext = 'data' }: ServiceSelectionModalProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   if (!service) return null;
@@ -78,7 +88,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
         {!isStacService && (
           <DialogHeader className="pb-0">
             <DialogTitle className="flex items-center gap-2 text-base">
-              Select Data Source
+              Select {SOURCE_CONTEXT_LABELS[sourceContext]} Source
               <span className="text-muted-foreground font-normal text-sm">—</span>
               {getServiceIcon()}
               <span className={`font-medium text-sm ${isS3Service ? 'text-green-700' : 'text-blue-700'}`}>
@@ -105,6 +115,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
               bucketUrl={service.url}
               onObjectSelect={handleS3ObjectSelect}
               allowedFormats={allowedFormats}
+              sourceContext={sourceContext}
             />
           ) : isStacService ? (
             <StacBrowser

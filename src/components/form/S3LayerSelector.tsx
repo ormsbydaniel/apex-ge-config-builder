@@ -12,9 +12,10 @@ interface S3LayerSelectorProps {
   capabilities?: ServiceCapabilities | null;
   onObjectSelect: (selection: S3Selection | S3Selection[]) => void;
   allowedFormats?: string[];
+  sourceContext?: string;
 }
 
-const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedFormats }: S3LayerSelectorProps) => {
+const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedFormats, sourceContext = 'data' }: S3LayerSelectorProps) => {
   const { toast } = useToast();
   const [allCachedObjects, setAllCachedObjects] = useState<S3Object[]>([]);
   const [files, setFiles] = useState<S3Object[]>([]);
@@ -237,7 +238,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedForma
           onChange={(e) => setSelectedFormat(e.target.value)}
           className="h-9 px-2 border border-input rounded-md bg-background text-foreground text-sm"
         >
-          <option value="all">All formats</option>
+          <option value="all">All supported {sourceContext} formats</option>
           {getAvailableFormats().map(format => (
             <option key={format} value={format}>
               {format.toUpperCase()}
