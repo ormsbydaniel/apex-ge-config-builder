@@ -163,7 +163,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedForma
     const formats = new Set<string>();
     files.forEach(obj => {
       const format = getFormatFromExtension(obj.key);
-      if (format) {
+      if (format && isFormatAllowed(format)) {
         formats.add(format);
       }
     });
