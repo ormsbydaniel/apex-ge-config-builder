@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, ExternalLink, Mail } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, ExternalLink, Mail, Navigation, Paintbrush, Palette, Link2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import DesignVariantEditor from './DesignVariantEditor';
