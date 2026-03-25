@@ -336,7 +336,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedForma
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {detectedFormat && (
-                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                        <Badge variant={formatAllowed ? "secondary" : "outline"} className="text-[10px] px-1.5 py-0">
                           {detectedFormat.toUpperCase()}
                         </Badge>
                       )}
