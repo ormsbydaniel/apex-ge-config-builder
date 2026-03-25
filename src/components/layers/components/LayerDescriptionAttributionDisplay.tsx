@@ -29,6 +29,7 @@ interface LayerDescriptionAttributionDisplayProps {
 
 const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescriptionAttributionDisplayProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [description, setDescription] = useState('');
   const [attributionText, setAttributionText] = useState('');
   const [attributionUrl, setAttributionUrl] = useState('');
