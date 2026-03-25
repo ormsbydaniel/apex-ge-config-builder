@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
 import { detectServiceTypeFromFile, DetectionResult, DetectedServiceType } from '@/utils/serviceFileParser';
+import RecommendedServicesModal from '@/components/RecommendedServicesModal';
 
 interface ServicesManagerProps {
   services: Service[];
@@ -28,6 +29,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
   const [showAddForm, setShowAddForm] = useState(false);
   const [autoNameLoading, setAutoNameLoading] = useState(false);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
+  const [showRecommendedModal, setShowRecommendedModal] = useState(false);
+  const [recommendedServicesList, setRecommendedServicesList] = useState<Service[]>([]);
+  const [isAddingSelected, setIsAddingSelected] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [detectionResult, setDetectionResult] = useState<DetectionResult | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -199,9 +203,24 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
         return;
       }
 
-      // Add each service with GetCapabilities calls
+      setRecommendedServicesList(newServices);
+      setShowRecommendedModal(true);
+    } catch (error) {
+      toast({
+        title: "Failed to load services",
+        description: error instanceof Error ? error.message : "An error occurred while fetching recommended services.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingRecommended(false);
+    }
+  };
+
+  const handleConfirmRecommendedServices = useCallback(async (selectedServices: Service[]) => {
+    setIsAddingSelected(true);
+    try {
       let addedCount = 0;
-      for (const service of newServices) {
+      for (const service of selectedServices) {
         try {
           const sourceType = service.sourceType || (service.format === 'stac' ? 'stac' : 'service');
           const format = service.format === 's3' ? 'cog' : (service.format || 'wms');
@@ -224,14 +243,15 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
       });
     } catch (error) {
       toast({
-        title: "Failed to load services",
-        description: error instanceof Error ? error.message : "An error occurred while fetching recommended services.",
+        title: "Failed to add services",
+        description: error instanceof Error ? error.message : "An error occurred.",
         variant: "destructive"
       });
     } finally {
-      setIsLoadingRecommended(false);
+      setIsAddingSelected(false);
+      setShowRecommendedModal(false);
     }
-  };
+  }, [addService]);
 
   const getConfigForType = (type: SourceConfigType | 'json-upload') => {
     if (type === 's3') {
@@ -524,6 +544,13 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
         detectionResult={detectionResult}
         onConfirm={handleConfirmUpload}
         onCancel={handleCancelUpload}
+      />
+      <RecommendedServicesModal
+        isOpen={showRecommendedModal}
+        onClose={() => setShowRecommendedModal(false)}
+        services={recommendedServicesList}
+        onConfirm={handleConfirmRecommendedServices}
+        isLoading={isAddingSelected}
       />
     </div>
   );
