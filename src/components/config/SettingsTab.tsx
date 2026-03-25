@@ -288,7 +288,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
           {/* Navigation Settings Subsection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Navigation Settings</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Navigation className="h-4 w-4" />Navigation Settings</h3>
             
             {/* Location Preset Selector */}
             <div className="flex items-start gap-6">
