@@ -1,32 +1,24 @@
 
 
-## Add JSON Editor to Vector Styling Dialog
+## Enhance Vector Styling Dialog with Tabs and Wrapped JSON
 
-### What it does
-Replaces the placeholder content in the Vector Styling dialog with a Monaco JSON editor pre-loaded with a `style` array. On save, the style array is applied to every vector-format data source item (GeoJSON, FlatGeoBuf, WFS) in the layer's `data` array.
+### Changes — `src/components/layers/components/VectorStylingDialog.tsx`
 
-### Changes
+**1. Wrap JSON in `"style": [...]` envelope**
+- Change `initialJson` to output `{ "style": [...] }` instead of just the array
+- On save, parse the full object, extract `.style`, validate it's an array, then apply as before
 
-**1. `src/components/layers/components/VectorStylingDialog.tsx` — Full rewrite**
+**2. Add tabbed interface**
+- Import `Tabs, TabsList, TabsTrigger, TabsContent` from `@/components/ui/tabs`
+- Two tabs: **Basic Styling** and **JSON Style Editor**
+- "Basic Styling" tab shows a placeholder message: *"Marker, line, fill and label styling coming soon"* in muted text
+- "JSON Style Editor" tab contains the existing Monaco editor and description text
 
-- Add `onUpdateDataSources` prop (same pattern as `RgbCompositeEditorDialog`)
-- On open: scan `source.data` for the first vector-format item that has a `style` property; use that as the initial value, otherwise default to `[]`
-- Render a `MonacoJsonEditor` with the style JSON (formatted as the contents of the `"style"` array)
-- Add Save and Cancel buttons in a `DialogFooter`
-- On Save: parse the JSON, validate it's an array, then map over `source.data` — for every item where `isVectorFormat(item.format)` is true, set `item.style = parsedArray`. Call `onUpdateDataSources(updatedData)` and close
-- Show a toast on parse errors
-
-**2. `src/components/layers/components/LayerDataVisualisationSection.tsx` — Wire up new prop**
-
-- Pass `onUpdateDataSources` to `VectorStylingDialog`
-- Update the label to show style count instead of "(None)" when vector styles exist (e.g., "(3 rules)")
-
-### Technical details
-- Reuses `MonacoJsonEditor` from `src/components/config/components/MonacoJsonEditor.tsx`
-- Reuses `isVectorFormat` from `src/utils/fieldDetection.ts` to identify which data items get the style applied
-- Dialog size: `max-w-2xl` with editor height ~400px
+**3. Remember last-used tab across opens (session-level)**
+- Use a module-level `let` variable (outside the component) to store the last selected tab value
+- Initialize `Tabs` `defaultValue` from this variable; update it via `onValueChange`
+- This persists across dialog open/close within the same browser session without needing context or localStorage
 
 ### Files modified
 1. `src/components/layers/components/VectorStylingDialog.tsx`
-2. `src/components/layers/components/LayerDataVisualisationSection.tsx`
 
