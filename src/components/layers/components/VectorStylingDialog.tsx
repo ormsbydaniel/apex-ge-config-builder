@@ -48,12 +48,12 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const handleSave = () => {
     try {
       const parsed = JSON.parse(editedJson);
-      if (!parsed || !Array.isArray(parsed.style)) {
-        toast({ title: 'Invalid style', description: 'JSON must contain a "style" property that is an array.', variant: 'destructive' });
+      if (!Array.isArray(parsed)) {
+        toast({ title: 'Invalid style', description: 'The style must be a JSON array.', variant: 'destructive' });
         return;
       }
       const updatedData = source.data.map((item) =>
-        isVectorFormat(item.format) ? { ...item, style: parsed.style } : item
+        isVectorFormat(item.format) ? { ...item, style: parsed } : item
       );
       onUpdateDataSources(updatedData);
       onOpenChange(false);
