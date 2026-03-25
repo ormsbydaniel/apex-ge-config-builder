@@ -30,7 +30,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
       (item) => isVectorFormat(item.format) && Array.isArray(item.style)
     );
     const styleArray = vectorItem?.style ?? [];
-    return JSON.stringify(styleArray, null, 2);
+    return `"style": ${JSON.stringify(styleArray, null, 2)}`;
   }, [open, source.data]);
 
   useEffect(() => {
@@ -47,7 +47,19 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
 
   const handleSave = () => {
     try {
-      const parsed = JSON.parse(editedJson);
+      let arrayContent = editedJson.trim();
+      // Strip "style": prefix if present
+      const colonIndex = arrayContent.indexOf(':');
+      if (colonIndex !== -1) {
+        arrayContent = arrayContent.substring(colonIndex + 1).trim();
+      }
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(arrayContent);
+      } catch {
+        // Fallback: try parsing raw content as array
+        parsed = JSON.parse(editedJson.trim());
+      }
       if (!Array.isArray(parsed)) {
         toast({ title: 'Invalid style', description: 'The style must be a JSON array.', variant: 'destructive' });
         return;
