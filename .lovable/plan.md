@@ -1,25 +1,36 @@
 
 
-## Show `"style": [ ]` in the JSON Editor
+## Context-Aware Format Filtering for S3 Browser
 
 ### Problem
-The editor currently shows just `[]` which lacks context about what property is being edited. The user wants it to display `"style": [ ]` as a middle ground — not the full object wrapper `{ "style": [...] }`, but enough context to make it clear.
+The S3 browser treats all formats the same regardless of context. The supported formats differ by source type:
+- **Data Sources**: COG, GeoJSON, FlatGeoBuf — but NOT CSV
+- **Charts**: CSV only
+- **Constraints**: COG only
+- **Statistics**: FlatGeoBuf and GeoJSON only
 
-### Change — `src/components/layers/components/VectorStylingDialog.tsx`
+### Approach
+Thread an `allowedFormats` prop through the S3 selection chain so each context filters appropriately.
 
-**Initial JSON**: Change from `JSON.stringify(styleArray, null, 2)` to a template that produces:
-```
-"style": [
-  ...
-]
-```
+### Changes
 
-This means building the string as `"style": " + JSON.stringify(styleArray, null, 2)` (with proper indentation for array contents).
+**1. `src/types/format.ts`** — Add `'csv'` to `DataSourceFormat` union.
 
-**Save logic**: Strip the `"style":` prefix before parsing — extract everything after the first `:`, trim, then `JSON.parse` as an array. Validate it's an array as before.
+**2. `src/constants/formats.ts`** — Add `csv` entry to `FORMAT_CONFIGS`.
 
-**Validation on input**: Also accept if the user has modified the key name or removed it — fall back to trying to parse the raw content as an array if the prefix-strip approach fails.
+**3. `src/utils/s3Utils.ts`** — Add `.csv` to the extension map in `getFormatFromExtension`.
 
-### Files modified
-1. `src/components/layers/components/VectorStylingDialog.tsx`
+**4. `src/components/form/S3LayerSelector.tsx`** — Add optional `allowedFormats?: string[]` prop. When provided, use it to determine supported files (styling, format dropdown, Select button, Add All). When absent, behave as today.
+
+**5. `src/components/layers/components/ServiceSelectionModals.tsx`** — Add `allowedFormats?: string[]` to props, pass through to `S3LayerSelector`.
+
+**6. `src/components/layers/DataSourceForm.tsx`** — Pass `allowedFormats={['cog', 'geojson', 'flatgeobuf']}`.
+
+**7. `src/components/layers/components/ChartSourceForm.tsx`** — Pass `allowedFormats={['csv']}`.
+
+**8. `src/components/layers/components/ConstraintSourceForm.tsx`** — Pass `allowedFormats={['cog']}`.
+
+**9. Statistics source path** — Pass `allowedFormats={['flatgeobuf', 'geojson']}` (need to verify which component handles statistics S3 selection).
+
+**10. `src/schemas/configSchema.ts`** — Add `'csv'` to format enum if needed.
 
