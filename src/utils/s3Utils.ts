@@ -72,7 +72,8 @@ export const getFormatFromExtension = (filename: string): DataSourceFormat | nul
     'tif': 'cog',
     'tiff': 'cog',
     'geojson': 'geojson',
-    'json': 'geojson' // Assume GeoJSON for .json files
+    'json': 'geojson', // Assume GeoJSON for .json files
+    'csv': 'csv'
   };
   
   if (!extension) {
