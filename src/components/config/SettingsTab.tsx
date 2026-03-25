@@ -932,6 +932,24 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                 </TableRow>
               </TableBody>
             </Table>
+
+            <div className="space-y-2 pt-4">
+              <h4 className="text-sm font-semibold">Example</h4>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="text-muted-foreground mb-1">Standard URL:</p>
+                  <a href="https://explorer.sef-ecosystems.apex.esa.int/" target="_blank" rel="noopener noreferrer" className="font-mono text-xs text-primary hover:underline break-all">
+                    https://explorer.sef-ecosystems.apex.esa.int/
+                  </a>
+                </div>
+                <div>
+                  <p className="text-muted-foreground mb-1">Parameterised URL:</p>
+                  <a href="https://explorer.sef-ecosystems.apex.esa.int/?&layerGroups=Urban%20Ecosystems&layerGroups=Coastal%20Ecosystems&zoom=6&lat=43.0&lng=22.0" target="_blank" rel="noopener noreferrer" className="font-mono text-xs text-primary hover:underline break-all">
+                    https://explorer.sef-ecosystems.apex.esa.int/?&amp;layerGroups=Urban%20Ecosystems&amp;layerGroups=Coastal%20Ecosystems&amp;zoom=6&amp;lat=43.0&amp;lng=22.0
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
