@@ -11,9 +11,10 @@ interface S3LayerSelectorProps {
   bucketUrl: string;
   capabilities?: ServiceCapabilities | null;
   onObjectSelect: (selection: S3Selection | S3Selection[]) => void;
+  allowedFormats?: string[];
 }
 
-const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSelectorProps) => {
+const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedFormats }: S3LayerSelectorProps) => {
   const { toast } = useToast();
   const [allCachedObjects, setAllCachedObjects] = useState<S3Object[]>([]);
   const [files, setFiles] = useState<S3Object[]>([]);
