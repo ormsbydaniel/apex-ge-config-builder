@@ -29,7 +29,7 @@ interface ServiceSelectionModalProps {
   sourceContext?: SourceContext;
 }
 
-export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats }: ServiceSelectionModalProps) => {
+export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats, sourceContext = 'data' }: ServiceSelectionModalProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   if (!service) return null;
