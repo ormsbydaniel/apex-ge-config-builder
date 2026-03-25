@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Pencil, FileText } from 'lucide-react';
+import { Pencil, FileText, ArrowLeft } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { Button } from '@/components/ui/button';
 import {
