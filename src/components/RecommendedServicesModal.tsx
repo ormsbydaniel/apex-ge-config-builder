@@ -107,6 +107,7 @@ const RecommendedServicesModal = ({ isOpen, onClose, services, onConfirm, isLoad
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => handleToggle(key)}
+                    onClick={(e) => e.stopPropagation()}
                     className="mt-0.5"
                   />
                   <div className="flex-1 min-w-0">
