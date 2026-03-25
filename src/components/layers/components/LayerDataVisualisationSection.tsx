@@ -314,6 +314,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
               variant="ghost"
               size="icon"
               className="h-4 w-4 p-0"
+              disabled={!source.data.some(item => isVectorFormat(item.format))}
               onClick={() => setVectorStylingDialogOpen(true)}
             >
               <Pencil className="h-2.5 w-2.5" />
