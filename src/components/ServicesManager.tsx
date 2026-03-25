@@ -14,6 +14,7 @@ import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
 import { detectServiceTypeFromFile, DetectionResult, DetectedServiceType } from '@/utils/serviceFileParser';
+import RecommendedServicesModal from '@/components/RecommendedServicesModal';
 
 interface ServicesManagerProps {
   services: Service[];
