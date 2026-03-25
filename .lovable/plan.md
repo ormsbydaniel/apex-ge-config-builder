@@ -1,31 +1,25 @@
 
 
-## Add Markdown Help Page to Description Editor
+## Fix Modal Height & Replace Back Button with Link
 
 ### Changes
 
 **`src/components/layers/components/LayerDescriptionAttributionDisplay.tsx`**
 
-1. Add `showHelp` boolean state.
-2. Between the "Description" label and the Textarea, add a hint: `"Description supports basic markdown."` followed by a `"Tell me more"` link that sets `showHelp = true`.
-3. When `showHelp` is true, replace the modal content with:
-   - A header: "Markdown Reference"
-   - A `<- Back` button that sets `showHelp = false`
-   - A table (using the project's `Table` components) with two columns: **Syntax** and **Example**, listing the 8 supported markdown features
-4. Reset `showHelp` to false when the dialog closes.
+1. **Fixed modal height**: Add `h-[480px] flex flex-col` to `DialogContent` so the modal stays the same size for both views. Wrap the inner content in a `flex-1 overflow-y-auto` div.
 
-Import `ArrowLeft` from lucide-react and `Table, TableHeader, TableBody, TableRow, TableHead, TableCell` from the UI table component.
+2. **Replace Back button with a link**: Remove the `DialogFooter` with the Back `Button` from the help view. Instead, add a `< Back` text link directly below the "Markdown Reference" title, using the same styling as "Tell me more" (small text, underline, primary color, with an `ArrowLeft` icon inline).
 
-### Table content
+### Specific edits
 
-| Feature | Syntax |
-|---------|--------|
-| Hyperlink | `[text](https://url/)` |
-| Italics | `*text*` |
-| Bold | `**text**` |
-| Heading 1 | `# text` |
-| Heading 2 | `## text` |
-| List | `- item 1` (newline) `- item 2` |
-| Quote | `> text` |
-| Code | `` `code` `` |
+- **Line 104**: Change `DialogContent` className to `"sm:max-w-[700px] h-[480px] flex flex-col"`
+- **Lines 106-167** (help branch): After `DialogHeader`, add the `< Back` link as:
+  ```tsx
+  <button type="button" className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 underline cursor-pointer" onClick={() => setShowHelp(false)}>
+    <ArrowLeft className="h-3 w-3" /> Back
+  </button>
+  ```
+  Wrap the table area in `<div className="flex-1 overflow-y-auto ...">`. Remove the `DialogFooter` with the Back button entirely.
+
+- **Lines 169-218** (edit branch): Wrap content in `<div className="flex-1 overflow-y-auto">` to match the flex layout.
 
