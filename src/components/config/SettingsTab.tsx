@@ -902,6 +902,50 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Globe className="h-4 w-4" />
+            URL Parameters
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            A deployed Geospatial Explorer configuration can be called with the following URL parameters.
+          </p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Parameter</TableHead>
+                <TableHead>Examples</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-mono text-xs">variant=&lt;fullscreen|standard&gt;</TableCell>
+                <TableCell className="font-mono text-xs">&amp;variant=fullscreen</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono text-xs">zoom=&lt;zoomlevel&gt;</TableCell>
+                <TableCell className="font-mono text-xs">&amp;zoom=10</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono text-xs">layerGroups=&lt;groupname&gt;</TableCell>
+                <TableCell className="font-mono text-xs">&amp;layerGroups=Soils&amp;layerGroups=Cities</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono text-xs">lat=&lt;latitude&gt;</TableCell>
+                <TableCell className="font-mono text-xs">&amp;lat=52.0</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono text-xs">long=&lt;longitude&gt;</TableCell>
+                <TableCell className="font-mono text-xs">&amp;long=-2.0</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
       <AdvancedColorSchemeDialog 
         open={advancedColorsOpen}
         onOpenChange={setAdvancedColorsOpen}
