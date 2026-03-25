@@ -25,12 +25,12 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const [activeTab, setActiveTab] = useState(lastActiveTab);
 
   const initialJson = useMemo(() => {
-    if (!open) return '{\n  "style": []\n}';
+    if (!open) return '[]';
     const vectorItem = source.data.find(
       (item) => isVectorFormat(item.format) && Array.isArray(item.style)
     );
     const styleArray = vectorItem?.style ?? [];
-    return JSON.stringify({ style: styleArray }, null, 2);
+    return JSON.stringify(styleArray, null, 2);
   }, [open, source.data]);
 
   useEffect(() => {
