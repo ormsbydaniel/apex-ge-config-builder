@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, ExternalLink, Mail } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, ExternalLink, Mail, Navigation, Paintbrush, Palette, Link2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import DesignVariantEditor from './DesignVariantEditor';
@@ -288,7 +288,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
           {/* Navigation Settings Subsection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Navigation Settings</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Navigation className="h-4 w-4" />Navigation Settings</h3>
             
             {/* Location Preset Selector */}
             <div className="flex items-start gap-6">
@@ -586,7 +586,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
           {/* Branding Settings Subsection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Branding Settings</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Paintbrush className="h-4 w-4" />Branding Settings</h3>
             
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -628,7 +628,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             {/* Colour Scheme */}
             <div className="space-y-3 mt-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Colour Scheme</h3>
+                <h3 className="text-lg font-semibold flex items-center gap-2"><Palette className="h-4 w-4" />Colour Scheme</h3>
               </div>
               
               <div className="grid gap-3" style={{ gridTemplateColumns: 'auto auto auto auto auto' }}>
@@ -869,7 +869,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           </div>
           {/* Footer Links */}
           <div className="space-y-4 pt-6">
-            <h3 className="text-lg font-semibold">Footer Links</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Link2 className="h-4 w-4" />Footer Links</h3>
             <p className="text-sm text-muted-foreground">
               Configure links displayed in the application footer, such as external resources or contact email addresses.
             </p>
@@ -899,50 +899,40 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               Edit Footer Links
             </Button>
           </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            URL Parameters
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            A deployed Geospatial Explorer configuration can be called with the following URL parameters.
-          </p>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Parameter</TableHead>
-                <TableHead>Examples</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell className="font-mono text-xs">variant=&lt;fullscreen|standard&gt;</TableCell>
-                <TableCell className="font-mono text-xs">&amp;variant=fullscreen</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-mono text-xs">zoom=&lt;zoomlevel&gt;</TableCell>
-                <TableCell className="font-mono text-xs">&amp;zoom=10</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-mono text-xs">layerGroups=&lt;groupname&gt;</TableCell>
-                <TableCell className="font-mono text-xs">&amp;layerGroups=Soils&amp;layerGroups=Cities</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-mono text-xs">lat=&lt;latitude&gt;</TableCell>
-                <TableCell className="font-mono text-xs">&amp;lat=52.0</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-mono text-xs">long=&lt;longitude&gt;</TableCell>
-                <TableCell className="font-mono text-xs">&amp;long=-2.0</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+          {/* URL Parameters */}
+          <div className="space-y-4 pt-6">
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />URL Parameters</h3>
+            <p className="text-sm text-muted-foreground">
+              A deployed Geospatial Explorer configuration can be called with the following URL parameters.
+            </p>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Parameter</TableHead>
+                  <TableHead>Examples</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">variant=&lt;fullscreen|standard&gt;</TableCell>
+                  <TableCell className="font-mono text-xs">&amp;variant=fullscreen</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">zoom=&lt;zoomlevel&gt;</TableCell>
+                  <TableCell className="font-mono text-xs">&amp;zoom=10</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">layerGroups=&lt;groupname&gt;</TableCell>
+                  <TableCell className="font-mono text-xs">&amp;layerGroups=Soils&amp;layerGroups=Cities</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">lat=&lt;latitude&gt;&amp;lng=&lt;longitude&gt;</TableCell>
+                  <TableCell className="font-mono text-xs">&amp;lat=52.0&amp;lng=-2.0</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
