@@ -12,6 +12,7 @@ interface S3LayerSelectorProps {
   capabilities?: ServiceCapabilities | null;
   onObjectSelect: (selection: S3Selection | S3Selection[]) => void;
   allowedFormats?: string[];
+  sourceContext?: string;
 }
 
 const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedFormats }: S3LayerSelectorProps) => {
