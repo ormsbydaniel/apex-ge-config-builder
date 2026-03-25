@@ -321,11 +321,12 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedForma
             <div className="grid gap-px">
               {filteredFiles.map((object, index) => {
                 const detectedFormat = getFormatFromExtension(object.key);
+                const formatAllowed = isFormatAllowed(detectedFormat);
                 return (
                   <div
                     key={index}
-                    className={`flex items-center gap-2 py-1.5 px-2 rounded ${detectedFormat ? 'hover:bg-muted/50 cursor-pointer' : 'opacity-60'}`}
-                    onClick={() => detectedFormat && handleObjectSelect(object)}
+                    className={`flex items-center gap-2 py-1.5 px-2 rounded ${formatAllowed ? 'hover:bg-muted/50 cursor-pointer' : 'opacity-60'}`}
+                    onClick={() => formatAllowed && handleObjectSelect(object)}
                   >
                     <File className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
