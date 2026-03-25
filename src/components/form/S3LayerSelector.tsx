@@ -96,9 +96,15 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedForma
     setFilteredFiles(filtered);
   }, [files, searchTerm, selectedFormat]);
 
+  const isFormatAllowed = (format: DataSourceFormat | null): boolean => {
+    if (!format) return false;
+    if (!allowedFormats) return true;
+    return allowedFormats.includes(format);
+  };
+
   const handleObjectSelect = (object: S3Object) => {
     const detectedFormat = getFormatFromExtension(object.key);
-    if (detectedFormat) {
+    if (detectedFormat && isFormatAllowed(detectedFormat)) {
       const selection: S3Selection = {
         url: object.url,
         format: detectedFormat,
