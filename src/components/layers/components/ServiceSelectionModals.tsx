@@ -88,7 +88,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
         {!isStacService && (
           <DialogHeader className="pb-0">
             <DialogTitle className="flex items-center gap-2 text-base">
-              Select Data Source
+              Select {SOURCE_CONTEXT_LABELS[sourceContext]} Source
               <span className="text-muted-foreground font-normal text-sm">—</span>
               {getServiceIcon()}
               <span className={`font-medium text-sm ${isS3Service ? 'text-green-700' : 'text-blue-700'}`}>
