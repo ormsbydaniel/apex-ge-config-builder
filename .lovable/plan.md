@@ -1,33 +1,31 @@
 
 
-## Fine-Tune Modal Title and Format Dropdown Labels
-
-### Problem
-The modal always says "Select Data Source" and the format dropdown says "All formats" regardless of context.
-
-### Approach
-Derive a `sourceContext` label from the `allowedFormats` prop (already threaded through) and use it to customize the title and dropdown text.
+## Add Markdown Help Page to Description Editor
 
 ### Changes
 
-**1. `src/components/layers/components/ServiceSelectionModals.tsx`**
-- Add a prop `sourceContext?: 'data' | 'chart' | 'statistics' | 'constraint'` (default `'data'`)
-- Use it in the `DialogTitle`: `Select ${contextLabel} Source` where contextLabel maps to `Data | Chart | Statistics | Constraint`
-- Pass `sourceContext` down to `S3LayerSelector`
+**`src/components/layers/components/LayerDescriptionAttributionDisplay.tsx`**
 
-**2. `src/components/form/S3LayerSelector.tsx`**
-- Add prop `sourceContext?: string`
-- Change the `<option value="all">` from `"All formats"` to `"All supported ${sourceContext} formats"` (e.g. "All supported chart formats")
+1. Add `showHelp` boolean state.
+2. Between the "Description" label and the Textarea, add a hint: `"Description supports basic markdown."` followed by a `"Tell me more"` link that sets `showHelp = true`.
+3. When `showHelp` is true, replace the modal content with:
+   - A header: "Markdown Reference"
+   - A `<- Back` button that sets `showHelp = false`
+   - A table (using the project's `Table` components) with two columns: **Syntax** and **Example**, listing the 8 supported markdown features
+4. Reset `showHelp` to false when the dialog closes.
 
-**3. Callers — pass `sourceContext`**
-- `DataSourceForm.tsx`: pass `sourceContext={isAddingStatistics ? 'statistics' : 'data'}`
-- `ChartSourceForm.tsx`: pass `sourceContext="chart"`
-- `ConstraintSourceForm.tsx`: pass `sourceContext="constraint"`
+Import `ArrowLeft` from lucide-react and `Table, TableHeader, TableBody, TableRow, TableHead, TableCell` from the UI table component.
 
-### Files modified
-1. `src/components/layers/components/ServiceSelectionModals.tsx`
-2. `src/components/form/S3LayerSelector.tsx`
-3. `src/components/layers/DataSourceForm.tsx`
-4. `src/components/layers/components/ChartSourceForm.tsx`
-5. `src/components/layers/components/ConstraintSourceForm.tsx`
+### Table content
+
+| Feature | Syntax |
+|---------|--------|
+| Hyperlink | `[text](https://url/)` |
+| Italics | `*text*` |
+| Bold | `**text**` |
+| Heading 1 | `# text` |
+| Heading 2 | `## text` |
+| List | `- item 1` (newline) `- item 2` |
+| Quote | `> text` |
+| Code | `` `code` `` |
 
