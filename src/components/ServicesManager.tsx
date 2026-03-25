@@ -545,6 +545,13 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
         onConfirm={handleConfirmUpload}
         onCancel={handleCancelUpload}
       />
+      <RecommendedServicesModal
+        isOpen={showRecommendedModal}
+        onClose={() => setShowRecommendedModal(false)}
+        services={recommendedServicesList}
+        onConfirm={handleConfirmRecommendedServices}
+        isLoading={isAddingSelected}
+      />
     </div>
   );
 };
