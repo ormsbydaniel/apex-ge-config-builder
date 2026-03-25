@@ -869,7 +869,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           </div>
           {/* Footer Links */}
           <div className="space-y-4 pt-6">
-            <h3 className="text-lg font-semibold">Footer Links</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Link2 className="h-4 w-4" />Footer Links</h3>
             <p className="text-sm text-muted-foreground">
               Configure links displayed in the application footer, such as external resources or contact email addresses.
             </p>
