@@ -837,6 +837,7 @@ export function ChartSourceForm({
           isOpen={showServiceModal}
           onClose={handleServiceModalClose}
           onSelect={handleServiceModalSelection}
+          allowedFormats={['csv']}
         />
       )}
 

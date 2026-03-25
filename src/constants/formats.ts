@@ -51,6 +51,13 @@ export const FORMAT_CONFIGS: Record<DataSourceFormat, FormatConfig> = {
     layersPlaceholder: 'WORLDCOVER_FEATURES',
     requiresLayers: true,
     supportsGetCapabilities: true,
+  },
+  csv: {
+    label: 'CSV (Comma Separated Values)',
+    urlPlaceholder: 'https://example.com/data.csv',
+    layersPlaceholder: '',
+    requiresLayers: false,
+    supportsGetCapabilities: false,
   }
 };
 

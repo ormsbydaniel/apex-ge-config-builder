@@ -3,7 +3,7 @@
  */
 
 // DataSourceFormat no longer includes 's3'
-export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf';
+export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf' | 'csv';
 
 // Footer link configuration for layout footer
 export interface FooterLink {

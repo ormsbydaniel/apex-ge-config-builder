@@ -516,6 +516,7 @@ const ConstraintSourceForm = ({
         isOpen={showServiceModal}
         onClose={handleServiceModalClose}
         onSelect={handleServiceModalSelection}
+        allowedFormats={['cog']}
       />
       
       <Card>

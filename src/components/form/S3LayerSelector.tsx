@@ -11,9 +11,10 @@ interface S3LayerSelectorProps {
   bucketUrl: string;
   capabilities?: ServiceCapabilities | null;
   onObjectSelect: (selection: S3Selection | S3Selection[]) => void;
+  allowedFormats?: string[];
 }
 
-const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSelectorProps) => {
+const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedFormats }: S3LayerSelectorProps) => {
   const { toast } = useToast();
   const [allCachedObjects, setAllCachedObjects] = useState<S3Object[]>([]);
   const [files, setFiles] = useState<S3Object[]>([]);
@@ -95,9 +96,15 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
     setFilteredFiles(filtered);
   }, [files, searchTerm, selectedFormat]);
 
+  const isFormatAllowed = (format: DataSourceFormat | null): boolean => {
+    if (!format) return false;
+    if (!allowedFormats) return true;
+    return allowedFormats.includes(format);
+  };
+
   const handleObjectSelect = (object: S3Object) => {
     const detectedFormat = getFormatFromExtension(object.key);
-    if (detectedFormat) {
+    if (detectedFormat && isFormatAllowed(detectedFormat)) {
       const selection: S3Selection = {
         url: object.url,
         format: detectedFormat,
@@ -116,7 +123,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
 
       filteredFiles.forEach(object => {
         const detectedFormat = getFormatFromExtension(object.key);
-        if (detectedFormat) {
+        if (detectedFormat && isFormatAllowed(detectedFormat)) {
           selections.push({
             url: object.url,
             format: detectedFormat,
@@ -156,7 +163,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
     const formats = new Set<string>();
     files.forEach(obj => {
       const format = getFormatFromExtension(obj.key);
-      if (format) {
+      if (format && isFormatAllowed(format)) {
         formats.add(format);
       }
     });
@@ -305,7 +312,9 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
             <File className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No supported files found</p>
             <p className="text-xs mt-1">
-              Supported: .fgb, .tif/.tiff, .geojson/.json
+              {allowedFormats 
+                ? `Supported: ${allowedFormats.map(f => f.toUpperCase()).join(', ')}`
+                : 'Supported: .fgb, .tif/.tiff, .geojson/.json, .csv'}
             </p>
           </div>
         ) : filteredFiles.length > 0 ? (
@@ -314,11 +323,12 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
             <div className="grid gap-px">
               {filteredFiles.map((object, index) => {
                 const detectedFormat = getFormatFromExtension(object.key);
+                const formatAllowed = isFormatAllowed(detectedFormat);
                 return (
                   <div
                     key={index}
-                    className={`flex items-center gap-2 py-1.5 px-2 rounded ${detectedFormat ? 'hover:bg-muted/50 cursor-pointer' : 'opacity-60'}`}
-                    onClick={() => detectedFormat && handleObjectSelect(object)}
+                    className={`flex items-center gap-2 py-1.5 px-2 rounded ${formatAllowed ? 'hover:bg-muted/50 cursor-pointer' : 'opacity-60'}`}
+                    onClick={() => formatAllowed && handleObjectSelect(object)}
                   >
                     <File className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -328,7 +338,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {detectedFormat && (
-                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                        <Badge variant={formatAllowed ? "secondary" : "outline"} className="text-[10px] px-1.5 py-0">
                           {detectedFormat.toUpperCase()}
                         </Badge>
                       )}
@@ -336,7 +346,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
                         <span className="text-[10px] text-muted-foreground">{formatSize(object.size)}</span>
                       )}
                     </div>
-                    {detectedFormat ? (
+                    {formatAllowed ? (
                       <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
                         Select
                       </Button>
