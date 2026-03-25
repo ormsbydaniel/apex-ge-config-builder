@@ -101,7 +101,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
       </div>
 
       <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setShowHelp(false); }}>
-        <DialogContent className="sm:max-w-[700px] h-[480px] flex flex-col">
+        <DialogContent className="sm:max-w-[700px] h-[540px] flex flex-col">
           {showHelp ? (
             <>
               <DialogHeader>
