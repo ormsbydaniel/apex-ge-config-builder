@@ -30,7 +30,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
       (item) => isVectorFormat(item.format) && Array.isArray(item.style)
     );
     const styleArray = vectorItem?.style ?? [];
-    return JSON.stringify(styleArray, null, 2);
+    return `"style": ${JSON.stringify(styleArray, null, 2)}`;
   }, [open, source.data]);
 
   useEffect(() => {
