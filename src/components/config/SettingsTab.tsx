@@ -16,6 +16,7 @@ import FooterLinksEditorDialog from './FooterLinksEditorDialog';
 import { geoLocations, groupedLocations } from '@/constants/geoLocations';
 import { PROJECTION_OPTIONS, DEFAULT_PROJECTION } from '@/constants/projections';
 import { DesignConfig, FooterLink } from '@/types/format';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 
 interface SettingsTabProps {
   config: any;
