@@ -904,7 +904,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           <div className="space-y-4 pt-6">
             <h3 className="text-lg font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />URL Parameters</h3>
             <p className="text-sm text-muted-foreground">
-              A deployed Geospatial Explorer configuration can be called with following URL parameters that overwrite the default configuration.  The following parameters are supported.    The URL should include a `?` before the first parameter, with parameters separated with `&`
+              A deployed Geospatial Explorer configuration can be called with following URL parameters that overwrite the default configuration.  The following parameters are supported.    The URL should include a ? before the first parameter, with parameters separated with &.  Spaces in layer group names can include a space, encoded as %20.
             </p>
             <Table>
               <TableHeader>
