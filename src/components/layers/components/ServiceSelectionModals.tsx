@@ -11,12 +11,22 @@ import StacBrowser from './StacBrowser';
 
 import { AssetSelection } from './StacBrowser';
 
+type SourceContext = 'data' | 'chart' | 'statistics' | 'constraint';
+
+const SOURCE_CONTEXT_LABELS: Record<SourceContext, string> = {
+  data: 'Data',
+  chart: 'Chart',
+  statistics: 'Statistics',
+  constraint: 'Constraint',
+};
+
 interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
   onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
   allowedFormats?: string[];
+  sourceContext?: SourceContext;
 }
 
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats }: ServiceSelectionModalProps) => {
