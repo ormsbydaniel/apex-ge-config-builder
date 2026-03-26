@@ -125,22 +125,43 @@ const AddSubGroupDialog = ({
             </p>
 
             {availableLayers.length > 0 ? (
-              <div className="space-y-2 max-h-60 overflow-y-auto border rounded-md p-3">
-                {availableLayers.map(layer => (
-                  <div key={layer.index} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`layer-${layer.index}`}
-                      checked={selectedLayers.has(layer.index)}
-                      onCheckedChange={(checked) => handleLayerToggle(layer.index, !!checked)}
-                    />
-                    <Label 
-                      htmlFor={`layer-${layer.index}`} 
-                      className="cursor-pointer text-sm font-normal"
-                    >
-                      {layer.name}
-                    </Label>
-                  </div>
-                ))}
+              <div className="border rounded-md">
+                <div className="flex items-center space-x-2 p-3 border-b bg-muted/50">
+                  <Checkbox
+                    id="select-all-layers"
+                    checked={availableLayers.length > 0 && selectedLayers.size === availableLayers.length}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedLayers(new Set(availableLayers.map(l => l.index)));
+                      } else {
+                        setSelectedLayers(new Set());
+                      }
+                    }}
+                  />
+                  <Label htmlFor="select-all-layers" className="cursor-pointer text-sm font-medium">
+                    {selectedLayers.size === availableLayers.length ? 'Deselect All' : 'Select All'}
+                  </Label>
+                  <span className="text-xs text-muted-foreground ml-auto">
+                    {selectedLayers.size} of {availableLayers.length} selected
+                  </span>
+                </div>
+                <div className="space-y-2 max-h-60 overflow-y-auto p-3">
+                  {availableLayers.map(layer => (
+                    <div key={layer.index} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`layer-${layer.index}`}
+                        checked={selectedLayers.has(layer.index)}
+                        onCheckedChange={(checked) => handleLayerToggle(layer.index, !!checked)}
+                      />
+                      <Label 
+                        htmlFor={`layer-${layer.index}`} 
+                        className="cursor-pointer text-sm font-normal"
+                      >
+                        {layer.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground italic py-4 text-center">
