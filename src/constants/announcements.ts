@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-03-27",
+    title: "Recommended services improvement allowing users to choose which services are added (rather than all).  Interface sub-groups improvement with 'select all' option for including layers in sub-group.",
+    category: "Improvement",
+  },
+  {
     date: "2026-03-25",
     title: "Improvements to S3 browser. Addition of vector data styling UI control currently with direct JSON entry. Update to Description UI to include details of supported markdown. URL parameter details added in to Settings.",
     category: "Improvement",
