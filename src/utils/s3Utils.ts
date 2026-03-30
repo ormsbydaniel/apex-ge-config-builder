@@ -277,6 +277,45 @@ export const fetchS3BucketFolder = async (bucketUrl: string, prefix: string): Pr
       }
     });
 
+    // Fallback for S3-compatible providers (e.g. OTC OBS) that don't support delimiter
+    if (folders.length === 0 && files.length === 0) {
+      const fallbackParams = new URLSearchParams({
+        'list-type': '2',
+        'max-keys': '1000',
+      });
+      if (prefix) {
+        fallbackParams.set('prefix', prefix);
+      }
+
+      const fallbackUrl = `${bucketInfo.baseUrl}/?${fallbackParams.toString()}`;
+      const fallbackResponse = await fetch(fallbackUrl);
+      if (fallbackResponse.ok) {
+        const fallbackXml = await fallbackResponse.text();
+        const fallbackDoc = parser.parseFromString(fallbackXml, 'text/xml');
+
+        if (!fallbackDoc.querySelector('parsererror') && !fallbackDoc.querySelector('Error')) {
+          const flatObjects: S3Object[] = [];
+          fallbackDoc.querySelectorAll('Contents').forEach(content => {
+            const key = content.querySelector('Key')?.textContent;
+            const lastModified = content.querySelector('LastModified')?.textContent;
+            const size = content.querySelector('Size')?.textContent;
+            if (key && lastModified && size) {
+              flatObjects.push({
+                key,
+                lastModified,
+                size: parseInt(size, 10),
+                url: `${bucketInfo.baseUrl}/${key}`
+              });
+            }
+          });
+
+          if (flatObjects.length > 0) {
+            return deriveFolderListingFromObjects(flatObjects, prefix);
+          }
+        }
+      }
+    }
+
     return { folders, files };
   } catch (error) {
     console.error('Error fetching S3 bucket folder:', error);
