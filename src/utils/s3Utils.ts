@@ -20,43 +20,76 @@ export interface S3BucketInfo {
   baseUrl: string;
 }
 
+// S3-compatible object storage patterns
+// Each entry: regex to match hostname, and how to extract bucket/region
+const S3_COMPATIBLE_PATTERNS: Array<{
+  test: (hostname: string) => boolean;
+  extract: (hostname: string, pathname: string) => { bucketName: string; region: string } | null;
+}> = [
+  // AWS S3 Format 1: https://bucket-name.s3.region.amazonaws.com
+  // AWS S3 Format 3: https://bucket-name.s3.amazonaws.com (legacy)
+  {
+    test: (h) => h.includes('.s3.') && h.includes('.amazonaws.com'),
+    extract: (h) => {
+      const parts = h.split('.');
+      if (parts[1] === 's3') {
+        return { bucketName: parts[0], region: parts.length > 4 ? parts[2] : 'us-east-1' };
+      }
+      return null;
+    }
+  },
+  // AWS S3 Format 2: https://s3.region.amazonaws.com/bucket-name
+  {
+    test: (h) => h.startsWith('s3.') && h.includes('.amazonaws.com'),
+    extract: (h, p) => {
+      const pathParts = p.split('/').filter(s => s);
+      if (pathParts.length > 0) {
+        return { bucketName: pathParts[0], region: h.split('.')[1] };
+      }
+      return null;
+    }
+  },
+  // OTC OBS: https://bucket-name.obs.region.otc.t-systems.com
+  {
+    test: (h) => h.includes('.obs.') && h.includes('.otc.t-systems.com'),
+    extract: (h) => {
+      const parts = h.split('.');
+      if (parts[1] === 'obs') {
+        return { bucketName: parts[0], region: parts[2] };
+      }
+      return null;
+    }
+  },
+  // Generic S3-compatible: https://bucket-name.s3.provider.com or similar
+  // Covers MinIO, Wasabi, Backblaze B2, etc. with subdomain-style bucket
+  {
+    test: (h) => {
+      const parts = h.split('.');
+      return parts.length >= 3 && (parts[1] === 's3' || parts[1] === 'obs' || parts[1] === 'oss' || parts[1] === 'cos');
+    },
+    extract: (h) => {
+      const parts = h.split('.');
+      return { bucketName: parts[0], region: parts.length > 3 ? parts[2] : 'default' };
+    }
+  },
+];
+
 // Parse S3 URL to extract bucket information
+// Supports AWS S3, OTC OBS, and other S3-compatible object storage services
 export const parseS3Url = (url: string): S3BucketInfo | null => {
   try {
     const cleanUrl = url.replace(/\/$/, ''); // Remove trailing slash
     const urlObj = new URL(cleanUrl);
-    
-    // Handle different S3 URL formats
-    // Format 1: https://bucket-name.s3.region.amazonaws.com
-    // Format 2: https://s3.region.amazonaws.com/bucket-name
-    // Format 3: https://bucket-name.s3.amazonaws.com (legacy)
-    
-    if (urlObj.hostname.includes('.s3.') && urlObj.hostname.includes('.amazonaws.com')) {
-      const parts = urlObj.hostname.split('.');
-      if (parts[1] === 's3') {
-        // Format 1 or 3
-        const bucketName = parts[0];
-        const region = parts.length > 4 ? parts[2] : 'us-east-1'; // Default region for legacy format
-        return {
-          bucketName,
-          region,
-          baseUrl: cleanUrl
-        };
-      }
-    } else if (urlObj.hostname.startsWith('s3.') && urlObj.pathname) {
-      // Format 2
-      const pathParts = urlObj.pathname.split('/').filter(p => p);
-      if (pathParts.length > 0) {
-        const bucketName = pathParts[0];
-        const region = urlObj.hostname.split('.')[1];
-        return {
-          bucketName,
-          region,
-          baseUrl: cleanUrl
-        };
+
+    for (const pattern of S3_COMPATIBLE_PATTERNS) {
+      if (pattern.test(urlObj.hostname)) {
+        const info = pattern.extract(urlObj.hostname, urlObj.pathname);
+        if (info) {
+          return { ...info, baseUrl: cleanUrl };
+        }
       }
     }
-    
+
     return null;
   } catch {
     return null;
