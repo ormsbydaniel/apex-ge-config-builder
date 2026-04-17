@@ -241,7 +241,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           </TabsContent>
 
           {/* From GitHub */}
-          <TabsContent value="github" className="mt-4 space-y-3">
+          <TabsContent value="github" className="mt-4 space-y-3 flex-1 min-h-0 flex flex-col">
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_200px_auto] gap-2 items-end">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Repository (owner/name)</label>
