@@ -166,7 +166,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl h-[840px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Load Configuration</DialogTitle>
           <DialogDescription>
@@ -174,7 +174,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col min-h-0">
           <TabsList className="grid grid-cols-3 w-full">
             <TabsTrigger value="upload">
               <Upload className="h-4 w-4 mr-2" />
