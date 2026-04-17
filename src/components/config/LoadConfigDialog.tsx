@@ -166,7 +166,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl h-[840px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Load Configuration</DialogTitle>
           <DialogDescription>
@@ -174,7 +174,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col min-h-0">
           <TabsList className="grid grid-cols-3 w-full">
             <TabsTrigger value="upload">
               <Upload className="h-4 w-4 mr-2" />
@@ -191,7 +191,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           </TabsList>
 
           {/* Upload */}
-          <TabsContent value="upload" className="mt-4">
+          <TabsContent value="upload" className="mt-4 flex-1 min-h-0 overflow-auto">
             <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center gap-3 bg-muted/30">
               <Upload className="h-10 w-10 text-muted-foreground" />
               <div className="text-center">
@@ -215,7 +215,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           </TabsContent>
 
           {/* Examples */}
-          <TabsContent value="examples" className="mt-4">
+          <TabsContent value="examples" className="mt-4 flex-1 min-h-0 overflow-auto">
             <div className="space-y-2">
               {examples.map((ex) => (
                 <button
@@ -241,7 +241,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           </TabsContent>
 
           {/* From GitHub */}
-          <TabsContent value="github" className="mt-4 space-y-3">
+          <TabsContent value="github" className="mt-4 space-y-3 flex-1 min-h-0 flex flex-col">
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_200px_auto] gap-2 items-end">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Repository (owner/name)</label>
