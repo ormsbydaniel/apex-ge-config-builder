@@ -191,7 +191,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           </TabsList>
 
           {/* Upload */}
-          <TabsContent value="upload" className="mt-4">
+          <TabsContent value="upload" className="mt-4 flex-1 min-h-0 overflow-auto">
             <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center gap-3 bg-muted/30">
               <Upload className="h-10 w-10 text-muted-foreground" />
               <div className="text-center">
