@@ -327,32 +327,10 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     New
                   </Button>
 
-                  <Button 
-                    onClick={() => {
-                      guardAction(async () => {
-                        setIsLoadingExample(true);
-                        const result = await importConfigFromUrl('/examples/test-config.json');
-                        setIsLoadingExample(false);
-                        if (!result.success && result.errors) {
-                          setValidationErrors(result.errors);
-                          setErrorFileName('test-config.json');
-                          setShowErrorDialog(true);
-                        }
-                      });
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="h-9 w-[130px] text-sm font-medium hover:scale-[1.01] transition-transform border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
-                    disabled={config.isLoading || isLoadingExample}
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Example
-                  </Button>
                 </div>
               </div>
           </CardHeader>
           <CardContent className="space-y-3 pt-3">
-            <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
             {/* Title */}
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
