@@ -1,18 +1,18 @@
-
 import React from 'react';
 import { CardContent } from '@/components/ui/card';
-import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
+import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout, DataSourceItem } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useToast } from '@/hooks/use-toast';
+import { Database } from 'lucide-react';
 import LayerMetadata from './LayerMetadata';
-import LayerCategories from './LayerCategories';
 import SwipeLayerConfig from './SwipeLayerConfig';
-import LayerLegendDisplay from './LayerLegendDisplay';
 import LayerControlsDisplay from './LayerControlsDisplay';
-import LayerAttributionDisplay from './LayerAttributionDisplay';
-import LayerColormapsDisplay from './LayerColormapsDisplay';
+import LayerDescriptionAttributionDisplay from './LayerDescriptionAttributionDisplay';
 import LayerFieldsDisplay from './LayerFieldsDisplay';
+import LayerDataVisualisationSection from './LayerDataVisualisationSection';
+import LayerLegendSection from './LayerLegendSection';
 import { LayerCardTabs } from './LayerCardTabs';
+import { isVectorFormat } from '@/utils/fieldDetection';
 
 interface LayerCardContentProps {
   source: DataSource;
@@ -75,6 +75,11 @@ const LayerCardContent = ({
   // Find the index of this source in the config
   const sourceIndex = config.sources.findIndex(s => s.name === source.name);
 
+  // Extract first vector data source for fields editor
+  const firstVectorSource = isDataSourceItemArray(source.data)
+    ? source.data.find((item: DataSourceItem) => item.format && isVectorFormat(item.format))
+    : undefined;
+
   // Handler to update meta fields
   const handleUpdateMeta = (updates: Partial<DataSourceMeta>) => {
     if (sourceIndex === -1) return;
@@ -95,15 +100,10 @@ const LayerCardContent = ({
       }
     });
 
-    // Show success toast
-    const updateDescription = [];
-    if (updates.min !== undefined) updateDescription.push('min');
-    if (updates.max !== undefined) updateDescription.push('max');
-    if (updates.colormaps !== undefined) updateDescription.push('colormaps');
-
+    const updateKeys = Object.keys(updates);
     toast({
-      title: "Metadata Updated",
-      description: `Successfully updated ${updateDescription.join(', ')} values from COG metadata`,
+      title: "Layer Updated",
+      description: `Successfully updated ${updateKeys.join(', ')}`,
     });
   };
 
@@ -133,45 +133,137 @@ const LayerCardContent = ({
     });
   };
 
+  // Combined handler for atomic layout + meta updates (avoids race conditions)
+  const handleUpdateLayoutAndMeta = (layoutUpdates: Partial<DataSourceLayout>, metaUpdates: Partial<DataSourceMeta>) => {
+    if (sourceIndex === -1) return;
+
+    const updatedSource = {
+      ...source,
+      layout: {
+        ...source.layout,
+        ...layoutUpdates
+      },
+      meta: {
+        ...source.meta,
+        ...metaUpdates
+      }
+    };
+
+    dispatch({
+      type: 'UPDATE_SOURCE',
+      payload: {
+        index: sourceIndex,
+        source: updatedSource
+      }
+    });
+
+    toast({
+      title: "Layer Updated",
+      description: "Legend and units updated successfully",
+    });
+  };
+
+  const handleUpdateDataBands = (dataIndex: number, bands: number[], applyToAll: boolean) => {
+    if (sourceIndex === -1 || !isDataSourceItemArray(source.data)) return;
+
+    const updatedData = source.data.map((item: DataSourceItem, idx: number) => {
+      const isTarget = idx === dataIndex;
+      const isCog = item.format?.toLowerCase() === 'cog';
+      if (isTarget || (applyToAll && isCog)) {
+        return { ...item, bands: bands.length > 0 ? bands : undefined };
+      }
+      return item;
+    });
+
+    dispatch({
+      type: 'UPDATE_SOURCE',
+      payload: {
+        index: sourceIndex,
+        source: { ...source, data: updatedData }
+      }
+    });
+
+    toast({
+      title: "Bands Updated",
+      description: applyToAll
+        ? `Band selection applied to all COG sources in this layer`
+        : `Band selection updated for this data source`,
+    });
+  };
+
   return (
     <CardContent className="space-y-4 pl-[46px]">
       <LayerMetadata source={source} />
       
-      {/* Attribution Display */}
-      <LayerAttributionDisplay source={source} />
+      {/* Description & Attribution Display */}
+      <LayerDescriptionAttributionDisplay source={source} onUpdateMeta={handleUpdateMeta} />
 
-      {/* Categories */}
-      {source.meta?.categories && source.meta.categories.length > 0 && (
-        <LayerCategories categories={source.meta.categories} />
-      )}
+      {/* Data Visualisation: Categories, Colormaps, RGB Composites, Gradient */}
+      <LayerDataVisualisationSection
+        source={source}
+        onUpdateMeta={handleUpdateMeta}
+        onUpdateDataSources={(updatedData) => {
+          if (sourceIndex === -1) return;
+          dispatch({
+            type: 'UPDATE_SOURCE',
+            payload: {
+              index: sourceIndex,
+              source: { ...source, data: updatedData }
+            }
+          });
+          toast({
+            title: "Layer Updated",
+            description: "RGB composite settings updated across data sources",
+          });
+        }}
+      />
 
-      {/* Colormaps */}
-      {source.meta?.colormaps && source.meta.colormaps.length > 0 && (
-        <LayerColormapsDisplay colormaps={source.meta.colormaps} />
-      )}
+      {/* Legend */}
+      <LayerLegendSection source={source} onUpdateLayout={handleUpdateLayout} onUpdateMeta={handleUpdateMeta} onUpdateLayoutAndMeta={handleUpdateLayoutAndMeta} />
 
       {/* Fields - Vector layer attribute configuration */}
-      {source.meta?.fields && Object.keys(source.meta.fields).length > 0 && (
-        <LayerFieldsDisplay fields={source.meta.fields} />
+      {firstVectorSource && (
+        <LayerFieldsDisplay
+          fields={source.meta?.fields || {}}
+          onUpdate={(fields) => handleUpdateMeta({ fields })}
+          sourceUrl={firstVectorSource.url}
+          sourceFormat={firstVectorSource.format}
+        />
       )}
-      
-      {/* Legend Display */}
-      <LayerLegendDisplay source={source} />
 
       {/* Controls Display */}
-      <LayerControlsDisplay source={source} />
-
+      <LayerControlsDisplay
+        source={source}
+        onSave={(layoutUpdates, sourceFieldUpdates) => {
+          if (sourceIndex === -1) return;
+          const updatedSource = {
+            ...source,
+            ...sourceFieldUpdates,
+            layout: {
+              ...source.layout,
+              ...layoutUpdates,
+            },
+          };
+          dispatch({ type: 'UPDATE_SOURCE', payload: { index: sourceIndex, source: updatedSource } });
+          toast({ title: "Controls Updated", description: "Layer controls have been updated successfully" });
+        }}
+      />
 
       {/* Data Sources Section - only show for non-swipe layers */}
       {!isSwipeLayer && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700">Data Sources</h4>
+          <div className="flex items-center gap-2">
+            <Database className="h-4 w-4 text-muted-foreground" />
+            <h4 className="text-sm font-medium text-foreground">Data Sources</h4>
+          </div>
+          <div className="ml-6">
           <LayerCardTabs
           source={source}
           services={(config.services || []) as Service[]}
           layerIndex={sourceIndex}
           onUpdateMeta={handleUpdateMeta}
           onUpdateLayout={handleUpdateLayout}
+          onUpdateDataBands={handleUpdateDataBands}
           onAddDataSource={() => onAddDataSource?.()}
           onAddStatisticsSource={onAddStatisticsSource}
           onAddConstraintSource={onAddConstraintSource}
@@ -197,7 +289,8 @@ const LayerCardContent = ({
           onAddChart={() => onAddChart?.()}
           onRemoveChart={(_, chartIndex) => onRemoveChart?.(chartIndex)}
           onEditChart={(_, chartIndex) => onEditChart?.(chartIndex)}
-        />
+          />
+          </div>
         </div>
       )}
 

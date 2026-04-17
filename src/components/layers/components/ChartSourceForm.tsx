@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Save, X, Database, Globe, ChevronDown, ChevronRight } from 'lucide-react';
 import { Service } from '@/types/config';
+import { DataSourceItem } from '@/types/dataSource';
 import { ChartConfig, ChartSource, ChartTrace } from '@/types/chart';
 import { useToast } from '@/hooks/use-toast';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -19,6 +20,11 @@ import { HistogramEditor } from '@/components/charts/HistogramEditor';
 import { PlotlyChartViewer } from '@/components/charts/PlotlyChartViewer';
 import { useChartEditorState } from '@/hooks/useChartEditorState';
 import { fetchAndParseCSV } from '@/utils/csvParser';
+import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
+import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertTriangle, Activity, Loader2, Tag, Settings2 } from 'lucide-react';
+import { BandLabelEditorDialog } from './BandLabelEditorDialog';
 
 interface ChartSourceFormProps {
   services: Service[];
@@ -27,6 +33,7 @@ interface ChartSourceFormProps {
   editingChart?: ChartConfig;
   editingIndex?: number;
   onUpdateChart?: (chart: ChartConfig, chartIndex: number) => void;
+  cogSources?: DataSourceItem[];
 }
 
 export function ChartSourceForm({
@@ -35,12 +42,24 @@ export function ChartSourceForm({
   onCancel,
   editingChart,
   editingIndex,
-  onUpdateChart
+  onUpdateChart,
+  cogSources = []
 }: ChartSourceFormProps) {
   const { toast } = useToast();
   const { dispatch } = useConfig();
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct'>('direct');
+  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues'>(
+    editingChart?.sources?.[0]?.type === 'pixelValues' ? 'pixelValues' : 'direct'
+  );
+  const [selectedCogIndex, setSelectedCogIndex] = useState<number>(0);
+  const [bandLabels, setBandLabels] = useState<string[]>([]);
+  const [bandLabelDialogOpen, setBandLabelDialogOpen] = useState(false);
+  const [bandCount, setBandCount] = useState<number>(0);
+  const [bandLoading, setBandLoading] = useState(false);
+  const bandFetchRef = useRef(0);
+  const [samplePixelValues, setSamplePixelValues] = useState<number[] | null>(null);
+  const [sampleLoading, setSampleLoading] = useState(false);
+  const sampleFetchRef = useRef(0);
   const [directUrl, setDirectUrl] = useState(editingChart?.sources?.[0]?.url || '');
   const [chartTitle, setChartTitle] = useState(editingChart?.title || '');
   const [chartLabel, setChartLabel] = useState(editingChart?.sources?.[0]?.label || '');
@@ -71,6 +90,10 @@ export function ChartSourceForm({
   // Get available columns from parsed data
   const availableColumns = parsedData.columns;
 
+  // Stabilize cogSources to prevent effect re-triggers from parent re-renders
+  const cogSourcesKey = cogSources.map(s => s.url || '').join('|');
+  const stableCogSources = useMemo(() => cogSources, [cogSourcesKey]);
+
   // Track dirty state
   const [isDirty, setIsDirty] = useState(false);
 
@@ -84,7 +107,87 @@ export function ChartSourceForm({
     }
   }, [editingChart]);
 
-  // Sync directUrl to chartConfig.sources so CSV gets fetched
+  // Initialize band labels from editingChart if pixelValues
+  useEffect(() => {
+    if (editingChart?.sources?.[0]?.type === 'pixelValues' && Array.isArray(editingChart.x)) {
+      setBandLabels(editingChart.x as string[]);
+      setBandCount((editingChart.x as string[]).length);
+    }
+  }, [editingChart]);
+
+  // Fetch COG header metadata to detect band count when source changes
+  useEffect(() => {
+    if (sourceType !== 'pixelValues' || stableCogSources.length === 0) return;
+    const source = stableCogSources[selectedCogIndex];
+    if (!source?.url) return;
+
+    const requestId = ++bandFetchRef.current;
+    setBandLoading(true);
+
+    fetchCogHeaderMetadata(source.url)
+      .then((meta) => {
+        if (requestId !== bandFetchRef.current) return;
+        const count = meta.samplesPerPixel || 1;
+        setBandCount(count);
+
+        // Only auto-populate if labels are empty or count changed
+        setBandLabels(prev => {
+          if (prev.length === count) return prev;
+          return Array.from({ length: count }, (_, i) => String(i + 1));
+        });
+      })
+      .catch(() => {
+        if (requestId !== bandFetchRef.current) return;
+        if (bandCount === 0) {
+          setBandCount(1);
+          setBandLabels(['1']);
+        }
+      })
+      .finally(() => {
+        if (requestId === bandFetchRef.current) setBandLoading(false);
+      });
+  }, [sourceType, selectedCogIndex, stableCogSources]);
+
+  // Sync band labels to chartConfig.x and ensure a default trace exists
+  useEffect(() => {
+    if (sourceType !== 'pixelValues' || bandLabels.length === 0) return;
+    setChartConfig(prev => {
+      const updates: Partial<ChartConfig> = { x: bandLabels };
+      if (!prev.traces || prev.traces.length === 0) {
+        updates.traces = [{ name: 'Reflectance', type: 'scatter', mode: 'lines' }];
+        setSelectedTraceIndex(0);
+      }
+      return { ...prev, ...updates };
+    });
+  }, [bandLabels, sourceType, setChartConfig, setSelectedTraceIndex]);
+
+  // Fetch sample pixel values from COG center when bands are ready
+  useEffect(() => {
+    if (sourceType !== 'pixelValues' || stableCogSources.length === 0 || bandCount === 0) {
+      setSamplePixelValues(null);
+      return;
+    }
+    const source = stableCogSources[selectedCogIndex];
+    if (!source?.url) return;
+
+    const requestId = ++sampleFetchRef.current;
+    setSampleLoading(true);
+
+    fetchCogCenterPixel(source.url)
+      .then((result) => {
+        if (requestId !== sampleFetchRef.current) return;
+        setSamplePixelValues(result.bandValues);
+      })
+      .catch(() => {
+        if (requestId !== sampleFetchRef.current) return;
+        setSamplePixelValues(null);
+      })
+      .finally(() => {
+        if (requestId === sampleFetchRef.current) setSampleLoading(false);
+      });
+  }, [sourceType, selectedCogIndex, stableCogSources, bandCount]);
+
+
   useEffect(() => {
     const trimmedUrl = directUrl.trim();
     const currentUrl = chartConfig.sources?.[0]?.url;
@@ -152,7 +255,7 @@ export function ChartSourceForm({
       setChartConfig({
         ...chartConfig,
         pie: {
-          labels: chartConfig.x || '',
+          labels: (typeof chartConfig.x === 'string' ? chartConfig.x : '') || '',
           values: firstTrace?.y || '',
           hole: 0
         },
@@ -165,7 +268,7 @@ export function ChartSourceForm({
         ...chartConfig,
         pie: undefined,
         traces: [{
-          y: firstTrace?.y || chartConfig.x || '',
+          y: firstTrace?.y || (typeof chartConfig.x === 'string' ? chartConfig.x : '') || '',
           type: 'histogram',
           name: 'Histogram'
         }]
@@ -238,6 +341,42 @@ export function ChartSourceForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (sourceType === 'pixelValues') {
+      if (cogSources.length === 0) {
+        toast({
+          title: "No COG Sources",
+          description: "This layer has no COG data sources configured.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const chartSource: ChartSource = {
+        type: 'pixelValues',
+        ...(chartLabel.trim() && { label: chartLabel.trim() })
+      };
+
+      const finalConfig: ChartConfig = {
+        ...chartConfig,
+        ...(chartTitle.trim() && { title: chartTitle.trim() }),
+        sources: [chartSource]
+      };
+
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: false, description: null }
+      });
+
+      if (editingChart && editingIndex !== undefined && onUpdateChart) {
+        onUpdateChart(finalConfig, editingIndex);
+        toast({ title: "Chart Updated", description: "Chart configuration has been updated." });
+      } else {
+        onAddChart(finalConfig);
+        toast({ title: "Chart Added", description: "Chart has been added to the layer." });
+      }
+      return;
+    }
+
     if (!directUrl.trim()) {
       toast({
         title: "Missing URL",
@@ -295,6 +434,9 @@ export function ChartSourceForm({
   const displayType = getDisplayType();
   const hasUrl = directUrl.trim() !== '';
   const hasColumns = availableColumns.length > 0;
+  const isPixelValuesReady = sourceType === 'pixelValues' && bandLabels.length > 0 && !bandLoading;
+  const showConfig = hasUrl || isPixelValuesReady;
+  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady;
   const selectedTrace = chartConfig.traces?.[selectedTraceIndex];
 
   return (
@@ -311,7 +453,7 @@ export function ChartSourceForm({
             {/* Source Type Selection */}
             <div className="space-y-4">
               <Label className="text-base font-medium">Data Source</Label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <button
                   type="button"
                   onClick={() => setSourceType('direct')}
@@ -342,8 +484,103 @@ export function ChartSourceForm({
                     Select from configured services
                   </div>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setSourceType('pixelValues')}
+                  className={`p-4 border rounded-lg text-center flex flex-col items-center transition-colors ${
+                    sourceType === 'pixelValues'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <Activity className="h-5 w-5 mb-2 text-primary" />
+                  <div className="font-medium">Pixel Values</div>
+                  <div className="text-sm text-muted-foreground">
+                    Spectral signature from COG bands
+                  </div>
+                </button>
               </div>
             </div>
+
+            {/* Pixel Values: COG source selector */}
+            {sourceType === 'pixelValues' && (
+              <div className="space-y-4">
+                {cogSources.length === 0 ? (
+                  <div className="flex items-center gap-2 p-4 border border-dashed rounded-lg text-sm text-muted-foreground">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    No COG data sources are configured on this layer. Add a COG data source first.
+                  </div>
+                ) : cogSources.length > 1 ? (
+                  <div className="space-y-2">
+                    <Label>Sample Source</Label>
+                    <Select
+                      value={String(selectedCogIndex)}
+                      onValueChange={(v) => setSelectedCogIndex(Number(v))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a COG source" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cogSources.map((src, i) => {
+                          const label = src.url
+                            ? src.url.split('/').pop()?.split('?')[0] || `Source ${i + 1}`
+                            : `Source ${i + 1}`;
+                          return (
+                            <SelectItem key={i} value={String(i)}>
+                              {label}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Choose which COG source to use for band detection and sample preview
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    Using: {cogSources[0]?.url?.split('/').pop()?.split('?')[0] || 'COG source'}
+                  </div>
+                )}
+
+                {/* Band Label Editor */}
+                {cogSources.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-4 w-4 text-muted-foreground" />
+                      <Label>Band Labels (X-Axis)</Label>
+                      {bandLoading && (
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          Detecting bands...
+                        </span>
+                      )}
+                    </div>
+                    {!bandLoading && bandCount > 0 && (
+                      <div className="flex items-center justify-between p-3 rounded-md border bg-muted/30">
+                        <div>
+                          <p className="text-sm font-medium">
+                            {bandCount} band{bandCount !== 1 ? 's' : ''} detected
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Using band numbers as X-axis labels
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setBandLabelDialogOpen(true)}
+                        >
+                          <Settings2 className="h-3.5 w-3.5 mr-1.5" />
+                          Customize Labels
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Service Selection */}
             {sourceType === 'service' && (
@@ -373,19 +610,21 @@ export function ChartSourceForm({
               />
             </div>
 
-            {/* URL Input */}
-            <div className="space-y-2">
-              <Label htmlFor="url">CSV URL</Label>
-              <Input
-                id="url"
-                value={directUrl}
-                onChange={(e) => setDirectUrl(e.target.value)}
-                placeholder="https://example.com/data.csv"
-              />
-              <p className="text-xs text-muted-foreground">
-                Enter the URL to your CSV data file
-              </p>
-            </div>
+            {/* URL Input - only for CSV-based sources */}
+            {sourceType !== 'pixelValues' && (
+              <div className="space-y-2">
+                <Label htmlFor="url">CSV URL</Label>
+                <Input
+                  id="url"
+                  value={directUrl}
+                  onChange={(e) => setDirectUrl(e.target.value)}
+                  placeholder="https://example.com/data.csv"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter the URL to your CSV data file
+                </p>
+              </div>
+            )}
 
             {/* Source Label */}
             <div className="space-y-2">
@@ -399,7 +638,7 @@ export function ChartSourceForm({
             </div>
 
             {/* Chart Configuration Section - only show when URL is provided */}
-            {hasUrl && (
+            {showConfig && (
               <Collapsible open={configOpen} onOpenChange={setConfigOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
                   {configOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -412,7 +651,56 @@ export function ChartSourceForm({
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 space-y-4">
-                  {csvLoading ? (
+                  {isPixelValuesReady ? (
+                    <>
+                      {/* Simplified chart type selector for pixelValues - no pie/histogram */}
+                      <ChartTypeSelector
+                        config={chartConfig}
+                        onChange={setChartConfig}
+                      />
+
+                      {/* Trace styling only - no column pickers needed */}
+                      {chartConfig.traces && chartConfig.traces.length > 0 && (
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium">Trace Styling</Label>
+                          {chartConfig.traces.map((trace, i) => (
+                            <div key={i} className="flex items-center gap-2 text-sm">
+                              <span className="text-muted-foreground">{trace.name || `Trace ${i + 1}`}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs ml-auto"
+                                onClick={() => setSelectedTraceIndex(i)}
+                              >
+                                Edit
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {selectedTrace && selectedTraceIndex !== null && (
+                        <TraceEditor
+                          trace={selectedTrace}
+                          traceIndex={selectedTraceIndex}
+                          columns={bandLabels}
+                          hideYColumn
+                          onUpdate={(updatedTrace) => {
+                            const newTraces = [...(chartConfig.traces || [])];
+                            newTraces[selectedTraceIndex] = updatedTrace;
+                            setChartConfig({ ...chartConfig, traces: newTraces });
+                          }}
+                          onRemove={() => {
+                            const newTraces = [...(chartConfig.traces || [])];
+                            newTraces.splice(selectedTraceIndex, 1);
+                            setChartConfig({ ...chartConfig, traces: newTraces });
+                            setSelectedTraceIndex(null);
+                          }}
+                        />
+                      )}
+                    </>
+                  ) : csvLoading ? (
                     <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                       <span className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
                       <span className="text-sm">Fetching CSV data...</span>
@@ -486,7 +774,7 @@ export function ChartSourceForm({
             )}
 
             {/* Preview Section */}
-            {hasUrl && hasColumns && (
+            {showPreview && (
               <Collapsible open={previewOpen} onOpenChange={setPreviewOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
                   {previewOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -494,10 +782,34 @@ export function ChartSourceForm({
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4">
                   <div className="border rounded-lg p-4 bg-background">
-                    <PlotlyChartViewer
-                      config={{...chartConfig, title: chartTitle || chartConfig.title}}
-                      data={parsedData}
-                    />
+                    {sampleLoading && isPixelValuesReady ? (
+                      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                        <Loader2 className="h-6 w-6 animate-spin mb-2" />
+                        <span className="text-sm">Fetching sample pixel data...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <PlotlyChartViewer
+                          config={{
+                            ...chartConfig,
+                            title: chartTitle || chartConfig.title,
+                            ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {})
+                          }}
+                          data={parsedData}
+                          sampleData={samplePixelValues || undefined}
+                        />
+                        {isPixelValuesReady && samplePixelValues && (
+                          <p className="text-xs text-muted-foreground text-center mt-1 italic">
+                            Sample data from center pixel — actual chart will use clicked location
+                          </p>
+                        )}
+                        {isPixelValuesReady && !samplePixelValues && !sampleLoading && (
+                          <p className="text-xs text-destructive text-center mt-1">
+                            Could not fetch sample pixel data. Preview shows placeholder values.
+                          </p>
+                        )}
+                      </>
+                    )}
                   </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -525,8 +837,18 @@ export function ChartSourceForm({
           isOpen={showServiceModal}
           onClose={handleServiceModalClose}
           onSelect={handleServiceModalSelection}
+          allowedFormats={['csv']}
+          sourceContext="chart"
         />
       )}
+
+      {/* Band Label Editor Dialog */}
+      <BandLabelEditorDialog
+        open={bandLabelDialogOpen}
+        onOpenChange={setBandLabelDialogOpen}
+        labels={bandLabels}
+        onSave={setBandLabels}
+      />
     </>
   );
 }

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ExternalLink, Image } from 'lucide-react';
+import { ExternalLink, Image, LayoutGrid } from 'lucide-react';
 import { DataSource } from '@/types/config';
 
 interface LayerLegendDisplayProps {
@@ -15,12 +15,15 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700">
-        Legend - {legend.type}
-      </h4>
+      <div className="flex items-center gap-2">
+        <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+        <h4 className="text-sm font-medium text-foreground">
+          Legend - {legend.type}
+        </h4>
+      </div>
       
       {legend.type === 'image' && legend.url && (
-        <div className="space-y-2">
+        <div className="space-y-2 ml-6">
           <div className="flex items-center gap-2">
             <Image className="h-4 w-4" />
             <a 
@@ -37,7 +40,7 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
       )}
       
       {legend.type === 'gradient' && source.meta && (
-        <div className="space-y-2">
+        <div className="space-y-2 ml-6">
           <div 
             className="h-4 rounded border"
             style={{
@@ -52,7 +55,7 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
       )}
       
       {legend.type === 'swatch' && (
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground ml-6">
           See categories
         </div>
       )}

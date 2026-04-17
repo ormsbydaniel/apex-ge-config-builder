@@ -33,8 +33,8 @@ interface LayersTabCoreProps {
   expandedLayers: Set<number>;
   onToggleLayer: (index: number) => void;
   layersLogic: any; // From useLayersTabLogic
-  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
-  navigationState?: { expandedGroups: string[]; expandedLayers: string[] };
+  onExpansionStateChange?: (layers: string[], groups: string[], subGroups?: string[]) => void;
+  navigationState?: { expandedGroups: string[]; expandedLayers: string[]; expandedSubGroups?: string[] };
 }
 
 const LayersTabCore = ({
@@ -73,7 +73,9 @@ const LayersTabCore = ({
         if (editingLayer.isBaseLayer) {
           groupName = '__BASE_LAYERS__';
         } else if (editingLayer.layout?.interfaceGroup) {
-          groupName = editingLayer.layout.interfaceGroup;
+          groupName = editingLayer.layout.subinterfaceGroup 
+            ? `${editingLayer.layout.interfaceGroup}::${editingLayer.layout.subinterfaceGroup}`
+            : editingLayer.layout.interfaceGroup;
         } else {
           groupName = '__UNGROUPED__';
         }
@@ -94,7 +96,9 @@ const LayersTabCore = ({
       if (layer.isBaseLayer) {
         groupName = '__BASE_LAYERS__';
       } else if (layer.layout?.interfaceGroup) {
-        groupName = layer.layout.interfaceGroup;
+        groupName = layer.layout.subinterfaceGroup 
+          ? `${layer.layout.interfaceGroup}::${layer.layout.subinterfaceGroup}`
+          : layer.layout.interfaceGroup;
       } else {
         groupName = '__UNGROUPED__';
       }
@@ -118,7 +122,9 @@ const LayersTabCore = ({
       if (layer.isBaseLayer) {
         groupName = '__BASE_LAYERS__';
       } else if (layer.layout?.interfaceGroup) {
-        groupName = layer.layout.interfaceGroup;
+        groupName = layer.layout.subinterfaceGroup 
+          ? `${layer.layout.interfaceGroup}::${layer.layout.subinterfaceGroup}`
+          : layer.layout.interfaceGroup;
       } else {
         groupName = '__UNGROUPED__';
       }

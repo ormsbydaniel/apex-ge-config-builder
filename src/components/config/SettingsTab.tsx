@@ -8,13 +8,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, ExternalLink, Mail, Navigation, Paintbrush, Palette, Link2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import DesignVariantEditor from './DesignVariantEditor';
+import FooterLinksEditorDialog from './FooterLinksEditorDialog';
 import { geoLocations, groupedLocations } from '@/constants/geoLocations';
 import { PROJECTION_OPTIONS, DEFAULT_PROJECTION } from '@/constants/projections';
-import { DesignConfig } from '@/types/format';
+import { DesignConfig, FooterLink } from '@/types/format';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 
 interface SettingsTabProps {
   config: any;
@@ -38,7 +40,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [primaryFontColor, setPrimaryFontColor] = useState(config.layout.theme?.['text-color-primary'] || '#ffffff');
   const [secondaryFontColor, setSecondaryFontColor] = useState(config.layout.theme?.['text-color-secondary'] || '#333333');
   const [advancedColorsOpen, setAdvancedColorsOpen] = useState(false);
-  
+  const [footerEditorOpen, setFooterEditorOpen] = useState(false);
   // Add projection dialog state
   const [addProjectionOpen, setAddProjectionOpen] = useState(false);
   const [newProjectionName, setNewProjectionName] = useState('');
@@ -286,7 +288,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
           {/* Navigation Settings Subsection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Navigation Settings</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Navigation className="h-4 w-4" />Navigation Settings</h3>
             
             {/* Location Preset Selector */}
             <div className="flex items-start gap-6">
@@ -584,7 +586,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
           {/* Branding Settings Subsection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Branding Settings</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Paintbrush className="h-4 w-4" />Branding Settings</h3>
             
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -626,7 +628,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
             {/* Colour Scheme */}
             <div className="space-y-3 mt-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Colour Scheme</h3>
+                <h3 className="text-lg font-semibold flex items-center gap-2"><Palette className="h-4 w-4" />Colour Scheme</h3>
               </div>
               
               <div className="grid gap-3" style={{ gridTemplateColumns: 'auto auto auto auto auto' }}>
@@ -865,6 +867,90 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               </div>
             </div>
           </div>
+          {/* Footer Links */}
+          <div className="space-y-4 pt-6">
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Link2 className="h-4 w-4" />Footer Links</h3>
+            <p className="text-sm text-muted-foreground">
+              Configure links displayed in the application footer, such as external resources or contact email addresses.
+            </p>
+
+            {/* Preview of current footer links */}
+            {(config.layout.footer && config.layout.footer.length > 0) ? (
+              <div className="flex flex-wrap items-center gap-2 p-3 bg-muted/30 rounded-lg border">
+                {config.layout.footer.map((link: FooterLink, index: number) => (
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1.5">
+                    {link.url.startsWith('mailto:') ? (
+                      <Mail className="h-3 w-3" />
+                    ) : (
+                      <ExternalLink className="h-3 w-3" />
+                    )}
+                    {link.title}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic p-3 bg-muted/30 rounded-lg border">
+                No footer links configured.
+              </p>
+            )}
+
+            <Button variant="outline" onClick={() => setFooterEditorOpen(true)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Footer Links
+            </Button>
+          </div>
+
+          {/* URL Parameters */}
+          <div className="space-y-4 pt-6">
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />URL Parameters</h3>
+            <p className="text-sm text-muted-foreground">
+              A deployed Geospatial Explorer configuration can be called with following URL parameters that overwrite the default configuration.  The following parameters are supported.    The URL should include a ? before the first parameter, with parameters separated with &.  Spaces in layer group names can include a space, encoded as %20.
+            </p>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Parameter</TableHead>
+                  <TableHead>Examples</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">variant=&lt;fullscreen|standard&gt;</TableCell>
+                  <TableCell className="font-mono text-xs">&amp;variant=fullscreen</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">zoom=&lt;zoomlevel&gt;</TableCell>
+                  <TableCell className="font-mono text-xs">&amp;zoom=10</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">layerGroups=&lt;groupname&gt;</TableCell>
+                  <TableCell className="font-mono text-xs">&amp;layerGroups=Soils&amp;layerGroups=Cities</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-mono text-xs">lat=&lt;latitude&gt;&amp;lng=&lt;longitude&gt;</TableCell>
+                  <TableCell className="font-mono text-xs">&amp;lat=52.0&amp;lng=-2.0</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+
+            <div className="space-y-2 pt-4">
+              <h4 className="text-sm font-semibold">Example</h4>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="text-muted-foreground mb-1">Standard URL:</p>
+                  <a href="https://explorer.sef-ecosystems.apex.esa.int/" target="_blank" rel="noopener noreferrer" className="font-mono text-xs text-primary hover:underline break-all">
+                    https://explorer.sef-ecosystems.apex.esa.int/
+                  </a>
+                </div>
+                <div>
+                  <p className="text-muted-foreground mb-1">Parameterised URL:</p>
+                  <a href="https://explorer.sef-ecosystems.apex.esa.int/?&layerGroups=Urban%20Ecosystems&layerGroups=Coastal%20Ecosystems&zoom=6&lat=43.0&lng=22.0" target="_blank" rel="noopener noreferrer" className="font-mono text-xs text-primary hover:underline break-all">
+                    https://explorer.sef-ecosystems.apex.esa.int/?&amp;layerGroups=Urban%20Ecosystems&amp;layerGroups=Coastal%20Ecosystems&amp;zoom=6&amp;lat=43.0&amp;lng=22.0
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -873,6 +959,15 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
         onOpenChange={setAdvancedColorsOpen}
         config={config}
         dispatch={dispatch}
+      />
+
+      <FooterLinksEditorDialog
+        open={footerEditorOpen}
+        onOpenChange={setFooterEditorOpen}
+        footerLinks={config.layout.footer || []}
+        onSave={(links) => {
+          dispatch({ type: 'UPDATE_FOOTER', payload: links });
+        }}
       />
     </div>
   );

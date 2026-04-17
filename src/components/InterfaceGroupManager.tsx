@@ -38,8 +38,8 @@ const InterfaceGroupManager = ({
   } = useInterfaceGroups(interfaceGroups, sources, onUpdate);
 
   // Track pending single-click timeouts and double-click flags per index
-  const upTimeoutRef = useRef<{ index: number; timeout: NodeJS.Timeout } | null>(null);
-  const downTimeoutRef = useRef<{ index: number; timeout: NodeJS.Timeout } | null>(null);
+  const upTimeoutRef = useRef<{ index: number; timeout: ReturnType<typeof setTimeout> } | null>(null);
+  const downTimeoutRef = useRef<{ index: number; timeout: ReturnType<typeof setTimeout> } | null>(null);
   const upDoubleClickedRef = useRef<number | null>(null);
   const downDoubleClickedRef = useRef<number | null>(null);
 

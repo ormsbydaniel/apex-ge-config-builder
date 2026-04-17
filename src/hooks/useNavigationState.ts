@@ -8,6 +8,7 @@ export interface NavigationState {
   activeTab: string;
   expandedGroups: string[];
   expandedLayers: string[];
+  expandedSubGroups: string[];
   scrollPosition: number;
 }
 
@@ -17,6 +18,7 @@ const defaultState: NavigationState = {
   activeTab: 'home',
   expandedGroups: [],
   expandedLayers: [],
+  expandedSubGroups: [],
   scrollPosition: 0
 };
 
@@ -94,6 +96,18 @@ export const useNavigationState = () => {
     });
   }, []);
 
+  const setExpandedSubGroups = useCallback((subGroups: string[]) => {
+    setNavigationState(prev => {
+      const newState = { ...prev, expandedSubGroups: subGroups };
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      } catch (error) {
+        console.error('Failed to save navigation state:', error);
+      }
+      return newState;
+    });
+  }, []);
+
   // Clear state (useful for reset)
   const clearState = useCallback(() => {
     try {
@@ -109,6 +123,7 @@ export const useNavigationState = () => {
     setActiveTab,
     setExpandedGroups,
     setExpandedLayers,
+    setExpandedSubGroups,
     setScrollPosition,
     saveState,
     clearState

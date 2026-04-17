@@ -11,7 +11,7 @@ export const CategorySchema = z.object({
 
 // Chart source schema
 const ChartSourceSchema = z.object({
-  type: z.enum(['externalURL', 'lookupURL']).optional(),  // Optional for flexibility
+  type: z.enum(['externalURL', 'lookupURL', 'pixelValues']).optional(),  // Optional for flexibility
   url: z.string().optional(),
   field: z.string().optional(),
   format: z.enum(['csv', 'json']).optional(),
@@ -35,7 +35,7 @@ const TraceMarkerSchema = z.object({
 
 // Chart trace schema
 const ChartTraceSchema = z.object({
-  y: z.string(),
+  y: z.string().optional(),
   name: z.string().optional(),
   type: z.enum(['scatter', 'bar', 'histogram', 'pie']).optional(),
   mode: z.enum(['lines', 'markers', 'lines+markers']).optional(),
@@ -100,7 +100,7 @@ const ChartConfigSchema = z.object({
   chartType: z.enum(['xy', 'pie']).optional(),
   title: z.string().optional(),
   subtitle: z.string().optional(),
-  x: z.string().optional(),  // Optional to support pie charts
+  x: z.union([z.string(), z.array(z.string())]).optional(),  // Optional to support pie charts and pixel-value band labels
   traces: z.array(ChartTraceSchema).optional(),  // Optional for pie charts
   layout: ChartLayoutSchema.optional(),
   pie: ChartPieSchema.optional(),
@@ -151,7 +151,7 @@ export const ServiceSchema = z.object({
   name: z.string(),
   url: urlOrRelativePathSchema,
   sourceType: z.enum(['s3', 'service', 'stac']).optional(),
-  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 's3', 'stac']).optional(),
+  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 'csv', 's3', 'stac']).optional(),
   capabilities: ServiceCapabilitiesSchema.optional(),
 });
 
@@ -536,6 +536,12 @@ const ProjectionSchema = z.object({
   definition: z.string(),
 });
 
+// Footer link schema for layout footer configuration
+export const FooterLinkSchema = z.object({
+  title: z.string().min(1, 'Footer link title is required'),
+  url: z.string().min(1, 'Footer link URL is required'),
+});
+
 export const ConfigurationSchema = z.object({
   version: z.string().optional(),
   layout: z.object({
@@ -544,6 +550,7 @@ export const ConfigurationSchema = z.object({
       logo: urlOrRelativePathSchema,
       title: z.string().min(1, 'Title is required'),
     }),
+    footer: z.array(FooterLinkSchema).optional(),
     theme: z.object({
       'primary-color': z.string().optional(),
       'secondary-color': z.string().optional(),

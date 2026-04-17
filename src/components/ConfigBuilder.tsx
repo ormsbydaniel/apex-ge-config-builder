@@ -92,7 +92,7 @@ const ConfigBuilderContent = () => {
   } = useConfigBuilderState();
 
   // Track navigation state for Preview transitions
-  const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setScrollPosition } = useNavigationState();
+  const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setExpandedSubGroups, setScrollPosition } = useNavigationState();
   const layersScrollRef = React.useRef<HTMLDivElement>(null);
 
   const handleTabChange = (value: string) => {
@@ -117,10 +117,13 @@ const ConfigBuilderContent = () => {
   };
   
   // Save expanded layers state (simplified - will be managed by LayerHierarchy)
-  const handleExpansionStateChange = React.useCallback((layers: string[], groups: string[]) => {
+  const handleExpansionStateChange = React.useCallback((layers: string[], groups: string[], subGroups?: string[]) => {
     setExpandedLayers(layers);
     setExpandedGroups(groups);
-  }, [setExpandedLayers, setExpandedGroups]);
+    if (subGroups) {
+      setExpandedSubGroups(subGroups);
+    }
+  }, [setExpandedLayers, setExpandedGroups, setExpandedSubGroups]);
 
   // Restore scroll position when returning to layers tab
   React.useEffect(() => {

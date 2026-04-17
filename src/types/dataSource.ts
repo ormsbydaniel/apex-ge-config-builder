@@ -25,6 +25,8 @@ export interface DataSourceItem {
   useTimeParameter?: boolean; // Use TIME parameter from WMS/WMTS service
   // Opacity support (0-1 range)
   opacity?: number;
+  // RGB composite rendering flag
+  convertToRGB?: boolean;
   // Allow arbitrary additional properties (e.g., env, styles, time, transparent)
   [key: string]: any;
 }

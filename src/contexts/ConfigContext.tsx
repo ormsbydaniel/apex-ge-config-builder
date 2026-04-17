@@ -35,7 +35,8 @@ type ConfigAction =
   | { type: 'UPDATE_SOURCES'; payload: DataSource[] }
   | { type: 'UPDATE_VALIDATION_RESULTS'; payload: Map<number, LayerValidationResult> }
   | { type: 'SET_UNSAVED_FORM_CHANGES'; payload: { hasChanges: boolean; description: string | null } }
-  | { type: 'UPDATE_PROJECTIONS'; payload: Array<{ name?: string; code: string; definition: string }> };
+  | { type: 'UPDATE_PROJECTIONS'; payload: Array<{ name?: string; code: string; definition: string }> }
+  | { type: 'UPDATE_FOOTER'; payload: { title: string; url: string }[] };
 
 const initialState: ConfigState = {
   version: '1.0.0',
@@ -478,6 +479,15 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...state,
         isDirty: true,
         projections: action.payload,
+      };
+    case 'UPDATE_FOOTER':
+      return {
+        ...state,
+        isDirty: true,
+        layout: {
+          ...state.layout,
+          footer: action.payload,
+        },
       };
     default:
       return state;

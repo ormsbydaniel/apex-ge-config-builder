@@ -6,8 +6,39 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
-    date: "2026-02-13",
-    title: "3.6.0 development candidate added",
+    date: "2026-03-27",
+    title: "Recommended services improvement allowing users to choose which services are added (rather than all).  Interface sub-groups improvement with 'select all' option for including layers in sub-group.",
+    category: "Improvement",
+  },
+  {
+    date: "2026-03-25",
+    title: "Improvements to S3 browser. Addition of vector data styling UI control currently with direct JSON entry. Update to Description UI to include details of supported markdown. URL parameter details added in to Settings.",
+    category: "Improvement",
+  },
+  {
+    date: "2026-03-24",
+    title: "Footer links configuration added to Settings",
+    category: "Feature",
+  },
+  {
+    date: "2026-03-19",
+    title:
+      "Revamp of layer card user interface with direct editing via dialogue popups. Includes initial release of RGB composite styling.  Added latest GE development as 3.7.0 release candidate.",
+    category: "Feature",
+  },
+  {
+    date: "2026-03-09",
+    title: "Added dev-pixel-charts to preview.",
+    category: "Feature",
+  },
+  {
+    date: "2026-02-27",
+    title: "Paginated data source lists and remove all option. COG metadata support for multi-band COGs.",
+    category: "Feature",
+  },
+  {
+    date: "2026-02-26",
+    title: "Addition of 3.6.0-rc version",
     category: "Feature",
   },
   {

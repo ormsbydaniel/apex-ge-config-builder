@@ -1,16 +1,18 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Copy, Trash2, Clock, Info, Edit } from 'lucide-react';
+import { Copy, Trash2, Clock, Info, Edit, Layers } from 'lucide-react';
 import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
+import { BandSelectorDialog } from './BandSelectorDialog';
 import { extractDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
 import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 import WmsWmtsMetadataDialog from './WmsWmtsMetadataDialog';
+import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
@@ -27,6 +29,8 @@ interface DataSourceItemProps {
   sourceName?: string;
   onUpdateMeta?: (updates: Partial<DataSourceMeta>) => void;
   onUpdateLayout?: (updates: Partial<DataSourceLayout>) => void;
+  onUpdateBands?: (bands: number[], applyToAll: boolean) => void;
+  cogCount?: number;
 }
 
 const DataSourceItem = ({ 
@@ -43,12 +47,38 @@ const DataSourceItem = ({
   currentLayout,
   sourceName,
   onUpdateMeta,
-  onUpdateLayout
+  onUpdateLayout,
+  onUpdateBands,
+  cogCount = 0
 }: DataSourceItemProps) => {
   const { toast } = useToast();
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
+  const [showBandSelector, setShowBandSelector] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
   const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
+  const [cogBandCount, setCogBandCount] = useState<number | null>(null);
+  const [cogBandLoading, setCogBandLoading] = useState(false);
+
+  // Fetch COG band count from header metadata
+  const isCog = dataSource.format?.toLowerCase() === 'cog';
+  useEffect(() => {
+    if (!isCog || !dataSource.url) return;
+    let cancelled = false;
+    setCogBandLoading(true);
+    fetchCogHeaderMetadata(dataSource.url)
+      .then((meta) => {
+        if (!cancelled) {
+          setCogBandCount(meta.samplesPerPixel ?? null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setCogBandCount(null);
+      })
+      .finally(() => {
+        if (!cancelled) setCogBandLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [isCog, dataSource.url]);
 
   const handleCopyUrl = () => {
     if (dataSource.url) {
@@ -108,8 +138,8 @@ const DataSourceItem = ({
   const hasTimeParameter = isWmsOrWmts && timeframe !== 'None' && !hasTimestamps;
 
   return (
-    <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50">
-      <div className="flex items-center gap-3 flex-1 min-w-0">
+    <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md bg-gray-50 overflow-hidden">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
         <Badge variant="outline" className="text-xs flex-shrink-0">
           {dataSource.format?.toUpperCase() || 'UNKNOWN'}
         </Badge>
@@ -117,7 +147,7 @@ const DataSourceItem = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-sm font-medium truncate flex-1 cursor-help">
+              <span className="text-sm font-medium truncate min-w-0 flex-1 cursor-help">
                 {getDisplayName()}
               </span>
             </TooltipTrigger>
@@ -126,14 +156,47 @@ const DataSourceItem = ({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        
+      </div>
+
+      <div className="flex items-center gap-1 flex-shrink-0 flex-wrap">
+        {/* Band count badge for COG files */}
+        {isCog && cogBandLoading && (
+          <span className="text-xs text-muted-foreground animate-pulse">bands…</span>
+        )}
+        {isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
+          <Badge variant="secondary" className="text-xs">
+            {cogBandCount} bands
+          </Badge>
+        )}
+
+        {/* Configured bands array badge or undefined warning */}
+        {Array.isArray(dataSource.bands) && dataSource.bands.length > 0 ? (
+          <Badge
+            variant="secondary"
+            className="text-xs cursor-pointer hover:bg-secondary/80 gap-1"
+            onClick={() => setShowBandSelector(true)}
+          >
+            <Layers className="h-3 w-3" />
+            Bands: {dataSource.bands.slice(0, 5).join(', ')}{dataSource.bands.length > 5 ? '…' : ''}
+          </Badge>
+        ) : isCog && !cogBandLoading && cogBandCount !== null && cogBandCount > 1 && (
+          <Badge
+            variant="outline"
+            className="text-xs text-destructive border-destructive cursor-pointer hover:bg-destructive/10 gap-1"
+            onClick={() => setShowBandSelector(true)}
+          >
+            <Layers className="h-3 w-3" />
+            Bands: undefined
+          </Badge>
+        )}
+
         {/* Info icon for COG files */}
-        {dataSource.format?.toLowerCase() === 'cog' && dataSource.url && (
+        {isCog && dataSource.url && (
           <Button
             size="sm"
             variant="ghost"
             onClick={() => setShowMetadataDialog(true)}
-            className="h-6 w-6 p-0 flex-shrink-0"
+            className="h-6 w-6 p-0"
             title="View COG Metadata"
           >
             <Info className="h-3 w-3" />
@@ -146,7 +209,7 @@ const DataSourceItem = ({
             size="sm"
             variant="ghost"
             onClick={() => setShowFlatGeobufDialog(true)}
-            className="h-6 w-6 p-0 flex-shrink-0"
+            className="h-6 w-6 p-0"
             title="View FlatGeobuf Metadata"
           >
             <Info className="h-3 w-3" />
@@ -159,7 +222,7 @@ const DataSourceItem = ({
             size="sm"
             variant="ghost"
             onClick={() => setShowWmsWmtsDialog(true)}
-            className="h-6 w-6 p-0 flex-shrink-0"
+            className="h-6 w-6 p-0"
             title={`View ${dataSource.format.toUpperCase()} Capabilities`}
           >
             <Info className="h-3 w-3" />
@@ -168,42 +231,42 @@ const DataSourceItem = ({
         
         {/* Date pill for temporal layers */}
         {hasTimestamps && timeframe !== 'None' && dataSource.timestamps && dataSource.timestamps[0] && (
-          <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+          <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
             {formatTimestampForTimeframe(dataSource.timestamps[0], timeframe)}
           </Badge>
         )}
         
         {showStatsLevel && (
-          <span className="text-xs text-gray-500 flex-shrink-0">
+          <span className="text-xs text-gray-500">
             L: {getLevel()}
           </span>
         )}
         
-        <span className="text-xs text-gray-500 flex-shrink-0">
+        <span className="text-xs text-gray-500">
           Z: {getZIndex()}
         </span>
         
         {dataSource.opacity !== undefined && (
-          <span className="text-xs text-gray-500 flex-shrink-0">
+          <span className="text-xs text-gray-500">
             Opacity: {Math.round(dataSource.opacity * 100)}%
           </span>
         )}
         
         {/* TIME parameter badge for WMS/WMTS layers with temporal control but no timestamps */}
         {hasTimeParameter && (
-          <Badge variant="secondary" className="text-xs flex-shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+          <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
             TIME PARAM
           </Badge>
         )}
         
         {showPosition && (
-          <Badge variant="secondary" className="text-xs flex-shrink-0">
+          <Badge variant="secondary" className="text-xs">
             {getPosition()}
           </Badge>
         )}
         
         {hasZoomLevels && (
-          <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
+          <div className="flex items-center gap-1 text-xs text-gray-500">
             <span>Zoom:</span>
             <span>
               {dataSource.minZoom !== undefined ? dataSource.minZoom : '∞'}-{dataSource.maxZoom !== undefined ? dataSource.maxZoom : '∞'}
@@ -212,7 +275,7 @@ const DataSourceItem = ({
         )}
 
         {showTemporalInfo && (
-          <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
+          <div className="flex items-center gap-1 text-xs text-gray-500">
             <Clock className="h-3 w-3" />
             <span>
               {hasTimestamps 
@@ -304,6 +367,17 @@ const DataSourceItem = ({
           sourceName={sourceName}
           currentLayout={currentLayout}
           onUpdateLayout={onUpdateLayout}
+        />
+      )}
+      {/* Band Selector Dialog */}
+      {isCog && cogBandCount !== null && cogBandCount > 1 && (
+        <BandSelectorDialog
+          open={showBandSelector}
+          onOpenChange={setShowBandSelector}
+          cogBandCount={cogBandCount}
+          currentBands={Array.isArray(dataSource.bands) ? dataSource.bands : []}
+          onSave={(bands, applyToAll) => onUpdateBands?.(bands, applyToAll)}
+          cogCount={cogCount}
         />
       )}
     </div>

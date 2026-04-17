@@ -1,12 +1,9 @@
-
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, File, Search, AlertCircle, ListPlus, FileUp } from 'lucide-react';
-import { fetchS3BucketContents, getFormatFromExtension, S3Object, S3Selection } from '@/utils/s3Utils';
+import { Loader2, File, Search, AlertCircle, ListPlus, FileUp, Folder, ChevronRight, Home } from 'lucide-react';
+import { fetchS3BucketFolder, deriveFolderListingFromObjects, getFormatFromExtension, getS3DisplayName, S3Object, S3Selection } from '@/utils/s3Utils';
 import { DataSourceFormat, ServiceCapabilities } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,74 +11,82 @@ interface S3LayerSelectorProps {
   bucketUrl: string;
   capabilities?: ServiceCapabilities | null;
   onObjectSelect: (selection: S3Selection | S3Selection[]) => void;
+  allowedFormats?: string[];
+  sourceContext?: string;
 }
 
-const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSelectorProps) => {
+const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect, allowedFormats, sourceContext = 'data' }: S3LayerSelectorProps) => {
   const { toast } = useToast();
-  const [objects, setObjects] = useState<S3Object[]>([]);
-  const [filteredObjects, setFilteredObjects] = useState<S3Object[]>([]);
+  const [allCachedObjects, setAllCachedObjects] = useState<S3Object[]>([]);
+  const [files, setFiles] = useState<S3Object[]>([]);
+  const [folders, setFolders] = useState<string[]>([]);
+  const [filteredFiles, setFilteredFiles] = useState<S3Object[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isBulkAdding, setIsBulkAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<string>('all');
   const [usingCachedData, setUsingCachedData] = useState(false);
+  const [currentPrefix, setCurrentPrefix] = useState('');
 
-  useEffect(() => {
-    if (bucketUrl) {
-      fetchObjects();
-    }
-  }, [bucketUrl, capabilities]);
-
-  useEffect(() => {
-    filterObjects();
-  }, [objects, searchTerm, selectedFormat]);
-
-  const fetchObjects = async () => {
+  const fetchFolder = useCallback(async (prefix: string) => {
     setIsLoading(true);
     setError(null);
-    setUsingCachedData(false);
-    
+
     try {
-      // If we have cached capabilities from file upload, use those instead of fetching
-      if (capabilities?.layers && capabilities.layers.length > 0) {
-        // Transform capabilities layers to S3Object format
-        const cachedObjects: S3Object[] = capabilities.layers.map(layer => ({
-          key: layer.name,
-          lastModified: 'From file upload',
-          size: 0,
-          url: `${bucketUrl}/${layer.name}`
-        }));
-        
-        setObjects(cachedObjects);
-        setUsingCachedData(true);
+      if (usingCachedData && allCachedObjects.length > 0) {
+        const listing = deriveFolderListingFromObjects(allCachedObjects, prefix);
+        setFolders(listing.folders);
+        setFiles(listing.files);
       } else {
-        // Fetch live from S3 bucket (requires CORS)
-        const fetchedObjects = await fetchS3BucketContents(bucketUrl);
-        
-        // Filter out folders (keys ending with /)
-        const files = fetchedObjects.filter(obj => !obj.key.endsWith('/'));
-        
-        setObjects(files);
+        const listing = await fetchS3BucketFolder(bucketUrl, prefix);
+        setFolders(listing.folders);
+        setFiles(listing.files.filter(obj => !obj.key.endsWith('/')));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch bucket contents');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [bucketUrl, usingCachedData, allCachedObjects]);
 
-  const filterObjects = () => {
-    let filtered = objects;
+  useEffect(() => {
+    if (!bucketUrl) return;
 
-    // Filter by search term
+    if (capabilities?.layers && capabilities.layers.length > 0) {
+      const cachedObjects: S3Object[] = capabilities.layers.map(layer => ({
+        key: layer.name,
+        lastModified: 'From file upload',
+        size: 0,
+        url: `${bucketUrl}/${layer.name}`
+      }));
+      setAllCachedObjects(cachedObjects);
+      setUsingCachedData(true);
+      const listing = deriveFolderListingFromObjects(cachedObjects, '');
+      setFolders(listing.folders);
+      setFiles(listing.files);
+    } else {
+      setUsingCachedData(false);
+      setAllCachedObjects([]);
+      setCurrentPrefix('');
+      fetchFolder('');
+    }
+  }, [bucketUrl, capabilities]);
+
+  useEffect(() => {
+    if (!bucketUrl) return;
+    fetchFolder(currentPrefix);
+  }, [currentPrefix, fetchFolder]);
+
+  useEffect(() => {
+    let filtered = files;
+
     if (searchTerm) {
-      filtered = filtered.filter(obj => 
-        obj.key.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(obj =>
+        getS3DisplayName(obj.key).toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by format
     if (selectedFormat !== 'all') {
       filtered = filtered.filter(obj => {
         const detectedFormat = getFormatFromExtension(obj.key);
@@ -89,12 +94,18 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
       });
     }
 
-    setFilteredObjects(filtered);
+    setFilteredFiles(filtered);
+  }, [files, searchTerm, selectedFormat]);
+
+  const isFormatAllowed = (format: DataSourceFormat | null): boolean => {
+    if (!format) return false;
+    if (!allowedFormats) return true;
+    return allowedFormats.includes(format);
   };
 
   const handleObjectSelect = (object: S3Object) => {
     const detectedFormat = getFormatFromExtension(object.key);
-    if (detectedFormat) {
+    if (detectedFormat && isFormatAllowed(detectedFormat)) {
       const selection: S3Selection = {
         url: object.url,
         format: detectedFormat,
@@ -106,14 +117,14 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
 
   const handleAddAllObjects = async () => {
     setIsBulkAdding(true);
-    
+
     try {
       const selections: S3Selection[] = [];
       const skipped: string[] = [];
 
-      filteredObjects.forEach(object => {
+      filteredFiles.forEach(object => {
         const detectedFormat = getFormatFromExtension(object.key);
-        if (detectedFormat) {
+        if (detectedFormat && isFormatAllowed(detectedFormat)) {
           selections.push({
             url: object.url,
             format: detectedFormat,
@@ -126,7 +137,7 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
 
       if (selections.length > 0) {
         onObjectSelect(selections);
-        
+
         toast({
           title: "Objects Added",
           description: `Added ${selections.length} data sources${skipped.length > 0 ? ` (${skipped.length} skipped due to unrecognized format)` : ''}.`,
@@ -151,9 +162,9 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
 
   const getAvailableFormats = () => {
     const formats = new Set<string>();
-    objects.forEach(obj => {
+    files.forEach(obj => {
       const format = getFormatFromExtension(obj.key);
-      if (format) {
+      if (format && isFormatAllowed(format)) {
         formats.add(format);
       }
     });
@@ -167,156 +178,220 @@ const S3LayerSelector = ({ bucketUrl, capabilities, onObjectSelect }: S3LayerSel
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
+  const navigateToFolder = (prefix: string) => {
+    setSearchTerm('');
+    setSelectedFormat('all');
+    setCurrentPrefix(prefix);
+  };
+
+  const breadcrumbSegments = currentPrefix
+    ? currentPrefix.replace(/\/$/, '').split('/')
+    : [];
+
   if (isLoading) {
     return (
-      <Card className="border-primary/20">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Loading bucket contents...</span>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex-1 flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+        <span>Loading bucket contents...</span>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card className="border-red-200">
-        <CardContent className="pt-6">
-          <div className="flex items-center text-red-600 mb-4">
-            <AlertCircle className="h-5 w-5 mr-2" />
-            <span>Error loading bucket contents</span>
-          </div>
-          <p className="text-sm text-red-500 mb-4">{error}</p>
-          <Button onClick={fetchObjects} variant="outline" size="sm">
-            Retry
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="flex-1 flex flex-col gap-2 py-4">
+        <div className="flex items-center text-red-600">
+          <AlertCircle className="h-5 w-5 mr-2" />
+          <span>Error loading bucket contents</span>
+        </div>
+        <p className="text-sm text-red-500">{error}</p>
+        <Button onClick={() => fetchFolder(currentPrefix)} variant="outline" size="sm" className="self-start">
+          Retry
+        </Button>
+      </div>
     );
   }
 
   return (
-    <Card className="border-primary/20">
-      <CardContent className="space-y-4 pt-6">
-        {/* Show indicator if using cached data */}
-        {usingCachedData && (
-          <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md p-2">
-            <FileUp className="h-4 w-4" />
-            <span>Using cached data from file upload (no CORS required)</span>
-          </div>
-        )}
-        
-        {/* Search and Filter Controls */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="search">Search Objects</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="search"
-                placeholder="Search by filename..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
+    <div className="flex-1 flex flex-col min-h-0 space-y-2">
+      {/* Cached data indicator */}
+      {usingCachedData && (
+        <div className="flex items-center gap-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded-md px-2 py-1">
+          <FileUp className="h-3.5 w-3.5" />
+          <span>Using cached data from file upload (no CORS required)</span>
+        </div>
+      )}
+
+      {/* Search and Filter Controls */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search objects..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8 h-9"
+          />
+        </div>
+        <select
+          value={selectedFormat}
+          onChange={(e) => setSelectedFormat(e.target.value)}
+          className="h-9 px-2 border border-input rounded-md bg-background text-foreground text-sm"
+        >
+          <option value="all">All supported {sourceContext} formats</option>
+          {getAvailableFormats().map(format => (
+            <option key={format} value={format}>
+              {format.toUpperCase()}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Breadcrumb navigation */}
+      <div className="flex items-center gap-1 text-xs bg-muted/50 px-2 py-1 rounded border border-border/50 flex-wrap">
+        <button
+          onClick={() => navigateToFolder('')}
+          className={`flex items-center gap-1 hover:text-primary transition-colors ${
+            currentPrefix === '' ? 'text-foreground font-medium cursor-default' : 'text-primary underline'
+          }`}
+        >
+          <Home className="h-3 w-3" />
+          <span>Root</span>
+        </button>
+        {breadcrumbSegments.map((segment, index) => {
+          const segmentPrefix = breadcrumbSegments.slice(0, index + 1).join('/') + '/';
+          const isLast = index === breadcrumbSegments.length - 1;
+          return (
+            <React.Fragment key={segmentPrefix}>
+              <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+              <button
+                onClick={() => !isLast && navigateToFolder(segmentPrefix)}
+                className={`hover:text-primary transition-colors ${
+                  isLast ? 'text-foreground font-medium cursor-default' : 'text-primary underline cursor-pointer'
+                }`}
+                disabled={isLast}
+              >
+                {segment}
+              </button>
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {/* Folder and file list - scrollable */}
+      <div className="flex-1 min-h-0 overflow-y-auto border rounded-md">
+        {/* Folder list */}
+        {folders.length > 0 && (
+          <div className="p-1">
+            <div className="px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Folders</div>
+            <div className="grid gap-px">
+              {folders.map(folder => (
+                <button
+                  key={folder}
+                  onClick={() => navigateToFolder(folder)}
+                  className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/30 hover:bg-muted/60 transition-colors text-left w-full group"
+                >
+                  <div className="flex items-center gap-2">
+                    <Folder className="h-4 w-4 text-primary shrink-0" />
+                    <span className="font-medium text-sm text-primary underline">{getS3DisplayName(folder)}/</span>
+                  </div>
+                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
+                </button>
+              ))}
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="formatFilter">Filter by Format</Label>
-            <select
-              id="formatFilter"
-              value={selectedFormat}
-              onChange={(e) => setSelectedFormat(e.target.value)}
-              className="w-full p-2 border border-input rounded-md"
-            >
-              <option value="all">All formats</option>
-              {getAvailableFormats().map(format => (
-                <option key={format} value={format}>
-                  {format.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Add All Objects Button */}
-        {filteredObjects.length > 0 && (
-          <Button
-            onClick={handleAddAllObjects}
-            disabled={isBulkAdding}
-            className="w-full"
-            variant="default"
-          >
-            {isBulkAdding ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Adding {filteredObjects.length} objects...
-              </>
-            ) : (
-              <>
-                <ListPlus className="h-4 w-4 mr-2" />
-                Add All Objects ({filteredObjects.length})
-              </>
-            )}
-          </Button>
         )}
 
-        {/* Objects List */}
-        {filteredObjects.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <File className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No supported files found in bucket</p>
-            <p className="text-sm mt-1">
-              Supported formats: FlatGeoBuf (.fgb), COG (.tif/.tiff), GeoJSON (.geojson/.json)
+        {/* Divider between folders and files */}
+        {folders.length > 0 && filteredFiles.length > 0 && (
+          <div className="border-t border-border/60 mx-1" />
+        )}
+
+        {/* Files list */}
+        {filteredFiles.length === 0 && folders.length === 0 ? (
+          <div className="text-center py-6 text-muted-foreground">
+            <File className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No supported files found</p>
+            <p className="text-xs mt-1">
+              {allowedFormats 
+                ? `Supported: ${allowedFormats.map(f => f.toUpperCase()).join(', ')}`
+                : 'Supported: .fgb, .tif/.tiff, .geojson/.json, .csv'}
             </p>
           </div>
-        ) : (
-          <div className="max-h-96 overflow-y-auto border rounded-md">
-            <div className="grid gap-2 p-2">
-              {filteredObjects.map((object, index) => {
+        ) : filteredFiles.length > 0 ? (
+          <div className="p-1">
+            <div className="px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Files</div>
+            <div className="grid gap-px">
+              {filteredFiles.map((object, index) => {
                 const detectedFormat = getFormatFromExtension(object.key);
+                const formatAllowed = isFormatAllowed(detectedFormat);
                 return (
                   <div
                     key={index}
-                    className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                    onClick={() => handleObjectSelect(object)}
+                    className={`flex items-center gap-2 py-1.5 px-2 rounded ${formatAllowed ? 'hover:bg-muted/50 cursor-pointer' : 'opacity-60'}`}
+                    onClick={() => formatAllowed && handleObjectSelect(object)}
                   >
-                    <div className="flex-1 min-w-0 pr-2">
-                      <div className="flex items-start gap-2 mb-1">
-                        <File className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <span className="font-medium text-sm break-words line-clamp-2 block">{object.key}</span>
-                          <div className="flex items-center gap-2 mt-1">
-                            {detectedFormat && (
-                              <Badge variant="secondary" className="text-xs">
-                                {detectedFormat.toUpperCase()}
-                              </Badge>
-                            )}
-                            <span className="text-xs text-muted-foreground">{formatSize(object.size)}</span>
-                            <span className="text-xs text-muted-foreground">{new Date(object.lastModified).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
+                    <File className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <span className="font-medium text-sm truncate block">
+                        {getS3DisplayName(object.key)}
+                      </span>
                     </div>
-                    <Button size="sm" variant="outline" className="flex-shrink-0 self-center">
-                      Select
-                    </Button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {detectedFormat && (
+                        <Badge variant={formatAllowed ? "secondary" : "outline"} className="text-[10px] px-1.5 py-0">
+                          {detectedFormat.toUpperCase()}
+                        </Badge>
+                      )}
+                      {object.size > 0 && (
+                        <span className="text-[10px] text-muted-foreground">{formatSize(object.size)}</span>
+                      )}
+                    </div>
+                    {formatAllowed ? (
+                      <Button size="sm" variant="outline" className="h-7 text-xs shrink-0">
+                        Select
+                      </Button>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground italic shrink-0">Unsupported</span>
+                    )}
                   </div>
                 );
               })}
             </div>
           </div>
-        )}
+        ) : null}
+      </div>
 
-        {objects.length > 0 && (
-          <div className="text-xs text-muted-foreground">
-            Showing {filteredObjects.length} of {objects.length} objects
-          </div>
+      {/* Add All Objects Button + Status */}
+      <div className="flex items-center gap-2">
+        {filteredFiles.length > 0 && (
+          <Button
+            onClick={handleAddAllObjects}
+            disabled={isBulkAdding}
+            size="sm"
+            variant="default"
+          >
+            {isBulkAdding ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                Adding {filteredFiles.length}...
+              </>
+            ) : (
+              <>
+                <ListPlus className="h-3.5 w-3.5 mr-1.5" />
+                Add All ({filteredFiles.length})
+              </>
+            )}
+          </Button>
         )}
-      </CardContent>
-    </Card>
+        {(files.length > 0 || folders.length > 0) && (
+          <span className="text-xs text-muted-foreground">
+            {filteredFiles.length} file{filteredFiles.length !== 1 ? 's' : ''}
+            {folders.length > 0 && `, ${folders.length} folder${folders.length !== 1 ? 's' : ''}`}
+          </span>
+        )}
+      </div>
+    </div>
   );
 };
 

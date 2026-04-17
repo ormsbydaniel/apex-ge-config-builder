@@ -20,10 +20,61 @@ interface PlotlyChartViewerProps {
   config: ChartConfig;
   data: ParsedCSVData;
   height?: number;
+  /** Optional sample Y-values for pixelValues preview (one value per x label) */
+  sampleData?: number[];
 }
 
-export function PlotlyChartViewer({ config, data, height = 400 }: PlotlyChartViewerProps) {
+export function PlotlyChartViewer({ config, data, height = 400, sampleData }: PlotlyChartViewerProps) {
+  const isPixelValues = config.sources?.[0]?.type === 'pixelValues';
+
   const { plotData, layout, isValid, message } = useMemo(() => {
+    // Handle pixelValues preview with sampleData
+    if (isPixelValues && Array.isArray(config.x) && config.x.length > 0) {
+      const xLabels = config.x as string[];
+      const yValues = sampleData || xLabels.map(() => 0);
+
+      const plotTraces = (config.traces || []).map((trace, index) => {
+        const plotTrace: any = {
+          name: trace.name || `Trace ${index + 1}`,
+          type: trace.type || 'scatter',
+          x: xLabels,
+          y: yValues,
+          showlegend: trace.showlegend !== false,
+        };
+
+        if (trace.mode) plotTrace.mode = trace.mode;
+        if (trace.fill && trace.fill !== 'none') {
+          plotTrace.fill = trace.fill;
+          if (trace.fillcolor) plotTrace.fillcolor = trace.fillcolor;
+        }
+        if (trace.line) {
+          plotTrace.line = { color: trace.line.color, width: trace.line.width, dash: trace.line.dash, shape: trace.line.shape };
+        }
+        if (trace.marker) {
+          plotTrace.marker = { size: trace.marker.size, color: trace.marker.color, symbol: trace.marker.symbol };
+        }
+        return plotTrace;
+      });
+
+      const chartLayout: any = {
+        height: config.layout?.height || height,
+        showlegend: config.layout?.showlegend !== false,
+        title: buildTitle(config.title, config.subtitle),
+        margin: { t: 50, r: 30, b: 50, l: 60 },
+        xaxis: { title: config.layout?.xaxis?.title || 'Band', ...buildAxisConfig(config.layout?.xaxis) },
+        yaxis: { title: config.layout?.yaxis?.title || 'Value', ...buildAxisConfig(config.layout?.yaxis) },
+      };
+
+      if (config.layout?.legend) chartLayout.legend = config.layout.legend;
+
+      return {
+        plotData: plotTraces,
+        layout: chartLayout,
+        isValid: plotTraces.length > 0,
+        message: plotTraces.length === 0 ? 'Add at least one trace' : '',
+      };
+    }
+
     // Check if we have valid configuration
     if (!data.columns.length || !data.data.length) {
       return { plotData: [], layout: {}, isValid: false, message: 'No data available' };
@@ -74,14 +125,17 @@ export function PlotlyChartViewer({ config, data, height = 400 }: PlotlyChartVie
     }
 
     const isDateAxis = config.layout?.xaxis?.type === 'date';
-    const xData = config.x ? data.data.map(row => {
-      const value = row[config.x!];
-      // Convert DD-MM-YYYY format to ISO for Plotly
-      if (isDateAxis && typeof value === 'string') {
-        return convertToISODate(value);
-      }
-      return value;
-    }) : [];
+    const xData = config.x
+      ? (Array.isArray(config.x)
+        ? config.x
+        : data.data.map(row => {
+            const value = row[config.x as string];
+            if (isDateAxis && typeof value === 'string') {
+              return convertToISODate(value);
+            }
+            return value;
+          }))
+      : [];
 
     const plotTraces = config.traces.map((trace, index) => {
       const plotTrace: any = {
@@ -176,7 +230,7 @@ export function PlotlyChartViewer({ config, data, height = 400 }: PlotlyChartVie
     };
 
     return { plotData: plotTraces, layout: chartLayout, isValid: true, message: '' };
-  }, [config, data, height]);
+  }, [config, data, height, sampleData, isPixelValues]);
 
   if (!isValid) {
     return (

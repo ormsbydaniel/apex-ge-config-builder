@@ -36,7 +36,7 @@ interface LayersTabContainerProps {
   newExclusivitySet: string;
   setNewExclusivitySet: (value: string) => void;
   navigationState?: NavigationState;
-  onExpansionStateChange?: (layers: string[], groups: string[]) => void;
+  onExpansionStateChange?: (layers: string[], groups: string[], subGroups?: string[]) => void;
 }
 
 const LayersTabContainer = (props: LayersTabContainerProps) => {
@@ -74,6 +74,7 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onUpdateConfig: props.updateConfig,
     onAddDataSource,
     onRemoveDataSource: layersLogic.handleRemoveDataSource,
+    onRemoveAllDataSources: layersLogic.handleRemoveAllDataSources,
     onRemoveStatisticsSource: layersLogic.handleRemoveStatisticsSource,
     onEditDataSource: layersLogic.handleEditDataSource,
     onEditStatisticsSource: layersLogic.handleEditStatisticsSource,

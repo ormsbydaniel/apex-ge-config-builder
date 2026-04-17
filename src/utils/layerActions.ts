@@ -37,12 +37,36 @@ export const createLayerActionHandlers = (
       statistics: originalLayer.statistics 
         ? originalLayer.statistics.map(statsItem => ({ ...statsItem }))
         : undefined,
+      // Deep clone constraints array if it exists
+      constraints: originalLayer.constraints
+        ? originalLayer.constraints.map(item => ({ ...item }))
+        : undefined,
+      // Deep clone workflows array if it exists
+      workflows: originalLayer.workflows
+        ? originalLayer.workflows.map(item => ({ ...item }))
+        : undefined,
+      // Deep clone charts array if it exists
+      charts: originalLayer.charts
+        ? originalLayer.charts.map(chart => ({
+            ...chart,
+            sources: chart.sources ? chart.sources.map((s: any) => ({ ...s })) : undefined,
+            traces: chart.traces ? chart.traces.map((t: any) => ({ ...t })) : undefined,
+          }))
+        : undefined,
       // Deep clone meta if it exists, including gradient fields and swipe config
       ...(originalLayer.meta && {
         meta: {
           ...originalLayer.meta,
           attribution: { ...originalLayer.meta.attribution },
-          categories: originalLayer.meta.categories ? [...originalLayer.meta.categories] : undefined,
+          categories: originalLayer.meta.categories 
+            ? originalLayer.meta.categories.map(cat => ({ ...cat }))
+            : undefined,
+          colormaps: originalLayer.meta.colormaps
+            ? originalLayer.meta.colormaps.map(cm => ({ ...cm }))
+            : undefined,
+          fields: originalLayer.meta.fields
+            ? { ...originalLayer.meta.fields }
+            : undefined,
           // Include gradient fields if they exist
           ...(originalLayer.meta.startColor && { startColor: originalLayer.meta.startColor }),
           ...(originalLayer.meta.endColor && { endColor: originalLayer.meta.endColor }),
@@ -81,6 +105,15 @@ export const createLayerActionHandlers = (
       };
       updateLayer(layerIndex, updatedLayer);
     }
+  };
+
+  const handleRemoveAllDataSources = (layerIndex: number) => {
+    const layer = config.sources[layerIndex];
+    const updatedLayer = {
+      ...layer,
+      data: []
+    };
+    updateLayer(layerIndex, updatedLayer);
   };
 
   const handleRemoveStatisticsSource = (layerIndex: number, statsIndex: number) => {
@@ -277,6 +310,7 @@ export const createLayerActionHandlers = (
     handleEditBaseLayer,
     handleDuplicateLayer,
     handleRemoveDataSource,
+    handleRemoveAllDataSources,
     handleRemoveStatisticsSource,
     handleEditDataSource,
     handleEditStatisticsSource,

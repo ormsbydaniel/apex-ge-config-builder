@@ -223,6 +223,11 @@ const LayerFormHandler = ({
       return null;
     }
     
+    // Filter COG sources from the current layer's data for pixelValues chart support
+    const cogSources = (currentLayer.data || []).filter(
+      (d: any) => d.format === 'cog'
+    );
+    
     // Create handler that routes to add or update based on editing state
     const handleChartSubmit = (chart: ChartConfig) => {
       if (editingChartIndex !== null && editingChartLayerIndex !== null && onUpdateChart) {
@@ -240,6 +245,7 @@ const LayerFormHandler = ({
         editingChart={editingChart}
         editingIndex={editingChartIndex ?? undefined}
         onUpdateChart={onUpdateChart ? (chart, idx) => onUpdateChart(chart, editingChartLayerIndex!, idx) : undefined}
+        cogSources={cogSources}
       />
     );
   }

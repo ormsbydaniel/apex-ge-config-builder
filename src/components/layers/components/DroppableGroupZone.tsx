@@ -27,7 +27,7 @@ const DroppableGroupZone = ({
   onExpand,
 }: DroppableGroupZoneProps) => {
   const { activeData } = useLayerDndContext();
-  const expandTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const expandTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onExpandRef = useRef<(() => void) | undefined>(onExpand);
 
   // Keep latest callback without restarting hover timers due to function identity changes

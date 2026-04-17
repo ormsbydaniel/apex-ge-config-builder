@@ -131,6 +131,7 @@ const LayerCard = ({
             onDuplicate={onDuplicate}
             onEditJson={handleEditJson}
             handleEdit={handleEdit}
+            onRename={(newName) => onUpdateLayer(index, { ...source, name: newName })}
           />
           <CollapsibleContent>
             <LayerCardContent
