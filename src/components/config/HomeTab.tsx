@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
@@ -451,9 +451,26 @@ const HomeTab = ({ config }: HomeTabProps) => {
               {(config.lastLoaded || config.lastExported || config.isLoading) && (
                 <div className="pt-3 border-t border-border/50 space-y-2">
                   {config.lastLoaded && (
-                    <div className="text-sm text-muted-foreground flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-green-500" />
-                      <span>Last loaded: {config.lastLoaded.toLocaleString()}</span>
+                    <div className="space-y-1">
+                      <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-green-500" />
+                        <span>Last loaded: {config.lastLoaded.toLocaleString()}</span>
+                      </div>
+                      {config.lastLoadedSource && (
+                        <div
+                          className="text-xs text-muted-foreground flex items-center gap-1.5 pl-4 min-w-0"
+                          title={config.lastLoadedSource.label}
+                        >
+                          {config.lastLoadedSource.type === 'upload' && <Upload className="h-3 w-3 shrink-0" />}
+                          {config.lastLoadedSource.type === 'example' && <Sparkles className="h-3 w-3 shrink-0" />}
+                          {config.lastLoadedSource.type === 'github' && <Github className="h-3 w-3 shrink-0" />}
+                          {config.lastLoadedSource.type === 'url' && <LinkIcon className="h-3 w-3 shrink-0" />}
+                          <span className="font-medium capitalize">
+                            {config.lastLoadedSource.type === 'github' ? 'GitHub' : config.lastLoadedSource.type}:
+                          </span>
+                          <span className="truncate font-mono">{config.lastLoadedSource.label}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                   {config.lastExported && (

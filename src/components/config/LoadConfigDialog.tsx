@@ -120,9 +120,12 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     }
   };
 
-  const handleLoadExample = async () => {
+  const handleLoadExample = async (exampleName?: string) => {
     setIsLoadingExample(true);
-    const result = await importConfigFromUrl('/examples/test-config.json');
+    const result = await importConfigFromUrl('/examples/test-config.json', {
+      type: 'example',
+      label: exampleName || 'Comprehensive demo',
+    });
     setIsLoadingExample(false);
     if (!result.success && result.errors) {
       onOpenChange(false);
@@ -135,7 +138,10 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   const handleLoadFromGithub = async (path: string) => {
     setLoadingPath(path);
     const rawUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
-    const result = await importConfigFromUrl(rawUrl);
+    const result = await importConfigFromUrl(rawUrl, {
+      type: 'github',
+      label: `${repo}@${branch}/${path}`,
+    });
     setLoadingPath(null);
     if (!result.success && result.errors) {
       onOpenChange(false);
@@ -228,7 +234,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
               {examples.map((ex) => (
                 <button
                   key={ex.url}
-                  onClick={handleLoadExample}
+                  onClick={() => handleLoadExample(ex.name)}
                   disabled={isLoadingExample}
                   className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >

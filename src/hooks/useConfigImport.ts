@@ -8,6 +8,7 @@ import { ValidationErrorDetails, DataSourceFormat } from '@/types/config';
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
 import { normalizeImportedConfig, detectTransformations } from '@/utils/importTransformations';
 import { parseS3Url } from '@/utils/s3Utils';
+import type { LoadedConfigSource } from '@/contexts/ConfigContext';
 
 export const useConfigImport = () => {
   const { dispatch } = useConfig();
@@ -107,7 +108,10 @@ export const useConfigImport = () => {
         services: servicesWithCapabilities
       };
       
-      dispatch({ type: 'LOAD_CONFIG', payload: configWithCapabilities });
+      dispatch({
+        type: 'LOAD_CONFIG',
+        payload: { ...configWithCapabilities, __source: { type: 'upload', label: file.name } } as any
+      });
       
       // Enhanced success message with transformation details
       const transformationCount = Object.values(detectedTransforms).filter(Boolean).length;
@@ -163,7 +167,7 @@ export const useConfigImport = () => {
     }
   }, [importConfig]);
 
-  const importConfigFromUrl = useCallback(async (url: string): Promise<{ success: boolean; errors?: ValidationErrorDetails[]; jsonError?: any }> => {
+  const importConfigFromUrl = useCallback(async (url: string, source?: LoadedConfigSource): Promise<{ success: boolean; errors?: ValidationErrorDetails[]; jsonError?: any }> => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
 
@@ -235,7 +239,11 @@ export const useConfigImport = () => {
         services: servicesWithCapabilities
       };
       
-      dispatch({ type: 'LOAD_CONFIG', payload: configWithCapabilities });
+      const effectiveSource: LoadedConfigSource = source ?? { type: 'url', label: url };
+      dispatch({
+        type: 'LOAD_CONFIG',
+        payload: { ...configWithCapabilities, __source: effectiveSource } as any
+      });
       
       // Enhanced success message with transformation details
       const transformationCount = Object.values(detectedTransforms).filter(Boolean).length;

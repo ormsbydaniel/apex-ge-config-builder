@@ -4,10 +4,16 @@ import { ValidatedConfiguration } from '@/schemas/configSchema';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
 import { validateImages } from '@/utils/imageValidation';
 
+export type LoadedConfigSource = {
+  type: 'upload' | 'example' | 'github' | 'url';
+  label: string;
+};
+
 interface ConfigState extends ValidatedConfiguration {
   isLoading: boolean;
   isDirty: boolean;
   lastLoaded: Date | null;
+  lastLoadedSource: LoadedConfigSource | null;
   lastExported: Date | null;
   validationResults: Map<number, LayerValidationResult>;
   hasUnsavedFormChanges: boolean;
@@ -15,7 +21,7 @@ interface ConfigState extends ValidatedConfiguration {
 }
 
 type ConfigAction =
-  | { type: 'LOAD_CONFIG'; payload: ValidatedConfiguration }
+  | { type: 'LOAD_CONFIG'; payload: ValidatedConfiguration & { __source?: LoadedConfigSource } }
   | { type: 'RESET_CONFIG' }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_LAST_EXPORTED' }
@@ -80,6 +86,7 @@ const initialState: ConfigState = {
   isLoading: false,
   isDirty: false,
   lastLoaded: null,
+  lastLoadedSource: null,
   lastExported: null,
   validationResults: new Map(),
   hasUnsavedFormChanges: false,
@@ -128,23 +135,24 @@ const normalizeDataToArray = (data: any): DataSourceItem[] => {
 
 function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
   switch (action.type) {
-    case 'LOAD_CONFIG':
+    case 'LOAD_CONFIG': {
       // Normalize all data fields to arrays when loading and preserve statistics
+      const { __source, ...payloadWithoutSource } = action.payload as any;
       const normalizedPayload = {
-        ...action.payload,
-        services: action.payload.services || [],
+        ...payloadWithoutSource,
+        services: payloadWithoutSource.services || [],
         // Only add default mapConstraints if none exist in the imported config
-        mapConstraints: action.payload.mapConstraints !== undefined 
+        mapConstraints: payloadWithoutSource.mapConstraints !== undefined 
           ? {
-              ...action.payload.mapConstraints,
-              projection: action.payload.mapConstraints.projection || 'EPSG:3857'
+              ...payloadWithoutSource.mapConstraints,
+              projection: payloadWithoutSource.mapConstraints.projection || 'EPSG:3857'
             }
           : {
               zoom: 0,
               center: [0, 0],
               projection: 'EPSG:3857'
             },
-        sources: action.payload.sources.map(source => ({
+        sources: payloadWithoutSource.sources.map((source: any) => ({
           ...source,
           data: normalizeDataToArray(source.data),
           // Preserve statistics array if it exists
@@ -157,16 +165,19 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         isLoading: false,
         isDirty: false,
         lastLoaded: new Date(),
+        lastLoadedSource: __source ?? null,
         lastExported: state.lastExported,
         validationResults: new Map(),
         hasUnsavedFormChanges: false,
         unsavedFormDescription: null,
       };
+    }
     case 'RESET_CONFIG':
       return {
         ...initialState,
         isDirty: false,
         lastLoaded: null,
+        lastLoadedSource: null,
         lastExported: null,
         hasUnsavedFormChanges: false,
         unsavedFormDescription: null,
