@@ -250,25 +250,51 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
 
           {/* From GitHub */}
           <TabsContent value="github" className="mt-4 space-y-3 flex-1 min-h-0 flex flex-col">
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_200px_auto] gap-2 items-end">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Repository (owner/name)</label>
-                <Input
-                  value={repoInput}
-                  onChange={(e) => setRepoInput(e.target.value)}
-                  onBlur={applyRepo}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      applyRepo();
-                    }
-                  }}
-                  placeholder="owner/repo"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-3 items-end">
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-medium text-muted-foreground">Repository (owner/name)</label>
+                  {!isEditingRepo && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingRepo(true)}
+                      className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5 underline-offset-2 hover:underline"
+                    >
+                      Change
+                      <ChevronRight className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+                {isEditingRepo ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      autoFocus
+                      value={repoInput}
+                      onChange={(e) => setRepoInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          applyRepo();
+                        } else if (e.key === 'Escape') {
+                          e.preventDefault();
+                          cancelEditRepo();
+                        }
+                      }}
+                      placeholder="owner/repo"
+                    />
+                    <Button variant="ghost" size="icon" onClick={applyRepo} title="Apply">
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={cancelEditRepo} title="Cancel">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-sm font-mono text-foreground truncate py-2 px-3 rounded-md border border-border bg-muted/30">
+                    {repo}
+                  </div>
+                )}
               </div>
-              <Button variant="outline" onClick={applyRepo} disabled={branchesLoading || treeLoading}>
-                Use repo
-              </Button>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Branch</label>
                 <Select value={branch} onValueChange={setBranch} disabled={branchesLoading}>
@@ -282,15 +308,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                   </SelectContent>
                 </Select>
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => fetchTree(repo, branch)}
-                disabled={treeLoading || !branch}
-                title="Refresh"
-              >
-                <RefreshCw className={`h-4 w-4 ${treeLoading ? 'animate-spin' : ''}`} />
-              </Button>
             </div>
 
             <div className="relative">
