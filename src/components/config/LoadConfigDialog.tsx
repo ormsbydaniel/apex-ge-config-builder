@@ -41,6 +41,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   const [treeError, setTreeError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [loadingPath, setLoadingPath] = useState<string | null>(null);
+  const [isEditingRepo, setIsEditingRepo] = useState(false);
 
   // Reset state on open
   useEffect(() => {
