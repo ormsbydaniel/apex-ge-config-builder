@@ -2,43 +2,52 @@
 
 ## Goal
 
-Simplify the GitHub tab by removing the explicit "Use Repo" and "Refresh" buttons, showing only the **Repository** label + **Branch** picker by default. The repo input becomes hidden behind a small **Change ›** toggle next to the label.
+Show **what** was loaded beneath the existing "Last loaded: <date>" line on the Home tab — e.g., uploaded filename, "Example: <name>", or "GitHub: <owner/repo>@<branch>/<path>".
 
-## Current state (`src/components/config/LoadConfigDialog.tsx`)
+## Approach
 
-The GitHub tab currently shows:
-- Editable Repository text input
-- Branch dropdown
-- "Use Repo" button (applies repo change → triggers branch + tree fetch)
-- "Refresh" button (re-fetches tree)
+Add a `lastLoadedSource` field to `ConfigState` that captures the origin of the most recent load, then display it under the existing timestamp.
 
-## Changes
+### 1. State changes — `src/contexts/ConfigContext.tsx`
 
-**Default (collapsed) view:**
-- Label row: `Repository (owner/name)` followed by a small muted-link **Change ›** button
-- Below the label: read-only display of the current repo (e.g. `ESA-APEx/apex_geospatial_explorer_configs`)
-- Branch dropdown remains visible
-- No "Use Repo" or "Refresh" buttons
+- Add to `ConfigState`:
+  ```ts
+  lastLoadedSource: { type: 'upload' | 'example' | 'github' | 'url'; label: string } | null
+  ```
+- Extend `LOAD_CONFIG` action payload to optionally carry a `source` descriptor (or add a separate `SET_LOAD_SOURCE` action dispatched alongside).
+- In the `LOAD_CONFIG` reducer case, set `lastLoadedSource` from the payload (default `null` if not provided to stay backward compatible).
+- `RESET_CONFIG` clears it.
 
-**Expanded view (after clicking Change ›):**
-- Replace the read-only repo display with the editable text input
-- Show a small **Apply** (or check icon) and **Cancel** (or x icon) inline next to the input
-- Apply → commits the new repo, refetches branches + tree, collapses back to read-only
-- Cancel → reverts the input value, collapses
+### 2. Import hook — `src/hooks/useConfigImport.ts`
 
-**Auto-refresh behavior:**
-- Branch change → automatically refetch tree (already happens via `useEffect`, keep as-is)
-- Repo change (via Apply) → refetch branches, then tree
-- Removing the manual Refresh button is safe because tree already auto-fetches when repo/branch change
+- `importConfig(file)` → dispatches with `source: { type: 'upload', label: file.name }`.
+- `importConfigFromUrl(url, source?)` → accept an optional `source` descriptor and pass it through. Callers that already have richer context (GitHub repo/branch/path, example name) supply it.
 
-## Implementation notes
+### 3. Caller updates — `src/components/config/LoadConfigDialog.tsx`
 
-- Add local state: `isEditingRepo: boolean`, `repoDraft: string` (working copy while editing)
-- Keep existing `repo`, `branch`, `branches`, `tree` state and effects unchanged
-- The `Change ›` link uses a small `Button variant="link" size="sm"` with chevron icon, matching the subtle style used elsewhere
-- Layout stays within the existing fixed-height dialog; no height changes
+- **Upload tab**: relies on `importConfig(file)` — automatic.
+- **Examples tab**: pass `{ type: 'example', label: <example display name> }`.
+- **GitHub tab**: pass `{ type: 'github', label: \`${repo}@${branch}/${path}\` }`.
+
+### 4. Display — `src/components/config/HomeTab.tsx` (around lines 451–458)
+
+Beneath the "Last loaded: <date>" line add a second line when `config.lastLoadedSource` is present:
+
+```
+Source: <icon> <label>
+```
+
+- Use small muted text (`text-xs text-muted-foreground`) with an inline icon per type (Upload / Sparkles / Github).
+- Long GitHub paths get `truncate` + a `title` attribute for the full string (matches existing URL-display rules).
+
+### Out of scope
+
+- `ConfigSummary.tsx` and `ConfigManagement.tsx` keep their current minimal displays; only HomeTab shows the new "Source" line per the user's request.
 
 ## Files touched
 
-- `src/components/config/LoadConfigDialog.tsx` — restructure the repo/branch row, remove Use Repo + Refresh buttons, add Change toggle and inline edit mode
+- `src/contexts/ConfigContext.tsx` — add `lastLoadedSource` to state, types, reducer, initial/reset.
+- `src/hooks/useConfigImport.ts` — accept and dispatch source descriptor in `importConfig` and `importConfigFromUrl`.
+- `src/components/config/LoadConfigDialog.tsx` — pass source descriptor for examples and GitHub loads.
+- `src/components/config/HomeTab.tsx` — render the new "Source: …" line below "Last loaded".
 
