@@ -554,6 +554,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
         <LatestUpdatesSection />
       </div>
 
+      <LoadConfigDialog open={showLoadDialog} onOpenChange={setShowLoadDialog} onError={handleLoadDialogError} />
+
       <ExportOptionsDialog open={showExportDialog} onOpenChange={setShowExportDialog} onExport={handleExportWithOptions} />
 
       <AttributionMissingDialog 
