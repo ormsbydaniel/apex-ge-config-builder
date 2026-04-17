@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, FileText, Github, RefreshCw, Loader2, Search, AlertCircle } from 'lucide-react';
+import { Upload, FileText, Github, Loader2, Search, AlertCircle, ChevronRight, Check, X } from 'lucide-react';
 import { useConfigImport } from '@/hooks/useConfigIO';
 import { ValidationErrorDetails } from '@/types/config';
 
