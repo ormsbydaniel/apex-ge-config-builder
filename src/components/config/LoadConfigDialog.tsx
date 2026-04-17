@@ -215,7 +215,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           </TabsContent>
 
           {/* Examples */}
-          <TabsContent value="examples" className="mt-4">
+          <TabsContent value="examples" className="mt-4 flex-1 min-h-0 overflow-auto">
             <div className="space-y-2">
               {examples.map((ex) => (
                 <button
