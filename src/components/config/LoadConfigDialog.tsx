@@ -149,6 +149,13 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     if (trimmed && trimmed !== repo) {
       setRepo(trimmed);
     }
+    setRepoInput(trimmed || repo);
+    setIsEditingRepo(false);
+  };
+
+  const cancelEditRepo = () => {
+    setRepoInput(repo);
+    setIsEditingRepo(false);
   };
 
   const filteredTree = tree.filter((e) =>
