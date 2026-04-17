@@ -12,6 +12,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
+import LoadConfigDialog from './LoadConfigDialog';
 import AttributionMissingDialog from './AttributionMissingDialog';
 import CompleteLayersDialog from './CompleteLayersDialog';
 import { calculateQAStats } from '@/utils/qaUtils';
@@ -29,10 +30,9 @@ interface HomeTabProps {
 const HomeTab = ({ config }: HomeTabProps) => {
   const { dispatch } = useConfig();
   const { handleFileSelect, importConfig, importConfigFromUrl } = useConfigImport();
-  const [isLoadingExample, setIsLoadingExample] = useState(false);
   const { exportConfig } = useConfigExport();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { guardAction, isOpen: showUnsavedDialog, onConfirm: onUnsavedConfirm, onCancel: onUnsavedCancel } = useUnsavedChangesGuard();
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
@@ -58,7 +58,13 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [version, setVersion] = useState(config.version || '1.0.0');
 
   const handleImportClick = () => {
-    guardAction(() => fileInputRef.current?.click());
+    guardAction(() => setShowLoadDialog(true));
+  };
+
+  const handleLoadDialogError = (errors: ValidationErrorDetails[], fileName: string) => {
+    setValidationErrors(errors);
+    setErrorFileName(fileName);
+    setShowErrorDialog(true);
   };
 
   const handleNewConfig = () => {
@@ -75,20 +81,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
     exportConfig(options);
   };
 
-  const handleFileSelectWithErrorHandling = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const result = await importConfig(file);
-      if (!result.success && result.errors) {
-        setValidationErrors(result.errors);
-        setErrorFileName(file.name);
-        setShowErrorDialog(true);
-      }
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
 
   const handleSaveTitle = () => {
     dispatch({
