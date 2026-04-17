@@ -166,7 +166,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[840px] max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-3xl h-[640px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Load Configuration</DialogTitle>
           <DialogDescription>
