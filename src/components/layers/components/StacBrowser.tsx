@@ -106,6 +106,12 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   const [previewAssets, setPreviewAssets] = useState<PreviewAsset[]>([]);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
+  // Catalog navigation state (for static hierarchical catalogs)
+  const [catalogStack, setCatalogStack] = useState<CatalogStackEntry[]>([]);
+  const [catalogChildren, setCatalogChildren] = useState<CatalogChild[]>([]);
+  const [currentCatalogUrl, setCurrentCatalogUrl] = useState<string>('');
+  const [currentCatalogTitle, setCurrentCatalogTitle] = useState<string>('');
+
   const toggleCollectionExpanded = (collectionId: string) => {
     setExpandedCollections(prev => {
       const next = new Set(prev);
