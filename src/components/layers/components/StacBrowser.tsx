@@ -329,30 +329,67 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
 
-  const fetchItems = async (collection: StacCollection) => {
+  // Pending item links queue for static collections (lazy fetched in batches)
+  const ITEM_BATCH_SIZE = 50;
+
+  const fetchItemsFromLinks = async (
+    links: string[]
+  ): Promise<{ items: StacItem[] }> => {
+    const fetched = await Promise.all(
+      links.map(async (href) => {
+        try {
+          const r = await fetch(href);
+          if (!r.ok) return null;
+          return (await r.json()) as StacItem;
+        } catch (e) {
+          console.warn('Failed to fetch static STAC item', href, e);
+          return null;
+        }
+      })
+    );
+    return { items: fetched.filter((i): i is StacItem => i !== null) };
+  };
+
+  const fetchItems = async (collection: StacCollection, collectionUrl?: string) => {
     // Immediately update UI state before async fetch
     setCurrentStep('items');
     setSelectedCollection(collection);
     setSearchTerm('');
     setServerSearchTerm('');
-    
+
     // Then start loading and fetch
     setLoading(true);
-    
+
     try {
-      const itemsUrl = getItemsUrl(collection, serviceUrl);
+      // Static collection: prefer inline `rel: "item"` links if present
+      const baseUrl = collectionUrl || serviceUrl;
+      const itemLinks = getItemLinks(collection, baseUrl);
+
+      if (itemLinks.length > 0) {
+        const firstBatch = itemLinks.slice(0, ITEM_BATCH_SIZE);
+        const remaining = itemLinks.slice(ITEM_BATCH_SIZE);
+        const { items: fetchedItems } = await fetchItemsFromLinks(firstBatch);
+        setItems(fetchedItems);
+        setTotalItemCount(itemLinks.length);
+        // Encode remaining links into nextItemsUrl as a sentinel; we use a separate state instead
+        setPendingItemLinks(remaining);
+        setNextItemsUrl(remaining.length > 0 ? '__static__' : null);
+        return;
+      }
+
+      // API-style: fetch /items endpoint
+      const itemsUrl = getItemsUrl(collection, serviceUrl, collectionUrl);
       const response = await fetch(itemsUrl);
-      
+
       if (!response.ok) throw new Error('Failed to fetch items');
-      
+
       const data = await response.json();
-      
       const itemsList = data.features || data.items || data;
-      
+
       if (Array.isArray(itemsList)) {
         setItems(itemsList);
         setNextItemsUrl(extractNextLink(data));
-        // Only set total count if we have a reliable count from the API
+        setPendingItemLinks([]);
         const total = data.numberMatched || data.context?.matched || null;
         setTotalItemCount(total);
       } else {
@@ -360,9 +397,9 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       }
     } catch (error) {
       console.error('Error fetching STAC items:', error);
-      // Set empty items to show "No items found" message
       setItems([]);
       setNextItemsUrl(null);
+      setPendingItemLinks([]);
       setTotalItemCount(null);
       toast({
         title: "STAC Error",
@@ -377,16 +414,26 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
   const loadMoreItems = async () => {
     if (!nextItemsUrl) return;
-    
+
     try {
       setLoadingMore(true);
+
+      // Static catalog branch: fetch next batch from pendingItemLinks
+      if (nextItemsUrl === '__static__') {
+        const nextBatch = pendingItemLinks.slice(0, ITEM_BATCH_SIZE);
+        const remaining = pendingItemLinks.slice(ITEM_BATCH_SIZE);
+        const { items: fetchedItems } = await fetchItemsFromLinks(nextBatch);
+        setItems(prev => [...prev, ...fetchedItems]);
+        setPendingItemLinks(remaining);
+        setNextItemsUrl(remaining.length > 0 ? '__static__' : null);
+        return;
+      }
+
       const response = await fetch(nextItemsUrl);
-      
       if (!response.ok) throw new Error('Failed to fetch more items');
-      
       const data = await response.json();
       const itemsList = data.features || data.items || data;
-      
+
       if (Array.isArray(itemsList)) {
         setItems(prev => [...prev, ...itemsList]);
         setNextItemsUrl(extractNextLink(data));
