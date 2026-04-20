@@ -1,53 +1,69 @@
 
 
-## Goal
+## What's happening with this catalog
 
-Show **what** was loaded beneath the existing "Last loaded: <date>" line on the Home tab — e.g., uploaded filename, "Example: <name>", or "GitHub: <owner/repo>@<branch>/<path>".
+`https://s3.gfz-potsdam.de/.../public/catalog.json` is a **static, hierarchical STAC catalog**:
 
-## Approach
+- Root `Catalog` (EOForestSTAC) → 4 child `Catalog`s (Biomass & Carbon, Disturbance & Change, Structure & Demography, Land Use & Land Cover)
+- Each theme `Catalog` → child `Collection`s (e.g. `./CCI_BIOMASS/collection.json`)
+- Each `Collection` → typically items + assets
 
-Add a `lastLoadedSource` field to `ConfigState` that captures the origin of the most recent load, then display it under the existing timestamp.
+So yes, child catalogs of catalogs (and potentially deeper) before reaching collections.
 
-### 1. State changes — `src/contexts/ConfigContext.tsx`
+## Why our browser fails on it today
 
-- Add to `ConfigState`:
-  ```ts
-  lastLoadedSource: { type: 'upload' | 'example' | 'github' | 'url'; label: string } | null
-  ```
-- Extend `LOAD_CONFIG` action payload to optionally carry a `source` descriptor (or add a separate `SET_LOAD_SOURCE` action dispatched alongside).
-- In the `LOAD_CONFIG` reducer case, set `lastLoadedSource` from the payload (default `null` if not provided to stay backward compatible).
-- `RESET_CONFIG` clears it.
+When `detectAndLoadStacResource` sees `type: "Catalog"`, it calls `fetchCollectionsFromCatalog()`, which **ignores the `links` array** and blindly requests `<baseUrl>/collections?limit=100`. That endpoint only exists on STAC API servers, not static catalogs — it 404s and shows a generic error. We never traverse the `child` links.
 
-### 2. Import hook — `src/hooks/useConfigImport.ts`
+## Proposed update
 
-- `importConfig(file)` → dispatches with `source: { type: 'upload', label: file.name }`.
-- `importConfigFromUrl(url, source?)` → accept an optional `source` descriptor and pass it through. Callers that already have richer context (GitHub repo/branch/path, example name) supply it.
+Teach the browser to walk static catalog hierarchies via `rel: "child"` links, while preserving today's API-style `/collections` behavior.
 
-### 3. Caller updates — `src/components/config/LoadConfigDialog.tsx`
+### 1. Detection refinement (`detectAndLoadStacResource`)
 
-- **Upload tab**: relies on `importConfig(file)` — automatic.
-- **Examples tab**: pass `{ type: 'example', label: <example display name> }`.
-- **GitHub tab**: pass `{ type: 'github', label: \`${repo}@${branch}/${path}\` }`.
+When `data.type === 'Catalog'`:
+- If it has `links` with `rel: "child"` → treat as **static catalog**, render those children directly (no network call).
+- Otherwise, fall back to the current `fetchCollectionsFromCatalog()` (API-style).
 
-### 4. Display — `src/components/config/HomeTab.tsx` (around lines 451–458)
+### 2. New "catalog browsing" step
 
-Beneath the "Last loaded: <date>" line add a second line when `config.lastLoadedSource` is present:
+Add a third browser mode alongside collections/items/assets: a **catalog navigation view** that renders a list of child entries. For each `child` link:
 
-```
-Source: <icon> <label>
-```
+- Resolve the href against the parent catalog URL (reuse `resolveAssetUrl` logic).
+- Show title (from link `title`) + a small badge: **Catalog** or **Collection** (inferred from href ending — `collection.json` → Collection, `catalog.json` → Catalog; on click we fetch and confirm via `type`).
+- Clicking a **Catalog** child → fetch it, push current onto a breadcrumb stack, render its children.
+- Clicking a **Collection** child → fetch it, jump straight into the existing items view (reusing `fetchItems`).
 
-- Use small muted text (`text-xs text-muted-foreground`) with an inline icon per type (Upload / Sparkles / Github).
-- Long GitHub paths get `truncate` + a `title` attribute for the full string (matches existing URL-display rules).
+### 3. Breadcrumb / back navigation
 
-### Out of scope
+- Maintain a `catalogStack: { url: string; title: string }[]` so users can step back up arbitrarily deep hierarchies.
+- The existing `goBack` becomes hierarchy-aware: from items → previous catalog level (not always "collections list").
 
-- `ConfigSummary.tsx` and `ConfigManagement.tsx` keep their current minimal displays; only HomeTab shows the new "Source" line per the user's request.
+### 4. Items endpoint for static collections
+
+Static `Collection` JSONs expose items via `rel: "items"` or `rel: "item"` links rather than `/items?limit=100`. Update `getItemsUrl` (in `src/utils/stacUtils.ts`) to:
+- Prefer a `rel: "items"` link from the collection's `links` array.
+- Fall back to collecting `rel: "item"` links (static catalogs often inline each item as a separate link).
+- Fall back to the current API-style `/collections/{id}/items?limit=100`.
+
+When items come from inline `rel: "item"` links, fetch them lazily/in batches (start with first ~50, "Load more" fetches the next batch). This keeps perf in check for large static catalogs.
+
+### 5. Search behavior
+
+- In catalog view, search filters child entries by title (client-side only — no server search on static catalogs).
+- Existing collection/item search remains unchanged for API mode.
+
+### 6. Self-link & external browser links
+
+- Continue using `getSelfLink` / `createStacBrowserUrl` for the current catalog level so users can open it in radiantearth/eoresults browser if desired.
+
+## Out of scope (can follow up)
+
+- Caching traversed catalogs in memory across back/forward navigation (nice-to-have for perf).
+- Recursive "Add all assets from this whole subtree" — keep bulk-add scoped to one collection's items as today.
 
 ## Files touched
 
-- `src/contexts/ConfigContext.tsx` — add `lastLoadedSource` to state, types, reducer, initial/reset.
-- `src/hooks/useConfigImport.ts` — accept and dispatch source descriptor in `importConfig` and `importConfigFromUrl`.
-- `src/components/config/LoadConfigDialog.tsx` — pass source descriptor for examples and GitHub loads.
-- `src/components/config/HomeTab.tsx` — render the new "Source: …" line below "Last loaded".
+- `src/components/layers/components/StacBrowser.tsx` — new catalog-stack state, catalog rendering branch, breadcrumb/back logic, route to items when clicking a Collection child.
+- `src/utils/stacUtils.ts` — extend `getItemsUrl` to prefer `rel: "items"` / aggregate `rel: "item"` links; small helper `getChildLinks(links)` and `inferChildKind(href)`.
+- (No schema/type changes needed.)
 
