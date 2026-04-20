@@ -14,6 +14,9 @@ import {
   createStacBrowserUrl,
   detectAssetFormat,
   getItemsUrl,
+  getItemLinks,
+  getChildLinks,
+  inferChildKind,
   extractNextLink,
   getSelfLink,
   resolveAssetUrl,
@@ -53,9 +56,21 @@ interface StacBrowserProps {
   onAssetSelect: (assets: AssetSelection | AssetSelection[]) => void;
 }
 
-type BrowserStep = 'collections' | 'items' | 'assets';
+type BrowserStep = 'catalog' | 'collections' | 'items' | 'assets';
 
-type DetectedMode = 'catalog' | 'itemCollection' | 'openEO-assets' | 'stac-item' | null;
+type DetectedMode = 'catalog' | 'static-catalog' | 'itemCollection' | 'openEO-assets' | 'stac-item' | null;
+
+interface CatalogChild {
+  href: string;
+  title: string;
+  kind: 'catalog' | 'collection' | 'unknown';
+}
+
+interface CatalogStackEntry {
+  url: string;
+  title: string;
+  children: CatalogChild[];
+}
 
 const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
@@ -79,6 +94,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   const [selectedItem, setSelectedItem] = useState<StacItem | null>(null);
   const [nextItemsUrl, setNextItemsUrl] = useState<string | null>(null);
   const [totalItemCount, setTotalItemCount] = useState<number | null>(null);
+  const [pendingItemLinks, setPendingItemLinks] = useState<string[]>([]);
 
   // Assets state
   const [assets, setAssets] = useState<[string, StacAsset][]>([]);
@@ -90,6 +106,12 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   // Preview dialog state
   const [previewAssets, setPreviewAssets] = useState<PreviewAsset[]>([]);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+
+  // Catalog navigation state (for static hierarchical catalogs)
+  const [catalogStack, setCatalogStack] = useState<CatalogStackEntry[]>([]);
+  const [catalogChildren, setCatalogChildren] = useState<CatalogChild[]>([]);
+  const [currentCatalogUrl, setCurrentCatalogUrl] = useState<string>('');
+  const [currentCatalogTitle, setCurrentCatalogTitle] = useState<string>('');
 
   const toggleCollectionExpanded = (collectionId: string) => {
     setExpandedCollections(prev => {
@@ -176,7 +198,27 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         }
       }
 
-      // Otherwise, assume it's a Catalog - fetch collections
+      // Catalog: prefer static-hierarchy traversal when `child` links exist
+      if (data.type === 'Catalog') {
+        const childLinks = getChildLinks(data.links, serviceUrl);
+        if (childLinks.length > 0) {
+          setDetectedMode('static-catalog');
+          const children: CatalogChild[] = childLinks.map((c) => ({
+            href: c.href,
+            title: c.title || c.href.split('/').filter(Boolean).slice(-2)[0] || c.href,
+            kind: inferChildKind(c.href),
+          }));
+          setCatalogChildren(children);
+          setCurrentCatalogUrl(serviceUrl);
+          setCurrentCatalogTitle(data.title || serviceName || 'Catalog');
+          setCatalogStack([]);
+          setCurrentStep('catalog');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Otherwise, assume it's a STAC API Catalog - fetch /collections
       setDetectedMode('catalog');
       await fetchCollectionsFromCatalog();
 
@@ -185,6 +227,63 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       // Fall back to trying collections endpoint
       setDetectedMode('catalog');
       await fetchCollectionsFromCatalog();
+    }
+  };
+
+  // Navigate into a child catalog entry (static hierarchy)
+  const enterCatalog = async (childUrl: string, childTitle: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(childUrl);
+      if (!response.ok) throw new Error('Failed to fetch catalog');
+      const data = await response.json();
+
+      // If the child is actually a Collection, jump straight to items
+      if (data.type === 'Collection') {
+        const collection: StacCollection = {
+          id: data.id || childTitle,
+          title: data.title,
+          description: data.description,
+          keywords: data.keywords,
+          extent: data.extent,
+          links: data.links,
+        };
+        // Push current catalog onto stack so we can return
+        setCatalogStack(prev => [
+          ...prev,
+          { url: currentCatalogUrl, title: currentCatalogTitle, children: catalogChildren },
+        ]);
+        setLoading(false);
+        await fetchItems(collection, childUrl);
+        return;
+      }
+
+      // Treat as Catalog
+      const childLinks = getChildLinks(data.links, childUrl);
+      const children: CatalogChild[] = childLinks.map((c) => ({
+        href: c.href,
+        title: c.title || c.href.split('/').filter(Boolean).slice(-2)[0] || c.href,
+        kind: inferChildKind(c.href),
+      }));
+
+      setCatalogStack(prev => [
+        ...prev,
+        { url: currentCatalogUrl, title: currentCatalogTitle, children: catalogChildren },
+      ]);
+      setCatalogChildren(children);
+      setCurrentCatalogUrl(childUrl);
+      setCurrentCatalogTitle(data.title || childTitle);
+      setSearchTerm('');
+      setCurrentStep('catalog');
+    } catch (error) {
+      console.error('Error entering catalog:', error);
+      toast({
+        title: 'STAC Error',
+        description: `Failed to load "${childTitle}".`,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -231,30 +330,67 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
 
-  const fetchItems = async (collection: StacCollection) => {
+  // Pending item links queue for static collections (lazy fetched in batches)
+  const ITEM_BATCH_SIZE = 50;
+
+  const fetchItemsFromLinks = async (
+    links: string[]
+  ): Promise<{ items: StacItem[] }> => {
+    const fetched = await Promise.all(
+      links.map(async (href) => {
+        try {
+          const r = await fetch(href);
+          if (!r.ok) return null;
+          return (await r.json()) as StacItem;
+        } catch (e) {
+          console.warn('Failed to fetch static STAC item', href, e);
+          return null;
+        }
+      })
+    );
+    return { items: fetched.filter((i): i is StacItem => i !== null) };
+  };
+
+  const fetchItems = async (collection: StacCollection, collectionUrl?: string) => {
     // Immediately update UI state before async fetch
     setCurrentStep('items');
     setSelectedCollection(collection);
     setSearchTerm('');
     setServerSearchTerm('');
-    
+
     // Then start loading and fetch
     setLoading(true);
-    
+
     try {
-      const itemsUrl = getItemsUrl(collection, serviceUrl);
+      // Static collection: prefer inline `rel: "item"` links if present
+      const baseUrl = collectionUrl || serviceUrl;
+      const itemLinks = getItemLinks(collection, baseUrl);
+
+      if (itemLinks.length > 0) {
+        const firstBatch = itemLinks.slice(0, ITEM_BATCH_SIZE);
+        const remaining = itemLinks.slice(ITEM_BATCH_SIZE);
+        const { items: fetchedItems } = await fetchItemsFromLinks(firstBatch);
+        setItems(fetchedItems);
+        setTotalItemCount(itemLinks.length);
+        // Encode remaining links into nextItemsUrl as a sentinel; we use a separate state instead
+        setPendingItemLinks(remaining);
+        setNextItemsUrl(remaining.length > 0 ? '__static__' : null);
+        return;
+      }
+
+      // API-style: fetch /items endpoint
+      const itemsUrl = getItemsUrl(collection, serviceUrl, collectionUrl);
       const response = await fetch(itemsUrl);
-      
+
       if (!response.ok) throw new Error('Failed to fetch items');
-      
+
       const data = await response.json();
-      
       const itemsList = data.features || data.items || data;
-      
+
       if (Array.isArray(itemsList)) {
         setItems(itemsList);
         setNextItemsUrl(extractNextLink(data));
-        // Only set total count if we have a reliable count from the API
+        setPendingItemLinks([]);
         const total = data.numberMatched || data.context?.matched || null;
         setTotalItemCount(total);
       } else {
@@ -262,9 +398,9 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       }
     } catch (error) {
       console.error('Error fetching STAC items:', error);
-      // Set empty items to show "No items found" message
       setItems([]);
       setNextItemsUrl(null);
+      setPendingItemLinks([]);
       setTotalItemCount(null);
       toast({
         title: "STAC Error",
@@ -279,16 +415,26 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
   const loadMoreItems = async () => {
     if (!nextItemsUrl) return;
-    
+
     try {
       setLoadingMore(true);
+
+      // Static catalog branch: fetch next batch from pendingItemLinks
+      if (nextItemsUrl === '__static__') {
+        const nextBatch = pendingItemLinks.slice(0, ITEM_BATCH_SIZE);
+        const remaining = pendingItemLinks.slice(ITEM_BATCH_SIZE);
+        const { items: fetchedItems } = await fetchItemsFromLinks(nextBatch);
+        setItems(prev => [...prev, ...fetchedItems]);
+        setPendingItemLinks(remaining);
+        setNextItemsUrl(remaining.length > 0 ? '__static__' : null);
+        return;
+      }
+
       const response = await fetch(nextItemsUrl);
-      
       if (!response.ok) throw new Error('Failed to fetch more items');
-      
       const data = await response.json();
       const itemsList = data.features || data.items || data;
-      
+
       if (Array.isArray(itemsList)) {
         setItems(prev => [...prev, ...itemsList]);
         setNextItemsUrl(extractNextLink(data));
@@ -477,14 +623,35 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       setCurrentStep('items');
       setAssets([]);
       setSelectedItem(null);
-      setShowSupportedOnly(false); // Reset format filter when leaving assets
+      setShowSupportedOnly(false);
     } else if (currentStep === 'items') {
-      setCurrentStep('collections');
-      setItems([]);
-      setNextItemsUrl(null);
-      setSelectedCollection(null);
-      setTotalItemCount(null);
-      setServerSearchTerm(''); // Clear server search term for items
+      // If we arrived at items via a static catalog, return to that catalog level
+      if (catalogStack.length > 0) {
+        setCurrentStep('catalog');
+        setItems([]);
+        setNextItemsUrl(null);
+        setPendingItemLinks([]);
+        setSelectedCollection(null);
+        setTotalItemCount(null);
+        setServerSearchTerm('');
+      } else {
+        setCurrentStep('collections');
+        setItems([]);
+        setNextItemsUrl(null);
+        setPendingItemLinks([]);
+        setSelectedCollection(null);
+        setTotalItemCount(null);
+        setServerSearchTerm('');
+      }
+    } else if (currentStep === 'catalog') {
+      // Pop the catalog stack to return to the parent catalog
+      if (catalogStack.length > 0) {
+        const parent = catalogStack[catalogStack.length - 1];
+        setCatalogStack(prev => prev.slice(0, -1));
+        setCurrentCatalogUrl(parent.url);
+        setCurrentCatalogTitle(parent.title);
+        setCatalogChildren(parent.children);
+      }
     }
     setSearchTerm('');
   };
@@ -502,6 +669,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     setItems([]);
     setSelectedItem(null);
     setNextItemsUrl(null);
+    setPendingItemLinks([]);
     setTotalItemCount(null);
 
     setAssets([]);
@@ -510,6 +678,11 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     setShowSupportedOnly(false);
     setExpandedCollections(new Set());
     setExpandedItems(new Set());
+
+    setCatalogStack([]);
+    setCatalogChildren([]);
+    setCurrentCatalogUrl('');
+    setCurrentCatalogTitle('');
 
     // Then detect what the URL actually returns (catalog vs itemcollection vs assets)
     detectAndLoadStacResource();
@@ -539,8 +712,11 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
   const getFilteredData = () => {
     const term = searchTerm.toLowerCase();
-    
-    if (currentStep === 'collections') {
+
+    if (currentStep === 'catalog') {
+      if (!term) return catalogChildren;
+      return catalogChildren.filter(c => c.title.toLowerCase().includes(term));
+    } else if (currentStep === 'collections') {
       return filterAndRankCollections(collections, searchTerm);
     } else if (currentStep === 'items') {
       // Client-side filtering for items
@@ -554,13 +730,11 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     } else if (currentStep === 'assets') {
       // Assets are filtered by both search term AND format support
       const filtered = assets.filter(([key, asset]) => {
-        // Text search filter
         const matchesSearch = !term ||
           key.toLowerCase().includes(term) ||
           (asset.title && asset.title.toLowerCase().includes(term)) ||
           asset.href.toLowerCase().includes(term);
         
-        // Format filter (only apply if showSupportedOnly is true)
         const matchesFormat = !showSupportedOnly || 
           SUPPORTED_FORMATS.includes(detectAssetFormat(asset) as DataSourceFormat);
         
@@ -573,13 +747,22 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
   const getStepTitle = () => {
+    if (currentStep === 'catalog') {
+      const parent = catalogStack[catalogStack.length - 1];
+      return parent ? `Back to ${parent.title}` : currentCatalogTitle;
+    }
     if (currentStep === 'collections') return 'Select Collection';
-    if (currentStep === 'items') return `Back to ${serviceName} list`;
+    if (currentStep === 'items') {
+      const parent = catalogStack[catalogStack.length - 1];
+      if (parent) return `Back to ${parent.title}`;
+      return `Back to ${serviceName} list`;
+    }
     if (currentStep === 'assets') return `Back to ${selectedCollection?.title || selectedCollection?.id} items`;
     return '';
   };
 
   const getStepIcon = () => {
+    if (currentStep === 'catalog') return <Folder className="h-4 w-4" />;
     if (currentStep === 'collections') return <Folder className="h-4 w-4" />;
     if (currentStep === 'items') return <FileText className="h-4 w-4" />;
     if (currentStep === 'assets') return <Download className="h-4 w-4" />;
@@ -591,6 +774,45 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
   const renderInfoCard = () => {
+    // Catalog navigation view (static hierarchical catalog)
+    if (currentStep === 'catalog') {
+      const breadcrumbTitles = [...catalogStack.map(s => s.title), currentCatalogTitle].filter(Boolean);
+      return (
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <Folder className="h-4 w-4 text-purple-600" />
+              <h3 className="font-medium text-purple-700">{currentCatalogTitle || serviceName}</h3>
+              <Badge variant="outline" className="border-purple-300 text-purple-700">
+                Catalog
+              </Badge>
+              {catalogChildren.length > 0 && (
+                <Badge variant="outline" className="border-green-300 text-green-700">
+                  {catalogChildren.length} entries
+                </Badge>
+              )}
+            </div>
+            {breadcrumbTitles.length > 1 && (
+              <p className="text-xs text-muted-foreground truncate" title={breadcrumbTitles.join(' / ')}>
+                {breadcrumbTitles.join(' / ')}
+              </p>
+            )}
+            <p className="text-sm text-muted-foreground overflow-hidden mt-1">
+              <a
+                href={createStacBrowserUrl(currentCatalogUrl || serviceUrl, serviceUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-start gap-1 break-all"
+              >
+                <span className="break-all">{currentCatalogUrl || serviceUrl}</span>
+                <ExternalLink className="h-3 w-3 flex-shrink-0 mt-0.5" />
+              </a>
+            </p>
+          </CardContent>
+        </Card>
+      );
+    }
+
     // Only show Service Info Card on collections view (not when collection or item is selected)
     if (currentStep === 'collections' && !selectedCollection && !selectedItem) {
       return (
@@ -739,7 +961,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>Detected:</span>
           <Badge variant="outline" className="text-xs px-1.5 py-0">
-            {detectedMode === 'catalog' && 'STAC Catalog'}
+            {detectedMode === 'catalog' && 'STAC API Catalog'}
+            {detectedMode === 'static-catalog' && 'Static STAC Catalog'}
             {detectedMode === 'itemCollection' && 'ItemCollection'}
             {detectedMode === 'openEO-assets' && 'openEO Assets'}
             {detectedMode === 'stac-item' && 'STAC Item'}
@@ -750,8 +973,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       {/* Info Card */}
       {renderInfoCard()}
 
-      {/* Header with back button and title - only for items and assets */}
-      {currentStep !== 'collections' && (
+      {/* Header with back button and title - shown when there's somewhere to go back to */}
+      {(currentStep === 'items' || currentStep === 'assets' || (currentStep === 'catalog' && catalogStack.length > 0)) && (
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={goBack}>
             <ChevronLeft className="h-4 w-4" />
@@ -892,6 +1115,35 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                     )}
                   </div>
                 </div>
+              ) : currentStep === 'catalog' ? (
+                // Catalog navigation view (static hierarchical catalog)
+                (filteredData as CatalogChild[]).map((child) => {
+                  const isCollection = child.kind === 'collection';
+                  return (
+                    <div key={child.href} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                      <Folder className={`h-4 w-4 flex-shrink-0 ${isCollection ? 'text-green-600' : 'text-purple-600'}`} />
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="font-medium text-sm truncate" title={child.title}>{child.title}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs font-normal">
+                            {child.kind === 'collection' ? 'Collection' : child.kind === 'catalog' ? 'Catalog' : 'Entry'}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground truncate" title={child.href}>
+                            {child.href}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-shrink-0"
+                        onClick={() => enterCatalog(child.href, child.title)}
+                      >
+                        {isCollection ? 'Browse items' : 'Open'}
+                      </Button>
+                    </div>
+                  );
+                })
               ) : currentStep === 'collections' ? (
                 // Collections view
                 (filteredData as StacCollection[]).map((collection) => {
