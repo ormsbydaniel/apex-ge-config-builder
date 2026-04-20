@@ -712,8 +712,11 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
   const getFilteredData = () => {
     const term = searchTerm.toLowerCase();
-    
-    if (currentStep === 'collections') {
+
+    if (currentStep === 'catalog') {
+      if (!term) return catalogChildren;
+      return catalogChildren.filter(c => c.title.toLowerCase().includes(term));
+    } else if (currentStep === 'collections') {
       return filterAndRankCollections(collections, searchTerm);
     } else if (currentStep === 'items') {
       // Client-side filtering for items
@@ -727,13 +730,11 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     } else if (currentStep === 'assets') {
       // Assets are filtered by both search term AND format support
       const filtered = assets.filter(([key, asset]) => {
-        // Text search filter
         const matchesSearch = !term ||
           key.toLowerCase().includes(term) ||
           (asset.title && asset.title.toLowerCase().includes(term)) ||
           asset.href.toLowerCase().includes(term);
         
-        // Format filter (only apply if showSupportedOnly is true)
         const matchesFormat = !showSupportedOnly || 
           SUPPORTED_FORMATS.includes(detectAssetFormat(asset) as DataSourceFormat);
         
@@ -746,13 +747,22 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
   const getStepTitle = () => {
+    if (currentStep === 'catalog') {
+      const parent = catalogStack[catalogStack.length - 1];
+      return parent ? `Back to ${parent.title}` : currentCatalogTitle;
+    }
     if (currentStep === 'collections') return 'Select Collection';
-    if (currentStep === 'items') return `Back to ${serviceName} list`;
+    if (currentStep === 'items') {
+      const parent = catalogStack[catalogStack.length - 1];
+      if (parent) return `Back to ${parent.title}`;
+      return `Back to ${serviceName} list`;
+    }
     if (currentStep === 'assets') return `Back to ${selectedCollection?.title || selectedCollection?.id} items`;
     return '';
   };
 
   const getStepIcon = () => {
+    if (currentStep === 'catalog') return <Folder className="h-4 w-4" />;
     if (currentStep === 'collections') return <Folder className="h-4 w-4" />;
     if (currentStep === 'items') return <FileText className="h-4 w-4" />;
     if (currentStep === 'assets') return <Download className="h-4 w-4" />;
