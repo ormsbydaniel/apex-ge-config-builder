@@ -94,6 +94,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   const [selectedItem, setSelectedItem] = useState<StacItem | null>(null);
   const [nextItemsUrl, setNextItemsUrl] = useState<string | null>(null);
   const [totalItemCount, setTotalItemCount] = useState<number | null>(null);
+  const [pendingItemLinks, setPendingItemLinks] = useState<string[]>([]);
 
   // Assets state
   const [assets, setAssets] = useState<[string, StacAsset][]>([]);
