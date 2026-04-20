@@ -961,7 +961,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>Detected:</span>
           <Badge variant="outline" className="text-xs px-1.5 py-0">
-            {detectedMode === 'catalog' && 'STAC Catalog'}
+            {detectedMode === 'catalog' && 'STAC API Catalog'}
+            {detectedMode === 'static-catalog' && 'Static STAC Catalog'}
             {detectedMode === 'itemCollection' && 'ItemCollection'}
             {detectedMode === 'openEO-assets' && 'openEO Assets'}
             {detectedMode === 'stac-item' && 'STAC Item'}
@@ -972,8 +973,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       {/* Info Card */}
       {renderInfoCard()}
 
-      {/* Header with back button and title - only for items and assets */}
-      {currentStep !== 'collections' && (
+      {/* Header with back button and title - shown when there's somewhere to go back to */}
+      {(currentStep === 'items' || currentStep === 'assets' || (currentStep === 'catalog' && catalogStack.length > 0)) && (
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={goBack}>
             <ChevronLeft className="h-4 w-4" />
