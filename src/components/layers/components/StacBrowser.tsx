@@ -1115,6 +1115,35 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                     )}
                   </div>
                 </div>
+              ) : currentStep === 'catalog' ? (
+                // Catalog navigation view (static hierarchical catalog)
+                (filteredData as CatalogChild[]).map((child) => {
+                  const isCollection = child.kind === 'collection';
+                  return (
+                    <div key={child.href} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                      <Folder className={`h-4 w-4 flex-shrink-0 ${isCollection ? 'text-green-600' : 'text-purple-600'}`} />
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="font-medium text-sm truncate" title={child.title}>{child.title}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs font-normal">
+                            {child.kind === 'collection' ? 'Collection' : child.kind === 'catalog' ? 'Catalog' : 'Entry'}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground truncate" title={child.href}>
+                            {child.href}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-shrink-0"
+                        onClick={() => enterCatalog(child.href, child.title)}
+                      >
+                        {isCollection ? 'Browse items' : 'Open'}
+                      </Button>
+                    </div>
+                  );
+                })
               ) : currentStep === 'collections' ? (
                 // Collections view
                 (filteredData as StacCollection[]).map((collection) => {
