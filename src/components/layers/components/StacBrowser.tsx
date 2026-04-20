@@ -197,7 +197,27 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         }
       }
 
-      // Otherwise, assume it's a Catalog - fetch collections
+      // Catalog: prefer static-hierarchy traversal when `child` links exist
+      if (data.type === 'Catalog') {
+        const childLinks = getChildLinks(data.links, serviceUrl);
+        if (childLinks.length > 0) {
+          setDetectedMode('static-catalog');
+          const children: CatalogChild[] = childLinks.map((c) => ({
+            href: c.href,
+            title: c.title || c.href.split('/').filter(Boolean).slice(-2)[0] || c.href,
+            kind: inferChildKind(c.href),
+          }));
+          setCatalogChildren(children);
+          setCurrentCatalogUrl(serviceUrl);
+          setCurrentCatalogTitle(data.title || serviceName || 'Catalog');
+          setCatalogStack([]);
+          setCurrentStep('catalog');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Otherwise, assume it's a STAC API Catalog - fetch /collections
       setDetectedMode('catalog');
       await fetchCollectionsFromCatalog();
 
@@ -206,6 +226,63 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       // Fall back to trying collections endpoint
       setDetectedMode('catalog');
       await fetchCollectionsFromCatalog();
+    }
+  };
+
+  // Navigate into a child catalog entry (static hierarchy)
+  const enterCatalog = async (childUrl: string, childTitle: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(childUrl);
+      if (!response.ok) throw new Error('Failed to fetch catalog');
+      const data = await response.json();
+
+      // If the child is actually a Collection, jump straight to items
+      if (data.type === 'Collection') {
+        const collection: StacCollection = {
+          id: data.id || childTitle,
+          title: data.title,
+          description: data.description,
+          keywords: data.keywords,
+          extent: data.extent,
+          links: data.links,
+        };
+        // Push current catalog onto stack so we can return
+        setCatalogStack(prev => [
+          ...prev,
+          { url: currentCatalogUrl, title: currentCatalogTitle, children: catalogChildren },
+        ]);
+        setLoading(false);
+        await fetchItems(collection, childUrl);
+        return;
+      }
+
+      // Treat as Catalog
+      const childLinks = getChildLinks(data.links, childUrl);
+      const children: CatalogChild[] = childLinks.map((c) => ({
+        href: c.href,
+        title: c.title || c.href.split('/').filter(Boolean).slice(-2)[0] || c.href,
+        kind: inferChildKind(c.href),
+      }));
+
+      setCatalogStack(prev => [
+        ...prev,
+        { url: currentCatalogUrl, title: currentCatalogTitle, children: catalogChildren },
+      ]);
+      setCatalogChildren(children);
+      setCurrentCatalogUrl(childUrl);
+      setCurrentCatalogTitle(data.title || childTitle);
+      setSearchTerm('');
+      setCurrentStep('catalog');
+    } catch (error) {
+      console.error('Error entering catalog:', error);
+      toast({
+        title: 'STAC Error',
+        description: `Failed to load "${childTitle}".`,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
