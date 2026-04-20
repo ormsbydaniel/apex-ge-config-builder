@@ -1120,15 +1120,15 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                 (filteredData as CatalogChild[]).map((child) => {
                   const isCollection = child.kind === 'collection';
                   return (
-                    <div key={child.href} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                    <div key={child.href} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 min-w-0">
                       <Folder className={`h-4 w-4 flex-shrink-0 ${isCollection ? 'text-green-600' : 'text-purple-600'}`} />
                       <div className="flex-1 min-w-0 pr-2">
                         <div className="font-medium text-sm truncate" title={child.title}>{child.title}</div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs font-normal">
+                        <div className="flex items-center gap-2 mt-1 min-w-0">
+                          <Badge variant="outline" className="text-xs font-normal flex-shrink-0">
                             {child.kind === 'collection' ? 'Collection' : child.kind === 'catalog' ? 'Catalog' : 'Entry'}
                           </Badge>
-                          <span className="text-xs text-muted-foreground truncate" title={child.href}>
+                          <span className="text-xs text-muted-foreground truncate min-w-0 flex-1" title={child.href}>
                             {child.href}
                           </span>
                         </div>
