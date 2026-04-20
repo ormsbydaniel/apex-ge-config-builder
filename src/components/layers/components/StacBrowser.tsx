@@ -774,6 +774,45 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
   };
 
   const renderInfoCard = () => {
+    // Catalog navigation view (static hierarchical catalog)
+    if (currentStep === 'catalog') {
+      const breadcrumbTitles = [...catalogStack.map(s => s.title), currentCatalogTitle].filter(Boolean);
+      return (
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <Folder className="h-4 w-4 text-purple-600" />
+              <h3 className="font-medium text-purple-700">{currentCatalogTitle || serviceName}</h3>
+              <Badge variant="outline" className="border-purple-300 text-purple-700">
+                Catalog
+              </Badge>
+              {catalogChildren.length > 0 && (
+                <Badge variant="outline" className="border-green-300 text-green-700">
+                  {catalogChildren.length} entries
+                </Badge>
+              )}
+            </div>
+            {breadcrumbTitles.length > 1 && (
+              <p className="text-xs text-muted-foreground truncate" title={breadcrumbTitles.join(' / ')}>
+                {breadcrumbTitles.join(' / ')}
+              </p>
+            )}
+            <p className="text-sm text-muted-foreground overflow-hidden mt-1">
+              <a
+                href={createStacBrowserUrl(currentCatalogUrl || serviceUrl, serviceUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-start gap-1 break-all"
+              >
+                <span className="break-all">{currentCatalogUrl || serviceUrl}</span>
+                <ExternalLink className="h-3 w-3 flex-shrink-0 mt-0.5" />
+              </a>
+            </p>
+          </CardContent>
+        </Card>
+      );
+    }
+
     // Only show Service Info Card on collections view (not when collection or item is selected)
     if (currentStep === 'collections' && !selectedCollection && !selectedItem) {
       return (
