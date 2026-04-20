@@ -190,7 +190,13 @@ export const resolveAssetUrl = (href: string, serviceUrl: string): string => {
     if (/^https?:\/\//i.test(href) || href.startsWith('data:')) return href;
     const origin = new URL(serviceUrl).origin;
     if (href.startsWith('/')) return origin + href;
-    return new URL(href, ensureSlash(serviceUrl)).toString();
+    // If serviceUrl ends with a filename (e.g. .../catalog.json), resolve
+    // relative hrefs against that URL directly so the filename is replaced.
+    // Otherwise treat it as a directory and ensure a trailing slash.
+    const base = new URL(serviceUrl);
+    const looksLikeFile = /\/[^\/?#]+\.[^\/?#]+$/.test(base.pathname);
+    const baseStr = looksLikeFile ? serviceUrl : ensureSlash(serviceUrl);
+    return new URL(href, baseStr).toString();
   } catch (e) {
     console.warn('Failed to resolve asset URL, returning original href', href, e);
     return href;
