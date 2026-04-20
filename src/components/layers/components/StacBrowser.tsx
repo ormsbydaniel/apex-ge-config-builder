@@ -56,9 +56,21 @@ interface StacBrowserProps {
   onAssetSelect: (assets: AssetSelection | AssetSelection[]) => void;
 }
 
-type BrowserStep = 'collections' | 'items' | 'assets';
+type BrowserStep = 'catalog' | 'collections' | 'items' | 'assets';
 
-type DetectedMode = 'catalog' | 'itemCollection' | 'openEO-assets' | 'stac-item' | null;
+type DetectedMode = 'catalog' | 'static-catalog' | 'itemCollection' | 'openEO-assets' | 'stac-item' | null;
+
+interface CatalogChild {
+  href: string;
+  title: string;
+  kind: 'catalog' | 'collection' | 'unknown';
+}
+
+interface CatalogStackEntry {
+  url: string;
+  title: string;
+  children: CatalogChild[];
+}
 
 const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
