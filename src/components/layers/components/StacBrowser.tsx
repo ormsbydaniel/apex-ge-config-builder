@@ -623,14 +623,35 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       setCurrentStep('items');
       setAssets([]);
       setSelectedItem(null);
-      setShowSupportedOnly(false); // Reset format filter when leaving assets
+      setShowSupportedOnly(false);
     } else if (currentStep === 'items') {
-      setCurrentStep('collections');
-      setItems([]);
-      setNextItemsUrl(null);
-      setSelectedCollection(null);
-      setTotalItemCount(null);
-      setServerSearchTerm(''); // Clear server search term for items
+      // If we arrived at items via a static catalog, return to that catalog level
+      if (catalogStack.length > 0) {
+        setCurrentStep('catalog');
+        setItems([]);
+        setNextItemsUrl(null);
+        setPendingItemLinks([]);
+        setSelectedCollection(null);
+        setTotalItemCount(null);
+        setServerSearchTerm('');
+      } else {
+        setCurrentStep('collections');
+        setItems([]);
+        setNextItemsUrl(null);
+        setPendingItemLinks([]);
+        setSelectedCollection(null);
+        setTotalItemCount(null);
+        setServerSearchTerm('');
+      }
+    } else if (currentStep === 'catalog') {
+      // Pop the catalog stack to return to the parent catalog
+      if (catalogStack.length > 0) {
+        const parent = catalogStack[catalogStack.length - 1];
+        setCatalogStack(prev => prev.slice(0, -1));
+        setCurrentCatalogUrl(parent.url);
+        setCurrentCatalogTitle(parent.title);
+        setCatalogChildren(parent.children);
+      }
     }
     setSearchTerm('');
   };
@@ -648,6 +669,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     setItems([]);
     setSelectedItem(null);
     setNextItemsUrl(null);
+    setPendingItemLinks([]);
     setTotalItemCount(null);
 
     setAssets([]);
@@ -656,6 +678,11 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     setShowSupportedOnly(false);
     setExpandedCollections(new Set());
     setExpandedItems(new Set());
+
+    setCatalogStack([]);
+    setCatalogChildren([]);
+    setCurrentCatalogUrl('');
+    setCurrentCatalogTitle('');
 
     // Then detect what the URL actually returns (catalog vs itemcollection vs assets)
     detectAndLoadStacResource();
