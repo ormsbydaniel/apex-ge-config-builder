@@ -13,6 +13,7 @@ import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/co
 import { useServices } from '@/hooks/useServices';
 import { useBulkServiceValidation, ServiceKind } from '@/hooks/useBulkServiceValidation';
 import { parseS3Url } from '@/utils/s3Utils';
+import { validateSingleService, ProbeKind } from '@/utils/serviceProbes';
 
 // Mirror of classify() in useBulkServiceValidation — keep in sync.
 const classifyService = (svc: Service): ServiceKind | null => {
