@@ -13,6 +13,7 @@ import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/co
 import { useServices } from '@/hooks/useServices';
 import { useBulkServiceValidation, ServiceKind } from '@/hooks/useBulkServiceValidation';
 import { parseS3Url } from '@/utils/s3Utils';
+import { validateSingleService, ProbeKind } from '@/utils/serviceProbes';
 
 // Mirror of classify() in useBulkServiceValidation — keep in sync.
 const classifyService = (svc: Service): ServiceKind | null => {
@@ -54,6 +55,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const [pendingRecheck, setPendingRecheck] = useState(false);
   const [runSummary, setRunSummary] = useState<Record<ServiceKind, { total: number } | null> | null>(null);
   const [dismissed, setDismissed] = useState(true);
+  const [validateState, setValidateState] = useState<
+    | { status: 'idle' }
+    | { status: 'checking' }
+    | { status: 'ok'; message: string }
+    | { status: 'error'; message: string }
+  >({ status: 'idle' });
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
@@ -252,6 +259,35 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     setDetectionResult(null);
     setShowAddForm(false);
     setEditingServiceId(null);
+    setValidateState({ status: 'idle' });
+  };
+
+  // Reset validation result whenever the URL or service type changes.
+  useEffect(() => {
+    setValidateState({ status: 'idle' });
+  }, [newServiceUrl, selectedFormat]);
+
+  const handleValidate = async () => {
+    const url = newServiceUrl.trim();
+    if (!url || selectedFormat === 'json-upload') return;
+
+    let kind: ProbeKind;
+    let ogcFormat: DataSourceFormat | undefined;
+    if (selectedFormat === 'stac') {
+      kind = 'stac';
+    } else if (selectedFormat === 's3') {
+      kind = 's3';
+    } else {
+      kind = 'ogc';
+      ogcFormat = selectedFormat as DataSourceFormat;
+    }
+
+    setValidateState({ status: 'checking' });
+    const result = await validateSingleService(url, kind, ogcFormat);
+    setValidateState({
+      status: result.ok ? 'ok' : 'error',
+      message: result.message,
+    });
   };
 
   const handleEditService = (service: Service) => {
@@ -797,10 +833,52 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
             )}
           </div>
 
+          {selectedFormat !== 'json-upload' && validateState.status !== 'idle' && (
+            <div className="flex items-start gap-2 text-sm">
+              {validateState.status === 'checking' && (
+                <>
+                  <Loader2 className="h-4 w-4 mt-0.5 animate-spin text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Validating…</span>
+                </>
+              )}
+              {validateState.status === 'ok' && (
+                <>
+                  <Check className="h-4 w-4 mt-0.5 text-emerald-600 shrink-0" />
+                  <span className="text-emerald-600">Reachable — {validateState.message}</span>
+                </>
+              )}
+              {validateState.status === 'error' && (
+                <>
+                  <AlertTriangle className="h-4 w-4 mt-0.5 text-destructive shrink-0" />
+                  <span className="text-destructive">{validateState.message}</span>
+                </>
+              )}
+            </div>
+          )}
+
           <DialogFooter>
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
+            {selectedFormat !== 'json-upload' && (
+              <Button
+                variant="outline"
+                onClick={handleValidate}
+                disabled={!newServiceUrl.trim() || validateState.status === 'checking'}
+              >
+                {validateState.status === 'checking' ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Validating…
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Validate
+                  </>
+                )}
+              </Button>
+            )}
             <Button
               onClick={handleAddService}
               disabled={
