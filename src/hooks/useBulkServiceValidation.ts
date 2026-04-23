@@ -33,6 +33,10 @@ const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
 // Persists across ServicesManager mount/unmount (tab switches) so we only
 // auto-validate once per loaded config.
 let lastValidatedLoad: Date | null | 'manual' = null;
+// Module-scoped status cache, also keyed by `lastLoaded`. Survives tab
+// switches so the failures panel and per-card badges stay populated without
+// re-running probes.
+let cachedStatuses: Record<string, ServiceValidationStatus> = {};
 
 const classify = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
@@ -82,9 +86,9 @@ export const useBulkServiceValidation = (
 ): BulkValidationResult => {
   const { config, dispatch } = useConfig();
   const lastLoaded = config.lastLoaded;
-  const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>({});
+  const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>(cachedStatuses);
   const [progress, setProgress] = useState<Record<ServiceKind, GroupProgress>>(INITIAL_PROGRESS);
-  // Module-scoped (see bottom of file) so tab switches that unmount this hook
+  // Module-scoped (see top of file) so tab switches that unmount this hook
   // don't trigger re-validation for the same loaded config.
   const validatedForLoadRef = useRef<Date | null | 'manual'>(lastValidatedLoad);
 
@@ -103,7 +107,11 @@ export const useBulkServiceValidation = (
   );
 
   const setStatus = useCallback((id: string, status: ServiceValidationStatus) => {
-    setStatuses(prev => ({ ...prev, [id]: status }));
+    setStatuses(prev => {
+      const next = { ...prev, [id]: status };
+      cachedStatuses = next;
+      return next;
+    });
   }, []);
 
   const validateStac = useCallback(async (svc: Service) => {
@@ -248,6 +256,10 @@ export const useBulkServiceValidation = (
   useEffect(() => {
     if (!enabled) return;
     if (validatedForLoadRef.current === lastLoaded) return;
+    // New config (or first load): clear stale status cache so badges from a
+    // previous config don't bleed into this one.
+    cachedStatuses = {};
+    setStatuses({});
     validatedForLoadRef.current = lastLoaded;
     lastValidatedLoad = lastLoaded;
 
