@@ -55,6 +55,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const [pendingRecheck, setPendingRecheck] = useState(false);
   const [runSummary, setRunSummary] = useState<Record<ServiceKind, { total: number } | null> | null>(null);
   const [dismissed, setDismissed] = useState(true);
+  const [validateState, setValidateState] = useState<
+    | { status: 'idle' }
+    | { status: 'checking' }
+    | { status: 'ok'; message: string }
+    | { status: 'error'; message: string }
+  >({ status: 'idle' });
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
