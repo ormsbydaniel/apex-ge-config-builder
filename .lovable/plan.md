@@ -1,66 +1,63 @@
 
 
-## Persist validation results with a close button
+## Separate failed services into "Invalid services" section
 
-### Current behaviour
+### Behaviour
 
-The validation strip (`Checking STAC catalogues (N of M)…` etc.) only shows while `inFlightTotal > 0`. The moment all groups finish, the whole strip vanishes — so the user has no summary of what just happened.
+Split the configured services grid into two sections:
 
-### New behaviour
+1. **Configured services** (existing grid) — services with status `ok`, `checking`, or `idle` (no validation error).
+2. **Invalid services** — services where `validationStatuses[service.id] === 'error'`. Rendered below, under a heading **"Invalid services"** with a short helper line, using the same card component (so the user keeps the amber error badge + Retry + Edit + Delete controls).
 
-Once a validation run starts (manual **Re-check all**, recommended-services add, or auto-validation on tab visit), the strip stays visible **after** completion as a results summary, until the user dismisses it with an **X** button in its top-right corner.
+If there are no failed services, the "Invalid services" section is not rendered. If there are no valid services, the existing empty state still appears in the top section.
 
-### UI
+### UI sketch
 
-While in flight (unchanged content, plus a dismiss button is hidden):
 ```
-🔄 Checking STAC catalogues (2 of 3)…
-🔄 Checking WMS / WMTS / WFS services (4 of 7)…
-```
+Configured services
+  [stac card] [wms card]
+  [s3 card]   [wmts card]
 
-Once complete (each row swaps spinner for a tick / amber warn icon, X appears):
-```
-✓ STAC catalogues: 3 of 3 reachable                    [X]
-⚠ WMS / WMTS / WFS services: 5 of 7 reachable (2 failed)
-✓ S3 stores: 2 of 2 reachable
+Invalid services
+2 services failed validation. Check the URL or retry.
+  [failing wms card]  [failing stac card]
 ```
 
-- Tick (green `Check` icon) when all in the group succeeded.
-- Amber `AlertTriangle` when any failed, with `(N failed)` suffix.
-- Only groups that had `total > 0` for this run are listed.
-- X button (ghost icon, top-right of the panel) dismisses the strip. Starting a new run re-shows it.
+The "Invalid services" heading uses muted foreground styling consistent with other section labels in the app (no new color tokens). Cards keep their existing left-border colour by source type — only the grouping changes.
 
 ### Implementation
 
-**`src/components/ServicesManager.tsx`** (only file touched)
+**File touched: `src/components/ServicesManager.tsx`** (only).
 
-1. Track per-run group totals so the panel knows what was attempted, even after `inFlight` drops to 0:
-   ```tsx
-   const [runSummary, setRunSummary] = useState<{
-     stac: { total: number; failed: number } | null;
-     ogc:  { total: number; failed: number } | null;
-     s3:   { total: number; failed: number } | null;
-   } | null>(null);
-   const [dismissed, setDismissed] = useState(true);
+1. In the render block (around lines 638–790), before the current `.sort().map()`, partition the sorted services into two arrays based on `validationStatuses[service.id] === 'error'`:
+   ```ts
+   const sorted = services.slice().sort(/* existing priority sort */);
+   const validServices  = sorted.filter(s => validationStatuses[s.id] !== 'error');
+   const invalidServices = sorted.filter(s => validationStatuses[s.id] === 'error');
    ```
 
-2. Detect the start of a run: when `inFlightTotal` transitions from 0 → >0, snapshot the per-group totals from `progress`, reset failed counts to 0, and `setDismissed(false)`.
+2. Extract the per-service `<Card>` JSX (lines 661–787) into a small inline helper `renderServiceCard(service)` inside the component to avoid duplicating ~125 lines. No new file, no new component export — keeps existing structure intact.
 
-3. While running, keep totals in sync (groups grow as the hook seeds them). Derive `failed` from `validationStatuses` filtered by group at render time (re-classify each service via the same `format`/`sourceType`/`parseS3Url` rules already used in the hook — extract a small local `classify()` helper so logic isn't duplicated long-term, or import it if exported from the hook).
+3. Replace the current single grid with:
+   - **Top grid** — renders `validServices` via `renderServiceCard`. Empty state (lines 632–637) shows only when `services.length === 0` (unchanged trigger).
+   - **Bottom section** — rendered only when `invalidServices.length > 0`:
+     ```
+     <div className="mt-6">
+       <h4 className="text-sm font-medium text-muted-foreground mb-1">Invalid services</h4>
+       <p className="text-xs text-muted-foreground mb-3">
+         {invalidServices.length} service{...} failed validation. Check the URL or retry.
+       </p>
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+         {invalidServices.map(renderServiceCard)}
+       </div>
+     </div>
+     ```
 
-4. Render condition: `!dismissed && runSummary && (any group has total > 0)`. Replace the existing `inFlightTotal > 0 &&` guard with this.
-
-5. Per-row rendering:
-   - If `progress[kind].inFlight > 0` → spinner + "Checking … (N of M)…" (current text).
-   - Else if `runSummary[kind].total > 0` → tick or amber icon + "STAC catalogues: N of M reachable[, K failed]".
-
-6. X button: positioned top-right of the panel (`absolute top-1 right-1` or flex header row), `Button variant="ghost" size="icon" className="h-6 w-6"`, calls `setDismissed(true)`. Hidden while `inFlightTotal > 0` so users don't dismiss mid-run.
-
-7. Imports: add `X`, `Check`, `AlertTriangle` from `lucide-react` (Loader2 already imported).
+4. No changes to validation logic, hook, types, or schema. Removal indices still resolve correctly because `onRemoveService` already uses `services.findIndex(s => s.id === service.id)` (line 774).
 
 ### Out of scope
 
-- Persisting the summary across tab switches or page reloads (in-memory only; closing & reopening the Services tab clears it).
-- Showing the list of failed service names inline (users still see per-card amber badges with **Retry** for that detail).
-- Changes to `useBulkServiceValidation` — all logic stays in the consumer.
+- Collapsing/expanding the invalid section.
+- Bulk "Remove all invalid" action.
+- Changing card styling for failed services beyond their existing amber error badge.
 
