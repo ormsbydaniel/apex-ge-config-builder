@@ -144,27 +144,6 @@ export const useBulkServiceValidation = (
     }
   }, [dispatch, setStatus, updateProgress]);
 
-  const validateOgc = useCallback(async (svc: Service) => {
-    if (!svc.format) {
-      setStatus(svc.id, 'error');
-      return;
-    }
-    setStatus(svc.id, 'checking');
-    updateProgress('ogc', { inFlight: 1 });
-    try {
-      const capabilities = await fetchServiceCapabilities(svc.url, svc.format as DataSourceFormat);
-      if (capabilities) {
-        dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
-        setStatus(svc.id, 'ok');
-      } else {
-        setStatus(svc.id, 'error');
-      }
-    } catch {
-      setStatus(svc.id, 'error');
-    } finally {
-      updateProgress('ogc', { inFlight: -1, completed: 1 });
-    }
-  }, [dispatch, setStatus, updateProgress]);
 
   const validateS3 = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
