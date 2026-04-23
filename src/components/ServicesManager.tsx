@@ -601,6 +601,14 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                               </Badge>
                             );
                           }
+                          // S3 reachable but no listing → show "Endpoint reachable"
+                          if (status === 'ok' && service.sourceType === 's3' && !layerCount) {
+                            return (
+                              <Badge variant="outline" className="border-green-300 text-green-700">
+                                Endpoint reachable
+                              </Badge>
+                            );
+                          }
                           if (layerCount) {
                             return (
                               <Badge variant="outline" className="border-green-300 text-green-700">
@@ -613,6 +621,28 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                             );
                           }
                           if (status === 'error') {
+                            const errLabel =
+                              service.sourceType === 's3' ? "Couldn't reach endpoint" :
+                              service.sourceType === 'stac' ? "Couldn't fetch catalogue" :
+                              "Couldn't fetch capabilities";
+                            return (
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="border-amber-300 text-amber-700">
+                                  <AlertTriangle className="h-3 w-3 mr-1" />
+                                  {errLabel}
+                                </Badge>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
+                                  onClick={() => recheck(service.id)}
+                                >
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  Retry
+                                </Button>
+                              </div>
+                            );
+                          }
                             return (
                               <div className="flex items-center gap-2">
                                 <Badge variant="outline" className="border-amber-300 text-amber-700">
