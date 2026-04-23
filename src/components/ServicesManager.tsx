@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
@@ -20,9 +20,10 @@ interface ServicesManagerProps {
   services: Service[];
   onAddService: (service: Service) => void;
   onRemoveService: (index: number) => void;
+  onUpdateService?: (id: string, patch: Partial<Service>) => void;
 }
 
-const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesManagerProps) => {
+const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateService }: ServicesManagerProps) => {
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceUrl, setNewServiceUrl] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<SourceConfigType | 'json-upload'>('wms');
@@ -35,6 +36,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [detectionResult, setDetectionResult] = useState<DetectionResult | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
 
@@ -150,22 +152,36 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
       // File upload is handled separately
       return;
     }
-    
-    if (newServiceUrl.trim()) {
-      if (selectedFormat === 's3') {
-        // For S3, create a service with a placeholder format since the actual format will be determined by file extension
-        await addService(newServiceName, newServiceUrl, 'cog', 's3');
-      } else if (selectedFormat === 'stac') {
-        // For STAC, the service name will be auto-populated from catalogue title
-        await addService(newServiceName, newServiceUrl, 'stac', 'stac');
-      } else {
-        await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat, 'service');
-      }
+
+    if (!newServiceUrl.trim()) return;
+
+    // Edit mode: patch existing service (name + url only)
+    if (editingServiceId && onUpdateService) {
+      onUpdateService(editingServiceId, {
+        name: newServiceName,
+        url: newServiceUrl,
+      });
+      setEditingServiceId(null);
       setNewServiceName('');
       setNewServiceUrl('');
       setUploadedFile(null);
       setShowAddForm(false);
+      return;
     }
+
+    if (selectedFormat === 's3') {
+      // For S3, create a service with a placeholder format since the actual format will be determined by file extension
+      await addService(newServiceName, newServiceUrl, 'cog', 's3');
+    } else if (selectedFormat === 'stac') {
+      // For STAC, the service name will be auto-populated from catalogue title
+      await addService(newServiceName, newServiceUrl, 'stac', 'stac');
+    } else {
+      await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat, 'service');
+    }
+    setNewServiceName('');
+    setNewServiceUrl('');
+    setUploadedFile(null);
+    setShowAddForm(false);
   };
 
   const handleCancel = () => {
@@ -174,6 +190,26 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
     setUploadedFile(null);
     setDetectionResult(null);
     setShowAddForm(false);
+    setEditingServiceId(null);
+  };
+
+  const handleEditService = (service: Service) => {
+    // Derive the form's "selectedFormat" from the existing service for display only.
+    // (Service Type is locked in edit mode, so this value isn't used for dispatch.)
+    let formatForForm: SourceConfigType | 'json-upload';
+    if (service.sourceType === 's3') {
+      formatForForm = 's3';
+    } else if (service.sourceType === 'stac') {
+      formatForForm = 'stac';
+    } else {
+      formatForForm = (service.format as SourceConfigType) || 'wms';
+    }
+
+    setEditingServiceId(service.id);
+    setSelectedFormat(formatForForm);
+    setNewServiceName(service.name);
+    setNewServiceUrl(service.url);
+    setShowAddForm(true);
   };
 
   const handleAddRecommendedServices = async () => {
@@ -303,9 +339,13 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
           {showAddForm && (
             <Card className="border-primary/30 mb-6">
               <CardHeader className="pb-4">
-                <CardTitle className="text-base">Add New Service</CardTitle>
+                <CardTitle className="text-base">
+                  {editingServiceId ? 'Edit Service' : 'Add New Service'}
+                </CardTitle>
                 <CardDescription>
-                  Configure a new WMS, WMTS, S3, or STAC service endpoint
+                  {editingServiceId
+                    ? 'Update the name or URL for this service. Service type cannot be changed.'
+                    : 'Configure a new WMS, WMTS, S3, or STAC service endpoint'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -314,6 +354,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                   <Select
                     value={selectedFormat}
                     onValueChange={(value: SourceConfigType | 'json-upload') => setSelectedFormat(value)}
+                    disabled={!!editingServiceId}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select service type" />
@@ -343,14 +384,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                           {STAC_CONFIG.label}
                         </div>
                       </SelectItem>
-                      <SelectItem value="json-upload">
-                        <div className="flex items-center gap-2">
-                          <Upload className="h-4 w-4" />
-                          JSON or XML File Upload (beta)
-                        </div>
-                      </SelectItem>
+                      {!editingServiceId && (
+                        <SelectItem value="json-upload">
+                          <div className="flex items-center gap-2">
+                            <Upload className="h-4 w-4" />
+                            JSON or XML File Upload (beta)
+                          </div>
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
+                  {editingServiceId && (
+                    <p className="text-xs text-muted-foreground">
+                      Service type cannot be changed. Delete and re-add to switch type.
+                    </p>
+                  )}
                 </div>
 
                 {selectedFormat === 'json-upload' ? (
@@ -416,7 +464,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                     {isLoadingCapabilities ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Adding Service...
+                        {editingServiceId ? 'Saving...' : 'Adding Service...'}
+                      </>
+                    ) : editingServiceId ? (
+                      <>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Save Changes
                       </>
                     ) : (
                       <>
@@ -516,19 +569,33 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
                           </Badge>
                         )}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          const originalIndex = services.findIndex(s => s.id === service.id);
-                          if (originalIndex !== -1) {
-                            onRemoveService(originalIndex);
-                          }
-                        }}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {onUpdateService && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditService(service)}
+                            className="text-muted-foreground hover:text-foreground"
+                            title="Edit service"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const originalIndex = services.findIndex(s => s.id === service.id);
+                            if (originalIndex !== -1) {
+                              onRemoveService(originalIndex);
+                            }
+                          }}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          title="Remove service"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

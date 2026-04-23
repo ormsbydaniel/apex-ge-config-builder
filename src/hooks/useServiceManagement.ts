@@ -25,8 +25,20 @@ export const useServiceManagement = ({ config, dispatch }: UseServiceManagementP
     });
   }, [config.services, dispatch, toast]);
 
+  const updateService = useCallback((id: string, patch: Partial<Service>) => {
+    dispatch({ type: 'UPDATE_SERVICE', payload: { id, patch } });
+    const isUserEdit = 'name' in patch || 'url' in patch;
+    if (isUserEdit) {
+      toast({
+        title: "Service Updated",
+        description: `"${patch.name ?? ''}" saved.`,
+      });
+    }
+  }, [dispatch, toast]);
+
   return {
     addService,
-    removeService
+    removeService,
+    updateService,
   };
 };
