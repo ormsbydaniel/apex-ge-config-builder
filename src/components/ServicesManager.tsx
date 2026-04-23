@@ -41,7 +41,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
-  const { statuses: validationStatuses, inFlight, totalToCheck, completed, recheck } = useBulkServiceValidation(services, isActive);
+  const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
 
   // Auto-populate STAC service name after user pauses typing URL
   useEffect(() => {
@@ -318,11 +318,11 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               <Button
                 onClick={() => recheck()}
                 variant="outline"
-                disabled={inFlight > 0 || services.every(s => s.format === 's3' || s.format === 'stac' || s.sourceType === 's3' || s.sourceType === 'stac')}
+                disabled={inFlightTotal > 0 || services.length === 0}
                 className="border-primary/30"
-                title="Re-fetch capabilities for all WMS/WMTS services"
+                title="Re-validate all services (STAC, OGC, S3)"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${inFlight > 0 ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 mr-2 ${inFlightTotal > 0 ? 'animate-spin' : ''}`} />
                 Re-check all
               </Button>
               <Button
@@ -349,10 +349,26 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {inFlight > 0 && (
-            <div className="mb-4 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Checking {completed} of {totalToCheck} service{totalToCheck !== 1 ? 's' : ''}…</span>
+          {inFlightTotal > 0 && (
+            <div className="mb-4 space-y-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
+              {progress.stac.inFlight > 0 && (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Checking STAC catalogues ({progress.stac.completed} of {progress.stac.total})…</span>
+                </div>
+              )}
+              {progress.ogc.inFlight > 0 && (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Checking WMS / WMTS / WFS services ({progress.ogc.completed} of {progress.ogc.total})…</span>
+                </div>
+              )}
+              {progress.s3.inFlight > 0 && (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Checking S3 stores ({progress.s3.completed} of {progress.s3.total})…</span>
+                </div>
+              )}
             </div>
           )}
           {showAddForm && (
