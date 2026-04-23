@@ -11,6 +11,7 @@ import { DataSource, DataSourceFormat, Service, SourceConfigType } from '@/types
 import { S3Selection, validateS3Url } from '@/utils/s3Utils';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
+import { useLazyServiceCapabilities } from '@/hooks/useLazyServiceCapabilities';
 import S3ServiceConfigSection from './S3ServiceConfigSection';
 
 interface ServiceConfigSectionProps {
