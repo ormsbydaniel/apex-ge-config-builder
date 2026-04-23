@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
@@ -20,9 +20,10 @@ interface ServicesManagerProps {
   services: Service[];
   onAddService: (service: Service) => void;
   onRemoveService: (index: number) => void;
+  onUpdateService?: (id: string, patch: Partial<Service>) => void;
 }
 
-const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesManagerProps) => {
+const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateService }: ServicesManagerProps) => {
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceUrl, setNewServiceUrl] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<SourceConfigType | 'json-upload'>('wms');
@@ -35,6 +36,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService }: ServicesMa
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [detectionResult, setDetectionResult] = useState<DetectionResult | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
 
