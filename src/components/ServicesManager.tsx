@@ -258,28 +258,44 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const handleConfirmRecommendedServices = useCallback(async (selectedServices: Service[]) => {
     setIsAddingSelected(true);
     try {
+      // Add services raw (without capabilities) — bulk validation will pick them up
+      // and run the kind-aware (STAC / OGC / S3) checks with proper fallbacks.
       let addedCount = 0;
-      for (const service of selectedServices) {
+      selectedServices.forEach((service, idx) => {
         try {
-          const sourceType = service.sourceType || (service.format === 'stac' ? 'stac' : 'service');
-          const format = service.format === 's3' ? 'cog' : (service.format || 'wms');
-          await addService(
-            service.name, 
-            service.url, 
-            format as DataSourceFormat | 'stac',
-            sourceType
-          );
+          const sourceType =
+            service.sourceType ||
+            (service.format === 'stac'
+              ? 'stac'
+              : service.format === 's3'
+                ? 's3'
+                : 'service');
+
+          const newService: Service = {
+            ...service,
+            id: service.id || `${sourceType}-service-${Date.now()}-${idx}`,
+            name: service.name?.trim() || service.url,
+            url: service.url.trim(),
+            sourceType,
+            // Strip any pre-existing capabilities so the bulk validator re-checks
+            capabilities: undefined,
+          };
+          onAddService(newService);
           addedCount++;
         } catch (error) {
           console.error(`Failed to add service ${service.name}:`, error);
         }
-      }
+      });
 
       toast({
         title: "Services added",
-        description: `Successfully added ${addedCount} recommended service${addedCount !== 1 ? 's' : ''} with capabilities.`,
-        variant: "default"
+        description: `Added ${addedCount} recommended service${addedCount !== 1 ? 's' : ''}. Validating…`,
+        variant: "default",
       });
+
+      // Kick off unified validation across STAC / OGC / S3 groups.
+      // Defer so onAddService state updates settle first.
+      setTimeout(() => recheck(), 0);
     } catch (error) {
       toast({
         title: "Failed to add services",
@@ -290,7 +306,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
       setIsAddingSelected(false);
       setShowRecommendedModal(false);
     }
-  }, [addService]);
+  }, [onAddService, recheck]);
 
   const getConfigForType = (type: SourceConfigType | 'json-upload') => {
     if (type === 's3') {
