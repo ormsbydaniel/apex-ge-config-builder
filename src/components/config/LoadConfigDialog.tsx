@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import {
   Upload,
@@ -15,9 +14,7 @@ import {
   AlertCircle,
   ChevronRight,
   Check,
-  X,
   CheckCircle2,
-  XCircle,
   Clock,
 } from 'lucide-react';
 import { useConfigImport } from '@/hooks/useConfigIO';
