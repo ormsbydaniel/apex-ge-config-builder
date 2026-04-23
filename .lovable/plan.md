@@ -1,37 +1,76 @@
 
+## Move both Add and Edit Service into a single modal
 
-## Visually distinguish invalid service cards
+### Behaviour
 
-Make failed services in the **Invalid services** section stand out at a glance, in addition to their existing amber error badge.
+Replace the inline "Add New Service" card with a modal dialog that handles both Add and Edit flows. The toolbar **Add Service** button opens the modal in add mode; the pencil icon on any service card opens it in edit mode. One form, one code path, one set of fields.
 
-### Visual treatment
+**Add mode**
+- Title: **Add Service**
+- Description: "Configure a new map service to add to your collection."
+- Service Type selector is **enabled** (user picks STAC, OGC, S3, or one of the file formats).
+- URL and Name fields editable.
+- Footer: **Cancel**, **Add Service**.
 
-When a card is rendered as invalid (`validationStatuses[service.id] === 'error'`):
+**Edit mode**
+- Title: **Edit Service**
+- Description: "Update the name or URL for this service. Service type cannot be changed."
+- Service Type selector is **disabled** (locked to current type).
+- URL and Name fields editable.
+- Footer: **Cancel**, **Save Changes**.
 
-- **Left border**: switch the existing coloured left border (green/purple/blue by source type) to **red** (`border-l-destructive`) — same 4px width, so layout is unchanged.
-- **Background tint**: add a very subtle red wash (`bg-destructive/5`) so the whole card reads as "needs attention" without shouting.
-- **Full border**: add `border-destructive/30` so the right/top/bottom edges also pick up a faint red, framing the card.
-- **Title colour**: keep the source-type colour (purple/green/blue) so users still recognise the service kind at a glance. Only the frame changes.
-- **Icon, badges, buttons**: unchanged. The amber error badge + Retry button continue to do their job inside the card.
+Closing via X, Esc, or overlay click behaves like Cancel (discards changes, clears state).
 
-Valid cards remain exactly as they are today.
+### UI sketch
+
+```text
+┌─ Add Service ─────────────────────── x ┐    ┌─ Edit Service ────────────────────── x ┐
+│ Configure a new map service…           │    │ Update the name or URL…                │
+│                                        │    │                                        │
+│ Service Type                           │    │ Service Type                           │
+│ [ Choose a format          ▼ ]         │    │ [ STAC                     ▼ ] (lock)  │
+│                                        │    │ Service type cannot be changed.        │
+│ Service URL                            │    │                                        │
+│ [ https://...                       ]  │    │ Service URL                            │
+│                                        │    │ [ https://...                       ]  │
+│ Service Name                           │    │                                        │
+│ [ My catalogue                      ]  │    │ Service Name                           │
+│                                        │    │ [ My catalogue                      ]  │
+│             [ Cancel ] [ Add Service ] │    │           [ Cancel ] [ Save Changes ]  │
+└────────────────────────────────────────┘    └────────────────────────────────────────┘
+```
 
 ### Implementation
 
-**Single file: `src/components/ServicesManager.tsx`** — modify `renderServiceCard` (line 654).
+**Single file: `src/components/ServicesManager.tsx`.**
 
-1. Compute `const isInvalid = validationStatuses[service.id] === 'error';` at the top of the helper.
-2. Replace the current `<Card className="border-l-4 ...">` block so the className becomes:
-   ```ts
-   isInvalid
-     ? 'border-l-4 border-l-destructive border-destructive/30 bg-destructive/5'
-     : `border-l-4 ${sourceTypeBorderClass}` // existing green/purple/blue logic
-   ```
-3. No other changes — title colour, icon, badges, action buttons, and the partition logic all stay intact.
+1. **Drop `showAddForm` state.** Replace it with a derived `isFormModalOpen = showAddForm || editingServiceId !== null`, OR keep a single `isFormModalOpen` boolean controlled directly. Simpler: keep `showAddForm` renamed conceptually as "modal open for add"; expose `const isFormModalOpen = showAddForm || editingServiceId !== null`; mode is derived from `editingServiceId !== null`.
+
+2. **Toolbar "Add Service" button** — `onClick` sets `showAddForm = true` (no inline render side effects).
+
+3. **`handleEditService`** — already sets `editingServiceId` plus prefills name/url/format. Remove the `setShowAddForm(true)` line; the modal opens because `editingServiceId !== null`.
+
+4. **`handleAddService`** — unchanged logic (already branches on `editingServiceId` for patch vs add). On success, clear `editingServiceId`, `showAddForm`, and the field state.
+
+5. **`handleCancel`** — clear `editingServiceId`, `showAddForm`, `newServiceName`, `newServiceUrl`, `selectedFormat`. Used by Cancel button and dialog `onOpenChange(false)`.
+
+6. **Delete the inline "Add New Service" card** (the existing block that renders when `showAddForm` is true). Move its three form fields verbatim into a new `<Dialog>`:
+   - `open={isFormModalOpen}`, `onOpenChange={(o) => { if (!o) handleCancel(); }}`.
+   - `DialogContent` (`max-w-2xl`).
+   - `DialogHeader` with title/description switching on `editingServiceId`.
+   - Body: `FormatSelector` (with `disabled={editingServiceId !== null}`), URL input, Name input — same components/handlers used today.
+   - `DialogFooter`: Cancel + primary button (label switches: **Add Service** vs **Save Changes**).
+
+7. **Imports** — add `Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter` from `@/components/ui/dialog`.
+
+### Notes
+
+- The file-upload "Add via JSON/XML" flow stays exactly as-is — it already runs through `ServiceUploadConfirmDialog` and is unrelated to this form.
+- `RecommendedServicesModal` is unchanged.
+- Validation/revalidation on URL change still flows through `useBulkServiceValidation` after `onUpdateService` / `onAddService`.
 
 ### Out of scope
 
-- Changing the amber "validation error" badge styling.
-- Animations / pulse effects on invalid cards.
-- Applying the treatment to `checking` or `idle` states.
-
+- Changing which fields are editable.
+- Restyling the cards or toolbar.
+- Splitting Add and Edit into two separate dialog components — one shared dialog with mode-driven labels keeps the JSX single-sourced.
