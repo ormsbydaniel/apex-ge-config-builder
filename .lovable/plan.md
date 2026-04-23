@@ -1,69 +1,84 @@
 
 
-## What's happening with this catalog
+## Problem
 
-`https://s3.gfz-potsdam.de/.../public/catalog.json` is a **static, hierarchical STAC catalog**:
+Loading a config with many services triggers a `Promise.all` over `fetchServiceCapabilities` (10s timeout each). The dialog gives no feedback — it stays on the upload tab, the "Choose file" button remains active, and the only spinner is a tiny app-wide one outside the modal. Users assume it hung and re-trigger the upload, compounding the problem.
 
-- Root `Catalog` (EOForestSTAC) → 4 child `Catalog`s (Biomass & Carbon, Disturbance & Change, Structure & Demography, Land Use & Land Cover)
-- Each theme `Catalog` → child `Collection`s (e.g. `./CCI_BIOMASS/collection.json`)
-- Each `Collection` → typically items + assets
+## Proposed UX
 
-So yes, child catalogs of catalogs (and potentially deeper) before reaching collections.
+Make the load operation **visible, cancellable, and non-blocking by default**.
 
-## Why our browser fails on it today
+### 1. Progress overlay inside the Load dialog
 
-When `detectAndLoadStacResource` sees `type: "Catalog"`, it calls `fetchCollectionsFromCatalog()`, which **ignores the `links` array** and blindly requests `<baseUrl>/collections?limit=100`. That endpoint only exists on STAC API servers, not static catalogs — it 404s and shows a generic error. We never traverse the `child` links.
+After a file is chosen (or example/GitHub item picked), the dialog content swaps to a **Loading view** (replaces the tabs, same dialog). It shows:
 
-## Proposed update
+- Filename / source label being loaded
+- Stages with checkmarks: `Parsing JSON → Validating schema → Fetching service capabilities (3/12) → Done`
+- A live list of services as they complete: `✓ NDVI WMS`, `⏳ Sentinel-2 WMTS`, `⚠ Land cover (timed out, will use without capabilities)`
+- A determinate `<Progress>` bar driven by completed/total service count
+- Buttons: **Skip remaining** (uses what's loaded so far, keeps services without capabilities) and **Cancel** (aborts entire load, restores previous config)
 
-Teach the browser to walk static catalog hierarchies via `rel: "child"` links, while preserving today's API-style `/collections` behavior.
+The dialog cannot be re-used to pick another file while loading — the file picker / examples / GitHub list are hidden behind this overlay so accidental re-clicks are impossible.
 
-### 1. Detection refinement (`detectAndLoadStacResource`)
+### 2. Parallel-but-bounded capability fetching with per-service progress
 
-When `data.type === 'Catalog'`:
-- If it has `links` with `rel: "child"` → treat as **static catalog**, render those children directly (no network call).
-- Otherwise, fall back to the current `fetchCollectionsFromCatalog()` (API-style).
+Replace the single `Promise.all` in `useConfigImport.ts` with a small concurrency-limited runner (e.g. 4 in flight at once) that emits progress events. For each non-S3/non-STAC service:
 
-### 2. New "catalog browsing" step
+- Start fetch with `fetchServiceCapabilities` (already has a 10s `AbortController`)
+- On settle (success / timeout / error), emit `{ index, name, status }` to the caller
+- A user-triggered `Skip remaining` cancels in-flight `AbortController`s and resolves the queue; services without capabilities are loaded as-is (browsing later still works, capabilities are re-fetched lazily on demand).
 
-Add a third browser mode alongside collections/items/assets: a **catalog navigation view** that renders a list of child entries. For each `child` link:
+This keeps the existing import pipeline intact — only the orchestration changes.
 
-- Resolve the href against the parent catalog URL (reuse `resolveAssetUrl` logic).
-- Show title (from link `title`) + a small badge: **Catalog** or **Collection** (inferred from href ending — `collection.json` → Collection, `catalog.json` → Catalog; on click we fetch and confirm via `type`).
-- Clicking a **Catalog** child → fetch it, push current onto a breadcrumb stack, render its children.
-- Clicking a **Collection** child → fetch it, jump straight into the existing items view (reusing `fetchItems`).
+### 3. Faster default: skip capabilities at load time, fetch lazily
 
-### 3. Breadcrumb / back navigation
+Capabilities are only strictly needed when a user opens a service's layer picker. Add an option (default **on**) to **defer capability fetching**:
 
-- Maintain a `catalogStack: { url: string; title: string }[]` so users can step back up arbitrarily deep hierarchies.
-- The existing `goBack` becomes hierarchy-aware: from items → previous catalog level (not always "collections list").
+- Load completes immediately after Zod validation.
+- Services are stored without `capabilities`.
+- The first time a service is opened in the layer picker / `ServiceCardList` (or when a layer's display name needs capabilities for legend/bbox), `fetchServiceCapabilities` is triggered on-demand and cached into the service via `UPDATE_SERVICE`.
+- A small "Refresh capabilities" action in the services manager triggers a manual refetch.
 
-### 4. Items endpoint for static collections
+Behaviour switch in the load dialog:
 
-Static `Collection` JSONs expose items via `rel: "items"` or `rel: "item"` links rather than `/items?limit=100`. Update `getItemsUrl` (in `src/utils/stacUtils.ts`) to:
-- Prefer a `rel: "items"` link from the collection's `links` array.
-- Fall back to collecting `rel: "item"` links (static catalogs often inline each item as a separate link).
-- Fall back to the current API-style `/collections/{id}/items?limit=100`.
+- **Quick load (default)**: skips capabilities, loads in <1s.
+- **Full load** checkbox: runs the full progress flow above for users who want everything pre-warmed.
 
-When items come from inline `rel: "item"` links, fetch them lazily/in batches (start with first ~50, "Load more" fetches the next batch). This keeps perf in check for large static catalogs.
+This is the biggest UX win — a 50-service config now loads instantly.
 
-### 5. Search behavior
+### 4. API surface changes
 
-- In catalog view, search filters child entries by title (client-side only — no server search on static catalogs).
-- Existing collection/item search remains unchanged for API mode.
+- `useConfigImport.importConfig(file, options?)` and `importConfigFromUrl(url, source?, options?)` accept:
+  ```ts
+  type ImportOptions = {
+    deferCapabilities?: boolean;          // default true
+    onProgress?: (e: ImportProgress) => void;
+    signal?: AbortSignal;                 // for full cancel
+  };
+  type ImportProgress =
+    | { stage: 'parse' | 'validate' | 'normalize' | 'done' }
+    | { stage: 'capabilities'; index: number; total: number; serviceName: string; status: 'pending' | 'ok' | 'error' | 'skipped' };
+  ```
+- Existing callers continue to work (defaults preserve current behaviour where it matters).
 
-### 6. Self-link & external browser links
+### 5. Dialog doesn't auto-close on success when "Full load" is in progress
 
-- Continue using `getSelfLink` / `createStacBrowserUrl` for the current catalog level so users can open it in radiantearth/eoresults browser if desired.
+Closing only happens once the loading view's `Done` stage is reached, so the user sees the final summary (`Loaded 12 services, 2 capabilities skipped`) and dismisses themselves. Quick-load auto-closes as today.
 
-## Out of scope (can follow up)
+### 6. Lazy capability hook
 
-- Caching traversed catalogs in memory across back/forward navigation (nice-to-have for perf).
-- Recursive "Add all assets from this whole subtree" — keep bulk-add scoped to one collection's items as today.
+Add `src/hooks/useLazyServiceCapabilities.ts` — given a `Service`, returns `{ capabilities, isLoading, error, refetch }`. It checks the in-memory service first, otherwise fetches and dispatches `UPDATE_SERVICE` to cache. Used by `ServiceCardList` / `ServiceSelectionModal` consumers that previously assumed capabilities were always present.
+
+### Out of scope
+
+- Persisting capabilities to localStorage between sessions (can follow up).
+- Background prefetching of capabilities after load completes (optional follow-up — could run silently with the same concurrency runner).
 
 ## Files touched
 
-- `src/components/layers/components/StacBrowser.tsx` — new catalog-stack state, catalog rendering branch, breadcrumb/back logic, route to items when clicking a Collection child.
-- `src/utils/stacUtils.ts` — extend `getItemsUrl` to prefer `rel: "items"` / aggregate `rel: "item"` links; small helper `getChildLinks(links)` and `inferChildKind(href)`.
-- (No schema/type changes needed.)
+- `src/hooks/useConfigImport.ts` — add `ImportOptions`, replace `Promise.all` with bounded concurrency runner, emit progress, support `signal` for cancel, default `deferCapabilities: true`.
+- `src/components/config/LoadConfigDialog.tsx` — add Loading view (progress bar, per-service list, Skip/Cancel buttons), "Full load" checkbox, hold dialog open during full load, wire `onProgress` + `AbortController`.
+- `src/hooks/useLazyServiceCapabilities.ts` *(new)* — on-demand capability fetch + cache via `UPDATE_SERVICE`.
+- `src/components/form/ServiceConfigSection.tsx` and `src/components/layers/components/ServiceSelectionModals.tsx` — call the lazy hook so layer picker still works when capabilities weren't pre-fetched. Show small inline spinner the first time a service is opened post-deferred-load.
+- `src/contexts/ConfigContext.tsx` — ensure `UPDATE_SERVICE` (or add it if missing) merges `capabilities` into the existing service entry without disturbing other fields.
 
