@@ -256,6 +256,10 @@ export const useBulkServiceValidation = (
   useEffect(() => {
     if (!enabled) return;
     if (validatedForLoadRef.current === lastLoaded) return;
+    // New config (or first load): clear stale status cache so badges from a
+    // previous config don't bleed into this one.
+    cachedStatuses = {};
+    setStatuses({});
     validatedForLoadRef.current = lastLoaded;
     lastValidatedLoad = lastLoaded;
 
