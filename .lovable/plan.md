@@ -1,76 +1,67 @@
 
-## Move both Add and Edit Service into a single modal
+## Add a "Validate" button to the Add / Edit Service modal
 
 ### Behaviour
 
-Replace the inline "Add New Service" card with a modal dialog that handles both Add and Edit flows. The toolbar **Add Service** button opens the modal in add mode; the pencil icon on any service card opens it in edit mode. One form, one code path, one set of fields.
+Add a **Validate** button to the modal footer (between Cancel and the primary Add/Save button) that lets the user check whether the URL works **before** committing the service. Result is shown inline above the footer so the user can see it without leaving the dialog.
 
-**Add mode**
-- Title: **Add Service**
-- Description: "Configure a new map service to add to your collection."
-- Service Type selector is **enabled** (user picks STAC, OGC, S3, or one of the file formats).
-- URL and Name fields editable.
-- Footer: **Cancel**, **Add Service**.
+**Available when**: any non-`json-upload` mode (Add or Edit), and `newServiceUrl.trim()` is non-empty.
 
-**Edit mode**
-- Title: **Edit Service**
-- Description: "Update the name or URL for this service. Service type cannot be changed."
-- Service Type selector is **disabled** (locked to current type).
-- URL and Name fields editable.
-- Footer: **Cancel**, **Save Changes**.
+**Disabled when**: URL empty, `json-upload` selected, or a validation is currently running.
 
-Closing via X, Esc, or overlay click behaves like Cancel (discards changes, clears state).
+### Validation logic
 
-### UI sketch
+Reuse the same kind-aware probes the bulk validator uses, so behaviour matches what the cards show after save:
 
-```text
-┌─ Add Service ─────────────────────── x ┐    ┌─ Edit Service ────────────────────── x ┐
-│ Configure a new map service…           │    │ Update the name or URL…                │
-│                                        │    │                                        │
-│ Service Type                           │    │ Service Type                           │
-│ [ Choose a format          ▼ ]         │    │ [ STAC                     ▼ ] (lock)  │
-│                                        │    │ Service type cannot be changed.        │
-│ Service URL                            │    │                                        │
-│ [ https://...                       ]  │    │ Service URL                            │
-│                                        │    │ [ https://...                       ]  │
-│ Service Name                           │    │                                        │
-│ [ My catalogue                      ]  │    │ Service Name                           │
-│                                        │    │ [ My catalogue                      ]  │
-│             [ Cancel ] [ Add Service ] │    │           [ Cancel ] [ Save Changes ]  │
-└────────────────────────────────────────┘    └────────────────────────────────────────┘
+- **STAC** (`selectedFormat === 'stac'`): `fetch(url)` → expect JSON with `type` / `conformsTo` / `links` etc. Treat `ok` HTTP + parseable JSON as valid.
+- **S3** (`selectedFormat === 's3'`): use existing `parseS3Url` + a HEAD/GET to the bucket listing endpoint. Treat 2xx/3xx as reachable.
+- **OGC** (`wms` / `wmts` / `wfs`): GET the URL with `?service=…&request=GetCapabilities` appended (mirroring `useBulkServiceValidation`'s OGC probe). Treat XML response with no `ServiceException` as valid.
+
+To avoid duplicating logic, **extract a single-service probe** from `useBulkServiceValidation`:
+
+- New helper: `validateSingleService(url: string, kind: 'stac' | 'ogc' | 's3'): Promise<{ ok: boolean; message: string }>` in `src/hooks/useBulkServiceValidation.ts` (or a new `src/utils/serviceProbes.ts` if cleaner — preferred to keep the hook focused). Export it.
+- The hook's existing per-kind probe functions get refactored to call this helper so there is exactly one implementation.
+
+### UI
+
+Modal footer becomes:
+
+```
+[ Inline result row, only when present ]
+  ✓ Reachable — STAC catalogue responded (1 collection)
+  ✗ Couldn't fetch capabilities — HTTP 404
+  ⏳ Validating…
+
+[ Cancel ] [ Validate ] [ Add Service / Save Changes ]
 ```
 
-### Implementation
+- Result row uses `text-emerald-600` for success, `text-destructive` for failure, `text-muted-foreground` for in-progress, all with appropriate lucide icons (`Check`, `AlertTriangle`, `Loader2`).
+- Result clears automatically when the URL or Service Type changes (so a stale "valid" badge can't sit next to a freshly-edited URL).
+- Validate button shows `Loader2` spinner + "Validating…" while in-flight.
 
-**Single file: `src/components/ServicesManager.tsx`.**
+### State (in `ServicesManager.tsx`)
 
-1. **Drop `showAddForm` state.** Replace it with a derived `isFormModalOpen = showAddForm || editingServiceId !== null`, OR keep a single `isFormModalOpen` boolean controlled directly. Simpler: keep `showAddForm` renamed conceptually as "modal open for add"; expose `const isFormModalOpen = showAddForm || editingServiceId !== null`; mode is derived from `editingServiceId !== null`.
+```ts
+const [validateState, setValidateState] = useState<
+  | { status: 'idle' }
+  | { status: 'checking' }
+  | { status: 'ok'; message: string }
+  | { status: 'error'; message: string }
+>({ status: 'idle' });
+```
 
-2. **Toolbar "Add Service" button** — `onClick` sets `showAddForm = true` (no inline render side effects).
-
-3. **`handleEditService`** — already sets `editingServiceId` plus prefills name/url/format. Remove the `setShowAddForm(true)` line; the modal opens because `editingServiceId !== null`.
-
-4. **`handleAddService`** — unchanged logic (already branches on `editingServiceId` for patch vs add). On success, clear `editingServiceId`, `showAddForm`, and the field state.
-
-5. **`handleCancel`** — clear `editingServiceId`, `showAddForm`, `newServiceName`, `newServiceUrl`, `selectedFormat`. Used by Cancel button and dialog `onOpenChange(false)`.
-
-6. **Delete the inline "Add New Service" card** (the existing block that renders when `showAddForm` is true). Move its three form fields verbatim into a new `<Dialog>`:
-   - `open={isFormModalOpen}`, `onOpenChange={(o) => { if (!o) handleCancel(); }}`.
-   - `DialogContent` (`max-w-2xl`).
-   - `DialogHeader` with title/description switching on `editingServiceId`.
-   - Body: `FormatSelector` (with `disabled={editingServiceId !== null}`), URL input, Name input — same components/handlers used today.
-   - `DialogFooter`: Cancel + primary button (label switches: **Add Service** vs **Save Changes**).
-
-7. **Imports** — add `Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter` from `@/components/ui/dialog`.
-
-### Notes
-
-- The file-upload "Add via JSON/XML" flow stays exactly as-is — it already runs through `ServiceUploadConfirmDialog` and is unrelated to this form.
-- `RecommendedServicesModal` is unchanged.
-- Validation/revalidation on URL change still flows through `useBulkServiceValidation` after `onUpdateService` / `onAddService`.
+- `useEffect` watching `[newServiceUrl, selectedFormat]` resets it to `{ status: 'idle' }`.
+- `handleCancel` resets it.
+- After a successful Add/Save, modal closes so reset isn't strictly needed, but reset on close anyway for cleanliness.
 
 ### Out of scope
 
-- Changing which fields are editable.
-- Restyling the cards or toolbar.
-- Splitting Add and Edit into two separate dialog components — one shared dialog with mode-driven labels keeps the JSX single-sourced.
+- Blocking save on a failed validation (user can still save — they may know better, e.g. CORS-only failures).
+- Validating during the JSON/XML upload flow (already validated by the parser).
+- Persisting the validation result onto the service object — bulk validation runs on save and updates the card badge as today.
+- Changing the bulk validation hook's public API beyond extracting the shared probe helper.
+
+### Files
+
+- **Edit**: `src/components/ServicesManager.tsx` — add state, button, inline result, effect.
+- **Edit (small refactor)**: `src/hooks/useBulkServiceValidation.ts` — extract single-service probe helper and re-use it internally; export it.
