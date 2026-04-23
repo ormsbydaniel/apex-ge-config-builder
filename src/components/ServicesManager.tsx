@@ -784,7 +784,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                   </div>
                 </CardContent>
               </Card>
-            );
+              );
+            };
 
             return (
               <>
