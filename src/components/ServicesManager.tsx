@@ -14,6 +14,7 @@ import { useServices } from '@/hooks/useServices';
 import { useBulkServiceValidation, ServiceKind } from '@/hooks/useBulkServiceValidation';
 import { parseS3Url } from '@/utils/s3Utils';
 import { validateSingleService, ProbeKind } from '@/utils/serviceProbes';
+import { parseGetCapabilitiesTitle } from '@/utils/getCapabilitiesTitle';
 
 // Mirror of classify() in useBulkServiceValidation — keep in sync.
 const classifyService = (svc: Service): ServiceKind | null => {
@@ -137,21 +138,39 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) > 0);
   const showSummaryPanel = !dismissed && summaryHasAny;
 
-  // Auto-populate STAC service name after user pauses typing URL
+  // Auto-populate service name after user pauses typing URL (STAC + WMS/WMTS/WFS)
   useEffect(() => {
-    if (selectedFormat !== 'stac') return;
     const url = newServiceUrl.trim();
     if (!url) return;
+    if (
+      selectedFormat !== 'stac' &&
+      selectedFormat !== 'wms' &&
+      selectedFormat !== 'wmts' &&
+      selectedFormat !== 'wfs'
+    ) {
+      return;
+    }
     const controller = new AbortController();
     const handle = setTimeout(async () => {
       try {
         setAutoNameLoading(true);
-        const res = await fetch(url, { signal: controller.signal });
-        if (!res.ok) return;
-        const json = await res.json();
-        const title = json.title || json.id;
-        if (title && !newServiceName.trim()) {
-          setNewServiceName(title);
+        if (selectedFormat === 'stac') {
+          const res = await fetch(url, { signal: controller.signal });
+          if (!res.ok) return;
+          const json = await res.json();
+          const title = json.title || json.id;
+          if (title && !newServiceName.trim()) {
+            setNewServiceName(title);
+          }
+        } else {
+          const title = await parseGetCapabilitiesTitle(
+            url,
+            selectedFormat as 'wms' | 'wmts' | 'wfs',
+            controller.signal
+          );
+          if (title && !newServiceName.trim()) {
+            setNewServiceName(title);
+          }
         }
       } catch (_) {
         // ignore typing cancellations/errors
