@@ -158,6 +158,21 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
             });
           }
         });
+      } else if (format === 'wfs') {
+        // WFS 2.0.0: FeatureType elements under FeatureTypeList
+        const featureTypes = xmlDoc.querySelectorAll('FeatureType');
+        featureTypes.forEach(ft => {
+          const nameEl = ft.querySelector('Name');
+          const titleEl = ft.querySelector('Title');
+          const abstractEl = ft.querySelector('Abstract');
+          if (nameEl?.textContent) {
+            layers.push({
+              name: nameEl.textContent,
+              title: titleEl?.textContent || nameEl.textContent,
+              abstract: abstractEl?.textContent,
+            });
+          }
+        });
       }
 
     return {
