@@ -33,14 +33,16 @@ interface ServiceSelectionModalProps {
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats, sourceContext = 'data' }: ServiceSelectionModalProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Compute lazy-load eligibility from raw inputs so hooks always run in the same order.
+  const isS3ServiceRaw = service?.sourceType === 's3' || (!!service?.url && validateS3Url(service.url));
+  const isStacServiceRaw = service?.sourceType === 'stac';
+  const shouldLazyLoad = !!service && isOpen && !isS3ServiceRaw && !isStacServiceRaw;
+  const { isLoading: capsLoading } = useLazyServiceCapabilities(service, shouldLazyLoad);
+
   if (!service) return null;
 
-  const isS3Service = service.sourceType === 's3' || validateS3Url(service.url);
-  const isStacService = service.sourceType === 'stac';
-
-  // Lazy-fetch capabilities only for non-S3 / non-STAC services that don't already have them.
-  const shouldLazyLoad = isOpen && !isS3Service && !isStacService;
-  const { isLoading: capsLoading } = useLazyServiceCapabilities(service, shouldLazyLoad);
+  const isS3Service = isS3ServiceRaw;
+  const isStacService = isStacServiceRaw;
 
   const handleS3ObjectSelect = (selection: S3Selection | S3Selection[]) => {
     if (Array.isArray(selection)) {
