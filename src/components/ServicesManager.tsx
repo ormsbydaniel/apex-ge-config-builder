@@ -6,11 +6,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle, X, Check } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
-import { useBulkServiceValidation } from '@/hooks/useBulkServiceValidation';
+import { useBulkServiceValidation, ServiceKind } from '@/hooks/useBulkServiceValidation';
+import { parseS3Url } from '@/utils/s3Utils';
+
+// Mirror of classify() in useBulkServiceValidation — keep in sync.
+const classifyService = (svc: Service): ServiceKind | null => {
+  if (!svc.url) return null;
+  if (svc.format === 'stac' || svc.sourceType === 'stac') return 'stac';
+  if (svc.format === 's3' || svc.sourceType === 's3') return 's3';
+  if (parseS3Url(svc.url) !== null) return 's3';
+  if (svc.format === 'wms' || svc.format === 'wmts' || svc.format === 'wfs') return 'ogc';
+  return null;
+};
 import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
