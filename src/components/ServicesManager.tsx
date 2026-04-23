@@ -344,11 +344,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         }
       });
 
-      toast({
-        title: "Services added",
-        description: `Added ${addedCount} recommended service${addedCount !== 1 ? 's' : ''}. Validating…`,
-        variant: "default",
-      });
+
+
 
       // Kick off unified validation across STAC / OGC / S3 groups.
       // Defer so onAddService state updates settle first.
