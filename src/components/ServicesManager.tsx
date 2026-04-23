@@ -574,19 +574,53 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                         {service.capabilities?.title && (
                           <p className="text-sm text-slate-600 mb-2">{service.capabilities.title}</p>
                         )}
-                        {service.capabilities?.layers.length ? (
-                          <Badge variant="outline" className="border-green-300 text-green-700">
-                            {service.capabilities.layers.length} {
-                              service.sourceType === 's3' ? 'objects' : 
-                              service.sourceType === 'stac' ? 'collections' : 
-                              'layers'
-                            } available
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="border-orange-300 text-orange-700">
-                            Manual configuration required
-                          </Badge>
-                        )}
+                        {(() => {
+                          const status = validationStatuses[service.id];
+                          const layerCount = service.capabilities?.layers.length;
+                          if (status === 'checking') {
+                            return (
+                              <Badge variant="outline" className="border-primary/40 text-primary">
+                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                Checking…
+                              </Badge>
+                            );
+                          }
+                          if (layerCount) {
+                            return (
+                              <Badge variant="outline" className="border-green-300 text-green-700">
+                                {layerCount} {
+                                  service.sourceType === 's3' ? 'objects' :
+                                  service.sourceType === 'stac' ? 'collections' :
+                                  'layers'
+                                } available
+                              </Badge>
+                            );
+                          }
+                          if (status === 'error') {
+                            return (
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="border-amber-300 text-amber-700">
+                                  <AlertTriangle className="h-3 w-3 mr-1" />
+                                  Couldn't fetch capabilities
+                                </Badge>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
+                                  onClick={() => recheck(service.id)}
+                                >
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  Retry
+                                </Button>
+                              </div>
+                            );
+                          }
+                          return (
+                            <Badge variant="outline" className="border-orange-300 text-orange-700">
+                              Manual configuration required
+                            </Badge>
+                          );
+                        })()}
                       </div>
                       <div className="flex items-center gap-1">
                         {onUpdateService && (
