@@ -39,9 +39,18 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const [detectionResult, setDetectionResult] = useState<DetectionResult | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [pendingRecheck, setPendingRecheck] = useState(false);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
+
+  // After adding recommended services, defer recheck() until services state has updated
+  // so the hook's closure sees the newly added items.
+  useEffect(() => {
+    if (!pendingRecheck) return;
+    recheck();
+    setPendingRecheck(false);
+  }, [pendingRecheck, services.length, recheck]);
 
   // Auto-populate STAC service name after user pauses typing URL
   useEffect(() => {
@@ -295,7 +304,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
       // Kick off unified validation across STAC / OGC / S3 groups.
       // Defer so onAddService state updates settle first.
-      setTimeout(() => recheck(), 0);
+      setPendingRecheck(true);
     } catch (error) {
       toast({
         title: "Failed to add services",
