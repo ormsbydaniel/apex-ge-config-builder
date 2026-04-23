@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-04-23",
+    title: "Performance improvements to config load.  Services validation.",
+    category: "Improvement",
+  },
+  {
     date: "2026-04-17",
     title: "Config load UI with Upload, Examples and GitHub config pickers",
     category: "Feature",
