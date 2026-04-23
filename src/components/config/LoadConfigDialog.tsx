@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
+
 import { Progress } from '@/components/ui/progress';
 import {
   Upload,
@@ -17,7 +17,6 @@ import {
   Check,
   X,
   CheckCircle2,
-  XCircle,
   Clock,
 } from 'lucide-react';
 import { useConfigImport } from '@/hooks/useConfigIO';
@@ -40,12 +39,7 @@ interface TreeEntry {
   size?: number;
 }
 
-type Stage = 'idle' | 'parse' | 'normalize' | 'validate' | 'capabilities' | 'done';
-
-interface ServiceProgressEntry {
-  name: string;
-  status: 'pending' | 'ok' | 'error' | 'skipped';
-}
+type Stage = 'idle' | 'parse' | 'normalize' | 'validate' | 'done';
 
 const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps) => {
   const { importConfig, importConfigFromUrl } = useConfigImport();
@@ -69,13 +63,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   const [isLoading, setIsLoading] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState<string>('');
   const [stage, setStage] = useState<Stage>('idle');
-  const [serviceProgress, setServiceProgress] = useState<ServiceProgressEntry[]>([]);
-  const [progressTotal, setProgressTotal] = useState(0);
-  const [progressDone, setProgressDone] = useState(0);
-  const [fullLoad, setFullLoad] = useState(false);
-  const [summary, setSummary] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const skippedRef = useRef(false);
 
   // Reset state on open
   useEffect(() => {
@@ -84,11 +72,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       setSearch('');
       setIsLoading(false);
       setStage('idle');
-      setServiceProgress([]);
-      setProgressDone(0);
-      setProgressTotal(0);
-      setSummary(null);
-      skippedRef.current = false;
     }
   }, [open]);
 
@@ -146,24 +129,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   }, [open, activeTab, repo, branch]);
 
   const handleProgress = (e: ImportProgress) => {
-    if (e.stage === 'capabilities') {
-      setStage('capabilities');
-      setProgressTotal(e.total);
-      setServiceProgress((prev) => {
-        const next = [...prev];
-        // Initialize entry for this service if not present
-        const existingIdx = next.findIndex((s) => s.name === e.serviceName);
-        if (existingIdx === -1) {
-          next.push({ name: e.serviceName, status: e.status });
-        } else {
-          next[existingIdx] = { name: e.serviceName, status: e.status };
-        }
-        return next;
-      });
-      if (e.status === 'ok' || e.status === 'error' || e.status === 'skipped') {
-        setProgressDone((prev) => prev + 1);
-      }
-    } else {
+    if (e.stage !== 'capabilities') {
       setStage(e.stage as Stage);
     }
   };
@@ -172,11 +138,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     setIsLoading(true);
     setLoadingLabel(label);
     setStage('parse');
-    setServiceProgress([]);
-    setProgressDone(0);
-    setProgressTotal(0);
-    setSummary(null);
-    skippedRef.current = false;
     abortRef.current = new AbortController();
   };
 
@@ -184,8 +145,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     success: boolean,
     errors?: ValidationErrorDetails[],
     fileName?: string,
-    capabilitiesAttempted?: number,
-    capabilitiesSkipped?: number,
   ) => {
     setIsLoading(false);
     abortRef.current = null;
@@ -195,18 +154,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       return;
     }
     if (success) {
-      // For full-load, hold dialog open with summary; for quick-load, auto-close
-      if (fullLoad && capabilitiesAttempted && capabilitiesAttempted > 0) {
-        const okCount = capabilitiesAttempted - (capabilitiesSkipped || 0);
-        setSummary(
-          `Loaded ${capabilitiesAttempted} services — ${okCount} capabilities fetched${
-            capabilitiesSkipped ? `, ${capabilitiesSkipped} skipped` : ''
-          }.`,
-        );
-        setStage('done');
-      } else {
-        onOpenChange(false);
-      }
+      onOpenChange(false);
     }
   };
 
@@ -215,12 +163,11 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     if (!file) return;
     startLoading(file.name);
     const result = await importConfig(file, {
-      deferCapabilities: !fullLoad,
       onProgress: handleProgress,
       signal: abortRef.current?.signal,
     });
     if (fileInputRef.current) fileInputRef.current.value = '';
-    finishLoading(result.success, result.errors, file.name, result.capabilitiesAttempted, result.capabilitiesSkipped);
+    finishLoading(result.success, result.errors, file.name);
   };
 
   const handleLoadExample = async (exampleName?: string) => {
@@ -230,12 +177,11 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       '/examples/test-config.json',
       { type: 'example', label },
       {
-        deferCapabilities: !fullLoad,
         onProgress: handleProgress,
         signal: abortRef.current?.signal,
       },
     );
-    finishLoading(result.success, result.errors, 'test-config.json', result.capabilitiesAttempted, result.capabilitiesSkipped);
+    finishLoading(result.success, result.errors, 'test-config.json');
   };
 
   const handleLoadFromGithub = async (path: string) => {
@@ -245,24 +191,15 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       rawUrl,
       { type: 'github', label: `${repo}@${branch}/${path}` },
       {
-        deferCapabilities: !fullLoad,
         onProgress: handleProgress,
         signal: abortRef.current?.signal,
       },
     );
-    finishLoading(result.success, result.errors, path, result.capabilitiesAttempted, result.capabilitiesSkipped);
-  };
-
-  const handleSkipRemaining = () => {
-    skippedRef.current = true;
-    abortRef.current?.abort();
+    finishLoading(result.success, result.errors, path);
   };
 
   const handleCancel = () => {
     abortRef.current?.abort();
-    // Cancel hides the dialog without changing config (the in-flight load may still call LOAD_CONFIG;
-    // realistically users only cancel mid-capabilities so config will still be loaded — this acts as
-    // "skip remaining + close").
     onOpenChange(false);
   };
 
@@ -300,21 +237,17 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   // ---- Loading view subcomponent ----
   const renderLoadingView = () => {
     const stageReached = (s: Stage): boolean => {
-      const order: Stage[] = ['parse', 'normalize', 'validate', 'capabilities', 'done'];
+      const order: Stage[] = ['parse', 'normalize', 'validate', 'done'];
       return order.indexOf(stage) >= order.indexOf(s);
     };
     const progressPct =
       stage === 'done'
         ? 100
-        : progressTotal > 0
-          ? Math.round((progressDone / progressTotal) * 100)
-          : stage === 'capabilities'
-            ? 50
-            : stageReached('validate')
-              ? 30
-              : stageReached('normalize')
-                ? 20
-                : 10;
+        : stageReached('validate')
+          ? 60
+          : stageReached('normalize')
+            ? 40
+            : 20;
 
     const StageRow = ({ s, label }: { s: Stage; label: string }) => {
       const reached = stageReached(s);
@@ -337,11 +270,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       <div className="flex-1 min-h-0 flex flex-col gap-4 mt-2">
         <div className="space-y-1">
           <div className="text-sm font-medium truncate">Loading {loadingLabel}</div>
-          <div className="text-xs text-muted-foreground">
-            {fullLoad
-              ? 'Full load: fetching service capabilities…'
-              : 'Quick load: capabilities will be fetched on demand.'}
-          </div>
         </div>
 
         <Progress value={progressPct} className="h-2" />
@@ -350,60 +278,17 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           <StageRow s="parse" label="Parsing JSON" />
           <StageRow s="normalize" label="Normalizing structure" />
           <StageRow s="validate" label="Validating schema" />
-          {fullLoad && (
-            <StageRow
-              s="capabilities"
-              label={
-                progressTotal > 0
-                  ? `Fetching service capabilities (${progressDone}/${progressTotal})`
-                  : 'Fetching service capabilities'
-              }
-            />
-          )}
           <StageRow s="done" label="Done" />
         </div>
 
-        {fullLoad && serviceProgress.length > 0 && (
-          <div className="border border-border rounded-lg flex-1 min-h-0 overflow-y-auto">
-            <ul className="divide-y divide-border">
-              {serviceProgress.map((sp) => (
-                <li key={sp.name} className="flex items-center gap-2 px-3 py-1.5 text-xs">
-                  {sp.status === 'pending' && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
-                  {sp.status === 'ok' && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
-                  {sp.status === 'error' && <XCircle className="h-3.5 w-3.5 text-destructive" />}
-                  {sp.status === 'skipped' && <X className="h-3.5 w-3.5 text-muted-foreground" />}
-                  <span className="truncate flex-1">{sp.name}</span>
-                  <span className="text-muted-foreground capitalize">{sp.status}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {summary && (
-          <div className="rounded-md bg-muted/40 border border-border p-3 text-sm">{summary}</div>
-        )}
-
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-          {stage === 'done' ? (
-            <Button onClick={() => onOpenChange(false)}>Close</Button>
-          ) : (
-            <>
-              {stage === 'capabilities' && (
-                <Button variant="outline" onClick={handleSkipRemaining}>
-                  Skip remaining
-                </Button>
-              )}
-              <Button variant="ghost" onClick={handleCancel}>
-                Cancel
-              </Button>
-            </>
-          )}
+          <Button variant="ghost" onClick={handleCancel}>
+            Cancel
+          </Button>
         </div>
       </div>
     );
   };
-
   return (
     <Dialog
       open={open}
@@ -431,16 +316,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           renderLoadingView()
         ) : (
           <>
-            <div className="flex items-center gap-2 pt-1">
-              <Checkbox
-                id="full-load"
-                checked={fullLoad}
-                onCheckedChange={(v) => setFullLoad(v === true)}
-              />
-              <label htmlFor="full-load" className="text-xs text-muted-foreground cursor-pointer">
-                Full load (pre-fetch all service capabilities — slower for large configs)
-              </label>
-            </div>
 
             <Tabs
               value={activeTab}
