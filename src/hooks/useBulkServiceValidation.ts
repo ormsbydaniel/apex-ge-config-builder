@@ -198,6 +198,7 @@ export const useBulkServiceValidation = (
             });
             setStatus(svc.id, 'ok');
           } else {
+            dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
             setStatus(svc.id, 'error');
           }
         } finally {
@@ -205,6 +206,7 @@ export const useBulkServiceValidation = (
         }
       }
     } catch {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('s3', { inFlight: -1, completed: 1 });
