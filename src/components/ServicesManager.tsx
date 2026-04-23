@@ -152,22 +152,36 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
       // File upload is handled separately
       return;
     }
-    
-    if (newServiceUrl.trim()) {
-      if (selectedFormat === 's3') {
-        // For S3, create a service with a placeholder format since the actual format will be determined by file extension
-        await addService(newServiceName, newServiceUrl, 'cog', 's3');
-      } else if (selectedFormat === 'stac') {
-        // For STAC, the service name will be auto-populated from catalogue title
-        await addService(newServiceName, newServiceUrl, 'stac', 'stac');
-      } else {
-        await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat, 'service');
-      }
+
+    if (!newServiceUrl.trim()) return;
+
+    // Edit mode: patch existing service (name + url only)
+    if (editingServiceId && onUpdateService) {
+      onUpdateService(editingServiceId, {
+        name: newServiceName,
+        url: newServiceUrl,
+      });
+      setEditingServiceId(null);
       setNewServiceName('');
       setNewServiceUrl('');
       setUploadedFile(null);
       setShowAddForm(false);
+      return;
     }
+
+    if (selectedFormat === 's3') {
+      // For S3, create a service with a placeholder format since the actual format will be determined by file extension
+      await addService(newServiceName, newServiceUrl, 'cog', 's3');
+    } else if (selectedFormat === 'stac') {
+      // For STAC, the service name will be auto-populated from catalogue title
+      await addService(newServiceName, newServiceUrl, 'stac', 'stac');
+    } else {
+      await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat, 'service');
+    }
+    setNewServiceName('');
+    setNewServiceUrl('');
+    setUploadedFile(null);
+    setShowAddForm(false);
   };
 
   const handleCancel = () => {
@@ -176,6 +190,26 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     setUploadedFile(null);
     setDetectionResult(null);
     setShowAddForm(false);
+    setEditingServiceId(null);
+  };
+
+  const handleEditService = (service: Service) => {
+    // Derive the form's "selectedFormat" from the existing service for display only.
+    // (Service Type is locked in edit mode, so this value isn't used for dispatch.)
+    let formatForForm: SourceConfigType | 'json-upload';
+    if (service.sourceType === 's3') {
+      formatForForm = 's3';
+    } else if (service.sourceType === 'stac') {
+      formatForForm = 'stac';
+    } else {
+      formatForForm = (service.format as SourceConfigType) || 'wms';
+    }
+
+    setEditingServiceId(service.id);
+    setSelectedFormat(formatForForm);
+    setNewServiceName(service.name);
+    setNewServiceUrl(service.url);
+    setShowAddForm(true);
   };
 
   const handleAddRecommendedServices = async () => {
