@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
+import { useBulkServiceValidation } from '@/hooks/useBulkServiceValidation';
 import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
@@ -21,9 +22,10 @@ interface ServicesManagerProps {
   onAddService: (service: Service) => void;
   onRemoveService: (index: number) => void;
   onUpdateService?: (id: string, patch: Partial<Service>) => void;
+  isActive?: boolean;
 }
 
-const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateService }: ServicesManagerProps) => {
+const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateService, isActive = true }: ServicesManagerProps) => {
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceUrl, setNewServiceUrl] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<SourceConfigType | 'json-upload'>('wms');
@@ -39,6 +41,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
+  const { statuses: validationStatuses, inFlight, totalToCheck, completed, recheck } = useBulkServiceValidation(services, isActive);
 
   // Auto-populate STAC service name after user pauses typing URL
   useEffect(() => {
@@ -312,7 +315,17 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               Configured Services
             </div>
             <div className="flex items-center gap-2">
-              <Button 
+              <Button
+                onClick={() => recheck()}
+                variant="outline"
+                disabled={inFlight > 0 || services.every(s => s.format === 's3' || s.format === 'stac' || s.sourceType === 's3' || s.sourceType === 'stac')}
+                className="border-primary/30"
+                title="Re-fetch capabilities for all WMS/WMTS services"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${inFlight > 0 ? 'animate-spin' : ''}`} />
+                Re-check all
+              </Button>
+              <Button
                 onClick={handleAddRecommendedServices}
                 variant="outline"
                 disabled={isLoadingRecommended || showAddForm}
@@ -321,8 +334,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                 <Download className="h-4 w-4 mr-2" />
                 {isLoadingRecommended ? 'Loading...' : 'Add Recommended Services'}
               </Button>
-              <Button 
-                onClick={() => setShowAddForm(true)} 
+              <Button
+                onClick={() => setShowAddForm(true)}
                 className="bg-primary hover:bg-primary/90"
                 disabled={showAddForm}
               >
@@ -336,6 +349,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {inFlight > 0 && (
+            <div className="mb-4 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Checking {completed} of {totalToCheck} service{totalToCheck !== 1 ? 's' : ''}…</span>
+            </div>
+          )}
           {showAddForm && (
             <Card className="border-primary/30 mb-6">
               <CardHeader className="pb-4">
@@ -555,19 +574,53 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                         {service.capabilities?.title && (
                           <p className="text-sm text-slate-600 mb-2">{service.capabilities.title}</p>
                         )}
-                        {service.capabilities?.layers.length ? (
-                          <Badge variant="outline" className="border-green-300 text-green-700">
-                            {service.capabilities.layers.length} {
-                              service.sourceType === 's3' ? 'objects' : 
-                              service.sourceType === 'stac' ? 'collections' : 
-                              'layers'
-                            } available
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="border-orange-300 text-orange-700">
-                            Manual configuration required
-                          </Badge>
-                        )}
+                        {(() => {
+                          const status = validationStatuses[service.id];
+                          const layerCount = service.capabilities?.layers.length;
+                          if (status === 'checking') {
+                            return (
+                              <Badge variant="outline" className="border-primary/40 text-primary">
+                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                Checking…
+                              </Badge>
+                            );
+                          }
+                          if (layerCount) {
+                            return (
+                              <Badge variant="outline" className="border-green-300 text-green-700">
+                                {layerCount} {
+                                  service.sourceType === 's3' ? 'objects' :
+                                  service.sourceType === 'stac' ? 'collections' :
+                                  'layers'
+                                } available
+                              </Badge>
+                            );
+                          }
+                          if (status === 'error') {
+                            return (
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="border-amber-300 text-amber-700">
+                                  <AlertTriangle className="h-3 w-3 mr-1" />
+                                  Couldn't fetch capabilities
+                                </Badge>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
+                                  onClick={() => recheck(service.id)}
+                                >
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  Retry
+                                </Button>
+                              </div>
+                            );
+                          }
+                          return (
+                            <Badge variant="outline" className="border-orange-300 text-orange-700">
+                              Manual configuration required
+                            </Badge>
+                          );
+                        })()}
                       </div>
                       <div className="flex items-center gap-1">
                         {onUpdateService && (
