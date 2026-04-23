@@ -635,159 +635,170 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               <h3 className="text-lg font-medium mb-2">No services configured yet</h3>
               <p className="mb-4">Add your first WMS, WMTS, S3, or STAC service to get started</p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {services
-                .slice()
-                .sort((a, b) => {
-                  // Priority-based sorting
-                  const getPriority = (service: Service) => {
-                    if (service.sourceType === 'stac') return 1;
-                    if (service.format === 'wms' || service.format === 'wmts') return 2;
-                    if (service.sourceType === 's3') return 3;
-                    return 4;
-                  };
-                  
-                  const priorityA = getPriority(a);
-                  const priorityB = getPriority(b);
-                  
-                  if (priorityA !== priorityB) {
-                    return priorityA - priorityB;
-                  }
-                  
-                  return a.name.localeCompare(b.name);
-                })
-                .map((service, index) => (
-                <Card key={service.id} className={`border-l-4 ${
-                  service.sourceType === 's3' ? 'border-l-green-500' : 
-                  service.sourceType === 'stac' ? 'border-l-purple-500' : 
-                  'border-l-blue-500'
-                }`}>
-                  <CardContent className="pt-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {service.sourceType === 's3' ? (
-                            <Database className="h-4 w-4 text-green-600" />
-                          ) : service.sourceType === 'stac' ? (
-                            <Server className="h-4 w-4 text-purple-600" />
-                          ) : (
-                            <Globe className="h-4 w-4 text-blue-600" />
-                          )}
-                          <h5 className={`font-medium ${
-                            service.sourceType === 's3' ? 'text-green-700' : 
-                            service.sourceType === 'stac' ? 'text-purple-700' : 
-                            'text-blue-700'
-                          }`}>
-                            {service.name}
-                          </h5>
-                          <Badge variant="outline" className={`${
-                            service.sourceType === 's3' ? 'border-green-300 text-green-700' : 
-                            service.sourceType === 'stac' ? 'border-purple-300 text-purple-700' : 
-                            'border-blue-300 text-blue-700'
-                          }`}>
-                            {service.sourceType === 's3' ? 'S3 Bucket' : 
-                             service.sourceType === 'stac' ? 'STAC' : 
-                             service.format?.toUpperCase()}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-slate-500 break-all mb-2">{service.url}</p>
-                        {service.capabilities?.title && (
-                          <p className="text-sm text-slate-600 mb-2">{service.capabilities.title}</p>
+          ) : (() => {
+            const getPriority = (service: Service) => {
+              if (service.sourceType === 'stac') return 1;
+              if (service.format === 'wms' || service.format === 'wmts') return 2;
+              if (service.sourceType === 's3') return 3;
+              return 4;
+            };
+            const sorted = services.slice().sort((a, b) => {
+              const priorityA = getPriority(a);
+              const priorityB = getPriority(b);
+              if (priorityA !== priorityB) return priorityA - priorityB;
+              return a.name.localeCompare(b.name);
+            });
+            const validServices = sorted.filter(s => validationStatuses[s.id] !== 'error');
+            const invalidServices = sorted.filter(s => validationStatuses[s.id] === 'error');
+
+            const renderServiceCard = (service: Service) => (
+              <Card key={service.id} className={`border-l-4 ${
+                service.sourceType === 's3' ? 'border-l-green-500' :
+                service.sourceType === 'stac' ? 'border-l-purple-500' :
+                'border-l-blue-500'
+              }`}>
+                <CardContent className="pt-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        {service.sourceType === 's3' ? (
+                          <Database className="h-4 w-4 text-green-600" />
+                        ) : service.sourceType === 'stac' ? (
+                          <Server className="h-4 w-4 text-purple-600" />
+                        ) : (
+                          <Globe className="h-4 w-4 text-blue-600" />
                         )}
-                        {(() => {
-                          const status = validationStatuses[service.id];
-                          const layerCount = service.capabilities?.layers.length;
-                          if (status === 'checking') {
-                            return (
-                              <Badge variant="outline" className="border-primary/40 text-primary">
-                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                Checking…
-                              </Badge>
-                            );
-                          }
-                          // S3 reachable but no listing → show "Endpoint reachable"
-                          if (status === 'ok' && service.sourceType === 's3' && !layerCount) {
-                            return (
-                              <Badge variant="outline" className="border-green-300 text-green-700">
-                                Endpoint reachable
-                              </Badge>
-                            );
-                          }
-                          if (layerCount) {
-                            return (
-                              <Badge variant="outline" className="border-green-300 text-green-700">
-                                {layerCount} {
-                                  service.sourceType === 's3' ? 'objects' :
-                                  service.sourceType === 'stac' ? 'collections' :
-                                  'layers'
-                                } available
-                              </Badge>
-                            );
-                          }
-                          if (status === 'error') {
-                            const errLabel =
-                              service.sourceType === 's3' ? "Couldn't reach endpoint" :
-                              service.sourceType === 'stac' ? "Couldn't fetch catalogue" :
-                              "Couldn't fetch capabilities";
-                            return (
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="border-amber-300 text-amber-700">
-                                  <AlertTriangle className="h-3 w-3 mr-1" />
-                                  {errLabel}
-                                </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
-                                  onClick={() => recheck(service.id)}
-                                >
-                                  <RefreshCw className="h-3 w-3 mr-1" />
-                                  Retry
-                                </Button>
-                              </div>
-                            );
-                          }
+                        <h5 className={`font-medium ${
+                          service.sourceType === 's3' ? 'text-green-700' :
+                          service.sourceType === 'stac' ? 'text-purple-700' :
+                          'text-blue-700'
+                        }`}>
+                          {service.name}
+                        </h5>
+                        <Badge variant="outline" className={`${
+                          service.sourceType === 's3' ? 'border-green-300 text-green-700' :
+                          service.sourceType === 'stac' ? 'border-purple-300 text-purple-700' :
+                          'border-blue-300 text-blue-700'
+                        }`}>
+                          {service.sourceType === 's3' ? 'S3 Bucket' :
+                           service.sourceType === 'stac' ? 'STAC' :
+                           service.format?.toUpperCase()}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-slate-500 break-all mb-2">{service.url}</p>
+                      {service.capabilities?.title && (
+                        <p className="text-sm text-slate-600 mb-2">{service.capabilities.title}</p>
+                      )}
+                      {(() => {
+                        const status = validationStatuses[service.id];
+                        const layerCount = service.capabilities?.layers.length;
+                        if (status === 'checking') {
                           return (
-                            <Badge variant="outline" className="border-orange-300 text-orange-700">
-                              Manual configuration required
+                            <Badge variant="outline" className="border-primary/40 text-primary">
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              Checking…
                             </Badge>
                           );
-                        })()}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {onUpdateService && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditService(service)}
-                            className="text-muted-foreground hover:text-foreground"
-                            title="Edit service"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        )}
+                        }
+                        if (status === 'ok' && service.sourceType === 's3' && !layerCount) {
+                          return (
+                            <Badge variant="outline" className="border-green-300 text-green-700">
+                              Endpoint reachable
+                            </Badge>
+                          );
+                        }
+                        if (layerCount) {
+                          return (
+                            <Badge variant="outline" className="border-green-300 text-green-700">
+                              {layerCount} {
+                                service.sourceType === 's3' ? 'objects' :
+                                service.sourceType === 'stac' ? 'collections' :
+                                'layers'
+                              } available
+                            </Badge>
+                          );
+                        }
+                        if (status === 'error') {
+                          const errLabel =
+                            service.sourceType === 's3' ? "Couldn't reach endpoint" :
+                            service.sourceType === 'stac' ? "Couldn't fetch catalogue" :
+                            "Couldn't fetch capabilities";
+                          return (
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="border-amber-300 text-amber-700">
+                                <AlertTriangle className="h-3 w-3 mr-1" />
+                                {errLabel}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
+                                onClick={() => recheck(service.id)}
+                              >
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                Retry
+                              </Button>
+                            </div>
+                          );
+                        }
+                        return (
+                          <Badge variant="outline" className="border-orange-300 text-orange-700">
+                            Manual configuration required
+                          </Badge>
+                        );
+                      })()}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {onUpdateService && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            const originalIndex = services.findIndex(s => s.id === service.id);
-                            if (originalIndex !== -1) {
-                              onRemoveService(originalIndex);
-                            }
-                          }}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                          title="Remove service"
+                          onClick={() => handleEditService(service)}
+                          className="text-muted-foreground hover:text-foreground"
+                          title="Edit service"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                      </div>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const originalIndex = services.findIndex(s => s.id === service.id);
+                          if (originalIndex !== -1) {
+                            onRemoveService(originalIndex);
+                          }
+                        }}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        title="Remove service"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+
+            return (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {validServices.map(renderServiceCard)}
+                </div>
+                {invalidServices.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">Invalid services</h4>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      {invalidServices.length} service{invalidServices.length === 1 ? '' : 's'} failed validation. Check the URL or retry.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {invalidServices.map(renderServiceCard)}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </CardContent>
       </Card>
 
