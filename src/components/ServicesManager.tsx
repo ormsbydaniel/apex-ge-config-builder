@@ -349,6 +349,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {inFlight > 0 && (
+            <div className="mb-4 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Checking {completed} of {totalToCheck} service{totalToCheck !== 1 ? 's' : ''}…</span>
+            </div>
+          )}
           {showAddForm && (
             <Card className="border-primary/30 mb-6">
               <CardHeader className="pb-4">
