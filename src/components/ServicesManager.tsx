@@ -44,6 +44,14 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
 
+  // After adding recommended services, defer recheck() until services state has updated
+  // so the hook's closure sees the newly added items.
+  useEffect(() => {
+    if (!pendingRecheck) return;
+    recheck();
+    setPendingRecheck(false);
+  }, [pendingRecheck, services.length, recheck]);
+
   // Auto-populate STAC service name after user pauses typing URL
   useEffect(() => {
     if (selectedFormat !== 'stac') return;
