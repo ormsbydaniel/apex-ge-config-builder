@@ -6,11 +6,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle, X, Check } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
-import { useBulkServiceValidation } from '@/hooks/useBulkServiceValidation';
+import { useBulkServiceValidation, ServiceKind } from '@/hooks/useBulkServiceValidation';
+import { parseS3Url } from '@/utils/s3Utils';
+
+// Mirror of classify() in useBulkServiceValidation — keep in sync.
+const classifyService = (svc: Service): ServiceKind | null => {
+  if (!svc.url) return null;
+  if (svc.format === 'stac' || svc.sourceType === 'stac') return 'stac';
+  if (svc.format === 's3' || svc.sourceType === 's3') return 's3';
+  if (parseS3Url(svc.url) !== null) return 's3';
+  if (svc.format === 'wms' || svc.format === 'wmts' || svc.format === 'wfs') return 'ogc';
+  return null;
+};
 import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
@@ -40,6 +51,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [pendingRecheck, setPendingRecheck] = useState(false);
+  const [runSummary, setRunSummary] = useState<Record<ServiceKind, { total: number } | null> | null>(null);
+  const [dismissed, setDismissed] = useState(true);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
@@ -51,6 +64,41 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     recheck();
     setPendingRecheck(false);
   }, [pendingRecheck, services.length, recheck]);
+
+  // Detect the start of a validation run: snapshot per-group totals so the
+  // summary panel can persist after inFlight drops back to 0.
+  const prevInFlightRef = React.useRef(0);
+  useEffect(() => {
+    if (prevInFlightRef.current === 0 && inFlightTotal > 0) {
+      setRunSummary({
+        stac: progress.stac.total > 0 ? { total: progress.stac.total } : null,
+        ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : null,
+        s3: progress.s3.total > 0 ? { total: progress.s3.total } : null,
+      });
+      setDismissed(false);
+    } else if (inFlightTotal > 0) {
+      // Keep totals in sync as the hook seeds groups mid-run.
+      setRunSummary(prev => ({
+        stac: progress.stac.total > 0 ? { total: progress.stac.total } : prev?.stac ?? null,
+        ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : prev?.ogc ?? null,
+        s3: progress.s3.total > 0 ? { total: progress.s3.total } : prev?.s3 ?? null,
+      }));
+    }
+    prevInFlightRef.current = inFlightTotal;
+  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total]);
+
+  // Derive failed counts at render time from validationStatuses, grouped by kind.
+  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
+  for (const svc of services) {
+    const kind = classifyService(svc);
+    if (kind && validationStatuses[svc.id] === 'error') {
+      failedByKind[kind]++;
+    }
+  }
+
+  const summaryHasAny = !!runSummary &&
+    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) > 0);
+  const showSummaryPanel = !dismissed && summaryHasAny;
 
   // Auto-populate STAC service name after user pauses typing URL
   useEffect(() => {
@@ -374,25 +422,57 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {inFlightTotal > 0 && (
-            <div className="mb-4 space-y-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
-              {progress.stac.inFlight > 0 && (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Checking STAC catalogues ({progress.stac.completed} of {progress.stac.total})…</span>
-                </div>
-              )}
-              {progress.ogc.inFlight > 0 && (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Checking WMS / WMTS / WFS services ({progress.ogc.completed} of {progress.ogc.total})…</span>
-                </div>
-              )}
-              {progress.s3.inFlight > 0 && (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Checking S3 stores ({progress.s3.completed} of {progress.s3.total})…</span>
-                </div>
+          {(showSummaryPanel || inFlightTotal > 0) && (
+            <div className="relative mb-4 space-y-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 pr-10 text-sm text-primary">
+              {(['stac', 'ogc', 's3'] as ServiceKind[]).map(kind => {
+                const label =
+                  kind === 'stac'
+                    ? 'STAC catalogues'
+                    : kind === 'ogc'
+                    ? 'WMS / WMTS / WFS services'
+                    : 'S3 stores';
+                const groupProg = progress[kind];
+                const summary = runSummary?.[kind] ?? null;
+
+                if (groupProg.inFlight > 0) {
+                  return (
+                    <div key={kind} className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Checking {label} ({groupProg.completed} of {groupProg.total})…</span>
+                    </div>
+                  );
+                }
+
+                if (summary && summary.total > 0) {
+                  const failed = failedByKind[kind];
+                  const reachable = summary.total - failed;
+                  return (
+                    <div key={kind} className="flex items-center gap-2">
+                      {failed > 0 ? (
+                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      ) : (
+                        <Check className="h-4 w-4 text-emerald-600" />
+                      )}
+                      <span>
+                        {label}: {reachable} of {summary.total} reachable
+                        {failed > 0 ? ` (${failed} failed)` : ''}
+                      </span>
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
+              {inFlightTotal === 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1 right-1 h-6 w-6 text-primary hover:bg-primary/10"
+                  onClick={() => setDismissed(true)}
+                  aria-label="Dismiss validation results"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               )}
             </div>
           )}
