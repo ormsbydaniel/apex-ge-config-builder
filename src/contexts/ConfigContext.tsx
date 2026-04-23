@@ -35,6 +35,7 @@ type ConfigAction =
   | { type: 'UPDATE_MAP_CONSTRAINTS'; payload: { zoom?: number; center?: [number, number]; projection?: string } }
   | { type: 'ADD_SERVICE'; payload: Service }
   | { type: 'REMOVE_SERVICE'; payload: number }
+  | { type: 'UPDATE_SERVICE'; payload: { id: string; patch: Partial<Service> } }
   | { type: 'ADD_SOURCE'; payload: DataSource }
   | { type: 'REMOVE_SOURCE'; payload: number }
   | { type: 'UPDATE_SOURCE'; payload: { index: number; source: DataSource } }
@@ -281,6 +282,18 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         isDirty: true,
         services: [...state.services, action.payload],
       };
+    case 'UPDATE_SERVICE': {
+      // Merge a partial service update (e.g. capabilities fetched lazily) into the existing service.
+      // Does NOT mark config as dirty — capabilities are runtime metadata, not user edits.
+      const { id, patch } = action.payload;
+      const updatedServices = state.services.map(s =>
+        s.id === id ? { ...s, ...patch } : s
+      );
+      return {
+        ...state,
+        services: updatedServices,
+      };
+    }
     case 'REMOVE_SERVICE': {
       const serviceToRemove = state.services[action.payload];
       const updatedServices = state.services.filter((_, i) => i !== action.payload);
