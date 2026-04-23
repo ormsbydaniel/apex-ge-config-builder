@@ -249,6 +249,7 @@ export const useBulkServiceValidation = (
     if (!enabled) return;
     if (validatedForLoadRef.current === lastLoaded) return;
     validatedForLoadRef.current = lastLoaded;
+    lastValidatedLoad = lastLoaded;
 
     const targets = services.filter(s => !s.capabilities && classify(s) !== null);
     if (targets.length === 0) return;
