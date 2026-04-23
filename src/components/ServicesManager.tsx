@@ -237,6 +237,27 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
     if (!newServiceUrl.trim()) return;
 
+    // Auto-validate before commit. Reuse the last result if URL+format are unchanged.
+    const url = newServiceUrl.trim();
+    const probe = getProbeKind(selectedFormat);
+    if (probe) {
+      const sig = lastValidatedSigRef.current;
+      const isFresh =
+        sig &&
+        sig.url === url &&
+        sig.format === selectedFormat &&
+        (validateState.status === 'ok' || validateState.status === 'error');
+      if (!isFresh) {
+        setValidateState({ status: 'checking' });
+        const result = await validateSingleService(url, probe.kind, probe.ogcFormat);
+        setValidateState({
+          status: result.ok ? 'ok' : 'error',
+          message: result.message,
+        });
+        lastValidatedSigRef.current = { url, format: selectedFormat };
+      }
+    }
+
     // Edit mode: patch existing service (name + url only)
     if (editingServiceId && onUpdateService) {
       const idToRecheck = editingServiceId;
@@ -286,34 +307,29 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     setShowAddForm(false);
     setEditingServiceId(null);
     setValidateState({ status: 'idle' });
+    lastValidatedSigRef.current = null;
   };
 
   // Reset validation result whenever the URL or service type changes.
   useEffect(() => {
     setValidateState({ status: 'idle' });
+    lastValidatedSigRef.current = null;
   }, [newServiceUrl, selectedFormat]);
 
   const handleValidate = async () => {
     const url = newServiceUrl.trim();
     if (!url || selectedFormat === 'json-upload') return;
 
-    let kind: ProbeKind;
-    let ogcFormat: DataSourceFormat | undefined;
-    if (selectedFormat === 'stac') {
-      kind = 'stac';
-    } else if (selectedFormat === 's3') {
-      kind = 's3';
-    } else {
-      kind = 'ogc';
-      ogcFormat = selectedFormat as DataSourceFormat;
-    }
+    const probe = getProbeKind(selectedFormat);
+    if (!probe) return;
 
     setValidateState({ status: 'checking' });
-    const result = await validateSingleService(url, kind, ogcFormat);
+    const result = await validateSingleService(url, probe.kind, probe.ogcFormat);
     setValidateState({
       status: result.ok ? 'ok' : 'error',
       message: result.message,
     });
+    lastValidatedSigRef.current = { url, format: selectedFormat };
   };
 
   const handleEditService = (service: Service) => {
