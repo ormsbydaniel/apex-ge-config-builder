@@ -833,10 +833,52 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
             )}
           </div>
 
+          {selectedFormat !== 'json-upload' && validateState.status !== 'idle' && (
+            <div className="flex items-start gap-2 text-sm">
+              {validateState.status === 'checking' && (
+                <>
+                  <Loader2 className="h-4 w-4 mt-0.5 animate-spin text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Validating…</span>
+                </>
+              )}
+              {validateState.status === 'ok' && (
+                <>
+                  <Check className="h-4 w-4 mt-0.5 text-emerald-600 shrink-0" />
+                  <span className="text-emerald-600">Reachable — {validateState.message}</span>
+                </>
+              )}
+              {validateState.status === 'error' && (
+                <>
+                  <AlertTriangle className="h-4 w-4 mt-0.5 text-destructive shrink-0" />
+                  <span className="text-destructive">{validateState.message}</span>
+                </>
+              )}
+            </div>
+          )}
+
           <DialogFooter>
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
+            {selectedFormat !== 'json-upload' && (
+              <Button
+                variant="outline"
+                onClick={handleValidate}
+                disabled={!newServiceUrl.trim() || validateState.status === 'checking'}
+              >
+                {validateState.status === 'checking' ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Validating…
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Validate
+                  </>
+                )}
+              </Button>
+            )}
             <Button
               onClick={handleAddService}
               disabled={
