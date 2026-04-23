@@ -39,12 +39,7 @@ interface TreeEntry {
   size?: number;
 }
 
-type Stage = 'idle' | 'parse' | 'normalize' | 'validate' | 'capabilities' | 'done';
-
-interface ServiceProgressEntry {
-  name: string;
-  status: 'pending' | 'ok' | 'error' | 'skipped';
-}
+type Stage = 'idle' | 'parse' | 'normalize' | 'validate' | 'done';
 
 const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps) => {
   const { importConfig, importConfigFromUrl } = useConfigImport();
