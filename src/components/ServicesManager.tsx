@@ -315,7 +315,17 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               Configured Services
             </div>
             <div className="flex items-center gap-2">
-              <Button 
+              <Button
+                onClick={() => recheck()}
+                variant="outline"
+                disabled={inFlight > 0 || services.every(s => s.format === 's3' || s.format === 'stac' || s.sourceType === 's3' || s.sourceType === 'stac')}
+                className="border-primary/30"
+                title="Re-fetch capabilities for all WMS/WMTS services"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${inFlight > 0 ? 'animate-spin' : ''}`} />
+                Re-check all
+              </Button>
+              <Button
                 onClick={handleAddRecommendedServices}
                 variant="outline"
                 disabled={isLoadingRecommended || showAddForm}
@@ -324,8 +334,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                 <Download className="h-4 w-4 mr-2" />
                 {isLoadingRecommended ? 'Loading...' : 'Add Recommended Services'}
               </Button>
-              <Button 
-                onClick={() => setShowAddForm(true)} 
+              <Button
+                onClick={() => setShowAddForm(true)}
                 className="bg-primary hover:bg-primary/90"
                 disabled={showAddForm}
               >
