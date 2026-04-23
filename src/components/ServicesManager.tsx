@@ -463,6 +463,11 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
                 return null;
               })}
+              {inFlightTotal === 0 && (failedByKind.stac + failedByKind.ogc + failedByKind.s3) > 0 && (
+                <p className="text-xs text-muted-foreground italic mt-1 w-full">
+                  Invalid services are listed at the bottom of this page.
+                </p>
+              )}
               {inFlightTotal === 0 && (
                 <Button
                   variant="ghost"
