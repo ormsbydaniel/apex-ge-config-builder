@@ -296,7 +296,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
       // Kick off unified validation across STAC / OGC / S3 groups.
       // Defer so onAddService state updates settle first.
-      setTimeout(() => recheck(), 0);
+      setPendingRecheck(true);
     } catch (error) {
       toast({
         title: "Failed to add services",
