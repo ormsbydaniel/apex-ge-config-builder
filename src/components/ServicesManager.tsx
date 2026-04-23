@@ -309,9 +309,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     setShowAddForm(false);
     // Revalidate the just-added service so failures land in the bottom
     // failures section with the same card styling as bulk-recheck failures.
+    // Defer until the new service appears in `services`.
     if (added?.id) {
-      const newId = added.id;
-      setTimeout(() => recheck(newId), 0);
+      setPendingRecheckId({ id: added.id, url: added.url });
     }
   };
 
