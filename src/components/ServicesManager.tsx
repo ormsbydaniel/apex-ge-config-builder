@@ -893,6 +893,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                 <div className="space-y-2">
                   <Label htmlFor="serviceName">
                     Service Name {selectedFormat === 'stac' && <span className="text-xs text-muted-foreground">(auto-populated from catalogue)</span>}
+                    {(selectedFormat === 'wms' || selectedFormat === 'wmts' || selectedFormat === 'wfs') && (
+                      <span className="text-xs text-muted-foreground">(auto-populated from GetCapabilities)</span>
+                    )}
                   </Label>
                   <Input
                     id="serviceName"
@@ -901,9 +904,10 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                     placeholder={
                       selectedFormat === 's3' ? 'e.g., ESA APEX S3 Bucket' :
                       selectedFormat === 'stac' ? 'Will be auto-populated...' :
+                      (selectedFormat === 'wms' || selectedFormat === 'wmts' || selectedFormat === 'wfs') ? 'Will be auto-populated...' :
                       'e.g., Terrascope WMS'
                     }
-                    disabled={selectedFormat === 'stac' && autoNameLoading}
+                    disabled={(selectedFormat === 'stac' || selectedFormat === 'wms' || selectedFormat === 'wmts' || selectedFormat === 'wfs') && autoNameLoading}
                   />
                 </div>
               </div>
