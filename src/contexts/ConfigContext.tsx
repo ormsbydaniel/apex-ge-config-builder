@@ -283,15 +283,18 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         services: [...state.services, action.payload],
       };
     case 'UPDATE_SERVICE': {
-      // Merge a partial service update (e.g. capabilities fetched lazily) into the existing service.
-      // Does NOT mark config as dirty — capabilities are runtime metadata, not user edits.
+      // Merge a partial service update into the existing service.
+      // Marks config as dirty ONLY when the patch contains user-editable fields
+      // (name/url). Capability-only patches stay clean (lazy runtime metadata).
       const { id, patch } = action.payload;
+      const isUserEdit = 'name' in patch || 'url' in patch;
       const updatedServices = state.services.map(s =>
         s.id === id ? { ...s, ...patch } : s
       );
       return {
         ...state,
         services: updatedServices,
+        ...(isUserEdit ? { isDirty: true } : {}),
       };
     }
     case 'REMOVE_SERVICE': {
