@@ -926,11 +926,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               disabled={
                 (selectedFormat !== 'json-upload' && !newServiceUrl.trim()) ||
                 (selectedFormat === 'json-upload' && !uploadedFile) ||
-                isLoadingCapabilities
+                isLoadingCapabilities ||
+                validateState.status === 'checking'
               }
               className="bg-primary hover:bg-primary/90"
             >
-              {isLoadingCapabilities ? (
+              {isLoadingCapabilities || validateState.status === 'checking' ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   {editingServiceId ? 'Saving...' : 'Adding Service...'}
