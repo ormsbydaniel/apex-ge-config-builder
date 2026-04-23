@@ -39,6 +39,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const [detectionResult, setDetectionResult] = useState<DetectionResult | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [pendingRecheck, setPendingRecheck] = useState(false);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
