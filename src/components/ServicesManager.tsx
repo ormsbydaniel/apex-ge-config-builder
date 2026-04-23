@@ -65,6 +65,20 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
 
+  // Tracks the URL+format signature of the most recent successful/failed probe
+  // so a click on Save can skip re-probing if nothing has changed since.
+  const lastValidatedSigRef = React.useRef<{ url: string; format: string } | null>(null);
+
+  // Resolve the probe kind + optional OGC sub-format from the modal's selected format.
+  const getProbeKind = (
+    fmt: SourceConfigType | 'json-upload',
+  ): { kind: ProbeKind; ogcFormat?: DataSourceFormat } | null => {
+    if (fmt === 'json-upload') return null;
+    if (fmt === 'stac') return { kind: 'stac' };
+    if (fmt === 's3') return { kind: 's3' };
+    return { kind: 'ogc', ogcFormat: fmt as DataSourceFormat };
+  };
+
   // After adding recommended services, defer recheck() until services state has updated
   // so the hook's closure sees the newly added items.
   useEffect(() => {
@@ -223,6 +237,27 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
     if (!newServiceUrl.trim()) return;
 
+    // Auto-validate before commit. Reuse the last result if URL+format are unchanged.
+    const url = newServiceUrl.trim();
+    const probe = getProbeKind(selectedFormat);
+    if (probe) {
+      const sig = lastValidatedSigRef.current;
+      const isFresh =
+        sig &&
+        sig.url === url &&
+        sig.format === selectedFormat &&
+        (validateState.status === 'ok' || validateState.status === 'error');
+      if (!isFresh) {
+        setValidateState({ status: 'checking' });
+        const result = await validateSingleService(url, probe.kind, probe.ogcFormat);
+        setValidateState({
+          status: result.ok ? 'ok' : 'error',
+          message: result.message,
+        });
+        lastValidatedSigRef.current = { url, format: selectedFormat };
+      }
+    }
+
     // Edit mode: patch existing service (name + url only)
     if (editingServiceId && onUpdateService) {
       const idToRecheck = editingServiceId;
@@ -272,34 +307,29 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     setShowAddForm(false);
     setEditingServiceId(null);
     setValidateState({ status: 'idle' });
+    lastValidatedSigRef.current = null;
   };
 
   // Reset validation result whenever the URL or service type changes.
   useEffect(() => {
     setValidateState({ status: 'idle' });
+    lastValidatedSigRef.current = null;
   }, [newServiceUrl, selectedFormat]);
 
   const handleValidate = async () => {
     const url = newServiceUrl.trim();
     if (!url || selectedFormat === 'json-upload') return;
 
-    let kind: ProbeKind;
-    let ogcFormat: DataSourceFormat | undefined;
-    if (selectedFormat === 'stac') {
-      kind = 'stac';
-    } else if (selectedFormat === 's3') {
-      kind = 's3';
-    } else {
-      kind = 'ogc';
-      ogcFormat = selectedFormat as DataSourceFormat;
-    }
+    const probe = getProbeKind(selectedFormat);
+    if (!probe) return;
 
     setValidateState({ status: 'checking' });
-    const result = await validateSingleService(url, kind, ogcFormat);
+    const result = await validateSingleService(url, probe.kind, probe.ogcFormat);
     setValidateState({
       status: result.ok ? 'ok' : 'error',
       message: result.message,
     });
+    lastValidatedSigRef.current = { url, format: selectedFormat };
   };
 
   const handleEditService = (service: Service) => {
@@ -896,11 +926,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               disabled={
                 (selectedFormat !== 'json-upload' && !newServiceUrl.trim()) ||
                 (selectedFormat === 'json-upload' && !uploadedFile) ||
-                isLoadingCapabilities
+                isLoadingCapabilities ||
+                validateState.status === 'checking'
               }
               className="bg-primary hover:bg-primary/90"
             >
-              {isLoadingCapabilities ? (
+              {isLoadingCapabilities || validateState.status === 'checking' ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   {editingServiceId ? 'Saving...' : 'Adding Service...'}
