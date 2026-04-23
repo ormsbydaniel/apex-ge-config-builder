@@ -1,48 +1,54 @@
 
-## Auto-validate on Save in the Add/Edit Service modal
+## Restore auto-populate of Service Name from URL for WMS/WMTS/WFS
+
+### Problem
+
+The Add/Edit Service modal currently only auto-populates the Service Name field for STAC services (debounced fetch in a `useEffect`). For WMS/WMTS/WFS the name field stays blank until the user types one, even though the GetCapabilities response contains a `Service > Title` (or `ows:ServiceIdentification > ows:Title`) that we already parse inside `useServices.parseGetCapabilities`. Previously the user saw that title appear in the Name field shortly after pasting the URL.
 
 ### Behaviour
 
-When the user clicks **Add Service** / **Save Changes**, run the same probe the **Validate** button uses, *before* the service is committed. The result drives the inline modal feedback the user already sees, then the modal closes and the service is saved as today (always succeeds — failure does not block save).
+After the user pastes/edits the **Service URL** in the modal, with a short debounce (matches the existing 600 ms STAC pattern):
 
-Net effect for the user:
-- They no longer have to click Validate first.
-- The inline ✓ / ✗ message flashes in the modal during save.
-- The saved service ends up in the correct place: main list with green badge if reachable, "Invalid services" failures section at the bottom if not — identical card styling and badge to bulk-recheck failures (already wired via the existing post-save `recheck(serviceId)`).
+- **STAC** — unchanged. Existing effect fetches the catalogue JSON and fills Name from `title`/`id`.
+- **WMS / WMTS / WFS** — new behaviour. Fetch `GetCapabilities` for the URL, parse the service title, and fill the Name field if it is currently empty.
+- **S3 / xyz / cog / geojson / flatgeobuf / json-upload** — no auto-name (no reliable title source), unchanged.
 
-If the user already clicked **Validate** and the URL hasn't changed since, skip the duplicate probe and reuse the existing `validateState` result — keeps save snappy.
-
-### Flow
-
-1. User clicks the primary button (Add Service / Save Changes).
-2. If `validateState.status === 'ok' | 'error'` and URL+format are unchanged since that result → use it directly, skip re-probing.
-3. Otherwise set `validateState` to `'checking'` (spinner + "Validating…" inline, primary button disabled and shows spinner), call `validateSingleService(...)`, write the result into `validateState` so the inline row shows ✓ or ✗.
-4. Regardless of outcome, proceed with the existing save path (`onAddService` / `onUpdateService`), close the modal, and let the existing post-save `recheck(serviceId)` populate the bottom-of-page failures section if needed.
-5. JSON-upload mode is unaffected — no probe runs (consistent with Validate button behaviour).
+Rules consistent with the STAC effect:
+- Only populate when the Name field is empty (never overwrite user input).
+- Debounce 600 ms; abort in-flight fetch on URL/format change or unmount.
+- Reuse the existing `autoNameLoading` flag so the small spinner next to the Name label appears during the lookup for OGC formats too.
+- Errors are silent (no toast) — the user can still type a name manually, and the existing on-save validation will surface URL problems.
 
 ### Implementation
 
-**Single file: `src/components/ServicesManager.tsx`.**
+**Single file: `src/components/ServicesManager.tsx`**, and one tiny extraction so we don't duplicate XML parsing.
 
-1. **`handleAddService`** — at the top, before the existing add/edit branching:
-   - If `selectedFormat !== 'json-upload'` and URL is non-empty:
-     - Determine `kind` and `ogcFormat` the same way `handleValidate` does today (extract a tiny `getProbeKind()` helper inside the component to avoid duplication).
-     - If a fresh `validateState` result already matches the current URL+format, reuse it; otherwise `await validateSingleService(...)` with `validateState` flipped to `'checking'` during the call so the inline row updates.
-   - Continue with the existing add/edit logic unchanged. Do **not** early-return on failure.
+1. **Extract a shared title parser**. Add a small exported helper `parseGetCapabilitiesTitle(url, format)` in a new lightweight util (`src/utils/getCapabilitiesTitle.ts`) that:
+   - Builds the `service=…&request=GetCapabilities&version=…` URL the same way `useServices.parseGetCapabilities` does.
+   - Fetches with an `AbortSignal` (passed in from the caller).
+   - Parses XML, returns `xmlDoc.querySelector('Service > Title, ows\\:ServiceIdentification > ows\\:Title')?.textContent?.trim() || null`.
+   - Returns `null` on any error (no toasts — this is a best-effort UX helper).
+   
+   `useServices.parseGetCapabilities` keeps its full behaviour but can optionally call this helper for the title extraction so the selector lives in one place.
 
-2. **Primary button** — while the in-save probe is running, show `Loader2` + "Saving…" and disable the button (reuse the existing `validateState.status === 'checking'` check so we don't need a new state flag).
+2. **Generalise the auto-name effect** in `ServicesManager.tsx` (currently lines 141–166):
+   - Replace the `if (selectedFormat !== 'stac') return;` guard with a switch on `selectedFormat`:
+     - `'stac'` → existing JSON fetch path.
+     - `'wms' | 'wmts' | 'wfs'` → call `parseGetCapabilitiesTitle(url, selectedFormat, controller.signal)`; if it returns a non-empty string and `newServiceName` is still empty, `setNewServiceName(title)`.
+     - Anything else → return (no-op).
+   - Keep the same 600 ms debounce, `AbortController`, `autoNameLoading` toggle, and "only fill when empty" guard.
+   - Dependency array stays `[newServiceUrl, selectedFormat]` (and `newServiceName` is intentionally read but not in deps, matching the existing STAC behaviour, to avoid re-firing on every keystroke in the Name field).
 
-3. **Track "last validated signature"** — small `useRef<{ url: string; format: string } | null>` updated whenever `validateSingleService` resolves (in both `handleValidate` and the new save-time probe). Used in step 1 to decide whether to skip re-probing.
-
-4. **Reset** — clear the ref in `handleCancel` and in the existing `useEffect` that resets `validateState` on URL/format change, so a stale signature can't cause a skip.
+3. **No UI changes**. The existing small loading indicator next to the Name label already keys off `autoNameLoading`, so it'll show for OGC lookups automatically.
 
 ### Out of scope
 
-- Blocking save on validation failure (explicitly preserved — user may save deliberately).
-- Changing the Validate button or its inline result UI (just reusing them).
-- Touching `useBulkServiceValidation`, the failures section, or `serviceProbes.ts`.
-- JSON-upload validation (handled by the upload parser).
+- Auto-naming for S3/xyz/file-based formats (no reliable title source).
+- Changing the on-save validation flow, the Validate button, or the failures section.
+- Touching `useServices.parseGetCapabilities`'s capability fetching used during commit — that still runs and still populates layers; we're only adding a pre-commit, name-only lookup driven from the modal.
 
 ### Files
 
-- **Edit**: `src/components/ServicesManager.tsx` — add probe-on-save, reuse cache when fresh, reuse existing inline UI for feedback.
+- **New**: `src/utils/getCapabilitiesTitle.ts` — small abortable helper that fetches `GetCapabilities` and returns the service title.
+- **Edit**: `src/components/ServicesManager.tsx` — generalise the existing STAC auto-name `useEffect` to also handle `wms`/`wmts`/`wfs` via the new helper.
+- **Edit (optional, minor)**: `src/hooks/useServices.ts` — reuse the same helper for the title selector inside `parseGetCapabilities` to keep the title selector in one place.
