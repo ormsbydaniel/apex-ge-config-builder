@@ -107,7 +107,11 @@ export const useBulkServiceValidation = (
   );
 
   const setStatus = useCallback((id: string, status: ServiceValidationStatus) => {
-    setStatuses(prev => ({ ...prev, [id]: status }));
+    setStatuses(prev => {
+      const next = { ...prev, [id]: status };
+      cachedStatuses = next;
+      return next;
+    });
   }, []);
 
   const validateStac = useCallback(async (svc: Service) => {
