@@ -271,6 +271,7 @@ export const useBulkServiceValidation = (
       // Re-check all classifiable services
       const targets = services.filter(s => classify(s) !== null);
       validatedForLoadRef.current = 'manual';
+      lastValidatedLoad = 'manual';
       runBulk(targets);
     },
     [services, validateStac, validateOgc, validateS3, runBulk],
