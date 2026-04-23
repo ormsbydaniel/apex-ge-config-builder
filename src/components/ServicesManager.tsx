@@ -287,8 +287,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
       setShowAddForm(false);
       // Revalidate the patched service so an unreachable URL surfaces in
       // the failures section instead of staying in the main list with a
-      // stale "manual configuration required" message.
-      setTimeout(() => recheck(idToRecheck), 0);
+      // stale "manual configuration required" message. Defer until the
+      // patched URL is reflected in `services`.
+      setPendingRecheckId({ id: idToRecheck, url: newServiceUrl.trim() });
       return;
     }
 
