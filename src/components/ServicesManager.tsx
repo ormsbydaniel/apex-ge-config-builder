@@ -651,12 +651,18 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
             const validServices = sorted.filter(s => validationStatuses[s.id] !== 'error');
             const invalidServices = sorted.filter(s => validationStatuses[s.id] === 'error');
 
-            const renderServiceCard = (service: Service) => (
-              <Card key={service.id} className={`border-l-4 ${
+            const renderServiceCard = (service: Service) => {
+              const isInvalid = validationStatuses[service.id] === 'error';
+              const sourceBorderClass =
                 service.sourceType === 's3' ? 'border-l-green-500' :
                 service.sourceType === 'stac' ? 'border-l-purple-500' :
-                'border-l-blue-500'
-              }`}>
+                'border-l-blue-500';
+              return (
+              <Card key={service.id} className={
+                isInvalid
+                  ? 'border-l-4 border-l-destructive border-destructive/30 bg-destructive/5'
+                  : `border-l-4 ${sourceBorderClass}`
+              }>
                 <CardContent className="pt-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -778,7 +784,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                   </div>
                 </CardContent>
               </Card>
-            );
+              );
+            };
 
             return (
               <>
