@@ -51,6 +51,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [pendingRecheck, setPendingRecheck] = useState(false);
+  const [runSummary, setRunSummary] = useState<Record<ServiceKind, { total: number } | null> | null>(null);
+  const [dismissed, setDismissed] = useState(true);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
   const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
@@ -62,6 +64,41 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     recheck();
     setPendingRecheck(false);
   }, [pendingRecheck, services.length, recheck]);
+
+  // Detect the start of a validation run: snapshot per-group totals so the
+  // summary panel can persist after inFlight drops back to 0.
+  const prevInFlightRef = React.useRef(0);
+  useEffect(() => {
+    if (prevInFlightRef.current === 0 && inFlightTotal > 0) {
+      setRunSummary({
+        stac: progress.stac.total > 0 ? { total: progress.stac.total } : null,
+        ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : null,
+        s3: progress.s3.total > 0 ? { total: progress.s3.total } : null,
+      });
+      setDismissed(false);
+    } else if (inFlightTotal > 0) {
+      // Keep totals in sync as the hook seeds groups mid-run.
+      setRunSummary(prev => ({
+        stac: progress.stac.total > 0 ? { total: progress.stac.total } : prev?.stac ?? null,
+        ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : prev?.ogc ?? null,
+        s3: progress.s3.total > 0 ? { total: progress.s3.total } : prev?.s3 ?? null,
+      }));
+    }
+    prevInFlightRef.current = inFlightTotal;
+  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total]);
+
+  // Derive failed counts at render time from validationStatuses, grouped by kind.
+  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
+  for (const svc of services) {
+    const kind = classifyService(svc);
+    if (kind && validationStatuses[svc.id] === 'error') {
+      failedByKind[kind]++;
+    }
+  }
+
+  const summaryHasAny = !!runSummary &&
+    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) > 0);
+  const showSummaryPanel = !dismissed && summaryHasAny;
 
   // Auto-populate STAC service name after user pauses typing URL
   useEffect(() => {
