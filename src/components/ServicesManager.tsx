@@ -225,7 +225,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
     // Edit mode: patch existing service (name + url only)
     if (editingServiceId && onUpdateService) {
-      onUpdateService(editingServiceId, {
+      const idToRecheck = editingServiceId;
+      onUpdateService(idToRecheck, {
         name: newServiceName,
         url: newServiceUrl,
       });
@@ -234,22 +235,33 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
       setNewServiceUrl('');
       setUploadedFile(null);
       setShowAddForm(false);
+      // Revalidate the patched service so an unreachable URL surfaces in
+      // the failures section instead of staying in the main list with a
+      // stale "manual configuration required" message.
+      setTimeout(() => recheck(idToRecheck), 0);
       return;
     }
 
+    let added: Service | undefined;
     if (selectedFormat === 's3') {
       // For S3, create a service with a placeholder format since the actual format will be determined by file extension
-      await addService(newServiceName, newServiceUrl, 'cog', 's3');
+      added = await addService(newServiceName, newServiceUrl, 'cog', 's3');
     } else if (selectedFormat === 'stac') {
       // For STAC, the service name will be auto-populated from catalogue title
-      await addService(newServiceName, newServiceUrl, 'stac', 'stac');
+      added = await addService(newServiceName, newServiceUrl, 'stac', 'stac');
     } else {
-      await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat, 'service');
+      added = await addService(newServiceName, newServiceUrl, selectedFormat as DataSourceFormat, 'service');
     }
     setNewServiceName('');
     setNewServiceUrl('');
     setUploadedFile(null);
     setShowAddForm(false);
+    // Revalidate the just-added service so failures land in the bottom
+    // failures section with the same card styling as bulk-recheck failures.
+    if (added?.id) {
+      const newId = added.id;
+      setTimeout(() => recheck(newId), 0);
+    }
   };
 
   const handleCancel = () => {
