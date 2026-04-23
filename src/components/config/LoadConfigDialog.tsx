@@ -63,13 +63,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   const [isLoading, setIsLoading] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState<string>('');
   const [stage, setStage] = useState<Stage>('idle');
-  const [serviceProgress, setServiceProgress] = useState<ServiceProgressEntry[]>([]);
-  const [progressTotal, setProgressTotal] = useState(0);
-  const [progressDone, setProgressDone] = useState(0);
-  const [fullLoad, setFullLoad] = useState(false);
-  const [summary, setSummary] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const skippedRef = useRef(false);
 
   // Reset state on open
   useEffect(() => {
@@ -78,11 +72,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       setSearch('');
       setIsLoading(false);
       setStage('idle');
-      setServiceProgress([]);
-      setProgressDone(0);
-      setProgressTotal(0);
-      setSummary(null);
-      skippedRef.current = false;
     }
   }, [open]);
 
