@@ -316,16 +316,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           renderLoadingView()
         ) : (
           <>
-            <div className="flex items-center gap-2 pt-1">
-              <Checkbox
-                id="full-load"
-                checked={fullLoad}
-                onCheckedChange={(v) => setFullLoad(v === true)}
-              />
-              <label htmlFor="full-load" className="text-xs text-muted-foreground cursor-pointer">
-                Full load (pre-fetch all service capabilities — slower for large configs)
-              </label>
-            </div>
 
             <Tabs
               value={activeTab}
