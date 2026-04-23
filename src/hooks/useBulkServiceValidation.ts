@@ -86,9 +86,9 @@ export const useBulkServiceValidation = (
 ): BulkValidationResult => {
   const { config, dispatch } = useConfig();
   const lastLoaded = config.lastLoaded;
-  const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>({});
+  const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>(cachedStatuses);
   const [progress, setProgress] = useState<Record<ServiceKind, GroupProgress>>(INITIAL_PROGRESS);
-  // Module-scoped (see bottom of file) so tab switches that unmount this hook
+  // Module-scoped (see top of file) so tab switches that unmount this hook
   // don't trigger re-validation for the same loaded config.
   const validatedForLoadRef = useRef<Date | null | 'manual'>(lastValidatedLoad);
 
