@@ -1,64 +1,107 @@
 
 
-## Validate services on Services tab visit (post Quick Load)
+## Group bulk validation by service kind
 
-### Why
-
-After a Quick Load, services arrive without `capabilities` (no GetCapabilities was fetched). Today they only get validated lazily when opened in the "Add Dataset → From Service" picker. Until then, the Services tab shows every loaded service with an orange **"Manual configuration required"** badge — misleading for services that are actually fine.
-
-Trigger validation when the user first opens the Services tab so they get accurate status (layer counts, reachability) without paying the cost up front at load time.
+Replace the single "Checking N of M services…" strip with three parallel, kind-aware passes — STAC, OGC services (WMS/WMTS/WFS), and S3 — each with its own progress line and its own success metric.
 
 ### UX
 
-- First time the Services tab becomes active in a session **and** there are services missing `capabilities`, kick off a background validation pass.
-- Tab header shows a subtle progress strip: *"Checking 3 of 7 services…"* with a small spinner. Non-blocking — the user can edit/delete/scroll freely.
-- Each service card without capabilities shows one of:
-  - **Spinner + "Checking…"** while in-flight.
-  - **Green "N layers available"** badge once capabilities resolve (existing UI, just driven by the new fetch).
-  - **Amber "Couldn't fetch capabilities"** badge with a small **Retry** button on failure (replaces the current generic "Manual configuration required" only for *checked-and-failed* services; never-checked stays as today).
-- Add a **"Re-check all"** button next to **Add Service** in the tab header. Always available; refetches all non-S3/STAC services and updates the cards in place.
-- Validation only runs once per loaded config. Loading a new config resets the "already-validated" flag so the next Services-tab visit re-validates.
-- S3 and STAC services are skipped (consistent with `useLazyServiceCapabilities` and import-time logic) — they don't use GetCapabilities.
+Header strip becomes a small stack (only kinds with work to do are shown):
+
+```
+🔄 Checking STAC catalogues (2 of 3)…
+🔄 Checking WMS / WMTS / WFS services (4 of 7)…
+🔄 Checking S3 stores (1 of 2)…
+```
+
+Each line disappears once that group finishes. When all three finish, the strip disappears entirely.
+
+Per-card success badge wording stays kind-appropriate (already does today):
+- **STAC** → "N collections available"
+- **OGC** → "N layers available"
+- **S3** → "Endpoint reachable" (or "N objects available" if listing succeeded — see below)
+
+Failures: amber "Couldn't reach endpoint" / "Couldn't fetch capabilities" / "Couldn't list bucket" with **Retry**, same pattern as today.
+
+**Re-check all** runs all three groups in parallel, same UI.
+
+### Validation per kind
+
+| Kind | Detection | Success criterion | Capability stored |
+|---|---|---|---|
+| **STAC** | `format === 'stac'` or `sourceType === 'stac'` | `fetchStacCatalogue` returns capabilities (uses `totalCount` for collection count) | `{ layers, totalCount, title, abstract }` |
+| **OGC** | format ∈ `wms`/`wmts`/`wfs` and not S3/STAC | `fetchServiceCapabilities` returns non-null | `{ layers, title, abstract }` |
+| **S3** | `format === 's3'`, `sourceType === 's3'`, or `parseS3Url(url) !== null` | HEAD the bucket root (cheap reachability check). If 200/403 → reachable. Optionally also call `fetchS3BucketContents` and store object count when CORS allows. On HEAD failure → error. | `{ layers: [], title: 'S3 bucket reachable' }` minimal stub if listing fails; or full listing if it succeeds |
+
+WFS support: `fetchServiceCapabilities` already accepts `format: DataSourceFormat` and dispatches the proper `service=WFS&request=GetCapabilities` call when the format is `wfs` (verify existing branch; if missing, add a minimal WFS branch returning `{ layers, title, abstract }` from `FeatureType` elements).
 
 ### Implementation
 
-**1. New hook: `src/hooks/useBulkServiceValidation.ts`**
+**1. Refactor `src/hooks/useBulkServiceValidation.ts`**
 
-Encapsulates the bulk fetch:
-- Input: `services: Service[]`, `enabled: boolean`.
-- Maintains per-service status (`'idle' | 'checking' | 'ok' | 'error'`) in local state.
-- On `enabled` going true (and once per `lastLoaded` timestamp from `ConfigContext`), iterates non-S3/STAC services missing `capabilities`, calls `fetchServiceCapabilities` with bounded concurrency (reuse `CONCURRENCY = 4` pattern from `useConfigImport`), dispatches `UPDATE_SERVICE` with `{ capabilities }` on success.
-- Exposes `{ statuses, inFlight, totalToCheck, completed, recheck(serviceId?) }`.
-- A ref-based guard (`validatedForLoadRef.current === lastLoaded`) prevents re-running when navigating away and back.
+- Add a `kind` classifier:
+  ```ts
+  type ServiceKind = 'stac' | 'ogc' | 's3';
+  const classify = (svc: Service): ServiceKind | null => { … }
+  // returns null for services that should be skipped entirely (e.g., file:// uploads with no real URL)
+  ```
+- Replace single `totalToCheck` / `completed` / `inFlight` with a per-kind record:
+  ```ts
+  type GroupProgress = { total: number; completed: number; inFlight: number };
+  const [progress, setProgress] = useState<Record<ServiceKind, GroupProgress>>({
+    stac: { total: 0, completed: 0, inFlight: 0 },
+    ogc:  { total: 0, completed: 0, inFlight: 0 },
+    s3:   { total: 0, completed: 0, inFlight: 0 },
+  });
+  ```
+- Replace the single `validateOne` with three: `validateStac`, `validateOgc`, `validateS3`. Each updates only its own group's progress and the shared `statuses` map; each dispatches `UPDATE_SERVICE` with `{ capabilities }` on success.
+  - `validateStac` calls a new exported helper extracted from `useServices.fetchStacCatalogue` (move into `src/utils/stacCapabilities.ts` to make it reusable outside React state). Toasts removed in the extracted version (silent for bulk; UI signals via badge).
+  - `validateOgc` calls existing `fetchServiceCapabilities`.
+  - `validateS3` does `fetch(rootUrl, { method: 'HEAD' })`. If response.ok or status 403 (common for bucket-list-denied but reachable), mark `ok` with stub capabilities; else `error`. (Optional follow-up: also try `fetchS3BucketContents` and prefer that if it succeeds.)
+- Run all three groups concurrently, each with its own bounded concurrency (`CONCURRENCY = 4` per group is fine).
+- Auto-trigger guard (`validatedForLoadRef === lastLoaded`) and `recheck(serviceId?)` API stay.
+- Return shape changes:
+  ```ts
+  { statuses, progress, recheck }
+  ```
+  Helpers: `inFlightTotal = sum(progress.*.inFlight)`, derived in the consumer.
 
-**2. Wire into `ServicesManager.tsx`**
+**2. Update `src/components/ServicesManager.tsx`**
 
-- Accept new optional `isActive: boolean` prop (true when the Services tab is selected). Use it as the `enabled` flag for the hook.
-- Render the progress strip above the service list when `inFlight > 0`.
-- Replace the static badge logic in the card (lines ~558–570) so badges reflect `statuses[service.id]`:
-  - `checking` → spinner + "Checking…"
-  - `ok` or `service.capabilities?.layers.length` → existing green badge
-  - `error` → amber "Couldn't fetch" + small Retry button calling `recheck(service.id)`
-  - `idle` (S3/STAC, or hook hasn't run yet) → existing fallback
-- Add **Re-check all** button in the header next to **Add Service** (disabled while `inFlight > 0`).
+- Replace the single progress strip with a small block that conditionally renders one row per kind where `progress[kind].total > 0 && progress[kind].completed < progress[kind].total`:
+  ```tsx
+  {progress.stac.inFlight > 0 && <Row label="STAC catalogues" {...progress.stac} />}
+  {progress.ogc.inFlight > 0  && <Row label="WMS / WMTS / WFS services" {...progress.ogc} />}
+  {progress.s3.inFlight > 0   && <Row label="S3 stores" {...progress.s3} />}
+  ```
+  (Use `inFlight > 0` to avoid flicker after a group finishes.)
+- Update the **Re-check all** disabled condition: enabled whenever any service exists (since all three kinds are now checked). Spinner shows while any group has `inFlight > 0`.
+- Per-card badge: keep current logic but for S3 services with `ok` status and an empty `layers` array, show "Endpoint reachable" instead of "0 objects available".
 
-**3. Wire `isActive` from `ConfigBuilder.tsx`**
+**3. New util: `src/utils/stacCapabilities.ts`**
 
-The Tabs component's `value` prop already drives which tab is active. Pass `isActive={activeTab === 'services'}` to `ServicesManager`. (Need to lift the `value` into local state if it isn't already — currently `Tabs` uses defaultValue/uncontrolled. Convert to controlled with `useState('home')`.)
+Extract the catalog/openEO logic from `useServices.fetchStacCatalogue` into a pure async function `fetchStacCapabilities(url): Promise<ServiceCapabilities | null>` (no React state, no toasts). Have `useServices` re-import and wrap it with toast/loading state to preserve current add-flow UX.
 
-**4. Reset trigger**
+**4. WFS sanity check**
 
-Use `lastLoaded` from `useConfig()` as the reset key inside the hook — when a fresh config loads, `lastLoaded` changes, the guard ref no longer matches, and the next tab activation re-runs validation.
+Open `src/utils/serviceCapabilities.ts` and confirm WFS handling. If WFS isn't currently parsed (the current summary shows only WMS/WMTS), add a minimal WFS branch:
+- URL: `?service=WFS&request=GetCapabilities&version=2.0.0`
+- Parse `FeatureType` elements → `{ name, title, abstract }`
+- Same 10s timeout / AbortController.
+
+If WFS is intentionally out of scope, drop "WFS" from the strip wording and from the OGC classifier — but the user explicitly mentioned W?S, so adding it is preferred.
 
 ### Files touched
 
-- **New**: `src/hooks/useBulkServiceValidation.ts` (~80 lines, mirrors the concurrency utility from `useConfigImport.ts` and the per-service caching from `useLazyServiceCapabilities.ts`).
-- **Edit**: `src/components/ServicesManager.tsx` — accept `isActive`, render progress strip, drive card badges from hook state, add Re-check all + per-card Retry.
-- **Edit**: `src/components/ConfigBuilder.tsx` — make `Tabs` controlled, pass `isActive` to `ServicesManager`.
+- **Edit**: `src/hooks/useBulkServiceValidation.ts` — kind classifier, per-group progress, three validators.
+- **Edit**: `src/components/ServicesManager.tsx` — three-row progress strip, S3-specific success wording, re-check button enable condition.
+- **New**: `src/utils/stacCapabilities.ts` — pure STAC capability fetcher extracted from `useServices`.
+- **Edit**: `src/hooks/useServices.ts` — delegate `fetchStacCatalogue` to the new util (preserves toasts/loading).
+- **Edit (conditional)**: `src/utils/serviceCapabilities.ts` — add WFS branch if missing.
 
 ### Out of scope
 
-- Triggering validation on other tabs (Layers etc.) — only the Services tab presents per-service status, so no benefit elsewhere.
-- Re-validating already-cached services — only services missing `capabilities` are checked. "Re-check all" is the explicit override.
-- Changing the import-time `deferCapabilities` default — Quick Load remains fast; this plan complements it, not replaces it.
+- Persisting S3 object counts when bucket listing is CORS-blocked (we accept "reachable" as success).
+- Changing the per-service `capabilities` schema. STAC keeps using `totalCount`; S3 reachable-only stores empty layers.
+- Caching across sessions. Same as today: `lastLoaded` resets the guard.
 
