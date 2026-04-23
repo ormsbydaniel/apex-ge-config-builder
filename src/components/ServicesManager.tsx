@@ -87,6 +87,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     setPendingRecheck(false);
   }, [pendingRecheck, services.length, recheck]);
 
+  // Single-service deferred recheck. We can't call recheck(id) right after
+  // onAddService / onUpdateService because the bulk hook's `services` closure
+  // won't include the new/updated state until React re-renders. We wait for
+  // the id to appear in `services` (and, for edits, until the URL matches the
+  // patched value) before triggering the probe.
+  const [pendingRecheckId, setPendingRecheckId] = useState<{ id: string; url: string } | null>(null);
+  useEffect(() => {
+    if (!pendingRecheckId) return;
+    const svc = services.find(s => s.id === pendingRecheckId.id);
+    if (!svc) return;
+    if (svc.url !== pendingRecheckId.url) return;
+    recheck(pendingRecheckId.id);
+    setPendingRecheckId(null);
+  }, [pendingRecheckId, services, recheck]);
+
   // Detect the start of a validation run: snapshot per-group totals so the
   // summary panel can persist after inFlight drops back to 0.
   const prevInFlightRef = React.useRef(0);
