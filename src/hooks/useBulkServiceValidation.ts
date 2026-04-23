@@ -29,6 +29,11 @@ const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
   s3: { total: 0, completed: 0, inFlight: 0 },
 };
 
+// Module-scoped marker of the last `lastLoaded` value we auto-validated for.
+// Persists across ServicesManager mount/unmount (tab switches) so we only
+// auto-validate once per loaded config.
+let lastValidatedLoad: Date | null | 'manual' = null;
+
 const classify = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
 
@@ -79,7 +84,9 @@ export const useBulkServiceValidation = (
   const lastLoaded = config.lastLoaded;
   const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>({});
   const [progress, setProgress] = useState<Record<ServiceKind, GroupProgress>>(INITIAL_PROGRESS);
-  const validatedForLoadRef = useRef<Date | null | 'manual'>(null);
+  // Module-scoped (see bottom of file) so tab switches that unmount this hook
+  // don't trigger re-validation for the same loaded config.
+  const validatedForLoadRef = useRef<Date | null | 'manual'>(lastValidatedLoad);
 
   const updateProgress = useCallback(
     (kind: ServiceKind, delta: Partial<GroupProgress>) => {
@@ -242,6 +249,7 @@ export const useBulkServiceValidation = (
     if (!enabled) return;
     if (validatedForLoadRef.current === lastLoaded) return;
     validatedForLoadRef.current = lastLoaded;
+    lastValidatedLoad = lastLoaded;
 
     const targets = services.filter(s => !s.capabilities && classify(s) !== null);
     if (targets.length === 0) return;
@@ -263,6 +271,7 @@ export const useBulkServiceValidation = (
       // Re-check all classifiable services
       const targets = services.filter(s => classify(s) !== null);
       validatedForLoadRef.current = 'manual';
+      lastValidatedLoad = 'manual';
       runBulk(targets);
     },
     [services, validateStac, validateOgc, validateS3, runBulk],
