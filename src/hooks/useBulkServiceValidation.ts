@@ -79,7 +79,9 @@ export const useBulkServiceValidation = (
   const lastLoaded = config.lastLoaded;
   const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>({});
   const [progress, setProgress] = useState<Record<ServiceKind, GroupProgress>>(INITIAL_PROGRESS);
-  const validatedForLoadRef = useRef<Date | null | 'manual'>(null);
+  // Module-scoped (see bottom of file) so tab switches that unmount this hook
+  // don't trigger re-validation for the same loaded config.
+  const validatedForLoadRef = useRef<Date | null | 'manual'>(lastValidatedLoad);
 
   const updateProgress = useCallback(
     (kind: ServiceKind, delta: Partial<GroupProgress>) => {
