@@ -129,24 +129,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   }, [open, activeTab, repo, branch]);
 
   const handleProgress = (e: ImportProgress) => {
-    if (e.stage === 'capabilities') {
-      setStage('capabilities');
-      setProgressTotal(e.total);
-      setServiceProgress((prev) => {
-        const next = [...prev];
-        // Initialize entry for this service if not present
-        const existingIdx = next.findIndex((s) => s.name === e.serviceName);
-        if (existingIdx === -1) {
-          next.push({ name: e.serviceName, status: e.status });
-        } else {
-          next[existingIdx] = { name: e.serviceName, status: e.status };
-        }
-        return next;
-      });
-      if (e.status === 'ok' || e.status === 'error' || e.status === 'skipped') {
-        setProgressDone((prev) => prev + 1);
-      }
-    } else {
+    if (e.stage !== 'capabilities') {
       setStage(e.stage as Stage);
     }
   };
@@ -155,11 +138,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     setIsLoading(true);
     setLoadingLabel(label);
     setStage('parse');
-    setServiceProgress([]);
-    setProgressDone(0);
-    setProgressTotal(0);
-    setSummary(null);
-    skippedRef.current = false;
     abortRef.current = new AbortController();
   };
 
@@ -167,8 +145,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     success: boolean,
     errors?: ValidationErrorDetails[],
     fileName?: string,
-    capabilitiesAttempted?: number,
-    capabilitiesSkipped?: number,
   ) => {
     setIsLoading(false);
     abortRef.current = null;
@@ -178,18 +154,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       return;
     }
     if (success) {
-      // For full-load, hold dialog open with summary; for quick-load, auto-close
-      if (fullLoad && capabilitiesAttempted && capabilitiesAttempted > 0) {
-        const okCount = capabilitiesAttempted - (capabilitiesSkipped || 0);
-        setSummary(
-          `Loaded ${capabilitiesAttempted} services — ${okCount} capabilities fetched${
-            capabilitiesSkipped ? `, ${capabilitiesSkipped} skipped` : ''
-          }.`,
-        );
-        setStage('done');
-      } else {
-        onOpenChange(false);
-      }
+      onOpenChange(false);
     }
   };
 
@@ -198,12 +163,11 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     if (!file) return;
     startLoading(file.name);
     const result = await importConfig(file, {
-      deferCapabilities: !fullLoad,
       onProgress: handleProgress,
       signal: abortRef.current?.signal,
     });
     if (fileInputRef.current) fileInputRef.current.value = '';
-    finishLoading(result.success, result.errors, file.name, result.capabilitiesAttempted, result.capabilitiesSkipped);
+    finishLoading(result.success, result.errors, file.name);
   };
 
   const handleLoadExample = async (exampleName?: string) => {
@@ -213,12 +177,11 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       '/examples/test-config.json',
       { type: 'example', label },
       {
-        deferCapabilities: !fullLoad,
         onProgress: handleProgress,
         signal: abortRef.current?.signal,
       },
     );
-    finishLoading(result.success, result.errors, 'test-config.json', result.capabilitiesAttempted, result.capabilitiesSkipped);
+    finishLoading(result.success, result.errors, 'test-config.json');
   };
 
   const handleLoadFromGithub = async (path: string) => {
@@ -228,24 +191,15 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       rawUrl,
       { type: 'github', label: `${repo}@${branch}/${path}` },
       {
-        deferCapabilities: !fullLoad,
         onProgress: handleProgress,
         signal: abortRef.current?.signal,
       },
     );
-    finishLoading(result.success, result.errors, path, result.capabilitiesAttempted, result.capabilitiesSkipped);
-  };
-
-  const handleSkipRemaining = () => {
-    skippedRef.current = true;
-    abortRef.current?.abort();
+    finishLoading(result.success, result.errors, path);
   };
 
   const handleCancel = () => {
     abortRef.current?.abort();
-    // Cancel hides the dialog without changing config (the in-flight load may still call LOAD_CONFIG;
-    // realistically users only cancel mid-capabilities so config will still be loaded — this acts as
-    // "skip remaining + close").
     onOpenChange(false);
   };
 
