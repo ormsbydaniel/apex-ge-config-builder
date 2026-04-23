@@ -108,12 +108,39 @@ export const useBulkServiceValidation = (
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
         setStatus(svc.id, 'ok');
       } else {
+        dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
         setStatus(svc.id, 'error');
       }
     } catch {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('stac', { inFlight: -1, completed: 1 });
+    }
+  }, [dispatch, setStatus, updateProgress]);
+
+  const validateOgc = useCallback(async (svc: Service) => {
+    if (!svc.format) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setStatus(svc.id, 'error');
+      return;
+    }
+    setStatus(svc.id, 'checking');
+    updateProgress('ogc', { inFlight: 1 });
+    try {
+      const capabilities = await fetchServiceCapabilities(svc.url, svc.format as DataSourceFormat);
+      if (capabilities) {
+        dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
+        setStatus(svc.id, 'ok');
+      } else {
+        dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+        setStatus(svc.id, 'error');
+      }
+    } catch {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setStatus(svc.id, 'error');
+    } finally {
+      updateProgress('ogc', { inFlight: -1, completed: 1 });
     }
   }, [dispatch, setStatus, updateProgress]);
 
