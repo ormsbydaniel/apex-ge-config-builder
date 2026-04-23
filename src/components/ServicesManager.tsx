@@ -259,6 +259,35 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     setDetectionResult(null);
     setShowAddForm(false);
     setEditingServiceId(null);
+    setValidateState({ status: 'idle' });
+  };
+
+  // Reset validation result whenever the URL or service type changes.
+  useEffect(() => {
+    setValidateState({ status: 'idle' });
+  }, [newServiceUrl, selectedFormat]);
+
+  const handleValidate = async () => {
+    const url = newServiceUrl.trim();
+    if (!url || selectedFormat === 'json-upload') return;
+
+    let kind: ProbeKind;
+    let ogcFormat: DataSourceFormat | undefined;
+    if (selectedFormat === 'stac') {
+      kind = 'stac';
+    } else if (selectedFormat === 's3') {
+      kind = 's3';
+    } else {
+      kind = 'ogc';
+      ogcFormat = selectedFormat as DataSourceFormat;
+    }
+
+    setValidateState({ status: 'checking' });
+    const result = await validateSingleService(url, kind, ogcFormat);
+    setValidateState({
+      status: result.ok ? 'ok' : 'error',
+      message: result.message,
+    });
   };
 
   const handleEditService = (service: Service) => {
