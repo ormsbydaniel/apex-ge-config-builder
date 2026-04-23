@@ -13,7 +13,11 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
     const capabilitiesUrl = new URL(url);
     capabilitiesUrl.searchParams.set('service', format.toUpperCase());
     capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
-    capabilitiesUrl.searchParams.set('version', format === 'wms' ? '1.3.0' : '1.0.0');
+    const version =
+      format === 'wms' ? '1.3.0' :
+      format === 'wfs' ? '2.0.0' :
+      '1.0.0';
+    capabilitiesUrl.searchParams.set('version', version);
 
     // Use AbortController to enforce a 10-second timeout per service
     const controller = new AbortController();
