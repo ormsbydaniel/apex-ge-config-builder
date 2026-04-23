@@ -1,54 +1,47 @@
 
-## Restore auto-populate of Service Name from URL for WMS/WMTS/WFS
 
-### Problem
+## Remove "Full load (pre-fetch capabilities)" option from Load Configuration dialog
 
-The Add/Edit Service modal currently only auto-populates the Service Name field for STAC services (debounced fetch in a `useEffect`). For WMS/WMTS/WFS the name field stays blank until the user types one, even though the GetCapabilities response contains a `Service > Title` (or `ows:ServiceIdentification > ows:Title`) that we already parse inside `useServices.parseGetCapabilities`. Previously the user saw that title appear in the Name field shortly after pasting the URL.
+### Why
 
-### Behaviour
+The checkbox is now redundant:
+- The Services tab auto-runs bulk validation the first time it's opened after a config load (`useBulkServiceValidation`), with per-group progress, status badges, the failures section, and module-level caching so it doesn't re-run on tab switches.
+- Other consumers fetch capabilities lazily on first use.
+- Pre-fetching at load time just front-loads work the user will see anyway in the Services tab a moment later, and complicates the load dialog with a second progress view, a "Skip remaining" button, a summary screen, and a hold-open-after-success branch.
 
-After the user pastes/edits the **Service URL** in the modal, with a short debounce (matches the existing 600 ms STAC pattern):
+Quick load (deferred capabilities) becomes the only path — which is what nearly every load already is.
 
-- **STAC** — unchanged. Existing effect fetches the catalogue JSON and fills Name from `title`/`id`.
-- **WMS / WMTS / WFS** — new behaviour. Fetch `GetCapabilities` for the URL, parse the service title, and fill the Name field if it is currently empty.
-- **S3 / xyz / cog / geojson / flatgeobuf / json-upload** — no auto-name (no reliable title source), unchanged.
+### Behaviour after change
 
-Rules consistent with the STAC effect:
-- Only populate when the Name field is empty (never overwrite user input).
-- Debounce 600 ms; abort in-flight fetch on URL/format change or unmount.
-- Reuse the existing `autoNameLoading` flag so the small spinner next to the Name label appears during the lookup for OGC formats too.
-- Errors are silent (no toast) — the user can still type a name manually, and the existing on-save validation will surface URL problems.
+- Load dialog shows: Parse → Normalize → Validate → Done. No capabilities stage, no per-service progress list, no summary panel.
+- On success the dialog closes immediately (today's quick-load behaviour) for all sources (upload, examples, GitHub).
+- Cancel button stays during loading; "Skip remaining" goes (no capabilities phase to skip).
+- Service capability validation continues to happen automatically when the user opens the Services tab — unchanged.
 
 ### Implementation
 
-**Single file: `src/components/ServicesManager.tsx`**, and one tiny extraction so we don't duplicate XML parsing.
+**Edit only `src/components/config/LoadConfigDialog.tsx`:**
 
-1. **Extract a shared title parser**. Add a small exported helper `parseGetCapabilitiesTitle(url, format)` in a new lightweight util (`src/utils/getCapabilitiesTitle.ts`) that:
-   - Builds the `service=…&request=GetCapabilities&version=…` URL the same way `useServices.parseGetCapabilities` does.
-   - Fetches with an `AbortSignal` (passed in from the caller).
-   - Parses XML, returns `xmlDoc.querySelector('Service > Title, ows\\:ServiceIdentification > ows\\:Title')?.textContent?.trim() || null`.
-   - Returns `null` on any error (no toasts — this is a best-effort UX helper).
-   
-   `useServices.parseGetCapabilities` keeps its full behaviour but can optionally call this helper for the title extraction so the selector lives in one place.
-
-2. **Generalise the auto-name effect** in `ServicesManager.tsx` (currently lines 141–166):
-   - Replace the `if (selectedFormat !== 'stac') return;` guard with a switch on `selectedFormat`:
-     - `'stac'` → existing JSON fetch path.
-     - `'wms' | 'wmts' | 'wfs'` → call `parseGetCapabilitiesTitle(url, selectedFormat, controller.signal)`; if it returns a non-empty string and `newServiceName` is still empty, `setNewServiceName(title)`.
-     - Anything else → return (no-op).
-   - Keep the same 600 ms debounce, `AbortController`, `autoNameLoading` toggle, and "only fill when empty" guard.
-   - Dependency array stays `[newServiceUrl, selectedFormat]` (and `newServiceName` is intentionally read but not in deps, matching the existing STAC behaviour, to avoid re-firing on every keystroke in the Name field).
-
-3. **No UI changes**. The existing small loading indicator next to the Name label already keys off `autoNameLoading`, so it'll show for OGC lookups automatically.
+1. Delete `fullLoad` state and the checkbox UI block (the `<div>` containing the `Checkbox` with id `full-load`).
+2. In `handleFile`, `handleLoadExample`, `handleLoadFromGithub`: drop `deferCapabilities: !fullLoad` (the import hook already defaults `deferCapabilities` to `true`).
+3. In `renderLoadingView`:
+   - Remove the "Full load / Quick load" descriptor line.
+   - Remove the `capabilities` `StageRow`.
+   - Remove the per-service progress `<ul>` block.
+   - Remove the `summary` panel.
+   - Remove the `Skip remaining` button branch.
+4. In `finishLoading`: simplify to always close on success — drop the `fullLoad && capabilitiesAttempted` branch and the `summary`/`stage='done'` hold-open path.
+5. Drop now-unused state: `summary`, `serviceProgress`, `progressTotal`, `progressDone`, `skippedRef`, and the `handleSkipRemaining` handler. Keep `stage` for parse/normalize/validate/done indicators and keep `abortRef` for `Cancel`.
+6. In `handleProgress`: drop the `capabilities` branch (only `parse | normalize | validate | done` remain).
+7. Remove now-unused imports (`X`, `XCircle`, possibly `Checkbox`) — verify with the linter after edit.
 
 ### Out of scope
 
-- Auto-naming for S3/xyz/file-based formats (no reliable title source).
-- Changing the on-save validation flow, the Validate button, or the failures section.
-- Touching `useServices.parseGetCapabilities`'s capability fetching used during commit — that still runs and still populates layers; we're only adding a pre-commit, name-only lookup driven from the modal.
+- `useConfigImport.ts` — leave the `deferCapabilities` option intact (it just stops being toggled from this dialog; default is already `true`). Removing it from the API is a separate cleanup that risks touching other call sites.
+- `useBulkServiceValidation` — unchanged.
+- Failures-section UI on the Services tab — unchanged.
 
 ### Files
 
-- **New**: `src/utils/getCapabilitiesTitle.ts` — small abortable helper that fetches `GetCapabilities` and returns the service title.
-- **Edit**: `src/components/ServicesManager.tsx` — generalise the existing STAC auto-name `useEffect` to also handle `wms`/`wmts`/`wfs` via the new helper.
-- **Edit (optional, minor)**: `src/hooks/useServices.ts` — reuse the same helper for the title selector inside `parseGetCapabilities` to keep the title selector in one place.
+- **Edit**: `src/components/config/LoadConfigDialog.tsx` — remove the Full Load checkbox, capabilities-progress UI, summary screen, and related state/handlers.
+
