@@ -29,6 +29,11 @@ const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
   s3: { total: 0, completed: 0, inFlight: 0 },
 };
 
+// Module-scoped marker of the last `lastLoaded` value we auto-validated for.
+// Persists across ServicesManager mount/unmount (tab switches) so we only
+// auto-validate once per loaded config.
+let lastValidatedLoad: Date | null | 'manual' = null;
+
 const classify = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
 
