@@ -1,84 +1,64 @@
 
 
-## Edit Service feature
+## Validate services on Services tab visit (post Quick Load)
 
-Add a pencil/settings icon next to the delete icon on each service card in `ServicesManager`. Clicking it opens the existing "Add New Service" form pre-filled with that service's values, in **Edit mode**.
+### Why
+
+After a Quick Load, services arrive without `capabilities` (no GetCapabilities was fetched). Today they only get validated lazily when opened in the "Add Dataset → From Service" picker. Until then, the Services tab shows every loaded service with an orange **"Manual configuration required"** badge — misleading for services that are actually fine.
+
+Trigger validation when the user first opens the Services tab so they get accurate status (layer counts, reachability) without paying the cost up front at load time.
 
 ### UX
 
-- Each service card shows two ghost icon buttons in the top-right: **Edit** (pencil icon, neutral) and **Delete** (trash, red — unchanged).
-- Clicking Edit:
-  - Scrolls/expands the form panel (same one used for "Add New Service") at the top of the list.
-  - Header changes from "Add New Service" → "Edit Service".
-  - Submit button changes from "Add Service" → "Save Changes".
-  - Pre-fills: Service Type (locked — see below), URL, Name.
-  - Cancel discards changes; Save updates the service in-place.
-- The "Add Service" / "Add Recommended Services" buttons in the header are disabled while editing (same as current add-mode behaviour).
-- Service Type is **read-only in edit mode**. Changing the type would invalidate `format`, `sourceType`, capability shape, and any layers/sources already referencing the service. If a user really needs a different type, they should delete and re-add. We'll show the type as a disabled `Select` (or plain badge + label) with a small helper note: "Service type cannot be changed. Delete and re-add to switch type."
-- The JSON/XML upload type is not offered in edit mode (it's a one-shot import path). If the original service was created via upload, the form still edits name/URL only.
-- On Save: dispatch `UPDATE_SERVICE` with `{ id, patch: { name, url } }`. Do **not** re-fetch capabilities automatically — existing capabilities are preserved. (User can open the service in the layer picker to lazily refresh, consistent with the recent lazy-capabilities work.)
-
-### Why pencil, not literal cog
-
-Lucide's `Settings` (cog) icon is widely used for configuration panels. For per-row "edit this item" actions the conventional icon is `Pencil` (or `Edit`). I'll use `Pencil` — clearer affordance, matches the existing edit pattern used on layers/data sources. If you specifically want the gear, swap to `Settings` — one-line change.
+- First time the Services tab becomes active in a session **and** there are services missing `capabilities`, kick off a background validation pass.
+- Tab header shows a subtle progress strip: *"Checking 3 of 7 services…"* with a small spinner. Non-blocking — the user can edit/delete/scroll freely.
+- Each service card without capabilities shows one of:
+  - **Spinner + "Checking…"** while in-flight.
+  - **Green "N layers available"** badge once capabilities resolve (existing UI, just driven by the new fetch).
+  - **Amber "Couldn't fetch capabilities"** badge with a small **Retry** button on failure (replaces the current generic "Manual configuration required" only for *checked-and-failed* services; never-checked stays as today).
+- Add a **"Re-check all"** button next to **Add Service** in the tab header. Always available; refetches all non-S3/STAC services and updates the cards in place.
+- Validation only runs once per loaded config. Loading a new config resets the "already-validated" flag so the next Services-tab visit re-validates.
+- S3 and STAC services are skipped (consistent with `useLazyServiceCapabilities` and import-time logic) — they don't use GetCapabilities.
 
 ### Implementation
 
-**`src/components/ServicesManager.tsx`** — only file touched.
+**1. New hook: `src/hooks/useBulkServiceValidation.ts`**
 
-1. Add state: `const [editingServiceId, setEditingServiceId] = useState<string | null>(null);`
-2. New handler `handleEditService(service: Service)`:
-   - Sets `editingServiceId`, `newServiceName = service.name`, `newServiceUrl = service.url`, `selectedFormat` derived from `service.sourceType`/`service.format` (for display only), `setShowAddForm(true)`.
-3. Update `handleAddService` to branch on `editingServiceId`:
-   - If editing: call new prop `onUpdateService(id, { name, url })` and reset form.
-   - Else: existing add flow.
-4. Update `handleCancel` to also clear `editingServiceId`.
-5. In the card, add a Pencil button (ghost, neutral muted-foreground hover) before the Trash button:
-   ```tsx
-   <Button variant="ghost" size="sm" onClick={() => handleEditService(service)}
-     className="text-muted-foreground hover:text-foreground"
-     title="Edit service">
-     <Pencil className="h-4 w-4" />
-   </Button>
-   ```
-6. Form panel:
-   - Title becomes `editingServiceId ? 'Edit Service' : 'Add New Service'`.
-   - Service Type `<Select disabled={!!editingServiceId}>`; below it, helper text shown only when editing.
-   - Hide the `json-upload` SelectItem when editing.
-   - Submit button label/disabled flag updated to support edit (URL still required, name optional as today).
+Encapsulates the bulk fetch:
+- Input: `services: Service[]`, `enabled: boolean`.
+- Maintains per-service status (`'idle' | 'checking' | 'ok' | 'error'`) in local state.
+- On `enabled` going true (and once per `lastLoaded` timestamp from `ConfigContext`), iterates non-S3/STAC services missing `capabilities`, calls `fetchServiceCapabilities` with bounded concurrency (reuse `CONCURRENCY = 4` pattern from `useConfigImport`), dispatches `UPDATE_SERVICE` with `{ capabilities }` on success.
+- Exposes `{ statuses, inFlight, totalToCheck, completed, recheck(serviceId?) }`.
+- A ref-based guard (`validatedForLoadRef.current === lastLoaded`) prevents re-running when navigating away and back.
 
-**`src/components/config/ServicesTab.tsx`** (or wherever `ServicesManager` is rendered) — pass new `onUpdateService` prop wired to dispatch.
+**2. Wire into `ServicesManager.tsx`**
 
-**`src/hooks/useServiceManagement.ts`** — add:
-```ts
-const updateService = useCallback((id: string, patch: Partial<Service>) => {
-  dispatch({ type: 'UPDATE_SERVICE', payload: { id, patch } });
-  toast({ title: 'Service Updated', description: `"${patch.name ?? ''}" saved.` });
-}, [dispatch, toast]);
-```
-and return it. The reducer's existing `UPDATE_SERVICE` case already merges correctly.
+- Accept new optional `isActive: boolean` prop (true when the Services tab is selected). Use it as the `enabled` flag for the hook.
+- Render the progress strip above the service list when `inFlight > 0`.
+- Replace the static badge logic in the card (lines ~558–570) so badges reflect `statuses[service.id]`:
+  - `checking` → spinner + "Checking…"
+  - `ok` or `service.capabilities?.layers.length` → existing green badge
+  - `error` → amber "Couldn't fetch" + small Retry button calling `recheck(service.id)`
+  - `idle` (S3/STAC, or hook hasn't run yet) → existing fallback
+- Add **Re-check all** button in the header next to **Add Service** (disabled while `inFlight > 0`).
 
-**`src/contexts/ConfigContext.tsx`** — `UPDATE_SERVICE` currently does not mark the config dirty (intentional for capability writes). Change it to mark dirty **only when the patch contains user-editable fields** (`name` or `url`):
-```ts
-const isUserEdit = 'name' in patch || 'url' in patch;
-return {
-  ...state,
-  services: updatedServices,
-  ...(isUserEdit ? { hasUnsavedChanges: true } : {}),
-};
-```
-This preserves the lazy-capability behaviour while ensuring real edits trigger the unsaved-changes guard.
+**3. Wire `isActive` from `ConfigBuilder.tsx`**
+
+The Tabs component's `value` prop already drives which tab is active. Pass `isActive={activeTab === 'services'}` to `ServicesManager`. (Need to lift the `value` into local state if it isn't already — currently `Tabs` uses defaultValue/uncontrolled. Convert to controlled with `useState('home')`.)
+
+**4. Reset trigger**
+
+Use `lastLoaded` from `useConfig()` as the reset key inside the hook — when a fresh config loads, `lastLoaded` changes, the guard ref no longer matches, and the next tab activation re-runs validation.
 
 ### Files touched
 
-- `src/components/ServicesManager.tsx` — Pencil button, edit-mode form state, conditional labels.
-- `src/hooks/useServiceManagement.ts` — `updateService` action creator.
-- `src/contexts/ConfigContext.tsx` — mark dirty when `UPDATE_SERVICE` patches `name`/`url`.
-- Caller of `ServicesManager` (likely `src/components/config/ServicesTab.tsx`) — wire `onUpdateService` prop.
+- **New**: `src/hooks/useBulkServiceValidation.ts` (~80 lines, mirrors the concurrency utility from `useConfigImport.ts` and the per-service caching from `useLazyServiceCapabilities.ts`).
+- **Edit**: `src/components/ServicesManager.tsx` — accept `isActive`, render progress strip, drive card badges from hook state, add Re-check all + per-card Retry.
+- **Edit**: `src/components/ConfigBuilder.tsx` — make `Tabs` controlled, pass `isActive` to `ServicesManager`.
 
 ### Out of scope
 
-- Changing service type after creation.
-- Re-fetching capabilities on URL change (stale capabilities will refresh next time the service is opened in the layer picker; could be a follow-up "Refresh capabilities" button).
-- Editing services created from JSON/XML upload beyond name/URL.
+- Triggering validation on other tabs (Layers etc.) — only the Services tab presents per-service status, so no benefit elsewhere.
+- Re-validating already-cached services — only services missing `capabilities` are checked. "Re-check all" is the explicit override.
+- Changing the import-time `deferCapabilities` default — Quick Load remains fast; this plan complements it, not replaces it.
 
