@@ -275,7 +275,13 @@ const ConfigBuilderContent = () => {
             </TabsContent>
 
             <TabsContent value="services">
-              <ServicesManager services={config.services} onAddService={addService} onRemoveService={removeService} onUpdateService={updateService} />
+              <ServicesManager
+                services={config.services}
+                onAddService={addService}
+                onRemoveService={removeService}
+                onUpdateService={updateService}
+                isActive={navigationState.activeTab === 'services'}
+              />
             </TabsContent>
 
             <TabsContent value="settings">
