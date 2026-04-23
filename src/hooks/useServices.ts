@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Service, ServiceCapabilities, DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 import { fetchS3BucketContents } from '@/utils/s3Utils';
+import { fetchStacCapabilities } from '@/utils/stacCapabilities';
 
 export const useServices = (services: Service[], onAddService: (service: Service) => void) => {
   const { toast } = useToast();
@@ -127,83 +128,15 @@ export const useServices = (services: Service[], onAddService: (service: Service
   const fetchStacCatalogue = async (url: string): Promise<{ capabilities: ServiceCapabilities | null; title?: string }> => {
     try {
       setIsLoadingCapabilities(true);
-
-      const ensureSlash = (u: string) => (u.endsWith('/') ? u : u + '/');
-      const rootUrl = url;
-
-      // Fetch root first so we can detect whether this is actually a catalog root,
-      // or a direct openEO job-result style STAC-like response (assets at top-level).
-      const rootRes = await fetch(rootUrl);
-      const rootJson = await rootRes.json();
-
-      // openEO job results pattern: no /collections, just a JSON with top-level "assets"
-      if (rootJson?.assets && typeof rootJson.assets === 'object') {
-        const assetCount = Object.keys(rootJson.assets).length;
-        const title = rootJson.title || rootJson.id || 'STAC Assets';
-
-        return {
-          capabilities: {
-            layers: [
-              {
-                name: 'assets',
-                title: `Assets (${assetCount})`,
-                abstract: 'Direct STAC assets response (openEO job results)',
-              },
-            ],
-            title: rootJson.title,
-            abstract: rootJson.description,
-            totalCount: assetCount,
-          },
-          title,
-        };
+      const result = await fetchStacCapabilities(url);
+      if (!result.capabilities) {
+        toast({
+          title: "STAC Catalogue Error",
+          description: "Failed to fetch catalogue metadata. Please check the catalogue URL.",
+          variant: "destructive"
+        });
       }
-
-      // Otherwise assume a STAC Catalog and fetch collections
-      // IMPORTANT: do NOT append a trailing slash to signed URLs with query params.
-      const baseUrl = new URL(url);
-      baseUrl.search = '';
-      baseUrl.hash = '';
-      const collectionsUrl = ensureSlash(baseUrl.toString()) + 'collections?limit=100';
-      const collRes = await fetch(collectionsUrl);
-
-      const catalogue = rootJson;
-      const collectionsJson = await collRes.json();
-
-      const title = catalogue.title || catalogue.id || 'STAC Catalogue';
-
-      let layers: any[] = [];
-      const collections = collectionsJson.collections || collectionsJson; // some servers may return array directly
-
-      // Use numberMatched from STAC API if available, otherwise use array length
-      const totalCollections = collectionsJson.numberMatched !== undefined
-        ? collectionsJson.numberMatched
-        : (Array.isArray(collections) ? collections.length : 0);
-
-      if (Array.isArray(collections)) {
-        layers = collections.map((c: any) => ({
-          name: c.id || c.title,
-          title: c.title || c.id,
-          abstract: c.description || 'STAC Collection'
-        }));
-      }
-
-      return {
-        capabilities: {
-          layers,
-          title: catalogue.title,
-          abstract: catalogue.description,
-          totalCount: totalCollections
-        },
-        title
-      };
-    } catch (error) {
-      console.error('Error fetching STAC catalogue:', error);
-      toast({
-        title: "STAC Catalogue Error",
-        description: "Failed to fetch catalogue metadata. Please check the catalogue URL.",
-        variant: "destructive"
-      });
-      return { capabilities: null };
+      return result;
     } finally {
       setIsLoadingCapabilities(false);
     }

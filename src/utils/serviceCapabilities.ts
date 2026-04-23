@@ -13,7 +13,11 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
     const capabilitiesUrl = new URL(url);
     capabilitiesUrl.searchParams.set('service', format.toUpperCase());
     capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
-    capabilitiesUrl.searchParams.set('version', format === 'wms' ? '1.3.0' : '1.0.0');
+    const version =
+      format === 'wms' ? '1.3.0' :
+      format === 'wfs' ? '2.0.0' :
+      '1.0.0';
+    capabilitiesUrl.searchParams.set('version', version);
 
     // Use AbortController to enforce a 10-second timeout per service
     const controller = new AbortController();
@@ -151,6 +155,21 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
               crs: crsList.length > 0 ? crsList : undefined,
               bbox,
               hasLegendGraphic
+            });
+          }
+        });
+      } else if (format === 'wfs') {
+        // WFS 2.0.0: FeatureType elements under FeatureTypeList
+        const featureTypes = xmlDoc.querySelectorAll('FeatureType');
+        featureTypes.forEach(ft => {
+          const nameEl = ft.querySelector('Name');
+          const titleEl = ft.querySelector('Title');
+          const abstractEl = ft.querySelector('Abstract');
+          if (nameEl?.textContent) {
+            layers.push({
+              name: nameEl.textContent,
+              title: titleEl?.textContent || nameEl.textContent,
+              abstract: abstractEl?.textContent,
             });
           }
         });
