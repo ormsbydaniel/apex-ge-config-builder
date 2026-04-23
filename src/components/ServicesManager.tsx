@@ -339,9 +339,13 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
           {showAddForm && (
             <Card className="border-primary/30 mb-6">
               <CardHeader className="pb-4">
-                <CardTitle className="text-base">Add New Service</CardTitle>
+                <CardTitle className="text-base">
+                  {editingServiceId ? 'Edit Service' : 'Add New Service'}
+                </CardTitle>
                 <CardDescription>
-                  Configure a new WMS, WMTS, S3, or STAC service endpoint
+                  {editingServiceId
+                    ? 'Update the name or URL for this service. Service type cannot be changed.'
+                    : 'Configure a new WMS, WMTS, S3, or STAC service endpoint'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -350,6 +354,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                   <Select
                     value={selectedFormat}
                     onValueChange={(value: SourceConfigType | 'json-upload') => setSelectedFormat(value)}
+                    disabled={!!editingServiceId}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select service type" />
@@ -379,14 +384,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                           {STAC_CONFIG.label}
                         </div>
                       </SelectItem>
-                      <SelectItem value="json-upload">
-                        <div className="flex items-center gap-2">
-                          <Upload className="h-4 w-4" />
-                          JSON or XML File Upload (beta)
-                        </div>
-                      </SelectItem>
+                      {!editingServiceId && (
+                        <SelectItem value="json-upload">
+                          <div className="flex items-center gap-2">
+                            <Upload className="h-4 w-4" />
+                            JSON or XML File Upload (beta)
+                          </div>
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
+                  {editingServiceId && (
+                    <p className="text-xs text-muted-foreground">
+                      Service type cannot be changed. Delete and re-add to switch type.
+                    </p>
+                  )}
                 </div>
 
                 {selectedFormat === 'json-upload' ? (
