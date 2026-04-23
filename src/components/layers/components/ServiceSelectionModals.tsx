@@ -9,6 +9,7 @@ import { validateS3Url, S3Selection } from '@/utils/s3Utils';
 import S3LayerSelector from '@/components/form/S3LayerSelector';
 import StacBrowser from './StacBrowser';
 import { useLazyServiceCapabilities } from '@/hooks/useLazyServiceCapabilities';
+import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 
 import { AssetSelection } from './StacBrowser';
 
@@ -92,6 +93,10 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl h-[85vh] overflow-hidden flex flex-col">
+        <ModalErrorBoundary
+          onClose={handleClose}
+          resetKey={isOpen ? service?.id ?? service?.url ?? 'open' : 'closed'}
+        >
         {!isStacService && (
           <DialogHeader className="pb-0">
             <DialogTitle className="flex items-center gap-2 text-base">
@@ -194,6 +199,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
             </div>
           )}
         </div>
+        </ModalErrorBoundary>
       </DialogContent>
     </Dialog>
   );

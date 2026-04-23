@@ -23,6 +23,7 @@ import {
 import { useConfigImport } from '@/hooks/useConfigIO';
 import type { ImportProgress } from '@/hooks/useConfigImport';
 import { ValidationErrorDetails } from '@/types/config';
+import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 
 const DEFAULT_REPO = 'ESA-APEx/apex_geospatial_explorer_configs';
 const DEFAULT_BRANCH = 'main';
@@ -413,6 +414,10 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       }}
     >
       <DialogContent className="max-w-3xl h-[640px] max-h-[90vh] flex flex-col">
+        <ModalErrorBoundary
+          onClose={() => onOpenChange(false)}
+          resetKey={open ? `${activeTab}:${isLoading ? 'loading' : 'idle'}` : 'closed'}
+        >
         <DialogHeader>
           <DialogTitle>Load Configuration</DialogTitle>
           <DialogDescription>
@@ -635,6 +640,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
             </Tabs>
           </>
         )}
+        </ModalErrorBoundary>
       </DialogContent>
     </Dialog>
   );
