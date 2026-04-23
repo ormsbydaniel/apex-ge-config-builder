@@ -677,6 +677,159 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         onConfirm={handleConfirmRecommendedServices}
         isLoading={isAddingSelected}
       />
+
+      <Dialog
+        open={showAddForm || editingServiceId !== null}
+        onOpenChange={(o) => { if (!o) handleCancel(); }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingServiceId ? 'Edit Service' : 'Add Service'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingServiceId
+                ? 'Update the name or URL for this service. Service type cannot be changed.'
+                : 'Configure a new map service to add to your collection.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="serviceFormat">Service Type</Label>
+              <Select
+                value={selectedFormat}
+                onValueChange={(value: SourceConfigType | 'json-upload') => setSelectedFormat(value)}
+                disabled={!!editingServiceId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select service type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="wms">
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4" />
+                      {FORMAT_CONFIGS.wms.label}
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="wmts">
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4" />
+                      {FORMAT_CONFIGS.wmts.label}
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="s3">
+                    <div className="flex items-center gap-2">
+                      <Database className="h-4 w-4" />
+                      {S3_CONFIG.label}
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="stac">
+                    <div className="flex items-center gap-2">
+                      <Server className="h-4 w-4" />
+                      {STAC_CONFIG.label}
+                    </div>
+                  </SelectItem>
+                  {!editingServiceId && (
+                    <SelectItem value="json-upload">
+                      <div className="flex items-center gap-2">
+                        <Upload className="h-4 w-4" />
+                        JSON or XML File Upload (beta)
+                      </div>
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              {editingServiceId && (
+                <p className="text-xs text-muted-foreground">
+                  Service type cannot be changed. Delete and re-add to switch type.
+                </p>
+              )}
+            </div>
+
+            {selectedFormat === 'json-upload' ? (
+              <div className="space-y-2">
+                <Label htmlFor="serviceJsonFile">Upload Service JSON or XML</Label>
+                <Input
+                  id="serviceJsonFile"
+                  type="file"
+                  accept=".json,.xml,application/json,text/xml,application/xml"
+                  onChange={handleFileUpload}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Upload a JSON or XML file containing S3 bucket listing, STAC catalog, or service capabilities
+                </p>
+                {uploadedFile && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Selected: {uploadedFile.name} ({Math.round(uploadedFile.size / 1024)}KB)
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="serviceUrl">Service URL</Label>
+                  <Input
+                    id="serviceUrl"
+                    value={newServiceUrl}
+                    onChange={(e) => setNewServiceUrl(e.target.value)}
+                    placeholder={getConfigForType(selectedFormat).urlPlaceholder}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="serviceName">
+                    Service Name {selectedFormat === 'stac' && <span className="text-xs text-muted-foreground">(auto-populated from catalogue)</span>}
+                  </Label>
+                  <Input
+                    id="serviceName"
+                    value={newServiceName}
+                    onChange={(e) => setNewServiceName(e.target.value)}
+                    placeholder={
+                      selectedFormat === 's3' ? 'e.g., ESA APEX S3 Bucket' :
+                      selectedFormat === 'stac' ? 'Will be auto-populated...' :
+                      'e.g., Terrascope WMS'
+                    }
+                    disabled={selectedFormat === 'stac' && autoNameLoading}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddService}
+              disabled={
+                (selectedFormat !== 'json-upload' && !newServiceUrl.trim()) ||
+                (selectedFormat === 'json-upload' && !uploadedFile) ||
+                isLoadingCapabilities
+              }
+              className="bg-primary hover:bg-primary/90"
+            >
+              {isLoadingCapabilities ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {editingServiceId ? 'Saving...' : 'Adding Service...'}
+                </>
+              ) : editingServiceId ? (
+                <>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Save Changes
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Service
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
