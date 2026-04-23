@@ -66,7 +66,7 @@ async function runWithConcurrency<T>(
   await Promise.all(runners);
 }
 
-const isS3Or​StacService = (service: Service): boolean => {
+const isS3OrStacService = (service: Service): boolean => {
   const isS3 = service.sourceType === 's3' || parseS3Url(service.url) !== null;
   const isSkippedFormat = service.format === 's3' || service.format === 'stac';
   return isS3 || isSkippedFormat;
@@ -86,7 +86,7 @@ async function enrichServicesWithCapabilities(
   // Identify which services need capabilities.
   const targets: { service: Service; originalIndex: number }[] = [];
   services.forEach((service, originalIndex) => {
-    if (!isS3Or​StacService(service) && service.format) {
+    if (!isS3OrStacService(service) && service.format) {
       targets.push({ service, originalIndex });
     }
   });
