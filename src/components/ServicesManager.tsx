@@ -399,16 +399,18 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               <Button
                 onClick={handleAddRecommendedServices}
                 variant="outline"
-                disabled={isLoadingRecommended || showAddForm}
+                disabled={isLoadingRecommended}
                 className="border-primary/30"
               >
                 <Download className="h-4 w-4 mr-2" />
                 {isLoadingRecommended ? 'Loading...' : 'Add Recommended Services'}
               </Button>
               <Button
-                onClick={() => setShowAddForm(true)}
+                onClick={() => {
+                  setSelectedFormat('wms');
+                  setShowAddForm(true);
+                }}
                 className="bg-primary hover:bg-primary/90"
-                disabled={showAddForm}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Service
