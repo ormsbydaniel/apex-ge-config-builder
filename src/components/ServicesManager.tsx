@@ -41,6 +41,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
+  const { statuses: validationStatuses, inFlight, totalToCheck, completed, recheck } = useBulkServiceValidation(services, isActive);
 
   // Auto-populate STAC service name after user pauses typing URL
   useEffect(() => {
