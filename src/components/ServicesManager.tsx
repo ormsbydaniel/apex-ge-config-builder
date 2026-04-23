@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
+import { useBulkServiceValidation } from '@/hooks/useBulkServiceValidation';
 import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
@@ -21,9 +22,10 @@ interface ServicesManagerProps {
   onAddService: (service: Service) => void;
   onRemoveService: (index: number) => void;
   onUpdateService?: (id: string, patch: Partial<Service>) => void;
+  isActive?: boolean;
 }
 
-const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateService }: ServicesManagerProps) => {
+const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateService, isActive = true }: ServicesManagerProps) => {
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceUrl, setNewServiceUrl] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<SourceConfigType | 'json-upload'>('wms');
