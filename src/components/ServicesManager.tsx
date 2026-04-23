@@ -569,30 +569,33 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                           </Badge>
                         )}
                       </div>
-                      {onUpdateService && (
+                      <div className="flex items-center gap-1">
+                        {onUpdateService && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditService(service)}
+                            className="text-muted-foreground hover:text-foreground"
+                            title="Edit service"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleEditService(service)}
-                          className="text-muted-foreground hover:text-foreground"
-                          title="Edit service"
+                          onClick={() => {
+                            const originalIndex = services.findIndex(s => s.id === service.id);
+                            if (originalIndex !== -1) {
+                              onRemoveService(originalIndex);
+                            }
+                          }}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          title="Remove service"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          const originalIndex = services.findIndex(s => s.id === service.id);
-                          if (originalIndex !== -1) {
-                            onRemoveService(originalIndex);
-                          }
-                        }}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
