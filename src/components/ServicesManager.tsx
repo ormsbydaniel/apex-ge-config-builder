@@ -643,24 +643,6 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                               </div>
                             );
                           }
-                            return (
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="border-amber-300 text-amber-700">
-                                  <AlertTriangle className="h-3 w-3 mr-1" />
-                                  Couldn't fetch capabilities
-                                </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
-                                  onClick={() => recheck(service.id)}
-                                >
-                                  <RefreshCw className="h-3 w-3 mr-1" />
-                                  Retry
-                                </Button>
-                              </div>
-                            );
-                          }
                           return (
                             <Badge variant="outline" className="border-orange-300 text-orange-700">
                               Manual configuration required
