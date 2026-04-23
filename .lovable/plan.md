@@ -1,46 +1,48 @@
 
-## Auto-revalidate on save and surface invalid services in the failures list
-
-### Problem
-
-Today, when a user adds or edits a service via the modal, the service lands in the main configured-services list regardless of whether its URL is reachable. Invalid services display a generic "manual configuration required" message inline rather than being grouped with the post-"Re-check all" failures panel at the bottom of the page. The user wants parity: a freshly saved service that fails validation should appear in the same failures section, with the same card styling and badge messaging, as services that fail during a bulk recheck.
+## Auto-validate on Save in the Add/Edit Service modal
 
 ### Behaviour
 
-1. **Save still always succeeds** — the user can save an invalid service intentionally (matches current "user knows better" stance for the Validate button).
-2. **On save (Add or Edit)**, automatically trigger a single-service revalidation for the just-saved service. This is the same `recheck(serviceId)` path the bulk hook already exposes.
-3. **If validation fails**, the service shows up in the existing **"Invalid services"** failures section at the bottom of the page (the one introduced alongside the "Re-check all" progress strip), with the same card styling, badge, and error message as bulk-recheck failures.
-4. **If validation succeeds**, the card sits in the main list with its normal "ok" badge and resource count — no change from today's happy path.
-5. The inline "manual configuration required" message in the main list stays for services that have *never* been validated (e.g. freshly imported config before bulk-validation completes), but a service that has just been saved-and-revalidated will have a definitive `error` status, so it falls into the failures section automatically.
+When the user clicks **Add Service** / **Save Changes**, run the same probe the **Validate** button uses, *before* the service is committed. The result drives the inline modal feedback the user already sees, then the modal closes and the service is saved as today (always succeeds — failure does not block save).
 
-### How it hooks into existing code
+Net effect for the user:
+- They no longer have to click Validate first.
+- The inline ✓ / ✗ message flashes in the modal during save.
+- The saved service ends up in the correct place: main list with green badge if reachable, "Invalid services" failures section at the bottom if not — identical card styling and badge to bulk-recheck failures (already wired via the existing post-save `recheck(serviceId)`).
 
-The bottom-of-page failures section is already driven by `useBulkServiceValidation`'s `statuses` map (services where `status === 'error'`). The fix is to make sure a freshly saved service gets a real `'error'` (or `'ok'`) status set in that map, instead of being left as `'idle'`.
+If the user already clicked **Validate** and the URL hasn't changed since, skip the duplicate probe and reuse the existing `validateState` result — keeps save snappy.
 
-`useBulkServiceValidation` already exposes `recheck(serviceId?: string)` which validates a single service when an id is passed and writes the result into `statuses`. `ServicesManager.tsx` already calls a deferred `recheck()` (no id, recheck all) after add. We tighten this to:
+### Flow
 
-- After **Add**: call `recheck(newService.id)` once the new service is in `config.services`.
-- After **Edit**: call `recheck(editingServiceId)` immediately after the patch dispatch.
-
-This single-service recheck is cheap and matches the per-card behaviour of the existing failures list, so the saved service either gets a green badge in the main list or appears in the failures list at the bottom with the same styling everything else uses.
+1. User clicks the primary button (Add Service / Save Changes).
+2. If `validateState.status === 'ok' | 'error'` and URL+format are unchanged since that result → use it directly, skip re-probing.
+3. Otherwise set `validateState` to `'checking'` (spinner + "Validating…" inline, primary button disabled and shows spinner), call `validateSingleService(...)`, write the result into `validateState` so the inline row shows ✓ or ✗.
+4. Regardless of outcome, proceed with the existing save path (`onAddService` / `onUpdateService`), close the modal, and let the existing post-save `recheck(serviceId)` populate the bottom-of-page failures section if needed.
+5. JSON-upload mode is unaffected — no probe runs (consistent with Validate button behaviour).
 
 ### Implementation
 
 **Single file: `src/components/ServicesManager.tsx`.**
 
-1. **`handleAddService`** — in the **add** branch: after `onAddService(newService)` and the existing deferred `recheck()` (which currently rechecks everything), change that deferred call to `recheck(newService.id)` so it specifically targets the new service. Keep the small `setTimeout` so the service is in `config.services` by the time the recheck reads it.
+1. **`handleAddService`** — at the top, before the existing add/edit branching:
+   - If `selectedFormat !== 'json-upload'` and URL is non-empty:
+     - Determine `kind` and `ogcFormat` the same way `handleValidate` does today (extract a tiny `getProbeKind()` helper inside the component to avoid duplication).
+     - If a fresh `validateState` result already matches the current URL+format, reuse it; otherwise `await validateSingleService(...)` with `validateState` flipped to `'checking'` during the call so the inline row updates.
+   - Continue with the existing add/edit logic unchanged. Do **not** early-return on failure.
 
-2. **`handleAddService`** — in the **edit** branch: after `onUpdateService(editingServiceId, patch)`, schedule `recheck(editingServiceId)` (same `setTimeout(0)` pattern) so the patched URL is picked up before the probe runs.
+2. **Primary button** — while the in-save probe is running, show `Loader2` + "Saving…" and disable the button (reuse the existing `validateState.status === 'checking'` check so we don't need a new state flag).
 
-3. **No UI changes needed.** The failures section at the bottom already renders any service whose `statuses[id] === 'error'`, with the same card styling and badge as bulk-recheck failures. Once the recheck writes a real status into that map, the service will appear there automatically.
+3. **Track "last validated signature"** — small `useRef<{ url: string; format: string } | null>` updated whenever `validateSingleService` resolves (in both `handleValidate` and the new save-time probe). Used in step 1 to decide whether to skip re-probing.
+
+4. **Reset** — clear the ref in `handleCancel` and in the existing `useEffect` that resets `validateState` on URL/format change, so a stale signature can't cause a skip.
 
 ### Out of scope
 
-- Removing the "manual configuration required" inline message for never-validated services — it still serves the cold-load case before bulk validation has run.
-- Blocking save when validation fails — user can still save an invalid service deliberately.
-- Changing the failures-section UI, badge styling, or messaging.
-- Modifying `useBulkServiceValidation` — its existing `recheck(serviceId)` already does exactly what we need.
+- Blocking save on validation failure (explicitly preserved — user may save deliberately).
+- Changing the Validate button or its inline result UI (just reusing them).
+- Touching `useBulkServiceValidation`, the failures section, or `serviceProbes.ts`.
+- JSON-upload validation (handled by the upload parser).
 
 ### Files
 
-- **Edit**: `src/components/ServicesManager.tsx` — update post-save side effects in both add and edit branches of `handleAddService` to call `recheck(serviceId)`.
+- **Edit**: `src/components/ServicesManager.tsx` — add probe-on-save, reuse cache when fresh, reuse existing inline UI for feedback.
