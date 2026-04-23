@@ -108,9 +108,11 @@ export const useBulkServiceValidation = (
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
         setStatus(svc.id, 'ok');
       } else {
+        dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
         setStatus(svc.id, 'error');
       }
     } catch {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('stac', { inFlight: -1, completed: 1 });
@@ -119,6 +121,7 @@ export const useBulkServiceValidation = (
 
   const validateOgc = useCallback(async (svc: Service) => {
     if (!svc.format) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
       setStatus(svc.id, 'error');
       return;
     }
@@ -130,14 +133,17 @@ export const useBulkServiceValidation = (
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
         setStatus(svc.id, 'ok');
       } else {
+        dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
         setStatus(svc.id, 'error');
       }
     } catch {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('ogc', { inFlight: -1, completed: 1 });
     }
   }, [dispatch, setStatus, updateProgress]);
+
 
   const validateS3 = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
@@ -192,6 +198,7 @@ export const useBulkServiceValidation = (
             });
             setStatus(svc.id, 'ok');
           } else {
+            dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
             setStatus(svc.id, 'error');
           }
         } finally {
@@ -199,6 +206,7 @@ export const useBulkServiceValidation = (
         }
       }
     } catch {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('s3', { inFlight: -1, completed: 1 });
