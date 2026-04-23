@@ -33,6 +33,10 @@ const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
 // Persists across ServicesManager mount/unmount (tab switches) so we only
 // auto-validate once per loaded config.
 let lastValidatedLoad: Date | null | 'manual' = null;
+// Module-scoped status cache, also keyed by `lastLoaded`. Survives tab
+// switches so the failures panel and per-card badges stay populated without
+// re-running probes.
+let cachedStatuses: Record<string, ServiceValidationStatus> = {};
 
 const classify = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
