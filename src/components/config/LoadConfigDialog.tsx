@@ -237,21 +237,17 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   // ---- Loading view subcomponent ----
   const renderLoadingView = () => {
     const stageReached = (s: Stage): boolean => {
-      const order: Stage[] = ['parse', 'normalize', 'validate', 'capabilities', 'done'];
+      const order: Stage[] = ['parse', 'normalize', 'validate', 'done'];
       return order.indexOf(stage) >= order.indexOf(s);
     };
     const progressPct =
       stage === 'done'
         ? 100
-        : progressTotal > 0
-          ? Math.round((progressDone / progressTotal) * 100)
-          : stage === 'capabilities'
-            ? 50
-            : stageReached('validate')
-              ? 30
-              : stageReached('normalize')
-                ? 20
-                : 10;
+        : stageReached('validate')
+          ? 60
+          : stageReached('normalize')
+            ? 40
+            : 20;
 
     const StageRow = ({ s, label }: { s: Stage; label: string }) => {
       const reached = stageReached(s);
@@ -274,11 +270,6 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       <div className="flex-1 min-h-0 flex flex-col gap-4 mt-2">
         <div className="space-y-1">
           <div className="text-sm font-medium truncate">Loading {loadingLabel}</div>
-          <div className="text-xs text-muted-foreground">
-            {fullLoad
-              ? 'Full load: fetching service capabilities…'
-              : 'Quick load: capabilities will be fetched on demand.'}
-          </div>
         </div>
 
         <Progress value={progressPct} className="h-2" />
@@ -287,60 +278,17 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
           <StageRow s="parse" label="Parsing JSON" />
           <StageRow s="normalize" label="Normalizing structure" />
           <StageRow s="validate" label="Validating schema" />
-          {fullLoad && (
-            <StageRow
-              s="capabilities"
-              label={
-                progressTotal > 0
-                  ? `Fetching service capabilities (${progressDone}/${progressTotal})`
-                  : 'Fetching service capabilities'
-              }
-            />
-          )}
           <StageRow s="done" label="Done" />
         </div>
 
-        {fullLoad && serviceProgress.length > 0 && (
-          <div className="border border-border rounded-lg flex-1 min-h-0 overflow-y-auto">
-            <ul className="divide-y divide-border">
-              {serviceProgress.map((sp) => (
-                <li key={sp.name} className="flex items-center gap-2 px-3 py-1.5 text-xs">
-                  {sp.status === 'pending' && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
-                  {sp.status === 'ok' && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
-                  {sp.status === 'error' && <XCircle className="h-3.5 w-3.5 text-destructive" />}
-                  {sp.status === 'skipped' && <X className="h-3.5 w-3.5 text-muted-foreground" />}
-                  <span className="truncate flex-1">{sp.name}</span>
-                  <span className="text-muted-foreground capitalize">{sp.status}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {summary && (
-          <div className="rounded-md bg-muted/40 border border-border p-3 text-sm">{summary}</div>
-        )}
-
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-          {stage === 'done' ? (
-            <Button onClick={() => onOpenChange(false)}>Close</Button>
-          ) : (
-            <>
-              {stage === 'capabilities' && (
-                <Button variant="outline" onClick={handleSkipRemaining}>
-                  Skip remaining
-                </Button>
-              )}
-              <Button variant="ghost" onClick={handleCancel}>
-                Cancel
-              </Button>
-            </>
-          )}
+          <Button variant="ghost" onClick={handleCancel}>
+            Cancel
+          </Button>
         </div>
       </div>
     );
   };
-
   return (
     <Dialog
       open={open}
