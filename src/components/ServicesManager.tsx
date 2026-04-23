@@ -464,7 +464,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                     {isLoadingCapabilities ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Adding Service...
+                        {editingServiceId ? 'Saving...' : 'Adding Service...'}
+                      </>
+                    ) : editingServiceId ? (
+                      <>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Save Changes
                       </>
                     ) : (
                       <>
@@ -564,6 +569,17 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                           </Badge>
                         )}
                       </div>
+                      {onUpdateService && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditService(service)}
+                          className="text-muted-foreground hover:text-foreground"
+                          title="Edit service"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
