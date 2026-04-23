@@ -422,25 +422,57 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {inFlightTotal > 0 && (
-            <div className="mb-4 space-y-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
-              {progress.stac.inFlight > 0 && (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Checking STAC catalogues ({progress.stac.completed} of {progress.stac.total})…</span>
-                </div>
-              )}
-              {progress.ogc.inFlight > 0 && (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Checking WMS / WMTS / WFS services ({progress.ogc.completed} of {progress.ogc.total})…</span>
-                </div>
-              )}
-              {progress.s3.inFlight > 0 && (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Checking S3 stores ({progress.s3.completed} of {progress.s3.total})…</span>
-                </div>
+          {(showSummaryPanel || inFlightTotal > 0) && (
+            <div className="relative mb-4 space-y-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 pr-10 text-sm text-primary">
+              {(['stac', 'ogc', 's3'] as ServiceKind[]).map(kind => {
+                const label =
+                  kind === 'stac'
+                    ? 'STAC catalogues'
+                    : kind === 'ogc'
+                    ? 'WMS / WMTS / WFS services'
+                    : 'S3 stores';
+                const groupProg = progress[kind];
+                const summary = runSummary?.[kind] ?? null;
+
+                if (groupProg.inFlight > 0) {
+                  return (
+                    <div key={kind} className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Checking {label} ({groupProg.completed} of {groupProg.total})…</span>
+                    </div>
+                  );
+                }
+
+                if (summary && summary.total > 0) {
+                  const failed = failedByKind[kind];
+                  const reachable = summary.total - failed;
+                  return (
+                    <div key={kind} className="flex items-center gap-2">
+                      {failed > 0 ? (
+                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      ) : (
+                        <Check className="h-4 w-4 text-emerald-600" />
+                      )}
+                      <span>
+                        {label}: {reachable} of {summary.total} reachable
+                        {failed > 0 ? ` (${failed} failed)` : ''}
+                      </span>
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
+              {inFlightTotal === 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1 right-1 h-6 w-6 text-primary hover:bg-primary/10"
+                  onClick={() => setDismissed(true)}
+                  aria-label="Dismiss validation results"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               )}
             </div>
           )}
