@@ -14,6 +14,7 @@ const ConfigJson = () => {
   // Create export data (same logic as useConfigExport)
   const exportData = {
     version: config.version || '1.0.0',
+    exportPrefix: config.exportPrefix || 'config',
     layout: config.layout,
     interfaceGroups: config.interfaceGroups,
     exclusivitySets: config.exclusivitySets,

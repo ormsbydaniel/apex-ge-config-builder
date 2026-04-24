@@ -4,6 +4,7 @@ import { sanitizeUrl } from '@/utils/urlSanitizer';
 export const useConfigSanitization = (config: any) => {
   const sanitizedConfig = useMemo(() => ({
     version: config.version || '1.0.0',
+    exportPrefix: config.exportPrefix || 'config',
     layout: config.layout,
     interfaceGroups: config.interfaceGroups,
     exclusivitySets: config.exclusivitySets,
