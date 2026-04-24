@@ -544,6 +544,7 @@ export const FooterLinkSchema = z.object({
 
 export const ConfigurationSchema = z.object({
   version: z.string().optional(),
+  exportPrefix: z.string().optional(),
   layout: z.object({
     design: DesignSchema.optional(),
     navigation: z.object({

@@ -26,6 +26,7 @@ type ConfigAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_LAST_EXPORTED' }
   | { type: 'UPDATE_VERSION'; payload: string }
+  | { type: 'UPDATE_EXPORT_PREFIX'; payload: string }
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
   | { type: 'UPDATE_DESIGN'; payload: { variant: string; parameters?: Record<string, unknown> } | undefined }
   | { type: 'UPDATE_THEME'; payload: { field: string; value: string } }
@@ -47,6 +48,7 @@ type ConfigAction =
 
 const initialState: ConfigState = {
   version: '1.0.0',
+  exportPrefix: 'config',
   layout: {
     navigation: {
       logo: "https://www.esa.int/extension/pillars/design/pillars/images/ESA_Logo.svg",
@@ -141,6 +143,7 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
       const { __source, ...payloadWithoutSource } = action.payload as any;
       const normalizedPayload = {
         ...payloadWithoutSource,
+        exportPrefix: payloadWithoutSource.exportPrefix || 'config',
         services: payloadWithoutSource.services || [],
         // Only add default mapConstraints if none exist in the imported config
         mapConstraints: payloadWithoutSource.mapConstraints !== undefined 
@@ -199,6 +202,12 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...state,
         isDirty: true,
         version: action.payload,
+      };
+    case 'UPDATE_EXPORT_PREFIX':
+      return {
+        ...state,
+        isDirty: true,
+        exportPrefix: action.payload,
       };
     case 'UPDATE_LAYOUT':
       return {
