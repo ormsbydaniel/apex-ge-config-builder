@@ -71,11 +71,11 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
     
       if (format === 'wms') {
         // Fix: Use a more specific selector to avoid duplicates
-        const layerElements = xmlDoc.querySelectorAll('Layer');
+        const layerElements = getDescendantsByLocalName(xmlDoc, 'Layer');
         layerElements.forEach(layer => {
-          const nameElement = layer.querySelector('Name');
-          const titleElement = layer.querySelector('Title');
-          const abstractElement = layer.querySelector('Abstract');
+          const name = getDirectChildText(layer, 'Name');
+          const title = getDirectChildText(layer, 'Title');
+          const abstract = getDirectChildText(layer, 'Abstract');
           
           // Check for TIME dimension
           const timeDimension = layer.querySelector('Dimension[name="time"], Dimension[name="TIME"]');
@@ -122,11 +122,11 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
           }
           
           // Only add layers that have a Name element (actual layers, not layer groups)
-          if (nameElement?.textContent) {
+          if (name) {
             layers.push({
-              name: nameElement.textContent,
-              title: titleElement?.textContent || nameElement.textContent,
-              abstract: abstractElement?.textContent,
+              name,
+              title: title || name,
+              abstract,
               hasTimeDimension,
               defaultTime,
               crs: crsList.length > 0 ? crsList : undefined,
@@ -137,29 +137,32 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
           }
         });
       } else if (format === 'wmts') {
-        const layerElements = xmlDoc.querySelectorAll('Layer');
+        const layerElements = getDescendantsByLocalName(xmlDoc, 'Layer');
         layerElements.forEach(layer => {
-          const identifier = layer.querySelector('ows\\:Identifier, Identifier');
-          const title = layer.querySelector('ows\\:Title, Title');
-          const abstract = layer.querySelector('ows\\:Abstract, Abstract');
+          const identifier = getDirectChildText(layer, 'Identifier');
+          const title = getDirectChildText(layer, 'Title');
+          const abstract = getDirectChildText(layer, 'Abstract');
           
           // Check for TIME dimension in WMTS - improved detection
-          const timeDimension = layer.querySelector('Dimension > ows\\:Identifier, Dimension > Identifier');
-          const hasTimeDimension = timeDimension?.textContent?.toUpperCase() === 'TIME';
+          const timeDimension = getDescendantsByLocalName(layer, 'Dimension').find(dimension =>
+            getDirectChildText(dimension, 'Identifier')?.toUpperCase() === 'TIME'
+          );
+          const hasTimeDimension = !!timeDimension;
           const defaultTime = hasTimeDimension 
-            ? layer.querySelector('Dimension > ows\\:Default, Dimension > Default')?.textContent || undefined
+            ? getDirectChildText(timeDimension, 'Default')
             : undefined;
           
           // Extract TileMatrixSet (CRS info)
-          const tileMatrixSetElements = layer.querySelectorAll('TileMatrixSetLink > TileMatrixSet');
-          const crsList = Array.from(tileMatrixSetElements).map(el => el.textContent).filter(Boolean);
+          const crsList = getDescendantsByLocalName(layer, 'TileMatrixSetLink')
+            .map(link => getDirectChildText(link, 'TileMatrixSet'))
+            .filter(Boolean);
           
           // Extract WGS84 bounding box
-          const bboxElement = layer.querySelector('ows\\:WGS84BoundingBox, WGS84BoundingBox');
+          const bboxElement = getFirstDescendantByLocalName(layer, 'WGS84BoundingBox');
           let bbox = undefined;
           if (bboxElement) {
-            const lowerCorner = bboxElement.querySelector('ows\\:LowerCorner, LowerCorner')?.textContent?.split(' ');
-            const upperCorner = bboxElement.querySelector('ows\\:UpperCorner, UpperCorner')?.textContent?.split(' ');
+            const lowerCorner = getDirectChildText(bboxElement, 'LowerCorner')?.split(/\s+/);
+            const upperCorner = getDirectChildText(bboxElement, 'UpperCorner')?.split(/\s+/);
             if (lowerCorner && upperCorner) {
               bbox = {
                 west: lowerCorner[0],
@@ -173,11 +176,11 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
           // WMTS doesn't typically have GetLegendGraphic in the same way as WMS
           const hasLegendGraphic = false;
           
-          if (identifier?.textContent) {
+          if (identifier) {
             layers.push({
-              name: identifier.textContent,
-              title: title?.textContent || identifier.textContent,
-              abstract: abstract?.textContent,
+              name: identifier,
+              title: title || identifier,
+              abstract,
               hasTimeDimension,
               defaultTime,
               crs: crsList.length > 0 ? crsList : undefined,
