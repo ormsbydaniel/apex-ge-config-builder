@@ -7,6 +7,22 @@ import { applyExportTransformations } from '@/utils/exportTransformations';
 import { ExportOptions } from '@/components/ExportOptionsDialog';
 import { sortSources, sortServices, orderSourceProperties } from '@/utils/configSorting';
 
+const sanitizeFilenamePrefix = (prefix?: string): string => {
+  const sanitized = (prefix || 'config')
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, '');
+
+  return sanitized || 'config';
+};
+
+const getExportTimestamp = (): string => {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+
+  return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+};
+
 export const useConfigExport = () => {
   const { config, dispatch } = useConfig();
   const { toast } = useToast();
@@ -19,6 +35,7 @@ export const useConfigExport = () => {
       // Create a clean config object without internal state and capabilities
       const exportData = {
         version: config.version || '1.0.0',
+        exportPrefix: config.exportPrefix || 'config',
         layout: config.layout,
         interfaceGroups: config.interfaceGroups,
         exclusivitySets: config.exclusivitySets,
@@ -72,8 +89,9 @@ export const useConfigExport = () => {
       const blob = new Blob([configJson], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
+      const filename = `${sanitizeFilenamePrefix(config.exportPrefix)}_${getExportTimestamp()}.json`;
       a.href = url;
-      a.download = 'config.json';
+      a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
       
@@ -82,8 +100,8 @@ export const useConfigExport = () => {
       
       const transformationsApplied = Object.values(options).some(value => value);
       const description = transformationsApplied 
-        ? "Your config.json file has been downloaded with custom transformations applied."
-        : "Your config.json file has been downloaded with sanitized URLs.";
+        ? `${filename} has been downloaded with custom transformations applied.`
+        : `${filename} has been downloaded with sanitized URLs.`;
       
       toast({
         title: "Configuration Exported",
