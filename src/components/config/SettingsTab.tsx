@@ -298,7 +298,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   id="export-prefix"
                   value={config.exportPrefix || ''}
                   onChange={(e) => dispatch({ type: 'UPDATE_EXPORT_PREFIX', payload: e.target.value })}
-                  placeholder="config_biodiversity"
+                  placeholder="e.g. config_biodiversity"
                   className="max-w-md"
                 />
                 <p className="text-xs text-muted-foreground">
