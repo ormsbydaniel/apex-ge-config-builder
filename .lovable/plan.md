@@ -1,47 +1,52 @@
+## Add `exportPrefix` setting and timestamped export filenames
 
+### Behaviour
 
-## Remove "Full load (pre-fetch capabilities)" option from Load Configuration dialog
-
-### Why
-
-The checkbox is now redundant:
-- The Services tab auto-runs bulk validation the first time it's opened after a config load (`useBulkServiceValidation`), with per-group progress, status badges, the failures section, and module-level caching so it doesn't re-run on tab switches.
-- Other consumers fetch capabilities lazily on first use.
-- Pre-fetching at load time just front-loads work the user will see anyway in the Services tab a moment later, and complicates the load dialog with a second progress view, a "Skip remaining" button, a summary screen, and a hold-open-after-success branch.
-
-Quick load (deferred capabilities) becomes the only path — which is what nearly every load already is.
-
-### Behaviour after change
-
-- Load dialog shows: Parse → Normalize → Validate → Done. No capabilities stage, no per-service progress list, no summary panel.
-- On success the dialog closes immediately (today's quick-load behaviour) for all sources (upload, examples, GitHub).
-- Cancel button stays during loading; "Skip remaining" goes (no capabilities phase to skip).
-- Service capability validation continues to happen automatically when the user opens the Services tab — unchanged.
+- Add a new top-level JSON config property:
+  ```json
+  "exportPrefix": "config_biodiversity"
+  ```
+- Add an editable field on the Settings page so the prefix can be set per config.
+- When exporting, use:
+  ```text
+  {exportPrefix}_YYYYMMDD_HHMM.json
+  ```
+  Example:
+  ```text
+  config_biodiversity_20260424_1430.json
+  ```
+- If `exportPrefix` is blank or missing, fall back to `config`, producing e.g. `config_20260424_1430.json`.
+- Sanitize the filename prefix for safety: trim whitespace, convert spaces to `_`, and strip characters that are invalid/problematic in filenames.
 
 ### Implementation
 
-**Edit only `src/components/config/LoadConfigDialog.tsx`:**
+1. **Schema and state**
+   - Add optional `exportPrefix` to `ConfigurationSchema` in `src/schemas/configSchema.ts`.
+   - Add `exportPrefix` to the initial config state in `src/contexts/ConfigContext.tsx`, defaulting to `config`.
+   - Add a reducer action such as `UPDATE_EXPORT_PREFIX` that updates the top-level field and marks the config dirty.
+   - Ensure loaded configs preserve an existing `exportPrefix` and older configs without it continue to load.
 
-1. Delete `fullLoad` state and the checkbox UI block (the `<div>` containing the `Checkbox` with id `full-load`).
-2. In `handleFile`, `handleLoadExample`, `handleLoadFromGithub`: drop `deferCapabilities: !fullLoad` (the import hook already defaults `deferCapabilities` to `true`).
-3. In `renderLoadingView`:
-   - Remove the "Full load / Quick load" descriptor line.
-   - Remove the `capabilities` `StageRow`.
-   - Remove the per-service progress `<ul>` block.
-   - Remove the `summary` panel.
-   - Remove the `Skip remaining` button branch.
-4. In `finishLoading`: simplify to always close on success — drop the `fullLoad && capabilitiesAttempted` branch and the `summary`/`stage='done'` hold-open path.
-5. Drop now-unused state: `summary`, `serviceProgress`, `progressTotal`, `progressDone`, `skippedRef`, and the `handleSkipRemaining` handler. Keep `stage` for parse/normalize/validate/done indicators and keep `abortRef` for `Cancel`.
-6. In `handleProgress`: drop the `capabilities` branch (only `parse | normalize | validate | done` remain).
-7. Remove now-unused imports (`X`, `XCircle`, possibly `Checkbox`) — verify with the linter after edit.
+2. **Settings UI**
+   - Edit `src/components/config/SettingsTab.tsx` to add an “Export Settings” row/card near the general Settings controls.
+   - Include an input labelled “Export filename prefix”.
+   - Show helper text explaining the output pattern: `{prefix}_YYYYMMDD_HHMM.json`.
+   - Dispatch `UPDATE_EXPORT_PREFIX` when the input changes, following the existing SettingsTab dispatch pattern.
 
-### Out of scope
+3. **Export JSON content**
+   - Include `exportPrefix` in generated JSON in:
+     - `src/hooks/useConfigExport.ts`
+     - `src/pages/ConfigJson.tsx`
+     - `src/hooks/useConfigSanitization.ts`
+   - This keeps downloaded export, JSON preview/route, and sanitized config output aligned.
 
-- `useConfigImport.ts` — leave the `deferCapabilities` option intact (it just stops being toggled from this dialog; default is already `true`). Removing it from the API is a separate cleanup that risks touching other call sites.
-- `useBulkServiceValidation` — unchanged.
-- Failures-section UI on the Services tab — unchanged.
+4. **Export filename**
+   - In `src/hooks/useConfigExport.ts`, replace the hardcoded `config.json` download filename.
+   - Generate a local timestamp with zero-padded date/time: `YYYYMMDD_HHMM`.
+   - Build `a.download` from the sanitized prefix and timestamp.
+   - Update the export toast description to mention the actual filename.
 
-### Files
+### Technical notes
 
-- **Edit**: `src/components/config/LoadConfigDialog.tsx` — remove the Full Load checkbox, capabilities-progress UI, summary screen, and related state/handlers.
-
+- No broad refactor: this is a small, targeted addition following the existing ConfigContext + SettingsTab patterns.
+- No changes to service validation or load-performance logic.
+- Backwards compatibility is maintained because `exportPrefix` is optional in the schema and defaults in app state/export naming.
