@@ -114,11 +114,10 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
           }
           
           // If no URL found in capabilities but layer exists, construct a standard GetLegendGraphic URL
-          if (!legendGraphicUrl && nameElement?.textContent) {
+          if (!legendGraphicUrl && name) {
             // Extract base URL (remove query parameters)
             const baseUrl = url.split('?')[0];
-            const layerName = nameElement.textContent;
-            legendGraphicUrl = `${baseUrl}?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image/png&layer=${encodeURIComponent(layerName)}`;
+            legendGraphicUrl = `${baseUrl}?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image/png&layer=${encodeURIComponent(name)}`;
           }
           
           // Only add layers that have a Name element (actual layers, not layer groups)
