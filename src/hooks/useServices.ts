@@ -4,6 +4,7 @@ import { Service, ServiceCapabilities, DataSourceFormat } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
 import { fetchS3BucketContents } from '@/utils/s3Utils';
 import { fetchStacCapabilities } from '@/utils/stacCapabilities';
+import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
 
 export const useServices = (services: Service[], onAddService: (service: Service) => void) => {
   const { toast } = useToast();
@@ -12,76 +13,7 @@ export const useServices = (services: Service[], onAddService: (service: Service
   const parseGetCapabilities = async (url: string, format: DataSourceFormat): Promise<ServiceCapabilities | null> => {
     try {
       setIsLoadingCapabilities(true);
-      
-      // Construct GetCapabilities URL for WMS/WMTS
-      const capabilitiesUrl = new URL(url);
-      capabilitiesUrl.searchParams.set('service', format.toUpperCase());
-      capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
-      capabilitiesUrl.searchParams.set('version', format === 'wms' ? '1.3.0' : '1.0.0');
-
-      const response = await fetch(capabilitiesUrl.toString());
-      const xmlText = await response.text();
-      
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-      
-      // Check for parsing errors
-      const parseError = xmlDoc.querySelector('parsererror');
-      if (parseError) {
-        throw new Error('Failed to parse GetCapabilities response');
-      }
-
-      const layers: any[] = [];
-      
-      if (format === 'wms') {
-        // Fix: Use a more specific selector to avoid duplicates
-        const layerElements = xmlDoc.querySelectorAll('Layer');
-        layerElements.forEach(layer => {
-          const nameElement = layer.querySelector('Name');
-          const titleElement = layer.querySelector('Title');
-          const abstractElement = layer.querySelector('Abstract');
-          
-          // Check for TIME dimension
-          const timeDimension = layer.querySelector('Dimension[name="time"], Dimension[name="TIME"]');
-          const hasTimeDimension = !!timeDimension;
-          
-          // Only add layers that have a Name element (actual layers, not layer groups)
-          if (nameElement?.textContent) {
-            layers.push({
-              name: nameElement.textContent,
-              title: titleElement?.textContent || nameElement.textContent,
-              abstract: abstractElement?.textContent,
-              hasTimeDimension
-            });
-          }
-        });
-      } else if (format === 'wmts') {
-        const layerElements = xmlDoc.querySelectorAll('Layer');
-        layerElements.forEach(layer => {
-          const identifier = layer.querySelector('ows\\:Identifier, Identifier');
-          const title = layer.querySelector('ows\\:Title, Title');
-          const abstract = layer.querySelector('ows\\:Abstract, Abstract');
-          
-          // Check for TIME dimension in WMTS - improved detection
-          const timeDimension = layer.querySelector('Dimension > ows\\:Identifier, Dimension > Identifier');
-          const hasTimeDimension = timeDimension?.textContent?.toUpperCase() === 'TIME';
-          
-          if (identifier?.textContent) {
-            layers.push({
-              name: identifier.textContent,
-              title: title?.textContent || identifier.textContent,
-              abstract: abstract?.textContent,
-              hasTimeDimension
-            });
-          }
-        });
-      }
-
-      return {
-        layers: layers,
-        title: xmlDoc.querySelector('Service > Title, ows\\:ServiceIdentification > ows\\:Title')?.textContent || undefined,
-        abstract: xmlDoc.querySelector('Service > Abstract, ows\\:ServiceIdentification > ows\\:Abstract')?.textContent || undefined
-      };
+      return await fetchServiceCapabilities(url, format);
     } catch (error) {
       console.error('Error fetching capabilities:', error);
       toast({
