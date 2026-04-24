@@ -1,6 +1,34 @@
 
 import { DataSourceFormat, ServiceCapabilities } from '@/types/config';
 
+const getDescendantsByLocalName = (root: ParentNode, localName: string): Element[] =>
+  Array.from(root.querySelectorAll('*')).filter(el => el.localName === localName);
+
+const getDirectChildByLocalName = (root: Element, localName: string): Element | undefined =>
+  Array.from(root.children).find(el => el.localName === localName);
+
+const getFirstDescendantByLocalName = (root: ParentNode, localName: string): Element | undefined =>
+  getDescendantsByLocalName(root, localName)[0];
+
+const getText = (el: Element | undefined): string | undefined =>
+  el?.textContent?.trim() || undefined;
+
+const getDirectChildText = (root: Element, localName: string): string | undefined =>
+  getText(getDirectChildByLocalName(root, localName));
+
+const getFirstDescendantText = (root: ParentNode, localName: string): string | undefined =>
+  getText(getFirstDescendantByLocalName(root, localName));
+
+const getServiceMetadataText = (xmlDoc: Document, localName: 'Title' | 'Abstract'): string | undefined => {
+  const service = getFirstDescendantByLocalName(xmlDoc, 'Service');
+  const serviceIdentification = getFirstDescendantByLocalName(xmlDoc, 'ServiceIdentification');
+
+  return (
+    (service ? getFirstDescendantText(service, localName) : undefined) ||
+    (serviceIdentification ? getFirstDescendantText(serviceIdentification, localName) : undefined)
+  );
+};
+
 // Function to fetch capabilities for a service
 export const fetchServiceCapabilities = async (url: string, format: DataSourceFormat): Promise<ServiceCapabilities | null> => {
   try {
