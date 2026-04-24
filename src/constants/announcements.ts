@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-04-24",
+    title: "Customisable filename prefix in settings and date stamped suffix on export",
+    category: "Feature",
+  },
+  {
     date: "2026-04-23",
     title: "Performance improvements to config load.  Services validation.",
     category: "Improvement",
