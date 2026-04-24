@@ -207,8 +207,8 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
 
     return {
       layers: layers, // Remove the .slice(0, 50) limitation
-      title: xmlDoc.querySelector('Service > Title, ows\\:ServiceIdentification > ows\\:Title')?.textContent || undefined,
-      abstract: xmlDoc.querySelector('Service > Abstract, ows\\:ServiceIdentification > ows\\:Abstract')?.textContent || undefined
+      title: getServiceMetadataText(xmlDoc, 'Title'),
+      abstract: getServiceMetadataText(xmlDoc, 'Abstract')
     };
   } catch (error) {
     console.error('Error fetching GetCapabilities:', error);
