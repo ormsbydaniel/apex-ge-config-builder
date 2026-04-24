@@ -302,7 +302,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                   className="max-w-md"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Exported files use: {(config.exportPrefix || 'config').trim() || 'config'}_YYYYMMDD_HHMM.json
+                  Exported file names: {(config.exportPrefix || '').trim() || '<prefix>'}_YYYYMMMDD_HHMM.json
                 </p>
               </div>
             </div>
