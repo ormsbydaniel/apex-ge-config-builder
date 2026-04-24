@@ -288,7 +288,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
 
           {/* Export Settings Subsection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2"><Link2 className="h-4 w-4" />Export Settings</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Link2 className="h-4 w-4" />Config Export Settings</h3>
             <div className="flex items-start gap-6">
               <div className="flex items-center gap-2 pt-2 w-[180px]">
                 <Label htmlFor="export-prefix" className="text-base font-medium whitespace-nowrap">Export filename prefix</Label>
