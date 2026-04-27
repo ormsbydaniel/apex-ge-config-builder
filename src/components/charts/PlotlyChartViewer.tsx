@@ -26,8 +26,56 @@ interface PlotlyChartViewerProps {
 
 export function PlotlyChartViewer({ config, data, height = 400, sampleData }: PlotlyChartViewerProps) {
   const isPixelValues = config.sources?.[0]?.type === 'pixelValues';
+  const isInline = config.sources?.[0]?.type === 'inline';
 
   const { plotData, layout, isValid, message } = useMemo(() => {
+    // Handle inline (Field Values) — synthesize rows from sources[0].fields
+    if (isInline) {
+      const fields = (config.sources?.[0]?.fields as string[] | undefined) || [];
+      if (fields.length === 0) {
+        return { plotData: [], layout: {}, isValid: false, message: 'Add fields to sources[0].fields to render this chart' };
+      }
+
+      const firstTrace = config.traces?.[0];
+      const isPie = firstTrace?.type === 'pie' || config.chartType === 'pie';
+
+      // Placeholder values — equal weighting until real GeoJSON wiring lands
+      const placeholderValues = fields.map(() => 1);
+
+      if (isPie) {
+        const trace: any = {
+          type: 'pie',
+          labels: fields,
+          values: placeholderValues,
+          hole: (config.layout as any)?.hole ?? config.pie?.hole ?? 0,
+          textinfo: config.pie?.textinfo || 'percent',
+        };
+        if (config.pie?.colors) {
+          trace.marker = { colors: config.pie.colors };
+        }
+
+        const pieLayout: any = {
+          height: config.layout?.height || height,
+          showlegend: config.layout?.showlegend !== false,
+          margin: { t: 20, r: 30, b: 30, l: 30 },
+        };
+        if (config.layout?.legend) pieLayout.legend = config.layout.legend;
+
+        return { plotData: [trace], layout: pieLayout, isValid: true, message: '' };
+      }
+
+      // Non-pie inline: synthesize { field, value } rows and reuse XY pipeline below
+      // by building a ParsedCSVData-shaped data object inline.
+      const inlineData: ParsedCSVData = {
+        columns: ['field', 'value'],
+        data: fields.map((f, i) => ({ field: f, value: placeholderValues[i] })),
+      } as ParsedCSVData;
+
+      // Run the standard XY rendering with synthesized data
+      return renderXY(config, inlineData, height);
+    }
+
+
     // Handle pixelValues preview with sampleData
     if (isPixelValues && Array.isArray(config.x) && config.x.length > 0) {
       const xLabels = config.x as string[];
