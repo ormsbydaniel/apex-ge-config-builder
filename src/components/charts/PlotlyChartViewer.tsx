@@ -264,12 +264,6 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
   );
 }
 
-function buildTitle(title?: string, subtitle?: string): string | undefined {
-  if (!title && !subtitle) return undefined;
-  if (!subtitle) return title;
-  return `${title}<br><span style="font-size:12px;color:#666">${subtitle}</span>`;
-}
-
 /**
  * Pass the stored axis config through to Plotly. Stored shape already
  * matches Plotly v2 spec (title is { text, font }). Only normalizes the
