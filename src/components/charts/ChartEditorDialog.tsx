@@ -13,6 +13,7 @@ import { QuickAddPanel } from './QuickAddPanel';
 import { TraceEditor } from './TraceEditor';
 import { PieEditor } from './PieEditor';
 import { HistogramEditor } from './HistogramEditor';
+import { ChartSettingsPanel } from './ChartSettingsPanel';
 
 interface ChartEditorDialogProps {
   open: boolean;
@@ -145,6 +146,19 @@ export function ChartEditorDialog({ open, onOpenChange, chart, onSave }: ChartEd
                 )}
               </CollapsibleContent>
             </Collapsible>
+
+            {/* Chart Settings Section (axes + legend) - hidden for pie charts */}
+            {!isPie && (
+              <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+                <CollapsibleTrigger className="flex items-center gap-2 font-medium text-sm w-full p-2 hover:bg-muted rounded">
+                  {settingsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  Chart Settings
+                </CollapsibleTrigger>
+                <CollapsibleContent className="p-2">
+                  <ChartSettingsPanel config={config} onChange={setConfig} />
+                </CollapsibleContent>
+              </Collapsible>
+            )}
           </div>
 
           {/* Right: Preview */}
