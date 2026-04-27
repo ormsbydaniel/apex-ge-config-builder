@@ -61,8 +61,8 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
         showlegend: config.layout?.showlegend !== false,
         title: buildTitle(config.title, config.subtitle),
         margin: { t: 50, r: 30, b: 50, l: 60 },
-        xaxis: { title: config.layout?.xaxis?.title || 'Band', ...buildAxisConfig(config.layout?.xaxis) },
-        yaxis: { title: config.layout?.yaxis?.title || 'Value', ...buildAxisConfig(config.layout?.yaxis) },
+        xaxis: buildAxis(config.layout?.xaxis, 'Band'),
+        yaxis: buildAxis(config.layout?.yaxis, 'Value'),
       };
 
       if (config.layout?.legend) chartLayout.legend = config.layout.legend;
@@ -218,16 +218,13 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
 
     // X-axis configuration
     const isHistogram = config.traces.some(t => t.type === 'histogram');
-    chartLayout.xaxis = {
-      title: isHistogram ? config.traces[0]?.y : (config.layout?.xaxis?.title || config.x),
-      ...buildAxisConfig(config.layout?.xaxis),
-    };
+    const xDefault = isHistogram
+      ? config.traces[0]?.y
+      : (typeof config.x === 'string' ? config.x : undefined);
+    chartLayout.xaxis = buildAxis(config.layout?.xaxis, xDefault);
 
-    // Y-axis configuration  
-    chartLayout.yaxis = {
-      title: isHistogram ? 'Count' : config.layout?.yaxis?.title,
-      ...buildAxisConfig(config.layout?.yaxis),
-    };
+    // Y-axis configuration
+    chartLayout.yaxis = buildAxis(config.layout?.yaxis, isHistogram ? 'Count' : undefined);
 
     return { plotData: plotTraces, layout: chartLayout, isValid: true, message: '' };
   }, [config, data, height, sampleData, isPixelValues]);
@@ -261,20 +258,19 @@ function buildTitle(title?: string, subtitle?: string): string | undefined {
   return `${title}<br><span style="font-size:12px;color:#666">${subtitle}</span>`;
 }
 
-function buildAxisConfig(axis?: ChartConfig['layout']['xaxis']) {
-  if (!axis) return {};
-  
-  return {
-    type: axis.type === '-' ? undefined : axis.type,
-    tickformat: axis.tickformat,
-    ticksuffix: axis.ticksuffix,
-    tickprefix: axis.tickprefix,
-    tickangle: axis.tickangle,
-    showgrid: axis.showgrid,
-    tickfont: axis.tickfont,
-    titlefont: axis.titleFont,
-    range: axis.range,
-  };
+/**
+ * Pass the stored axis config through to Plotly. Stored shape already
+ * matches Plotly v2 spec (title is { text, font }). Only normalizes the
+ * "auto" type sentinel and applies a default title when none is set.
+ */
+function buildAxis(axis: ChartConfig['layout']['xaxis'] | undefined, defaultTitle?: string) {
+  const out: any = { ...(axis || {}) };
+  if (out.type === '-') delete out.type;
+  const hasTitleText = out.title && typeof out.title === 'object' && (out.title as any).text;
+  if (!hasTitleText && defaultTitle) {
+    out.title = { ...(out.title || {}), text: defaultTitle };
+  }
+  return out;
 }
 
 function getChartInfo(config: ChartConfig, data: ParsedCSVData): string {
