@@ -3,11 +3,12 @@
  * Note: Index signatures are added for Zod passthrough compatibility
  */
 
-// Chart data source - can be external URL or field lookup
+// Chart data source - can be external URL, field lookup, COG pixel values, or inline (vector fields)
 export interface ChartSource {
-  type?: 'externalURL' | 'lookupURL' | 'pixelValues';
+  type?: 'externalURL' | 'lookupURL' | 'pixelValues' | 'inline';
   url?: string;      // For externalURL type
   field?: string;    // For lookupURL type
+  fields?: string[]; // For inline type — vector dataset properties to chart
   format?: 'csv' | 'json';
   label?: string;
   [key: string]: unknown;
