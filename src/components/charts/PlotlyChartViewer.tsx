@@ -59,8 +59,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
       const chartLayout: any = {
         height: config.layout?.height || height,
         showlegend: config.layout?.showlegend !== false,
-        title: buildTitle(config.title, config.subtitle),
-        margin: { t: 50, r: 30, b: 50, l: 60 },
+        margin: { t: 20, r: 30, b: 50, l: 60 },
         xaxis: buildAxis(config.layout?.xaxis, 'Band'),
         yaxis: buildAxis(config.layout?.yaxis, 'Value'),
       };
@@ -105,7 +104,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
       const pieLayout: any = {
         height: config.layout?.height || height,
         showlegend: config.layout?.showlegend !== false,
-        title: buildTitle(config.title, config.subtitle),
+        margin: { t: 20, r: 30, b: 30, l: 30 },
       };
 
       if (config.layout?.legend) {
@@ -204,8 +203,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
     const chartLayout: any = {
       height: config.layout?.height || height,
       showlegend: config.layout?.showlegend !== false,
-      title: buildTitle(config.title, config.subtitle),
-      margin: { t: 50, r: 30, b: 50, l: 60 },
+      margin: { t: 20, r: 30, b: 50, l: 60 },
     };
 
     if (config.layout?.barmode) {
@@ -239,6 +237,20 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
 
   return (
     <div className="w-full">
+      {(config.title || config.subtitle) && (
+        <div className="text-center mb-2">
+          {config.title && (
+            <div className="text-base font-semibold text-foreground leading-tight">
+              {config.title}
+            </div>
+          )}
+          {config.subtitle && (
+            <div className="text-sm text-muted-foreground leading-tight">
+              {config.subtitle}
+            </div>
+          )}
+        </div>
+      )}
       <Plot
         data={plotData}
         layout={layout}
@@ -250,12 +262,6 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
       </div>
     </div>
   );
-}
-
-function buildTitle(title?: string, subtitle?: string): string | undefined {
-  if (!title && !subtitle) return undefined;
-  if (!subtitle) return title;
-  return `${title}<br><span style="font-size:12px;color:#666">${subtitle}</span>`;
 }
 
 /**
