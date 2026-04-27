@@ -18,6 +18,7 @@ import { TraceEditor } from '@/components/charts/TraceEditor';
 import { PieEditor } from '@/components/charts/PieEditor';
 import { HistogramEditor } from '@/components/charts/HistogramEditor';
 import { PlotlyChartViewer } from '@/components/charts/PlotlyChartViewer';
+import { ChartSettingsPanel } from '@/components/charts/ChartSettingsPanel';
 import { useChartEditorState } from '@/hooks/useChartEditorState';
 import { fetchAndParseCSV } from '@/utils/csvParser';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
@@ -70,6 +71,7 @@ export function ChartSourceForm({
 
   // Chart configuration sections
   const [configOpen, setConfigOpen] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(true);
   
   // Use chart editor state hook
@@ -769,6 +771,19 @@ export function ChartSourceForm({
                       )}
                     </>
                   )}
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
+            {/* Chart Settings Section (axes + legend) - hidden for pie charts */}
+            {showConfig && displayType !== 'pie' && (
+              <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+                <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
+                  {settingsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  <span className="font-medium">Chart Settings</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-4">
+                  <ChartSettingsPanel config={chartConfig} onChange={setChartConfig} />
                 </CollapsibleContent>
               </Collapsible>
             )}
