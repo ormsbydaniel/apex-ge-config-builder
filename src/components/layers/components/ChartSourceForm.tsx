@@ -70,8 +70,10 @@ export function ChartSourceForm({
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
 
-  // Chart configuration sections
-  const [configOpen, setConfigOpen] = useState(true);
+  // Chart configuration sections — when editing an existing chart,
+  // collapse everything except Preview so the user sees the chart first.
+  const isEditMode = editingChart !== undefined;
+  const [configOpen, setConfigOpen] = useState(!isEditMode);
   const [titleOpen, setTitleOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(true);
