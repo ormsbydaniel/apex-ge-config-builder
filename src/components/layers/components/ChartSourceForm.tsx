@@ -775,6 +775,19 @@ export function ChartSourceForm({
               </Collapsible>
             )}
 
+            {/* Chart Settings Section (axes + legend) - hidden for pie charts */}
+            {showConfig && displayType !== 'pie' && (
+              <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+                <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
+                  {settingsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  <span className="font-medium">Chart Settings</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-4">
+                  <ChartSettingsPanel config={chartConfig} onChange={setChartConfig} />
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
             {/* Preview Section */}
             {showPreview && (
               <Collapsible open={previewOpen} onOpenChange={setPreviewOpen}>
