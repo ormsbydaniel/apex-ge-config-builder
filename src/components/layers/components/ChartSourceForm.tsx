@@ -629,37 +629,29 @@ export function ChartSourceForm({
                 <span className="font-medium">Chart Title(s)</span>
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-4 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="chartTitle">Main Title (optional)</Label>
-                  <Input
-                    id="chartTitle"
-                    value={chartTitle}
-                    onChange={(e) => setChartTitle(e.target.value)}
-                    placeholder="Enter chart title"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Also used in drop down when multiple charts available
-                  </p>
-                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="chartTitle">Main Title (optional)</Label>
+                    <Input
+                      id="chartTitle"
+                      value={chartTitle}
+                      onChange={(e) => setChartTitle(e.target.value)}
+                      placeholder="Enter chart title"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Also used in drop down when multiple charts available
+                    </p>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="chartSubtitle">Sub-title (optional)</Label>
-                  <Input
-                    id="chartSubtitle"
-                    value={chartSubtitle}
-                    onChange={(e) => setChartSubtitle(e.target.value)}
-                    placeholder="Enter chart sub-title"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="chartLabel">Source Label (optional)</Label>
-                  <Input
-                    id="chartLabel"
-                    value={chartLabel}
-                    onChange={(e) => setChartLabel(e.target.value)}
-                    placeholder="Enter source label"
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="chartSubtitle">Sub-title (optional)</Label>
+                    <Input
+                      id="chartSubtitle"
+                      value={chartSubtitle}
+                      onChange={(e) => setChartSubtitle(e.target.value)}
+                      placeholder="Enter chart sub-title"
+                    />
+                  </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
