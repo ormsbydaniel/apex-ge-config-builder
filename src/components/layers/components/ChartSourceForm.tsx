@@ -363,8 +363,8 @@ export function ChartSourceForm({
 
       const finalConfig: ChartConfig = {
         ...chartConfig,
-        ...(chartTitle.trim() && { title: chartTitle.trim() }),
-        ...(chartSubtitle.trim() && { subtitle: chartSubtitle.trim() }),
+        title: chartTitle.trim() || undefined,
+        subtitle: chartSubtitle.trim() || undefined,
         sources: [chartSource]
       };
 
@@ -401,8 +401,8 @@ export function ChartSourceForm({
 
     const finalConfig: ChartConfig = {
       ...chartConfig,
-      ...(chartTitle.trim() && { title: chartTitle.trim() }),
-      ...(chartSubtitle.trim() && { subtitle: chartSubtitle.trim() }),
+      title: chartTitle.trim() || undefined,
+      subtitle: chartSubtitle.trim() || undefined,
       sources: [chartSource]
     };
 
