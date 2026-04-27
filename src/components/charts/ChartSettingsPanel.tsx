@@ -44,36 +44,32 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
   };
 
   const xType = config.layout?.xaxis?.type || '-';
+  const yType = config.layout?.yaxis?.type || '-';
+
+  const ROW_LABEL = "text-xs text-muted-foreground w-12 shrink-0";
+  const FIELD_LABEL = "text-xs text-muted-foreground";
 
   return (
     <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-3 pt-2">
+      {/* X-Axis */}
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">X-Axis</Label>
+
+        {/* Axis row */}
         <div className="flex items-center gap-2">
-          <Input value={config.layout?.xaxis?.title?.text || ''} onChange={(e) => updateXAxisTitle({ text: e.target.value })} placeholder="Label" className="h-6 text-xs flex-1" />
-          <Input type="number" value={config.layout?.xaxis?.title?.font?.size ?? 10} onChange={(e) => updateXAxisTitleFont({ size: Number(e.target.value) })} min={6} max={24} className="h-6 text-xs w-14" title="Label font size" />
-          <Switch checked={config.layout?.xaxis?.showgrid !== false} onCheckedChange={(checked) => updateXAxis({ showgrid: checked })} className="scale-75" />
-          <span className="text-xs text-muted-foreground">Grid</span>
+          <span className={ROW_LABEL}>Axis</span>
+          <Label className={FIELD_LABEL}>Label:</Label>
+          <Input value={config.layout?.xaxis?.title?.text || ''} onChange={(e) => updateXAxisTitle({ text: e.target.value })} className="h-6 text-xs flex-1" />
+          <Label className={FIELD_LABEL}>Size:</Label>
+          <Input type="number" value={config.layout?.xaxis?.title?.font?.size ?? 10} onChange={(e) => updateXAxisTitleFont({ size: Number(e.target.value) })} min={6} max={24} className="h-6 text-xs w-14" />
         </div>
+
+        {/* Ticks line 1: Format + Suffix */}
         <div className="flex items-center gap-2">
-          <Select value={xType} onValueChange={(value) => updateXAxis({ type: value as ChartAxis['type'] })}>
-            <SelectTrigger className="h-6 text-xs w-20"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="-" className="text-xs">Auto</SelectItem>
-              <SelectItem value="date" className="text-xs">Date</SelectItem>
-              <SelectItem value="linear" className="text-xs">Linear</SelectItem>
-              <SelectItem value="category" className="text-xs">Category</SelectItem>
-            </SelectContent>
-          </Select>
-          <span className="text-xs text-muted-foreground">Angle</span>
-          <Slider value={[config.layout?.xaxis?.tickangle || 0]} onValueChange={([value]) => updateXAxis({ tickangle: value })} min={-90} max={0} step={15} className="flex-1" />
-          <span className="text-xs text-muted-foreground w-6">{config.layout?.xaxis?.tickangle || 0}°</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Tick:</span>
-          <Input type="number" value={config.layout?.xaxis?.tickfont?.size ?? 10} onChange={(e) => updateXAxisTickFont({ size: Number(e.target.value) })} min={6} max={18} className="h-6 text-xs w-12" title="Tick font size" />
+          <span className={ROW_LABEL}>Ticks</span>
+          <Label className={FIELD_LABEL}>Format:</Label>
           <Select value={config.layout?.xaxis?.tickformat || 'auto'} onValueChange={(value) => updateXAxis({ tickformat: value === 'auto' ? undefined : value })}>
-            <SelectTrigger className="h-6 text-xs flex-1"><SelectValue placeholder="Format" /></SelectTrigger>
+            <SelectTrigger className="h-6 text-xs flex-1"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="auto" className="text-xs">Auto</SelectItem>
               {xType === 'date' ? (
@@ -93,25 +89,58 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
               )}
             </SelectContent>
           </Select>
-          <Input value={config.layout?.xaxis?.ticksuffix || ''} onChange={(e) => updateXAxis({ ticksuffix: e.target.value || undefined })} placeholder="Suffix" className="h-6 text-xs w-14" title="Tick suffix" />
+          <Label className={FIELD_LABEL}>Suffix:</Label>
+          <Input value={config.layout?.xaxis?.ticksuffix || ''} onChange={(e) => updateXAxis({ ticksuffix: e.target.value || undefined })} className="h-6 text-xs w-20" />
+        </div>
+
+        {/* Ticks line 2: Size + Orientation */}
+        <div className="flex items-center gap-2">
+          <span className={ROW_LABEL} aria-hidden />
+          <Label className={FIELD_LABEL}>Size:</Label>
+          <Input type="number" value={config.layout?.xaxis?.tickfont?.size ?? 10} onChange={(e) => updateXAxisTickFont({ size: Number(e.target.value) })} min={6} max={18} className="h-6 text-xs w-14" />
+          <Label className={FIELD_LABEL}>Orientation:</Label>
+          <Slider value={[config.layout?.xaxis?.tickangle || 0]} onValueChange={([value]) => updateXAxis({ tickangle: value })} min={-90} max={0} step={15} className="flex-1" />
+          <span className="text-xs text-muted-foreground w-8 text-right">{config.layout?.xaxis?.tickangle || 0}°</span>
+        </div>
+
+        {/* Grid row */}
+        <div className="flex items-center gap-2">
+          <span className={ROW_LABEL}>Grid</span>
+          <Switch checked={config.layout?.xaxis?.showgrid !== false} onCheckedChange={(checked) => updateXAxis({ showgrid: checked })} className="scale-75" />
+          <Label className={FIELD_LABEL}>Type:</Label>
+          <Select value={xType} onValueChange={(value) => updateXAxis({ type: value as ChartAxis['type'] })}>
+            <SelectTrigger className="h-6 text-xs flex-1"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="-" className="text-xs">Auto</SelectItem>
+              <SelectItem value="date" className="text-xs">Date</SelectItem>
+              <SelectItem value="linear" className="text-xs">Linear</SelectItem>
+              <SelectItem value="category" className="text-xs">Category</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       <div className="w-px bg-border" />
 
+      {/* Y-Axis */}
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">Y-Axis</Label>
+
+        {/* Axis row */}
         <div className="flex items-center gap-2">
-          <Input value={config.layout?.yaxis?.title?.text || ''} onChange={(e) => updateYAxisTitle({ text: e.target.value })} placeholder="Label" className="h-6 text-xs flex-1" />
-          <Input type="number" value={config.layout?.yaxis?.title?.font?.size ?? 10} onChange={(e) => updateYAxisTitleFont({ size: Number(e.target.value) })} min={6} max={24} className="h-6 text-xs w-14" title="Label font size" />
-          <Switch checked={config.layout?.yaxis?.showgrid !== false} onCheckedChange={(checked) => updateYAxis({ showgrid: checked })} className="scale-75" />
-          <span className="text-xs text-muted-foreground">Grid</span>
+          <span className={ROW_LABEL}>Axis</span>
+          <Label className={FIELD_LABEL}>Label:</Label>
+          <Input value={config.layout?.yaxis?.title?.text || ''} onChange={(e) => updateYAxisTitle({ text: e.target.value })} className="h-6 text-xs flex-1" />
+          <Label className={FIELD_LABEL}>Size:</Label>
+          <Input type="number" value={config.layout?.yaxis?.title?.font?.size ?? 10} onChange={(e) => updateYAxisTitleFont({ size: Number(e.target.value) })} min={6} max={24} className="h-6 text-xs w-14" />
         </div>
+
+        {/* Ticks line 1: Format + Suffix */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Tick:</span>
-          <Input type="number" value={config.layout?.yaxis?.tickfont?.size ?? 10} onChange={(e) => updateYAxisTickFont({ size: Number(e.target.value) })} min={6} max={18} className="h-6 text-xs w-12" title="Tick font size" />
+          <span className={ROW_LABEL}>Ticks</span>
+          <Label className={FIELD_LABEL}>Format:</Label>
           <Select value={config.layout?.yaxis?.tickformat || 'auto'} onValueChange={(value) => updateYAxis({ tickformat: value === 'auto' ? undefined : value })}>
-            <SelectTrigger className="h-6 text-xs flex-1"><SelectValue placeholder="Format" /></SelectTrigger>
+            <SelectTrigger className="h-6 text-xs flex-1"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="auto" className="text-xs">Auto</SelectItem>
               <SelectItem value=",.0f" className="text-xs">1,234</SelectItem>
@@ -120,7 +149,21 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
               <SelectItem value=".1s" className="text-xs">1.2k</SelectItem>
             </SelectContent>
           </Select>
-          <Input value={config.layout?.yaxis?.ticksuffix || ''} onChange={(e) => updateYAxis({ ticksuffix: e.target.value || undefined })} placeholder="Suffix" className="h-6 text-xs w-14" title="Tick suffix" />
+          <Label className={FIELD_LABEL}>Suffix:</Label>
+          <Input value={config.layout?.yaxis?.ticksuffix || ''} onChange={(e) => updateYAxis({ ticksuffix: e.target.value || undefined })} className="h-6 text-xs w-20" />
+        </div>
+
+        {/* Ticks line 2: Size */}
+        <div className="flex items-center gap-2">
+          <span className={ROW_LABEL} aria-hidden />
+          <Label className={FIELD_LABEL}>Size:</Label>
+          <Input type="number" value={config.layout?.yaxis?.tickfont?.size ?? 10} onChange={(e) => updateYAxisTickFont({ size: Number(e.target.value) })} min={6} max={18} className="h-6 text-xs w-14" />
+        </div>
+
+        {/* Grid row */}
+        <div className="flex items-center gap-2">
+          <span className={ROW_LABEL}>Grid</span>
+          <Switch checked={config.layout?.yaxis?.showgrid !== false} onCheckedChange={(checked) => updateYAxis({ showgrid: checked })} className="scale-75" />
         </div>
       </div>
 
