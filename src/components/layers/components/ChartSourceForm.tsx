@@ -49,8 +49,12 @@ export function ChartSourceForm({
   const { toast } = useToast();
   const { dispatch } = useConfig();
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues'>(
-    editingChart?.sources?.[0]?.type === 'pixelValues' ? 'pixelValues' : 'direct'
+  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues' | 'fieldValues'>(
+    editingChart?.sources?.[0]?.type === 'pixelValues'
+      ? 'pixelValues'
+      : editingChart?.sources?.[0]?.type === 'inline'
+        ? 'fieldValues'
+        : 'direct'
   );
   const [selectedCogIndex, setSelectedCogIndex] = useState<number>(0);
   const [bandLabels, setBandLabels] = useState<string[]>([]);
