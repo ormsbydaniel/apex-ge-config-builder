@@ -659,7 +659,7 @@ export function ChartSourceForm({
               <Collapsible open={configOpen} onOpenChange={setConfigOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
                   {configOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  <span className="font-medium">Chart Configuration</span>
+                  <span className="font-medium">Chart Data Configuration</span>
                   {csvLoading && (
                     <span className="flex items-center gap-1 text-xs text-muted-foreground ml-2">
                       <span className="h-3 w-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -795,7 +795,7 @@ export function ChartSourceForm({
               <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
                   {settingsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  <span className="font-medium">Chart Settings</span>
+                  <span className="font-medium">Legend and Axis Settings</span>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4">
                   <ChartSettingsPanel config={chartConfig} onChange={setChartConfig} />
