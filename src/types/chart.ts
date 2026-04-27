@@ -68,10 +68,16 @@ export interface ChartFont {
   [key: string]: unknown;
 }
 
+// Axis title (Plotly v2 native shape: { text, font })
+export interface ChartAxisTitle {
+  text?: string;
+  font?: ChartFont;
+  [key: string]: unknown;
+}
+
 // Axis configuration
 export interface ChartAxis {
-  title?: string;
-  titleFont?: ChartFont;
+  title?: ChartAxisTitle;
   tickfont?: ChartFont;
   tickformat?: string;
   ticksuffix?: string;

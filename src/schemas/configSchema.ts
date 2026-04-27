@@ -53,10 +53,15 @@ const ChartFontSchema = z.object({
   family: z.string().optional(),
 }).passthrough();
 
+// Chart axis title schema (Plotly v2: { text, font })
+const ChartAxisTitleSchema = z.object({
+  text: z.string().optional(),
+  font: ChartFontSchema.optional(),
+}).passthrough();
+
 // Chart axis schema
 const ChartAxisSchema = z.object({
-  title: z.string().optional(),
-  titleFont: ChartFontSchema.optional(),
+  title: ChartAxisTitleSchema.optional(),
   tickfont: ChartFontSchema.optional(),
   tickformat: z.string().optional(),
   ticksuffix: z.string().optional(),
