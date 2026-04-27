@@ -6,12 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
+import LoadConfigDialog from './LoadConfigDialog';
 import AttributionMissingDialog from './AttributionMissingDialog';
 import CompleteLayersDialog from './CompleteLayersDialog';
 import { calculateQAStats } from '@/utils/qaUtils';
@@ -29,10 +30,9 @@ interface HomeTabProps {
 const HomeTab = ({ config }: HomeTabProps) => {
   const { dispatch } = useConfig();
   const { handleFileSelect, importConfig, importConfigFromUrl } = useConfigImport();
-  const [isLoadingExample, setIsLoadingExample] = useState(false);
   const { exportConfig } = useConfigExport();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { guardAction, isOpen: showUnsavedDialog, onConfirm: onUnsavedConfirm, onCancel: onUnsavedCancel } = useUnsavedChangesGuard();
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
@@ -58,7 +58,13 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [version, setVersion] = useState(config.version || '1.0.0');
 
   const handleImportClick = () => {
-    guardAction(() => fileInputRef.current?.click());
+    guardAction(() => setShowLoadDialog(true));
+  };
+
+  const handleLoadDialogError = (errors: ValidationErrorDetails[], fileName: string) => {
+    setValidationErrors(errors);
+    setErrorFileName(fileName);
+    setShowErrorDialog(true);
   };
 
   const handleNewConfig = () => {
@@ -75,20 +81,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
     exportConfig(options);
   };
 
-  const handleFileSelectWithErrorHandling = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const result = await importConfig(file);
-      if (!result.success && result.errors) {
-        setValidationErrors(result.errors);
-        setErrorFileName(file.name);
-        setShowErrorDialog(true);
-      }
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
 
   const handleSaveTitle = () => {
     dispatch({
@@ -335,32 +327,10 @@ const HomeTab = ({ config }: HomeTabProps) => {
                     New
                   </Button>
 
-                  <Button 
-                    onClick={() => {
-                      guardAction(async () => {
-                        setIsLoadingExample(true);
-                        const result = await importConfigFromUrl('/examples/test-config.json');
-                        setIsLoadingExample(false);
-                        if (!result.success && result.errors) {
-                          setValidationErrors(result.errors);
-                          setErrorFileName('test-config.json');
-                          setShowErrorDialog(true);
-                        }
-                      });
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="h-9 w-[130px] text-sm font-medium hover:scale-[1.01] transition-transform border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
-                    disabled={config.isLoading || isLoadingExample}
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Example
-                  </Button>
                 </div>
               </div>
           </CardHeader>
           <CardContent className="space-y-3 pt-3">
-            <Input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelectWithErrorHandling} className="hidden" />
             {/* Title */}
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -481,9 +451,26 @@ const HomeTab = ({ config }: HomeTabProps) => {
               {(config.lastLoaded || config.lastExported || config.isLoading) && (
                 <div className="pt-3 border-t border-border/50 space-y-2">
                   {config.lastLoaded && (
-                    <div className="text-sm text-muted-foreground flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-green-500" />
-                      <span>Last loaded: {config.lastLoaded.toLocaleString()}</span>
+                    <div className="space-y-1">
+                      <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-green-500" />
+                        <span>Last loaded: {config.lastLoaded.toLocaleString()}</span>
+                      </div>
+                      {config.lastLoadedSource && (
+                        <div
+                          className="text-xs text-muted-foreground flex items-center gap-1.5 pl-4 min-w-0"
+                          title={config.lastLoadedSource.label}
+                        >
+                          {config.lastLoadedSource.type === 'upload' && <Upload className="h-3 w-3 shrink-0" />}
+                          {config.lastLoadedSource.type === 'example' && <Sparkles className="h-3 w-3 shrink-0" />}
+                          {config.lastLoadedSource.type === 'github' && <Github className="h-3 w-3 shrink-0" />}
+                          {config.lastLoadedSource.type === 'url' && <LinkIcon className="h-3 w-3 shrink-0" />}
+                          <span className="font-medium capitalize">
+                            {config.lastLoadedSource.type === 'github' ? 'GitHub' : config.lastLoadedSource.type}:
+                          </span>
+                          <span className="truncate font-mono">{config.lastLoadedSource.label}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                   {config.lastExported && (
@@ -583,6 +570,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
       <div className="mt-6">
         <LatestUpdatesSection />
       </div>
+
+      <LoadConfigDialog open={showLoadDialog} onOpenChange={setShowLoadDialog} onError={handleLoadDialogError} />
 
       <ExportOptionsDialog open={showExportDialog} onOpenChange={setShowExportDialog} onExport={handleExportWithOptions} />
 

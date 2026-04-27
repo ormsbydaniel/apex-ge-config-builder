@@ -1,28 +1,35 @@
+## Plan
 
+I’ll make WMTS GetCapabilities parsing more robust so services that work in a browser also populate layers in the app.
 
-## Problem
+## What I’ll change
 
-OTC OBS buckets don't support the `delimiter` query parameter in the same way as AWS S3. When `delimiter=/` is included, the OBS API returns no objects. Without it, objects are returned correctly.
+1. **Centralize Add Service capabilities parsing**
+   - Update `useServices.ts` so WMS/WMTS/WFS service creation uses the shared `fetchServiceCapabilities()` utility instead of its older duplicated parser.
+   - This prevents Add Service and later lazy-loading/validation from disagreeing about discovered layers.
 
-The current code in `fetchS3BucketFolder()` always sends `delimiter=/` to enable hierarchical folder browsing. This works for AWS S3 but breaks OTC OBS.
+2. **Improve WMTS XML parsing**
+   - Update `fetchServiceCapabilities()` to parse WMTS documents using namespace-safe DOM traversal, not only CSS selectors like `querySelectorAll('Layer')`.
+   - Support common WMTS XML variations such as:
+     - namespace-prefixed `<wmts:Layer>` elements
+     - `<ows:Identifier>` / `<Identifier>` regardless of prefix
+     - service metadata under OWS elements regardless of namespace prefix
+   - Keep current WMS/WFS behavior unchanged except where shared helper functions make parsing safer.
 
-## Solution
+3. **Improve validation feedback**
+   - Keep returning capabilities with an empty layer list only when the fetch/parsing succeeded but no layers were detected.
+   - Preserve existing error handling and avoid noisy render-loop logging.
 
-Add a **fallback strategy** in `fetchS3BucketFolder()`: if the initial request with `delimiter` returns zero folders and zero files, retry without the `delimiter` parameter and derive the folder structure client-side using the existing `deriveFolderListingFromObjects()` function.
+4. **Verify the flow**
+   - Test the TypeScript/build checks.
+   - Manually reason through the affected paths:
+     - Add WMTS service
+     - Open “add data from service” modal
+     - Lazy re-fetch of capabilities for existing services
+     - Service validation/re-check
 
-This is non-destructive — AWS S3 buckets continue working as before, and OBS buckets get automatic recovery.
+## Technical details
 
-## Changes
+The likely root cause is that WMTS capabilities documents often use XML namespaces. In XML DOM parsing, browser CSS selectors can be unreliable for namespaced elements, especially if the element appears as `wmts:Layer` rather than plain `Layer`. I’ll add small XML helper functions that match by `localName`, so parsing is based on the actual XML element name independent of prefix.
 
-**File: `src/utils/s3Utils.ts`**
-
-Modify `fetchS3BucketFolder()`:
-
-1. After the current fetch + parse logic (line ~280), check if both `folders` and `files` are empty.
-2. If empty, retry the request **without** the `delimiter` parameter (just `list-type=2`, `max-keys=1000`, and optionally `prefix`).
-3. Parse the flat object list from the retry response.
-4. Pass the flat list through `deriveFolderListingFromObjects(objects, prefix)` to reconstruct the folder/file hierarchy client-side.
-5. Return that derived result.
-
-This reuses the existing `deriveFolderListingFromObjects` helper which already handles exactly this scenario (it's currently used for cached/uploaded data).
-
+Expected result: the service modal should list WMTS layers instead of showing “No layers found” when the GetCapabilities response contains valid WMTS Layer entries.

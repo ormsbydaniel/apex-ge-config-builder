@@ -61,16 +61,69 @@ export const createStacBrowserUrl = (selfUrl: string, serviceUrl: string): strin
 };
 
 /**
- * Constructs the items URL for a STAC collection
- * Adds default limit parameter if not present
+ * Constructs the items URL for a STAC collection.
+ * Prefers a `rel: "items"` link (resolved against collectionBaseUrl when relative).
+ * Falls back to the API-style `<serviceUrl>/collections/{id}/items?limit=100`.
+ * For static collections that only expose individual `rel: "item"` links, callers
+ * should use `getItemLinks` instead.
  */
-export const getItemsUrl = (collection: StacCollection, serviceUrl: string): string => {
+export const getItemsUrl = (
+  collection: StacCollection,
+  serviceUrl: string,
+  collectionBaseUrl?: string
+): string => {
   const link = collection.links?.find((l) => l.rel === 'items');
-  let url = link?.href || (ensureSlash(serviceUrl) + `collections/${collection.id}/items`);
+  let url: string;
+  if (link?.href) {
+    url = collectionBaseUrl ? resolveAssetUrl(link.href, collectionBaseUrl) : link.href;
+  } else {
+    url = ensureSlash(serviceUrl) + `collections/${collection.id}/items`;
+  }
   if (!/[?&]limit=/.test(url)) {
     url = appendQueryParam(url, 'limit', 100);
   }
   return url;
+};
+
+/**
+ * Returns all `rel: "item"` link hrefs from a static STAC collection,
+ * resolved against the collection's own URL (or service URL fallback).
+ */
+export const getItemLinks = (
+  collection: StacCollection,
+  baseUrl: string
+): string[] => {
+  return (collection.links || [])
+    .filter((l) => l.rel === 'item')
+    .map((l) => resolveAssetUrl(l.href, baseUrl));
+};
+
+/**
+ * Returns all `rel: "child"` links from a STAC catalog, resolved against the
+ * catalog's own URL.
+ */
+export const getChildLinks = (
+  links: StacLink[] | undefined,
+  baseUrl: string
+): { href: string; title?: string; type?: string }[] => {
+  return (links || [])
+    .filter((l) => l.rel === 'child')
+    .map((l) => ({
+      href: resolveAssetUrl(l.href, baseUrl),
+      title: (l as any).title,
+      type: l.type,
+    }));
+};
+
+/**
+ * Best-effort guess of whether a child link points to a Catalog or Collection
+ * based on its href. Falls back to `'unknown'` when ambiguous.
+ */
+export const inferChildKind = (href: string): 'catalog' | 'collection' | 'unknown' => {
+  const lower = href.toLowerCase();
+  if (lower.endsWith('/collection.json') || lower.includes('/collection.json?')) return 'collection';
+  if (lower.endsWith('/catalog.json') || lower.includes('/catalog.json?')) return 'catalog';
+  return 'unknown';
 };
 
 /**
@@ -137,7 +190,13 @@ export const resolveAssetUrl = (href: string, serviceUrl: string): string => {
     if (/^https?:\/\//i.test(href) || href.startsWith('data:')) return href;
     const origin = new URL(serviceUrl).origin;
     if (href.startsWith('/')) return origin + href;
-    return new URL(href, ensureSlash(serviceUrl)).toString();
+    // If serviceUrl ends with a filename (e.g. .../catalog.json), resolve
+    // relative hrefs against that URL directly so the filename is replaced.
+    // Otherwise treat it as a directory and ensure a trailing slash.
+    const base = new URL(serviceUrl);
+    const looksLikeFile = /\/[^\/?#]+\.[^\/?#]+$/.test(base.pathname);
+    const baseStr = looksLikeFile ? serviceUrl : ensureSlash(serviceUrl);
+    return new URL(href, baseStr).toString();
   } catch (e) {
     console.warn('Failed to resolve asset URL, returning original href', href, e);
     return href;

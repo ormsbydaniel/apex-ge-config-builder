@@ -3,11 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Database, Globe, Server } from 'lucide-react';
+import { Database, Globe, Server, Loader2 } from 'lucide-react';
 import { Service, DataSourceFormat } from '@/types/config';
 import { validateS3Url, S3Selection } from '@/utils/s3Utils';
 import S3LayerSelector from '@/components/form/S3LayerSelector';
 import StacBrowser from './StacBrowser';
+import { useLazyServiceCapabilities } from '@/hooks/useLazyServiceCapabilities';
+import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 
 import { AssetSelection } from './StacBrowser';
 
@@ -32,10 +34,16 @@ interface ServiceSelectionModalProps {
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats, sourceContext = 'data' }: ServiceSelectionModalProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Compute lazy-load eligibility from raw inputs so hooks always run in the same order.
+  const isS3ServiceRaw = service?.sourceType === 's3' || (!!service?.url && validateS3Url(service.url));
+  const isStacServiceRaw = service?.sourceType === 'stac';
+  const shouldLazyLoad = !!service && isOpen && !isS3ServiceRaw && !isStacServiceRaw;
+  const { isLoading: capsLoading } = useLazyServiceCapabilities(service, shouldLazyLoad);
+
   if (!service) return null;
 
-  const isS3Service = service.sourceType === 's3' || validateS3Url(service.url);
-  const isStacService = service.sourceType === 'stac';
+  const isS3Service = isS3ServiceRaw;
+  const isStacService = isStacServiceRaw;
 
   const handleS3ObjectSelect = (selection: S3Selection | S3Selection[]) => {
     if (Array.isArray(selection)) {
@@ -85,6 +93,10 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl h-[85vh] overflow-hidden flex flex-col">
+        <ModalErrorBoundary
+          onClose={handleClose}
+          resetKey={isOpen ? service?.id ?? service?.url ?? 'open' : 'closed'}
+        >
         {!isStacService && (
           <DialogHeader className="pb-0">
             <DialogTitle className="flex items-center gap-2 text-base">
@@ -141,7 +153,12 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
                   className="w-full p-2 border border-input rounded-md"
                 />
               </div>
-              {service.capabilities?.layers.length ? (
+              {capsLoading && !service.capabilities?.layers.length ? (
+                <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Fetching service capabilities…
+                </div>
+              ) : service.capabilities?.layers.length ? (
                 <div className="flex-1 min-h-0 overflow-y-auto border rounded-md">
                   <div className="grid gap-px p-1">
                     {filteredLayers.map((layer) => (
@@ -182,6 +199,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
             </div>
           )}
         </div>
+        </ModalErrorBoundary>
       </DialogContent>
     </Dialog>
   );

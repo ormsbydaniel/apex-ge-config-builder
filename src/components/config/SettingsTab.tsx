@@ -278,6 +278,28 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-8">
+          {/* Export Settings Subsection */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Link2 className="h-4 w-4" />Config Export Settings</h3>
+            <div className="flex items-start gap-6">
+              <div className="flex items-center gap-2 pt-2 w-[180px]">
+                <Label htmlFor="export-prefix" className="text-base font-medium whitespace-nowrap">Export filename prefix</Label>
+              </div>
+              <div className="flex-1 space-y-2">
+                <Input
+                  id="export-prefix"
+                  value={config.exportPrefix || ''}
+                  onChange={(e) => dispatch({ type: 'UPDATE_EXPORT_PREFIX', payload: e.target.value })}
+                  placeholder="e.g. config_biodiversity"
+                  className="max-w-md"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Exported file names: {(config.exportPrefix || '').trim() || '<prefix>'}_YYYYMMMDD_HHMM.json
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Design Variant Subsection */}
           <DesignVariantEditor
             design={config.layout.design}

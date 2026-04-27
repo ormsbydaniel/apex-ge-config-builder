@@ -4,10 +4,16 @@ import { ValidatedConfiguration } from '@/schemas/configSchema';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
 import { validateImages } from '@/utils/imageValidation';
 
+export type LoadedConfigSource = {
+  type: 'upload' | 'example' | 'github' | 'url';
+  label: string;
+};
+
 interface ConfigState extends ValidatedConfiguration {
   isLoading: boolean;
   isDirty: boolean;
   lastLoaded: Date | null;
+  lastLoadedSource: LoadedConfigSource | null;
   lastExported: Date | null;
   validationResults: Map<number, LayerValidationResult>;
   hasUnsavedFormChanges: boolean;
@@ -15,11 +21,12 @@ interface ConfigState extends ValidatedConfiguration {
 }
 
 type ConfigAction =
-  | { type: 'LOAD_CONFIG'; payload: ValidatedConfiguration }
+  | { type: 'LOAD_CONFIG'; payload: ValidatedConfiguration & { __source?: LoadedConfigSource } }
   | { type: 'RESET_CONFIG' }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_LAST_EXPORTED' }
   | { type: 'UPDATE_VERSION'; payload: string }
+  | { type: 'UPDATE_EXPORT_PREFIX'; payload: string }
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
   | { type: 'UPDATE_DESIGN'; payload: { variant: string; parameters?: Record<string, unknown> } | undefined }
   | { type: 'UPDATE_THEME'; payload: { field: string; value: string } }
@@ -29,6 +36,7 @@ type ConfigAction =
   | { type: 'UPDATE_MAP_CONSTRAINTS'; payload: { zoom?: number; center?: [number, number]; projection?: string } }
   | { type: 'ADD_SERVICE'; payload: Service }
   | { type: 'REMOVE_SERVICE'; payload: number }
+  | { type: 'UPDATE_SERVICE'; payload: { id: string; patch: Partial<Service> } }
   | { type: 'ADD_SOURCE'; payload: DataSource }
   | { type: 'REMOVE_SOURCE'; payload: number }
   | { type: 'UPDATE_SOURCE'; payload: { index: number; source: DataSource } }
@@ -40,6 +48,7 @@ type ConfigAction =
 
 const initialState: ConfigState = {
   version: '1.0.0',
+  exportPrefix: 'config',
   layout: {
     navigation: {
       logo: "https://www.esa.int/extension/pillars/design/pillars/images/ESA_Logo.svg",
@@ -80,6 +89,7 @@ const initialState: ConfigState = {
   isLoading: false,
   isDirty: false,
   lastLoaded: null,
+  lastLoadedSource: null,
   lastExported: null,
   validationResults: new Map(),
   hasUnsavedFormChanges: false,
@@ -128,23 +138,25 @@ const normalizeDataToArray = (data: any): DataSourceItem[] => {
 
 function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
   switch (action.type) {
-    case 'LOAD_CONFIG':
+    case 'LOAD_CONFIG': {
       // Normalize all data fields to arrays when loading and preserve statistics
+      const { __source, ...payloadWithoutSource } = action.payload as any;
       const normalizedPayload = {
-        ...action.payload,
-        services: action.payload.services || [],
+        ...payloadWithoutSource,
+        exportPrefix: payloadWithoutSource.exportPrefix || 'config',
+        services: payloadWithoutSource.services || [],
         // Only add default mapConstraints if none exist in the imported config
-        mapConstraints: action.payload.mapConstraints !== undefined 
+        mapConstraints: payloadWithoutSource.mapConstraints !== undefined 
           ? {
-              ...action.payload.mapConstraints,
-              projection: action.payload.mapConstraints.projection || 'EPSG:3857'
+              ...payloadWithoutSource.mapConstraints,
+              projection: payloadWithoutSource.mapConstraints.projection || 'EPSG:3857'
             }
           : {
               zoom: 0,
               center: [0, 0],
               projection: 'EPSG:3857'
             },
-        sources: action.payload.sources.map(source => ({
+        sources: payloadWithoutSource.sources.map((source: any) => ({
           ...source,
           data: normalizeDataToArray(source.data),
           // Preserve statistics array if it exists
@@ -157,16 +169,19 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         isLoading: false,
         isDirty: false,
         lastLoaded: new Date(),
+        lastLoadedSource: __source ?? null,
         lastExported: state.lastExported,
         validationResults: new Map(),
         hasUnsavedFormChanges: false,
         unsavedFormDescription: null,
       };
+    }
     case 'RESET_CONFIG':
       return {
         ...initialState,
         isDirty: false,
         lastLoaded: null,
+        lastLoadedSource: null,
         lastExported: null,
         hasUnsavedFormChanges: false,
         unsavedFormDescription: null,
@@ -187,6 +202,12 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...state,
         isDirty: true,
         version: action.payload,
+      };
+    case 'UPDATE_EXPORT_PREFIX':
+      return {
+        ...state,
+        isDirty: true,
+        exportPrefix: action.payload,
       };
     case 'UPDATE_LAYOUT':
       return {
@@ -270,6 +291,21 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         isDirty: true,
         services: [...state.services, action.payload],
       };
+    case 'UPDATE_SERVICE': {
+      // Merge a partial service update into the existing service.
+      // Marks config as dirty ONLY when the patch contains user-editable fields
+      // (name/url). Capability-only patches stay clean (lazy runtime metadata).
+      const { id, patch } = action.payload;
+      const isUserEdit = 'name' in patch || 'url' in patch;
+      const updatedServices = state.services.map(s =>
+        s.id === id ? { ...s, ...patch } : s
+      );
+      return {
+        ...state,
+        services: updatedServices,
+        ...(isUserEdit ? { isDirty: true } : {}),
+      };
+    }
     case 'REMOVE_SERVICE': {
       const serviceToRemove = state.services[action.payload];
       const updatedServices = state.services.filter((_, i) => i !== action.payload);

@@ -6,6 +6,21 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-04-24",
+    title: "Customisable filename prefix in settings and date stamped suffix on export. Fix to WMTS service parsing.",
+    category: "Feature",
+  },
+  {
+    date: "2026-04-23",
+    title: "Performance improvements to config load.  Services validation.",
+    category: "Improvement",
+  },
+  {
+    date: "2026-04-17",
+    title: "Config load UI with Upload, Examples and GitHub config pickers",
+    category: "Feature",
+  },
+  {
     date: "2026-03-27",
     title: "Recommended services improvement allowing users to choose which services are added (rather than all).  Interface sub-groups improvement with 'select all' option for including layers in sub-group.",
     category: "Improvement",
