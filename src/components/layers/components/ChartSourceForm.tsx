@@ -749,7 +749,24 @@ export function ChartSourceForm({
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 space-y-4">
-                  {isPixelValuesReady ? (
+                  {isFieldValuesMode ? (
+                    <>
+                      <ChartTypeSelector
+                        config={chartConfig}
+                        onChange={setChartConfig}
+                        restrictToPie
+                      />
+                      <div className="p-4 border border-dashed rounded-lg text-sm text-muted-foreground">
+                        Field Values configuration coming soon — edit the JSON directly to test.
+                        {inlineFields.length > 0 && (
+                          <div className="mt-2 text-xs">
+                            <span className="font-medium text-foreground">Current fields:</span>{' '}
+                            {inlineFields.join(', ')}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : isPixelValuesReady ? (
                     <>
                       {/* Simplified chart type selector for pixelValues - no pie/histogram */}
                       <ChartTypeSelector
