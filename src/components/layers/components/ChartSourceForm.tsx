@@ -18,6 +18,7 @@ import { TraceEditor } from '@/components/charts/TraceEditor';
 import { PieEditor } from '@/components/charts/PieEditor';
 import { HistogramEditor } from '@/components/charts/HistogramEditor';
 import { PlotlyChartViewer } from '@/components/charts/PlotlyChartViewer';
+import { ChartSettingsPanel } from '@/components/charts/ChartSettingsPanel';
 import { useChartEditorState } from '@/hooks/useChartEditorState';
 import { fetchAndParseCSV } from '@/utils/csvParser';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
