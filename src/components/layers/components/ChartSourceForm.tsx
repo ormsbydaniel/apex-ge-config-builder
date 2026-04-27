@@ -503,7 +503,23 @@ export function ChartSourceForm({
                   <div className="font-medium">Pixel Values</div>
                   <div className="text-sm text-muted-foreground">
                     Spectral signature from COG bands
-                  </div>
+            </div>
+
+            {/* URL Input - only for CSV-based sources */}
+            {sourceType !== 'pixelValues' && (
+              <div className="space-y-2">
+                <Label htmlFor="url">CSV URL</Label>
+                <Input
+                  id="url"
+                  value={directUrl}
+                  onChange={(e) => setDirectUrl(e.target.value)}
+                  placeholder="https://example.com/data.csv"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter the URL to your CSV data file
+                </p>
+              </div>
+            )}
                 </button>
               </div>
             </div>
@@ -626,22 +642,6 @@ export function ChartSourceForm({
                 placeholder="Enter chart sub-title"
               />
             </div>
-
-            {/* URL Input - only for CSV-based sources */}
-            {sourceType !== 'pixelValues' && (
-              <div className="space-y-2">
-                <Label htmlFor="url">CSV URL</Label>
-                <Input
-                  id="url"
-                  value={directUrl}
-                  onChange={(e) => setDirectUrl(e.target.value)}
-                  placeholder="https://example.com/data.csv"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Enter the URL to your CSV data file
-                </p>
-              </div>
-            )}
 
             {/* Source Label */}
             <div className="space-y-2">
