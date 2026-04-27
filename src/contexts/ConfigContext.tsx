@@ -141,6 +141,30 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
     case 'LOAD_CONFIG': {
       // Normalize all data fields to arrays when loading and preserve statistics
       const { __source, ...payloadWithoutSource } = action.payload as any;
+
+      // Migrate legacy chart axis title shape to Plotly v2 native shape:
+      //   { title: "Wavelength", titleFont: { size: 12 } }
+      //     -> { title: { text: "Wavelength", font: { size: 12 } } }
+      const migrateAxis = (axis: any) => {
+        if (!axis || typeof axis !== 'object') return axis;
+        const next: any = { ...axis };
+        if (typeof next.title === 'string') {
+          next.title = {
+            text: next.title,
+            ...(next.titleFont ? { font: next.titleFont } : {}),
+          };
+        }
+        if ('titleFont' in next) delete next.titleFont;
+        return next;
+      };
+      const migrateChart = (chart: any) => {
+        if (!chart?.layout) return chart;
+        const layout = { ...chart.layout };
+        if (layout.xaxis) layout.xaxis = migrateAxis(layout.xaxis);
+        if (layout.yaxis) layout.yaxis = migrateAxis(layout.yaxis);
+        return { ...chart, layout };
+      };
+
       const normalizedPayload = {
         ...payloadWithoutSource,
         exportPrefix: payloadWithoutSource.exportPrefix || 'config',
@@ -160,7 +184,9 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           ...source,
           data: normalizeDataToArray(source.data),
           // Preserve statistics array if it exists
-          ...(source.statistics && { statistics: source.statistics })
+          ...(source.statistics && { statistics: source.statistics }),
+          // Migrate chart axis title shape if charts present
+          ...(Array.isArray(source.charts) && { charts: source.charts.map(migrateChart) })
         }))
       };
       

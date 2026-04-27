@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChartConfig, ChartAxis, ChartFont, ChartLegend, ChartLayout } from '@/types/chart';
+import { ChartConfig, ChartAxis, ChartFont, ChartLegend, ChartLayout, ChartAxisTitle } from '@/types/chart';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -21,11 +21,17 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
   const updateYAxis = (updates: Partial<ChartAxis>) => {
     updateLayout({ yaxis: { ...config.layout?.yaxis, ...updates } });
   };
-  const updateXAxisFont = (updates: Partial<ChartFont>) => {
-    updateXAxis({ titleFont: { ...config.layout?.xaxis?.titleFont, ...updates } });
+  const updateXAxisTitle = (updates: Partial<ChartAxisTitle>) => {
+    updateXAxis({ title: { ...config.layout?.xaxis?.title, ...updates } });
   };
-  const updateYAxisFont = (updates: Partial<ChartFont>) => {
-    updateYAxis({ titleFont: { ...config.layout?.yaxis?.titleFont, ...updates } });
+  const updateYAxisTitle = (updates: Partial<ChartAxisTitle>) => {
+    updateYAxis({ title: { ...config.layout?.yaxis?.title, ...updates } });
+  };
+  const updateXAxisTitleFont = (updates: Partial<ChartFont>) => {
+    updateXAxisTitle({ font: { ...config.layout?.xaxis?.title?.font, ...updates } });
+  };
+  const updateYAxisTitleFont = (updates: Partial<ChartFont>) => {
+    updateYAxisTitle({ font: { ...config.layout?.yaxis?.title?.font, ...updates } });
   };
   const updateXAxisTickFont = (updates: Partial<ChartFont>) => {
     updateXAxis({ tickfont: { ...config.layout?.xaxis?.tickfont, ...updates } });
@@ -44,8 +50,8 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">X-Axis</Label>
         <div className="flex items-center gap-2">
-          <Input value={config.layout?.xaxis?.title || ''} onChange={(e) => updateXAxis({ title: e.target.value })} placeholder="Label" className="h-6 text-xs flex-1" />
-          <Input type="number" value={config.layout?.xaxis?.titleFont?.size ?? 10} onChange={(e) => updateXAxisFont({ size: Number(e.target.value) })} min={6} max={24} className="h-6 text-xs w-14" title="Label font size" />
+          <Input value={config.layout?.xaxis?.title?.text || ''} onChange={(e) => updateXAxisTitle({ text: e.target.value })} placeholder="Label" className="h-6 text-xs flex-1" />
+          <Input type="number" value={config.layout?.xaxis?.title?.font?.size ?? 10} onChange={(e) => updateXAxisTitleFont({ size: Number(e.target.value) })} min={6} max={24} className="h-6 text-xs w-14" title="Label font size" />
           <Switch checked={config.layout?.xaxis?.showgrid !== false} onCheckedChange={(checked) => updateXAxis({ showgrid: checked })} className="scale-75" />
           <span className="text-xs text-muted-foreground">Grid</span>
         </div>
@@ -96,8 +102,8 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">Y-Axis</Label>
         <div className="flex items-center gap-2">
-          <Input value={config.layout?.yaxis?.title || ''} onChange={(e) => updateYAxis({ title: e.target.value })} placeholder="Label" className="h-6 text-xs flex-1" />
-          <Input type="number" value={config.layout?.yaxis?.titleFont?.size ?? 10} onChange={(e) => updateYAxisFont({ size: Number(e.target.value) })} min={6} max={24} className="h-6 text-xs w-14" title="Label font size" />
+          <Input value={config.layout?.yaxis?.title?.text || ''} onChange={(e) => updateYAxisTitle({ text: e.target.value })} placeholder="Label" className="h-6 text-xs flex-1" />
+          <Input type="number" value={config.layout?.yaxis?.title?.font?.size ?? 10} onChange={(e) => updateYAxisTitleFont({ size: Number(e.target.value) })} min={6} max={24} className="h-6 text-xs w-14" title="Label font size" />
           <Switch checked={config.layout?.yaxis?.showgrid !== false} onCheckedChange={(checked) => updateYAxis({ showgrid: checked })} className="scale-75" />
           <span className="text-xs text-muted-foreground">Grid</span>
         </div>
