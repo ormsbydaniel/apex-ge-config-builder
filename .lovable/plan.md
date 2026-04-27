@@ -1,71 +1,42 @@
-## Store Axis Titles in Plotly's Native Shape
+## Goal
 
-### Why
-Plotly.js v2 requires `xaxis.title` to be an **object** `{ text, font }`, not a bare string. The legacy `titlefont` key is deprecated. Today we store the wrong shape (`title: "Wavelength"`, `titleFont: { size: 12 }`), so axis labels render nowhere.
+Make the X-Axis and Y-Axis settings clearer by labelling each row (Axis, Ticks, Grid) and giving each input a visible inline label. Allow the Ticks section to wrap onto two rows so controls don't get squashed.
 
-Per your preference, we'll store the JSON in Plotly's correct shape and pass it straight through to the viewer — no transform layer.
+## New layout (per axis)
 
-### Target JSON shape
-
-```json
-"xaxis": {
-  "title": { "text": "Wavelength", "font": { "size": 12 } },
-  "tickfont": { "size": 10 },
-  "showgrid": true,
-  "type": "linear",
-  "tickangle": 0,
-  "tickformat": ",.0f",
-  "ticksuffix": " nm"
-}
+```text
+X-Axis
+  Axis    Label: [______________]   Size: [__]
+  Ticks   Format: [dropdown]            Suffix: [__]
+          Size: [__]   Orientation: [slider __°]
+  Grid    (toggle)   Type: [Auto/Date/Linear/Category]
 ```
 
-### Changes
+Y-Axis is the same, minus Orientation (Y has no tickangle control today, keeping parity):
 
-#### 1. `src/types/chart.ts` — `ChartAxis` interface
-Replace string `title` and `titleFont` with a single nested object:
-```ts
-export interface ChartAxisTitle {
-  text?: string;
-  font?: ChartFont;
-  [key: string]: unknown;
-}
-export interface ChartAxis {
-  title?: ChartAxisTitle;   // was: string
-  // remove titleFont
-  tickfont?: ChartFont;
-  ...
-}
+```text
+Y-Axis
+  Axis    Label: [______________]   Size: [__]
+  Ticks   Format: [dropdown]   Suffix: [__]
+          Size: [__]
+  Grid    (toggle)
 ```
 
-#### 2. `src/schemas/configSchema.ts` — `ChartAxisSchema`
-- Replace `title: z.string().optional()` with `title: z.object({ text: z.string().optional(), font: ChartFontSchema.optional() }).passthrough().optional()`.
-- Remove `titleFont`.
+## Changes
 
-#### 3. `src/components/charts/ChartSettingsPanel.tsx` — UI
-Read/write the nested shape:
-- Label input: `value={config.layout?.xaxis?.title?.text || ''}` → `updateXAxis({ title: { ...xaxis.title, text } })`.
-- Font-size input: `value={config.layout?.xaxis?.title?.font?.size ?? 10}` → `updateXAxis({ title: { ...xaxis.title, font: { ...xaxis.title?.font, size } } })`.
-- Same for Y-axis.
-- Drop the separate `titleFont` helpers and replace with title-mutating helpers.
+**File: `src/components/charts/ChartSettingsPanel.tsx`**
 
-#### 4. `src/components/charts/PlotlyChartViewer.tsx` — pass-through
-Simplify:
-- Remove `buildAxisConfig`'s `titlefont` line.
-- For both branches, build axes by spreading the stored axis as-is, only adding a default title text when none is set:
-  ```ts
-  const xAxis = { ...config.layout?.xaxis };
-  if (!xAxis.title?.text) xAxis.title = { ...xAxis.title, text: 'Band' };
-  ```
-  (For non-pixel-values main branch: default x to `typeof config.x === 'string' ? config.x : undefined`; histogram defaults stay as today; y default stays "Value"/"Count" where applicable, otherwise omit.)
+- Replace the current 5-column grid with a 3-column grid: X-Axis | Y-Axis | Legend, separated by vertical dividers.
+- For each axis, render labelled rows. Each row starts with a fixed-width (~3.5rem) muted "Axis" / "Ticks" / "Grid" label, followed by inline `<Label>` + control pairs with `gap-2`.
+  1. **Axis row** — `Label:` text input (flex-1) + `Size:` numeric input (w-14). Bound to `xaxis.title.text` and `xaxis.title.font.size`.
+  2. **Ticks (line 1)** — `Format:` dropdown (flex-1) + `Suffix:` text input (w-20). Bound to `xaxis.tickformat` and `xaxis.ticksuffix`.
+  3. **Ticks (line 2)** — `Size:` numeric input (w-14) + (X-axis only) `Orientation:` slider with degree readout (flex-1). Bound to `xaxis.tickfont.size` and `xaxis.tickangle`.
+     - The two Ticks lines share the "Ticks" row label (label spans only the first line; the second line is indented to align under the controls).
+  4. **Grid row** — show/hide Switch + (X-axis only) `Type:` dropdown for Auto/Date/Linear/Category.
+- Preserve all existing handlers and bindings (`updateXAxisTitle`, `updateXAxisTickFont`, `tickformat`, `ticksuffix`, `tickangle`, `showgrid`, `type`, etc.). No schema/type changes.
+- Keep the Legend column exactly as it is today.
 
-#### 5. Backwards-compatibility migration
-Existing saved configs and the user's chart JSON examples store `title` as a string and `titleFont` at the axis root. Add a one-time normalization in `useValidatedConfig.ts` (or a dedicated `migrateChartConfig` util invoked there) that, for every chart's `layout.xaxis`/`layout.yaxis`:
-- If `axis.title` is a string, rewrite to `{ text: axis.title, ...(axis.titleFont ? { font: axis.titleFont } : {}) }`.
-- Delete `axis.titleFont`.
+## Out of scope
 
-This keeps existing project files working and converts them on load so subsequent saves are in the new shape.
-
-### Result
-- Stored JSON matches Plotly's spec exactly.
-- Viewer is a thin pass-through with only sensible defaults.
-- Old configs auto-migrate on load; users see their axis labels render immediately.
+- No changes to JSON schema, types, or the Plotly viewer.
+- No new fields — only re-organising existing controls and adding visible labels.
