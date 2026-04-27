@@ -508,6 +508,23 @@ export function ChartSourceForm({
               </div>
             </div>
 
+            {/* Service Selection */}
+            {sourceType === 'service' && (
+              <div className="space-y-4">
+                <Label>Select a Service</Label>
+                {services.length > 0 ? (
+                  <ServiceCardList
+                    services={services}
+                    onServiceSelect={handleServiceSelect}
+                  />
+                ) : (
+                  <div className="text-sm text-muted-foreground p-4 border border-dashed rounded-lg text-center">
+                    No services configured. Add a service in the Services menu.
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* URL Input - only for CSV-based sources */}
             {sourceType !== 'pixelValues' && (
               <div className="space-y-2">
@@ -599,23 +616,6 @@ export function ChartSourceForm({
                         </Button>
                       </div>
                     )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Service Selection */}
-            {sourceType === 'service' && (
-              <div className="space-y-4">
-                <Label>Select a Service</Label>
-                {services.length > 0 ? (
-                  <ServiceCardList
-                    services={services}
-                    onServiceSelect={handleServiceSelect}
-                  />
-                ) : (
-                  <div className="text-sm text-muted-foreground p-4 border border-dashed rounded-lg text-center">
-                    No services configured. Add a service in the Services menu.
                   </div>
                 )}
               </div>
