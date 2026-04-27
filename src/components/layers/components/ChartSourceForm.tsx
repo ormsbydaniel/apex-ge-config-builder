@@ -503,6 +503,9 @@ export function ChartSourceForm({
                   <div className="font-medium">Pixel Values</div>
                   <div className="text-sm text-muted-foreground">
                     Spectral signature from COG bands
+                  </div>
+                </button>
+              </div>
             </div>
 
             {/* URL Input - only for CSV-based sources */}
@@ -520,9 +523,6 @@ export function ChartSourceForm({
                 </p>
               </div>
             )}
-                </button>
-              </div>
-            </div>
 
             {/* Pixel Values: COG source selector */}
             {sourceType === 'pixelValues' && (
