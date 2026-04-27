@@ -63,6 +63,7 @@ export function ChartSourceForm({
   const sampleFetchRef = useRef(0);
   const [directUrl, setDirectUrl] = useState(editingChart?.sources?.[0]?.url || '');
   const [chartTitle, setChartTitle] = useState(editingChart?.title || '');
+  const [chartSubtitle, setChartSubtitle] = useState(editingChart?.subtitle || '');
   const [chartLabel, setChartLabel] = useState(editingChart?.sources?.[0]?.label || '');
   
   // Modal state for service selection
@@ -104,6 +105,7 @@ export function ChartSourceForm({
     if (editingChart) {
       setDirectUrl(editingChart.sources?.[0]?.url || '');
       setChartTitle(editingChart.title || '');
+      setChartSubtitle(editingChart.subtitle || '');
       setChartLabel(editingChart.sources?.[0]?.label || '');
       setIsDirty(false);
     }
@@ -361,6 +363,7 @@ export function ChartSourceForm({
       const finalConfig: ChartConfig = {
         ...chartConfig,
         ...(chartTitle.trim() && { title: chartTitle.trim() }),
+        ...(chartSubtitle.trim() && { subtitle: chartSubtitle.trim() }),
         sources: [chartSource]
       };
 
@@ -398,6 +401,7 @@ export function ChartSourceForm({
     const finalConfig: ChartConfig = {
       ...chartConfig,
       ...(chartTitle.trim() && { title: chartTitle.trim() }),
+      ...(chartSubtitle.trim() && { subtitle: chartSubtitle.trim() }),
       sources: [chartSource]
     };
 
@@ -609,6 +613,17 @@ export function ChartSourceForm({
                 value={chartTitle}
                 onChange={(e) => setChartTitle(e.target.value)}
                 placeholder="Enter chart title"
+              />
+            </div>
+
+            {/* Chart Sub-title */}
+            <div className="space-y-2">
+              <Label htmlFor="chartSubtitle">Chart Sub-title (optional)</Label>
+              <Input
+                id="chartSubtitle"
+                value={chartSubtitle}
+                onChange={(e) => setChartSubtitle(e.target.value)}
+                placeholder="Enter chart sub-title"
               />
             </div>
 

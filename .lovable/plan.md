@@ -1,35 +1,36 @@
-## Plan
+## Add Chart Subtitle Input Field
 
-I’ll make WMTS GetCapabilities parsing more robust so services that work in a browser also populate layers in the app.
+### Overview
+Add a "Chart Sub-title" text input field directly beneath the existing "Chart Title" input in the Chart Source form. The `subtitle` field already exists in the `ChartConfig` type and is supported in the exported JSON.
 
-## What I’ll change
+### Changes Required
 
-1. **Centralize Add Service capabilities parsing**
-   - Update `useServices.ts` so WMS/WMTS/WFS service creation uses the shared `fetchServiceCapabilities()` utility instead of its older duplicated parser.
-   - This prevents Add Service and later lazy-loading/validation from disagreeing about discovered layers.
+#### 1. `src/components/layers/components/ChartSourceForm.tsx`
 
-2. **Improve WMTS XML parsing**
-   - Update `fetchServiceCapabilities()` to parse WMTS documents using namespace-safe DOM traversal, not only CSS selectors like `querySelectorAll('Layer')`.
-   - Support common WMTS XML variations such as:
-     - namespace-prefixed `<wmts:Layer>` elements
-     - `<ows:Identifier>` / `<Identifier>` regardless of prefix
-     - service metadata under OWS elements regardless of namespace prefix
-   - Keep current WMS/WFS behavior unchanged except where shared helper functions make parsing safer.
+**Add state for subtitle:**
+- Add `const [chartSubtitle, setChartSubtitle] = useState(editingChart?.subtitle || '');` alongside the existing `chartTitle` state.
 
-3. **Improve validation feedback**
-   - Keep returning capabilities with an empty layer list only when the fetch/parsing succeeded but no layers were detected.
-   - Preserve existing error handling and avoid noisy render-loop logging.
+**Add input field below Chart Title:**
+- Insert a new input block directly beneath the existing "Chart Title" section (around line 613):
+  ```
+  <div className="space-y-2">
+    <Label htmlFor="chartSubtitle">Chart Sub-title (optional)</Label>
+    <Input
+      id="chartSubtitle"
+      value={chartSubtitle}
+      onChange={(e) => setChartSubtitle(e.target.value)}
+      placeholder="Enter chart sub-title"
+    />
+  </div>
+  ```
 
-4. **Verify the flow**
-   - Test the TypeScript/build checks.
-   - Manually reason through the affected paths:
-     - Add WMTS service
-     - Open “add data from service” modal
-     - Lazy re-fetch of capabilities for existing services
-     - Service validation/re-check
+**Include subtitle in final config on submit:**
+- In both the `pixelValues` and CSV submit paths, include `...(chartSubtitle.trim() && { subtitle: chartSubtitle.trim() })` when building the `finalConfig` object, alongside the existing `chartTitle` spread.
 
-## Technical details
+**Sync subtitle when editingChart changes:**
+- In the `useEffect` that syncs form state with `editingChart`, add `setChartSubtitle(editingChart?.subtitle || '');`.
 
-The likely root cause is that WMTS capabilities documents often use XML namespaces. In XML DOM parsing, browser CSS selectors can be unreliable for namespaced elements, especially if the element appears as `wmts:Layer` rather than plain `Layer`. I’ll add small XML helper functions that match by `localName`, so parsing is based on the actual XML element name independent of prefix.
-
-Expected result: the service modal should list WMTS layers instead of showing “No layers found” when the GetCapabilities response contains valid WMTS Layer entries.
+### Technical Details
+- The `ChartConfig` interface in `src/types/chart.ts` already defines `subtitle?: string` (line 121).
+- No schema changes are needed since `subtitle` is already part of the type system.
+- The exported JSON will automatically include the subtitle field when present.
