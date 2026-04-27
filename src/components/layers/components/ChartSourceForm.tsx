@@ -825,6 +825,7 @@ export function ChartSourceForm({
                           config={{
                             ...chartConfig,
                             title: chartTitle || chartConfig.title,
+                            subtitle: chartSubtitle || chartConfig.subtitle,
                             ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {})
                           }}
                           data={parsedData}
