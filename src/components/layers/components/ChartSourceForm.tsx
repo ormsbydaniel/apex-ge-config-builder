@@ -129,6 +129,31 @@ export function ChartSourceForm({
     }
   }, [editingChart]);
 
+  // Hydrate inline fields when editing an existing inline chart
+  useEffect(() => {
+    if (editingChart?.sources?.[0]?.type === 'inline' && Array.isArray(editingChart.sources[0].fields)) {
+      setInlineFields(editingChart.sources[0].fields as string[]);
+    }
+  }, [editingChart]);
+
+  // When entering Field Values mode, default chartConfig to a Pie shape
+  // matching the target inline JSON contract (x:'field', traces[0]={y:'value', type:'pie'}).
+  useEffect(() => {
+    if (sourceType !== 'fieldValues') return;
+    setChartConfig(prev => {
+      const firstTrace = prev.traces?.[0];
+      const alreadyPie = firstTrace?.type === 'pie' || prev.chartType === 'pie';
+      if (alreadyPie && prev.x === 'field') return prev;
+      return {
+        ...prev,
+        chartType: 'pie',
+        x: 'field',
+        traces: [{ y: 'value', type: 'pie' }],
+        layout: { height: 400, showlegend: true, ...(prev.layout || {}) },
+      };
+    });
+  }, [sourceType, setChartConfig]);
+
   // Fetch COG header metadata to detect band count when source changes
   useEffect(() => {
     if (sourceType !== 'pixelValues' || stableCogSources.length === 0) return;
