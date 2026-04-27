@@ -63,6 +63,9 @@ export function ChartSourceForm({
   const [bandLoading, setBandLoading] = useState(false);
   const bandFetchRef = useRef(0);
   const [samplePixelValues, setSamplePixelValues] = useState<number[] | null>(null);
+  const [inlineFields, setInlineFields] = useState<string[]>(
+    Array.isArray(editingChart?.sources?.[0]?.fields) ? (editingChart!.sources![0].fields as string[]) : []
+  );
   const [sampleLoading, setSampleLoading] = useState(false);
   const sampleFetchRef = useRef(0);
   const [directUrl, setDirectUrl] = useState(editingChart?.sources?.[0]?.url || '');
