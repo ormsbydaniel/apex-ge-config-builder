@@ -626,7 +626,7 @@ export function ChartSourceForm({
             <Collapsible open={titleOpen} onOpenChange={setTitleOpen}>
               <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
                 {titleOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                <span className="font-medium">Chart Title</span>
+                <span className="font-medium">Chart Title(s)</span>
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-4 space-y-4">
                 <div className="space-y-2">
