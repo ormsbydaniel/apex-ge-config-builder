@@ -55,6 +55,20 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">X-Axis</Label>
 
+        {/* Type row */}
+        <div className="flex items-center gap-2">
+          <span className={ROW_LABEL}>Type</span>
+          <Select value={xType} onValueChange={(value) => updateXAxis({ type: value as ChartAxis['type'] })}>
+            <SelectTrigger className="h-6 text-xs flex-1"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="-" className="text-xs">Auto</SelectItem>
+              <SelectItem value="date" className="text-xs">Date</SelectItem>
+              <SelectItem value="linear" className="text-xs">Linear</SelectItem>
+              <SelectItem value="category" className="text-xs">Category</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Axis row */}
         <div className="flex items-center gap-2">
           <span className={ROW_LABEL}>Axis</span>
@@ -84,7 +98,8 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
                   <SelectItem value=",.0f" className="text-xs">1,234</SelectItem>
                   <SelectItem value=".2f" className="text-xs">1234.56</SelectItem>
                   <SelectItem value=".0%" className="text-xs">12%</SelectItem>
-                  <SelectItem value=".1s" className="text-xs">1.2k</SelectItem>
+                  <Label className={FIELD_LABEL}>Suffix:</Label>
+                  <Input value={config.layout?.xaxis?.ticksuffix || ''} onChange={(e) => updateXAxis({ ticksuffix: e.target.value || undefined })} className="h-6 text-xs w-20" />
                 </>
               )}
             </SelectContent>
@@ -107,16 +122,6 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
         <div className="flex items-center gap-2">
           <span className={ROW_LABEL}>Grid</span>
           <Switch checked={config.layout?.xaxis?.showgrid !== false} onCheckedChange={(checked) => updateXAxis({ showgrid: checked })} className="scale-75" />
-          <Label className={FIELD_LABEL}>Type:</Label>
-          <Select value={xType} onValueChange={(value) => updateXAxis({ type: value as ChartAxis['type'] })}>
-            <SelectTrigger className="h-6 text-xs flex-1"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="-" className="text-xs">Auto</SelectItem>
-              <SelectItem value="date" className="text-xs">Date</SelectItem>
-              <SelectItem value="linear" className="text-xs">Linear</SelectItem>
-              <SelectItem value="category" className="text-xs">Category</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
