@@ -417,6 +417,35 @@ export function ChartSourceForm({
       return;
     }
 
+    if (sourceType === 'fieldValues') {
+      const chartSource: ChartSource = {
+        type: 'inline',
+        fields: inlineFields,
+        ...(chartLabel.trim() && { label: chartLabel.trim() })
+      };
+
+      const finalConfig: ChartConfig = {
+        ...chartConfig,
+        title: chartTitle.trim() || undefined,
+        subtitle: chartSubtitle.trim() || undefined,
+        sources: [chartSource]
+      };
+
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: false, description: null }
+      });
+
+      if (editingChart && editingIndex !== undefined && onUpdateChart) {
+        onUpdateChart(finalConfig, editingIndex);
+        toast({ title: "Chart Updated", description: "Chart configuration has been updated." });
+      } else {
+        onAddChart(finalConfig);
+        toast({ title: "Chart Added", description: "Chart has been added to the layer." });
+      }
+      return;
+    }
+
     if (!directUrl.trim()) {
       toast({
         title: "Missing URL",
