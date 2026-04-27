@@ -71,6 +71,7 @@ export function ChartSourceForm({
 
   // Chart configuration sections
   const [configOpen, setConfigOpen] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(true);
   
   // Use chart editor state hook
