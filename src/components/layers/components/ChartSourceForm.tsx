@@ -576,7 +576,7 @@ export function ChartSourceForm({
             )}
 
             {/* URL Input - only for CSV-based sources */}
-            {sourceType !== 'pixelValues' && (
+            {sourceType !== 'pixelValues' && sourceType !== 'fieldValues' && (
               <div className="space-y-2">
                 <Label htmlFor="url">CSV URL</Label>
                 <Input
