@@ -24,7 +24,7 @@ import { fetchAndParseCSV } from '@/utils/csvParser';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
 import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, Activity, Loader2, Tag, Settings2 } from 'lucide-react';
+import { AlertTriangle, Activity, Loader2, Tag, Settings2, ListTree } from 'lucide-react';
 import { BandLabelEditorDialog } from './BandLabelEditorDialog';
 
 interface ChartSourceFormProps {
@@ -49,8 +49,12 @@ export function ChartSourceForm({
   const { toast } = useToast();
   const { dispatch } = useConfig();
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues'>(
-    editingChart?.sources?.[0]?.type === 'pixelValues' ? 'pixelValues' : 'direct'
+  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues' | 'fieldValues'>(
+    editingChart?.sources?.[0]?.type === 'pixelValues'
+      ? 'pixelValues'
+      : editingChart?.sources?.[0]?.type === 'inline'
+        ? 'fieldValues'
+        : 'direct'
   );
   const [selectedCogIndex, setSelectedCogIndex] = useState<number>(0);
   const [bandLabels, setBandLabels] = useState<string[]>([]);
@@ -59,6 +63,9 @@ export function ChartSourceForm({
   const [bandLoading, setBandLoading] = useState(false);
   const bandFetchRef = useRef(0);
   const [samplePixelValues, setSamplePixelValues] = useState<number[] | null>(null);
+  const [inlineFields, setInlineFields] = useState<string[]>(
+    Array.isArray(editingChart?.sources?.[0]?.fields) ? (editingChart!.sources![0].fields as string[]) : []
+  );
   const [sampleLoading, setSampleLoading] = useState(false);
   const sampleFetchRef = useRef(0);
   const [directUrl, setDirectUrl] = useState(editingChart?.sources?.[0]?.url || '');
@@ -121,6 +128,31 @@ export function ChartSourceForm({
       setBandCount((editingChart.x as string[]).length);
     }
   }, [editingChart]);
+
+  // Hydrate inline fields when editing an existing inline chart
+  useEffect(() => {
+    if (editingChart?.sources?.[0]?.type === 'inline' && Array.isArray(editingChart.sources[0].fields)) {
+      setInlineFields(editingChart.sources[0].fields as string[]);
+    }
+  }, [editingChart]);
+
+  // When entering Field Values mode, default chartConfig to a Pie shape
+  // matching the target inline JSON contract (x:'field', traces[0]={y:'value', type:'pie'}).
+  useEffect(() => {
+    if (sourceType !== 'fieldValues') return;
+    setChartConfig(prev => {
+      const firstTrace = prev.traces?.[0];
+      const alreadyPie = firstTrace?.type === 'pie' || prev.chartType === 'pie';
+      if (alreadyPie && prev.x === 'field') return prev;
+      return {
+        ...prev,
+        chartType: 'pie',
+        x: 'field',
+        traces: [{ y: 'value', type: 'pie' }],
+        layout: { height: 400, showlegend: true, ...(prev.layout || {}) },
+      };
+    });
+  }, [sourceType, setChartConfig]);
 
   // Fetch COG header metadata to detect band count when source changes
   useEffect(() => {
@@ -385,6 +417,35 @@ export function ChartSourceForm({
       return;
     }
 
+    if (sourceType === 'fieldValues') {
+      const chartSource: ChartSource = {
+        type: 'inline',
+        fields: inlineFields,
+        ...(chartLabel.trim() && { label: chartLabel.trim() })
+      };
+
+      const finalConfig: ChartConfig = {
+        ...chartConfig,
+        title: chartTitle.trim() || undefined,
+        subtitle: chartSubtitle.trim() || undefined,
+        sources: [chartSource]
+      };
+
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: false, description: null }
+      });
+
+      if (editingChart && editingIndex !== undefined && onUpdateChart) {
+        onUpdateChart(finalConfig, editingIndex);
+        toast({ title: "Chart Updated", description: "Chart configuration has been updated." });
+      } else {
+        onAddChart(finalConfig);
+        toast({ title: "Chart Added", description: "Chart has been added to the layer." });
+      }
+      return;
+    }
+
     if (!directUrl.trim()) {
       toast({
         title: "Missing URL",
@@ -444,8 +505,9 @@ export function ChartSourceForm({
   const hasUrl = directUrl.trim() !== '';
   const hasColumns = availableColumns.length > 0;
   const isPixelValuesReady = sourceType === 'pixelValues' && bandLabels.length > 0 && !bandLoading;
-  const showConfig = hasUrl || isPixelValuesReady;
-  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady;
+  const isFieldValuesMode = sourceType === 'fieldValues';
+  const showConfig = hasUrl || isPixelValuesReady || isFieldValuesMode;
+  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady || isFieldValuesMode;
   const selectedTrace = chartConfig.traces?.[selectedTraceIndex];
 
   return (
@@ -462,7 +524,7 @@ export function ChartSourceForm({
             {/* Source Type Selection */}
             <div className="space-y-4">
               <Label className="text-base font-medium">Data Source</Label>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <button
                   type="button"
                   onClick={() => setSourceType('direct')}
@@ -508,6 +570,21 @@ export function ChartSourceForm({
                     Spectral signature from COG bands
                   </div>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setSourceType('fieldValues')}
+                  className={`p-4 border rounded-lg text-center flex flex-col items-center transition-colors ${
+                    sourceType === 'fieldValues'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <ListTree className="h-5 w-5 mb-2 text-primary" />
+                  <div className="font-medium">Field Values</div>
+                  <div className="text-sm text-muted-foreground">
+                    Charts from vector data fields
+                  </div>
+                </button>
               </div>
             </div>
 
@@ -529,7 +606,7 @@ export function ChartSourceForm({
             )}
 
             {/* URL Input - only for CSV-based sources */}
-            {sourceType !== 'pixelValues' && (
+            {sourceType !== 'pixelValues' && sourceType !== 'fieldValues' && (
               <div className="space-y-2">
                 <Label htmlFor="url">CSV URL</Label>
                 <Input
@@ -672,7 +749,24 @@ export function ChartSourceForm({
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 space-y-4">
-                  {isPixelValuesReady ? (
+                  {isFieldValuesMode ? (
+                    <>
+                      <ChartTypeSelector
+                        config={chartConfig}
+                        onChange={setChartConfig}
+                        restrictToPie
+                      />
+                      <div className="p-4 border border-dashed rounded-lg text-sm text-muted-foreground">
+                        Field Values configuration coming soon — edit the JSON directly to test.
+                        {inlineFields.length > 0 && (
+                          <div className="mt-2 text-xs">
+                            <span className="font-medium text-foreground">Current fields:</span>{' '}
+                            {inlineFields.join(', ')}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : isPixelValuesReady ? (
                     <>
                       {/* Simplified chart type selector for pixelValues - no pie/histogram */}
                       <ChartTypeSelector
@@ -828,7 +922,8 @@ export function ChartSourceForm({
                             ...chartConfig,
                             title: chartTitle || chartConfig.title,
                             subtitle: chartSubtitle || chartConfig.subtitle,
-                            ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {})
+                            ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {}),
+                            ...(sourceType === 'fieldValues' ? { sources: [{ type: 'inline' as const, fields: inlineFields }] } : {})
                           }}
                           data={parsedData}
                           sampleData={samplePixelValues || undefined}

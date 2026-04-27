@@ -1,42 +1,72 @@
-## Goal
+## Add "Field Values" chart source type (inline) — JSON-first
 
-Make the X-Axis and Y-Axis settings clearer by labelling each row (Axis, Ticks, Grid) and giving each input a visible inline label. Allow the Ticks section to wrap onto two rows so controls don't get squashed.
+Adds a fourth chart source type. Schema, types, and the Plotly preview support the new `"inline"` source so charts authored directly in JSON render in the preview. UI gets a fourth button ("Field Values") and a placeholder data-config panel; the field-picker UI is deferred to a follow-up prompt.
 
-## New layout (per axis)
+### Target JSON
 
-```text
-X-Axis
-  Axis    Label: [______________]   Size: [__]
-  Ticks   Format: [dropdown]            Suffix: [__]
-          Size: [__]   Orientation: [slider __°]
-  Grid    (toggle)   Type: [Auto/Date/Linear/Category]
+```json
+{
+  "title": "Land Use - Pie",
+  "sources": [{ "type": "inline", "fields": ["treecover", "shrubland", "grassland", "cropland", "builtup"] }],
+  "x": "field",
+  "traces": [{ "y": "value", "type": "pie" }],
+  "layout": { "height": 400, "showlegend": true, "hole": 4 }
+}
 ```
 
-Y-Axis is the same, minus Orientation (Y has no tickangle control today, keeping parity):
+Semantics:
+- `sources[0].type === "inline"` → data comes from the layer itself (vector feature properties).
+- `sources[0].fields` is the ordered list of property names to plot.
+- `x: "field"` and `traces[0].y: "value"` are placeholders that map onto the synthesized `{ field, value }` rows produced by the viewer at runtime.
+- `traces[0].type: "pie"` selects the pie renderer.
 
-```text
-Y-Axis
-  Axis    Label: [______________]   Size: [__]
-  Ticks   Format: [dropdown]   Suffix: [__]
-          Size: [__]
-  Grid    (toggle)
-```
+### Changes
 
-## Changes
+1. **Schema + types**
+   - `src/schemas/configSchema.ts`: extend source `type` enum with `'inline'`; add optional `fields: z.array(z.string())` on `ChartSourceSchema`.
+   - `src/types/chart.ts`: extend `ChartSource.type` union with `'inline'`; add `fields?: string[]`.
 
-**File: `src/components/charts/ChartSettingsPanel.tsx`**
+2. **PlotlyChartViewer — render inline pie from JSON**
+   - File: `src/components/charts/PlotlyChartViewer.tsx`
+   - Detect `config.sources?.[0]?.type === 'inline'`.
+   - When the first trace is `type: 'pie'`:
+     - Build `labels` from `sources[0].fields`.
+     - Build `values` as a placeholder `1` per field (until real GeoJSON wiring lands), so slices render with equal weight.
+     - Emit a Plotly pie trace honouring `layout.hole`, `layout.showlegend`, `layout.height`, and `layout.legend`.
+   - When the first trace is XY (`scatter`/`bar`): synthesize rows `[{ field, value }, ...]` from `fields` (placeholder `value: 1`) and feed the existing XY pipeline so future bar/line variants will also render.
+   - Keep all existing CSV / pixelValues paths untouched.
 
-- Replace the current 5-column grid with a 3-column grid: X-Axis | Y-Axis | Legend, separated by vertical dividers.
-- For each axis, render labelled rows. Each row starts with a fixed-width (~3.5rem) muted "Axis" / "Ticks" / "Grid" label, followed by inline `<Label>` + control pairs with `gap-2`.
-  1. **Axis row** — `Label:` text input (flex-1) + `Size:` numeric input (w-14). Bound to `xaxis.title.text` and `xaxis.title.font.size`.
-  2. **Ticks (line 1)** — `Format:` dropdown (flex-1) + `Suffix:` text input (w-20). Bound to `xaxis.tickformat` and `xaxis.ticksuffix`.
-  3. **Ticks (line 2)** — `Size:` numeric input (w-14) + (X-axis only) `Orientation:` slider with degree readout (flex-1). Bound to `xaxis.tickfont.size` and `xaxis.tickangle`.
-     - The two Ticks lines share the "Ticks" row label (label spans only the first line; the second line is indented to align under the controls).
-  4. **Grid row** — show/hide Switch + (X-axis only) `Type:` dropdown for Auto/Date/Linear/Category.
-- Preserve all existing handlers and bindings (`updateXAxisTitle`, `updateXAxisTickFont`, `tickformat`, `ticksuffix`, `tickangle`, `showgrid`, `type`, etc.). No schema/type changes.
-- Keep the Legend column exactly as it is today.
+3. **Chart-type selector — Pie-only mode**
+   - File: `src/components/charts/ChartTypeSelector.tsx`
+   - Add `restrictToPie?: boolean` (default `false`); existing call sites unchanged.
+   - When `true`: Line / Area / Bar / Histogram render as the existing greyed-out style with tooltip "Available in a future release for Field Values"; Pie becomes a real, selectable `ToggleGroupItem` and the default.
 
-## Out of scope
+4. **ChartSourceForm — fourth button + stub config panel**
+   - File: `src/components/layers/components/ChartSourceForm.tsx`
+   - Widen `sourceType` to `'service' | 'direct' | 'pixelValues' | 'fieldValues'`. Hydrate `'fieldValues'` when `editingChart?.sources?.[0]?.type === 'inline'`.
+   - Source-type grid: `grid-cols-3` → `grid-cols-4`. Add fourth card "Field Values" / "Charts from vector data fields" with a lucide icon (`ListTree`).
+   - Hide CSV URL input and skip the COG / pixelValues blocks for `fieldValues` (extend the existing `sourceType !== 'pixelValues'` guards).
+   - On entering `fieldValues` (and when no inline pie config exists yet), set `chartConfig` to:
+     ```ts
+     { x: 'field',
+       traces: [{ y: 'value', type: 'pie' }],
+       layout: { height: 400, showlegend: true } }
+     ```
+   - In the data section render a placeholder: "Field Values configuration coming soon — edit the JSON directly to test."
+   - Pass `restrictToPie` to `ChartTypeSelector` for `fieldValues`.
+   - On save: build `sources: [{ type: 'inline', fields: editingChart?.sources?.[0]?.fields ?? [] }]` so existing `fields` round-trip; `chartTitle`, `chartSubtitle`, layout, traces persist as today.
+   - Treat `fieldValues` as ready (`isPixelValuesReady`-equivalent) so Settings + Preview sections render without needing a CSV URL.
 
-- No changes to JSON schema, types, or the Plotly viewer.
-- No new fields — only re-organising existing controls and adding visible labels.
+### Out of scope (deferred)
+
+- Reading actual property values from the parent layer's GeoJSON / FlatGeoBuf source (preview uses placeholder values of `1`).
+- UI for editing the `fields` array.
+- Enabling Line / Area / Bar for field values.
+
+### Files to edit
+
+- `src/schemas/configSchema.ts`
+- `src/types/chart.ts`
+- `src/components/charts/PlotlyChartViewer.tsx`
+- `src/components/charts/ChartTypeSelector.tsx`
+- `src/components/layers/components/ChartSourceForm.tsx`
