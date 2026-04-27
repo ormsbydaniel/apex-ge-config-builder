@@ -29,7 +29,8 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
   const isInline = config.sources?.[0]?.type === 'inline';
 
   const { plotData, layout, isValid, message } = useMemo(() => {
-    // Handle inline (Field Values) — synthesize rows from sources[0].fields
+    // Inline (Field Values): synthesize data from sources[0].fields
+    let workingData: ParsedCSVData = data;
     if (isInline) {
       const fields = (config.sources?.[0]?.fields as string[] | undefined) || [];
       if (fields.length === 0) {
@@ -64,15 +65,11 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
         return { plotData: [trace], layout: pieLayout, isValid: true, message: '' };
       }
 
-      // Non-pie inline: synthesize { field, value } rows and reuse XY pipeline below
-      // by building a ParsedCSVData-shaped data object inline.
-      const inlineData: ParsedCSVData = {
+      // Non-pie inline — synthesize { field, value } rows and fall through to XY pipeline
+      workingData = {
         columns: ['field', 'value'],
         data: fields.map((f, i) => ({ field: f, value: placeholderValues[i] })),
       } as ParsedCSVData;
-
-      // Run the standard XY rendering with synthesized data
-      return renderXY(config, inlineData, height);
     }
 
 
