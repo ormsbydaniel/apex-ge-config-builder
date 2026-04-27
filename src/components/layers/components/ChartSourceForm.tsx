@@ -476,8 +476,9 @@ export function ChartSourceForm({
   const hasUrl = directUrl.trim() !== '';
   const hasColumns = availableColumns.length > 0;
   const isPixelValuesReady = sourceType === 'pixelValues' && bandLabels.length > 0 && !bandLoading;
-  const showConfig = hasUrl || isPixelValuesReady;
-  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady;
+  const isFieldValuesMode = sourceType === 'fieldValues';
+  const showConfig = hasUrl || isPixelValuesReady || isFieldValuesMode;
+  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady || isFieldValuesMode;
   const selectedTrace = chartConfig.traces?.[selectedTraceIndex];
 
   return (
