@@ -72,6 +72,7 @@ export function ChartSourceForm({
 
   // Chart configuration sections
   const [configOpen, setConfigOpen] = useState(true);
+  const [titleOpen, setTitleOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(true);
   
@@ -621,38 +622,47 @@ export function ChartSourceForm({
               </div>
             )}
 
-            {/* Chart Title */}
-            <div className="space-y-2">
-              <Label htmlFor="chartTitle">Chart Title (optional)</Label>
-              <Input
-                id="chartTitle"
-                value={chartTitle}
-                onChange={(e) => setChartTitle(e.target.value)}
-                placeholder="Enter chart title"
-              />
-            </div>
+            {/* Chart Title (collapsible: main title, sub-title, source label) */}
+            <Collapsible open={titleOpen} onOpenChange={setTitleOpen}>
+              <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
+                {titleOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                <span className="font-medium">Chart Title</span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-4 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="chartTitle">Main Title (optional)</Label>
+                  <Input
+                    id="chartTitle"
+                    value={chartTitle}
+                    onChange={(e) => setChartTitle(e.target.value)}
+                    placeholder="Enter chart title"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Also used in drop down when multiple charts available
+                  </p>
+                </div>
 
-            {/* Chart Sub-title */}
-            <div className="space-y-2">
-              <Label htmlFor="chartSubtitle">Chart Sub-title (optional)</Label>
-              <Input
-                id="chartSubtitle"
-                value={chartSubtitle}
-                onChange={(e) => setChartSubtitle(e.target.value)}
-                placeholder="Enter chart sub-title"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="chartSubtitle">Sub-title (optional)</Label>
+                  <Input
+                    id="chartSubtitle"
+                    value={chartSubtitle}
+                    onChange={(e) => setChartSubtitle(e.target.value)}
+                    placeholder="Enter chart sub-title"
+                  />
+                </div>
 
-            {/* Source Label */}
-            <div className="space-y-2">
-              <Label htmlFor="chartLabel">Source Label (optional)</Label>
-              <Input
-                id="chartLabel"
-                value={chartLabel}
-                onChange={(e) => setChartLabel(e.target.value)}
-                placeholder="Enter source label"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="chartLabel">Source Label (optional)</Label>
+                  <Input
+                    id="chartLabel"
+                    value={chartLabel}
+                    onChange={(e) => setChartLabel(e.target.value)}
+                    placeholder="Enter source label"
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             {/* Chart Configuration Section - only show when URL is provided */}
             {showConfig && (
