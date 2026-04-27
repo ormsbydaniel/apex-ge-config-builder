@@ -922,7 +922,8 @@ export function ChartSourceForm({
                             ...chartConfig,
                             title: chartTitle || chartConfig.title,
                             subtitle: chartSubtitle || chartConfig.subtitle,
-                            ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {})
+                            ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {}),
+                            ...(sourceType === 'fieldValues' ? { sources: [{ type: 'inline' as const, fields: inlineFields }] } : {})
                           }}
                           data={parsedData}
                           sampleData={samplePixelValues || undefined}
