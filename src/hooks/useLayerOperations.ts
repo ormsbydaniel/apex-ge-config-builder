@@ -590,6 +590,7 @@ export const useLayerOperations = ({
     handleLayerTypeSelect,
     handleCancelLayerForm,
     handleImportLayer,
+    handleApplyDonorImport,
     donorPickerOpen,
     setDonorPickerOpen,
     importTargetGroup,
