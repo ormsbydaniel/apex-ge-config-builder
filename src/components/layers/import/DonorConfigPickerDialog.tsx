@@ -26,6 +26,7 @@ import {
   type DonorSource,
 } from '@/hooks/useDonorConfigLoader';
 import { ValidationErrorDetails } from '@/types/config';
+import { DonorLayerTree } from './DonorLayerTree';
 
 const DEFAULT_REPO = 'ESA-APEx/apex_geospatial_explorer_configs';
 const DEFAULT_BRANCH = 'main';
