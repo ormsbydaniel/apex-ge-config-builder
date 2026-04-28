@@ -1,54 +1,74 @@
-## Field Selector Dialog for Field Values pie charts
 
-Add a UI for editing the `inline` source's `fields` array. The dialog auto-detects properties from the first vector source on the layer (GeoJSON first feature or FlatGeoBuf header) using the existing `detectFieldsFromSource` helper.
+# Add "Import Layer Card" option to the Add Layer screen
 
-### Wire vector sources through to the form
+Narrowly scoped change: add a second card titled **"Import Layer Card"** alongside the existing **"Layer Card"** on the *Add Layer to \<interface group\>* screen. Wire its click up to a stub handler that shows a "Coming soon" toast. Base Layer card stays hidden in the interface-group context. The donor-config picker, layer tree, and import logic are intentionally **deferred** to a follow-up plan.
 
-**`src/components/layers/LayerFormHandler.tsx`**
-- Alongside `cogSources`, derive `vectorSources` from `currentLayer.data` filtering for `format === 'geojson' || format === 'flatgeobuf'`.
-- Pass as new `vectorSources` prop to `<ChartSourceForm />`.
+## What the user sees
 
-**`src/components/layers/components/ChartSourceForm.tsx`**
-- Extend `ChartSourceFormProps` with `vectorSources?: DataSourceItem[]` (default `[]`).
+On the *Add Layer to \<interface group\>* screen (entered from `+ Add Layer` on any Interface Group or Sub-interface Group):
 
-### New dialog
+```text
+┌──────────────────────────┐  ┌──────────────────────────┐
+│  Layer Card              │  │  Import Layer Card       │
+│  A configurable layer…   │  │  Pick one or more Layer  │
+│                          │  │  Cards from another      │
+│                          │  │  configuration and add   │
+│                          │  │  them to this group.     │
+│  [ Add Layer Card ]      │  │  [ Import Layer Card ]   │
+└──────────────────────────┘  └──────────────────────────┘
+```
 
-**`src/components/charts/FieldSelectorDialog.tsx`** (new file, modelled on `BandLabelEditorDialog`)
-- Props: `open`, `onOpenChange`, `vectorSources`, `selectedFields: string[]`, `onSave: (fields: string[]) => void`.
-- On open (inside a `useEffect` watching `open`, per project core rule): pick `vectorSources[0]`, call `detectFieldsFromSource(url, format)`, show spinner during fetch.
-- Render a checkbox list of detected fields:
-  - Numeric/integer fields enabled and primary, with a small type badge.
-  - Non-numeric fields rendered with reduced opacity and a tooltip "Non-numeric — pie slice will be a placeholder value".
-- Quick actions: **Select all numeric (n)** and **Clear all**.
-- Manual-add input at the bottom (`+ Add` button or Enter key) — appends to a `manualFields` list and auto-checks it.
-- Manual entries get a `manual` badge and a remove button.
-- If `vectorSources.length === 0` or detection throws: show inline message and just expose the manual-add UI; previously-selected fields appear as manual entries.
-- Save returns checked fields in stable order (detected order first, then manual order).
+- "Add Layer Card" → existing flow, unchanged (opens the layer edit form).
+- "Import Layer Card" → toast: *"Import Layer Card — coming soon. Donor config picker not yet implemented."*
+- Base Layer card remains hidden when entered from an interface group (unchanged behaviour).
+- The "no group" path (Layer Card + Base Layer) is unchanged — Import is interface-group-context only.
 
-### Hook into the form's Field Values branch
+## Files changed
 
-**`src/components/layers/components/ChartSourceForm.tsx`**
-- Replace the existing "Field Values configuration coming soon" placeholder (around lines 759–767) with:
-  - A header row `[Settings2 icon] Selected Fields  [Edit fields…] button`.
-  - A wrap of small chips for each selected field with a per-chip × button (removes from `inlineFields`).
-  - Empty state: "No fields selected — click Edit fields to choose."
-- Add `fieldDialogOpen` state and render `<FieldSelectorDialog />` next to the existing `<BandLabelEditorDialog />`.
-- Add `inlineFields` to the dirty-tracking `useEffect` deps so toggling fields enables Save.
+1. **`src/components/layer/LayerTypeSelector.tsx`**
+   - Add optional prop `onImportLayer?: () => void`.
+   - When `isFromInterfaceGroup`, switch grid from `md:grid-cols-1` to `md:grid-cols-2`.
+   - Render new card next to "Layer Card" using the `Download` icon from `lucide-react`. Card click and button click both call `onImportLayer?.()`.
+   - Card styling matches the existing one (same `Card`, `CardHeader`, `CardContent`, hover treatment, semantic tokens — no hard-coded colours).
 
-### Preview behaviour
-`PlotlyChartViewer` already synthesizes equal-weighted placeholder values from `sources[0].fields` for inline pies — no changes needed.
+2. **`src/components/layer/LayerFormContainer.tsx`**
+   - Add optional prop `onImportLayer?: () => void`, forward it to `<LayerTypeSelector>`.
 
-### Memory
-- Create `mem://features/charts/field-values-selector` describing detection (first GeoJSON feature / FGB header), numeric-vs-string handling, and manual-add fallback.
-- Append a one-liner to `## Memories` in `mem://index.md`.
+3. **`src/components/layers/LayerFormHandler.tsx`**
+   - Add optional prop `onImportLayer?: () => void`, forward to `<LayerFormContainer>`.
 
-### Out of scope
-- No schema changes (the `inline` source already accepts `fields: string[]`).
-- No real numeric aggregation across features — synthesized placeholder values remain.
-- No multi-source picker — first vector source wins.
+4. **`src/components/layers/LayersTabCore.tsx`**
+   - Add optional prop `onImportLayer?: () => void`, forward to `<LayerFormHandler>`.
 
-### Files to change
-- `src/components/layers/LayerFormHandler.tsx`
-- `src/components/layers/components/ChartSourceForm.tsx`
-- `src/components/charts/FieldSelectorDialog.tsx` (new)
-- `mem://features/charts/field-values-selector` (new), `mem://index.md`
+5. **`src/components/layers/LayersTabContainer.tsx`**
+   - Add optional prop `onImportLayer?: () => void`, forward to `<LayersTabCore>`.
+
+6. **`src/components/layers/LayersTab.tsx`** and **`src/components/config/LayersTab.tsx`**
+   - Add optional prop `onImportLayer?: () => void`, forwarded through.
+
+7. **`src/hooks/useLayerOperations.ts`**
+   - Add `handleImportLayer = useCallback(() => { toast({ title: 'Import Layer Card', description: 'Coming soon — donor config picker not yet implemented.' }); }, [toast])`.
+   - Export it from the hook result alongside `handleLayerTypeSelect`.
+
+8. **`src/components/ConfigBuilder.tsx`**
+   - Pull `handleImportLayer` from `useConfigBuilderState` (which re-exports from `useLayerOperations`).
+   - Pass it as `onImportLayer={handleImportLayer}` to `<LayersTab>`.
+
+## Technical notes
+
+- **Do not extend `LayerType`.** Import is an action on the Add Layer screen, not a kind of layer. Keep the `LayerType` union (`'layerCard' | 'base'`) untouched and route the import through a separate `onImportLayer` prop end-to-end.
+- **No schema or type changes.** No edits to `configSchema.ts`, `types/config.ts`, or `useValidatedConfig.ts` — this is pure UI + prop plumbing.
+- **Toast:** use the existing `useToast` hook already imported in `useLayerOperations.ts` (no new dependency).
+- **Memory:** no `mem://` entry yet — a stubbed entry point isn't a stable feature worth memorising. Add the memory in the follow-up plan when the actual import flow lands.
+- **`useConfigBuilderState`:** verify it re-exports `handleImportLayer`; if it doesn't pass through automatically, add it to the return shape there too. (Will confirm during implementation.)
+
+## Verification
+
+- From the Layers page → click `+ Add Layer` on any Interface Group → confirm two cards appear side-by-side, no Base Layer card.
+- Same from a Sub-interface Group → same two cards appear.
+- Click **Add Layer Card** → existing flow still works (opens layer edit form).
+- Click **Import Layer Card** → toast appears, no navigation, no layer added.
+- Confirm the rare "no group" entry path (if reachable) still shows Layer Card + Base Layer with no Import card.
+- No TypeScript errors; no console warnings.
+
+After approval, the follow-up plan covers the donor-config picker, the layer tree with multi-select, and insertion logic including ID reminting and dependency handling (services, colormaps, categories).
