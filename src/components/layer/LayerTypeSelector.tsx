@@ -81,7 +81,7 @@ const LayerTypeSelector = ({
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={(e) => { e.stopPropagation(); onImportLayer?.(); }}>
-                Import Layer Card
+                Import Layer Card (beta)
               </Button>
             </CardContent>
           </Card>
