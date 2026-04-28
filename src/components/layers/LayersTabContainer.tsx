@@ -22,6 +22,7 @@ interface LayersTabContainerProps {
   setDefaultInterfaceGroup: (group: string | undefined) => void;
   setDefaultSubinterfaceGroup: (subGroup: string | undefined) => void;
   handleLayerTypeSelect: (type: LayerType) => void;
+  onImportLayer?: () => void;
   handleCancelLayerForm: () => void;
   addLayer: (layer: DataSource) => void;
   removeLayer: (index: number) => void;
@@ -113,6 +114,7 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
         expandedLayers={layersLogic.expandedLayers}
         onToggleLayer={layersLogic.onToggleLayer}
         handleLayerTypeSelect={props.handleLayerTypeSelect}
+        onImportLayer={props.onImportLayer}
         handleCancelLayerForm={props.handleCancelLayerForm}
         addLayer={props.addLayer}
         addService={props.addService}

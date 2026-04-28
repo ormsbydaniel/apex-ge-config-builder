@@ -15,6 +15,7 @@ interface LayersTabProps {
   setDefaultInterfaceGroup: (group: string | undefined) => void;
   setDefaultSubinterfaceGroup: (subGroup: string | undefined) => void;
   handleLayerTypeSelect: (type: LayerType) => void;
+  onImportLayer?: () => void;
   handleCancelLayerForm: () => void;
   addLayer: (layer: DataSource) => void;
   removeLayer: (index: number) => void;

@@ -15,6 +15,7 @@ interface LayerFormContainerProps {
   defaultSubinterfaceGroup?: string;
   services: any[];
   onSelectType: (type: LayerType) => void;
+  onImportLayer?: () => void;
   onAddLayer: (layer: DataSource) => void;
   onAddService: (service: any) => void;
   onCancel: () => void;
@@ -32,6 +33,7 @@ const LayerFormContainer = ({
   defaultSubinterfaceGroup,
   services,
   onSelectType,
+  onImportLayer,
   onAddLayer,
   onAddService,
   onCancel,
@@ -44,6 +46,7 @@ const LayerFormContainer = ({
     return (
       <LayerTypeSelector 
         onSelectType={onSelectType}
+        onImportLayer={onImportLayer}
         defaultInterfaceGroup={defaultInterfaceGroup}
       />
     );
