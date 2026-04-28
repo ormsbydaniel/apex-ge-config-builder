@@ -1025,6 +1025,15 @@ export function ChartSourceForm({
         labels={bandLabels}
         onSave={setBandLabels}
       />
+
+      {/* Field Selector Dialog (Field Values pie charts) */}
+      <FieldSelectorDialog
+        open={fieldDialogOpen}
+        onOpenChange={setFieldDialogOpen}
+        vectorSources={vectorSources}
+        selectedFields={inlineFields}
+        onSave={setInlineFields}
+      />
     </>
   );
 }
