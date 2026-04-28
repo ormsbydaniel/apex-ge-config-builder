@@ -199,6 +199,13 @@ export const useLayerOperations = ({
     setDefaultSubinterfaceGroup(undefined);
   }, [setShowLayerForm, setSelectedLayerType, setEditingLayerIndex, setDefaultInterfaceGroup, setDefaultSubinterfaceGroup]);
 
+  const handleImportLayer = useCallback(() => {
+    toast({
+      title: 'Import Layer Card',
+      description: 'Coming soon — donor config picker not yet implemented.',
+    });
+  }, [toast]);
+
   // === LAYER TYPE MANAGEMENT ===
 
   const handleLayerTypeChange = useCallback((newType: LayerTypeOption) => {
@@ -537,6 +544,7 @@ export const useLayerOperations = ({
     setDefaultSubinterfaceGroup,
     handleLayerTypeSelect,
     handleCancelLayerForm,
+    handleImportLayer,
     
     // Layer type management
     handleLayerTypeChange,
