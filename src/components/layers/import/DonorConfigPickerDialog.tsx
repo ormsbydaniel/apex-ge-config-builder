@@ -26,6 +26,7 @@ import {
   type DonorSource,
 } from '@/hooks/useDonorConfigLoader';
 import { ValidationErrorDetails } from '@/types/config';
+import { DonorLayerTree } from './DonorLayerTree';
 
 const DEFAULT_REPO = 'ESA-APEx/apex_geospatial_explorer_configs';
 const DEFAULT_BRANCH = 'main';
@@ -77,6 +78,10 @@ const DonorConfigPickerDialog = ({
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[] | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Donor selection state
+  const [selectedNames, setSelectedNames] = useState<Set<string>>(new Set());
+  const [layerSearch, setLayerSearch] = useState('');
+
   // Initialise state inside useEffect watching `open` to prevent stale overwrites
   useEffect(() => {
     if (open) {
@@ -89,6 +94,8 @@ const DonorConfigPickerDialog = ({
       setValidationErrors(null);
       setErrorMessage(null);
       setLoadingLabel('');
+      setSelectedNames(new Set());
+      setLayerSearch('');
     }
   }, [open]);
 
@@ -230,6 +237,8 @@ const DonorConfigPickerDialog = ({
     setStage('idle');
     setValidationErrors(null);
     setErrorMessage(null);
+    setSelectedNames(new Set());
+    setLayerSearch('');
   };
 
   // ---- Loading view ----
@@ -280,36 +289,74 @@ const DonorConfigPickerDialog = ({
   };
 
   // ---- Donor loaded view ----
+  const handleToggleLeaf = (name: string) => {
+    setSelectedNames((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
+
+  const handleSelectVisible = (names: string[]) => {
+    setSelectedNames((prev) => {
+      const next = new Set(prev);
+      for (const n of names) next.add(n);
+      return next;
+    });
+  };
+
+  const handleClearAll = () => setSelectedNames(new Set());
+
+  const handleImport = () => {
+    const destination = {
+      interfaceGroup: targetInterfaceGroup,
+      subinterfaceGroup: targetSubinterfaceGroup,
+    };
+    const names = Array.from(selectedNames);
+    // TODO: Step 4 — apply selected layers to the active configuration.
+    console.info('[ImportLayer] step3 selection', { destination, names });
+    onOpenChange(false);
+  };
+
   const renderDonorLoadedView = () => {
-    const sourceCount = Array.isArray(donorConfig?.sources) ? donorConfig.sources.length : 0;
-    const layerCardCount = Array.isArray(donorConfig?.sources)
-      ? donorConfig.sources.filter((s: any) => !s.isBaseLayer).length
-      : 0;
     return (
-      <div className="flex-1 min-h-0 flex flex-col gap-4 mt-2">
-        <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-muted/30">
-          <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+      <div className="flex-1 min-h-0 flex flex-col gap-3 mt-2">
+        <div className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+          <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-medium">Donor configuration loaded</div>
-            <div className="text-xs text-muted-foreground mt-1 truncate">
-              {donorSource?.label}
-            </div>
-            <div className="text-xs text-muted-foreground mt-2">
-              {layerCardCount} layer card{layerCardCount === 1 ? '' : 's'} available ({sourceCount}{' '}
-              source{sourceCount === 1 ? '' : 's'} total).
+            <div className="text-sm font-medium truncate">{donorSource?.label}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              Importing into{' '}
+              <span className="font-medium text-foreground">
+                {targetLabel || 'your configuration'}
+              </span>
             </div>
           </div>
         </div>
-        <div className="p-4 rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-          Layer picker coming next — you'll be able to choose specific layer cards from this
-          configuration to import into{' '}
-          <span className="font-medium text-foreground">{targetLabel || 'your configuration'}</span>.
-        </div>
-        <div className="flex items-center justify-between gap-2 pt-2 mt-auto border-t border-border">
+
+        <DonorLayerTree
+          donorConfig={donorConfig}
+          selectedNames={selectedNames}
+          onToggle={handleToggleLeaf}
+          onSelectVisible={handleSelectVisible}
+          onClearAll={handleClearAll}
+          search={layerSearch}
+          onSearchChange={setLayerSearch}
+        />
+
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
           <Button variant="outline" onClick={resetSelection}>
             Choose a different config
           </Button>
-          <Button onClick={() => onOpenChange(false)}>Close</Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleImport} disabled={selectedNames.size === 0}>
+              Import {selectedNames.size > 0 ? `${selectedNames.size} layer${selectedNames.size === 1 ? '' : 's'}` : 'layers'}
+            </Button>
+          </div>
         </div>
       </div>
     );
