@@ -49,8 +49,11 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
   const ROW_LABEL = "text-xs text-muted-foreground w-12 shrink-0";
   const FIELD_LABEL = "text-xs text-muted-foreground";
 
+  const isPie = config.traces?.[0]?.type === 'pie' || (config as any).chartType === 'pie';
+
   return (
-    <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-3 pt-2">
+    <div className={`grid ${isPie ? 'grid-cols-1' : 'grid-cols-[1fr_auto_1fr_auto_1fr]'} gap-3 pt-2`}>
+      {!isPie && <>
       {/* X-Axis */}
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">X-Axis</Label>
