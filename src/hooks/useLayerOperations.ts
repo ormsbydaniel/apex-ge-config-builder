@@ -199,12 +199,28 @@ export const useLayerOperations = ({
     setDefaultSubinterfaceGroup(undefined);
   }, [setShowLayerForm, setSelectedLayerType, setEditingLayerIndex, setDefaultInterfaceGroup, setDefaultSubinterfaceGroup]);
 
+  // === DONOR LAYER IMPORT ===
+  const [donorPickerOpen, setDonorPickerOpen] = useState(false);
+  const [importTargetGroup, setImportTargetGroup] = useState<string | undefined>(undefined);
+  const [importTargetSubGroup, setImportTargetSubGroup] = useState<string | undefined>(undefined);
+
   const handleImportLayer = useCallback(() => {
-    toast({
-      title: 'Import Layer Card',
-      description: 'Coming soon — donor config picker not yet implemented.',
-    });
-  }, [toast]);
+    setImportTargetGroup(state.defaultInterfaceGroup);
+    setImportTargetSubGroup(state.defaultSubinterfaceGroup);
+    // Close the layer-type selector screen so the dialog isn't competing with it.
+    setShowLayerForm(false);
+    setSelectedLayerType(null);
+    setDefaultInterfaceGroup(undefined);
+    setDefaultSubinterfaceGroup(undefined);
+    setDonorPickerOpen(true);
+  }, [
+    state.defaultInterfaceGroup,
+    state.defaultSubinterfaceGroup,
+    setShowLayerForm,
+    setSelectedLayerType,
+    setDefaultInterfaceGroup,
+    setDefaultSubinterfaceGroup,
+  ]);
 
   // === LAYER TYPE MANAGEMENT ===
 
@@ -545,7 +561,11 @@ export const useLayerOperations = ({
     handleLayerTypeSelect,
     handleCancelLayerForm,
     handleImportLayer,
-    
+    donorPickerOpen,
+    setDonorPickerOpen,
+    importTargetGroup,
+    importTargetSubGroup,
+
     // Layer type management
     handleLayerTypeChange,
     getLayerTypeFlags,
