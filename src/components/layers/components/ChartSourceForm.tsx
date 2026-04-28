@@ -26,6 +26,7 @@ import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Activity, Loader2, Tag, Settings2, ListTree } from 'lucide-react';
 import { BandLabelEditorDialog } from './BandLabelEditorDialog';
+import { FieldSelectorDialog } from '@/components/charts/FieldSelectorDialog';
 
 interface ChartSourceFormProps {
   services: Service[];
@@ -35,6 +36,7 @@ interface ChartSourceFormProps {
   editingIndex?: number;
   onUpdateChart?: (chart: ChartConfig, chartIndex: number) => void;
   cogSources?: DataSourceItem[];
+  vectorSources?: DataSourceItem[];
 }
 
 export function ChartSourceForm({
@@ -44,7 +46,8 @@ export function ChartSourceForm({
   editingChart,
   editingIndex,
   onUpdateChart,
-  cogSources = []
+  cogSources = [],
+  vectorSources = []
 }: ChartSourceFormProps) {
   const { toast } = useToast();
   const { dispatch } = useConfig();
