@@ -2,16 +2,18 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Layers, Globe } from 'lucide-react';
+import { Layers, Globe, Download } from 'lucide-react';
 import { LayerType } from '@/types/config';
 
 interface LayerTypeSelectorProps {
   onSelectType: (type: LayerType) => void;
+  onImportLayer?: () => void;
   defaultInterfaceGroup?: string;
 }
 
 const LayerTypeSelector = ({
   onSelectType,
+  onImportLayer,
   defaultInterfaceGroup
 }: LayerTypeSelectorProps) => {
   const isFromInterfaceGroup = !!defaultInterfaceGroup;
@@ -30,7 +32,7 @@ const LayerTypeSelector = ({
         </p>
       </div>
 
-      <div className={`grid grid-cols-1 ${isFromInterfaceGroup ? 'md:grid-cols-1' : 'md:grid-cols-2'} gap-6`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onSelectType('layerCard')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-primary">
@@ -48,7 +50,27 @@ const LayerTypeSelector = ({
           </CardContent>
         </Card>
 
-        {!isFromInterfaceGroup && (
+        {isFromInterfaceGroup ? (
+          <Card
+            className="cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => onImportLayer?.()}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-primary">
+                <Download className="h-6 w-6" />
+                Import Layer Card
+              </CardTitle>
+              <CardDescription>
+                Pick one or more Layer Cards from another configuration and add them to this interface group.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full" onClick={(e) => { e.stopPropagation(); onImportLayer?.(); }}>
+                Import Layer Card
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
           <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onSelectType('base')}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-primary">
