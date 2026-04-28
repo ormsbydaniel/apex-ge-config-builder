@@ -73,7 +73,7 @@ const LayerTypeSelector = ({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-primary">
                 <Download className="h-6 w-6" />
-                Import Layer Card
+                Import Layer Card (beta)
               </CardTitle>
               <CardDescription>
                 Pick one or more Layer Cards from another configuration and add them to this interface group.
@@ -81,7 +81,7 @@ const LayerTypeSelector = ({
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={(e) => { e.stopPropagation(); onImportLayer?.(); }}>
-                Import Layer Card
+                Import Layer Card (beta)
               </Button>
             </CardContent>
           </Card>

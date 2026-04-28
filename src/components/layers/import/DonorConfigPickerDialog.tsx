@@ -406,7 +406,7 @@ const DonorConfigPickerDialog = ({
           resetKey={open ? `${activeTab}:${isLoading ? 'loading' : donorConfig ? 'loaded' : 'idle'}` : 'closed'}
         >
           <DialogHeader>
-            <DialogTitle>Import Layer Card</DialogTitle>
+            <DialogTitle>Import Layer Card (beta)</DialogTitle>
             <DialogDescription>
               {isLoading
                 ? 'Loading donor configuration — please wait.'
