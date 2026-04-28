@@ -236,6 +236,8 @@ const DonorConfigPickerDialog = ({
     setStage('idle');
     setValidationErrors(null);
     setErrorMessage(null);
+    setSelectedNames(new Set());
+    setLayerSearch('');
   };
 
   // ---- Loading view ----
