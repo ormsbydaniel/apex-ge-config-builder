@@ -91,6 +91,7 @@ const ConfigBuilderContent = () => {
     handleLayerTypeSelect,
     handleCancelLayerForm,
     handleImportLayer,
+    handleApplyDonorImport,
     donorPickerOpen,
     setDonorPickerOpen,
     importTargetGroup,
@@ -307,6 +308,7 @@ const ConfigBuilderContent = () => {
         onOpenChange={setDonorPickerOpen}
         targetInterfaceGroup={importTargetGroup}
         targetSubinterfaceGroup={importTargetSubGroup}
+        onImport={handleApplyDonorImport}
       />
     </div>
   );

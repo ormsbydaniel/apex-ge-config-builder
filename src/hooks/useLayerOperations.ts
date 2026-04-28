@@ -4,6 +4,7 @@ import { DataSource, DataSourceItem, LayerType, isDataSourceItemArray } from '@/
 import { ChartConfig } from '@/types/chart';
 import { createLayerActionHandlers } from '@/utils/layerActions';
 import { PositionValue, getDefaultPosition, isValidPosition, requiresPosition } from '@/utils/positionUtils';
+import { cloneDonorLayer } from '@/utils/donorImport';
 
 // Layer type management
 export type LayerTypeOption = 'standard' | 'swipe' | 'mirror' | 'spotlight';
@@ -221,6 +222,34 @@ export const useLayerOperations = ({
     setDefaultInterfaceGroup,
     setDefaultSubinterfaceGroup,
   ]);
+
+  const handleApplyDonorImport = useCallback(
+    (layers: any[]) => {
+      if (!Array.isArray(layers) || layers.length === 0) return;
+      const existingNames = new Set<string>(
+        (config.sources || []).map((s: any) => s?.name).filter((n): n is string => typeof n === 'string'),
+      );
+      let added = 0;
+      for (const donor of layers) {
+        const cloned = cloneDonorLayer(donor, {
+          interfaceGroup: importTargetGroup,
+          subinterfaceGroup: importTargetSubGroup,
+          existingNames,
+        });
+        dispatch({ type: 'ADD_SOURCE', payload: cloned });
+        added += 1;
+      }
+      toast({
+        title: `Imported ${added} layer${added === 1 ? '' : 's'}`,
+        description: importTargetSubGroup
+          ? `Added to ${importTargetGroup} / ${importTargetSubGroup}.`
+          : importTargetGroup
+            ? `Added to ${importTargetGroup}.`
+            : undefined,
+      });
+    },
+    [config.sources, dispatch, importTargetGroup, importTargetSubGroup, toast],
+  );
 
   // === LAYER TYPE MANAGEMENT ===
 
@@ -561,6 +590,7 @@ export const useLayerOperations = ({
     handleLayerTypeSelect,
     handleCancelLayerForm,
     handleImportLayer,
+    handleApplyDonorImport,
     donorPickerOpen,
     setDonorPickerOpen,
     importTargetGroup,
