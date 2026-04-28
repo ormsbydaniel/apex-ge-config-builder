@@ -89,6 +89,7 @@ const ConfigBuilderContent = () => {
     moveLayer,
     handleLayerTypeSelect,
     handleCancelLayerForm,
+    handleImportLayer,
     updateConfig
   } = useConfigBuilderState();
 
@@ -245,6 +246,7 @@ const ConfigBuilderContent = () => {
                   setDefaultInterfaceGroup={setDefaultInterfaceGroup}
                   setDefaultSubinterfaceGroup={setDefaultSubinterfaceGroup}
                   handleLayerTypeSelect={handleLayerTypeSelect}
+                  onImportLayer={handleImportLayer}
                 handleCancelLayerForm={handleCancelLayerForm} 
                 addLayer={addLayer} 
                 removeLayer={removeLayer} 
