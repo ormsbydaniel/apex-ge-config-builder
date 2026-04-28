@@ -26,6 +26,7 @@ import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Activity, Loader2, Tag, Settings2, ListTree } from 'lucide-react';
 import { BandLabelEditorDialog } from './BandLabelEditorDialog';
+import { FieldSelectorDialog } from '@/components/charts/FieldSelectorDialog';
 
 interface ChartSourceFormProps {
   services: Service[];
@@ -35,6 +36,7 @@ interface ChartSourceFormProps {
   editingIndex?: number;
   onUpdateChart?: (chart: ChartConfig, chartIndex: number) => void;
   cogSources?: DataSourceItem[];
+  vectorSources?: DataSourceItem[];
 }
 
 export function ChartSourceForm({
@@ -44,7 +46,8 @@ export function ChartSourceForm({
   editingChart,
   editingIndex,
   onUpdateChart,
-  cogSources = []
+  cogSources = [],
+  vectorSources = []
 }: ChartSourceFormProps) {
   const { toast } = useToast();
   const { dispatch } = useConfig();
@@ -66,6 +69,7 @@ export function ChartSourceForm({
   const [inlineFields, setInlineFields] = useState<string[]>(
     Array.isArray(editingChart?.sources?.[0]?.fields) ? (editingChart!.sources![0].fields as string[]) : []
   );
+  const [fieldDialogOpen, setFieldDialogOpen] = useState(false);
   const [sampleLoading, setSampleLoading] = useState(false);
   const sampleFetchRef = useRef(0);
   const [directUrl, setDirectUrl] = useState(editingChart?.sources?.[0]?.url || '');
@@ -242,14 +246,15 @@ export function ChartSourceForm({
   // Track dirty state and update ConfigContext
   useEffect(() => {
     const hasUrl = directUrl.trim() !== '';
-    if (hasUrl) {
+    const hasInlineFields = sourceType === 'fieldValues' && inlineFields.length > 0;
+    if (hasUrl || hasInlineFields) {
       setIsDirty(true);
       dispatch({
         type: 'SET_UNSAVED_FORM_CHANGES',
-        payload: { hasChanges: true, description: `Chart: ${directUrl || 'New Chart'}` }
+        payload: { hasChanges: true, description: `Chart: ${directUrl || chartTitle || 'New Chart'}` }
       });
     }
-  }, [directUrl, chartTitle, chartLabel, chartConfig, dispatch]);
+  }, [directUrl, chartTitle, chartLabel, chartConfig, inlineFields, sourceType, dispatch]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
@@ -756,12 +761,53 @@ export function ChartSourceForm({
                         onChange={setChartConfig}
                         restrictToPie
                       />
-                      <div className="p-4 border border-dashed rounded-lg text-sm text-muted-foreground">
-                        Field Values configuration coming soon — edit the JSON directly to test.
-                        {inlineFields.length > 0 && (
-                          <div className="mt-2 text-xs">
-                            <span className="font-medium text-foreground">Current fields:</span>{' '}
-                            {inlineFields.join(', ')}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <ListTree className="h-4 w-4 text-muted-foreground" />
+                            <Label className="text-sm font-medium">Selected Fields</Label>
+                            <span className="text-xs text-muted-foreground">
+                              ({inlineFields.length})
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setFieldDialogOpen(true)}
+                          >
+                            <Settings2 className="h-3.5 w-3.5 mr-1.5" />
+                            Edit fields…
+                          </Button>
+                        </div>
+                        {vectorSources.length === 0 && (
+                          <div className="flex items-start gap-2 p-2 rounded-md border border-dashed text-xs text-muted-foreground">
+                            <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                            No GeoJSON or FlatGeoBuf source on this layer — fields can only be entered manually.
+                          </div>
+                        )}
+                        {inlineFields.length === 0 ? (
+                          <div className="p-3 border border-dashed rounded-md text-sm text-muted-foreground text-center">
+                            No fields selected — click <span className="font-medium">Edit fields…</span> to choose properties for the pie chart.
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5 p-2 border rounded-md bg-muted/30">
+                            {inlineFields.map(name => (
+                              <span
+                                key={name}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background border text-xs"
+                              >
+                                <span className="font-mono">{name}</span>
+                                <button
+                                  type="button"
+                                  className="text-muted-foreground hover:text-destructive"
+                                  onClick={() => setInlineFields(prev => prev.filter(f => f !== name))}
+                                  aria-label={`Remove ${name}`}
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </span>
+                            ))}
                           </div>
                         )}
                       </div>
@@ -978,6 +1024,15 @@ export function ChartSourceForm({
         onOpenChange={setBandLabelDialogOpen}
         labels={bandLabels}
         onSave={setBandLabels}
+      />
+
+      {/* Field Selector Dialog (Field Values pie charts) */}
+      <FieldSelectorDialog
+        open={fieldDialogOpen}
+        onOpenChange={setFieldDialogOpen}
+        vectorSources={vectorSources}
+        selectedFields={inlineFields}
+        onSave={setInlineFields}
       />
     </>
   );
