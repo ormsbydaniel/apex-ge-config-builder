@@ -301,6 +301,13 @@ const ConfigBuilderContent = () => {
           </Tabs>
         </div>
       </div>
+
+      <DonorConfigPickerDialog
+        open={donorPickerOpen}
+        onOpenChange={setDonorPickerOpen}
+        targetInterfaceGroup={importTargetGroup}
+        targetSubinterfaceGroup={importTargetSubGroup}
+      />
     </div>
   );
 };
