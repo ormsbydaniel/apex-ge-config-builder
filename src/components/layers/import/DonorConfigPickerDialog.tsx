@@ -77,6 +77,10 @@ const DonorConfigPickerDialog = ({
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[] | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Donor selection state
+  const [selectedNames, setSelectedNames] = useState<Set<string>>(new Set());
+  const [layerSearch, setLayerSearch] = useState('');
+
   // Initialise state inside useEffect watching `open` to prevent stale overwrites
   useEffect(() => {
     if (open) {
@@ -89,6 +93,8 @@ const DonorConfigPickerDialog = ({
       setValidationErrors(null);
       setErrorMessage(null);
       setLoadingLabel('');
+      setSelectedNames(new Set());
+      setLayerSearch('');
     }
   }, [open]);
 
