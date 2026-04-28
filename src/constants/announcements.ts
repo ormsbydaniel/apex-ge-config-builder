@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-04-28",
+    title: "Inline charts support and import layer from config (beta)",
+    category: "Feature",
+  },
+  {
     date: "2026-04-24",
     title: "Customisable filename prefix in settings and date stamped suffix on export. Fix to WMTS service parsing.",
     category: "Feature",
