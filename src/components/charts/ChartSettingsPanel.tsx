@@ -176,6 +176,7 @@ export function ChartSettingsPanel({ config, onChange }: ChartSettingsPanelProps
       </div>
 
       <div className="w-px bg-border" />
+      </>}
 
       <div className="space-y-1.5">
         <div className="flex items-center gap-2">
