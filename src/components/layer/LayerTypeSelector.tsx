@@ -2,34 +2,49 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Layers, Globe, Download } from 'lucide-react';
+import { Layers, Globe, Download, ArrowLeft } from 'lucide-react';
 import { LayerType } from '@/types/config';
 
 interface LayerTypeSelectorProps {
   onSelectType: (type: LayerType) => void;
   onImportLayer?: () => void;
+  onCancel?: () => void;
   defaultInterfaceGroup?: string;
 }
 
 const LayerTypeSelector = ({
   onSelectType,
   onImportLayer,
+  onCancel,
   defaultInterfaceGroup
 }: LayerTypeSelectorProps) => {
   const isFromInterfaceGroup = !!defaultInterfaceGroup;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2 text-slate-50">
-          {isFromInterfaceGroup ? `Add Layer to ${defaultInterfaceGroup}` : 'Add New Layer'}
-        </h2>
-        <p className="text-slate-400">
-          {isFromInterfaceGroup 
-            ? 'Choose the type of layer you want to add to this interface group.'
-            : 'Choose the type of layer you want to add to your configuration.'
-          }
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold mb-2 text-slate-50">
+            {isFromInterfaceGroup ? `Add Layer to ${defaultInterfaceGroup}` : 'Add New Layer'}
+          </h2>
+          <p className="text-slate-400">
+            {isFromInterfaceGroup
+              ? 'Choose the type of layer you want to add to this interface group.'
+              : 'Choose the type of layer you want to add to your configuration.'
+            }
+          </p>
+        </div>
+        {onCancel && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onCancel}
+            className="shrink-0"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Cancel
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -37,7 +52,7 @@ const LayerTypeSelector = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-primary">
               <Layers className="h-6 w-6" />
-              Layer Card
+              Add Layer Card
             </CardTitle>
             <CardDescription>
               A configurable layer with metadata, categories, and UI controls. Can contain multiple data sources and supports swipe, mirror, and spotlight functionality.

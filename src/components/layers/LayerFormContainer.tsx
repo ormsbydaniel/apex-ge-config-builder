@@ -47,6 +47,7 @@ const LayerFormContainer = ({
       <LayerTypeSelector 
         onSelectType={onSelectType}
         onImportLayer={onImportLayer}
+        onCancel={onCancel}
         defaultInterfaceGroup={defaultInterfaceGroup}
       />
     );
