@@ -311,13 +311,12 @@ const DonorConfigPickerDialog = ({
   const handleClearAll = () => setSelectedNames(new Set());
 
   const handleImport = () => {
-    const destination = {
-      interfaceGroup: targetInterfaceGroup,
-      subinterfaceGroup: targetSubinterfaceGroup,
-    };
-    const names = Array.from(selectedNames);
-    // TODO: Step 4 — apply selected layers to the active configuration.
-    console.info('[ImportLayer] step3 selection', { destination, names });
+    if (!donorConfig || selectedNames.size === 0) return;
+    const sources: any[] = Array.isArray(donorConfig.sources) ? donorConfig.sources : [];
+    const picked = sources.filter(
+      (s) => s && typeof s.name === 'string' && selectedNames.has(s.name) && s.isBaseLayer !== true,
+    );
+    onImport?.(picked);
     onOpenChange(false);
   };
 
