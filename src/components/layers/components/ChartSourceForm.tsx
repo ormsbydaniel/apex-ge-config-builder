@@ -18,13 +18,15 @@ import { TraceEditor } from '@/components/charts/TraceEditor';
 import { PieEditor } from '@/components/charts/PieEditor';
 import { HistogramEditor } from '@/components/charts/HistogramEditor';
 import { PlotlyChartViewer } from '@/components/charts/PlotlyChartViewer';
+import { ChartSettingsPanel } from '@/components/charts/ChartSettingsPanel';
 import { useChartEditorState } from '@/hooks/useChartEditorState';
 import { fetchAndParseCSV } from '@/utils/csvParser';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
 import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, Activity, Loader2, Tag, Settings2 } from 'lucide-react';
+import { AlertTriangle, Activity, Loader2, Tag, Settings2, ListTree } from 'lucide-react';
 import { BandLabelEditorDialog } from './BandLabelEditorDialog';
+import { FieldSelectorDialog } from '@/components/charts/FieldSelectorDialog';
 
 interface ChartSourceFormProps {
   services: Service[];
@@ -34,6 +36,7 @@ interface ChartSourceFormProps {
   editingIndex?: number;
   onUpdateChart?: (chart: ChartConfig, chartIndex: number) => void;
   cogSources?: DataSourceItem[];
+  vectorSources?: DataSourceItem[];
 }
 
 export function ChartSourceForm({
@@ -43,13 +46,18 @@ export function ChartSourceForm({
   editingChart,
   editingIndex,
   onUpdateChart,
-  cogSources = []
+  cogSources = [],
+  vectorSources = []
 }: ChartSourceFormProps) {
   const { toast } = useToast();
   const { dispatch } = useConfig();
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues'>(
-    editingChart?.sources?.[0]?.type === 'pixelValues' ? 'pixelValues' : 'direct'
+  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues' | 'fieldValues'>(
+    editingChart?.sources?.[0]?.type === 'pixelValues'
+      ? 'pixelValues'
+      : editingChart?.sources?.[0]?.type === 'inline'
+        ? 'fieldValues'
+        : 'direct'
   );
   const [selectedCogIndex, setSelectedCogIndex] = useState<number>(0);
   const [bandLabels, setBandLabels] = useState<string[]>([]);
@@ -58,18 +66,27 @@ export function ChartSourceForm({
   const [bandLoading, setBandLoading] = useState(false);
   const bandFetchRef = useRef(0);
   const [samplePixelValues, setSamplePixelValues] = useState<number[] | null>(null);
+  const [inlineFields, setInlineFields] = useState<string[]>(
+    Array.isArray(editingChart?.sources?.[0]?.fields) ? (editingChart!.sources![0].fields as string[]) : []
+  );
+  const [fieldDialogOpen, setFieldDialogOpen] = useState(false);
   const [sampleLoading, setSampleLoading] = useState(false);
   const sampleFetchRef = useRef(0);
   const [directUrl, setDirectUrl] = useState(editingChart?.sources?.[0]?.url || '');
   const [chartTitle, setChartTitle] = useState(editingChart?.title || '');
+  const [chartSubtitle, setChartSubtitle] = useState(editingChart?.subtitle || '');
   const [chartLabel, setChartLabel] = useState(editingChart?.sources?.[0]?.label || '');
   
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
 
-  // Chart configuration sections
-  const [configOpen, setConfigOpen] = useState(true);
+  // Chart configuration sections — when editing an existing chart,
+  // collapse everything except Preview so the user sees the chart first.
+  const isEditMode = editingChart !== undefined;
+  const [configOpen, setConfigOpen] = useState(!isEditMode);
+  const [titleOpen, setTitleOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(true);
   
   // Use chart editor state hook
@@ -102,6 +119,7 @@ export function ChartSourceForm({
     if (editingChart) {
       setDirectUrl(editingChart.sources?.[0]?.url || '');
       setChartTitle(editingChart.title || '');
+      setChartSubtitle(editingChart.subtitle || '');
       setChartLabel(editingChart.sources?.[0]?.label || '');
       setIsDirty(false);
     }
@@ -114,6 +132,31 @@ export function ChartSourceForm({
       setBandCount((editingChart.x as string[]).length);
     }
   }, [editingChart]);
+
+  // Hydrate inline fields when editing an existing inline chart
+  useEffect(() => {
+    if (editingChart?.sources?.[0]?.type === 'inline' && Array.isArray(editingChart.sources[0].fields)) {
+      setInlineFields(editingChart.sources[0].fields as string[]);
+    }
+  }, [editingChart]);
+
+  // When entering Field Values mode, default chartConfig to a Pie shape
+  // matching the target inline JSON contract (x:'field', traces[0]={y:'value', type:'pie'}).
+  useEffect(() => {
+    if (sourceType !== 'fieldValues') return;
+    setChartConfig(prev => {
+      const firstTrace = prev.traces?.[0];
+      const alreadyPie = firstTrace?.type === 'pie' || prev.chartType === 'pie';
+      if (alreadyPie && prev.x === 'field') return prev;
+      return {
+        ...prev,
+        chartType: 'pie',
+        x: 'field',
+        traces: [{ y: 'value', type: 'pie' }],
+        layout: { height: 400, showlegend: true, ...(prev.layout || {}) },
+      };
+    });
+  }, [sourceType, setChartConfig]);
 
   // Fetch COG header metadata to detect band count when source changes
   useEffect(() => {
@@ -203,14 +246,15 @@ export function ChartSourceForm({
   // Track dirty state and update ConfigContext
   useEffect(() => {
     const hasUrl = directUrl.trim() !== '';
-    if (hasUrl) {
+    const hasInlineFields = sourceType === 'fieldValues' && inlineFields.length > 0;
+    if (hasUrl || hasInlineFields) {
       setIsDirty(true);
       dispatch({
         type: 'SET_UNSAVED_FORM_CHANGES',
-        payload: { hasChanges: true, description: `Chart: ${directUrl || 'New Chart'}` }
+        payload: { hasChanges: true, description: `Chart: ${directUrl || chartTitle || 'New Chart'}` }
       });
     }
-  }, [directUrl, chartTitle, chartLabel, chartConfig, dispatch]);
+  }, [directUrl, chartTitle, chartLabel, chartConfig, inlineFields, sourceType, dispatch]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
@@ -358,7 +402,37 @@ export function ChartSourceForm({
 
       const finalConfig: ChartConfig = {
         ...chartConfig,
-        ...(chartTitle.trim() && { title: chartTitle.trim() }),
+        title: chartTitle.trim() || undefined,
+        subtitle: chartSubtitle.trim() || undefined,
+        sources: [chartSource]
+      };
+
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: false, description: null }
+      });
+
+      if (editingChart && editingIndex !== undefined && onUpdateChart) {
+        onUpdateChart(finalConfig, editingIndex);
+        toast({ title: "Chart Updated", description: "Chart configuration has been updated." });
+      } else {
+        onAddChart(finalConfig);
+        toast({ title: "Chart Added", description: "Chart has been added to the layer." });
+      }
+      return;
+    }
+
+    if (sourceType === 'fieldValues') {
+      const chartSource: ChartSource = {
+        type: 'inline',
+        fields: inlineFields,
+        ...(chartLabel.trim() && { label: chartLabel.trim() })
+      };
+
+      const finalConfig: ChartConfig = {
+        ...chartConfig,
+        title: chartTitle.trim() || undefined,
+        subtitle: chartSubtitle.trim() || undefined,
         sources: [chartSource]
       };
 
@@ -395,7 +469,8 @@ export function ChartSourceForm({
 
     const finalConfig: ChartConfig = {
       ...chartConfig,
-      ...(chartTitle.trim() && { title: chartTitle.trim() }),
+      title: chartTitle.trim() || undefined,
+      subtitle: chartSubtitle.trim() || undefined,
       sources: [chartSource]
     };
 
@@ -435,8 +510,9 @@ export function ChartSourceForm({
   const hasUrl = directUrl.trim() !== '';
   const hasColumns = availableColumns.length > 0;
   const isPixelValuesReady = sourceType === 'pixelValues' && bandLabels.length > 0 && !bandLoading;
-  const showConfig = hasUrl || isPixelValuesReady;
-  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady;
+  const isFieldValuesMode = sourceType === 'fieldValues';
+  const showConfig = hasUrl || isPixelValuesReady || isFieldValuesMode;
+  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady || isFieldValuesMode;
   const selectedTrace = chartConfig.traces?.[selectedTraceIndex];
 
   return (
@@ -453,7 +529,7 @@ export function ChartSourceForm({
             {/* Source Type Selection */}
             <div className="space-y-4">
               <Label className="text-base font-medium">Data Source</Label>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <button
                   type="button"
                   onClick={() => setSourceType('direct')}
@@ -499,8 +575,56 @@ export function ChartSourceForm({
                     Spectral signature from COG bands
                   </div>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setSourceType('fieldValues')}
+                  className={`p-4 border rounded-lg text-center flex flex-col items-center transition-colors ${
+                    sourceType === 'fieldValues'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <ListTree className="h-5 w-5 mb-2 text-primary" />
+                  <div className="font-medium">Field Values</div>
+                  <div className="text-sm text-muted-foreground">
+                    Charts from vector data fields
+                  </div>
+                </button>
               </div>
             </div>
+
+            {/* Service Selection */}
+            {sourceType === 'service' && (
+              <div className="space-y-4">
+                <Label>Select a Service</Label>
+                {services.length > 0 ? (
+                  <ServiceCardList
+                    services={services}
+                    onServiceSelect={handleServiceSelect}
+                  />
+                ) : (
+                  <div className="text-sm text-muted-foreground p-4 border border-dashed rounded-lg text-center">
+                    No services configured. Add a service in the Services menu.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* URL Input - only for CSV-based sources */}
+            {sourceType !== 'pixelValues' && sourceType !== 'fieldValues' && (
+              <div className="space-y-2">
+                <Label htmlFor="url">CSV URL</Label>
+                <Input
+                  id="url"
+                  value={directUrl}
+                  onChange={(e) => setDirectUrl(e.target.value)}
+                  placeholder="https://example.com/data.csv"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter the URL to your CSV data file
+                </p>
+              </div>
+            )}
 
             {/* Pixel Values: COG source selector */}
             {sourceType === 'pixelValues' && (
@@ -582,67 +706,46 @@ export function ChartSourceForm({
               </div>
             )}
 
-            {/* Service Selection */}
-            {sourceType === 'service' && (
-              <div className="space-y-4">
-                <Label>Select a Service</Label>
-                {services.length > 0 ? (
-                  <ServiceCardList
-                    services={services}
-                    onServiceSelect={handleServiceSelect}
-                  />
-                ) : (
-                  <div className="text-sm text-muted-foreground p-4 border border-dashed rounded-lg text-center">
-                    No services configured. Add a service in the Services menu.
+            {/* Chart Title (collapsible: main title, sub-title, source label) */}
+            <Collapsible open={titleOpen} onOpenChange={setTitleOpen}>
+              <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
+                {titleOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                <span className="font-medium">Chart Title(s)</span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-4 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="chartTitle">Main Title (optional)</Label>
+                    <Input
+                      id="chartTitle"
+                      value={chartTitle}
+                      onChange={(e) => setChartTitle(e.target.value)}
+                      placeholder="Enter chart title"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Also used in drop down when multiple charts available
+                    </p>
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* Chart Title */}
-            <div className="space-y-2">
-              <Label htmlFor="chartTitle">Chart Title (optional)</Label>
-              <Input
-                id="chartTitle"
-                value={chartTitle}
-                onChange={(e) => setChartTitle(e.target.value)}
-                placeholder="Enter chart title"
-              />
-            </div>
-
-            {/* URL Input - only for CSV-based sources */}
-            {sourceType !== 'pixelValues' && (
-              <div className="space-y-2">
-                <Label htmlFor="url">CSV URL</Label>
-                <Input
-                  id="url"
-                  value={directUrl}
-                  onChange={(e) => setDirectUrl(e.target.value)}
-                  placeholder="https://example.com/data.csv"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Enter the URL to your CSV data file
-                </p>
-              </div>
-            )}
-
-            {/* Source Label */}
-            <div className="space-y-2">
-              <Label htmlFor="chartLabel">Source Label (optional)</Label>
-              <Input
-                id="chartLabel"
-                value={chartLabel}
-                onChange={(e) => setChartLabel(e.target.value)}
-                placeholder="Enter source label"
-              />
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chartSubtitle">Sub-title (optional)</Label>
+                    <Input
+                      id="chartSubtitle"
+                      value={chartSubtitle}
+                      onChange={(e) => setChartSubtitle(e.target.value)}
+                      placeholder="Enter chart sub-title"
+                    />
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             {/* Chart Configuration Section - only show when URL is provided */}
             {showConfig && (
               <Collapsible open={configOpen} onOpenChange={setConfigOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
                   {configOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  <span className="font-medium">Chart Configuration</span>
+                  <span className="font-medium">Chart Data Configuration</span>
                   {csvLoading && (
                     <span className="flex items-center gap-1 text-xs text-muted-foreground ml-2">
                       <span className="h-3 w-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -651,7 +754,65 @@ export function ChartSourceForm({
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 space-y-4">
-                  {isPixelValuesReady ? (
+                  {isFieldValuesMode ? (
+                    <>
+                      <ChartTypeSelector
+                        config={chartConfig}
+                        onChange={setChartConfig}
+                        restrictToPie
+                      />
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <ListTree className="h-4 w-4 text-muted-foreground" />
+                            <Label className="text-sm font-medium">Selected Fields</Label>
+                            <span className="text-xs text-muted-foreground">
+                              ({inlineFields.length})
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setFieldDialogOpen(true)}
+                          >
+                            <Settings2 className="h-3.5 w-3.5 mr-1.5" />
+                            Edit fields…
+                          </Button>
+                        </div>
+                        {vectorSources.length === 0 && (
+                          <div className="flex items-start gap-2 p-2 rounded-md border border-dashed text-xs text-muted-foreground">
+                            <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                            No GeoJSON or FlatGeoBuf source on this layer — fields can only be entered manually.
+                          </div>
+                        )}
+                        {inlineFields.length === 0 ? (
+                          <div className="p-3 border border-dashed rounded-md text-sm text-muted-foreground text-center">
+                            No fields selected — click <span className="font-medium">Edit fields…</span> to choose properties for the pie chart.
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5 p-2 border rounded-md bg-muted/30">
+                            {inlineFields.map(name => (
+                              <span
+                                key={name}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background border text-xs"
+                              >
+                                <span className="font-mono">{name}</span>
+                                <button
+                                  type="button"
+                                  className="text-muted-foreground hover:text-destructive"
+                                  onClick={() => setInlineFields(prev => prev.filter(f => f !== name))}
+                                  aria-label={`Remove ${name}`}
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : isPixelValuesReady ? (
                     <>
                       {/* Simplified chart type selector for pixelValues - no pie/histogram */}
                       <ChartTypeSelector
@@ -773,6 +934,19 @@ export function ChartSourceForm({
               </Collapsible>
             )}
 
+            {/* Chart Settings Section (axes + legend) - hidden for pie charts */}
+            {showConfig && displayType !== 'pie' && (
+              <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+                <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted">
+                  {settingsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  <span className="font-medium">Legend and Axis Settings</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-4">
+                  <ChartSettingsPanel config={chartConfig} onChange={setChartConfig} />
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
             {/* Preview Section */}
             {showPreview && (
               <Collapsible open={previewOpen} onOpenChange={setPreviewOpen}>
@@ -793,7 +967,9 @@ export function ChartSourceForm({
                           config={{
                             ...chartConfig,
                             title: chartTitle || chartConfig.title,
-                            ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {})
+                            subtitle: chartSubtitle || chartConfig.subtitle,
+                            ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {}),
+                            ...(sourceType === 'fieldValues' ? { sources: [{ type: 'inline' as const, fields: inlineFields }] } : {})
                           }}
                           data={parsedData}
                           sampleData={samplePixelValues || undefined}
@@ -848,6 +1024,15 @@ export function ChartSourceForm({
         onOpenChange={setBandLabelDialogOpen}
         labels={bandLabels}
         onSave={setBandLabels}
+      />
+
+      {/* Field Selector Dialog (Field Values pie charts) */}
+      <FieldSelectorDialog
+        open={fieldDialogOpen}
+        onOpenChange={setFieldDialogOpen}
+        vectorSources={vectorSources}
+        selectedFields={inlineFields}
+        onSave={setInlineFields}
       />
     </>
   );

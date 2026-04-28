@@ -26,8 +26,53 @@ interface PlotlyChartViewerProps {
 
 export function PlotlyChartViewer({ config, data, height = 400, sampleData }: PlotlyChartViewerProps) {
   const isPixelValues = config.sources?.[0]?.type === 'pixelValues';
+  const isInline = config.sources?.[0]?.type === 'inline';
 
   const { plotData, layout, isValid, message } = useMemo(() => {
+    // Inline (Field Values): synthesize data from sources[0].fields
+    let workingData: ParsedCSVData = data;
+    if (isInline) {
+      const fields = (config.sources?.[0]?.fields as string[] | undefined) || [];
+      if (fields.length === 0) {
+        return { plotData: [], layout: {}, isValid: false, message: 'Add fields to sources[0].fields to render this chart' };
+      }
+
+      const firstTrace = config.traces?.[0];
+      const isPie = firstTrace?.type === 'pie' || config.chartType === 'pie';
+
+      // Placeholder values — equal weighting until real GeoJSON wiring lands
+      const placeholderValues = fields.map(() => 1);
+
+      if (isPie) {
+        const trace: any = {
+          type: 'pie',
+          labels: fields,
+          values: placeholderValues,
+          hole: (config.layout as any)?.hole ?? config.pie?.hole ?? 0,
+          textinfo: config.pie?.textinfo || 'percent',
+        };
+        if (config.pie?.colors) {
+          trace.marker = { colors: config.pie.colors };
+        }
+
+        const pieLayout: any = {
+          height: config.layout?.height || height,
+          showlegend: config.layout?.showlegend !== false,
+          margin: { t: 20, r: 30, b: 30, l: 30 },
+        };
+        if (config.layout?.legend) pieLayout.legend = config.layout.legend;
+
+        return { plotData: [trace], layout: pieLayout, isValid: true, message: '' };
+      }
+
+      // Non-pie inline — synthesize { field, value } rows and fall through to XY pipeline
+      workingData = {
+        columns: ['field', 'value'],
+        data: fields.map((f, i) => ({ field: f, value: placeholderValues[i] })),
+      } as ParsedCSVData;
+    }
+
+
     // Handle pixelValues preview with sampleData
     if (isPixelValues && Array.isArray(config.x) && config.x.length > 0) {
       const xLabels = config.x as string[];
@@ -59,10 +104,9 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
       const chartLayout: any = {
         height: config.layout?.height || height,
         showlegend: config.layout?.showlegend !== false,
-        title: buildTitle(config.title, config.subtitle),
-        margin: { t: 50, r: 30, b: 50, l: 60 },
-        xaxis: { title: config.layout?.xaxis?.title || 'Band', ...buildAxisConfig(config.layout?.xaxis) },
-        yaxis: { title: config.layout?.yaxis?.title || 'Value', ...buildAxisConfig(config.layout?.yaxis) },
+        margin: { t: 20, r: 30, b: 50, l: 60 },
+        xaxis: buildAxis(config.layout?.xaxis, 'Band'),
+        yaxis: buildAxis(config.layout?.yaxis, 'Value'),
       };
 
       if (config.layout?.legend) chartLayout.legend = config.layout.legend;
@@ -76,7 +120,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
     }
 
     // Check if we have valid configuration
-    if (!data.columns.length || !data.data.length) {
+    if (!workingData.columns.length || !workingData.data.length) {
       return { plotData: [], layout: {}, isValid: false, message: 'No data available' };
     }
 
@@ -87,8 +131,8 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
         return { plotData: [], layout: {}, isValid: false, message: 'Configure labels and values for pie chart' };
       }
 
-      const labels = data.data.map(row => row[pieConfig.labels!]);
-      const values = data.data.map(row => row[pieConfig.values!]);
+      const labels = workingData.data.map(row => row[pieConfig.labels!]);
+      const values = workingData.data.map(row => row[pieConfig.values!]);
 
       const trace: any = {
         type: 'pie',
@@ -105,7 +149,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
       const pieLayout: any = {
         height: config.layout?.height || height,
         showlegend: config.layout?.showlegend !== false,
-        title: buildTitle(config.title, config.subtitle),
+        margin: { t: 20, r: 30, b: 30, l: 30 },
       };
 
       if (config.layout?.legend) {
@@ -128,7 +172,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
     const xData = config.x
       ? (Array.isArray(config.x)
         ? config.x
-        : data.data.map(row => {
+        : workingData.data.map(row => {
             const value = row[config.x as string];
             if (isDateAxis && typeof value === 'string') {
               return convertToISODate(value);
@@ -146,7 +190,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
       // Handle histogram specially - y becomes x for binning
       if (trace.type === 'histogram') {
         plotTrace.type = 'histogram';
-        plotTrace.x = trace.y ? data.data.map(row => row[trace.y!]) : [];
+        plotTrace.x = trace.y ? workingData.data.map(row => row[trace.y!]) : [];
         
         if (trace.histogram?.nbinsx) {
           plotTrace.nbinsx = trace.histogram.nbinsx;
@@ -160,7 +204,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
       } else {
         plotTrace.type = trace.type || 'scatter';
         plotTrace.x = xData;
-        plotTrace.y = trace.y ? data.data.map(row => row[trace.y!]) : [];
+        plotTrace.y = trace.y ? workingData.data.map(row => row[trace.y!]) : [];
 
         if (trace.mode) {
           plotTrace.mode = trace.mode;
@@ -204,8 +248,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
     const chartLayout: any = {
       height: config.layout?.height || height,
       showlegend: config.layout?.showlegend !== false,
-      title: buildTitle(config.title, config.subtitle),
-      margin: { t: 50, r: 30, b: 50, l: 60 },
+      margin: { t: 20, r: 30, b: 50, l: 60 },
     };
 
     if (config.layout?.barmode) {
@@ -218,19 +261,16 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
 
     // X-axis configuration
     const isHistogram = config.traces.some(t => t.type === 'histogram');
-    chartLayout.xaxis = {
-      title: isHistogram ? config.traces[0]?.y : (config.layout?.xaxis?.title || config.x),
-      ...buildAxisConfig(config.layout?.xaxis),
-    };
+    const xDefault = isHistogram
+      ? config.traces[0]?.y
+      : (typeof config.x === 'string' ? config.x : undefined);
+    chartLayout.xaxis = buildAxis(config.layout?.xaxis, xDefault);
 
-    // Y-axis configuration  
-    chartLayout.yaxis = {
-      title: isHistogram ? 'Count' : config.layout?.yaxis?.title,
-      ...buildAxisConfig(config.layout?.yaxis),
-    };
+    // Y-axis configuration
+    chartLayout.yaxis = buildAxis(config.layout?.yaxis, isHistogram ? 'Count' : undefined);
 
     return { plotData: plotTraces, layout: chartLayout, isValid: true, message: '' };
-  }, [config, data, height, sampleData, isPixelValues]);
+  }, [config, data, height, sampleData, isPixelValues, isInline]);
 
   if (!isValid) {
     return (
@@ -242,6 +282,20 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
 
   return (
     <div className="w-full">
+      {(config.title || config.subtitle) && (
+        <div className="text-center mb-2">
+          {config.title && (
+            <div className="text-base font-semibold text-foreground leading-tight">
+              {config.title}
+            </div>
+          )}
+          {config.subtitle && (
+            <div className="text-sm text-muted-foreground leading-tight">
+              {config.subtitle}
+            </div>
+          )}
+        </div>
+      )}
       <Plot
         data={plotData}
         layout={layout}
@@ -255,26 +309,19 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData }: Pl
   );
 }
 
-function buildTitle(title?: string, subtitle?: string): string | undefined {
-  if (!title && !subtitle) return undefined;
-  if (!subtitle) return title;
-  return `${title}<br><span style="font-size:12px;color:#666">${subtitle}</span>`;
-}
-
-function buildAxisConfig(axis?: ChartConfig['layout']['xaxis']) {
-  if (!axis) return {};
-  
-  return {
-    type: axis.type === '-' ? undefined : axis.type,
-    tickformat: axis.tickformat,
-    ticksuffix: axis.ticksuffix,
-    tickprefix: axis.tickprefix,
-    tickangle: axis.tickangle,
-    showgrid: axis.showgrid,
-    tickfont: axis.tickfont,
-    titlefont: axis.titleFont,
-    range: axis.range,
-  };
+/**
+ * Pass the stored axis config through to Plotly. Stored shape already
+ * matches Plotly v2 spec (title is { text, font }). Only normalizes the
+ * "auto" type sentinel and applies a default title when none is set.
+ */
+function buildAxis(axis: ChartConfig['layout']['xaxis'] | undefined, defaultTitle?: string) {
+  const out: any = { ...(axis || {}) };
+  if (out.type === '-') delete out.type;
+  const hasTitleText = out.title && typeof out.title === 'object' && (out.title as any).text;
+  if (!hasTitleText && defaultTitle) {
+    out.title = { ...(out.title || {}), text: defaultTitle };
+  }
+  return out;
 }
 
 function getChartInfo(config: ChartConfig, data: ParsedCSVData): string {

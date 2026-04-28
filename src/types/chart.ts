@@ -3,11 +3,12 @@
  * Note: Index signatures are added for Zod passthrough compatibility
  */
 
-// Chart data source - can be external URL or field lookup
+// Chart data source - can be external URL, field lookup, COG pixel values, or inline (vector fields)
 export interface ChartSource {
-  type?: 'externalURL' | 'lookupURL' | 'pixelValues';
+  type?: 'externalURL' | 'lookupURL' | 'pixelValues' | 'inline';
   url?: string;      // For externalURL type
   field?: string;    // For lookupURL type
+  fields?: string[]; // For inline type — vector dataset properties to chart
   format?: 'csv' | 'json';
   label?: string;
   [key: string]: unknown;
@@ -68,10 +69,16 @@ export interface ChartFont {
   [key: string]: unknown;
 }
 
+// Axis title (Plotly v2 native shape: { text, font })
+export interface ChartAxisTitle {
+  text?: string;
+  font?: ChartFont;
+  [key: string]: unknown;
+}
+
 // Axis configuration
 export interface ChartAxis {
-  title?: string;
-  titleFont?: ChartFont;
+  title?: ChartAxisTitle;
   tickfont?: ChartFont;
   tickformat?: string;
   ticksuffix?: string;

@@ -11,9 +11,10 @@ export const CategorySchema = z.object({
 
 // Chart source schema
 const ChartSourceSchema = z.object({
-  type: z.enum(['externalURL', 'lookupURL', 'pixelValues']).optional(),  // Optional for flexibility
+  type: z.enum(['externalURL', 'lookupURL', 'pixelValues', 'inline']).optional(),  // Optional for flexibility
   url: z.string().optional(),
   field: z.string().optional(),
+  fields: z.array(z.string()).optional(), // For 'inline' type — vector dataset properties to chart
   format: z.enum(['csv', 'json']).optional(),
   label: z.string().optional(),
 }).passthrough();
@@ -53,10 +54,15 @@ const ChartFontSchema = z.object({
   family: z.string().optional(),
 }).passthrough();
 
+// Chart axis title schema (Plotly v2: { text, font })
+const ChartAxisTitleSchema = z.object({
+  text: z.string().optional(),
+  font: ChartFontSchema.optional(),
+}).passthrough();
+
 // Chart axis schema
 const ChartAxisSchema = z.object({
-  title: z.string().optional(),
-  titleFont: ChartFontSchema.optional(),
+  title: ChartAxisTitleSchema.optional(),
   tickfont: ChartFontSchema.optional(),
   tickformat: z.string().optional(),
   ticksuffix: z.string().optional(),

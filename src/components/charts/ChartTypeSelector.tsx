@@ -10,70 +10,114 @@ type ChartDisplayType = 'line' | 'area' | 'bar' | 'histogram' | 'pie';
 interface ChartTypeSelectorProps {
   config: ChartConfig;
   onChange: (config: ChartConfig) => void;
+  /** When true, only Pie is selectable; all other types render as greyed out. */
+  restrictToPie?: boolean;
 }
 
-export function ChartTypeSelector({ config, onChange }: ChartTypeSelectorProps) {
-  const currentType = getDisplayType(config);
+export function ChartTypeSelector({ config, onChange, restrictToPie = false }: ChartTypeSelectorProps) {
+  const currentType = restrictToPie ? 'pie' : getDisplayType(config);
 
   const handleTypeChange = (newType: ChartDisplayType) => {
     if (!newType || newType === currentType) return;
-    
+    if (restrictToPie && newType !== 'pie') return;
+
     const updatedConfig = convertChartType(config, newType);
     onChange(updatedConfig);
   };
 
+  const disabledTip = restrictToPie ? 'Available in a future release for Field Values' : null;
+  const disabledClass = 'inline-flex items-center justify-center rounded-md px-3 h-9 opacity-50 cursor-not-allowed';
+
   return (
     <TooltipProvider>
-      <ToggleGroup 
-        type="single" 
-        value={currentType} 
+      <ToggleGroup
+        type="single"
+        value={currentType}
         onValueChange={(value) => value && handleTypeChange(value as ChartDisplayType)}
         className="justify-start"
       >
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <ToggleGroupItem value="line" aria-label="Line Chart">
-              <LineChart className="h-4 w-4" />
-            </ToggleGroupItem>
-          </TooltipTrigger>
-          <TooltipContent>Line Chart</TooltipContent>
-        </Tooltip>
+        {restrictToPie ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={disabledClass}><LineChart className="h-4 w-4 text-muted-foreground" /></div>
+            </TooltipTrigger>
+            <TooltipContent>{disabledTip}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="line" aria-label="Line Chart">
+                <LineChart className="h-4 w-4" />
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent>Line Chart</TooltipContent>
+          </Tooltip>
+        )}
+
+        {restrictToPie ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={disabledClass}><AreaChart className="h-4 w-4 text-muted-foreground" /></div>
+            </TooltipTrigger>
+            <TooltipContent>{disabledTip}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="area" aria-label="Area Chart">
+                <AreaChart className="h-4 w-4" />
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent>Area Chart</TooltipContent>
+          </Tooltip>
+        )}
+
+        {restrictToPie ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={disabledClass}><BarChart3 className="h-4 w-4 text-muted-foreground" /></div>
+            </TooltipTrigger>
+            <TooltipContent>{disabledTip}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="bar" aria-label="Bar Chart">
+                <BarChart3 className="h-4 w-4" />
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent>Bar Chart</TooltipContent>
+          </Tooltip>
+        )}
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <ToggleGroupItem value="area" aria-label="Area Chart">
-              <AreaChart className="h-4 w-4" />
-            </ToggleGroupItem>
-          </TooltipTrigger>
-          <TooltipContent>Area Chart</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <ToggleGroupItem value="bar" aria-label="Bar Chart">
-              <BarChart3 className="h-4 w-4" />
-            </ToggleGroupItem>
-          </TooltipTrigger>
-          <TooltipContent>Bar Chart</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="inline-flex items-center justify-center rounded-md px-3 h-9 opacity-50 cursor-not-allowed">
+            <div className={disabledClass}>
               <BarChart3 className="h-4 w-4 rotate-90 text-muted-foreground" />
             </div>
           </TooltipTrigger>
-          <TooltipContent>Histogram chart available in future release</TooltipContent>
+          <TooltipContent>{restrictToPie ? disabledTip : 'Histogram chart available in future release'}</TooltipContent>
         </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="inline-flex items-center justify-center rounded-md px-3 h-9 opacity-50 cursor-not-allowed">
-              <PieChart className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>Donut chart available in future release</TooltipContent>
-        </Tooltip>
+        {restrictToPie ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="pie" aria-label="Pie Chart">
+                <PieChart className="h-4 w-4" />
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent>Pie Chart</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={disabledClass}>
+                <PieChart className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Donut chart available in future release</TooltipContent>
+          </Tooltip>
+        )}
       </ToggleGroup>
     </TooltipProvider>
   );

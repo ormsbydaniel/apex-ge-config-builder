@@ -227,6 +227,11 @@ const LayerFormHandler = ({
     const cogSources = (currentLayer.data || []).filter(
       (d: any) => d.format === 'cog'
     );
+
+    // Filter vector sources for fieldValues chart support
+    const vectorSources = (currentLayer.data || []).filter(
+      (d: any) => d.format === 'geojson' || d.format === 'flatgeobuf'
+    );
     
     // Create handler that routes to add or update based on editing state
     const handleChartSubmit = (chart: ChartConfig) => {
@@ -246,6 +251,7 @@ const LayerFormHandler = ({
         editingIndex={editingChartIndex ?? undefined}
         onUpdateChart={onUpdateChart ? (chart, idx) => onUpdateChart(chart, editingChartLayerIndex!, idx) : undefined}
         cogSources={cogSources}
+        vectorSources={vectorSources}
       />
     );
   }
