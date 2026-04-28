@@ -36,6 +36,7 @@ interface DonorConfigPickerDialogProps {
   onOpenChange: (open: boolean) => void;
   targetInterfaceGroup?: string;
   targetSubinterfaceGroup?: string;
+  onImport?: (layers: any[]) => void;
 }
 
 interface TreeEntry {
@@ -49,6 +50,7 @@ const DonorConfigPickerDialog = ({
   onOpenChange,
   targetInterfaceGroup,
   targetSubinterfaceGroup,
+  onImport,
 }: DonorConfigPickerDialogProps) => {
   const { loadFromFile, loadFromUrl } = useDonorConfigLoader();
   const fileInputRef = useRef<HTMLInputElement>(null);
