@@ -64,7 +64,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   >({ status: 'idle' });
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
-  const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
+  const { statuses: validationStatuses, warnings: validationWarnings, progress, inFlightTotal, geojsonTargets, recheck } = useBulkServiceValidation(services, isActive);
 
   // Tracks the URL+format signature of the most recent successful/failed probe
   // so a click on Save can skip re-probing if nothing has changed since.
@@ -112,6 +112,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         stac: progress.stac.total > 0 ? { total: progress.stac.total } : null,
         ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : null,
         s3: progress.s3.total > 0 ? { total: progress.s3.total } : null,
+        geojson: progress.geojson.total > 0 ? { total: progress.geojson.total } : null,
       });
       setDismissed(false);
     } else if (inFlightTotal > 0) {
@@ -120,22 +121,28 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         stac: progress.stac.total > 0 ? { total: progress.stac.total } : prev?.stac ?? null,
         ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : prev?.ogc ?? null,
         s3: progress.s3.total > 0 ? { total: progress.s3.total } : prev?.s3 ?? null,
+        geojson: progress.geojson.total > 0 ? { total: progress.geojson.total } : prev?.geojson ?? null,
       }));
     }
     prevInFlightRef.current = inFlightTotal;
-  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total]);
+  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total, progress.geojson.total]);
 
-  // Derive failed counts at render time from validationStatuses, grouped by kind.
-  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
+  // Derive failed/warning counts at render time from validationStatuses, grouped by kind.
+  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0, geojson: 0 };
+  const warningByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0, geojson: 0 };
   for (const svc of services) {
     const kind = classifyService(svc);
-    if (kind && validationStatuses[svc.id] === 'error') {
-      failedByKind[kind]++;
-    }
+    if (!kind) continue;
+    if (validationStatuses[svc.id] === 'error') failedByKind[kind]++;
+    else if (validationStatuses[svc.id] === 'warning') warningByKind[kind]++;
+  }
+  for (const t of geojsonTargets) {
+    if (validationStatuses[t.id] === 'error') failedByKind.geojson++;
+    else if (validationStatuses[t.id] === 'warning') warningByKind.geojson++;
   }
 
   const summaryHasAny = !!runSummary &&
-    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) > 0);
+    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) + (runSummary.geojson?.total ?? 0) > 0);
   const showSummaryPanel = !dismissed && summaryHasAny;
 
   // Auto-populate service name after user pauses typing URL (STAC + WMS/WMTS/WFS)
