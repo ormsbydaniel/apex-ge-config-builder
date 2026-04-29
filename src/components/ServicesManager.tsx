@@ -64,7 +64,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   >({ status: 'idle' });
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
-  const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
+  const { statuses: validationStatuses, warnings: validationWarnings, progress, inFlightTotal, geojsonTargets, recheck } = useBulkServiceValidation(services, isActive);
 
   // Tracks the URL+format signature of the most recent successful/failed probe
   // so a click on Save can skip re-probing if nothing has changed since.
@@ -112,6 +112,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         stac: progress.stac.total > 0 ? { total: progress.stac.total } : null,
         ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : null,
         s3: progress.s3.total > 0 ? { total: progress.s3.total } : null,
+        geojson: progress.geojson.total > 0 ? { total: progress.geojson.total } : null,
       });
       setDismissed(false);
     } else if (inFlightTotal > 0) {
@@ -120,22 +121,28 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         stac: progress.stac.total > 0 ? { total: progress.stac.total } : prev?.stac ?? null,
         ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : prev?.ogc ?? null,
         s3: progress.s3.total > 0 ? { total: progress.s3.total } : prev?.s3 ?? null,
+        geojson: progress.geojson.total > 0 ? { total: progress.geojson.total } : prev?.geojson ?? null,
       }));
     }
     prevInFlightRef.current = inFlightTotal;
-  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total]);
+  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total, progress.geojson.total]);
 
-  // Derive failed counts at render time from validationStatuses, grouped by kind.
-  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
+  // Derive failed/warning counts at render time from validationStatuses, grouped by kind.
+  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0, geojson: 0 };
+  const warningByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0, geojson: 0 };
   for (const svc of services) {
     const kind = classifyService(svc);
-    if (kind && validationStatuses[svc.id] === 'error') {
-      failedByKind[kind]++;
-    }
+    if (!kind) continue;
+    if (validationStatuses[svc.id] === 'error') failedByKind[kind]++;
+    else if (validationStatuses[svc.id] === 'warning') warningByKind[kind]++;
+  }
+  for (const t of geojsonTargets) {
+    if (validationStatuses[t.id] === 'error') failedByKind.geojson++;
+    else if (validationStatuses[t.id] === 'warning') warningByKind.geojson++;
   }
 
   const summaryHasAny = !!runSummary &&
-    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) > 0);
+    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) + (runSummary.geojson?.total ?? 0) > 0);
   const showSummaryPanel = !dismissed && summaryHasAny;
 
   // Auto-populate service name after user pauses typing URL (STAC + WMS/WMTS/WFS)
@@ -502,9 +509,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               <Button
                 onClick={() => recheck()}
                 variant="outline"
-                disabled={inFlightTotal > 0 || services.length === 0}
+                disabled={inFlightTotal > 0 || (services.length === 0 && geojsonTargets.length === 0)}
                 className="border-primary/30"
-                title="Re-validate all services (STAC, OGC, S3)"
+                title="Re-validate all services and GeoJSON sources (STAC, OGC, S3, GeoJSON)"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${inFlightTotal > 0 ? 'animate-spin' : ''}`} />
                 Re-check all
@@ -537,13 +544,15 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         <CardContent>
           {(showSummaryPanel || inFlightTotal > 0) && (
             <div className="relative mb-4 space-y-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 pr-10 text-sm text-primary">
-              {(['stac', 'ogc', 's3'] as ServiceKind[]).map(kind => {
+              {(['stac', 'ogc', 's3', 'geojson'] as ServiceKind[]).map(kind => {
                 const label =
                   kind === 'stac'
                     ? 'STAC catalogues'
                     : kind === 'ogc'
                     ? 'WMS / WMTS / WFS services'
-                    : 'S3 stores';
+                    : kind === 's3'
+                    ? 'S3 stores'
+                    : 'GeoJSON sources';
                 const groupProg = progress[kind];
                 const summary = runSummary?.[kind] ?? null;
 
@@ -558,17 +567,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
                 if (summary && summary.total > 0) {
                   const failed = failedByKind[kind];
+                  const warned = warningByKind[kind];
                   const reachable = summary.total - failed;
+                  const extras: string[] = [];
+                  if (failed > 0) extras.push(`${failed} failed`);
+                  if (warned > 0) extras.push(`${warned} warning${warned === 1 ? '' : 's'}`);
                   return (
                     <div key={kind} className="flex items-center gap-2">
-                      {failed > 0 ? (
+                      {failed > 0 || warned > 0 ? (
                         <AlertTriangle className="h-4 w-4 text-amber-600" />
                       ) : (
                         <Check className="h-4 w-4 text-emerald-600" />
                       )}
                       <span>
                         {label}: {reachable} of {summary.total} reachable
-                        {failed > 0 ? ` (${failed} failed)` : ''}
+                        {extras.length > 0 ? ` (${extras.join(', ')})` : ''}
                       </span>
                     </div>
                   );
@@ -576,9 +589,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
                 return null;
               })}
-              {inFlightTotal === 0 && (failedByKind.stac + failedByKind.ogc + failedByKind.s3) > 0 && (
+              {inFlightTotal === 0 && (failedByKind.stac + failedByKind.ogc + failedByKind.s3 + failedByKind.geojson) > 0 && (
                 <p className="text-xs text-muted-foreground italic mt-1 w-full">
-                  Invalid services are listed at the bottom of this page.
+                  Invalid services and sources are listed at the bottom of this page.
                 </p>
               )}
               {inFlightTotal === 0 && (
@@ -720,6 +733,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                           </Badge>
                         );
                       })()}
+                      {validationWarnings[service.id]?.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {validationWarnings[service.id].map((msg, i) => (
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className="border-amber-300 text-amber-700 whitespace-normal text-left"
+                              title={msg}
+                            >
+                              <AlertTriangle className="h-3 w-3 mr-1 flex-shrink-0" />
+                              {msg}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-1">
                       {onUpdateService && (
@@ -775,6 +803,81 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
           })()}
         </CardContent>
       </Card>
+
+      {geojsonTargets.length > 0 && (
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-primary">
+              <Database className="h-5 w-5" />
+              GeoJSON Layer Sources
+            </CardTitle>
+            <CardDescription>
+              GeoJSON URLs referenced by your map layers. Validation HEAD-checks each URL and warns when files are large or unreachable.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {geojsonTargets.map(target => {
+                const status = validationStatuses[target.id];
+                const warns = validationWarnings[target.id] ?? [];
+                return (
+                  <div
+                    key={target.id}
+                    className="flex items-start justify-between gap-3 rounded-md border border-border/60 bg-card px-3 py-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium truncate">{target.sourceName}</span>
+                        {status === 'checking' && (
+                          <Badge variant="outline" className="border-primary/40 text-primary">
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            Checking…
+                          </Badge>
+                        )}
+                        {status === 'ok' && (
+                          <Badge variant="outline" className="border-green-300 text-green-700">
+                            <Check className="h-3 w-3 mr-1" />
+                            OK
+                          </Badge>
+                        )}
+                        {status === 'warning' && (
+                          <Badge variant="outline" className="border-amber-300 text-amber-700">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Warning
+                          </Badge>
+                        )}
+                        {status === 'error' && (
+                          <Badge variant="outline" className="border-destructive/40 text-destructive">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Unreachable
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground break-all">{target.url}</p>
+                      {warns.length > 0 && (
+                        <ul className="mt-1 text-xs text-amber-700 list-disc list-inside space-y-0.5">
+                          {warns.map((m, i) => <li key={i}>{m}</li>)}
+                        </ul>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => recheck(target.id)}
+                      disabled={status === 'checking'}
+                      title="Re-check this GeoJSON source"
+                    >
+                      <RefreshCw className={`h-3 w-3 mr-1 ${status === 'checking' ? 'animate-spin' : ''}`} />
+                      Re-check
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <ServiceUploadConfirmDialog
         open={showConfirmDialog}
