@@ -733,6 +733,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                           </Badge>
                         );
                       })()}
+                      {validationWarnings[service.id]?.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {validationWarnings[service.id].map((msg, i) => (
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className="border-amber-300 text-amber-700 whitespace-normal text-left"
+                              title={msg}
+                            >
+                              <AlertTriangle className="h-3 w-3 mr-1 flex-shrink-0" />
+                              {msg}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-1">
                       {onUpdateService && (
