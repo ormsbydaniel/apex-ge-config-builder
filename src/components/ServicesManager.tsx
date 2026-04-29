@@ -509,9 +509,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               <Button
                 onClick={() => recheck()}
                 variant="outline"
-                disabled={inFlightTotal > 0 || services.length === 0}
+                disabled={inFlightTotal > 0 || (services.length === 0 && geojsonTargets.length === 0)}
                 className="border-primary/30"
-                title="Re-validate all services (STAC, OGC, S3)"
+                title="Re-validate all services and GeoJSON sources (STAC, OGC, S3, GeoJSON)"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${inFlightTotal > 0 ? 'animate-spin' : ''}`} />
                 Re-check all
@@ -544,13 +544,15 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         <CardContent>
           {(showSummaryPanel || inFlightTotal > 0) && (
             <div className="relative mb-4 space-y-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 pr-10 text-sm text-primary">
-              {(['stac', 'ogc', 's3'] as ServiceKind[]).map(kind => {
+              {(['stac', 'ogc', 's3', 'geojson'] as ServiceKind[]).map(kind => {
                 const label =
                   kind === 'stac'
                     ? 'STAC catalogues'
                     : kind === 'ogc'
                     ? 'WMS / WMTS / WFS services'
-                    : 'S3 stores';
+                    : kind === 's3'
+                    ? 'S3 stores'
+                    : 'GeoJSON sources';
                 const groupProg = progress[kind];
                 const summary = runSummary?.[kind] ?? null;
 
@@ -565,17 +567,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
                 if (summary && summary.total > 0) {
                   const failed = failedByKind[kind];
+                  const warned = warningByKind[kind];
                   const reachable = summary.total - failed;
+                  const extras: string[] = [];
+                  if (failed > 0) extras.push(`${failed} failed`);
+                  if (warned > 0) extras.push(`${warned} warning${warned === 1 ? '' : 's'}`);
                   return (
                     <div key={kind} className="flex items-center gap-2">
-                      {failed > 0 ? (
+                      {failed > 0 || warned > 0 ? (
                         <AlertTriangle className="h-4 w-4 text-amber-600" />
                       ) : (
                         <Check className="h-4 w-4 text-emerald-600" />
                       )}
                       <span>
                         {label}: {reachable} of {summary.total} reachable
-                        {failed > 0 ? ` (${failed} failed)` : ''}
+                        {extras.length > 0 ? ` (${extras.join(', ')})` : ''}
                       </span>
                     </div>
                   );
@@ -583,9 +589,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
                 return null;
               })}
-              {inFlightTotal === 0 && (failedByKind.stac + failedByKind.ogc + failedByKind.s3) > 0 && (
+              {inFlightTotal === 0 && (failedByKind.stac + failedByKind.ogc + failedByKind.s3 + failedByKind.geojson) > 0 && (
                 <p className="text-xs text-muted-foreground italic mt-1 w-full">
-                  Invalid services are listed at the bottom of this page.
+                  Invalid services and sources are listed at the bottom of this page.
                 </p>
               )}
               {inFlightTotal === 0 && (
