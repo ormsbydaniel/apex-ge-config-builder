@@ -804,6 +804,81 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         </CardContent>
       </Card>
 
+      {geojsonTargets.length > 0 && (
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-primary">
+              <Database className="h-5 w-5" />
+              GeoJSON Layer Sources
+            </CardTitle>
+            <CardDescription>
+              GeoJSON URLs referenced by your map layers. Validation HEAD-checks each URL and warns when files are large or unreachable.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {geojsonTargets.map(target => {
+                const status = validationStatuses[target.id];
+                const warns = validationWarnings[target.id] ?? [];
+                return (
+                  <div
+                    key={target.id}
+                    className="flex items-start justify-between gap-3 rounded-md border border-border/60 bg-card px-3 py-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium truncate">{target.sourceName}</span>
+                        {status === 'checking' && (
+                          <Badge variant="outline" className="border-primary/40 text-primary">
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            Checking…
+                          </Badge>
+                        )}
+                        {status === 'ok' && (
+                          <Badge variant="outline" className="border-green-300 text-green-700">
+                            <Check className="h-3 w-3 mr-1" />
+                            OK
+                          </Badge>
+                        )}
+                        {status === 'warning' && (
+                          <Badge variant="outline" className="border-amber-300 text-amber-700">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Warning
+                          </Badge>
+                        )}
+                        {status === 'error' && (
+                          <Badge variant="outline" className="border-destructive/40 text-destructive">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Unreachable
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground break-all">{target.url}</p>
+                      {warns.length > 0 && (
+                        <ul className="mt-1 text-xs text-amber-700 list-disc list-inside space-y-0.5">
+                          {warns.map((m, i) => <li key={i}>{m}</li>)}
+                        </ul>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => recheck(target.id)}
+                      disabled={status === 'checking'}
+                      title="Re-check this GeoJSON source"
+                    >
+                      <RefreshCw className={`h-3 w-3 mr-1 ${status === 'checking' ? 'animate-spin' : ''}`} />
+                      Re-check
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <ServiceUploadConfirmDialog
         open={showConfirmDialog}
         onOpenChange={setShowConfirmDialog}
