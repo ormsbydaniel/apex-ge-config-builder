@@ -29,12 +29,21 @@ const getServiceMetadataText = (xmlDoc: Document, localName: 'Title' | 'Abstract
   );
 };
 
-// Function to fetch capabilities for a service
-export const fetchServiceCapabilities = async (url: string, format: DataSourceFormat): Promise<ServiceCapabilities | null> => {
+export interface ServiceCapabilitiesMetrics {
+  capabilities: ServiceCapabilities | null;
+  durationMs?: number;
+  bytes?: number;
+}
+
+// Function to fetch capabilities for a service (with optional timing/size metrics)
+export const fetchServiceCapabilitiesWithMetrics = async (
+  url: string,
+  format: DataSourceFormat,
+): Promise<ServiceCapabilitiesMetrics> => {
   try {
     // Skip capabilities for formats that don't support OGC GetCapabilities
     if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf') {
-      return null;
+      return { capabilities: null };
     }
 
     // Construct GetCapabilities URL
@@ -50,6 +59,7 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
     // Use AbortController to enforce a 10-second timeout per service
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 10000);
+    const startedAt = performance.now();
     let response: Response;
     try {
       response = await fetch(capabilitiesUrl.toString(), { signal: controller.signal });
@@ -57,7 +67,10 @@ export const fetchServiceCapabilities = async (url: string, format: DataSourceFo
       clearTimeout(timer);
     }
     const xmlText = await response.text();
-    
+    const durationMs = performance.now() - startedAt;
+    const headerLen = Number(response.headers.get('Content-Length'));
+    const bytes = Number.isFinite(headerLen) && headerLen > 0 ? headerLen : xmlText.length;
+
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
     
