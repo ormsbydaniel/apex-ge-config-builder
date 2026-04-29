@@ -1,14 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Service, DataSourceFormat } from '@/types/config';
-import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
-import { fetchStacCapabilities } from '@/utils/stacCapabilities';
+import { fetchServiceCapabilitiesWithMetrics } from '@/utils/serviceCapabilities';
+import { fetchStacCapabilitiesWithMetrics } from '@/utils/stacCapabilities';
 import { useConfig } from '@/contexts/ConfigContext';
 import { parseS3Url, fetchS3BucketContents } from '@/utils/s3Utils';
+import { probeGeojsonSize } from '@/utils/geojsonProbe';
 
 const CONCURRENCY = 4;
 
-export type ServiceValidationStatus = 'idle' | 'checking' | 'ok' | 'error';
-export type ServiceKind = 'stac' | 'ogc' | 's3';
+// Tunable diagnostic thresholds — adjust here, no UI exposure yet.
+const CAPABILITIES_SLOW_MS = 3000;
+const CAPABILITIES_LARGE_BYTES = 2 * 1024 * 1024;
+const GEOJSON_LARGE_BYTES = 10 * 1024 * 1024;
+
+export type ServiceValidationStatus = 'idle' | 'checking' | 'ok' | 'warning' | 'error';
+export type ServiceKind = 'stac' | 'ogc' | 's3' | 'geojson';
 
 export interface GroupProgress {
   total: number;
@@ -16,27 +22,44 @@ export interface GroupProgress {
   inFlight: number;
 }
 
+export interface GeojsonTarget {
+  /** Stable key: `${sourceName}::${dataIndex}` */
+  id: string;
+  sourceName: string;
+  url: string;
+}
+
 interface BulkValidationResult {
   statuses: Record<string, ServiceValidationStatus>;
+  warnings: Record<string, string[]>;
   progress: Record<ServiceKind, GroupProgress>;
   inFlightTotal: number;
-  recheck: (serviceId?: string) => void;
+  geojsonTargets: GeojsonTarget[];
+  recheck: (id?: string) => void;
 }
 
 const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
   stac: { total: 0, completed: 0, inFlight: 0 },
   ogc: { total: 0, completed: 0, inFlight: 0 },
   s3: { total: 0, completed: 0, inFlight: 0 },
+  geojson: { total: 0, completed: 0, inFlight: 0 },
+};
+
+const formatBytes = (bytes: number): string => {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${bytes} B`;
 };
 
 // Module-scoped marker of the last `lastLoaded` value we auto-validated for.
 // Persists across ServicesManager mount/unmount (tab switches) so we only
 // auto-validate once per loaded config.
 let lastValidatedLoad: Date | null | 'manual' = null;
-// Module-scoped status cache, also keyed by `lastLoaded`. Survives tab
+// Module-scoped status / warning caches, keyed by `lastLoaded`. Survives tab
 // switches so the failures panel and per-card badges stay populated without
 // re-running probes.
 let cachedStatuses: Record<string, ServiceValidationStatus> = {};
+let cachedWarnings: Record<string, string[]> = {};
 
 const classify = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
@@ -77,7 +100,7 @@ async function runWithConcurrency<T>(
 }
 
 /**
- * Validates services in three parallel groups (STAC, OGC, S3).
+ * Validates services in four parallel groups (STAC, OGC, S3, GeoJSON).
  * Auto-runs once per `lastLoaded` change for services missing capabilities.
  */
 export const useBulkServiceValidation = (
@@ -87,10 +110,30 @@ export const useBulkServiceValidation = (
   const { config, dispatch } = useConfig();
   const lastLoaded = config.lastLoaded;
   const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>(cachedStatuses);
+  const [warnings, setWarnings] = useState<Record<string, string[]>>(cachedWarnings);
   const [progress, setProgress] = useState<Record<ServiceKind, GroupProgress>>(INITIAL_PROGRESS);
   // Module-scoped (see top of file) so tab switches that unmount this hook
   // don't trigger re-validation for the same loaded config.
   const validatedForLoadRef = useRef<Date | null | 'manual'>(lastValidatedLoad);
+
+  // Derive the GeoJSON layer-source targets from the active config.
+  const geojsonTargets = useMemo<GeojsonTarget[]>(() => {
+    const out: GeojsonTarget[] = [];
+    for (const source of config.sources ?? []) {
+      const data = (source as any).data;
+      if (!Array.isArray(data)) continue;
+      data.forEach((item: any, idx: number) => {
+        if (item?.format === 'geojson' && typeof item.url === 'string' && item.url.trim()) {
+          out.push({
+            id: `${source.name}::${idx}`,
+            sourceName: source.name,
+            url: item.url,
+          });
+        }
+      });
+    }
+    return out;
+  }, [config.sources]);
 
   const updateProgress = useCallback(
     (kind: ServiceKind, delta: Partial<GroupProgress>) => {
@@ -114,14 +157,41 @@ export const useBulkServiceValidation = (
     });
   }, []);
 
+  const setWarningMessages = useCallback((id: string, messages: string[]) => {
+    setWarnings(prev => {
+      const next = { ...prev };
+      if (messages.length === 0) {
+        delete next[id];
+      } else {
+        next[id] = messages;
+      }
+      cachedWarnings = next;
+      return next;
+    });
+  }, []);
+
+  const collectCapabilitiesWarnings = (durationMs?: number, bytes?: number): string[] => {
+    const msgs: string[] = [];
+    if (typeof durationMs === 'number' && durationMs > CAPABILITIES_SLOW_MS) {
+      msgs.push(`Slow GetCapabilities response: ${(durationMs / 1000).toFixed(1)}s (threshold ${(CAPABILITIES_SLOW_MS / 1000).toFixed(1)}s)`);
+    }
+    if (typeof bytes === 'number' && bytes > CAPABILITIES_LARGE_BYTES) {
+      msgs.push(`Large GetCapabilities response: ${formatBytes(bytes)} (threshold ${formatBytes(CAPABILITIES_LARGE_BYTES)})`);
+    }
+    return msgs;
+  };
+
   const validateStac = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
+    setWarningMessages(svc.id, []);
     updateProgress('stac', { inFlight: 1 });
     try {
-      const { capabilities } = await fetchStacCapabilities(svc.url);
+      const { capabilities, durationMs, bytes } = await fetchStacCapabilitiesWithMetrics(svc.url);
       if (capabilities) {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
-        setStatus(svc.id, 'ok');
+        const warns = collectCapabilitiesWarnings(durationMs, bytes);
+        setWarningMessages(svc.id, warns);
+        setStatus(svc.id, warns.length > 0 ? 'warning' : 'ok');
       } else {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
         setStatus(svc.id, 'error');
@@ -132,7 +202,7 @@ export const useBulkServiceValidation = (
     } finally {
       updateProgress('stac', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
 
   const validateOgc = useCallback(async (svc: Service) => {
     if (!svc.format) {
@@ -141,12 +211,15 @@ export const useBulkServiceValidation = (
       return;
     }
     setStatus(svc.id, 'checking');
+    setWarningMessages(svc.id, []);
     updateProgress('ogc', { inFlight: 1 });
     try {
-      const capabilities = await fetchServiceCapabilities(svc.url, svc.format as DataSourceFormat);
+      const { capabilities, durationMs, bytes } = await fetchServiceCapabilitiesWithMetrics(svc.url, svc.format as DataSourceFormat);
       if (capabilities) {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
-        setStatus(svc.id, 'ok');
+        const warns = collectCapabilitiesWarnings(durationMs, bytes);
+        setWarningMessages(svc.id, warns);
+        setStatus(svc.id, warns.length > 0 ? 'warning' : 'ok');
       } else {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
         setStatus(svc.id, 'error');
@@ -157,11 +230,12 @@ export const useBulkServiceValidation = (
     } finally {
       updateProgress('ogc', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
 
 
   const validateS3 = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
+    setWarningMessages(svc.id, []);
     updateProgress('s3', { inFlight: 1 });
     try {
       // Try a full bucket listing first (richer success); fall back to HEAD reachability.
@@ -226,30 +300,54 @@ export const useBulkServiceValidation = (
     } finally {
       updateProgress('s3', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
+
+  const validateGeojson = useCallback(async (target: GeojsonTarget) => {
+    setStatus(target.id, 'checking');
+    setWarningMessages(target.id, []);
+    updateProgress('geojson', { inFlight: 1 });
+    try {
+      const result = await probeGeojsonSize(target.url, { largeBytes: GEOJSON_LARGE_BYTES });
+      if (result.status === 'error') {
+        if (result.message) setWarningMessages(target.id, [result.message]);
+        setStatus(target.id, 'error');
+      } else if (result.status === 'warning') {
+        setWarningMessages(target.id, result.message ? [result.message] : []);
+        setStatus(target.id, 'warning');
+      } else {
+        setStatus(target.id, 'ok');
+      }
+    } catch {
+      setStatus(target.id, 'error');
+    } finally {
+      updateProgress('geojson', { inFlight: -1, completed: 1 });
+    }
+  }, [setStatus, setWarningMessages, updateProgress]);
 
   const runBulk = useCallback(
-    async (targets: Service[]) => {
-      if (targets.length === 0) return;
+    async (svcTargets: Service[], geojsonItems: GeojsonTarget[]) => {
+      if (svcTargets.length === 0 && geojsonItems.length === 0) return;
 
-      const stacTargets = targets.filter(s => classify(s) === 'stac');
-      const ogcTargets = targets.filter(s => classify(s) === 'ogc');
-      const s3Targets = targets.filter(s => classify(s) === 's3');
+      const stacTargets = svcTargets.filter(s => classify(s) === 'stac');
+      const ogcTargets = svcTargets.filter(s => classify(s) === 'ogc');
+      const s3Targets = svcTargets.filter(s => classify(s) === 's3');
 
-      // Reset per-group totals/completed for this run, preserve nothing else.
+      // Reset per-group totals/completed for this run.
       setProgress({
         stac: { total: stacTargets.length, completed: 0, inFlight: 0 },
         ogc: { total: ogcTargets.length, completed: 0, inFlight: 0 },
         s3: { total: s3Targets.length, completed: 0, inFlight: 0 },
+        geojson: { total: geojsonItems.length, completed: 0, inFlight: 0 },
       });
 
       await Promise.all([
         runWithConcurrency(stacTargets, validateStac, CONCURRENCY),
         runWithConcurrency(ogcTargets, validateOgc, CONCURRENCY),
         runWithConcurrency(s3Targets, validateS3, CONCURRENCY),
+        runWithConcurrency(geojsonItems, validateGeojson, CONCURRENCY),
       ]);
     },
-    [validateStac, validateOgc, validateS3],
+    [validateStac, validateOgc, validateS3, validateGeojson],
   );
 
   // Auto-trigger when tab becomes active for a freshly-loaded config
@@ -259,37 +357,47 @@ export const useBulkServiceValidation = (
     // New config (or first load): clear stale status cache so badges from a
     // previous config don't bleed into this one.
     cachedStatuses = {};
+    cachedWarnings = {};
     setStatuses({});
+    setWarnings({});
     validatedForLoadRef.current = lastLoaded;
     lastValidatedLoad = lastLoaded;
 
     const targets = services.filter(s => !s.capabilities && classify(s) !== null);
-    if (targets.length === 0) return;
-    runBulk(targets);
+    // Always probe GeoJSON targets — they don't have cached capabilities.
+    if (targets.length === 0 && geojsonTargets.length === 0) return;
+    runBulk(targets, geojsonTargets);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, lastLoaded]);
 
   const recheck = useCallback(
-    (serviceId?: string) => {
-      if (serviceId) {
-        const svc = services.find(s => s.id === serviceId);
-        if (!svc) return;
-        const kind = classify(svc);
-        if (kind === 'stac') validateStac(svc);
-        else if (kind === 'ogc') validateOgc(svc);
-        else if (kind === 's3') validateS3(svc);
+    (id?: string) => {
+      if (id) {
+        const svc = services.find(s => s.id === id);
+        if (svc) {
+          const kind = classify(svc);
+          if (kind === 'stac') validateStac(svc);
+          else if (kind === 'ogc') validateOgc(svc);
+          else if (kind === 's3') validateS3(svc);
+          return;
+        }
+        const gjs = geojsonTargets.find(t => t.id === id);
+        if (gjs) {
+          validateGeojson(gjs);
+        }
         return;
       }
-      // Re-check all classifiable services
+      // Re-check all classifiable services + all GeoJSON targets.
       const targets = services.filter(s => classify(s) !== null);
       validatedForLoadRef.current = 'manual';
       lastValidatedLoad = 'manual';
-      runBulk(targets);
+      runBulk(targets, geojsonTargets);
     },
-    [services, validateStac, validateOgc, validateS3, runBulk],
+    [services, geojsonTargets, validateStac, validateOgc, validateS3, validateGeojson, runBulk],
   );
 
-  const inFlightTotal = progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight;
+  const inFlightTotal =
+    progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight + progress.geojson.inFlight;
 
-  return { statuses, progress, inFlightTotal, recheck };
+  return { statuses, warnings, progress, inFlightTotal, geojsonTargets, recheck };
 };
