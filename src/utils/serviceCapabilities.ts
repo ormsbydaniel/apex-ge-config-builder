@@ -219,12 +219,26 @@ export const fetchServiceCapabilitiesWithMetrics = async (
       }
 
     return {
-      layers: layers, // Remove the .slice(0, 50) limitation
-      title: getServiceMetadataText(xmlDoc, 'Title'),
-      abstract: getServiceMetadataText(xmlDoc, 'Abstract')
+      capabilities: {
+        layers: layers, // Remove the .slice(0, 50) limitation
+        title: getServiceMetadataText(xmlDoc, 'Title'),
+        abstract: getServiceMetadataText(xmlDoc, 'Abstract'),
+      },
+      durationMs,
+      bytes,
     };
   } catch (error) {
     console.error('Error fetching GetCapabilities:', error);
-    return null;
+    return { capabilities: null };
   }
 };
+
+// Backward-compatible wrapper used by all existing call sites.
+export const fetchServiceCapabilities = async (
+  url: string,
+  format: DataSourceFormat,
+): Promise<ServiceCapabilities | null> => {
+  const result = await fetchServiceCapabilitiesWithMetrics(url, format);
+  return result.capabilities;
+};
+
