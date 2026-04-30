@@ -533,9 +533,9 @@ const CompleteLayersDialog = ({
                           activeSortDir={sortDir}
                           onSort={(dir) => setSort('performance', dir)}
                           filters={[
-                            { key: 'good', label: 'Good', checked: showGood, onChange: setShowGood },
-                            { key: 'average', label: 'Average', checked: showAverage, onChange: setShowAverage },
-                            { key: 'poor', label: 'Poor', checked: showPoor, onChange: setShowPoor },
+                            { key: 'good', label: 'Good', checked: showGood, onChange: wrapPerformanceSetter(setShowGood) },
+                            { key: 'average', label: 'Average', checked: showAverage, onChange: wrapPerformanceSetter(setShowAverage) },
+                            { key: 'poor', label: 'Poor', checked: showPoor, onChange: wrapPerformanceSetter(setShowPoor) },
                           ]}
                         />
                       </TableHead>
