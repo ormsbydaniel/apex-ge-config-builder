@@ -335,85 +335,94 @@ const CompleteLayersDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Layer Healthcheck</DialogTitle>
-          <DialogDescription>
-            Real-time validation of every layer's data access and performance.
-          </DialogDescription>
-        </DialogHeader>
+        <div className="grid grid-cols-3 gap-4 items-start">
+          {/* Col 1: title + description */}
+          <DialogHeader className="text-left space-y-1">
+            <DialogTitle>Layer Healthcheck</DialogTitle>
+            <DialogDescription>
+              Real-time validation of every layer's data access and performance.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Col 2: live results card (fixed width, centered) */}
+          <div className="flex justify-center">
+            {(isValidating || validationResults.size > 0) && (
+              <Card className="w-full max-w-sm border-border/50 bg-background/60">
+                <CardContent className="p-3 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide shrink-0">
+                      Results
+                    </div>
+                    {isValidating && (
+                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground shrink-0">
+                        <span>{validationProgress.completed} / {validationProgress.total}</span>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                      </div>
+                    )}
+                  </div>
+                  {isValidating && (
+                    <div className="text-[11px] text-muted-foreground truncate min-h-[14px]">
+                      {validationProgress.currentLayer ? (
+                        <>Currently: <span className="font-medium text-foreground/80">{validationProgress.currentLayer}</span></>
+                      ) : (
+                        '\u00A0'
+                      )}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <div className="text-xs font-semibold text-foreground/80">Data Access</div>
+                      <div className="flex items-center gap-1.5 text-xs text-green-600">
+                        <Check className="h-3.5 w-3.5" />
+                        <span className="font-medium">{summary.pass}</span>
+                        <span>Pass</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-amber-600">
+                        <CircleDashed className="h-3.5 w-3.5" />
+                        <span className="font-medium">{summary.partial}</span>
+                        <span>Partial</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-red-600">
+                        <XCircle className="h-3.5 w-3.5" />
+                        <span className="font-medium">{summary.fail}</span>
+                        <span>Fail</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="text-xs font-semibold text-foreground/80">Performance</div>
+                      <div className="flex items-center gap-1.5 text-xs text-green-600">
+                        <CircleDot className="h-3.5 w-3.5" />
+                        <span className="font-medium">{summary.good}</span>
+                        <span>Good</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-amber-600">
+                        <CircleDashed className="h-3.5 w-3.5" />
+                        <span className="font-medium">{summary.average}</span>
+                        <span>Average</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-red-600">
+                        <XCircle className="h-3.5 w-3.5" />
+                        <span className="font-medium">{summary.poor}</span>
+                        <span>Poor</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Col 3: reserved for future feature */}
+          <div />
+        </div>
+
+        <div className="flex-1 overflow-hidden flex flex-col mt-4">
           {allLayers.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               No layers found in configuration.
             </div>
           ) : (
             <>
-              {/* Live Results card */}
-              {(isValidating || validationResults.size > 0) && (
-                <Card className="mb-4 max-w-md ml-auto border-border/50 bg-background/60">
-                  <CardContent className="p-3 space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide">
-                        Results
-                      </div>
-                      {isValidating && (
-                        <div className="flex flex-col items-end gap-0.5 min-w-0 max-w-[60%]">
-                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                            <span>
-                              Checking {validationProgress.completed} / {validationProgress.total}
-                            </span>
-                            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                          </div>
-                          {validationProgress.currentLayer && (
-                            <div className="text-[11px] text-muted-foreground truncate max-w-full">
-                              Currently: {validationProgress.currentLayer}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <div className="text-xs font-semibold text-foreground/80">Data Access</div>
-                        <div className="flex items-center gap-1.5 text-xs text-green-600">
-                          <Check className="h-3.5 w-3.5" />
-                          <span className="font-medium">{summary.pass}</span>
-                          <span>Pass</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-amber-600">
-                          <CircleDashed className="h-3.5 w-3.5" />
-                          <span className="font-medium">{summary.partial}</span>
-                          <span>Partial</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-red-600">
-                          <XCircle className="h-3.5 w-3.5" />
-                          <span className="font-medium">{summary.fail}</span>
-                          <span>Fail</span>
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <div className="text-xs font-semibold text-foreground/80">Performance</div>
-                        <div className="flex items-center gap-1.5 text-xs text-green-600">
-                          <CircleDot className="h-3.5 w-3.5" />
-                          <span className="font-medium">{summary.good}</span>
-                          <span>Good</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-amber-600">
-                          <CircleDashed className="h-3.5 w-3.5" />
-                          <span className="font-medium">{summary.average}</span>
-                          <span>Average</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-red-600">
-                          <XCircle className="h-3.5 w-3.5" />
-                          <span className="font-medium">{summary.poor}</span>
-                          <span>Poor</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
 
               <div className="flex-1 overflow-auto border rounded-md">
                 <Table>

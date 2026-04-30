@@ -1,52 +1,63 @@
-# Live Results card in Healthcheck modal
+# Stable 3-column header for the Healthcheck modal
 
-Replace the current blue "Checking layers…" progress strip and the muted "Healthcheck Summary" line in `CompleteLayersDialog` with a single Results card at the top of the modal that mirrors the layout of the home page's Results sub-card. While a run is in progress, the card's counters tick up live and the card additionally shows the name of the layer currently being checked plus an `n / total` progress label.
+Restructure the top of the Healthcheck modal (`CompleteLayersDialog`) into a 3-column grid so the live Results card stops resizing as layer names change length, sits at the top of the modal, and lives in a predictable middle column. Column 3 is left empty as a placeholder for an upcoming feature.
 
 ## File
 `src/components/config/CompleteLayersDialog.tsx`
 
-## Changes
+## Layout
 
-### 1. Imports
-- Add `Card, CardContent` from `@/components/ui/card`.
-- Add `CircleDot, CircleDashed` to the existing `lucide-react` import (already importing `Check`, `XCircle`).
-
-### 2. Remove existing blocks
-Delete the two blocks currently rendered above the table (~lines 351–385):
-- The `{isValidating && (...)}` blue progress strip.
-- The `{validationResults.size > 0 && (...)}` "Healthcheck Summary" muted box.
-
-### 3. New `<LiveResultsCard />` rendered above the table
-Insert a single card whose visibility is `isValidating || validationResults.size > 0`. The card contains:
+Replace the current `<DialogHeader>` plus the Live Results card (which currently sits inside the table area and uses `ml-auto max-w-md`) with a single grid container at the top of `<DialogContent>`:
 
 ```text
-RESULTS                                        Checking 3 / 12  ⟳
-                                               Currently: <layer name>
-─────────────────────────────────────────────────
-Data Access            │  Performance
-✓ 8 Pass               │  ● 7 Good
-◌ 1 Partial            │  ◌ 1 Average
-✕ 0 Fail               │  ✕ 0 Poor
+┌──────────────────────┬──────────────────────┬──────────────────────┐
+│ Layer Healthcheck    │       RESULTS        │                      │
+│ Real-time validation │  Data Access  Perf   │  (reserved column)   │
+│ of every layer's …   │  ✓ 8 Pass    ● 7 Good│                      │
+│                      │  ◌ 1 Partial …       │                      │
+└──────────────────────┴──────────────────────┴──────────────────────┘
 ```
 
-Layout details:
-- Card styling: `border-border/50 bg-background/60 max-w-md ml-auto mb-4` so it sits at the **top right** of the modal body.
-- Inner `CardContent` `p-3 space-y-3`.
-- Header row (`flex items-center justify-between gap-2`):
-  - Left: small uppercase "RESULTS" label (`text-xs font-semibold text-foreground/80 uppercase tracking-wide`).
-  - Right (only when `isValidating`): `Checking {completed} / {total}` plus `<Loader2 className="h-3.5 w-3.5 animate-spin" />`.
-- Currently-checking line: when `isValidating && validationProgress.currentLayer`, render a single muted line `Currently: <name>` with `truncate` so a long name doesn't break the card.
-- Two-column counter grid identical to the home Results card, using the existing `summary` memo for counts and the same icon mapping:
-  - Data Access: `Check` (green) Pass, `CircleDashed` (amber) Partial, `XCircle` (red) Fail.
-  - Performance: `CircleDot` (green) Good, `CircleDashed` (amber) Average, `XCircle` (red) Poor.
+Container:
+```tsx
+<div className="grid grid-cols-3 gap-4 items-start">
+  {/* col 1 */} <DialogHeader …>…</DialogHeader>
+  {/* col 2 */} <div className="flex justify-center">…results card…</div>
+  {/* col 3 */} <div />
+</div>
+```
 
-Counts come from the existing `summary` `useMemo`, which is already updated incrementally as each layer's result lands in `validationResults` via `onLayerResult` — so the counters tick up live during a run with no extra plumbing.
+`items-start` keeps everything aligned to the top of the modal so the results card no longer drifts down vertically as it grows.
 
-### 4. Wiring (no other changes required)
-- `validationProgress` (already maintained) provides `completed`, `total`, and `currentLayer`.
-- `summary` (already memoized from `validationResults`) provides the per-status counts.
-- The existing `setValidationProgress(p => ({ ...p, completed: p.completed + 1 }))` call in `handleRunDetailedReport` should be verified to actually run after each layer (it's currently inside the loop / `onLayerResult` flow — confirm during implementation and add `completed` increment in `onLayerResult` if it isn't already wired).
+## Key changes
 
-### 5. Out of scope
-- No changes to validation logic, table rendering, sort/filter headers, or the home-page Results card.
-- The bottom "Last run" timestamp on the home card is unaffected.
+### 1. DialogHeader (col 1)
+- Move into the new grid container.
+- Add `text-left space-y-1`.
+- Title and description content unchanged.
+
+### 2. Results card (col 2) — fixed width, no jitter
+- Remove the existing `mb-4 max-w-md ml-auto` placement above the table.
+- Render inside `<div className="flex justify-center">` with the card itself sized `w-full max-w-sm` (≈384px) so its width is fixed regardless of layer name length.
+- Card stays mounted whenever `isValidating || validationResults.size > 0` (unchanged).
+
+Inside the card, restructure to **prevent resizing as layer names change**:
+
+- Header row stays compact: left "RESULTS" label, right small `n / total ⟳` indicator (drop the word "Checking" — just show the fraction). Both have `shrink-0` so they never wrap.
+- Move the "Currently: <name>" line to its **own row beneath the header**, full card width with `truncate`. To prevent vertical jitter when the name is briefly empty between layers, give the line a fixed minimum height (`min-h-[14px]`) and render `&nbsp;` as a placeholder when no current layer is set during a run. Only render this row at all while `isValidating` so the static post-run view stays compact.
+- The two-column counter grid below remains identical to the home Results card layout.
+
+### 3. Reserved column 3
+Render an empty `<div />` to claim the third grid slot. Add an HTML comment `{/* reserved for future feature */}` so the next developer recognizes the slot.
+
+### 4. Body container
+Shift the existing `<div className="flex-1 overflow-hidden flex flex-col">` down (now sibling of the grid) and add `mt-4` for spacing under the header grid. Remove the now-unused mounting of the Results card from inside this body section.
+
+## Out of scope
+- No changes to validation logic, sorting, filtering, table rendering, or the home-page Results card.
+- The placeholder column 3 has no content yet — purely structural.
+
+## Technical notes
+- The `Card`'s width is fixed by `w-full max-w-sm` inside a fixed-fraction grid column, so internal text length cannot grow the card.
+- `truncate` on the "Currently:" row keeps long layer names on a single line with an ellipsis.
+- `min-h-[14px]` + `&nbsp;` prevents the card height from flickering by one line as `currentLayer` toggles between values.
