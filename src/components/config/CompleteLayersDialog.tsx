@@ -346,7 +346,7 @@ const CompleteLayersDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[85vh] flex flex-col">
+      <DialogContent className="max-w-6xl h-[85vh] flex flex-col">
         <div className="grid grid-cols-3 gap-4 items-start">
           {/* Col 1: title + description */}
           <DialogHeader className="text-left space-y-1">
