@@ -108,9 +108,10 @@ const CompleteLayersDialog = ({
   const [showPoor, setShowPoor] = useState(true);
 
   // Initialize state inside an effect watching `open` to prevent stale overwrites.
+  // Always start with a clean slate so opening the dialog triggers a fresh run.
   React.useEffect(() => {
     if (!open) return;
-    setValidationResults(existingResults ? new Map(existingResults) : new Map());
+    setValidationResults(new Map());
     setRowStates(new Map());
     setExpandedRows(new Set());
     setValidationProgress({ completed: 0, total: 0, currentLayer: '' });
@@ -241,9 +242,9 @@ const CompleteLayersDialog = ({
     }
   }, [allLayers, config.services, onValidationComplete]);
 
-  // Auto-run validation each time the dialog opens
+  // Auto-run validation each time the dialog opens (fresh run every time)
   React.useEffect(() => {
-    if (open && !isValidating && validationResults.size === 0) {
+    if (open && !isValidating) {
       handleRunDetailedReport();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
