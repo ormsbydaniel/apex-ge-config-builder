@@ -335,6 +335,14 @@ const CompleteLayersDialog = ({
     return { pass, partial, fail, good, average, poor };
   }, [validationResults]);
 
+  const scores = useMemo(() => {
+    const list = Array.from(validationResults.values());
+    return {
+      dataAccess: computeDataAccessScore(list),
+      performance: computePerformanceScore(list),
+    };
+  }, [validationResults]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[85vh] flex flex-col">
