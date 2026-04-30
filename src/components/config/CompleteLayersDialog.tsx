@@ -123,6 +123,8 @@ const CompleteLayersDialog = ({
   onValidationComplete,
   existingResults,
   autoRun = true,
+  onRemoveLayer,
+  onEditLayer,
 }: CompleteLayersDialogProps) => {
   const [validationResults, setValidationResults] = useState<Map<number, LayerValidationResult>>(
     existingResults || new Map()
@@ -131,6 +133,7 @@ const CompleteLayersDialog = ({
   const [isValidating, setIsValidating] = useState(false);
   const [validationProgress, setValidationProgress] = useState({ completed: 0, total: 0, currentLayer: '' });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [confirmRemoveLayer, setConfirmRemoveLayer] = useState<{ index: number; name: string } | null>(null);
 
   // Quick filter from the Results card — single-select across both metric groups.
   type QuickFilter =
