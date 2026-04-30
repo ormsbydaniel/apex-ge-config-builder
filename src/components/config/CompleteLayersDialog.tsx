@@ -372,9 +372,7 @@ const CompleteLayersDialog = ({
                        </div>
                      )}
                    </div>
-                   <div className="text-[11px] text-muted-foreground italic">
-                     Click on result metric to filter list below
-                   </div>
+                   {/* helper text moved to bottom of card */}
                   {isValidating && (
                     <div className="text-[11px] text-muted-foreground truncate min-h-[14px]">
                       {validationProgress.currentLayer ? (
@@ -439,6 +437,9 @@ const CompleteLayersDialog = ({
                         onClick={() => toggleQuickFilter({ kind: 'performance', value: 'poor' })}
                       />
                     </div>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground italic pt-1">
+                    Click on result metric to filter list below
                   </div>
                 </CardContent>
               </Card>
