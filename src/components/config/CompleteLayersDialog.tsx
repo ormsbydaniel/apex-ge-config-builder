@@ -546,16 +546,87 @@ const CompleteLayersDialog = ({
   );
 };
 
-const FilterCheckbox: React.FC<{
-  id: string;
+interface FilterOption {
+  key: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}> = ({ id, label, checked, onChange }) => (
-  <div className="flex items-center gap-2">
-    <Checkbox id={id} checked={checked} onCheckedChange={(v) => onChange(v as boolean)} />
-    <Label htmlFor={id} className="text-sm cursor-pointer">{label}</Label>
-  </div>
-);
+}
+
+const ColumnHeader: React.FC<{
+  title: string;
+  column: 'dataAccess' | 'performance';
+  activeSortColumn: 'none' | 'dataAccess' | 'performance';
+  activeSortDir: 'worst' | 'best';
+  onSort: (dir: 'default' | 'worst' | 'best') => void;
+  filters: FilterOption[];
+}> = ({ title, column, activeSortColumn, activeSortDir, onSort, filters }) => {
+  const isSorted = activeSortColumn === column;
+  const activeFilterCount = filters.filter(f => !f.checked).length;
+  const filterActive = activeFilterCount > 0;
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="font-medium">{title}</span>
+      <div className="flex items-center gap-1">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-6 px-2 text-xs font-normal ${isSorted ? 'text-primary' : 'text-muted-foreground'}`}
+            >
+              <ArrowUpDown className="h-3 w-3 mr-1" />
+              Sort by
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-44">
+            <DropdownMenuLabel className="text-xs">Sort {title}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onSort('default')}>
+              {!isSorted && <Check className="h-3.5 w-3.5 mr-2" />}
+              <span className={isSorted ? 'ml-[22px]' : ''}>Default order</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSort('worst')}>
+              {isSorted && activeSortDir === 'worst' && <Check className="h-3.5 w-3.5 mr-2" />}
+              <span className={!(isSorted && activeSortDir === 'worst') ? 'ml-[22px]' : ''}>Worst first</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSort('best')}>
+              {isSorted && activeSortDir === 'best' && <Check className="h-3.5 w-3.5 mr-2" />}
+              <span className={!(isSorted && activeSortDir === 'best') ? 'ml-[22px]' : ''}>Best first</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-6 px-2 text-xs font-normal ${filterActive ? 'text-primary' : 'text-muted-foreground'}`}
+            >
+              <FilterIcon className="h-3 w-3 mr-1" />
+              Filter by{filterActive ? ` (${filters.length - activeFilterCount})` : ''}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-44">
+            <DropdownMenuLabel className="text-xs">Show {title}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {filters.map(f => (
+              <DropdownMenuCheckboxItem
+                key={f.key}
+                checked={f.checked}
+                onCheckedChange={(v) => f.onChange(v === true)}
+                onSelect={(e) => e.preventDefault()}
+              >
+                {f.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+};
 
 export default CompleteLayersDialog;
