@@ -423,8 +423,19 @@ const CompleteLayersDialog = ({
             )}
           </div>
 
-          {/* Col 3: reserved for future feature */}
-          <div />
+          {/* Col 3: live score gauges */}
+          <div className="flex items-start justify-end gap-3">
+            <HealthcheckScoreGauge
+              label="Data Access"
+              score={scores.dataAccess}
+              isRunning={isValidating}
+            />
+            <HealthcheckScoreGauge
+              label="Performance"
+              score={scores.performance}
+              isRunning={isValidating}
+            />
+          </div>
         </div>
 
         <div className="flex-1 overflow-hidden flex flex-col mt-4">
