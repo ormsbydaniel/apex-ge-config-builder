@@ -43,6 +43,8 @@ interface CompleteLayersDialogProps {
   config: any;
   onValidationComplete?: (results: Map<number, LayerValidationResult>) => void;
   existingResults?: Map<number, LayerValidationResult>;
+  /** When true, the dialog clears existing results and runs a fresh healthcheck on open. When false, it just displays existingResults. */
+  autoRun?: boolean;
 }
 
 type RowState = 'queued' | 'checking' | 'done';
@@ -103,6 +105,7 @@ const CompleteLayersDialog = ({
   config,
   onValidationComplete,
   existingResults,
+  autoRun = true,
 }: CompleteLayersDialogProps) => {
   const [validationResults, setValidationResults] = useState<Map<number, LayerValidationResult>>(
     existingResults || new Map()
@@ -139,10 +142,11 @@ const CompleteLayersDialog = ({
   const performanceRank: Record<PerformanceStatus, number> = { poor: 0, average: 1, good: 2, na: 3 };
 
   // Initialize state inside an effect watching `open` to prevent stale overwrites.
-  // Always start with a clean slate so opening the dialog triggers a fresh run.
+  // When autoRun is true (re-run requested) start with a clean slate; otherwise
+  // hydrate from existingResults so the user sees the previously executed run.
   React.useEffect(() => {
     if (!open) return;
-    setValidationResults(new Map());
+    setValidationResults(autoRun ? new Map() : (existingResults || new Map()));
     setRowStates(new Map());
     setExpandedRows(new Set());
     setValidationProgress({ completed: 0, total: 0, currentLayer: '' });
@@ -291,13 +295,15 @@ const CompleteLayersDialog = ({
     }
   }, [allLayers, config.services, onValidationComplete]);
 
-  // Auto-run validation each time the dialog opens (fresh run every time)
+  // Auto-run validation only when explicitly requested via autoRun prop.
+  // When autoRun is false the dialog is opened in view-only mode and just
+  // displays the previously executed results.
   React.useEffect(() => {
-    if (open && !isValidating) {
+    if (open && autoRun && !isValidating) {
       handleRunDetailedReport();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, autoRun]);
 
   const toggleRowExpansion = (layerKey: string) => {
     setExpandedRows(prev => {

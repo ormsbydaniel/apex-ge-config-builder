@@ -38,6 +38,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
   const [showCompleteLayersDialog, setShowCompleteLayersDialog] = useState(false);
+  const [healthcheckAutoRun, setHealthcheckAutoRun] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [showLayerIssuesDialog, setShowLayerIssuesDialog] = useState(false);
   const [layerIssuesTitle, setLayerIssuesTitle] = useState('');
@@ -552,7 +553,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
                         Full health check of all layers for validity and performance.
                       </p>
                       <Button
-                        onClick={() => setShowCompleteLayersDialog(true)}
+                        onClick={() => { setHealthcheckAutoRun(true); setShowCompleteLayersDialog(true); }}
+
                         size="sm"
                         className="whitespace-nowrap"
                       >
@@ -599,7 +601,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
                       return (
                         <Card
-                          onClick={() => setShowCompleteLayersDialog(true)}
+                          onClick={() => { setHealthcheckAutoRun(false); setShowCompleteLayersDialog(true); }}
                           className="h-full border-border/50 bg-background/60 cursor-pointer hover:bg-background hover:border-border transition-colors"
                         >
                           <CardContent className="p-3 space-y-3">
@@ -672,6 +674,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
         config={config}
         onValidationComplete={handleValidationComplete}
         existingResults={validationResults}
+        autoRun={healthcheckAutoRun}
       />
 
       <LayerIssuesDialog
