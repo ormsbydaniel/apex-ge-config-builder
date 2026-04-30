@@ -153,7 +153,8 @@ const CompleteLayersDialog = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // Get all layers in display order
+  // Get all layers in the dialog's display order (Interface Group → in-group index)
+  // so validation runs in the same order the user sees them, not config-file order.
   const allLayers = useMemo(() => {
     const layers: LayerWithGroup[] = [];
     config.sources.forEach((source: DataSource, index: number) => {
@@ -162,25 +163,26 @@ const CompleteLayersDialog = ({
       else if (source.layout?.interfaceGroup) group = source.layout.interfaceGroup;
       layers.push({ layer: source, index, group, validationResult: validationResults.get(index) });
     });
-    return layers;
-  }, [config.sources, validationResults]);
 
-  const sortedLayers = useMemo(() => {
-    const base = [...allLayers].sort((a, b) => {
-      const getGroupOrder = (group: string) => {
-        if (group === 'Base Layers') return 1000;
-        if (group === 'Ungrouped') return 2000;
-        const groupIndex = config.interfaceGroups?.indexOf(group);
-        if (groupIndex !== undefined && groupIndex >= 0) return groupIndex;
-        return 1500;
-      };
+    const getGroupOrder = (group: string) => {
+      if (group === 'Base Layers') return 1000;
+      if (group === 'Ungrouped') return 2000;
+      const groupIndex = config.interfaceGroups?.indexOf(group);
+      if (groupIndex !== undefined && groupIndex >= 0) return groupIndex;
+      return 1500;
+    };
+    layers.sort((a, b) => {
       const orderA = getGroupOrder(a.group);
       const orderB = getGroupOrder(b.group);
       if (orderA !== orderB) return orderA - orderB;
       return a.index - b.index;
     });
+    return layers;
+  }, [config.sources, config.interfaceGroups, validationResults]);
 
-    if (sortColumn === 'none') return base;
+  const sortedLayers = useMemo(() => {
+    // allLayers is already in default display order (group → index).
+    if (sortColumn === 'none') return allLayers;
 
     const rankFor = (item: LayerWithGroup) => {
       const result = item.validationResult;
@@ -191,13 +193,13 @@ const CompleteLayersDialog = ({
         : performanceRank[cols.performance];
     };
 
-    return [...base].sort((a, b) => {
+    return [...allLayers].sort((a, b) => {
       const ra = rankFor(a);
       const rb = rankFor(b);
       if (ra === rb) return 0;
       return sortDir === 'worst' ? ra - rb : rb - ra;
     });
-  }, [allLayers, config.interfaceGroups, sortColumn, sortDir]);
+  }, [allLayers, sortColumn, sortDir]);
 
   const filteredLayers = useMemo(() => {
     return sortedLayers.filter(item => {
