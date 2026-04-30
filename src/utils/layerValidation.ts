@@ -438,34 +438,52 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
   };
 }
 
+export interface ValidateBatchCallbacks {
+  onProgress?: (completed: number, total: number, layerName: string) => void;
+  /** Fired immediately before a layer's checks begin. Useful for showing a spinner on that row. */
+  onLayerStart?: (index: number, layerName: string) => void;
+  /** Fired as soon as a single layer's result is available — drives real-time UI updates. */
+  onLayerResult?: (index: number, result: LayerValidationResult) => void;
+}
+
 /**
- * Validates multiple layers in parallel with concurrency control
+ * Validates multiple layers in parallel with concurrency control.
+ *
+ * Backwards compatible: the third argument may be either a plain `onProgress`
+ * function (legacy) or a `ValidateBatchCallbacks` object with richer hooks.
  */
 export async function validateBatchLayers(
   layers: DataSource[],
   services?: any[],
-  onProgress?: (completed: number, total: number, layerName: string) => void
+  callbacksOrOnProgress?:
+    | ValidateBatchCallbacks
+    | ((completed: number, total: number, layerName: string) => void)
 ): Promise<Map<number, LayerValidationResult>> {
+  const callbacks: ValidateBatchCallbacks = typeof callbacksOrOnProgress === 'function'
+    ? { onProgress: callbacksOrOnProgress }
+    : (callbacksOrOnProgress ?? {});
+
   const results = new Map<number, LayerValidationResult>();
   const concurrencyLimit = 5; // Process 5 layers at a time
-  
+
   // Process layers in batches
   for (let i = 0; i < layers.length; i += concurrencyLimit) {
     const batch = layers.slice(i, i + concurrencyLimit);
     const batchPromises = batch.map(async (layer, batchIndex) => {
       const actualIndex = i + batchIndex;
+      callbacks.onLayerStart?.(actualIndex, layer.name);
+
       const result = await validateLayerUrls(layer, services);
       results.set(actualIndex, result);
-      
-      if (onProgress) {
-        onProgress(results.size, layers.length, layer.name);
-      }
-      
+
+      callbacks.onLayerResult?.(actualIndex, result);
+      callbacks.onProgress?.(results.size, layers.length, layer.name);
+
       return result;
     });
-    
+
     await Promise.all(batchPromises);
   }
-  
+
   return results;
 }
