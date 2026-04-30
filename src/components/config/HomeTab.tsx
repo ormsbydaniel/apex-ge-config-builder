@@ -26,9 +26,10 @@ import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 
 interface HomeTabProps {
   config: any;
+  onNavigateToLayer?: (sourceIndex: number) => void;
 }
 
-const HomeTab = ({ config }: HomeTabProps) => {
+const HomeTab = ({ config, onNavigateToLayer }: HomeTabProps) => {
   const { dispatch } = useConfig();
   const { handleFileSelect, importConfig, importConfigFromUrl } = useConfigImport();
   const { exportConfig } = useConfigExport();
