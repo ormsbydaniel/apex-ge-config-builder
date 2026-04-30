@@ -555,7 +555,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 <QAStatCard
                   icon={Zap}
                   value={validationResults && validationResults.size > 0 ? perfWarningCount : null}
-                  label="Performance"
+                  label="Performance Warning"
                   colorClass="text-amber-600"
                   bgGradient="from-amber-500/20 to-amber-500/5"
                   onClick={validationResults && validationResults.size > 0 ? handlePerformanceClick : undefined}
