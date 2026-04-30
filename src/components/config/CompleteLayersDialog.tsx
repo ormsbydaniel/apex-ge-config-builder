@@ -13,7 +13,10 @@ import {
   PerformanceStatus,
   dataAccessLabel,
   performanceLabel,
+  computeDataAccessScore,
+  computePerformanceScore,
 } from '@/utils/healthcheckColumns';
+import { HealthcheckScoreGauge } from './HealthcheckScoreGauge';
 import { toast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
