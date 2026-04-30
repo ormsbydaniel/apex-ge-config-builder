@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, CircleDot, CircleDashed } from 'lucide-react';
+import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, CircleDot, CircleDashed, Trash2, Edit } from 'lucide-react';
 import { DataSource, LayerValidationResult } from '@/types/config';
 import { validateBatchLayers } from '@/utils/layerValidation';
 import {
@@ -32,6 +32,16 @@ import {
   TooltipContent,
   TooltipProvider,
 } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface LayerWithGroup {
   layer: DataSource;
@@ -48,6 +58,10 @@ interface CompleteLayersDialogProps {
   existingResults?: Map<number, LayerValidationResult>;
   /** When true, the dialog clears existing results and runs a fresh healthcheck on open. When false, it just displays existingResults. */
   autoRun?: boolean;
+  /** Remove the layer at the given source index from the config. */
+  onRemoveLayer?: (sourceIndex: number) => void;
+  /** Navigate the user to the layer's card on the Layers tab (no edit mode). */
+  onEditLayer?: (sourceIndex: number) => void;
 }
 
 type RowState = 'queued' | 'checking' | 'done';
@@ -109,6 +123,8 @@ const CompleteLayersDialog = ({
   onValidationComplete,
   existingResults,
   autoRun = true,
+  onRemoveLayer,
+  onEditLayer,
 }: CompleteLayersDialogProps) => {
   const [validationResults, setValidationResults] = useState<Map<number, LayerValidationResult>>(
     existingResults || new Map()
@@ -117,6 +133,7 @@ const CompleteLayersDialog = ({
   const [isValidating, setIsValidating] = useState(false);
   const [validationProgress, setValidationProgress] = useState({ completed: 0, total: 0, currentLayer: '' });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [confirmRemoveLayer, setConfirmRemoveLayer] = useState<{ index: number; name: string } | null>(null);
 
   // Quick filter from the Results card — single-select across both metric groups.
   type QuickFilter =
@@ -345,6 +362,7 @@ const CompleteLayersDialog = ({
   }, [validationResults]);
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl h-[85vh] flex flex-col">
         <div className="grid grid-cols-3 gap-4 items-start">
@@ -557,6 +575,35 @@ const CompleteLayersDialog = ({
                           {isExpanded && hasUrlResults && (
                             <TableRow>
                               <TableCell colSpan={5} className="bg-muted/30 p-4">
+                                {(onRemoveLayer || onEditLayer) && (
+                                  <div className="flex justify-end gap-2 mb-3">
+                                    {onEditLayer && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8"
+                                        onClick={() => {
+                                          onEditLayer(item.index);
+                                          onOpenChange(false);
+                                        }}
+                                      >
+                                        <Edit className="h-3.5 w-3.5 mr-1.5" />
+                                        Edit Layer
+                                      </Button>
+                                    )}
+                                    {onRemoveLayer && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                                        onClick={() => setConfirmRemoveLayer({ index: item.index, name: item.layer.name })}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                                        Remove Layer
+                                      </Button>
+                                    )}
+                                  </div>
+                                )}
                                 <div className="space-y-2">
                                   <div className="text-sm font-medium mb-2">URL Validation Details</div>
                                   {result!.urlResults.map((urlResult, idx) => (
@@ -633,6 +680,36 @@ const CompleteLayersDialog = ({
         </div>
       </DialogContent>
     </Dialog>
+    <AlertDialog open={!!confirmRemoveLayer} onOpenChange={(o) => { if (!o) setConfirmRemoveLayer(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Remove layer?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will remove "{confirmRemoveLayer?.name}" entirely from this config.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-red-600 text-white hover:bg-red-700"
+            onClick={() => {
+              if (confirmRemoveLayer && onRemoveLayer) {
+                onRemoveLayer(confirmRemoveLayer.index);
+                setExpandedRows(prev => {
+                  const next = new Set(prev);
+                  next.delete(`${confirmRemoveLayer.index}`);
+                  return next;
+                });
+              }
+              setConfirmRemoveLayer(null);
+            }}
+          >
+            Remove Layer
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 };
 

@@ -9,6 +9,7 @@ import { useConfigExport } from '@/hooks/useConfigIO';
 import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
 import { useConfigBuilderState } from '@/hooks/useConfigBuilderState';
 import { useNavigationState } from '@/hooks/useNavigationState';
+import { useScrollToLayer } from '@/hooks/useScrollToLayer';
 import ServicesManager from './ServicesManager';
 import LayersTab from './config/LayersTab';
 import DrawOrderTab from './config/DrawOrderTab';
@@ -101,7 +102,19 @@ const ConfigBuilderContent = () => {
 
   // Track navigation state for Preview transitions
   const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setExpandedSubGroups, setScrollPosition } = useNavigationState();
+  const { scrollToLayer } = useScrollToLayer();
   const layersScrollRef = React.useRef<HTMLDivElement>(null);
+
+  const handleNavigateToLayer = React.useCallback((sourceIndex: number) => {
+    const cardId = `layer-${sourceIndex}`;
+    // Pre-seed expansion so LayersTab restores it on mount.
+    const current = navigationState.expandedLayers || [];
+    if (!current.includes(cardId)) {
+      setExpandedLayers([...current, cardId]);
+    }
+    setActiveTab('layers');
+    scrollToLayer(sourceIndex, cardId);
+  }, [navigationState.expandedLayers, setExpandedLayers, setActiveTab, scrollToLayer]);
 
   const handleTabChange = (value: string) => {
     // Save scroll position before changing tabs
@@ -236,7 +249,7 @@ const ConfigBuilderContent = () => {
             </div>
 
             <TabsContent value="home">
-              <HomeTab config={config} />
+              <HomeTab config={config} onNavigateToLayer={handleNavigateToLayer} />
             </TabsContent>
 
             <TabsContent value="layers">
