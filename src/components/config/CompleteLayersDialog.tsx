@@ -519,9 +519,9 @@ const CompleteLayersDialog = ({
                           activeSortDir={sortDir}
                           onSort={(dir) => setSort('dataAccess', dir)}
                           filters={[
-                            { key: 'pass', label: 'Pass', checked: showPass, onChange: setShowPass },
-                            { key: 'partial', label: 'Partial', checked: showPartial, onChange: setShowPartial },
-                            { key: 'fail', label: 'Fail', checked: showFail, onChange: setShowFail },
+                            { key: 'pass', label: 'Pass', checked: showPass, onChange: wrapDataAccessSetter(setShowPass) },
+                            { key: 'partial', label: 'Partial', checked: showPartial, onChange: wrapDataAccessSetter(setShowPartial) },
+                            { key: 'fail', label: 'Fail', checked: showFail, onChange: wrapDataAccessSetter(setShowFail) },
                           ]}
                         />
                       </TableHead>
