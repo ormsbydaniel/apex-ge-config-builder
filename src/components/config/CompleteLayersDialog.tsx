@@ -23,6 +23,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from '@/components/ui/tooltip';
 
 interface LayerWithGroup {
   layer: DataSource;
@@ -376,7 +382,8 @@ const CompleteLayersDialog = ({
                     <TableRow>
                       <TableHead>Interface Group</TableHead>
                       <TableHead>Layer Name</TableHead>
-                      <TableHead className="w-[200px] align-top">
+                      <TableHead className="w-[150px] align-top">
+
                         <ColumnHeader
                           title="Data Access"
                           column="dataAccess"
@@ -390,7 +397,7 @@ const CompleteLayersDialog = ({
                           ]}
                         />
                       </TableHead>
-                      <TableHead className="w-[200px] align-top">
+                      <TableHead className="w-[140px] align-top">
                         <ColumnHeader
                           title="Performance"
                           column="performance"
@@ -566,20 +573,26 @@ const ColumnHeader: React.FC<{
   const filterActive = activeFilterCount > 0;
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <span className="font-medium">{title}</span>
+    <TooltipProvider delayDuration={400}>
       <div className="flex items-center gap-1">
+        <span className="font-medium">{title}</span>
+
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`h-6 px-2 text-xs font-normal ${isSorted ? 'text-primary' : 'text-muted-foreground'}`}
-            >
-              <ArrowUpDown className="h-3 w-3 mr-1" />
-              Sort by
-            </Button>
-          </DropdownMenuTrigger>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`h-6 w-6 ${isSorted ? 'text-primary' : 'text-muted-foreground'}`}
+                  aria-label={`Sort by ${title}`}
+                >
+                  <ArrowUpDown className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent side="top">Sort by {title}</TooltipContent>
+          </Tooltip>
           <DropdownMenuContent align="start" className="w-44">
             <DropdownMenuLabel className="text-xs">Sort {title}</DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -599,16 +612,28 @@ const ColumnHeader: React.FC<{
         </DropdownMenu>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`h-6 px-2 text-xs font-normal ${filterActive ? 'text-primary' : 'text-muted-foreground'}`}
-            >
-              <FilterIcon className="h-3 w-3 mr-1" />
-              Filter by{filterActive ? ` (${filters.length - activeFilterCount})` : ''}
-            </Button>
-          </DropdownMenuTrigger>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-6 px-1.5 text-xs font-normal ${filterActive ? 'text-primary' : 'text-muted-foreground'}`}
+                  aria-label={`Filter ${title}`}
+                >
+                  <FilterIcon className="h-3.5 w-3.5" />
+                  {filterActive && (
+                    <span className="ml-0.5 text-[10px]">({activeFilterCount})</span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              {filterActive
+                ? `Filter ${title} (${activeFilterCount} hidden)`
+                : `Filter ${title}`}
+            </TooltipContent>
+          </Tooltip>
           <DropdownMenuContent align="start" className="w-44">
             <DropdownMenuLabel className="text-xs">Show {title}</DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -625,7 +650,7 @@ const ColumnHeader: React.FC<{
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 

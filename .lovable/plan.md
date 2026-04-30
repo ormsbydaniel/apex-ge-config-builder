@@ -1,62 +1,58 @@
-# Move filters into column headers
+# Compact Sort/Filter header controls
 
-Replace the standalone filter checkbox row with compact "Sort by ▾" and "Filter by ▾" header controls inside the **Data Access** and **Performance** columns of the healthcheck table.
+Convert the "Sort by" and "Filter by" dropdown triggers in the Healthcheck modal's **Data Access** and **Performance** column headers from text+icon buttons into compact **icon-only** buttons placed **to the right** of the column title, with tooltips explaining each action and an active-filter count badge.
 
-## File to edit
+## File
 `src/components/config/CompleteLayersDialog.tsx`
 
-## Changes
+## Changes (in `ColumnHeader` component, ~lines 556–630)
 
-### 1. Remove the existing filter row
-Delete the `<div className="flex items-start gap-6 flex-wrap">…</div>` block (lines ~327–344) and the `FilterCheckbox` helper component (lines ~498–508). The `Filter` icon import and `Checkbox`/`Label` imports become unused — remove them. Keep the Healthcheck Summary card above.
-
-### 2. Restructure the column headers
-For both `Data Access` and `Performance` `<TableHead>`s, render a stacked layout:
+### 1. Layout: title + icons on one row
+Replace the current stacked `flex flex-col gap-1.5` layout with a single horizontal row:
 
 ```text
-Data Access
-[Sort by ▾]  [Filter by ▾]
+Data Access   [↕]  [⚲ (n)]
 ```
-
-Each control is a small `DropdownMenu` trigger (ghost button, `h-6 px-2 text-xs`) using the existing `DropdownMenu` primitives from `@/components/ui/dropdown-menu`.
-
-### 3. Sort dropdown (per column)
-Add new state: `sortBy: 'none' | 'dataAccess' | 'performance'` and `sortDir: 'asc' | 'desc'`.
-
-Each column's "Sort by" menu offers:
-- Default order
-- Worst first (fail/poor → partial/average → pass/good → na)
-- Best first (reverse)
-
-Selecting a sort option in one column clears any sort set on the other column (single active sort). Apply the sort inside the existing `sortedLayers` `useMemo` after the current group/index ordering, ranking by the selected column's status using a numeric weight map.
-
-### 4. Filter dropdown (per column)
-Reuse the existing `showPass / showPartial / showFail` and `showGood / showAverage / showPoor` state. Each column's "Filter by" dropdown contains menu items with a checkmark indicator next to active values:
-- Data Access: Pass, Partial, Fail
-- Performance: Good, Average, Poor
-
-Use `DropdownMenuCheckboxItem` so multiple values can be toggled while the menu stays open. The trigger label shows "Filter by" plus a small count badge (e.g. `Filter by (2)`) when not all options are selected, so users can see a filter is active.
-
-The existing `filteredLayers` `useMemo` keeps working unchanged.
-
-### 5. Layout detail
-Header cell layout:
 
 ```tsx
-<TableHead className="w-[180px]">
-  <div className="flex flex-col gap-1">
-    <span>Data Access</span>
-    <div className="flex items-center gap-1">
-      <SortMenu column="dataAccess" />
-      <FilterMenu column="dataAccess" />
-    </div>
-  </div>
-</TableHead>
+<div className="flex items-center gap-1.5">
+  <span className="font-medium">{title}</span>
+  <SortMenu />
+  <FilterMenu />
+</div>
 ```
 
-Bump `Data Access` width from `w-[160px]` to `w-[180px]` and `Performance` from `w-[140px]` to `w-[170px]` to fit the two compact triggers without wrapping.
+The `<TableHead>` `align-top` and `w-[200px]` widths can stay as-is (or be reduced — see step 4).
+
+### 2. Sort trigger → icon-only button + tooltip
+- Remove the "Sort by" text label, keep only the `ArrowUpDown` icon.
+- Wrap the trigger button in `Tooltip` / `TooltipTrigger` / `TooltipContent` (from `@/components/ui/tooltip`) with content `"Sort by {title}"`.
+- Button styling: `variant="ghost" size="icon" className="h-6 w-6"` and `text-primary` when this column is the active sort, otherwise `text-muted-foreground`.
+- The icon itself becomes `h-3.5 w-3.5`.
+
+### 3. Filter trigger → icon-only button + count badge + tooltip
+- Remove the "Filter by" text label.
+- Show the `FilterIcon` only.
+- When at least one filter option is **unchecked** (i.e. the user has narrowed results), append a small count in brackets next to the icon showing the number of hidden criteria, e.g. `⚲ (2)`. Use a small `<span className="text-[10px] ml-0.5">(2)</span>` next to the icon. The count is `filters.filter(f => !f.checked).length` (number of excluded values).
+- When no filter is applied, show only the icon.
+- Wrap in a `Tooltip` with content `"Filter {title}"` (or `"Filter {title} ({n} active)"` when filters are applied).
+- Button: `variant="ghost" size="sm" className="h-6 px-1.5"` to accommodate the optional count text. `text-primary` when filters are active.
+
+### 4. Imports
+Add `Tooltip, TooltipTrigger, TooltipContent, TooltipProvider` from `@/components/ui/tooltip` (TooltipProvider is already mounted at the app root via `App.tsx` shadcn convention; if not, wrap each tooltip locally).
+
+The dropdown menu structure (`DropdownMenu`, `DropdownMenuContent`, sort/filter items) remains unchanged — only the **trigger buttons** become icon-only with tooltips.
+
+### 5. Optional width tweak
+With both controls now icon-only, the columns no longer need the extra width. Reduce both `w-[200px]` `<TableHead>` widths back to `w-[140px]` (Data Access) and `w-[130px]` (Performance) for a tighter table. Confirm with a quick visual check after implementation.
 
 ## Out of scope
-- No change to the validation/run logic.
-- No change to the Healthcheck Summary card or the row body rendering.
-- No change to the `HomeTab` summary card.
+- No changes to sort logic, filter state, dropdown menu items, or `sortedLayers` / `filteredLayers` memos.
+- No changes to row rendering, `HomeTab`, or summary card.
+
+## Technical detail summary
+| Before | After |
+|---|---|
+| Stacked title above two text+icon buttons | Title with two icon-only buttons inline to the right |
+| `[↕ Sort by]` `[⚲ Filter by (n)]` text triggers | `[↕]` `[⚲ (n)]` icon triggers with tooltips |
+| Filter count showed visible items | Filter count shows applied/excluded criteria |
