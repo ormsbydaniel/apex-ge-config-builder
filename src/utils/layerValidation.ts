@@ -1,4 +1,14 @@
 import { DataSource, DataSourceItem, UrlValidationResult, LayerValidationResult } from '@/types/config';
+import { probeGeojsonSize } from '@/utils/geojsonProbe';
+
+/** Threshold for flagging GeoJSON files as a performance warning. */
+const GEOJSON_PERF_WARNING_BYTES = 5 * 1024 * 1024;
+
+const formatBytes = (bytes: number): string => {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${bytes} B`;
+};
 
 /**
  * Validates a single URL with format-aware logic
