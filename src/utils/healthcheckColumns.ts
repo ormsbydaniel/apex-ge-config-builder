@@ -46,11 +46,19 @@ export const deriveHealthcheckColumns = (
     dataAccess = 'fail';
   }
 
+  // Pixel-interleaved (BIP) COGs are flagged as Poor regardless of
+  // warning count — chunky interleave is a serious viewer perf hit.
+  const hasPixelInterleaved = urls.some(
+    r => r.status === 'performance-warning' && /pixel-interleaved|BIP/i.test(r.warning ?? '')
+  );
+
   let performance: PerformanceStatus;
   if (dataAccess === 'fail') {
     performance = 'na';
   } else if (perfWarningCount === 0) {
     performance = 'good';
+  } else if (hasPixelInterleaved) {
+    performance = 'poor';
   } else if (perfWarningCount === 1) {
     performance = 'average';
   } else {
