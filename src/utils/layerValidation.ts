@@ -2,6 +2,8 @@ import { DataSource, DataSourceItem, UrlValidationResult, LayerValidationResult 
 import { probeGeojsonSize } from '@/utils/geojsonProbe';
 import { probeCogPerformance } from '@/utils/cogPerformanceProbe';
 import { probeServiceCapabilitiesPerformance } from '@/utils/serviceCapabilitiesPerformanceProbe';
+import { probeTileRequest } from '@/utils/serviceTileProbe';
+import { checkMixedContent } from '@/utils/transportSecurityProbe';
 
 /** Threshold for flagging GeoJSON files as a performance warning. */
 const GEOJSON_PERF_WARNING_BYTES = 5 * 1024 * 1024;
@@ -70,6 +72,17 @@ async function validateUrl(
       if (cogProbe.status === 'warning' && cogProbe.message) {
         directResult.status = 'performance-warning';
         directResult.warning = cogProbe.message;
+      }
+    }
+
+    // Mixed-content check: HTTP asset on an HTTPS page will be blocked.
+    // Layered on top of reachability — only flagged if otherwise valid/warning.
+    if (directResult.status === 'valid' || directResult.status === 'performance-warning') {
+      const mixed = checkMixedContent(url);
+      if (mixed) {
+        const existing = directResult.warning;
+        directResult.status = 'performance-warning';
+        directResult.warning = existing ? `${existing}; ${mixed.message}` : mixed.message;
       }
     }
 
@@ -167,9 +180,21 @@ async function validateServiceUrl(
       xmlDoc,
       { durationMs, bytes },
     );
-    if (perfProbe.status === 'warning' && perfProbe.message) {
+    const perfIssues: string[] = [...perfProbe.issues];
+
+    // Active tile-request probe (one GetMap / GetTile call).
+    const tileProbe = await probeTileRequest(url, format, layers, xmlDoc);
+    if (tileProbe.status === 'warning' && tileProbe.message) {
+      perfIssues.push(tileProbe.message);
+    }
+
+    // Mixed-content check on the service URL itself.
+    const mixed = checkMixedContent(url);
+    if (mixed) perfIssues.push(mixed.message);
+
+    if (perfIssues.length > 0) {
       result.status = 'performance-warning';
-      result.warning = perfProbe.message;
+      result.warning = perfIssues.join('; ');
     }
 
     return result;
