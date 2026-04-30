@@ -676,6 +676,8 @@ const HomeTab = ({ config, onNavigateToLayer }: HomeTabProps) => {
         onValidationComplete={handleValidationComplete}
         existingResults={validationResults}
         autoRun={healthcheckAutoRun}
+        onRemoveLayer={(idx) => dispatch({ type: 'REMOVE_SOURCE', payload: idx })}
+        onEditLayer={(idx) => onNavigateToLayer?.(idx)}
       />
 
       <LayerIssuesDialog
