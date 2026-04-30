@@ -602,15 +602,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
                           className="h-full border-border/50 bg-background/60 cursor-pointer hover:bg-background hover:border-border transition-colors"
                         >
                           <CardContent className="p-3 space-y-3">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                                Last run
-                              </div>
-                              {latest && (
-                                <div className="text-[11px] text-muted-foreground">
-                                  {latest.toLocaleString()}
-                                </div>
-                              )}
+                            <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide">
+                              Results
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                               <div className="space-y-1.5">
@@ -633,6 +626,16 @@ const HomeTab = ({ config }: HomeTabProps) => {
                                   </div>
                                 ))}
                               </div>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/40">
+                              <div className="text-[11px] text-muted-foreground uppercase tracking-wide">
+                                Last run
+                              </div>
+                              {latest && (
+                                <div className="text-[11px] text-muted-foreground">
+                                  {latest.toLocaleString()}
+                                </div>
+                              )}
                             </div>
                           </CardContent>
                         </Card>
