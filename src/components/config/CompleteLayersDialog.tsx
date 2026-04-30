@@ -256,9 +256,17 @@ const CompleteLayersDialog = ({
         (performance === 'poor' && showPoor) ||
         performance === 'na';
 
-      return daOk && perfOk;
+      if (!(daOk && perfOk)) return false;
+
+      // Apply mutually-exclusive quick filter from the Results card.
+      if (quickFilter) {
+        if (quickFilter.kind === 'dataAccess' && dataAccess !== quickFilter.value) return false;
+        if (quickFilter.kind === 'performance' && performance !== quickFilter.value) return false;
+      }
+
+      return true;
     });
-  }, [sortedLayers, showPass, showPartial, showFail, showGood, showAverage, showPoor]);
+  }, [sortedLayers, showPass, showPartial, showFail, showGood, showAverage, showPoor, quickFilter]);
 
   const handleRunDetailedReport = useCallback(async () => {
     setIsValidating(true);
