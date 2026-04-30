@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Zap, Stethoscope } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Zap, Stethoscope, CircleDot, XCircle, CircleDashed } from 'lucide-react';
+import { deriveHealthcheckColumns, dataAccessLabel, performanceLabel, DataAccessStatus, PerformanceStatus } from '@/utils/healthcheckColumns';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
@@ -577,45 +578,15 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   Healthcheck
                 </h3>
                 <div className="rounded-lg border border-border/50 bg-muted/30 p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Stethoscope className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1 min-w-0 space-y-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Left column: icon, description, run button */}
+                    <div className="flex flex-col items-center text-center gap-3">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Stethoscope className="h-6 w-6" />
+                      </div>
                       <p className="text-sm text-muted-foreground leading-relaxed">
                         Full health check of all layers for validity and performance.
                       </p>
-                      {validationResults.size > 0 ? (
-                        <button
-                          onClick={() => setShowCompleteLayersDialog(true)}
-                          className="w-full text-left rounded-md border border-border/50 bg-background/60 px-3 py-2 hover:bg-background hover:border-border transition-all cursor-pointer"
-                        >
-                          <div className="text-[11px] font-medium text-muted-foreground mb-1 uppercase tracking-wide">
-                            Last run
-                          </div>
-                          <div className="flex gap-3 text-xs flex-wrap">
-                            <span className="text-green-600 font-medium">
-                              {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'valid').length} Valid
-                            </span>
-                            <span className="text-amber-600 font-medium flex items-center gap-1">
-                              <Zap className="h-3 w-3" />
-                              {perfWarningCount} Perf warning
-                            </span>
-                            <span className="text-amber-600 font-medium">
-                              {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'partial').length} Partial
-                            </span>
-                            <span className="text-red-600 font-medium">
-                              {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'error').length} Errors
-                            </span>
-                          </div>
-                        </button>
-                      ) : (
-                        <p className="text-xs italic text-muted-foreground/70">
-                          Not run yet.
-                        </p>
-                      )}
-                    </div>
-                    <div className="shrink-0 self-center">
                       <Button
                         onClick={() => setShowCompleteLayersDialog(true)}
                         size="sm"
@@ -625,6 +596,85 @@ const HomeTab = ({ config }: HomeTabProps) => {
                         {validationResults.size > 0 ? 'Re-run Healthcheck' : 'Run Healthcheck'}
                       </Button>
                     </div>
+
+                    {/* Right column: Last run nested card */}
+                    {(() => {
+                      if (validationResults.size === 0) {
+                        return (
+                          <Card className="h-full border-border/50 bg-background/40">
+                            <CardContent className="h-full flex items-center justify-center p-4">
+                              <p className="text-xs italic text-muted-foreground/70">
+                                Not run yet.
+                              </p>
+                            </CardContent>
+                          </Card>
+                        );
+                      }
+
+                      const results = Array.from(validationResults.values()) as LayerValidationResult[];
+                      const dataCounts: Record<DataAccessStatus, number> = { pass: 0, partial: 0, fail: 0, na: 0 };
+                      const perfCounts: Record<PerformanceStatus, number> = { good: 0, average: 0, poor: 0, na: 0 };
+                      let latest: Date | undefined;
+                      results.forEach(r => {
+                        const cols = deriveHealthcheckColumns(r);
+                        dataCounts[cols.dataAccess]++;
+                        perfCounts[cols.performance]++;
+                        if (r.checkedAt && (!latest || r.checkedAt > latest)) latest = r.checkedAt;
+                      });
+
+                      const dataRows: Array<{ key: DataAccessStatus; icon: typeof Check; color: string }> = [
+                        { key: 'pass', icon: Check, color: 'text-green-600' },
+                        { key: 'partial', icon: CircleDashed, color: 'text-amber-600' },
+                        { key: 'fail', icon: XCircle, color: 'text-red-600' },
+                      ];
+                      const perfRows: Array<{ key: PerformanceStatus; icon: typeof CircleDot; color: string }> = [
+                        { key: 'good', icon: CircleDot, color: 'text-green-600' },
+                        { key: 'average', icon: CircleDashed, color: 'text-amber-600' },
+                        { key: 'poor', icon: XCircle, color: 'text-red-600' },
+                      ];
+
+                      return (
+                        <Card
+                          onClick={() => setShowCompleteLayersDialog(true)}
+                          className="h-full border-border/50 bg-background/60 cursor-pointer hover:bg-background hover:border-border transition-colors"
+                        >
+                          <CardContent className="p-3 space-y-3">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                                Last run
+                              </div>
+                              {latest && (
+                                <div className="text-[11px] text-muted-foreground">
+                                  {latest.toLocaleString()}
+                                </div>
+                              )}
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1.5">
+                                <div className="text-xs font-semibold text-foreground/80">Data Access</div>
+                                {dataRows.map(({ key, icon: Icon, color }) => (
+                                  <div key={key} className={`flex items-center gap-1.5 text-xs ${color}`}>
+                                    <Icon className="h-3.5 w-3.5" />
+                                    <span className="font-medium">{dataCounts[key]}</span>
+                                    <span>{dataAccessLabel[key]}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="space-y-1.5">
+                                <div className="text-xs font-semibold text-foreground/80">Performance</div>
+                                {perfRows.map(({ key, icon: Icon, color }) => (
+                                  <div key={key} className={`flex items-center gap-1.5 text-xs ${color}`}>
+                                    <Icon className="h-3.5 w-3.5" />
+                                    <span className="font-medium">{perfCounts[key]}</span>
+                                    <span>{performanceLabel[key]}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
