@@ -601,7 +601,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
 
                       return (
                         <Card
-                          onClick={() => setShowCompleteLayersDialog(true)}
+                          onClick={() => { setHealthcheckAutoRun(false); setShowCompleteLayersDialog(true); }}
                           className="h-full border-border/50 bg-background/60 cursor-pointer hover:bg-background hover:border-border transition-colors"
                         >
                           <CardContent className="p-3 space-y-3">
