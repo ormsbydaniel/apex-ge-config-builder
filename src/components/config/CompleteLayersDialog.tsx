@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, CircleDot, CircleDashed } from 'lucide-react';
+import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, CircleDot, CircleDashed, Trash2, Edit } from 'lucide-react';
 import { DataSource, LayerValidationResult } from '@/types/config';
 import { validateBatchLayers } from '@/utils/layerValidation';
 import {
