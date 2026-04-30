@@ -9,6 +9,7 @@ import { useConfigExport } from '@/hooks/useConfigIO';
 import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
 import { useConfigBuilderState } from '@/hooks/useConfigBuilderState';
 import { useNavigationState } from '@/hooks/useNavigationState';
+import { useScrollToLayer } from '@/hooks/useScrollToLayer';
 import ServicesManager from './ServicesManager';
 import LayersTab from './config/LayersTab';
 import DrawOrderTab from './config/DrawOrderTab';
