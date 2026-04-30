@@ -180,9 +180,21 @@ async function validateServiceUrl(
       xmlDoc,
       { durationMs, bytes },
     );
-    if (perfProbe.status === 'warning' && perfProbe.message) {
+    const perfIssues: string[] = [...perfProbe.issues];
+
+    // Active tile-request probe (one GetMap / GetTile call).
+    const tileProbe = await probeTileRequest(url, format, layers, xmlDoc);
+    if (tileProbe.status === 'warning' && tileProbe.message) {
+      perfIssues.push(tileProbe.message);
+    }
+
+    // Mixed-content check on the service URL itself.
+    const mixed = checkMixedContent(url);
+    if (mixed) perfIssues.push(mixed.message);
+
+    if (perfIssues.length > 0) {
       result.status = 'performance-warning';
-      result.warning = perfProbe.message;
+      result.warning = perfIssues.join('; ');
     }
 
     return result;
