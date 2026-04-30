@@ -1,5 +1,6 @@
 import { DataSource, DataSourceItem, UrlValidationResult, LayerValidationResult } from '@/types/config';
 import { probeGeojsonSize } from '@/utils/geojsonProbe';
+import { probeCogPerformance } from '@/utils/cogPerformanceProbe';
 
 /** Threshold for flagging GeoJSON files as a performance warning. */
 const GEOJSON_PERF_WARNING_BYTES = 5 * 1024 * 1024;
@@ -57,6 +58,17 @@ async function validateUrl(
         directResult.status = 'performance-warning';
         directResult.warning = probe.message ?? `Large file: ${formatBytes(probe.bytes)} (threshold ${formatBytes(GEOJSON_PERF_WARNING_BYTES)})`;
         directResult.bytes = probe.bytes;
+      }
+    }
+
+    // COG performance check: tile size, overviews, compression, interleave.
+    // Only runs if the URL is reachable; probe failures are swallowed so they
+    // never mask the upstream "valid" status.
+    if (directResult.status === 'valid' && format === 'cog') {
+      const cogProbe = await probeCogPerformance(url);
+      if (cogProbe.status === 'warning' && cogProbe.message) {
+        directResult.status = 'performance-warning';
+        directResult.warning = cogProbe.message;
       }
     }
 
