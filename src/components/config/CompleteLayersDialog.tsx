@@ -521,11 +521,6 @@ const CompleteLayersDialog = ({
                           activeSortColumn={sortColumn}
                           activeSortDir={sortDir}
                           onSort={(dir) => setSort('dataAccess', dir)}
-                          filters={[
-                            { key: 'pass', label: 'Pass', checked: showPass, onChange: wrapDataAccessSetter(setShowPass) },
-                            { key: 'partial', label: 'Partial', checked: showPartial, onChange: wrapDataAccessSetter(setShowPartial) },
-                            { key: 'fail', label: 'Fail', checked: showFail, onChange: wrapDataAccessSetter(setShowFail) },
-                          ]}
                         />
                       </TableHead>
                       <TableHead className="w-[140px] align-top">
@@ -535,11 +530,6 @@ const CompleteLayersDialog = ({
                           activeSortColumn={sortColumn}
                           activeSortDir={sortDir}
                           onSort={(dir) => setSort('performance', dir)}
-                          filters={[
-                            { key: 'good', label: 'Good', checked: showGood, onChange: wrapPerformanceSetter(setShowGood) },
-                            { key: 'average', label: 'Average', checked: showAverage, onChange: wrapPerformanceSetter(setShowAverage) },
-                            { key: 'poor', label: 'Poor', checked: showPoor, onChange: wrapPerformanceSetter(setShowPoor) },
-                          ]}
                         />
                       </TableHead>
                       <TableHead className="w-[130px] text-right align-top">Details</TableHead>
