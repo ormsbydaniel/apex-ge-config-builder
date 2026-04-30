@@ -583,7 +583,7 @@ const CompleteLayersDialog = ({
                               )}
                             </TableCell>
                             <TableCell className="text-right">
-                              {hasUrlResults && (
+                              {hasUrlResults && cols && (cols.dataAccess === 'partial' || cols.dataAccess === 'fail' || cols.performance === 'average' || cols.performance === 'poor') && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
