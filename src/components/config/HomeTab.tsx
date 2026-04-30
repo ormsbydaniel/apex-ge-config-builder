@@ -674,6 +674,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
         config={config}
         onValidationComplete={handleValidationComplete}
         existingResults={validationResults}
+        autoRun={healthcheckAutoRun}
       />
 
       <LayerIssuesDialog
