@@ -1,70 +1,51 @@
-# Healthcheck Modal Redesign
+## Healthcheck card layout refinement
 
-Replace the current single-status table in `CompleteLayersDialog.tsx` with a richer grid that separates **Data Access** from **Performance**, streams results in real time as each layer is checked, and lets users expand a row for full details.
+Restructure the Healthcheck section in `src/components/config/HomeTab.tsx` (lines ~574-630) into a two-column layout where the "Last run" nested card fills the right side.
 
-## What the user will see
+### New layout
 
 ```text
-+----------------------------------------------------------------------------+
-| Layer                | Data Access      | Performance      | Details       |
-+----------------------------------------------------------------------------+
-| > Sentinel-2 RGB     | [Pass]           | [Good]           | View details  |
-| > Land Cover WMS     | [Partial Pass]   | [Average]        | View details  |
-| v Bathymetry COG     | [Fail]           | [—]              | Hide details  |
-|     URL details, errors, warnings, bytes, timing...                        |
-| > Coastlines GeoJSON | [spinner] Checking | [spinner]        |               |
-+----------------------------------------------------------------------------+
+┌─ Healthcheck ──────────────────────────────────────────────┐
+│  ┌──────────────┐   ┌─ Last run ─────────────────────────┐ │
+│  │     🩺       │   │ Ran: <timestamp>                   │ │
+│  │   (icon)     │   │                                    │ │
+│  │              │   │ Data Access      Performance       │ │
+│  │ Full health  │   │  ✓ 8 Pass         ● 6 Good         │ │
+│  │ check of all │   │  ◐ 1 Partial      ◐ 2 Average      │ │
+│  │ layers...    │   │  ✗ 1 Fail         ○ 1 Poor         │ │
+│  │              │   │                                    │ │
+│  │ [Run Health] │   └────────────────────────────────────┘ │
+│  └──────────────┘                                          │
+└────────────────────────────────────────────────────────────┘
 ```
 
-- Two independent badge columns per layer:
-  - **Data Access**: `Pass` (green), `Partial Pass` (amber), `Fail` (red), `Not applicable` (muted, e.g. all-XYZ template layers).
-  - **Performance**: `Good` (green), `Average` (amber), `Poor` (red), or `—` when data access failed (no perf signal available).
-- While a layer is being checked, that row's two cells show an inline spinner with "Checking…" so the user sees exactly which layer is in flight.
-- Rows that have not yet been reached show a muted "Queued" badge.
-- A **View details** / **Hide details** button on each row toggles an inline expansion containing the existing per-URL breakdown (URL, type, status icon, error text, performance warning, bytes, etc.).
-- Existing summary bar and filter checkboxes remain at the top, but their labels are updated to match the new badge vocabulary (Pass / Partial / Fail / Performance).
+### Changes in `src/components/config/HomeTab.tsx`
 
-## Real-time updates
+1. Replace outer `flex items-start gap-4` row with `grid grid-cols-2 gap-4` (or `flex gap-4` with both children `flex-1`).
 
-`validateBatchLayers` already takes an `onProgress(completed, total, layerName)` callback and processes layers in batches of 5. To stream per-layer results into the UI we need slightly richer progress reporting:
+2. **Left column** — vertical stack, centered:
+   - Stethoscope icon in its existing rounded badge.
+   - Description paragraph ("Full health check of all layers for validity and performance.").
+   - Run / Re-run Healthcheck button.
+   - Use `flex flex-col items-center text-center gap-3` so the icon, text, and button align vertically.
 
-- Add an optional `onLayerResult(index, result)` callback to `validateBatchLayers` (and an `onLayerStart(index, layerName)` callback) in `src/utils/layerValidation.ts`. Existing `onProgress` is preserved for backward compatibility.
-- In the dialog, on `onLayerStart` mark that index as `checking` in local state (drives the spinner). On `onLayerResult` merge the result into the `validationResults` Map immediately, so each row resolves as soon as its checks finish rather than waiting for the whole batch.
-- Track an `inFlightIndices: Set<number>` in dialog state for spinner placement.
+3. **Right column** — the "Last run" nested `Card`:
+   - Fills the column with `h-full` so it matches the left column height.
+   - Clickable (`cursor-pointer hover:bg-muted/50 transition-colors`) to open `CompleteLayersDialog`.
+   - Header row: "Last run" label + timestamp (omit timestamp if `LayerValidationResult` has no such field — verify via `code--view src/types/config.ts`).
+   - Two-column `grid grid-cols-2 gap-4` body with sub-headings "Data Access" and "Performance".
+   - Counts derived by mapping `Array.from(validationResults.values())` through `deriveHealthcheckColumns` from `src/utils/healthcheckColumns.ts`:
+     - Data Access tally: `pass`, `partial`, `fail` (skip `na`).
+     - Performance tally: `good`, `average`, `poor` (skip `na`).
+   - Render each row as `<icon> <count> <label>` using existing `dataAccessLabel` / `performanceLabel` maps with colors:
+     - Pass / Good → `text-green-600`
+     - Partial / Average → `text-amber-600`
+     - Fail / Poor → `text-red-600`
 
-## Mapping validation results to the two columns
+4. When `validationResults.size === 0`, the right column shows a muted placeholder card with italic "Not run yet." instead of the summary, keeping the two-column layout intact.
 
-A single `LayerValidationResult.overallStatus` currently mixes reachability and performance. We derive the two column values from `urlResults` without changing the underlying validation logic:
+### Files touched
 
-- **Data Access** (looks only at reachability, ignoring `performance-warning`):
-  - All non-skipped URLs valid → `Pass`
-  - Some valid, some `error` → `Partial Pass`
-  - All non-skipped URLs `error` → `Fail`
-  - No validatable URLs (all skipped) → `Not applicable`
-- **Performance** (only meaningful when Data Access is Pass or Partial Pass):
-  - Any URL with `status === 'performance-warning'` → `Average` (single warning) or `Poor` (multiple warnings, or a COG/GeoJSON over a higher "poor" threshold — start with: 2+ warnings = Poor, 1 = Average)
-  - Otherwise → `Good`
-  - If Data Access is `Fail` → `—` (unknown)
+- `src/components/config/HomeTab.tsx` (only)
 
-This mapping lives in a small pure helper (e.g. `deriveHealthcheckColumns(result)`) inside the dialog file or a sibling util. No schema changes; `LayerValidationResult` is unchanged.
-
-## Filter behaviour
-
-Filters at the top of the dialog become two grouped sets:
-
-- **Data Access**: Pass, Partial, Fail
-- **Performance**: Good, Average, Poor
-
-A row is shown if its Data Access value matches any selected Data Access filter AND its Performance value matches any selected Performance filter. Defaults: all checked.
-
-## Files to change
-
-- `src/utils/layerValidation.ts` — extend `validateBatchLayers` with `onLayerStart` and `onLayerResult` callbacks; keep existing `onProgress` working.
-- `src/components/config/CompleteLayersDialog.tsx` — replace the current table with the two-column-status grid, wire up real-time callbacks, add per-row expand toggle and inline details, update filters and summary bar.
-- (Optional) Extract the column-derivation helper and the new badge components into small siblings under `src/components/config/components/` if the dialog grows past ~500 lines, in line with the project's "favor cohesion" guideline — only split if it actually helps readability.
-
-## Out of scope for step 1
-
-- Changing the underlying probes or thresholds.
-- Persisting healthcheck history.
-- Re-running a single layer from the grid (could be a follow-up).
+No schema, type, or helper changes needed — `deriveHealthcheckColumns`, `dataAccessLabel`, and `performanceLabel` already exist.
