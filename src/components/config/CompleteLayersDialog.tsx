@@ -439,7 +439,7 @@ const CompleteLayersDialog = ({
                     </div>
                   </div>
                   <div className="text-[11px] text-muted-foreground italic pt-1">
-                    Click on result metric to filter list below
+                    Click on result metrics above to filter layer list in table.
                   </div>
                 </CardContent>
               </Card>
