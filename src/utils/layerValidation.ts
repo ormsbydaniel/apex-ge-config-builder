@@ -342,17 +342,20 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
     }
   }
 
-  // Determine overall status
+  // Determine overall status. Priority (highest first):
+  //   error > partial > performance-warning > valid
+  // Performance warnings never mask reachability failures.
   let overallStatus: LayerValidationResult['overallStatus'] = 'valid';
-  
+
   if (urlResults.length === 0) {
     overallStatus = 'valid'; // No URLs to validate
   } else {
     const errorCount = urlResults.filter(r => r.status === 'error').length;
     const checkingCount = urlResults.filter(r => r.status === 'checking').length;
     const skippedCount = urlResults.filter(r => r.status === 'skipped').length;
+    const perfWarningCount = urlResults.filter(r => r.status === 'performance-warning').length;
     const validatableCount = urlResults.length - skippedCount;
-    
+
     if (checkingCount > 0) {
       overallStatus = 'checking';
     } else if (validatableCount === 0) {
@@ -362,6 +365,8 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
       overallStatus = 'error';
     } else if (errorCount > 0) {
       overallStatus = 'partial';
+    } else if (perfWarningCount > 0) {
+      overallStatus = 'performance-warning';
     } else {
       overallStatus = 'valid';
     }
