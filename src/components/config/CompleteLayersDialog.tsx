@@ -220,20 +220,6 @@ const CompleteLayersDialog = ({
       if (!result) return true;
       const { dataAccess, performance } = deriveHealthcheckColumns(result);
 
-      const daOk =
-        (dataAccess === 'pass' && showPass) ||
-        (dataAccess === 'partial' && showPartial) ||
-        (dataAccess === 'fail' && showFail) ||
-        dataAccess === 'na';
-
-      const perfOk =
-        (performance === 'good' && showGood) ||
-        (performance === 'average' && showAverage) ||
-        (performance === 'poor' && showPoor) ||
-        performance === 'na';
-
-      if (!(daOk && perfOk)) return false;
-
       // Apply mutually-exclusive quick filter from the Results card.
       if (quickFilter) {
         if (quickFilter.kind === 'dataAccess' && dataAccess !== quickFilter.value) return false;
@@ -242,7 +228,7 @@ const CompleteLayersDialog = ({
 
       return true;
     });
-  }, [sortedLayers, showPass, showPartial, showFail, showGood, showAverage, showPoor, quickFilter]);
+  }, [sortedLayers, quickFilter]);
 
   const handleRunDetailedReport = useCallback(async () => {
     setIsValidating(true);
