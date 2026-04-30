@@ -680,6 +680,36 @@ const CompleteLayersDialog = ({
         </div>
       </DialogContent>
     </Dialog>
+    <AlertDialog open={!!confirmRemoveLayer} onOpenChange={(o) => { if (!o) setConfirmRemoveLayer(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Remove layer?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will remove "{confirmRemoveLayer?.name}" entirely from this config.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-red-600 text-white hover:bg-red-700"
+            onClick={() => {
+              if (confirmRemoveLayer && onRemoveLayer) {
+                onRemoveLayer(confirmRemoveLayer.index);
+                setExpandedRows(prev => {
+                  const next = new Set(prev);
+                  next.delete(`${confirmRemoveLayer.index}`);
+                  return next;
+                });
+              }
+              setConfirmRemoveLayer(null);
+            }}
+          >
+            Remove Layer
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 };
 
