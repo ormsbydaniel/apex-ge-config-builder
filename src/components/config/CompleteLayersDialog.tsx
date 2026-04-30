@@ -50,6 +50,14 @@ const CompleteLayersDialog = ({
     }
   }, [existingResults]);
 
+  // Auto-run validation each time the dialog opens
+  React.useEffect(() => {
+    if (open && !isValidating) {
+      handleRunDetailedReport();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   // Get all layers (including base layers, layers with missing legends, etc.)
   const allLayers = useMemo(() => {
     const layers: LayerWithGroup[] = [];
@@ -456,27 +464,11 @@ const CompleteLayersDialog = ({
                   {allLayers.length} layer{allLayers.length !== 1 ? 's' : ''} found
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => onOpenChange(false)}
                   >
                     Close
-                  </Button>
-                  <Button 
-                    onClick={handleRunDetailedReport}
-                    disabled={isValidating}
-                  >
-                    {isValidating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Validating...
-                      </>
-                    ) : (
-                      <>
-                        <Info className="h-4 w-4 mr-2" />
-                        {validationResults.size > 0 ? 'Re-run Validation Checks' : 'Run Validation Checks'}
-                      </>
-                    )}
                   </Button>
                 </div>
               </div>
