@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Zap } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Zap, Stethoscope } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
@@ -297,7 +297,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   return (
     <>
       <div className="space-y-4">
-        {/* Two Column Layout: Project 50%, Layer QA 50% */}
+        {/* Two Column Layout: Project 50%, Config QA 50% */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Project Card - 50% width */}
           <Card className="border-border/50 shadow-sm">
@@ -513,12 +513,12 @@ const HomeTab = ({ config }: HomeTabProps) => {
           </CardContent>
         </Card>
 
-          {/* Layer QA - 50% width */}
+          {/* Config QA - 50% width */}
           <Card className="border-border/50 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Layer QA</CardTitle>
+              <CardTitle className="text-xl">Config QA</CardTitle>
             </CardHeader>
-            <CardContent className="pt-3 space-y-3">
+            <CardContent className="pt-3 space-y-4">
               {/* QA Stats in one row */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                 <QAStatCard
@@ -562,46 +562,69 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   disabled={!validationResults || validationResults.size === 0}
                   tooltip={
                     !validationResults || validationResults.size === 0
-                      ? 'Run Data Source Validation to check performance'
+                      ? 'Run Healthcheck to check performance'
                       : 'Layers with data sources that load but exceed size thresholds'
                   }
                 />
               </div>
-              
-              {/* Validation Button */}
-              <Button 
-                onClick={() => setShowCompleteLayersDialog(true)}
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                {validationResults.size > 0 ? 'Refresh Data Source Validation' : 'Run Data Source Validation'}
-              </Button>
-              
-              {/* Validation Results Summary */}
-              {validationResults.size > 0 && (
-                <button
-                  onClick={() => setShowCompleteLayersDialog(true)}
-                  className="w-full p-3 bg-muted/50 border border-border/50 rounded-lg hover:bg-muted/70 hover:border-border transition-all cursor-pointer text-left"
-                >
-                  <div className="text-xs font-medium text-muted-foreground mb-2">Last Validation Results</div>
-                  <div className="flex gap-3 text-xs flex-wrap">
-                    <span className="text-green-600 font-medium">
-                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'valid').length} Valid
-                    </span>
-                    <span className="text-amber-600 font-medium flex items-center gap-1">
-                      <Zap className="h-3 w-3" />
-                      {perfWarningCount} Perf warning
-                    </span>
-                    <span className="text-amber-600 font-medium">
-                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'partial').length} Partial
-                    </span>
-                    <span className="text-red-600 font-medium">
-                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'error').length} Errors
-                    </span>
+
+              {/* Healthcheck section */}
+              <div className="space-y-2 pt-2">
+                <h3 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">
+                  Healthcheck
+                </h3>
+                <div className="rounded-lg border border-border/50 bg-muted/30 p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Stethoscope className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Full health check of all layers for validity and performance.
+                      </p>
+                      {validationResults.size > 0 ? (
+                        <button
+                          onClick={() => setShowCompleteLayersDialog(true)}
+                          className="w-full text-left rounded-md border border-border/50 bg-background/60 px-3 py-2 hover:bg-background hover:border-border transition-all cursor-pointer"
+                        >
+                          <div className="text-[11px] font-medium text-muted-foreground mb-1 uppercase tracking-wide">
+                            Last run
+                          </div>
+                          <div className="flex gap-3 text-xs flex-wrap">
+                            <span className="text-green-600 font-medium">
+                              {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'valid').length} Valid
+                            </span>
+                            <span className="text-amber-600 font-medium flex items-center gap-1">
+                              <Zap className="h-3 w-3" />
+                              {perfWarningCount} Perf warning
+                            </span>
+                            <span className="text-amber-600 font-medium">
+                              {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'partial').length} Partial
+                            </span>
+                            <span className="text-red-600 font-medium">
+                              {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'error').length} Errors
+                            </span>
+                          </div>
+                        </button>
+                      ) : (
+                        <p className="text-xs italic text-muted-foreground/70">
+                          Not run yet.
+                        </p>
+                      )}
+                    </div>
+                    <div className="shrink-0 self-center">
+                      <Button
+                        onClick={() => setShowCompleteLayersDialog(true)}
+                        size="sm"
+                        className="whitespace-nowrap"
+                      >
+                        <Stethoscope className="h-4 w-4 mr-2" />
+                        {validationResults.size > 0 ? 'Re-run Healthcheck' : 'Run Healthcheck'}
+                      </Button>
+                    </div>
                   </div>
-                </button>
-              )}
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

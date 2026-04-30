@@ -1,68 +1,50 @@
-# WMS / WMTS Performance Checks
+## Step 1: UI refresh for the QA panel
 
-Unlike COGs (whose performance is intrinsic to the file format) WMS/WMTS performance is mostly a property of the **server response and the layer's capabilities entry**. There are no file headers to inspect, but `GetCapabilities` already gives us most of what's useful. We can also do one lightweight tile/image probe.
+All changes are confined to `src/components/config/HomeTab.tsx`.
 
-All checks run only after reachability passes, and only surface as the amber **Performance Warning** status (never mask a real error), matching the existing COG/GeoJSON pattern.
+### 1. Rename the panel
 
-## Proposed checks
+- Change the `CardTitle` on line 519 from `Layer QA` to `Config QA`.
+- Update the layout comment on lines 300 and 516 to say "Config QA".
 
-### Shared (WMS + WMTS)
-1. **Slow GetCapabilities response** — flag if the document took `> 5 s` to fetch, or is `> 2 MB`. A bloated capabilities doc means slow first paint for every viewer load. We already capture `durationMs` and `bytes` in `fetchServiceCapabilitiesWithMetrics`; just need to surface them.
-2. **Missing CRS / TileMatrixSet for Web Mercator (EPSG:3857)** — if the layer doesn't advertise `EPSG:3857` (WMS) or a `GoogleMapsCompatible` / `EPSG:3857` TileMatrixSet (WMTS), the map will reproject on the fly (WMS) or fail to tile cleanly (WMTS). Warn.
-3. **No bounding box advertised** — without a bbox the viewer can't cull tile requests outside the data extent, leading to wasted requests. Warn.
+### 2. Restructure the Config QA card
 
-### WMS-specific
-4. **No tiling hint / huge GetMap** — do one probe `GetMap` request at a small size (e.g. 256×256) within the advertised bbox and measure response time + bytes. Flag if `> 3 s` or `> 1 MB` for a single 256-pixel tile (indicates the server isn't tile-cached and will be painful in a slippy map).
-5. **No `image/png` or `image/jpeg` in advertised formats** — forces fallback to slower/heavier formats. Warn.
-6. **Layer is a group node only (no `<Name>`)** — already filtered out as a layer, but if the user references it by title we can warn it isn't directly renderable.
+Currently the card contains: 5 stat cards in a row, then the "Run Data Source Validation" button, then a results summary panel. We will:
 
-### WMTS-specific
-7. **Only non-PNG/JPEG `Format` advertised** — same reasoning as WMS.
-8. **TileMatrixSet has very deep zoom but no `MinTileMatrix`/`MaxTileMatrix` `TileMatrixSetLimits`** — without limits the client may request tiles outside the data extent at high zoom. Warn.
-9. **REST template missing** — if neither `ResourceURL` nor a KVP endpoint is exposed, OpenLayers has to fall back to KVP which is slower. Warn if no `ResourceURL` of type `tile`.
+- Keep the 5 QA stat cards at the top (Complete, Missing Legend, Missing Attribution, No Data/Statistics, Performance Warning) — unchanged.
+- Remove the `Button` (lines 572–579) and the "Last Validation Results" summary `button` (lines 582–604) from inside the Config QA card.
+- Add a new section heading **"Healthcheck"** below the stats grid.
+- Below the heading, render a new full-width healthcheck card.
 
-### Optional / phase 2 (skip if you'd rather keep scope tight)
-- **CORS check on a probe tile** — fetch one tile with `mode: 'cors'`; if it fails, the layer will only work with a tile proxy. (This is more of a correctness check than performance, but very valuable.)
-- **HTTPS mixed-content check** — warn if service URL is `http://` while the app is served over `https://`.
+### 3. New Healthcheck card
 
-## Recommended initial scope
+A nested card spanning the full width of the Config QA panel containing:
 
-To keep parity with the COG probe (one new utility, surfaced via the existing amber pill), I'd implement **checks 1, 2, 3, 5, 7, 9** in the first pass — all pure capabilities-document inspection, no extra network calls beyond the GetCapabilities we already make. Check 4 (probe GetMap) is the highest-value addition but requires a second network round-trip per layer; worth doing but flagged separately so you can opt in.
-
-## Technical sketch
-
-### New file: `src/utils/serviceCapabilitiesPerformanceProbe.ts`
-```ts
-export interface ServicePerfProbeResult {
-  status: 'ok' | 'warning';
-  message?: string;
-  issues: string[];
-}
-
-export function probeServiceCapabilitiesPerformance(
-  format: 'wms' | 'wmts',
-  layerName: string | undefined,
-  capabilities: ServiceCapabilities,
-  metrics: { durationMs?: number; bytes?: number },
-  rawXml?: Document, // optional, for format/ResourceURL inspection
-): ServicePerfProbeResult
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ [stethoscope]  Full health check of all layers for          │
+│                validity and performance.                    │
+│                                                             │
+│                Last run: 3 valid · 1 perf warning · 0 errors│
+│                                          [ Run Healthcheck ]│
+└─────────────────────────────────────────────────────────────┘
 ```
-Returns a concatenated message like `"Slow capabilities (6.2s); EPSG:3857 not advertised; no PNG/JPEG output"`.
 
-### Edit: `src/utils/layerValidation.ts`
-- Inside `validateServiceUrl`, after the current "valid" path, parse the XML once (we already have `xmlDoc`), call the probe, and if it returns a warning set `result.status = 'performance-warning'` and `result.warning = probe.message`. No extra network calls.
-- Reuse `fetchServiceCapabilitiesWithMetrics` so we get `durationMs` / `bytes` instead of re-fetching.
+Implementation details:
 
-### No UI changes needed
-The existing amber **Performance Warning** pills in `CompleteLayersDialog.tsx` and the `HomeTab` "Performance Warning" tile already key off `status === 'performance-warning'` and read `warning`.
+- Use the `Stethoscope` icon from `lucide-react` (already exported by lucide). Render it large (≈`h-8 w-8`) inside a soft tinted circular background (e.g. `bg-primary/10 text-primary`) on the left.
+- To the right: a short paragraph in `text-sm text-muted-foreground`: *"Full health check of all layers for validity and performance."*
+- When `validationResults.size > 0`, show the existing summary chips (Valid / Perf warning / Partial / Errors) as a compact row below the description; the whole chips row remains clickable and opens `CompleteLayersDialog` (preserving current behavior). When there are no results yet, show a subtle "Not run yet" hint instead.
+- A primary `Button` on the right labelled **"Run Healthcheck"** (or **"Re-run Healthcheck"** when `validationResults.size > 0`) that opens `CompleteLayersDialog` (`setShowCompleteLayersDialog(true)`), keeping all existing handlers and state.
 
-## Files
+Layout: outer container `Card` (or a styled `div` with `rounded-lg border bg-card/50 p-4`) using a flex row (`flex items-start gap-4`) so the icon, text block, and button align cleanly on desktop, wrapping gracefully on narrow widths.
 
-- `src/utils/serviceCapabilitiesPerformanceProbe.ts` — new
-- `src/utils/layerValidation.ts` — edit `validateServiceUrl` to call the probe and reuse the metrics-aware capabilities fetch
+### 4. Out of scope (explicitly deferred)
 
-## Open questions
+- No changes to `CompleteLayersDialog.tsx` in this step — the modal refinements come next.
+- No changes to validation logic, probes, or data flow.
+- No new types or schema changes.
 
-1. Do you want the **probe `GetMap` tile request** (check 4) included in the first pass, or capabilities-only for now?
-2. Are the thresholds reasonable? Suggested defaults: capabilities `> 5 s` or `> 2 MB`; probe tile `> 3 s` or `> 1 MB`.
-3. Include the **CORS / HTTPS mixed-content** checks (phase 2) now, or defer?
+### Files touched
+
+- `src/components/config/HomeTab.tsx` — rename heading, restructure Config QA card content, add Healthcheck section + card, import `Stethoscope` icon.
