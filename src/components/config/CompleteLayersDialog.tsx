@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ChevronRight, Check, AlertTriangle, Loader2, Info, Filter, Zap, XCircle } from 'lucide-react';
+import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, Filter as FilterIcon } from 'lucide-react';
 import { DataSource, LayerValidationResult } from '@/types/config';
 import { validateBatchLayers } from '@/utils/layerValidation';
 import {
@@ -14,8 +14,15 @@ import {
   performanceLabel,
 } from '@/utils/healthcheckColumns';
 import { toast } from '@/hooks/use-toast';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 interface LayerWithGroup {
   layer: DataSource;
