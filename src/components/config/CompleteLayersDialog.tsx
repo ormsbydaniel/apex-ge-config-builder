@@ -127,6 +127,37 @@ const CompleteLayersDialog = ({
   const [showAverage, setShowAverage] = useState(true);
   const [showPoor, setShowPoor] = useState(true);
 
+  // Quick filter from the Results card — single-select across both metric groups.
+  type QuickFilter =
+    | { kind: 'dataAccess'; value: DataAccessStatus }
+    | { kind: 'performance'; value: PerformanceStatus }
+    | null;
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
+
+  const toggleQuickFilter = (qf: NonNullable<QuickFilter>) => {
+    setQuickFilter(prev => {
+      const isSame = prev && prev.kind === qf.kind && prev.value === qf.value;
+      if (isSame) return null;
+      // Reset the targeted column's checkbox filters to all-on so the two systems don't fight.
+      if (qf.kind === 'dataAccess') {
+        setShowPass(true); setShowPartial(true); setShowFail(true);
+      } else {
+        setShowGood(true); setShowAverage(true); setShowPoor(true);
+      }
+      return qf;
+    });
+  };
+
+  // Wrap checkbox setters so manual changes clear an active quick filter on the same column.
+  const wrapDataAccessSetter = (setter: (v: boolean) => void) => (v: boolean) => {
+    if (quickFilter?.kind === 'dataAccess') setQuickFilter(null);
+    setter(v);
+  };
+  const wrapPerformanceSetter = (setter: (v: boolean) => void) => (v: boolean) => {
+    if (quickFilter?.kind === 'performance') setQuickFilter(null);
+    setter(v);
+  };
+
   // Sort state — only one column can be actively sorted at a time
   type SortColumn = 'none' | 'dataAccess' | 'performance';
   type SortDir = 'worst' | 'best';
