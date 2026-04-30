@@ -516,7 +516,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
           {/* Config QA - 50% width */}
           <Card className="border-border/50 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Config QA</CardTitle>
+              <CardTitle className="text-xl">Config Quality Assurance</CardTitle>
             </CardHeader>
             <CardContent className="pt-3 space-y-4">
               <h3 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">
