@@ -249,7 +249,7 @@ const ConfigBuilderContent = () => {
             </div>
 
             <TabsContent value="home">
-              <HomeTab config={config} />
+              <HomeTab config={config} onNavigateToLayer={handleNavigateToLayer} />
             </TabsContent>
 
             <TabsContent value="layers">
