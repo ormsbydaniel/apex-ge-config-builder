@@ -108,9 +108,10 @@ const CompleteLayersDialog = ({
   const [showPoor, setShowPoor] = useState(true);
 
   // Initialize state inside an effect watching `open` to prevent stale overwrites.
+  // Always start with a clean slate so opening the dialog triggers a fresh run.
   React.useEffect(() => {
     if (!open) return;
-    setValidationResults(existingResults ? new Map(existingResults) : new Map());
+    setValidationResults(new Map());
     setRowStates(new Map());
     setExpandedRows(new Set());
     setValidationProgress({ completed: 0, total: 0, currentLayer: '' });
