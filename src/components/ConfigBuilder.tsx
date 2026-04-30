@@ -107,14 +107,50 @@ const ConfigBuilderContent = () => {
 
   const handleNavigateToLayer = React.useCallback((sourceIndex: number) => {
     const cardId = `layer-${sourceIndex}`;
-    // Pre-seed expansion so LayersTab restores it on mount.
-    const current = navigationState.expandedLayers || [];
-    if (!current.includes(cardId)) {
-      setExpandedLayers([...current, cardId]);
+    const source = config?.sources?.[sourceIndex];
+    const interfaceGroup: string | undefined = source?.layout?.interfaceGroup;
+    const subinterfaceGroup: string | undefined = source?.layout?.subinterfaceGroup;
+
+    // Pre-seed all three expansion levels so LayerHierarchy restores them on mount.
+    const currentLayers = navigationState.expandedLayers || [];
+    if (!currentLayers.includes(cardId)) {
+      setExpandedLayers([...currentLayers, cardId]);
     }
+
+    // Interface group (or special bucket for ungrouped / base layers).
+    const isBaseLayer = source?.layerType === 'baselayer' || source?.type === 'baselayer';
+    const groupKey = interfaceGroup
+      ? interfaceGroup
+      : isBaseLayer
+        ? '__BASE_LAYERS__'
+        : '__UNGROUPED__';
+    const currentGroups = navigationState.expandedGroups || [];
+    if (!currentGroups.includes(groupKey)) {
+      setExpandedGroups([...currentGroups, groupKey]);
+    }
+
+    // Sub-interface group (only if present and within a real interface group).
+    if (interfaceGroup && subinterfaceGroup) {
+      const subKey = `${interfaceGroup}::${subinterfaceGroup}`;
+      const currentSubs = navigationState.expandedSubGroups || [];
+      if (!currentSubs.includes(subKey)) {
+        setExpandedSubGroups([...currentSubs, subKey]);
+      }
+    }
+
     setActiveTab('layers');
     scrollToLayer(sourceIndex, cardId);
-  }, [navigationState.expandedLayers, setExpandedLayers, setActiveTab, scrollToLayer]);
+  }, [
+    config,
+    navigationState.expandedLayers,
+    navigationState.expandedGroups,
+    navigationState.expandedSubGroups,
+    setExpandedLayers,
+    setExpandedGroups,
+    setExpandedSubGroups,
+    setActiveTab,
+    scrollToLayer,
+  ]);
 
   const handleTabChange = (value: string) => {
     // Save scroll position before changing tabs
