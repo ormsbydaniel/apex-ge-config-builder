@@ -114,6 +114,24 @@ const CompleteLayersDialog = ({
   const [showAverage, setShowAverage] = useState(true);
   const [showPoor, setShowPoor] = useState(true);
 
+  // Sort state — only one column can be actively sorted at a time
+  type SortColumn = 'none' | 'dataAccess' | 'performance';
+  type SortDir = 'worst' | 'best';
+  const [sortColumn, setSortColumn] = useState<SortColumn>('none');
+  const [sortDir, setSortDir] = useState<SortDir>('worst');
+
+  const setSort = (column: 'dataAccess' | 'performance', dir: SortDir | 'default') => {
+    if (dir === 'default') {
+      setSortColumn('none');
+    } else {
+      setSortColumn(column);
+      setSortDir(dir);
+    }
+  };
+
+  const dataAccessRank: Record<DataAccessStatus, number> = { fail: 0, partial: 1, pass: 2, na: 3 };
+  const performanceRank: Record<PerformanceStatus, number> = { poor: 0, average: 1, good: 2, na: 3 };
+
   // Initialize state inside an effect watching `open` to prevent stale overwrites.
   // Always start with a clean slate so opening the dialog triggers a fresh run.
   React.useEffect(() => {
