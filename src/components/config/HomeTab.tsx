@@ -554,8 +554,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
                       </p>
                       <Button
                         onClick={() => { setHealthcheckAutoRun(true); setShowCompleteLayersDialog(true); }}
-
                         size="sm"
+                        variant={validationResults.size > 0 ? 'secondary' : 'default'}
                         className="whitespace-nowrap"
                       >
                         <Stethoscope className="h-4 w-4 mr-2" />
