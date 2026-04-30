@@ -1,63 +1,140 @@
-# Stable 3-column header for the Healthcheck modal
+# Speedometer score gauges in Healthcheck modal
 
-Restructure the top of the Healthcheck modal (`CompleteLayersDialog`) into a 3-column grid so the live Results card stops resizing as layer names change length, sits at the top of the modal, and lives in a predictable middle column. Column 3 is left empty as a placeholder for an upcoming feature.
+Add two compact speedometer-style gauges to the top-right (column 3) of the Healthcheck modal header. One shows a **Data Access** score out of 100, the other a **Performance** score out of 100, both computed live from the per-layer healthcheck results.
 
-## File
-`src/components/config/CompleteLayersDialog.tsx`
+## Files
+- `src/utils/healthcheckColumns.ts` — add scoring helpers (pure functions).
+- `src/components/config/HealthcheckScoreGauge.tsx` — new component (small, focused).
+- `src/components/config/CompleteLayersDialog.tsx` — render the two gauges in the reserved column 3 of the header grid.
 
-## Layout
+## 1. Scoring logic
 
-Replace the current `<DialogHeader>` plus the Live Results card (which currently sits inside the table area and uses `ml-auto max-w-md`) with a single grid container at the top of `<DialogContent>`:
+Both scores use a weighted average of per-layer status values, expressed as a 0–100 integer. `na` (not applicable) layers are excluded from the denominator so a layer that genuinely has nothing to check cannot drag the score up or down.
+
+### Per-status weights
 
 ```text
-┌──────────────────────┬──────────────────────┬──────────────────────┐
-│ Layer Healthcheck    │       RESULTS        │                      │
-│ Real-time validation │  Data Access  Perf   │  (reserved column)   │
-│ of every layer's …   │  ✓ 8 Pass    ● 7 Good│                      │
-│                      │  ◌ 1 Partial …       │                      │
-└──────────────────────┴──────────────────────┴──────────────────────┘
+Data Access:   pass = 100   partial = 50   fail = 0     na = excluded
+Performance:   good = 100   average = 50   poor = 0     na = excluded
 ```
 
-Container:
+### Formula
+
+```text
+score = round( sum(weight for each non-na layer) / count(non-na layers) )
+```
+
+If every layer is `na` (or there are zero results yet), the score is **null** and the gauge renders an "—" placeholder with an empty arc.
+
+### Rationale
+- Pass/Good = full credit, Fail/Poor = zero credit, Partial/Average = half credit. Matches the 3-level status model already used everywhere else in the dialog.
+- Equal weighting per layer keeps the formula obvious to users; no per-layer multipliers or hidden weighting.
+- Excluding `na` avoids the (common) case where a vector layer with no performance signal would otherwise be scored as 0 or 100 arbitrarily.
+
+### Color thresholds (gauge arc + score text)
+```text
+score >= 80  → green   (text-green-600,  stroke hsl(var(--chart-1)) or a green token)
+score >= 50  → amber   (text-amber-600)
+score <  50  → red     (text-red-600)
+score null   → muted-foreground
+```
+Use existing semantic Tailwind colors already in use across the modal (`text-green-600`, `text-amber-600`, `text-red-600`) so the gauges visually match the counter rows in the Results card.
+
+### Helper API (pure, easy to unit test later)
+In `src/utils/healthcheckColumns.ts`:
+
+```ts
+export type DataAccessStatus = 'pass' | 'partial' | 'fail' | 'na';
+export type PerformanceStatus = 'good' | 'average' | 'poor' | 'na';
+
+const dataAccessWeight: Record<DataAccessStatus, number | null> = {
+  pass: 100, partial: 50, fail: 0, na: null,
+};
+const performanceWeight: Record<PerformanceStatus, number | null> = {
+  good: 100, average: 50, poor: 0, na: null,
+};
+
+export const computeDataAccessScore = (
+  results: LayerValidationResult[]
+): number | null => { /* weighted avg, exclude na */ };
+
+export const computePerformanceScore = (
+  results: LayerValidationResult[]
+): number | null => { /* weighted avg, exclude na */ };
+```
+
+Both helpers iterate `results`, derive `{dataAccess, performance}` via the existing `deriveHealthcheckColumns`, sum the relevant weight when not `null`, and return `Math.round(sum / count)` or `null` when count is 0.
+
+## 2. `<HealthcheckScoreGauge />` component
+
+A compact half-donut "speedometer" rendered with `recharts` `RadialBarChart`. Avoid pulling in a new dependency — recharts is already in `package.json`.
+
+Props:
+```ts
+interface Props {
+  label: string;          // 'Data Access' | 'Performance'
+  score: number | null;   // 0–100 or null when no data
+  isRunning?: boolean;    // dim the gauge slightly while a run is in progress
+}
+```
+
+Visual layout (≈110px wide × 90px tall per gauge):
+
+```text
+   ╭──────────╮
+   │  ▁▂▃▄▅   │   ← half-donut arc (180°)
+   │   78     │   ← big score number (or "—")
+   ╰──────────╯
+     Data Access
+```
+
+Implementation sketch:
 ```tsx
-<div className="grid grid-cols-3 gap-4 items-start">
-  {/* col 1 */} <DialogHeader …>…</DialogHeader>
-  {/* col 2 */} <div className="flex justify-center">…results card…</div>
-  {/* col 3 */} <div />
+<RadialBarChart
+  width={110}
+  height={70}
+  innerRadius="70%"
+  outerRadius="100%"
+  startAngle={180}
+  endAngle={0}
+  data={[{ value: score ?? 0, fill: arcColor }]}
+>
+  <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+  <RadialBar background={{ fill: 'hsl(var(--muted))' }} dataKey="value" cornerRadius={6} />
+</RadialBarChart>
+```
+
+The big number is a separate absolutely-positioned `<div>` overlaid in the gauge's center (using a `relative` wrapper) so it always reads the latest `score` prop, and the small label sits beneath. Use `tabular-nums` so the number doesn't shift width as it ticks up.
+
+## 3. Wiring in `CompleteLayersDialog`
+
+In the existing 3-column header grid, replace the empty `<div />` placeholder for column 3 with:
+
+```tsx
+<div className="flex items-start justify-end gap-3">
+  <HealthcheckScoreGauge
+    label="Data Access"
+    score={computeDataAccessScore([...validationResults.values()])}
+    isRunning={isValidating}
+  />
+  <HealthcheckScoreGauge
+    label="Performance"
+    score={computePerformanceScore([...validationResults.values()])}
+    isRunning={isValidating}
+  />
 </div>
 ```
 
-`items-start` keeps everything aligned to the top of the modal so the results card no longer drifts down vertically as it grows.
+The gauges update live during a run because `validationResults` is the same Map already driving the live counter rows in the central Results card.
 
-## Key changes
+Both score values can be wrapped in a single `useMemo` keyed on `validationResults` to avoid recomputing on unrelated re-renders.
 
-### 1. DialogHeader (col 1)
-- Move into the new grid container.
-- Add `text-left space-y-1`.
-- Title and description content unchanged.
-
-### 2. Results card (col 2) — fixed width, no jitter
-- Remove the existing `mb-4 max-w-md ml-auto` placement above the table.
-- Render inside `<div className="flex justify-center">` with the card itself sized `w-full max-w-sm` (≈384px) so its width is fixed regardless of layer name length.
-- Card stays mounted whenever `isValidating || validationResults.size > 0` (unchanged).
-
-Inside the card, restructure to **prevent resizing as layer names change**:
-
-- Header row stays compact: left "RESULTS" label, right small `n / total ⟳` indicator (drop the word "Checking" — just show the fraction). Both have `shrink-0` so they never wrap.
-- Move the "Currently: <name>" line to its **own row beneath the header**, full card width with `truncate`. To prevent vertical jitter when the name is briefly empty between layers, give the line a fixed minimum height (`min-h-[14px]`) and render `&nbsp;` as a placeholder when no current layer is set during a run. Only render this row at all while `isValidating` so the static post-run view stays compact.
-- The two-column counter grid below remains identical to the home Results card layout.
-
-### 3. Reserved column 3
-Render an empty `<div />` to claim the third grid slot. Add an HTML comment `{/* reserved for future feature */}` so the next developer recognizes the slot.
-
-### 4. Body container
-Shift the existing `<div className="flex-1 overflow-hidden flex flex-col">` down (now sibling of the grid) and add `mt-4` for spacing under the header grid. Remove the now-unused mounting of the Results card from inside this body section.
+## 4. Styling notes
+- Keep colors derived from the existing Tailwind tokens (`text-green-600`, `text-amber-600`, `text-red-600`) and `hsl(var(--muted))` for the empty arc background — no new CSS variables needed.
+- Wrap each gauge in a small `<div className="flex flex-col items-center w-[110px]">` so labels stay aligned and the column doesn't reflow.
+- Add `aria-label={`${label} score: ${score ?? 'not yet calculated'} out of 100`}` for screen readers.
 
 ## Out of scope
-- No changes to validation logic, sorting, filtering, table rendering, or the home-page Results card.
-- The placeholder column 3 has no content yet — purely structural.
-
-## Technical notes
-- The `Card`'s width is fixed by `w-full max-w-sm` inside a fixed-fraction grid column, so internal text length cannot grow the card.
-- `truncate` on the "Currently:" row keeps long layer names on a single line with an ellipsis.
-- `min-h-[14px]` + `&nbsp;` prevents the card height from flickering by one line as `currentLayer` toggles between values.
+- No changes to the home-page Results card or to the Run/Re-run flow.
+- No persistence of historical scores; the gauges always reflect the current `validationResults` Map.
+- No tests added in this pass; helpers are pure and trivial to test later if desired.

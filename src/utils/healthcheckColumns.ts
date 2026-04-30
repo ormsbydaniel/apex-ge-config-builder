@@ -73,3 +73,57 @@ export const performanceLabel: Record<PerformanceStatus, string> = {
   poor: 'Poor',
   na: '—',
 };
+
+// ----- Score helpers (0–100, weighted average; excludes 'na' layers) -----
+
+const dataAccessWeight: Record<DataAccessStatus, number | null> = {
+  pass: 100,
+  partial: 50,
+  fail: 0,
+  na: null,
+};
+
+const performanceWeight: Record<PerformanceStatus, number | null> = {
+  good: 100,
+  average: 50,
+  poor: 0,
+  na: null,
+};
+
+/**
+ * Returns a 0–100 weighted-average Data Access score across the supplied
+ * results, or null when there are no scorable layers (all 'na' or empty).
+ */
+export const computeDataAccessScore = (
+  results: LayerValidationResult[]
+): number | null => {
+  let sum = 0;
+  let count = 0;
+  for (const r of results) {
+    const { dataAccess } = deriveHealthcheckColumns(r);
+    const w = dataAccessWeight[dataAccess];
+    if (w === null) continue;
+    sum += w;
+    count += 1;
+  }
+  return count === 0 ? null : Math.round(sum / count);
+};
+
+/**
+ * Returns a 0–100 weighted-average Performance score across the supplied
+ * results, or null when there are no scorable layers (all 'na' or empty).
+ */
+export const computePerformanceScore = (
+  results: LayerValidationResult[]
+): number | null => {
+  let sum = 0;
+  let count = 0;
+  for (const r of results) {
+    const { performance } = deriveHealthcheckColumns(r);
+    const w = performanceWeight[performance];
+    if (w === null) continue;
+    sum += w;
+    count += 1;
+  }
+  return count === 0 ? null : Math.round(sum / count);
+};
