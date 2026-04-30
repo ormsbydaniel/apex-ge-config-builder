@@ -58,6 +58,10 @@ interface CompleteLayersDialogProps {
   existingResults?: Map<number, LayerValidationResult>;
   /** When true, the dialog clears existing results and runs a fresh healthcheck on open. When false, it just displays existingResults. */
   autoRun?: boolean;
+  /** Remove the layer at the given source index from the config. */
+  onRemoveLayer?: (sourceIndex: number) => void;
+  /** Navigate the user to the layer's card on the Layers tab (no edit mode). */
+  onEditLayer?: (sourceIndex: number) => void;
 }
 
 type RowState = 'queued' | 'checking' | 'done';
