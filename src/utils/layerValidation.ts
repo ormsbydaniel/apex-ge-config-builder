@@ -1,6 +1,7 @@
 import { DataSource, DataSourceItem, UrlValidationResult, LayerValidationResult } from '@/types/config';
 import { probeGeojsonSize } from '@/utils/geojsonProbe';
 import { probeCogPerformance } from '@/utils/cogPerformanceProbe';
+import { probeServiceCapabilitiesPerformance } from '@/utils/serviceCapabilitiesPerformanceProbe';
 
 /** Threshold for flagging GeoJSON files as a performance warning. */
 const GEOJSON_PERF_WARNING_BYTES = 5 * 1024 * 1024;
