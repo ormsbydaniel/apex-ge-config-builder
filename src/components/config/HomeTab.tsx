@@ -519,6 +519,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
               <CardTitle className="text-xl">Config QA</CardTitle>
             </CardHeader>
             <CardContent className="pt-3 space-y-4">
+              <h3 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">
+                Config file metrics
+              </h3>
               {/* QA Stats in one row */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                 <QAStatCard
