@@ -35,12 +35,9 @@ async function validateUrl(
   };
 
   try {
-    // Handle XYZ tile templates - skip validation
+    // Handle XYZ tile templates - probe a representative tile
     if (format === 'xyz') {
-      result.status = 'skipped';
-      result.validationType = 'skipped';
-      result.error = 'Template URL (not validated)';
-      return result;
+      return await validateXyzUrl(url, type);
     }
 
     // Handle WMS/WMTS - validate via GetCapabilities
