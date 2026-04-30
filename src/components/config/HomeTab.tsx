@@ -678,7 +678,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   </div>
                 </div>
               </div>
-              </div>
             </CardContent>
           </Card>
         </div>
