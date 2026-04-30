@@ -118,7 +118,7 @@ const ConfigBuilderContent = () => {
     }
 
     // Interface group (or special bucket for ungrouped / base layers).
-    const isBaseLayer = source?.layerType === 'baselayer' || source?.type === 'baselayer';
+    const isBaseLayer = (source as { isBaseLayer?: boolean })?.isBaseLayer === true;
     const groupKey = interfaceGroup
       ? interfaceGroup
       : isBaseLayer
