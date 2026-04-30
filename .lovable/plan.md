@@ -1,85 +1,90 @@
-# Extend Run Data Source Validation
+## Goal
 
-Add two new diagnostics to the existing bulk validation flow:
+Restore the conceptual split between Services and Data Sources, and introduce a new "Performance warning" status for diagnostics that aren't broken but aren't optimal.
 
-1. **Slow / large GetCapabilities** — warn when an OGC or STAC capabilities response is slow or large.
-2. **Large GeoJSON files** — HEAD-check GeoJSON layer data sources and warn when oversized.
+- **Services page** → keeps GetCapabilities timing/size diagnostics (correct location).
+- **Home → Layer QA → Run Data Source Validation** → gains GeoJSON file-size check.
+- **New status** "Performance warning" cleanly separates "heavy but works" from "broken".
 
-Both surface alongside the existing pass/fail badges as a new `'warning'` status, without breaking the current `ok` / `error` flow.
+## Changes
 
-## Thresholds (initial defaults)
+### 1. Strip GeoJSON from the Services page
 
-- GetCapabilities slow:  > 3000 ms
-- GetCapabilities large: > 2 MB (response bytes)
-- GeoJSON large:         > 10 MB (Content-Length)
+**`src/hooks/useBulkServiceValidation.ts`**
+- Remove the `'geojson'` probe category and the `config.sources` walk.
+- Keep `'warning'` status and `warnings` map — still used by GetCapabilities checks.
 
-These will live as named constants at the top of `useBulkServiceValidation.ts` so they're easy to tune.
+**`src/components/ServicesManager.tsx`**
+- Remove the "GeoJSON Layer Sources" card.
+- Remove GeoJSON rows/counts from the summary panel.
+- Keep service-level warning badges (slow / large GetCapabilities).
 
-## Scope
+### 2. New "Performance warning" status
 
-### 1. Status model
+**`src/types/validation.ts`**
+- Extend `UrlValidationResult.status` with `'performance-warning'`.
+- Extend `LayerValidationResult.overallStatus` with `'performance-warning'`.
+- Add optional `warning?: string` and `bytes?: number` to `UrlValidationResult`.
 
-In `src/hooks/useBulkServiceValidation.ts`:
+**Aggregation in `layerValidation.ts`** — priority highest first:
+1. `error` — any URL failed
+2. `partial` — some valid, some failed
+3. `performance-warning` — all reachable, but at least one URL has a perf warning
+4. `valid` — all clean
 
-- Extend `ServiceValidationStatus` to `'idle' | 'checking' | 'ok' | 'warning' | 'error'`.
-- Add a parallel `warnings` map: `Record<string, string[]>` (one or more human-readable warning messages per service / source id), exposed on the hook return.
-- A service that probes successfully but trips a threshold becomes `'warning'` (not `'error'`) so failure counts stay accurate.
+Performance warnings never mask real failures.
 
-### 2. Timing & size capture for GetCapabilities
+### 3. GeoJSON size check in Layer QA
 
-- In `validateOgc` and `validateStac`, wrap the fetch with `performance.now()` start/end.
-- Read response size from `Content-Length` header when present; otherwise fall back to `response.clone().text().length` (already read for OGC; STAC reads JSON, so use the parsed body length or `Content-Length`).
-- After a successful probe, if `duration > SLOW_MS` or `bytes > LARGE_BYTES`, push a warning string and set status to `'warning'`.
-- To keep the change contained, `fetchServiceCapabilities` and `fetchStacCapabilities` will gain an optional second return shape (object with `{ capabilities, durationMs, bytes }`) via a thin wrapper used only by the validation hook — the existing call sites keep working unchanged.
+**`src/utils/layerValidation.ts`**
+- For URLs whose layer type is GeoJSON, after the existing HEAD reachability check, evaluate `Content-Length` against a **5 MB** threshold using `probeGeojsonSize`.
+- Caller passes `{ largeBytes: 5 * 1024 * 1024 }` so the utility default stays generic.
+- Suppress the utility's "Size unknown" warning (only flag known-oversized files). Reachability problems remain `'error'`.
+- On oversized: set `status: 'performance-warning'`, populate `warning` and `bytes`.
+- FlatGeobuf intentionally excluded (designed for streaming).
 
-### 3. New GeoJSON group
+### 4. UI
 
-- Add a fourth probe kind: `'geojson'`.
-- Add `GroupProgress` entry for it in `INITIAL_PROGRESS`.
-- Collect targets by walking the active config's **layer data sources** (not `services`). Source: `config.sources` (used elsewhere in the app); filter `d.format === 'geojson'` with a non-empty URL.
-- Probe = `fetch(url, { method: 'HEAD' })` with 10s timeout.
-  - Network error / non-2xx → `'error'`.
-  - `Content-Length` missing → `'ok'` with a soft warning ("size unknown").
-  - `Content-Length > GEOJSON_LARGE_BYTES` → `'warning'` with the formatted size.
-  - Otherwise → `'ok'`.
-- Keyed by data-source id (sources already have stable ids).
+**`src/components/config/CompleteLayersDialog.tsx`**
+- New per-layer status pill variant: "Performance" (amber).
+- Per-URL row: amber badge with the message (e.g. "Large file: 7.2 MB (threshold 5 MB)").
 
-### 4. UI surface
+**`src/components/config/HomeTab.tsx`**
 
-In `src/components/ServicesManager.tsx`:
+a) **5th QA stat tile "Performance"**
+- Icon: `Zap`, amber colour scheme.
+- **Disabled state** when `validationResults.size === 0`: greyed out, value `–`, tooltip "Run Data Source Validation to check performance".
+- **Active state** when `validationResults.size > 0`: count of layers with `overallStatus === 'performance-warning'`. Clickable → opens `LayerIssuesDialog` filtered to performance-warning layers.
+- Grid: extend `grid-cols-2 md:grid-cols-4` → `grid-cols-2 md:grid-cols-5`.
 
-- Add a fourth row to the run summary panel: "GeoJSON sources — N checked, M warnings, K failures".
-- Service/source cards: render a yellow warning badge (using existing `Badge` + `AlertTriangle` icon already imported) when status is `'warning'`, with a tooltip listing the warning messages from the new `warnings` map.
-- Failed-services list: include warnings as a separate, collapsible "Warnings" sub-section so they don't get conflated with hard failures.
-- GeoJSON sources don't appear in the Services table today, so add a small "GeoJSON layer sources" section below the existing Services list (id, layer name, URL, status badge). Read-only — recheck button per row plus the existing global "Run Data Source Validation" button drives them.
+b) **"Last Validation Results" summary** — extend from 3 to 4 buckets:
 
-### 5. Recheck wiring
-
-- `recheck()` (no id) already runs everything; extend `runBulk` to also dispatch the new GeoJSON probes in parallel (4th `runWithConcurrency`).
-- `recheck(id)` lookup: extend to find by data-source id when no service matches.
-
-## Technical Details
-
-Files to modify:
-
-- `src/hooks/useBulkServiceValidation.ts` — status enum, warnings map, timing capture, GeoJSON probe, group progress, recheck wiring.
-- `src/utils/serviceCapabilities.ts` — add an internal `fetchServiceCapabilitiesWithMetrics()` that returns `{ capabilities, durationMs, bytes }`; keep existing export unchanged.
-- `src/utils/stacCapabilities.ts` — same pattern: `fetchStacCapabilitiesWithMetrics()`.
-- New file `src/utils/geojsonProbe.ts` — `probeGeojsonSize(url, { timeoutMs, largeBytes })` returning `{ status: 'ok' | 'warning' | 'error', bytes?: number, message?: string }`.
-- `src/components/ServicesManager.tsx` — render warning badges, new GeoJSON sources section, extend summary panel.
-
-Constants (top of `useBulkServiceValidation.ts`):
-
-```ts
-const CAPABILITIES_SLOW_MS = 3000;
-const CAPABILITIES_LARGE_BYTES = 2 * 1024 * 1024;
-const GEOJSON_LARGE_BYTES = 10 * 1024 * 1024;
+```text
+[N Valid]  [N Perf warning]  [N Partial]  [N Errors]
+  green       amber-soft        amber        red
 ```
 
-No schema or Zod changes — the new data is purely transient validation state.
+**`QAStatCard`**
+- Add optional `disabled?: boolean` and `tooltip?: string` props for reuse with future run-gated tiles (e.g. COG performance).
 
-## Out of scope
+## Files touched
 
-- Configurable thresholds in the UI (constants only for now; can be exposed later).
-- GET fallback when HEAD is not allowed by the GeoJSON host — we'll surface "size unknown" as a soft note instead of downloading the whole file.
-- FlatGeobuf size checks (it's a streaming format; size is less actionable).
+```text
+src/hooks/useBulkServiceValidation.ts            — remove geojson category
+src/components/ServicesManager.tsx               — remove GeoJSON card + summary rows
+src/types/validation.ts                          — add 'performance-warning' + warning/bytes
+src/utils/layerValidation.ts                     — call probeGeojsonSize (5 MB) for GeoJSON; aggregate perf-warning
+src/components/config/CompleteLayersDialog.tsx   — perf-warning pill + per-url badges
+src/components/config/HomeTab.tsx                — 4-bucket summary + 5th Performance tile (disabled until validated)
+src/components/config/QAStatCard.tsx             — optional disabled + tooltip props
+```
+
+Unchanged: `geojsonProbe.ts`, `serviceCapabilities.ts`, `stacCapabilities.ts`.
+
+## Out of scope / Future
+
+- **TIF / COG performance checks** — deferred. Raw size isn't the right signal for raster (COG-ness, overviews, tiling, interleave matter more). Will slot into the same `'performance-warning'` bucket and the same disabled-until-run tile pattern.
+
+## Risk
+
+Low. Services-side change is mechanical removal. Layer QA addition reuses an existing utility, plugs into existing per-URL result rows, and adds one new enum value with clear aggregation precedence.

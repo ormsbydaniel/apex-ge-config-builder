@@ -1,4 +1,14 @@
 import { DataSource, DataSourceItem, UrlValidationResult, LayerValidationResult } from '@/types/config';
+import { probeGeojsonSize } from '@/utils/geojsonProbe';
+
+/** Threshold for flagging GeoJSON files as a performance warning. */
+const GEOJSON_PERF_WARNING_BYTES = 5 * 1024 * 1024;
+
+const formatBytes = (bytes: number): string => {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${bytes} B`;
+};
 
 /**
  * Validates a single URL with format-aware logic
@@ -35,7 +45,22 @@ async function validateUrl(
     }
 
     // For direct file URLs (COG, GeoJSON, FlatGeobuf, etc.)
-    return await validateDirectUrl(url, type);
+    const directResult = await validateDirectUrl(url, type);
+
+    // GeoJSON-only performance check: layered on top of reachability,
+    // but only if the URL is reachable. Reachability problems remain 'error'.
+    if (directResult.status === 'valid' && format === 'geojson') {
+      const probe = await probeGeojsonSize(url, { largeBytes: GEOJSON_PERF_WARNING_BYTES });
+      // Only flag known-oversized files. "Size unknown" / errors here are ignored —
+      // the layer already passed reachability above.
+      if (probe.status === 'warning' && typeof probe.bytes === 'number') {
+        directResult.status = 'performance-warning';
+        directResult.warning = probe.message ?? `Large file: ${formatBytes(probe.bytes)} (threshold ${formatBytes(GEOJSON_PERF_WARNING_BYTES)})`;
+        directResult.bytes = probe.bytes;
+      }
+    }
+
+    return directResult;
     
   } catch (error) {
     if (error instanceof Error) {
@@ -317,17 +342,20 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
     }
   }
 
-  // Determine overall status
+  // Determine overall status. Priority (highest first):
+  //   error > partial > performance-warning > valid
+  // Performance warnings never mask reachability failures.
   let overallStatus: LayerValidationResult['overallStatus'] = 'valid';
-  
+
   if (urlResults.length === 0) {
     overallStatus = 'valid'; // No URLs to validate
   } else {
     const errorCount = urlResults.filter(r => r.status === 'error').length;
     const checkingCount = urlResults.filter(r => r.status === 'checking').length;
     const skippedCount = urlResults.filter(r => r.status === 'skipped').length;
+    const perfWarningCount = urlResults.filter(r => r.status === 'performance-warning').length;
     const validatableCount = urlResults.length - skippedCount;
-    
+
     if (checkingCount > 0) {
       overallStatus = 'checking';
     } else if (validatableCount === 0) {
@@ -337,6 +365,8 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
       overallStatus = 'error';
     } else if (errorCount > 0) {
       overallStatus = 'partial';
+    } else if (perfWarningCount > 0) {
+      overallStatus = 'performance-warning';
     } else {
       overallStatus = 'valid';
     }

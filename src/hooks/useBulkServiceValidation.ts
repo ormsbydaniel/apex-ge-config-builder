@@ -1,20 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Service, DataSourceFormat } from '@/types/config';
 import { fetchServiceCapabilitiesWithMetrics } from '@/utils/serviceCapabilities';
 import { fetchStacCapabilitiesWithMetrics } from '@/utils/stacCapabilities';
 import { useConfig } from '@/contexts/ConfigContext';
 import { parseS3Url, fetchS3BucketContents } from '@/utils/s3Utils';
-import { probeGeojsonSize } from '@/utils/geojsonProbe';
 
 const CONCURRENCY = 4;
 
 // Tunable diagnostic thresholds — adjust here, no UI exposure yet.
 const CAPABILITIES_SLOW_MS = 3000;
 const CAPABILITIES_LARGE_BYTES = 2 * 1024 * 1024;
-const GEOJSON_LARGE_BYTES = 10 * 1024 * 1024;
 
 export type ServiceValidationStatus = 'idle' | 'checking' | 'ok' | 'warning' | 'error';
-export type ServiceKind = 'stac' | 'ogc' | 's3' | 'geojson';
+export type ServiceKind = 'stac' | 'ogc' | 's3';
 
 export interface GroupProgress {
   total: number;
@@ -22,19 +20,11 @@ export interface GroupProgress {
   inFlight: number;
 }
 
-export interface GeojsonTarget {
-  /** Stable key: `${sourceName}::${dataIndex}` */
-  id: string;
-  sourceName: string;
-  url: string;
-}
-
 interface BulkValidationResult {
   statuses: Record<string, ServiceValidationStatus>;
   warnings: Record<string, string[]>;
   progress: Record<ServiceKind, GroupProgress>;
   inFlightTotal: number;
-  geojsonTargets: GeojsonTarget[];
   recheck: (id?: string) => void;
 }
 
@@ -42,7 +32,6 @@ const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
   stac: { total: 0, completed: 0, inFlight: 0 },
   ogc: { total: 0, completed: 0, inFlight: 0 },
   s3: { total: 0, completed: 0, inFlight: 0 },
-  geojson: { total: 0, completed: 0, inFlight: 0 },
 };
 
 const formatBytes = (bytes: number): string => {
@@ -100,14 +89,17 @@ async function runWithConcurrency<T>(
 }
 
 /**
- * Validates services in four parallel groups (STAC, OGC, S3, GeoJSON).
+ * Validates services in three parallel groups (STAC, OGC, S3).
  * Auto-runs once per `lastLoaded` change for services missing capabilities.
+ *
+ * GeoJSON / data-source size checks are NOT performed here — those belong to
+ * the Layer QA "Run Data Source Validation" flow (see src/utils/layerValidation.ts).
  */
 export const useBulkServiceValidation = (
   services: Service[],
   enabled: boolean,
 ): BulkValidationResult => {
-  const { config, dispatch } = useConfig();
+  const { dispatch, config } = useConfig();
   const lastLoaded = config.lastLoaded;
   const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>(cachedStatuses);
   const [warnings, setWarnings] = useState<Record<string, string[]>>(cachedWarnings);
@@ -115,25 +107,6 @@ export const useBulkServiceValidation = (
   // Module-scoped (see top of file) so tab switches that unmount this hook
   // don't trigger re-validation for the same loaded config.
   const validatedForLoadRef = useRef<Date | null | 'manual'>(lastValidatedLoad);
-
-  // Derive the GeoJSON layer-source targets from the active config.
-  const geojsonTargets = useMemo<GeojsonTarget[]>(() => {
-    const out: GeojsonTarget[] = [];
-    for (const source of config.sources ?? []) {
-      const data = (source as any).data;
-      if (!Array.isArray(data)) continue;
-      data.forEach((item: any, idx: number) => {
-        if (item?.format === 'geojson' && typeof item.url === 'string' && item.url.trim()) {
-          out.push({
-            id: `${source.name}::${idx}`,
-            sourceName: source.name,
-            url: item.url,
-          });
-        }
-      });
-    }
-    return out;
-  }, [config.sources]);
 
   const updateProgress = useCallback(
     (kind: ServiceKind, delta: Partial<GroupProgress>) => {
@@ -302,31 +275,9 @@ export const useBulkServiceValidation = (
     }
   }, [dispatch, setStatus, setWarningMessages, updateProgress]);
 
-  const validateGeojson = useCallback(async (target: GeojsonTarget) => {
-    setStatus(target.id, 'checking');
-    setWarningMessages(target.id, []);
-    updateProgress('geojson', { inFlight: 1 });
-    try {
-      const result = await probeGeojsonSize(target.url, { largeBytes: GEOJSON_LARGE_BYTES });
-      if (result.status === 'error') {
-        if (result.message) setWarningMessages(target.id, [result.message]);
-        setStatus(target.id, 'error');
-      } else if (result.status === 'warning') {
-        setWarningMessages(target.id, result.message ? [result.message] : []);
-        setStatus(target.id, 'warning');
-      } else {
-        setStatus(target.id, 'ok');
-      }
-    } catch {
-      setStatus(target.id, 'error');
-    } finally {
-      updateProgress('geojson', { inFlight: -1, completed: 1 });
-    }
-  }, [setStatus, setWarningMessages, updateProgress]);
-
   const runBulk = useCallback(
-    async (svcTargets: Service[], geojsonItems: GeojsonTarget[]) => {
-      if (svcTargets.length === 0 && geojsonItems.length === 0) return;
+    async (svcTargets: Service[]) => {
+      if (svcTargets.length === 0) return;
 
       const stacTargets = svcTargets.filter(s => classify(s) === 'stac');
       const ogcTargets = svcTargets.filter(s => classify(s) === 'ogc');
@@ -337,17 +288,15 @@ export const useBulkServiceValidation = (
         stac: { total: stacTargets.length, completed: 0, inFlight: 0 },
         ogc: { total: ogcTargets.length, completed: 0, inFlight: 0 },
         s3: { total: s3Targets.length, completed: 0, inFlight: 0 },
-        geojson: { total: geojsonItems.length, completed: 0, inFlight: 0 },
       });
 
       await Promise.all([
         runWithConcurrency(stacTargets, validateStac, CONCURRENCY),
         runWithConcurrency(ogcTargets, validateOgc, CONCURRENCY),
         runWithConcurrency(s3Targets, validateS3, CONCURRENCY),
-        runWithConcurrency(geojsonItems, validateGeojson, CONCURRENCY),
       ]);
     },
-    [validateStac, validateOgc, validateS3, validateGeojson],
+    [validateStac, validateOgc, validateS3],
   );
 
   // Auto-trigger when tab becomes active for a freshly-loaded config
@@ -364,9 +313,8 @@ export const useBulkServiceValidation = (
     lastValidatedLoad = lastLoaded;
 
     const targets = services.filter(s => !s.capabilities && classify(s) !== null);
-    // Always probe GeoJSON targets — they don't have cached capabilities.
-    if (targets.length === 0 && geojsonTargets.length === 0) return;
-    runBulk(targets, geojsonTargets);
+    if (targets.length === 0) return;
+    runBulk(targets);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, lastLoaded]);
 
@@ -379,25 +327,20 @@ export const useBulkServiceValidation = (
           if (kind === 'stac') validateStac(svc);
           else if (kind === 'ogc') validateOgc(svc);
           else if (kind === 's3') validateS3(svc);
-          return;
-        }
-        const gjs = geojsonTargets.find(t => t.id === id);
-        if (gjs) {
-          validateGeojson(gjs);
         }
         return;
       }
-      // Re-check all classifiable services + all GeoJSON targets.
+      // Re-check all classifiable services.
       const targets = services.filter(s => classify(s) !== null);
       validatedForLoadRef.current = 'manual';
       lastValidatedLoad = 'manual';
-      runBulk(targets, geojsonTargets);
+      runBulk(targets);
     },
-    [services, geojsonTargets, validateStac, validateOgc, validateS3, validateGeojson, runBulk],
+    [services, validateStac, validateOgc, validateS3, runBulk],
   );
 
   const inFlightTotal =
-    progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight + progress.geojson.inFlight;
+    progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight;
 
-  return { statuses, warnings, progress, inFlightTotal, geojsonTargets, recheck };
+  return { statuses, warnings, progress, inFlightTotal, recheck };
 };
