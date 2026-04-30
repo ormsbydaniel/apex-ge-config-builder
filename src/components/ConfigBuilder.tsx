@@ -102,7 +102,19 @@ const ConfigBuilderContent = () => {
 
   // Track navigation state for Preview transitions
   const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setExpandedSubGroups, setScrollPosition } = useNavigationState();
+  const { scrollToLayer } = useScrollToLayer();
   const layersScrollRef = React.useRef<HTMLDivElement>(null);
+
+  const handleNavigateToLayer = React.useCallback((sourceIndex: number) => {
+    const cardId = `layer-${sourceIndex}`;
+    // Pre-seed expansion so LayersTab restores it on mount.
+    const current = navigationState.expandedLayers || [];
+    if (!current.includes(cardId)) {
+      setExpandedLayers([...current, cardId]);
+    }
+    setActiveTab('layers');
+    scrollToLayer(sourceIndex, cardId);
+  }, [navigationState.expandedLayers, setExpandedLayers, setActiveTab, scrollToLayer]);
 
   const handleTabChange = (value: string) => {
     // Save scroll position before changing tabs
