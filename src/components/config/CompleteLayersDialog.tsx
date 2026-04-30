@@ -261,9 +261,13 @@ const CompleteLayersDialog = ({
                 <div className="mb-4 space-y-3">
                   <div className="p-4 bg-muted/50 border rounded-md">
                     <div className="text-sm font-medium mb-2">Validation Summary</div>
-                    <div className="flex gap-4 text-sm">
+                    <div className="flex gap-4 text-sm flex-wrap">
                       <span className="text-green-600">
                         {Array.from(validationResults.values()).filter(r => r.overallStatus === 'valid').length} Valid
+                      </span>
+                      <span className="text-amber-600 flex items-center gap-1">
+                        <Zap className="h-3.5 w-3.5" />
+                        {Array.from(validationResults.values()).filter(r => r.overallStatus === 'performance-warning').length} Performance
                       </span>
                       <span className="text-amber-600">
                         {Array.from(validationResults.values()).filter(r => r.overallStatus === 'partial').length} Partial
@@ -273,17 +277,17 @@ const CompleteLayersDialog = ({
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Filter Checkboxes */}
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-wrap">
                     <div className="flex items-center gap-2">
                       <Filter className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm font-medium text-muted-foreground">Filter:</span>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-wrap">
                       <div className="flex items-center gap-2">
-                        <Checkbox 
-                          id="filter-valid" 
+                        <Checkbox
+                          id="filter-valid"
                           checked={showValid}
                           onCheckedChange={(checked) => setShowValid(checked as boolean)}
                         />
@@ -292,8 +296,18 @@ const CompleteLayersDialog = ({
                         </Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Checkbox 
-                          id="filter-partial" 
+                        <Checkbox
+                          id="filter-performance"
+                          checked={showPerformance}
+                          onCheckedChange={(checked) => setShowPerformance(checked as boolean)}
+                        />
+                        <Label htmlFor="filter-performance" className="text-sm cursor-pointer">
+                          Performance
+                        </Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="filter-partial"
                           checked={showPartial}
                           onCheckedChange={(checked) => setShowPartial(checked as boolean)}
                         />
@@ -302,8 +316,8 @@ const CompleteLayersDialog = ({
                         </Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Checkbox 
-                          id="filter-issues" 
+                        <Checkbox
+                          id="filter-issues"
                           checked={showIssues}
                           onCheckedChange={(checked) => setShowIssues(checked as boolean)}
                         />
@@ -332,10 +346,11 @@ const CompleteLayersDialog = ({
                       const isExpanded = expandedRows.has(layerKey);
                       const hasUrlResults = item.validationResult && item.validationResult.urlResults.length > 0;
                       const hasIssues = item.validationResult && (item.validationResult.overallStatus === 'error' || item.validationResult.overallStatus === 'partial');
-                      
+                      const hasPerfWarning = item.validationResult?.overallStatus === 'performance-warning';
+
                       return (
                         <React.Fragment key={layerKey}>
-                          <TableRow className={hasIssues ? 'bg-red-50/50' : ''}>
+                          <TableRow className={hasIssues ? 'bg-red-50/50' : hasPerfWarning ? 'bg-amber-50/40' : ''}>
                             <TableCell>
                               {hasUrlResults && (
                                 <Button
@@ -363,11 +378,13 @@ const CompleteLayersDialog = ({
                               <TableCell colSpan={4} className="bg-muted/30 p-4">
                                 <div className="space-y-2">
                                   <div className="text-sm font-medium mb-2">URL Validation Details</div>
-                                   {item.validationResult!.urlResults.map((urlResult, idx) => (
+                                    {item.validationResult!.urlResults.map((urlResult, idx) => (
                                     <div key={idx} className="flex items-start gap-2 text-sm p-2 bg-background rounded border">
                                       <div className="flex-shrink-0 mt-0.5">
                                         {urlResult.status === 'valid' ? (
                                           <Check className="h-4 w-4 text-green-600" />
+                                        ) : urlResult.status === 'performance-warning' ? (
+                                          <Zap className="h-4 w-4 text-amber-600" />
                                         ) : urlResult.status === 'error' ? (
                                           <AlertTriangle className="h-4 w-4 text-red-600" />
                                         ) : urlResult.status === 'skipped' ? (
@@ -392,12 +409,13 @@ const CompleteLayersDialog = ({
                                             </Badge>
                                           )}
                                           <span className={`text-xs font-medium ${
-                                            urlResult.status === 'valid' ? 'text-green-600' : 
-                                            urlResult.status === 'error' ? 'text-red-600' : 
+                                            urlResult.status === 'valid' ? 'text-green-600' :
+                                            urlResult.status === 'performance-warning' ? 'text-amber-600' :
+                                            urlResult.status === 'error' ? 'text-red-600' :
                                             urlResult.status === 'skipped' ? 'text-muted-foreground' :
                                             'text-blue-600'
                                           }`}>
-                                            {urlResult.status}
+                                            {urlResult.status === 'performance-warning' ? 'performance' : urlResult.status}
                                           </span>
                                         </div>
                                         <div className="text-xs text-muted-foreground break-all">
@@ -406,6 +424,12 @@ const CompleteLayersDialog = ({
                                         {urlResult.layers && (
                                           <div className="text-xs text-muted-foreground mt-1">
                                             Layer: {urlResult.layers}
+                                          </div>
+                                        )}
+                                        {urlResult.warning && (
+                                          <div className="text-xs text-amber-700 mt-1 flex items-center gap-1">
+                                            <Zap className="h-3 w-3" />
+                                            {urlResult.warning}
                                           </div>
                                         )}
                                         {urlResult.error && (
