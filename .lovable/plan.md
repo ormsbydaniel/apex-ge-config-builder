@@ -1,51 +1,62 @@
-## Healthcheck card layout refinement
+# Move filters into column headers
 
-Restructure the Healthcheck section in `src/components/config/HomeTab.tsx` (lines ~574-630) into a two-column layout where the "Last run" nested card fills the right side.
+Replace the standalone filter checkbox row with compact "Sort by ▾" and "Filter by ▾" header controls inside the **Data Access** and **Performance** columns of the healthcheck table.
 
-### New layout
+## File to edit
+`src/components/config/CompleteLayersDialog.tsx`
+
+## Changes
+
+### 1. Remove the existing filter row
+Delete the `<div className="flex items-start gap-6 flex-wrap">…</div>` block (lines ~327–344) and the `FilterCheckbox` helper component (lines ~498–508). The `Filter` icon import and `Checkbox`/`Label` imports become unused — remove them. Keep the Healthcheck Summary card above.
+
+### 2. Restructure the column headers
+For both `Data Access` and `Performance` `<TableHead>`s, render a stacked layout:
 
 ```text
-┌─ Healthcheck ──────────────────────────────────────────────┐
-│  ┌──────────────┐   ┌─ Last run ─────────────────────────┐ │
-│  │     🩺       │   │ Ran: <timestamp>                   │ │
-│  │   (icon)     │   │                                    │ │
-│  │              │   │ Data Access      Performance       │ │
-│  │ Full health  │   │  ✓ 8 Pass         ● 6 Good         │ │
-│  │ check of all │   │  ◐ 1 Partial      ◐ 2 Average      │ │
-│  │ layers...    │   │  ✗ 1 Fail         ○ 1 Poor         │ │
-│  │              │   │                                    │ │
-│  │ [Run Health] │   └────────────────────────────────────┘ │
-│  └──────────────┘                                          │
-└────────────────────────────────────────────────────────────┘
+Data Access
+[Sort by ▾]  [Filter by ▾]
 ```
 
-### Changes in `src/components/config/HomeTab.tsx`
+Each control is a small `DropdownMenu` trigger (ghost button, `h-6 px-2 text-xs`) using the existing `DropdownMenu` primitives from `@/components/ui/dropdown-menu`.
 
-1. Replace outer `flex items-start gap-4` row with `grid grid-cols-2 gap-4` (or `flex gap-4` with both children `flex-1`).
+### 3. Sort dropdown (per column)
+Add new state: `sortBy: 'none' | 'dataAccess' | 'performance'` and `sortDir: 'asc' | 'desc'`.
 
-2. **Left column** — vertical stack, centered:
-   - Stethoscope icon in its existing rounded badge.
-   - Description paragraph ("Full health check of all layers for validity and performance.").
-   - Run / Re-run Healthcheck button.
-   - Use `flex flex-col items-center text-center gap-3` so the icon, text, and button align vertically.
+Each column's "Sort by" menu offers:
+- Default order
+- Worst first (fail/poor → partial/average → pass/good → na)
+- Best first (reverse)
 
-3. **Right column** — the "Last run" nested `Card`:
-   - Fills the column with `h-full` so it matches the left column height.
-   - Clickable (`cursor-pointer hover:bg-muted/50 transition-colors`) to open `CompleteLayersDialog`.
-   - Header row: "Last run" label + timestamp (omit timestamp if `LayerValidationResult` has no such field — verify via `code--view src/types/config.ts`).
-   - Two-column `grid grid-cols-2 gap-4` body with sub-headings "Data Access" and "Performance".
-   - Counts derived by mapping `Array.from(validationResults.values())` through `deriveHealthcheckColumns` from `src/utils/healthcheckColumns.ts`:
-     - Data Access tally: `pass`, `partial`, `fail` (skip `na`).
-     - Performance tally: `good`, `average`, `poor` (skip `na`).
-   - Render each row as `<icon> <count> <label>` using existing `dataAccessLabel` / `performanceLabel` maps with colors:
-     - Pass / Good → `text-green-600`
-     - Partial / Average → `text-amber-600`
-     - Fail / Poor → `text-red-600`
+Selecting a sort option in one column clears any sort set on the other column (single active sort). Apply the sort inside the existing `sortedLayers` `useMemo` after the current group/index ordering, ranking by the selected column's status using a numeric weight map.
 
-4. When `validationResults.size === 0`, the right column shows a muted placeholder card with italic "Not run yet." instead of the summary, keeping the two-column layout intact.
+### 4. Filter dropdown (per column)
+Reuse the existing `showPass / showPartial / showFail` and `showGood / showAverage / showPoor` state. Each column's "Filter by" dropdown contains menu items with a checkmark indicator next to active values:
+- Data Access: Pass, Partial, Fail
+- Performance: Good, Average, Poor
 
-### Files touched
+Use `DropdownMenuCheckboxItem` so multiple values can be toggled while the menu stays open. The trigger label shows "Filter by" plus a small count badge (e.g. `Filter by (2)`) when not all options are selected, so users can see a filter is active.
 
-- `src/components/config/HomeTab.tsx` (only)
+The existing `filteredLayers` `useMemo` keeps working unchanged.
 
-No schema, type, or helper changes needed — `deriveHealthcheckColumns`, `dataAccessLabel`, and `performanceLabel` already exist.
+### 5. Layout detail
+Header cell layout:
+
+```tsx
+<TableHead className="w-[180px]">
+  <div className="flex flex-col gap-1">
+    <span>Data Access</span>
+    <div className="flex items-center gap-1">
+      <SortMenu column="dataAccess" />
+      <FilterMenu column="dataAccess" />
+    </div>
+  </div>
+</TableHead>
+```
+
+Bump `Data Access` width from `w-[160px]` to `w-[180px]` and `Performance` from `w-[140px]` to `w-[170px]` to fit the two compact triggers without wrapping.
+
+## Out of scope
+- No change to the validation/run logic.
+- No change to the Healthcheck Summary card or the row body rendering.
+- No change to the `HomeTab` summary card.

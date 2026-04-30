@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ChevronRight, Check, AlertTriangle, Loader2, Info, Filter, Zap, XCircle } from 'lucide-react';
+import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, Filter as FilterIcon } from 'lucide-react';
 import { DataSource, LayerValidationResult } from '@/types/config';
 import { validateBatchLayers } from '@/utils/layerValidation';
 import {
@@ -14,8 +14,15 @@ import {
   performanceLabel,
 } from '@/utils/healthcheckColumns';
 import { toast } from '@/hooks/use-toast';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 interface LayerWithGroup {
   layer: DataSource;
@@ -107,6 +114,24 @@ const CompleteLayersDialog = ({
   const [showAverage, setShowAverage] = useState(true);
   const [showPoor, setShowPoor] = useState(true);
 
+  // Sort state — only one column can be actively sorted at a time
+  type SortColumn = 'none' | 'dataAccess' | 'performance';
+  type SortDir = 'worst' | 'best';
+  const [sortColumn, setSortColumn] = useState<SortColumn>('none');
+  const [sortDir, setSortDir] = useState<SortDir>('worst');
+
+  const setSort = (column: 'dataAccess' | 'performance', dir: SortDir | 'default') => {
+    if (dir === 'default') {
+      setSortColumn('none');
+    } else {
+      setSortColumn(column);
+      setSortDir(dir);
+    }
+  };
+
+  const dataAccessRank: Record<DataAccessStatus, number> = { fail: 0, partial: 1, pass: 2, na: 3 };
+  const performanceRank: Record<PerformanceStatus, number> = { poor: 0, average: 1, good: 2, na: 3 };
+
   // Initialize state inside an effect watching `open` to prevent stale overwrites.
   // Always start with a clean slate so opening the dialog triggers a fresh run.
   React.useEffect(() => {
@@ -131,7 +156,7 @@ const CompleteLayersDialog = ({
   }, [config.sources, validationResults]);
 
   const sortedLayers = useMemo(() => {
-    return [...allLayers].sort((a, b) => {
+    const base = [...allLayers].sort((a, b) => {
       const getGroupOrder = (group: string) => {
         if (group === 'Base Layers') return 1000;
         if (group === 'Ungrouped') return 2000;
@@ -144,7 +169,25 @@ const CompleteLayersDialog = ({
       if (orderA !== orderB) return orderA - orderB;
       return a.index - b.index;
     });
-  }, [allLayers, config.interfaceGroups]);
+
+    if (sortColumn === 'none') return base;
+
+    const rankFor = (item: LayerWithGroup) => {
+      const result = item.validationResult;
+      if (!result) return 99; // unvalidated rows go to the bottom
+      const cols = deriveHealthcheckColumns(result);
+      return sortColumn === 'dataAccess'
+        ? dataAccessRank[cols.dataAccess]
+        : performanceRank[cols.performance];
+    };
+
+    return [...base].sort((a, b) => {
+      const ra = rankFor(a);
+      const rb = rankFor(b);
+      if (ra === rb) return 0;
+      return sortDir === 'worst' ? ra - rb : rb - ra;
+    });
+  }, [allLayers, config.interfaceGroups, sortColumn, sortDir]);
 
   const filteredLayers = useMemo(() => {
     return sortedLayers.filter(item => {
@@ -324,24 +367,6 @@ const CompleteLayersDialog = ({
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-6 flex-wrap">
-                    <div className="flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium text-muted-foreground">Filter:</span>
-                    </div>
-                    <div className="flex items-center gap-4 flex-wrap">
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground">Data Access</span>
-                      <FilterCheckbox id="f-pass" label="Pass" checked={showPass} onChange={setShowPass} />
-                      <FilterCheckbox id="f-partial" label="Partial" checked={showPartial} onChange={setShowPartial} />
-                      <FilterCheckbox id="f-fail" label="Fail" checked={showFail} onChange={setShowFail} />
-                    </div>
-                    <div className="flex items-center gap-4 flex-wrap">
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground">Performance</span>
-                      <FilterCheckbox id="f-good" label="Good" checked={showGood} onChange={setShowGood} />
-                      <FilterCheckbox id="f-average" label="Average" checked={showAverage} onChange={setShowAverage} />
-                      <FilterCheckbox id="f-poor" label="Poor" checked={showPoor} onChange={setShowPoor} />
-                    </div>
-                  </div>
                 </div>
               )}
 
@@ -351,9 +376,35 @@ const CompleteLayersDialog = ({
                     <TableRow>
                       <TableHead>Interface Group</TableHead>
                       <TableHead>Layer Name</TableHead>
-                      <TableHead className="w-[160px]">Data Access</TableHead>
-                      <TableHead className="w-[140px]">Performance</TableHead>
-                      <TableHead className="w-[130px] text-right">Details</TableHead>
+                      <TableHead className="w-[200px] align-top">
+                        <ColumnHeader
+                          title="Data Access"
+                          column="dataAccess"
+                          activeSortColumn={sortColumn}
+                          activeSortDir={sortDir}
+                          onSort={(dir) => setSort('dataAccess', dir)}
+                          filters={[
+                            { key: 'pass', label: 'Pass', checked: showPass, onChange: setShowPass },
+                            { key: 'partial', label: 'Partial', checked: showPartial, onChange: setShowPartial },
+                            { key: 'fail', label: 'Fail', checked: showFail, onChange: setShowFail },
+                          ]}
+                        />
+                      </TableHead>
+                      <TableHead className="w-[200px] align-top">
+                        <ColumnHeader
+                          title="Performance"
+                          column="performance"
+                          activeSortColumn={sortColumn}
+                          activeSortDir={sortDir}
+                          onSort={(dir) => setSort('performance', dir)}
+                          filters={[
+                            { key: 'good', label: 'Good', checked: showGood, onChange: setShowGood },
+                            { key: 'average', label: 'Average', checked: showAverage, onChange: setShowAverage },
+                            { key: 'poor', label: 'Poor', checked: showPoor, onChange: setShowPoor },
+                          ]}
+                        />
+                      </TableHead>
+                      <TableHead className="w-[130px] text-right align-top">Details</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -495,16 +546,87 @@ const CompleteLayersDialog = ({
   );
 };
 
-const FilterCheckbox: React.FC<{
-  id: string;
+interface FilterOption {
+  key: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}> = ({ id, label, checked, onChange }) => (
-  <div className="flex items-center gap-2">
-    <Checkbox id={id} checked={checked} onCheckedChange={(v) => onChange(v as boolean)} />
-    <Label htmlFor={id} className="text-sm cursor-pointer">{label}</Label>
-  </div>
-);
+}
+
+const ColumnHeader: React.FC<{
+  title: string;
+  column: 'dataAccess' | 'performance';
+  activeSortColumn: 'none' | 'dataAccess' | 'performance';
+  activeSortDir: 'worst' | 'best';
+  onSort: (dir: 'default' | 'worst' | 'best') => void;
+  filters: FilterOption[];
+}> = ({ title, column, activeSortColumn, activeSortDir, onSort, filters }) => {
+  const isSorted = activeSortColumn === column;
+  const activeFilterCount = filters.filter(f => !f.checked).length;
+  const filterActive = activeFilterCount > 0;
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="font-medium">{title}</span>
+      <div className="flex items-center gap-1">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-6 px-2 text-xs font-normal ${isSorted ? 'text-primary' : 'text-muted-foreground'}`}
+            >
+              <ArrowUpDown className="h-3 w-3 mr-1" />
+              Sort by
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-44">
+            <DropdownMenuLabel className="text-xs">Sort {title}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onSort('default')}>
+              {!isSorted && <Check className="h-3.5 w-3.5 mr-2" />}
+              <span className={isSorted ? 'ml-[22px]' : ''}>Default order</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSort('worst')}>
+              {isSorted && activeSortDir === 'worst' && <Check className="h-3.5 w-3.5 mr-2" />}
+              <span className={!(isSorted && activeSortDir === 'worst') ? 'ml-[22px]' : ''}>Worst first</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSort('best')}>
+              {isSorted && activeSortDir === 'best' && <Check className="h-3.5 w-3.5 mr-2" />}
+              <span className={!(isSorted && activeSortDir === 'best') ? 'ml-[22px]' : ''}>Best first</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-6 px-2 text-xs font-normal ${filterActive ? 'text-primary' : 'text-muted-foreground'}`}
+            >
+              <FilterIcon className="h-3 w-3 mr-1" />
+              Filter by{filterActive ? ` (${filters.length - activeFilterCount})` : ''}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-44">
+            <DropdownMenuLabel className="text-xs">Show {title}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {filters.map(f => (
+              <DropdownMenuCheckboxItem
+                key={f.key}
+                checked={f.checked}
+                onCheckedChange={(v) => f.onChange(v === true)}
+                onSelect={(e) => e.preventDefault()}
+              >
+                {f.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+};
 
 export default CompleteLayersDialog;
