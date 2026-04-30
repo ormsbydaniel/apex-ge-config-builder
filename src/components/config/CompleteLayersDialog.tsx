@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, Filter as FilterIcon } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, Filter as FilterIcon, CircleDot, CircleDashed } from 'lucide-react';
 import { DataSource, LayerValidationResult } from '@/types/config';
 import { validateBatchLayers } from '@/utils/layerValidation';
 import {
@@ -348,40 +349,70 @@ const CompleteLayersDialog = ({
             </div>
           ) : (
             <>
-              {/* Progress indicator */}
-              {isValidating && (
-                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-blue-900">
-                      Checking layers… {validationProgress.completed} / {validationProgress.total}
-                    </span>
-                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                  </div>
-                  {validationProgress.currentLayer && (
-                    <div className="text-xs text-blue-700">
-                      Currently checking: {validationProgress.currentLayer}
+              {/* Live Results card */}
+              {(isValidating || validationResults.size > 0) && (
+                <Card className="mb-4 max-w-md ml-auto border-border/50 bg-background/60">
+                  <CardContent className="p-3 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide">
+                        Results
+                      </div>
+                      {isValidating && (
+                        <div className="flex flex-col items-end gap-0.5 min-w-0 max-w-[60%]">
+                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                            <span>
+                              Checking {validationProgress.completed} / {validationProgress.total}
+                            </span>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                          </div>
+                          {validationProgress.currentLayer && (
+                            <div className="text-[11px] text-muted-foreground truncate max-w-full">
+                              Currently: {validationProgress.currentLayer}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              )}
-
-              {/* Summary + filters */}
-              {validationResults.size > 0 && (
-                <div className="mb-4 space-y-3">
-                  <div className="p-4 bg-muted/50 border rounded-md">
-                    <div className="text-sm font-medium mb-2">Healthcheck Summary</div>
-                    <div className="flex gap-4 text-sm flex-wrap">
-                      <span className="text-green-600">{summary.pass} Pass</span>
-                      <span className="text-amber-600">{summary.partial} Partial</span>
-                      <span className="text-red-600">{summary.fail} Fail</span>
-                      <span className="text-muted-foreground">·</span>
-                      <span className="text-green-600">{summary.good} Good perf</span>
-                      <span className="text-amber-600">{summary.average} Average perf</span>
-                      <span className="text-red-600">{summary.poor} Poor perf</span>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <div className="text-xs font-semibold text-foreground/80">Data Access</div>
+                        <div className="flex items-center gap-1.5 text-xs text-green-600">
+                          <Check className="h-3.5 w-3.5" />
+                          <span className="font-medium">{summary.pass}</span>
+                          <span>Pass</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-amber-600">
+                          <CircleDashed className="h-3.5 w-3.5" />
+                          <span className="font-medium">{summary.partial}</span>
+                          <span>Partial</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-red-600">
+                          <XCircle className="h-3.5 w-3.5" />
+                          <span className="font-medium">{summary.fail}</span>
+                          <span>Fail</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <div className="text-xs font-semibold text-foreground/80">Performance</div>
+                        <div className="flex items-center gap-1.5 text-xs text-green-600">
+                          <CircleDot className="h-3.5 w-3.5" />
+                          <span className="font-medium">{summary.good}</span>
+                          <span>Good</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-amber-600">
+                          <CircleDashed className="h-3.5 w-3.5" />
+                          <span className="font-medium">{summary.average}</span>
+                          <span>Average</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-red-600">
+                          <XCircle className="h-3.5 w-3.5" />
+                          <span className="font-medium">{summary.poor}</span>
+                          <span>Poor</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                </div>
+                  </CardContent>
+                </Card>
               )}
 
               <div className="flex-1 overflow-auto border rounded-md">
