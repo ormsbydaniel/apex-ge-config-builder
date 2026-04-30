@@ -156,7 +156,7 @@ const CompleteLayersDialog = ({
   }, [config.sources, validationResults]);
 
   const sortedLayers = useMemo(() => {
-    return [...allLayers].sort((a, b) => {
+    const base = [...allLayers].sort((a, b) => {
       const getGroupOrder = (group: string) => {
         if (group === 'Base Layers') return 1000;
         if (group === 'Ungrouped') return 2000;
@@ -169,7 +169,25 @@ const CompleteLayersDialog = ({
       if (orderA !== orderB) return orderA - orderB;
       return a.index - b.index;
     });
-  }, [allLayers, config.interfaceGroups]);
+
+    if (sortColumn === 'none') return base;
+
+    const rankFor = (item: LayerWithGroup) => {
+      const result = item.validationResult;
+      if (!result) return 99; // unvalidated rows go to the bottom
+      const cols = deriveHealthcheckColumns(result);
+      return sortColumn === 'dataAccess'
+        ? dataAccessRank[cols.dataAccess]
+        : performanceRank[cols.performance];
+    };
+
+    return [...base].sort((a, b) => {
+      const ra = rankFor(a);
+      const rb = rankFor(b);
+      if (ra === rb) return 0;
+      return sortDir === 'worst' ? ra - rb : rb - ra;
+    });
+  }, [allLayers, config.interfaceGroups, sortColumn, sortDir]);
 
   const filteredLayers = useMemo(() => {
     return sortedLayers.filter(item => {
