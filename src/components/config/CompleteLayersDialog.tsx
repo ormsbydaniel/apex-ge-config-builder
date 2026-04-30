@@ -400,17 +400,20 @@ const CompleteLayersDialog = ({
             {(isValidating || validationResults.size > 0) && (
               <Card className="w-full max-w-sm border-border/50 bg-background/60">
                 <CardContent className="p-3 space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide shrink-0">
-                      Results
-                    </div>
-                    {isValidating && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground shrink-0">
-                        <span>{validationProgress.completed} / {validationProgress.total}</span>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                      </div>
-                    )}
-                  </div>
+                   <div className="flex items-center justify-between gap-2">
+                     <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide shrink-0">
+                       Results
+                     </div>
+                     {isValidating && (
+                       <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground shrink-0">
+                         <span>{validationProgress.completed} / {validationProgress.total}</span>
+                         <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                       </div>
+                     )}
+                   </div>
+                   <div className="text-[11px] text-muted-foreground italic">
+                     Click on result metric to filter list below
+                   </div>
                   {isValidating && (
                     <div className="text-[11px] text-muted-foreground truncate min-h-[14px]">
                       {validationProgress.currentLayer ? (
