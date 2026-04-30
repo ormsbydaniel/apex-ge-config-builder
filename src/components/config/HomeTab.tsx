@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Zap, Stethoscope, CircleDot, XCircle, CircleDashed } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Stethoscope, CircleDot, XCircle, CircleDashed } from 'lucide-react';
 import { deriveHealthcheckColumns, dataAccessLabel, performanceLabel, DataAccessStatus, PerformanceStatus } from '@/utils/healthcheckColumns';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
