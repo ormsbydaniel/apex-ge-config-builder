@@ -501,7 +501,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
                 Config file metrics
               </h3>
               {/* QA Stats in one row */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+
                 <QAStatCard
                   icon={Check}
                   value={qaStats.success}
