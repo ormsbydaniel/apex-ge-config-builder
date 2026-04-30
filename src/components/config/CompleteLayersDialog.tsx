@@ -43,6 +43,8 @@ interface CompleteLayersDialogProps {
   config: any;
   onValidationComplete?: (results: Map<number, LayerValidationResult>) => void;
   existingResults?: Map<number, LayerValidationResult>;
+  /** When true, the dialog clears existing results and runs a fresh healthcheck on open. When false, it just displays existingResults. */
+  autoRun?: boolean;
 }
 
 type RowState = 'queued' | 'checking' | 'done';
