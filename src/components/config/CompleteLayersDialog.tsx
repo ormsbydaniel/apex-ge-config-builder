@@ -367,24 +367,6 @@ const CompleteLayersDialog = ({
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-6 flex-wrap">
-                    <div className="flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium text-muted-foreground">Filter:</span>
-                    </div>
-                    <div className="flex items-center gap-4 flex-wrap">
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground">Data Access</span>
-                      <FilterCheckbox id="f-pass" label="Pass" checked={showPass} onChange={setShowPass} />
-                      <FilterCheckbox id="f-partial" label="Partial" checked={showPartial} onChange={setShowPartial} />
-                      <FilterCheckbox id="f-fail" label="Fail" checked={showFail} onChange={setShowFail} />
-                    </div>
-                    <div className="flex items-center gap-4 flex-wrap">
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground">Performance</span>
-                      <FilterCheckbox id="f-good" label="Good" checked={showGood} onChange={setShowGood} />
-                      <FilterCheckbox id="f-average" label="Average" checked={showAverage} onChange={setShowAverage} />
-                      <FilterCheckbox id="f-poor" label="Poor" checked={showPoor} onChange={setShowPoor} />
-                    </div>
-                  </div>
                 </div>
               )}
 
@@ -394,9 +376,35 @@ const CompleteLayersDialog = ({
                     <TableRow>
                       <TableHead>Interface Group</TableHead>
                       <TableHead>Layer Name</TableHead>
-                      <TableHead className="w-[160px]">Data Access</TableHead>
-                      <TableHead className="w-[140px]">Performance</TableHead>
-                      <TableHead className="w-[130px] text-right">Details</TableHead>
+                      <TableHead className="w-[200px] align-top">
+                        <ColumnHeader
+                          title="Data Access"
+                          column="dataAccess"
+                          activeSortColumn={sortColumn}
+                          activeSortDir={sortDir}
+                          onSort={(dir) => setSort('dataAccess', dir)}
+                          filters={[
+                            { key: 'pass', label: 'Pass', checked: showPass, onChange: setShowPass },
+                            { key: 'partial', label: 'Partial', checked: showPartial, onChange: setShowPartial },
+                            { key: 'fail', label: 'Fail', checked: showFail, onChange: setShowFail },
+                          ]}
+                        />
+                      </TableHead>
+                      <TableHead className="w-[200px] align-top">
+                        <ColumnHeader
+                          title="Performance"
+                          column="performance"
+                          activeSortColumn={sortColumn}
+                          activeSortDir={sortDir}
+                          onSort={(dir) => setSort('performance', dir)}
+                          filters={[
+                            { key: 'good', label: 'Good', checked: showGood, onChange: setShowGood },
+                            { key: 'average', label: 'Average', checked: showAverage, onChange: setShowAverage },
+                            { key: 'poor', label: 'Poor', checked: showPoor, onChange: setShowPoor },
+                          ]}
+                        />
+                      </TableHead>
+                      <TableHead className="w-[130px] text-right align-top">Details</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
