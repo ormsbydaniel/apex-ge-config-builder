@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ChevronUp, ChevronDown, ChevronRight, Check, AlertTriangle, Loader2, Info, Filter } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronRight, Check, AlertTriangle, Loader2, Info, Filter, Zap } from 'lucide-react';
 import { DataSource, LayerValidationResult } from '@/types/config';
 import { useTableSorting } from '@/hooks/useTableSorting';
 import { validateBatchLayers } from '@/utils/layerValidation';
@@ -39,6 +39,7 @@ const CompleteLayersDialog = ({
   const [validationProgress, setValidationProgress] = useState({ completed: 0, total: 0, currentLayer: '' });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [showValid, setShowValid] = useState(true);
+  const [showPerformance, setShowPerformance] = useState(true);
   const [showPartial, setShowPartial] = useState(true);
   const [showIssues, setShowIssues] = useState(true);
 
@@ -104,18 +105,19 @@ const CompleteLayersDialog = ({
     // Apply status filters (can show multiple at once)
     return sorted.filter(item => {
       const status = item.validationResult?.overallStatus;
-      
+
       // If no validation result, show it
       if (!status) return true;
-      
+
       // Check against selected filters
       if (status === 'valid' && showValid) return true;
+      if (status === 'performance-warning' && showPerformance) return true;
       if (status === 'partial' && showPartial) return true;
       if (status === 'error' && showIssues) return true;
-      
+
       return false;
     });
-  }, [allLayers, config.interfaceGroups, showValid, showPartial, showIssues]);
+  }, [allLayers, config.interfaceGroups, showValid, showPerformance, showPartial, showIssues]);
 
   const handleRunDetailedReport = async () => {
     setIsValidating(true);
@@ -142,11 +144,12 @@ const CompleteLayersDialog = ({
       // Count results
       const errorCount = Array.from(results.values()).filter(r => r.overallStatus === 'error').length;
       const partialCount = Array.from(results.values()).filter(r => r.overallStatus === 'partial').length;
+      const perfCount = Array.from(results.values()).filter(r => r.overallStatus === 'performance-warning').length;
       const validCount = Array.from(results.values()).filter(r => r.overallStatus === 'valid').length;
-      
+
       toast({
         title: "Validation Complete",
-        description: `${validCount} valid, ${partialCount} partial, ${errorCount} with errors`,
+        description: `${validCount} valid, ${perfCount} performance, ${partialCount} partial, ${errorCount} with errors`,
       });
     } catch (error) {
       console.error('Validation error:', error);
@@ -184,6 +187,13 @@ const CompleteLayersDialog = ({
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
             <Check className="h-3 w-3 mr-1" />
             Valid
+          </Badge>
+        );
+      case 'performance-warning':
+        return (
+          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+            <Zap className="h-3 w-3 mr-1" />
+            Performance
           </Badge>
         );
       case 'partial':
