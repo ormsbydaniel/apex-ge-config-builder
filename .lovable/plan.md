@@ -1,58 +1,52 @@
-# Compact Sort/Filter header controls
+# Live Results card in Healthcheck modal
 
-Convert the "Sort by" and "Filter by" dropdown triggers in the Healthcheck modal's **Data Access** and **Performance** column headers from text+icon buttons into compact **icon-only** buttons placed **to the right** of the column title, with tooltips explaining each action and an active-filter count badge.
+Replace the current blue "Checking layers…" progress strip and the muted "Healthcheck Summary" line in `CompleteLayersDialog` with a single Results card at the top of the modal that mirrors the layout of the home page's Results sub-card. While a run is in progress, the card's counters tick up live and the card additionally shows the name of the layer currently being checked plus an `n / total` progress label.
 
 ## File
 `src/components/config/CompleteLayersDialog.tsx`
 
-## Changes (in `ColumnHeader` component, ~lines 556–630)
+## Changes
 
-### 1. Layout: title + icons on one row
-Replace the current stacked `flex flex-col gap-1.5` layout with a single horizontal row:
+### 1. Imports
+- Add `Card, CardContent` from `@/components/ui/card`.
+- Add `CircleDot, CircleDashed` to the existing `lucide-react` import (already importing `Check`, `XCircle`).
+
+### 2. Remove existing blocks
+Delete the two blocks currently rendered above the table (~lines 351–385):
+- The `{isValidating && (...)}` blue progress strip.
+- The `{validationResults.size > 0 && (...)}` "Healthcheck Summary" muted box.
+
+### 3. New `<LiveResultsCard />` rendered above the table
+Insert a single card whose visibility is `isValidating || validationResults.size > 0`. The card contains:
 
 ```text
-Data Access   [↕]  [⚲ (n)]
+RESULTS                                        Checking 3 / 12  ⟳
+                                               Currently: <layer name>
+─────────────────────────────────────────────────
+Data Access            │  Performance
+✓ 8 Pass               │  ● 7 Good
+◌ 1 Partial            │  ◌ 1 Average
+✕ 0 Fail               │  ✕ 0 Poor
 ```
 
-```tsx
-<div className="flex items-center gap-1.5">
-  <span className="font-medium">{title}</span>
-  <SortMenu />
-  <FilterMenu />
-</div>
-```
+Layout details:
+- Card styling: `border-border/50 bg-background/60 max-w-md ml-auto mb-4` so it sits at the **top right** of the modal body.
+- Inner `CardContent` `p-3 space-y-3`.
+- Header row (`flex items-center justify-between gap-2`):
+  - Left: small uppercase "RESULTS" label (`text-xs font-semibold text-foreground/80 uppercase tracking-wide`).
+  - Right (only when `isValidating`): `Checking {completed} / {total}` plus `<Loader2 className="h-3.5 w-3.5 animate-spin" />`.
+- Currently-checking line: when `isValidating && validationProgress.currentLayer`, render a single muted line `Currently: <name>` with `truncate` so a long name doesn't break the card.
+- Two-column counter grid identical to the home Results card, using the existing `summary` memo for counts and the same icon mapping:
+  - Data Access: `Check` (green) Pass, `CircleDashed` (amber) Partial, `XCircle` (red) Fail.
+  - Performance: `CircleDot` (green) Good, `CircleDashed` (amber) Average, `XCircle` (red) Poor.
 
-The `<TableHead>` `align-top` and `w-[200px]` widths can stay as-is (or be reduced — see step 4).
+Counts come from the existing `summary` `useMemo`, which is already updated incrementally as each layer's result lands in `validationResults` via `onLayerResult` — so the counters tick up live during a run with no extra plumbing.
 
-### 2. Sort trigger → icon-only button + tooltip
-- Remove the "Sort by" text label, keep only the `ArrowUpDown` icon.
-- Wrap the trigger button in `Tooltip` / `TooltipTrigger` / `TooltipContent` (from `@/components/ui/tooltip`) with content `"Sort by {title}"`.
-- Button styling: `variant="ghost" size="icon" className="h-6 w-6"` and `text-primary` when this column is the active sort, otherwise `text-muted-foreground`.
-- The icon itself becomes `h-3.5 w-3.5`.
+### 4. Wiring (no other changes required)
+- `validationProgress` (already maintained) provides `completed`, `total`, and `currentLayer`.
+- `summary` (already memoized from `validationResults`) provides the per-status counts.
+- The existing `setValidationProgress(p => ({ ...p, completed: p.completed + 1 }))` call in `handleRunDetailedReport` should be verified to actually run after each layer (it's currently inside the loop / `onLayerResult` flow — confirm during implementation and add `completed` increment in `onLayerResult` if it isn't already wired).
 
-### 3. Filter trigger → icon-only button + count badge + tooltip
-- Remove the "Filter by" text label.
-- Show the `FilterIcon` only.
-- When at least one filter option is **unchecked** (i.e. the user has narrowed results), append a small count in brackets next to the icon showing the number of hidden criteria, e.g. `⚲ (2)`. Use a small `<span className="text-[10px] ml-0.5">(2)</span>` next to the icon. The count is `filters.filter(f => !f.checked).length` (number of excluded values).
-- When no filter is applied, show only the icon.
-- Wrap in a `Tooltip` with content `"Filter {title}"` (or `"Filter {title} ({n} active)"` when filters are applied).
-- Button: `variant="ghost" size="sm" className="h-6 px-1.5"` to accommodate the optional count text. `text-primary` when filters are active.
-
-### 4. Imports
-Add `Tooltip, TooltipTrigger, TooltipContent, TooltipProvider` from `@/components/ui/tooltip` (TooltipProvider is already mounted at the app root via `App.tsx` shadcn convention; if not, wrap each tooltip locally).
-
-The dropdown menu structure (`DropdownMenu`, `DropdownMenuContent`, sort/filter items) remains unchanged — only the **trigger buttons** become icon-only with tooltips.
-
-### 5. Optional width tweak
-With both controls now icon-only, the columns no longer need the extra width. Reduce both `w-[200px]` `<TableHead>` widths back to `w-[140px]` (Data Access) and `w-[130px]` (Performance) for a tighter table. Confirm with a quick visual check after implementation.
-
-## Out of scope
-- No changes to sort logic, filter state, dropdown menu items, or `sortedLayers` / `filteredLayers` memos.
-- No changes to row rendering, `HomeTab`, or summary card.
-
-## Technical detail summary
-| Before | After |
-|---|---|
-| Stacked title above two text+icon buttons | Title with two icon-only buttons inline to the right |
-| `[↕ Sort by]` `[⚲ Filter by (n)]` text triggers | `[↕]` `[⚲ (n)]` icon triggers with tooltips |
-| Filter count showed visible items | Filter count shows applied/excluded criteria |
+### 5. Out of scope
+- No changes to validation logic, table rendering, sort/filter headers, or the home-page Results card.
+- The bottom "Last run" timestamp on the home card is unaffected.
