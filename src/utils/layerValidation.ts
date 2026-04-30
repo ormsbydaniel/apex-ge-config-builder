@@ -115,6 +115,7 @@ async function validateServiceUrl(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout for capabilities
 
+    const startedAt = performance.now();
     const response = await fetch(capabilitiesUrl.toString(), {
       signal: controller.signal
     });
@@ -129,6 +130,10 @@ async function validateServiceUrl(
     }
 
     const xmlText = await response.text();
+    const durationMs = performance.now() - startedAt;
+    const headerLen = Number(response.headers.get('Content-Length'));
+    const bytes = Number.isFinite(headerLen) && headerLen > 0 ? headerLen : xmlText.length;
+
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -152,6 +157,21 @@ async function validateServiceUrl(
 
     result.status = 'valid';
     result.statusCode = response.status;
+    result.bytes = bytes;
+
+    // Performance checks (capabilities-only, no extra network calls).
+    // Never masks reachability errors — only runs once we're 'valid'.
+    const perfProbe = probeServiceCapabilitiesPerformance(
+      format,
+      layers,
+      xmlDoc,
+      { durationMs, bytes },
+    );
+    if (perfProbe.status === 'warning' && perfProbe.message) {
+      result.status = 'performance-warning';
+      result.warning = perfProbe.message;
+    }
+
     return result;
 
   } catch (error) {
