@@ -397,7 +397,7 @@ const CompleteLayersDialog = ({
                           ]}
                         />
                       </TableHead>
-                      <TableHead className="w-[200px] align-top">
+                      <TableHead className="w-[140px] align-top">
                         <ColumnHeader
                           title="Performance"
                           column="performance"
