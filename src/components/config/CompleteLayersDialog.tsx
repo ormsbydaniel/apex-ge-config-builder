@@ -105,6 +105,7 @@ const CompleteLayersDialog = ({
   config,
   onValidationComplete,
   existingResults,
+  autoRun = true,
 }: CompleteLayersDialogProps) => {
   const [validationResults, setValidationResults] = useState<Map<number, LayerValidationResult>>(
     existingResults || new Map()
