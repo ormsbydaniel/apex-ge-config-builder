@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Zap } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
@@ -271,6 +271,29 @@ const HomeTab = ({ config }: HomeTabProps) => {
     setShowLayerIssuesDialog(true);
   };
 
+  // Performance warning count + click handler — only meaningful after a validation run.
+  const perfWarningCount = validationResults && validationResults.size > 0
+    ? Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'performance-warning').length
+    : 0;
+
+  const handlePerformanceClick = () => {
+    if (!validationResults || validationResults.size === 0) return;
+    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string }> = [];
+    config.sources.forEach((source: DataSource, index: number) => {
+      const result = validationResults.get(index);
+      if (result?.overallStatus === 'performance-warning') {
+        layers.push({
+          source,
+          interfaceGroup: getInterfaceGroupName(source),
+          layerName: source.name || 'Unnamed Layer',
+        });
+      }
+    });
+    setLayerIssuesTitle('Performance Warnings');
+    setLayerIssuesList(layers);
+    setShowLayerIssuesDialog(true);
+  };
+
   return (
     <>
       <div className="space-y-4">
@@ -497,7 +520,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
             </CardHeader>
             <CardContent className="pt-3 space-y-3">
               {/* QA Stats in one row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                 <QAStatCard
                   icon={Check}
                   value={qaStats.success}
@@ -529,6 +552,20 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   bgGradient="from-red-500/20 to-red-500/5"
                   onClick={handleNoDataClick}
                 />
+                <QAStatCard
+                  icon={Zap}
+                  value={validationResults && validationResults.size > 0 ? perfWarningCount : null}
+                  label="Performance"
+                  colorClass="text-amber-600"
+                  bgGradient="from-amber-500/20 to-amber-500/5"
+                  onClick={validationResults && validationResults.size > 0 ? handlePerformanceClick : undefined}
+                  disabled={!validationResults || validationResults.size === 0}
+                  tooltip={
+                    !validationResults || validationResults.size === 0
+                      ? 'Run Data Source Validation to check performance'
+                      : 'Layers with data sources that load but exceed size thresholds'
+                  }
+                />
               </div>
               
               {/* Validation Button */}
@@ -548,9 +585,13 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   className="w-full p-3 bg-muted/50 border border-border/50 rounded-lg hover:bg-muted/70 hover:border-border transition-all cursor-pointer text-left"
                 >
                   <div className="text-xs font-medium text-muted-foreground mb-2">Last Validation Results</div>
-                  <div className="flex gap-3 text-xs">
+                  <div className="flex gap-3 text-xs flex-wrap">
                     <span className="text-green-600 font-medium">
                       {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'valid').length} Valid
+                    </span>
+                    <span className="text-amber-600 font-medium flex items-center gap-1">
+                      <Zap className="h-3 w-3" />
+                      {perfWarningCount} Perf warning
                     </span>
                     <span className="text-amber-600 font-medium">
                       {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'partial').length} Partial
