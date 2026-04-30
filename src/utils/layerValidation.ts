@@ -235,6 +235,114 @@ function checkLayerInCapabilities(xmlDoc: Document, format: 'wms' | 'wmts', laye
   return false;
 }
 
+/** Thresholds for XYZ tile probe (matches WMS/WMTS tile probe). */
+const XYZ_SLOW_TILE_MS = 3000;
+const XYZ_LARGE_TILE_BYTES = 1 * 1024 * 1024;
+const XYZ_TIMEOUT_MS = 10000;
+
+const formatMsXyz = (ms: number): string =>
+  ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
+
+const formatBytesXyz = (bytes: number): string => {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${bytes} B`;
+};
+
+/**
+ * Substitute XYZ template placeholders with the world tile (z=0/x=0/y=0).
+ * Handles {z}/{x}/{y}, {-y} (TMS), and {s} subdomains.
+ * Returns null if the template doesn't contain z/x/y placeholders.
+ */
+function buildXyzProbeUrl(template: string): string | null {
+  if (!/\{z\}/i.test(template) || !/\{x\}/i.test(template) || !/\{[-]?y\}/i.test(template)) {
+    return null;
+  }
+  let url = template
+    .replace(/\{z\}/gi, '0')
+    .replace(/\{x\}/gi, '0')
+    .replace(/\{-?y\}/gi, '0');
+  // Pick the first subdomain if {s} is present (e.g. {s}.tile.openstreetmap.org -> a.tile...)
+  url = url.replace(/\{s\}/gi, 'a');
+  // Strip any other unsupported placeholders rather than leaving braces in the URL.
+  url = url.replace(/\{[^}]+\}/g, '');
+  return url;
+}
+
+/**
+ * Validates an XYZ tile template by fetching the z=0/x=0/y=0 tile.
+ * Reports both reachability and a basic performance signal.
+ */
+async function validateXyzUrl(url: string, type: 'data' | 'statistics'): Promise<UrlValidationResult> {
+  const result: UrlValidationResult = {
+    url,
+    type,
+    format: 'xyz',
+    status: 'checking',
+    validationType: 'head-request',
+  };
+
+  const probeUrl = buildXyzProbeUrl(url);
+  if (!probeUrl) {
+    result.status = 'skipped';
+    result.validationType = 'skipped';
+    result.error = 'XYZ template missing {z}/{x}/{y} placeholders';
+    return result;
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), XYZ_TIMEOUT_MS);
+
+  try {
+    const startedAt = performance.now();
+    const response = await fetch(probeUrl, { method: 'GET', signal: controller.signal });
+    clearTimeout(timer);
+
+    if (!response.ok) {
+      result.status = 'error';
+      result.statusCode = response.status;
+      result.error = `Tile request failed: HTTP ${response.status} ${response.statusText || ''}`.trim();
+      return result;
+    }
+
+    const blob = await response.blob();
+    const durationMs = performance.now() - startedAt;
+    const bytes = blob.size;
+
+    result.status = 'valid';
+    result.statusCode = response.status;
+    result.bytes = bytes;
+
+    const issues: string[] = [];
+    if (durationMs > XYZ_SLOW_TILE_MS) issues.push(`slow tile (${formatMsXyz(durationMs)})`);
+    if (bytes > XYZ_LARGE_TILE_BYTES) issues.push(`heavy tile (${formatBytesXyz(bytes)})`);
+
+    // Mixed-content check
+    const mixed = checkMixedContent(url);
+    if (mixed) issues.push(mixed.message);
+
+    if (issues.length > 0) {
+      result.status = 'performance-warning';
+      result.warning = issues.join('; ');
+    }
+
+    return result;
+  } catch (error) {
+    clearTimeout(timer);
+    if (error instanceof Error && error.name === 'AbortError') {
+      result.status = 'error';
+      result.error = `Tile request timeout (>${XYZ_TIMEOUT_MS / 1000}s)`;
+    } else if (error instanceof Error && (error.message.includes('CORS') || error.message.includes('Failed to fetch'))) {
+      result.status = 'error';
+      result.error = 'CORS error or network failure - unable to fetch tile';
+    } else {
+      result.status = 'error';
+      result.error = error instanceof Error ? error.message : 'Unknown error fetching tile';
+    }
+    return result;
+  }
+}
+
 /**
  * Validates direct file URLs using HEAD/GET requests
  */
