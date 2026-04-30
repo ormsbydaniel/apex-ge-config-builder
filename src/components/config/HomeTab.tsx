@@ -272,29 +272,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
     setShowLayerIssuesDialog(true);
   };
 
-  // Performance warning count + click handler — only meaningful after a validation run.
-  const perfWarningCount = validationResults && validationResults.size > 0
-    ? Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'performance-warning').length
-    : 0;
-
-  const handlePerformanceClick = () => {
-    if (!validationResults || validationResults.size === 0) return;
-    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string }> = [];
-    config.sources.forEach((source: DataSource, index: number) => {
-      const result = validationResults.get(index);
-      if (result?.overallStatus === 'performance-warning') {
-        layers.push({
-          source,
-          interfaceGroup: getInterfaceGroupName(source),
-          layerName: source.name || 'Unnamed Layer',
-        });
-      }
-    });
-    setLayerIssuesTitle('Performance Warnings');
-    setLayerIssuesList(layers);
-    setShowLayerIssuesDialog(true);
-  };
-
   return (
     <>
       <div className="space-y-4">
