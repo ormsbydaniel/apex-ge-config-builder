@@ -142,10 +142,11 @@ const CompleteLayersDialog = ({
   const performanceRank: Record<PerformanceStatus, number> = { poor: 0, average: 1, good: 2, na: 3 };
 
   // Initialize state inside an effect watching `open` to prevent stale overwrites.
-  // Always start with a clean slate so opening the dialog triggers a fresh run.
+  // When autoRun is true (re-run requested) start with a clean slate; otherwise
+  // hydrate from existingResults so the user sees the previously executed run.
   React.useEffect(() => {
     if (!open) return;
-    setValidationResults(new Map());
+    setValidationResults(autoRun ? new Map() : (existingResults || new Map()));
     setRowStates(new Map());
     setExpandedRows(new Set());
     setValidationProgress({ completed: 0, total: 0, currentLayer: '' });
