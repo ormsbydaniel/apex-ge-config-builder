@@ -11,15 +11,17 @@ interface HealthcheckScoreGaugeProps {
 
 const colorForScore = (score: number | null): string => {
   if (score === null) return 'hsl(var(--muted-foreground))';
-  if (score >= 80) return 'hsl(142 71% 45%)'; // green-600-ish
-  if (score >= 50) return 'hsl(38 92% 50%)';  // amber-600-ish
-  return 'hsl(0 84% 60%)';                     // red-600-ish
+  if (score >= 95) return 'hsl(142 71% 45%)'; // green
+  if (score >= 80) return 'hsl(38 92% 50%)';  // amber
+  if (score >= 70) return 'hsl(38 92% 50%)';  // amber (70-79 stays amber)
+  return 'hsl(0 84% 60%)';                     // red (<70)
 };
 
 const textColorForScore = (score: number | null): string => {
   if (score === null) return 'text-muted-foreground';
-  if (score >= 80) return 'text-green-600';
-  if (score >= 50) return 'text-amber-600';
+  if (score >= 95) return 'text-green-600';
+  if (score >= 80) return 'text-amber-600';
+  if (score >= 70) return 'text-amber-600';
   return 'text-red-600';
 };
 
@@ -36,6 +38,9 @@ export const HealthcheckScoreGauge: React.FC<HealthcheckScoreGaugeProps> = ({
       className={`flex flex-col items-center w-[110px] ${isRunning ? 'opacity-80' : ''}`}
       aria-label={`${label} score: ${score ?? 'not yet calculated'} out of 100`}
     >
+      <div className="text-[11px] text-muted-foreground text-center leading-tight mb-0.5">
+        {label}
+      </div>
       <div className="relative" style={{ width: 110, height: 70 }}>
         <RadialBarChart
           width={110}
@@ -56,13 +61,10 @@ export const HealthcheckScoreGauge: React.FC<HealthcheckScoreGaugeProps> = ({
           />
         </RadialBarChart>
         <div
-          className={`absolute inset-x-0 bottom-0 text-center text-lg font-semibold tabular-nums ${textColorForScore(score)}`}
+          className={`absolute inset-x-0 bottom-1 text-center text-base font-semibold tabular-nums ${textColorForScore(score)}`}
         >
           {score ?? '—'}
         </div>
-      </div>
-      <div className="text-[11px] text-muted-foreground text-center leading-tight mt-0.5">
-        {label}
       </div>
     </div>
   );
