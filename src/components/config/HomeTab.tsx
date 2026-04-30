@@ -553,7 +553,8 @@ const HomeTab = ({ config }: HomeTabProps) => {
                         Full health check of all layers for validity and performance.
                       </p>
                       <Button
-                        onClick={() => setShowCompleteLayersDialog(true)}
+                        onClick={() => { setHealthcheckAutoRun(true); setShowCompleteLayersDialog(true); }}
+
                         size="sm"
                         className="whitespace-nowrap"
                       >
