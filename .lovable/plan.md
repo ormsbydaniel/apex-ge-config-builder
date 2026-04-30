@@ -1,140 +1,79 @@
-# Speedometer score gauges in Healthcheck modal
+## Goal
 
-Add two compact speedometer-style gauges to the top-right (column 3) of the Healthcheck modal header. One shows a **Data Access** score out of 100, the other a **Performance** score out of 100, both computed live from the per-layer healthcheck results.
+In the Healthcheck modal:
+1. Remove "View details" for layers whose Data Access is Pass AND Performance is Good (or N/A) — keep it only where there is something useful to investigate.
+2. Make the metrics in the Results card clickable as a single "quick filter", with mutual exclusivity across the two metric groups.
 
-## Files
-- `src/utils/healthcheckColumns.ts` — add scoring helpers (pure functions).
-- `src/components/config/HealthcheckScoreGauge.tsx` — new component (small, focused).
-- `src/components/config/CompleteLayersDialog.tsx` — render the two gauges in the reserved column 3 of the header grid.
+---
 
-## 1. Scoring logic
+## 1. Hide "View details" when there's nothing to investigate
 
-Both scores use a weighted average of per-layer status values, expressed as a 0–100 integer. `na` (not applicable) layers are excluded from the denominator so a layer that genuinely has nothing to check cannot drag the score up or down.
+In `src/components/config/CompleteLayersDialog.tsx` (around line 528), the toggle button currently renders whenever `hasUrlResults` is truthy.
 
-### Per-status weights
+Change the condition so the button only renders when the layer has at least one non-good signal:
 
-```text
-Data Access:   pass = 100   partial = 50   fail = 0     na = excluded
-Performance:   good = 100   average = 50   poor = 0     na = excluded
-```
+- Show details button when ANY of:
+  - `cols.dataAccess` is `partial` or `fail`
+  - `cols.performance` is `average` or `poor`
+- Otherwise (Pass + Good, or Pass + N/A), hide the button entirely so the cell is empty.
 
-### Formula
+This keeps the technical info available exactly where it's useful and removes clutter from the rows that "just work".
 
-```text
-score = round( sum(weight for each non-na layer) / count(non-na layers) )
-```
+---
 
-If every layer is `na` (or there are zero results yet), the score is **null** and the gauge renders an "—" placeholder with an empty arc.
+## 2. Clickable summary metrics as a single mutually-exclusive filter
 
-### Rationale
-- Pass/Good = full credit, Fail/Poor = zero credit, Partial/Average = half credit. Matches the 3-level status model already used everywhere else in the dialog.
-- Equal weighting per layer keeps the formula obvious to users; no per-layer multipliers or hidden weighting.
-- Excluding `na` avoids the (common) case where a vector layer with no performance signal would otherwise be scored as 0 or 100 arbitrarily.
+### New behaviour
 
-### Color thresholds (gauge arc + score text)
-```text
-score >= 80  → green   (text-green-600,  stroke hsl(var(--chart-1)) or a green token)
-score >= 50  → amber   (text-amber-600)
-score <  50  → red     (text-red-600)
-score null   → muted-foreground
-```
-Use existing semantic Tailwind colors already in use across the modal (`text-green-600`, `text-amber-600`, `text-red-600`) so the gauges visually match the counter rows in the Results card.
+The six rows in the Results card (Pass / Partial / Fail and Good / Average / Poor) become clickable chips.
 
-### Helper API (pure, easy to unit test later)
-In `src/utils/healthcheckColumns.ts`:
+Filter rules:
+- At most ONE quick filter is active at a time across both metric groups.
+- Clicking a metric (e.g. Performance → Poor):
+  - Filters the table to rows where Performance = Poor
+  - Leaves Data Access unfiltered (ALL data access outcomes shown)
+- Clicking a different metric (e.g. Data Access → Fail) replaces the previous one:
+  - Filters to rows where Data Access = Fail
+  - Leaves Performance unfiltered
+- Clicking the currently active metric again clears the filter (toggle off).
 
-```ts
-export type DataAccessStatus = 'pass' | 'partial' | 'fail' | 'na';
-export type PerformanceStatus = 'good' | 'average' | 'poor' | 'na';
+The active chip gets a visible "selected" styling (e.g. ring + slightly bolder background). Other chips stay clickable but un-highlighted.
 
-const dataAccessWeight: Record<DataAccessStatus, number | null> = {
-  pass: 100, partial: 50, fail: 0, na: null,
-};
-const performanceWeight: Record<PerformanceStatus, number | null> = {
-  good: 100, average: 50, poor: 0, na: null,
-};
+### Interaction with the existing per-column filter dropdowns
 
-export const computeDataAccessScore = (
-  results: LayerValidationResult[]
-): number | null => { /* weighted avg, exclude na */ };
+The column header filter dropdowns (Pass/Partial/Fail and Good/Average/Poor checkboxes) stay as they are — they are the "advanced" multi-select path. To keep the model simple:
+- The new quick filter is a separate, single-value state (e.g. `quickFilter: { kind: 'dataAccess' | 'performance', value: ... } | null`).
+- Setting a quick filter resets the corresponding column's checkbox filter to "all checked" so the two systems don't fight.
+- Manually changing a checkbox in the column dropdown clears any active quick filter on that same column.
+- The other column's checkbox filters are left alone.
 
-export const computePerformanceScore = (
-  results: LayerValidationResult[]
-): number | null => { /* weighted avg, exclude na */ };
-```
+### Filter logic
 
-Both helpers iterate `results`, derive `{dataAccess, performance}` via the existing `deriveHealthcheckColumns`, sum the relevant weight when not `null`, and return `Math.round(sum / count)` or `null` when count is 0.
+In the `filteredLayers` memo, after the existing checkbox-based `daOk` / `perfOk` checks, additionally apply the quick filter:
+- If `quickFilter.kind === 'dataAccess'`, keep the row only when its derived `dataAccess` equals `quickFilter.value`.
+- If `quickFilter.kind === 'performance'`, keep the row only when its derived `performance` equals `quickFilter.value`.
+- Rows still validating (no result yet) continue to be shown so users can watch progress.
 
-## 2. `<HealthcheckScoreGauge />` component
+### Visual
 
-A compact half-donut "speedometer" rendered with `recharts` `RadialBarChart`. Avoid pulling in a new dependency — recharts is already in `package.json`.
+Each summary line (e.g. the `Check` icon + count + "Pass" label) becomes a `<button>` with:
+- Full-width clickable area, left-aligned content matching today's layout.
+- Hover: subtle muted background.
+- Active (selected): `ring-1 ring-primary/40` + `bg-primary/5`, count text bolded.
+- A small "Clear" affordance is unnecessary — clicking the active chip again clears it; we'll add a tooltip on hover ("Click to filter / Click again to clear").
 
-Props:
-```ts
-interface Props {
-  label: string;          // 'Data Access' | 'Performance'
-  score: number | null;   // 0–100 or null when no data
-  isRunning?: boolean;    // dim the gauge slightly while a run is in progress
-}
-```
+Counts continue to reflect the full validation results (they are not affected by the active quick filter), so the user always sees totals.
 
-Visual layout (≈110px wide × 90px tall per gauge):
+---
 
-```text
-   ╭──────────╮
-   │  ▁▂▃▄▅   │   ← half-donut arc (180°)
-   │   78     │   ← big score number (or "—")
-   ╰──────────╯
-     Data Access
-```
+## Files to edit
 
-Implementation sketch:
-```tsx
-<RadialBarChart
-  width={110}
-  height={70}
-  innerRadius="70%"
-  outerRadius="100%"
-  startAngle={180}
-  endAngle={0}
-  data={[{ value: score ?? 0, fill: arcColor }]}
->
-  <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-  <RadialBar background={{ fill: 'hsl(var(--muted))' }} dataKey="value" cornerRadius={6} />
-</RadialBarChart>
-```
+- `src/components/config/CompleteLayersDialog.tsx`
+  - Add `quickFilter` state (`{ kind: 'dataAccess' | 'performance'; value: DataAccessStatus | PerformanceStatus } | null`).
+  - Extract the six summary lines into a small local `SummaryChip` component (kept inside the file, consistent with existing local components).
+  - Wire each chip's `onClick` to toggle/replace `quickFilter` and reset the relevant column's checkbox filters to all-on.
+  - Wrap the existing checkbox `onChange` handlers so manual changes clear `quickFilter` if it targets that same column.
+  - Extend the `filteredLayers` memo to apply `quickFilter`.
+  - Tighten the "View details" render condition as described in section 1.
 
-The big number is a separate absolutely-positioned `<div>` overlaid in the gauge's center (using a `relative` wrapper) so it always reads the latest `score` prop, and the small label sits beneath. Use `tabular-nums` so the number doesn't shift width as it ticks up.
-
-## 3. Wiring in `CompleteLayersDialog`
-
-In the existing 3-column header grid, replace the empty `<div />` placeholder for column 3 with:
-
-```tsx
-<div className="flex items-start justify-end gap-3">
-  <HealthcheckScoreGauge
-    label="Data Access"
-    score={computeDataAccessScore([...validationResults.values()])}
-    isRunning={isValidating}
-  />
-  <HealthcheckScoreGauge
-    label="Performance"
-    score={computePerformanceScore([...validationResults.values()])}
-    isRunning={isValidating}
-  />
-</div>
-```
-
-The gauges update live during a run because `validationResults` is the same Map already driving the live counter rows in the central Results card.
-
-Both score values can be wrapped in a single `useMemo` keyed on `validationResults` to avoid recomputing on unrelated re-renders.
-
-## 4. Styling notes
-- Keep colors derived from the existing Tailwind tokens (`text-green-600`, `text-amber-600`, `text-red-600`) and `hsl(var(--muted))` for the empty arc background — no new CSS variables needed.
-- Wrap each gauge in a small `<div className="flex flex-col items-center w-[110px]">` so labels stay aligned and the column doesn't reflow.
-- Add `aria-label={`${label} score: ${score ?? 'not yet calculated'} out of 100`}` for screen readers.
-
-## Out of scope
-- No changes to the home-page Results card or to the Run/Re-run flow.
-- No persistence of historical scores; the gauges always reflect the current `validationResults` Map.
-- No tests added in this pass; helpers are pure and trivial to test later if desired.
+No schema, types, or other components are affected.

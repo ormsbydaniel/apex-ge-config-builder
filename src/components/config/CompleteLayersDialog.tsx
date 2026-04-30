@@ -127,6 +127,37 @@ const CompleteLayersDialog = ({
   const [showAverage, setShowAverage] = useState(true);
   const [showPoor, setShowPoor] = useState(true);
 
+  // Quick filter from the Results card — single-select across both metric groups.
+  type QuickFilter =
+    | { kind: 'dataAccess'; value: DataAccessStatus }
+    | { kind: 'performance'; value: PerformanceStatus }
+    | null;
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
+
+  const toggleQuickFilter = (qf: NonNullable<QuickFilter>) => {
+    setQuickFilter(prev => {
+      const isSame = prev && prev.kind === qf.kind && prev.value === qf.value;
+      if (isSame) return null;
+      // Reset the targeted column's checkbox filters to all-on so the two systems don't fight.
+      if (qf.kind === 'dataAccess') {
+        setShowPass(true); setShowPartial(true); setShowFail(true);
+      } else {
+        setShowGood(true); setShowAverage(true); setShowPoor(true);
+      }
+      return qf;
+    });
+  };
+
+  // Wrap checkbox setters so manual changes clear an active quick filter on the same column.
+  const wrapDataAccessSetter = (setter: (v: boolean) => void) => (v: boolean) => {
+    if (quickFilter?.kind === 'dataAccess') setQuickFilter(null);
+    setter(v);
+  };
+  const wrapPerformanceSetter = (setter: (v: boolean) => void) => (v: boolean) => {
+    if (quickFilter?.kind === 'performance') setQuickFilter(null);
+    setter(v);
+  };
+
   // Sort state — only one column can be actively sorted at a time
   type SortColumn = 'none' | 'dataAccess' | 'performance';
   type SortDir = 'worst' | 'best';
@@ -154,6 +185,7 @@ const CompleteLayersDialog = ({
     setRowStates(new Map());
     setExpandedRows(new Set());
     setValidationProgress({ completed: 0, total: 0, currentLayer: '' });
+    setQuickFilter(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -224,9 +256,17 @@ const CompleteLayersDialog = ({
         (performance === 'poor' && showPoor) ||
         performance === 'na';
 
-      return daOk && perfOk;
+      if (!(daOk && perfOk)) return false;
+
+      // Apply mutually-exclusive quick filter from the Results card.
+      if (quickFilter) {
+        if (quickFilter.kind === 'dataAccess' && dataAccess !== quickFilter.value) return false;
+        if (quickFilter.kind === 'performance' && performance !== quickFilter.value) return false;
+      }
+
+      return true;
     });
-  }, [sortedLayers, showPass, showPartial, showFail, showGood, showAverage, showPoor]);
+  }, [sortedLayers, showPass, showPartial, showFail, showGood, showAverage, showPoor, quickFilter]);
 
   const handleRunDetailedReport = useCallback(async () => {
     setIsValidating(true);
@@ -381,41 +421,59 @@ const CompleteLayersDialog = ({
                     </div>
                   )}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <div className="text-xs font-semibold text-foreground/80">Data Access</div>
-                      <div className="flex items-center gap-1.5 text-xs text-green-600">
-                        <Check className="h-3.5 w-3.5" />
-                        <span className="font-medium">{summary.pass}</span>
-                        <span>Pass</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-amber-600">
-                        <CircleDashed className="h-3.5 w-3.5" />
-                        <span className="font-medium">{summary.partial}</span>
-                        <span>Partial</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-red-600">
-                        <XCircle className="h-3.5 w-3.5" />
-                        <span className="font-medium">{summary.fail}</span>
-                        <span>Fail</span>
-                      </div>
+                    <div className="space-y-1">
+                      <div className="text-xs font-semibold text-foreground/80 mb-1">Data Access</div>
+                      <SummaryChip
+                        icon={Check}
+                        toneClass="text-green-600"
+                        count={summary.pass}
+                        label="Pass"
+                        active={quickFilter?.kind === 'dataAccess' && quickFilter.value === 'pass'}
+                        onClick={() => toggleQuickFilter({ kind: 'dataAccess', value: 'pass' })}
+                      />
+                      <SummaryChip
+                        icon={CircleDashed}
+                        toneClass="text-amber-600"
+                        count={summary.partial}
+                        label="Partial"
+                        active={quickFilter?.kind === 'dataAccess' && quickFilter.value === 'partial'}
+                        onClick={() => toggleQuickFilter({ kind: 'dataAccess', value: 'partial' })}
+                      />
+                      <SummaryChip
+                        icon={XCircle}
+                        toneClass="text-red-600"
+                        count={summary.fail}
+                        label="Fail"
+                        active={quickFilter?.kind === 'dataAccess' && quickFilter.value === 'fail'}
+                        onClick={() => toggleQuickFilter({ kind: 'dataAccess', value: 'fail' })}
+                      />
                     </div>
-                    <div className="space-y-1.5">
-                      <div className="text-xs font-semibold text-foreground/80">Performance</div>
-                      <div className="flex items-center gap-1.5 text-xs text-green-600">
-                        <CircleDot className="h-3.5 w-3.5" />
-                        <span className="font-medium">{summary.good}</span>
-                        <span>Good</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-amber-600">
-                        <CircleDashed className="h-3.5 w-3.5" />
-                        <span className="font-medium">{summary.average}</span>
-                        <span>Average</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-red-600">
-                        <XCircle className="h-3.5 w-3.5" />
-                        <span className="font-medium">{summary.poor}</span>
-                        <span>Poor</span>
-                      </div>
+                    <div className="space-y-1">
+                      <div className="text-xs font-semibold text-foreground/80 mb-1">Performance</div>
+                      <SummaryChip
+                        icon={CircleDot}
+                        toneClass="text-green-600"
+                        count={summary.good}
+                        label="Good"
+                        active={quickFilter?.kind === 'performance' && quickFilter.value === 'good'}
+                        onClick={() => toggleQuickFilter({ kind: 'performance', value: 'good' })}
+                      />
+                      <SummaryChip
+                        icon={CircleDashed}
+                        toneClass="text-amber-600"
+                        count={summary.average}
+                        label="Average"
+                        active={quickFilter?.kind === 'performance' && quickFilter.value === 'average'}
+                        onClick={() => toggleQuickFilter({ kind: 'performance', value: 'average' })}
+                      />
+                      <SummaryChip
+                        icon={XCircle}
+                        toneClass="text-red-600"
+                        count={summary.poor}
+                        label="Poor"
+                        active={quickFilter?.kind === 'performance' && quickFilter.value === 'poor'}
+                        onClick={() => toggleQuickFilter({ kind: 'performance', value: 'poor' })}
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -461,9 +519,9 @@ const CompleteLayersDialog = ({
                           activeSortDir={sortDir}
                           onSort={(dir) => setSort('dataAccess', dir)}
                           filters={[
-                            { key: 'pass', label: 'Pass', checked: showPass, onChange: setShowPass },
-                            { key: 'partial', label: 'Partial', checked: showPartial, onChange: setShowPartial },
-                            { key: 'fail', label: 'Fail', checked: showFail, onChange: setShowFail },
+                            { key: 'pass', label: 'Pass', checked: showPass, onChange: wrapDataAccessSetter(setShowPass) },
+                            { key: 'partial', label: 'Partial', checked: showPartial, onChange: wrapDataAccessSetter(setShowPartial) },
+                            { key: 'fail', label: 'Fail', checked: showFail, onChange: wrapDataAccessSetter(setShowFail) },
                           ]}
                         />
                       </TableHead>
@@ -475,9 +533,9 @@ const CompleteLayersDialog = ({
                           activeSortDir={sortDir}
                           onSort={(dir) => setSort('performance', dir)}
                           filters={[
-                            { key: 'good', label: 'Good', checked: showGood, onChange: setShowGood },
-                            { key: 'average', label: 'Average', checked: showAverage, onChange: setShowAverage },
-                            { key: 'poor', label: 'Poor', checked: showPoor, onChange: setShowPoor },
+                            { key: 'good', label: 'Good', checked: showGood, onChange: wrapPerformanceSetter(setShowGood) },
+                            { key: 'average', label: 'Average', checked: showAverage, onChange: wrapPerformanceSetter(setShowAverage) },
+                            { key: 'poor', label: 'Poor', checked: showPoor, onChange: wrapPerformanceSetter(setShowPoor) },
                           ]}
                         />
                       </TableHead>
@@ -525,7 +583,7 @@ const CompleteLayersDialog = ({
                               )}
                             </TableCell>
                             <TableCell className="text-right">
-                              {hasUrlResults && (
+                              {hasUrlResults && cols && (cols.dataAccess === 'partial' || cols.dataAccess === 'fail' || cols.performance === 'average' || cols.performance === 'poor') && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -721,6 +779,32 @@ const ColumnHeader: React.FC<{
         </DropdownMenu>
       </div>
     </TooltipProvider>
+  );
+};
+
+const SummaryChip: React.FC<{
+  icon: React.ComponentType<{ className?: string }>;
+  toneClass: string;
+  count: number;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}> = ({ icon: Icon, toneClass, count, label, active, onClick }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={active ? 'Click again to clear filter' : `Filter to ${label} only`}
+      className={`w-full flex items-center gap-1.5 text-xs px-1.5 py-0.5 rounded transition-colors ${toneClass} ${
+        active
+          ? 'bg-primary/5 ring-1 ring-primary/40'
+          : 'hover:bg-muted/60'
+      }`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      <span className={active ? 'font-semibold' : 'font-medium'}>{count}</span>
+      <span>{label}</span>
+    </button>
   );
 };
 
