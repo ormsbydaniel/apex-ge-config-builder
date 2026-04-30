@@ -295,13 +295,15 @@ const CompleteLayersDialog = ({
     }
   }, [allLayers, config.services, onValidationComplete]);
 
-  // Auto-run validation each time the dialog opens (fresh run every time)
+  // Auto-run validation only when explicitly requested via autoRun prop.
+  // When autoRun is false the dialog is opened in view-only mode and just
+  // displays the previously executed results.
   React.useEffect(() => {
-    if (open && !isValidating) {
+    if (open && autoRun && !isValidating) {
       handleRunDetailedReport();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, autoRun]);
 
   const toggleRowExpansion = (layerKey: string) => {
     setExpandedRows(prev => {
