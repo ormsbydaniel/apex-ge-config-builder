@@ -45,7 +45,22 @@ async function validateUrl(
     }
 
     // For direct file URLs (COG, GeoJSON, FlatGeobuf, etc.)
-    return await validateDirectUrl(url, type);
+    const directResult = await validateDirectUrl(url, type);
+
+    // GeoJSON-only performance check: layered on top of reachability,
+    // but only if the URL is reachable. Reachability problems remain 'error'.
+    if (directResult.status === 'valid' && format === 'geojson') {
+      const probe = await probeGeojsonSize(url, { largeBytes: GEOJSON_PERF_WARNING_BYTES });
+      // Only flag known-oversized files. "Size unknown" / errors here are ignored —
+      // the layer already passed reachability above.
+      if (probe.status === 'warning' && typeof probe.bytes === 'number') {
+        directResult.status = 'performance-warning';
+        directResult.warning = probe.message ?? `Large file: ${formatBytes(probe.bytes)} (threshold ${formatBytes(GEOJSON_PERF_WARNING_BYTES)})`;
+        directResult.bytes = probe.bytes;
+      }
+    }
+
+    return directResult;
     
   } catch (error) {
     if (error instanceof Error) {
