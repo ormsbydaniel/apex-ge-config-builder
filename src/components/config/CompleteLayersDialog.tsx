@@ -574,6 +574,35 @@ const CompleteLayersDialog = ({
                           {isExpanded && hasUrlResults && (
                             <TableRow>
                               <TableCell colSpan={5} className="bg-muted/30 p-4">
+                                {(onRemoveLayer || onEditLayer) && (
+                                  <div className="flex justify-end gap-2 mb-3">
+                                    {onEditLayer && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8"
+                                        onClick={() => {
+                                          onEditLayer(item.index);
+                                          onOpenChange(false);
+                                        }}
+                                      >
+                                        <Edit className="h-3.5 w-3.5 mr-1.5" />
+                                        Edit Layer
+                                      </Button>
+                                    )}
+                                    {onRemoveLayer && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                                        onClick={() => setConfirmRemoveLayer({ index: item.index, name: item.layer.name })}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                                        Remove Layer
+                                      </Button>
+                                    )}
+                                  </div>
+                                )}
                                 <div className="space-y-2">
                                   <div className="text-sm font-medium mb-2">URL Validation Details</div>
                                   {result!.urlResults.map((urlResult, idx) => (
