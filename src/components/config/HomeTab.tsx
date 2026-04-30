@@ -38,6 +38,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
   const [showCompleteLayersDialog, setShowCompleteLayersDialog] = useState(false);
+  const [healthcheckAutoRun, setHealthcheckAutoRun] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [showLayerIssuesDialog, setShowLayerIssuesDialog] = useState(false);
   const [layerIssuesTitle, setLayerIssuesTitle] = useState('');
