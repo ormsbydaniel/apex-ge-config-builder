@@ -782,4 +782,30 @@ const ColumnHeader: React.FC<{
   );
 };
 
+const SummaryChip: React.FC<{
+  icon: React.ComponentType<{ className?: string }>;
+  toneClass: string;
+  count: number;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}> = ({ icon: Icon, toneClass, count, label, active, onClick }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={active ? 'Click again to clear filter' : `Filter to ${label} only`}
+      className={`w-full flex items-center gap-1.5 text-xs px-1.5 py-0.5 rounded transition-colors ${toneClass} ${
+        active
+          ? 'bg-primary/5 ring-1 ring-primary/40'
+          : 'hover:bg-muted/60'
+      }`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      <span className={active ? 'font-semibold' : 'font-medium'}>{count}</span>
+      <span>{label}</span>
+    </button>
+  );
+};
+
 export default CompleteLayersDialog;
