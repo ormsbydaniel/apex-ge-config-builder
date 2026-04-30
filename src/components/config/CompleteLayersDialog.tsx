@@ -185,6 +185,7 @@ const CompleteLayersDialog = ({
     setRowStates(new Map());
     setExpandedRows(new Set());
     setValidationProgress({ completed: 0, total: 0, currentLayer: '' });
+    setQuickFilter(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
