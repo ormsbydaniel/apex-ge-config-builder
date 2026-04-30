@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, Filter as FilterIcon, CircleDot, CircleDashed } from 'lucide-react';
+import { ChevronRight, Check, AlertTriangle, Loader2, Info, Zap, XCircle, ArrowUpDown, CircleDot, CircleDashed } from 'lucide-react';
 import { DataSource, LayerValidationResult } from '@/types/config';
 import { validateBatchLayers } from '@/utils/layerValidation';
 import {
@@ -23,7 +23,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuCheckboxItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
@@ -119,14 +118,6 @@ const CompleteLayersDialog = ({
   const [validationProgress, setValidationProgress] = useState({ completed: 0, total: 0, currentLayer: '' });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
-  // Filters
-  const [showPass, setShowPass] = useState(true);
-  const [showPartial, setShowPartial] = useState(true);
-  const [showFail, setShowFail] = useState(true);
-  const [showGood, setShowGood] = useState(true);
-  const [showAverage, setShowAverage] = useState(true);
-  const [showPoor, setShowPoor] = useState(true);
-
   // Quick filter from the Results card — single-select across both metric groups.
   type QuickFilter =
     | { kind: 'dataAccess'; value: DataAccessStatus }
@@ -138,24 +129,8 @@ const CompleteLayersDialog = ({
     setQuickFilter(prev => {
       const isSame = prev && prev.kind === qf.kind && prev.value === qf.value;
       if (isSame) return null;
-      // Reset the targeted column's checkbox filters to all-on so the two systems don't fight.
-      if (qf.kind === 'dataAccess') {
-        setShowPass(true); setShowPartial(true); setShowFail(true);
-      } else {
-        setShowGood(true); setShowAverage(true); setShowPoor(true);
-      }
       return qf;
     });
-  };
-
-  // Wrap checkbox setters so manual changes clear an active quick filter on the same column.
-  const wrapDataAccessSetter = (setter: (v: boolean) => void) => (v: boolean) => {
-    if (quickFilter?.kind === 'dataAccess') setQuickFilter(null);
-    setter(v);
-  };
-  const wrapPerformanceSetter = (setter: (v: boolean) => void) => (v: boolean) => {
-    if (quickFilter?.kind === 'performance') setQuickFilter(null);
-    setter(v);
   };
 
   // Sort state — only one column can be actively sorted at a time
@@ -244,20 +219,6 @@ const CompleteLayersDialog = ({
       if (!result) return true;
       const { dataAccess, performance } = deriveHealthcheckColumns(result);
 
-      const daOk =
-        (dataAccess === 'pass' && showPass) ||
-        (dataAccess === 'partial' && showPartial) ||
-        (dataAccess === 'fail' && showFail) ||
-        dataAccess === 'na';
-
-      const perfOk =
-        (performance === 'good' && showGood) ||
-        (performance === 'average' && showAverage) ||
-        (performance === 'poor' && showPoor) ||
-        performance === 'na';
-
-      if (!(daOk && perfOk)) return false;
-
       // Apply mutually-exclusive quick filter from the Results card.
       if (quickFilter) {
         if (quickFilter.kind === 'dataAccess' && dataAccess !== quickFilter.value) return false;
@@ -266,7 +227,7 @@ const CompleteLayersDialog = ({
 
       return true;
     });
-  }, [sortedLayers, showPass, showPartial, showFail, showGood, showAverage, showPoor, quickFilter]);
+  }, [sortedLayers, quickFilter]);
 
   const handleRunDetailedReport = useCallback(async () => {
     setIsValidating(true);
@@ -400,17 +361,20 @@ const CompleteLayersDialog = ({
             {(isValidating || validationResults.size > 0) && (
               <Card className="w-full max-w-sm border-border/50 bg-background/60">
                 <CardContent className="p-3 space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide shrink-0">
-                      Results
-                    </div>
-                    {isValidating && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground shrink-0">
-                        <span>{validationProgress.completed} / {validationProgress.total}</span>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                      </div>
-                    )}
-                  </div>
+                   <div className="flex items-center justify-between gap-2">
+                     <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide shrink-0">
+                       Results
+                     </div>
+                     {isValidating && (
+                       <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground shrink-0">
+                         <span>{validationProgress.completed} / {validationProgress.total}</span>
+                         <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                       </div>
+                     )}
+                   </div>
+                   <div className="text-[11px] text-muted-foreground italic">
+                     Click on result metric to filter list below
+                   </div>
                   {isValidating && (
                     <div className="text-[11px] text-muted-foreground truncate min-h-[14px]">
                       {validationProgress.currentLayer ? (
@@ -518,11 +482,6 @@ const CompleteLayersDialog = ({
                           activeSortColumn={sortColumn}
                           activeSortDir={sortDir}
                           onSort={(dir) => setSort('dataAccess', dir)}
-                          filters={[
-                            { key: 'pass', label: 'Pass', checked: showPass, onChange: wrapDataAccessSetter(setShowPass) },
-                            { key: 'partial', label: 'Partial', checked: showPartial, onChange: wrapDataAccessSetter(setShowPartial) },
-                            { key: 'fail', label: 'Fail', checked: showFail, onChange: wrapDataAccessSetter(setShowFail) },
-                          ]}
                         />
                       </TableHead>
                       <TableHead className="w-[140px] align-top">
@@ -532,11 +491,6 @@ const CompleteLayersDialog = ({
                           activeSortColumn={sortColumn}
                           activeSortDir={sortDir}
                           onSort={(dir) => setSort('performance', dir)}
-                          filters={[
-                            { key: 'good', label: 'Good', checked: showGood, onChange: wrapPerformanceSetter(setShowGood) },
-                            { key: 'average', label: 'Average', checked: showAverage, onChange: wrapPerformanceSetter(setShowAverage) },
-                            { key: 'poor', label: 'Poor', checked: showPoor, onChange: wrapPerformanceSetter(setShowPoor) },
-                          ]}
                         />
                       </TableHead>
                       <TableHead className="w-[130px] text-right align-top">Details</TableHead>
@@ -681,24 +635,14 @@ const CompleteLayersDialog = ({
   );
 };
 
-interface FilterOption {
-  key: string;
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}
-
 const ColumnHeader: React.FC<{
   title: string;
   column: 'dataAccess' | 'performance';
   activeSortColumn: 'none' | 'dataAccess' | 'performance';
   activeSortDir: 'worst' | 'best';
   onSort: (dir: 'default' | 'worst' | 'best') => void;
-  filters: FilterOption[];
-}> = ({ title, column, activeSortColumn, activeSortDir, onSort, filters }) => {
+}> = ({ title, column, activeSortColumn, activeSortDir, onSort }) => {
   const isSorted = activeSortColumn === column;
-  const activeFilterCount = filters.filter(f => !f.checked).length;
-  const filterActive = activeFilterCount > 0;
 
   return (
     <TooltipProvider delayDuration={400}>
@@ -736,45 +680,6 @@ const ColumnHeader: React.FC<{
               {isSorted && activeSortDir === 'best' && <Check className="h-3.5 w-3.5 mr-2" />}
               <span className={!(isSorted && activeSortDir === 'best') ? 'ml-[22px]' : ''}>Best first</span>
             </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`h-6 px-1.5 text-xs font-normal ${filterActive ? 'text-primary' : 'text-muted-foreground'}`}
-                  aria-label={`Filter ${title}`}
-                >
-                  <FilterIcon className="h-3.5 w-3.5" />
-                  {filterActive && (
-                    <span className="ml-0.5 text-[10px]">({activeFilterCount})</span>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              {filterActive
-                ? `Filter ${title} (${activeFilterCount} hidden)`
-                : `Filter ${title}`}
-            </TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="start" className="w-44">
-            <DropdownMenuLabel className="text-xs">Show {title}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {filters.map(f => (
-              <DropdownMenuCheckboxItem
-                key={f.key}
-                checked={f.checked}
-                onCheckedChange={(v) => f.onChange(v === true)}
-                onSelect={(e) => e.preventDefault()}
-              >
-                {f.label}
-              </DropdownMenuCheckboxItem>
-            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
