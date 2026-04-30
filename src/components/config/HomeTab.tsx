@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Zap, Stethoscope, CircleDot, XCircle, CircleDashed } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Stethoscope, CircleDot, XCircle, CircleDashed } from 'lucide-react';
 import { deriveHealthcheckColumns, dataAccessLabel, performanceLabel, DataAccessStatus, PerformanceStatus } from '@/utils/healthcheckColumns';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -272,29 +272,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
     setShowLayerIssuesDialog(true);
   };
 
-  // Performance warning count + click handler — only meaningful after a validation run.
-  const perfWarningCount = validationResults && validationResults.size > 0
-    ? Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'performance-warning').length
-    : 0;
-
-  const handlePerformanceClick = () => {
-    if (!validationResults || validationResults.size === 0) return;
-    const layers: Array<{ source: DataSource; interfaceGroup: string; layerName: string }> = [];
-    config.sources.forEach((source: DataSource, index: number) => {
-      const result = validationResults.get(index);
-      if (result?.overallStatus === 'performance-warning') {
-        layers.push({
-          source,
-          interfaceGroup: getInterfaceGroupName(source),
-          layerName: source.name || 'Unnamed Layer',
-        });
-      }
-    });
-    setLayerIssuesTitle('Performance Warnings');
-    setLayerIssuesList(layers);
-    setShowLayerIssuesDialog(true);
-  };
-
   return (
     <>
       <div className="space-y-4">
@@ -555,20 +532,6 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   colorClass="text-red-600"
                   bgGradient="from-red-500/20 to-red-500/5"
                   onClick={handleNoDataClick}
-                />
-                <QAStatCard
-                  icon={Zap}
-                  value={validationResults && validationResults.size > 0 ? perfWarningCount : null}
-                  label="Performance Warning"
-                  colorClass="text-amber-600"
-                  bgGradient="from-amber-500/20 to-amber-500/5"
-                  onClick={validationResults && validationResults.size > 0 ? handlePerformanceClick : undefined}
-                  disabled={!validationResults || validationResults.size === 0}
-                  tooltip={
-                    !validationResults || validationResults.size === 0
-                      ? 'Run Healthcheck to check performance'
-                      : 'Layers with data sources that load but exceed size thresholds'
-                  }
                 />
               </div>
 
