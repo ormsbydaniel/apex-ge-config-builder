@@ -1,90 +1,68 @@
-## Goal
+## Add COG performance validation to Layer QA
 
-Restore the conceptual split between Services and Data Sources, and introduce a new "Performance warning" status for diagnostics that aren't broken but aren't optimal.
+Extend the existing Layer QA "Performance Warning" category to also flag COG data sources that are likely to be slow to render in the viewer. Mirrors the approach already used for oversized GeoJSON.
 
-- **Services page** → keeps GetCapabilities timing/size diagnostics (correct location).
-- **Home → Layer QA → Run Data Source Validation** → gains GeoJSON file-size check.
-- **New status** "Performance warning" cleanly separates "heavy but works" from "broken".
+### Checks to run (per COG URL)
 
-## Changes
+For any data source where `format === 'cog'` (and the URL is reachable), probe the COG header and emit a `performance-warning` if any of the following are true:
 
-### 1. Strip GeoJSON from the Services page
+1. **Tile size out of range** — `tileWidth` or `tileLength` < 256 or > 512 (or untiled / strip-based layout)
+2. **No overviews** — `overviewCount === 0`
+3. **No / inefficient compression** — `compression === 1` (None) or anything outside the efficient set already used by `validateCogCompliance` (`[1, 5, 7, 8, 34712]` minus `1`, i.e. LZW/JPEG/Deflate/JPEG2000 are fine)
+4. **Pixel/band-interleaved** — `planarConfiguration === 2` is BSQ (fast); `planarConfiguration === 1` (or undefined) is BIP (slower) → warn
 
-**`src/hooks/useBulkServiceValidation.ts`**
-- Remove the `'geojson'` probe category and the `config.sources` walk.
-- Keep `'warning'` status and `warnings` map — still used by GetCapabilities checks.
+All issues found for a single URL are concatenated into the existing `warning` string (e.g. `"Tile size 1024×1024 too large; no overviews; pixel-interleaved"`).
 
-**`src/components/ServicesManager.tsx`**
-- Remove the "GeoJSON Layer Sources" card.
-- Remove GeoJSON rows/counts from the summary panel.
-- Keep service-level warning badges (slow / large GetCapabilities).
+### Implementation
 
-### 2. New "Performance warning" status
-
-**`src/types/validation.ts`**
-- Extend `UrlValidationResult.status` with `'performance-warning'`.
-- Extend `LayerValidationResult.overallStatus` with `'performance-warning'`.
-- Add optional `warning?: string` and `bytes?: number` to `UrlValidationResult`.
-
-**Aggregation in `layerValidation.ts`** — priority highest first:
-1. `error` — any URL failed
-2. `partial` — some valid, some failed
-3. `performance-warning` — all reachable, but at least one URL has a perf warning
-4. `valid` — all clean
-
-Performance warnings never mask real failures.
-
-### 3. GeoJSON size check in Layer QA
-
-**`src/utils/layerValidation.ts`**
-- For URLs whose layer type is GeoJSON, after the existing HEAD reachability check, evaluate `Content-Length` against a **5 MB** threshold using `probeGeojsonSize`.
-- Caller passes `{ largeBytes: 5 * 1024 * 1024 }` so the utility default stays generic.
-- Suppress the utility's "Size unknown" warning (only flag known-oversized files). Reachability problems remain `'error'`.
-- On oversized: set `status: 'performance-warning'`, populate `warning` and `bytes`.
-- FlatGeobuf intentionally excluded (designed for streaming).
-
-### 4. UI
-
-**`src/components/config/CompleteLayersDialog.tsx`**
-- New per-layer status pill variant: "Performance" (amber).
-- Per-URL row: amber badge with the message (e.g. "Large file: 7.2 MB (threshold 5 MB)").
-
-**`src/components/config/HomeTab.tsx`**
-
-a) **5th QA stat tile "Performance"**
-- Icon: `Zap`, amber colour scheme.
-- **Disabled state** when `validationResults.size === 0`: greyed out, value `–`, tooltip "Run Data Source Validation to check performance".
-- **Active state** when `validationResults.size > 0`: count of layers with `overallStatus === 'performance-warning'`. Clickable → opens `LayerIssuesDialog` filtered to performance-warning layers.
-- Grid: extend `grid-cols-2 md:grid-cols-4` → `grid-cols-2 md:grid-cols-5`.
-
-b) **"Last Validation Results" summary** — extend from 3 to 4 buckets:
+**1. New helper: `src/utils/cogPerformanceProbe.ts`**
 
 ```text
-[N Valid]  [N Perf warning]  [N Partial]  [N Errors]
-  green       amber-soft        amber        red
+probeCogPerformance(url) → {
+  status: 'ok' | 'warning' | 'error',
+  message?: string,
+  details?: { tileWidth, tileLength, overviewCount, compression, planarConfiguration }
+}
 ```
 
-**`QAStatCard`**
-- Add optional `disabled?: boolean` and `tooltip?: string` props for reuse with future run-gated tiles (e.g. COG performance).
+- Calls existing `fetchCogHeaderMetadata(url)` from `src/utils/cogMetadata.ts` (already cached, time-limited, handles hyperspectral safely).
+- Applies the four rules above and builds a human-readable message.
+- Errors from the probe are swallowed (return `status: 'ok'`) — reachability is the responsibility of the URL HEAD check that already ran.
+- Note on interleave: per existing memory `mem://features/metadata/cog-interleave-detection`, BSQ vs BIP is determined by `PlanarConfiguration` (1 = chunky/BIP, 2 = planar/BSQ). Single-band images (`samplesPerPixel === 1`) skip this check.
 
-## Files touched
+**2. Wire into `src/utils/layerValidation.ts`**
+
+In `validateUrl`, after the GeoJSON branch, add a parallel COG branch:
 
 ```text
-src/hooks/useBulkServiceValidation.ts            — remove geojson category
-src/components/ServicesManager.tsx               — remove GeoJSON card + summary rows
-src/types/validation.ts                          — add 'performance-warning' + warning/bytes
-src/utils/layerValidation.ts                     — call probeGeojsonSize (5 MB) for GeoJSON; aggregate perf-warning
-src/components/config/CompleteLayersDialog.tsx   — perf-warning pill + per-url badges
-src/components/config/HomeTab.tsx                — 4-bucket summary + 5th Performance tile (disabled until validated)
-src/components/config/QAStatCard.tsx             — optional disabled + tooltip props
+if (directResult.status === 'valid' && format === 'cog') {
+  const probe = await probeCogPerformance(url);
+  if (probe.status === 'warning') {
+    directResult.status = 'performance-warning';
+    directResult.warning = probe.message;
+  }
+}
 ```
 
-Unchanged: `geojsonProbe.ts`, `serviceCapabilities.ts`, `stacCapabilities.ts`.
+Existing aggregation priority (`error > partial > performance-warning > valid`) and the existing `performance-warning` UI in `CompleteLayersDialog.tsx` (amber pill, inline badge, filter checkbox) and `HomeTab.tsx` Performance Warning stat tile already handle the new warnings — no UI changes needed.
 
-## Out of scope / Future
+**3. Threshold constants**
 
-- **TIF / COG performance checks** — deferred. Raw size isn't the right signal for raster (COG-ness, overviews, tiling, interleave matter more). Will slot into the same `'performance-warning'` bucket and the same disabled-until-run tile pattern.
+Co-locate in the new file:
 
-## Risk
+```text
+COG_TILE_MIN = 256
+COG_TILE_MAX = 512
+COG_EFFICIENT_COMPRESSION = [5, 7, 8, 34712]  // LZW, JPEG, Deflate, JPEG2000
+```
 
-Low. Services-side change is mechanical removal. Layer QA addition reuses an existing utility, plugs into existing per-URL result rows, and adds one new enum value with clear aggregation precedence.
+### Out of scope
+
+- No changes to the `validateCogCompliance` function used in the COG metadata viewer (it serves a different purpose and uses a wider tile-size tolerance of 128–1024).
+- No new stat tile — reuses the existing Performance Warning bucket.
+- No changes to the Services page.
+
+### Files touched
+
+- **new** `src/utils/cogPerformanceProbe.ts`
+- **edit** `src/utils/layerValidation.ts` (one new branch in `validateUrl`)
