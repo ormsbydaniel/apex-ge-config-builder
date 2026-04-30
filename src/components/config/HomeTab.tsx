@@ -603,7 +603,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
                           className="h-full border-border/50 bg-background/60 cursor-pointer hover:bg-background hover:border-border transition-colors"
                         >
                           <CardContent className="p-3 space-y-3">
-                            <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide">
+                            <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide text-center">
                               Results
                             </div>
                             <div className="grid grid-cols-2 gap-3">
