@@ -382,7 +382,8 @@ const CompleteLayersDialog = ({
                     <TableRow>
                       <TableHead>Interface Group</TableHead>
                       <TableHead>Layer Name</TableHead>
-                      <TableHead className="w-[200px] align-top">
+                      <TableHead className="w-[150px] align-top">
+
                         <ColumnHeader
                           title="Data Access"
                           column="dataAccess"
