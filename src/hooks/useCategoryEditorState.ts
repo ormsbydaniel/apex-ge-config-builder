@@ -18,7 +18,9 @@ export const useCategoryEditorState = ({ categories }: UseCategoryEditorStatePro
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [localCategories, setLocalCategories] = useState<Category[]>([...categories]);
-  const [useValues, setUseValues] = useState(categories.some(cat => cat.value !== undefined));
+  const [useValues, setUseValues] = useState(
+    categories.length === 0 ? true : categories.some(cat => cat.value !== undefined),
+  );
   const [newCategory, setNewCategory] = useState<Category>(emptyNewCategory());
   const [showAppendReplaceDialog, setShowAppendReplaceDialog] = useState(false);
   const [pendingCopyData, setPendingCopyData] = useState<{
@@ -32,7 +34,9 @@ export const useCategoryEditorState = ({ categories }: UseCategoryEditorStatePro
   useEffect(() => {
     if (open) {
       setLocalCategories([...categories]);
-      setUseValues(categories.some(cat => cat.value !== undefined));
+      setUseValues(
+        categories.length === 0 ? true : categories.some(cat => cat.value !== undefined),
+      );
       setNewCategory(emptyNewCategory());
       setPendingCopyData(null);
       setShowAppendReplaceDialog(false);
