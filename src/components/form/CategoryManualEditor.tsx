@@ -41,16 +41,25 @@ const CategoryManualEditor = ({
 
   const handleAddCategory = () => {
     if (newCategory.label.trim()) {
+      // Always assign a value (max existing + 1) so numbering is preserved
+      // even if "Use Category Values" is currently off — the user can toggle
+      // it back on without losing their numbering.
+      const maxValue = localCategories.reduce(
+        (max, cat) => (cat.value !== undefined && cat.value > max ? cat.value : max),
+        -1,
+      );
+      const nextValue =
+        useValues && newCategory.value !== undefined ? newCategory.value : maxValue + 1;
       const categoryToAdd: Category = {
         color: convertColorToHex(newCategory.color),
         label: newCategory.label,
-        value: useValues ? (newCategory.value !== undefined ? newCategory.value : localCategories.length) : localCategories.length
+        value: nextValue,
       };
       setLocalCategories([...localCategories, categoryToAdd]);
       setNewCategory({
         label: '',
         color: '#000000',
-        value: 0
+        value: useValues ? nextValue + 1 : 0,
       });
     }
   };
