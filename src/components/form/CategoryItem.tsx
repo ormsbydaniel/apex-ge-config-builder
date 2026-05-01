@@ -34,10 +34,10 @@ const CategoryItem = ({
   // Ensure color is in hex format for the color picker
   const displayColor = convertColorToHex(category.color);
 
-  const handleLabelBlur = () => {
-    if (localLabel !== category.label) {
-      onUpdate(index, 'label', localLabel);
-    }
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = e.target.value;
+    setLocalLabel(next);
+    onUpdate(index, 'label', next);
   };
 
   const handleLabelKeyDown = (e: React.KeyboardEvent) => {
@@ -63,8 +63,7 @@ const CategoryItem = ({
       
       <Input
         value={localLabel}
-        onChange={(e) => setLocalLabel(e.target.value)}
-        onBlur={handleLabelBlur}
+        onChange={handleLabelChange}
         onKeyDown={handleLabelKeyDown}
         placeholder="Category label"
         className="flex-1 h-8 text-sm"
