@@ -115,6 +115,7 @@ const CategoryCopyFromLayerButton = ({
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button
+          ref={triggerRef}
           type="button"
           variant="outline"
           size="sm"
@@ -125,7 +126,11 @@ const CategoryCopyFromLayerButton = ({
           Copy from layer
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="max-h-80 overflow-y-auto w-72">
+      <DropdownMenuContent
+        align="start"
+        className="max-h-80 overflow-y-auto"
+        style={contentWidth ? { width: contentWidth } : undefined}
+      >
         {grouped.map((group, groupIdx) => (
           <DropdownMenuGroup key={group.name}>
             {groupIdx > 0 && <DropdownMenuSeparator />}
