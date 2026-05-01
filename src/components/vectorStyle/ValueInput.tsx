@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -8,6 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Settings2, RotateCcw } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import ConstantInput from './ConstantInput';
 import StopsEditor from './StopsEditor';
 import type { ValueModel } from '@/types/vectorStyle';
@@ -83,37 +91,109 @@ const MODE_LABEL: Record<Mode, string> = {
   expression: 'Expression',
 };
 
+const summaryFor = (value: ValueModel): string => {
+  if (value.kind === 'attribute') {
+    return value.mode === 'match'
+      ? `By attribute (match): ${value.field || '—'}`
+      : `By attribute (interpolate): ${value.field || '—'}`;
+  }
+  if (value.kind === 'zoom') return 'By zoom';
+  if (value.kind === 'expression') return 'Expression';
+  return '';
+};
+
 const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
   const mode = modeOf(value);
+  const isAdvancedMode = mode !== 'constant';
+  const [advancedOpen, setAdvancedOpen] = useState<boolean>(isAdvancedMode);
+
+  const showAdvanced = advancedOpen || isAdvancedMode;
 
   const handleModeChange = (next: Mode) => {
     if (next === mode) return;
     onChange(blankFor(next, prop, fields));
   };
 
+  const resetToConstant = () => {
+    onChange({ kind: 'constant', value: defaultConstantFor(prop.type) as any });
+    setAdvancedOpen(false);
+  };
+
+  const advancedToggle = (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className={cn(
+            'h-7 w-7 shrink-0',
+            isAdvancedMode && 'text-primary',
+          )}
+          aria-label="Advanced value options"
+          aria-pressed={showAdvanced}
+          onClick={() => setAdvancedOpen(o => !o)}
+        >
+          <Settings2 className="h-3.5 w-3.5" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="top">Advanced</TooltipContent>
+    </Tooltip>
+  );
+
+  // Compact, single-line layout when in constant mode and not expanded.
+  if (mode === 'constant' && !advancedOpen) {
+    return (
+      <div className="flex items-center gap-2">
+        <Label className="text-xs w-20 shrink-0">{prop.label}</Label>
+        <div className="flex-1 min-w-0">
+          {value.kind === 'constant' && (
+            <ConstantInput
+              type={prop.type}
+              options={prop.options}
+              value={value.value}
+              onChange={(v) => onChange({ kind: 'constant', value: v })}
+            />
+          )}
+        </div>
+        {advancedToggle}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <Label className="text-xs flex-1">{prop.label}</Label>
-        <Select value={mode} onValueChange={(v) => handleModeChange(v as Mode)}>
-          <SelectTrigger className="h-7 w-[180px] text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="constant">{MODE_LABEL.constant}</SelectItem>
-            <SelectItem value="attribute-match">{MODE_LABEL['attribute-match']}</SelectItem>
-            {interpAvailable(prop.type) && (
-              <SelectItem value="attribute-interp">{MODE_LABEL['attribute-interp']}</SelectItem>
-            )}
-            {interpAvailable(prop.type) && (
-              <SelectItem value="zoom">{MODE_LABEL.zoom}</SelectItem>
-            )}
-            <SelectItem value="expression">{MODE_LABEL.expression}</SelectItem>
-          </SelectContent>
-        </Select>
+        {showAdvanced && (
+          <Select value={mode} onValueChange={(v) => handleModeChange(v as Mode)}>
+            <SelectTrigger className="h-7 w-[180px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="constant">{MODE_LABEL.constant}</SelectItem>
+              <SelectItem value="attribute-match">{MODE_LABEL['attribute-match']}</SelectItem>
+              {interpAvailable(prop.type) && (
+                <SelectItem value="attribute-interp">{MODE_LABEL['attribute-interp']}</SelectItem>
+              )}
+              {interpAvailable(prop.type) && (
+                <SelectItem value="zoom">{MODE_LABEL.zoom}</SelectItem>
+              )}
+              <SelectItem value="expression">{MODE_LABEL.expression}</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        {advancedToggle}
       </div>
 
-      {mode === 'constant' && value.kind === 'constant' && (
+      {/* Compact summary when advanced is collapsed but mode is non-constant */}
+      {!advancedOpen && isAdvancedMode && (
+        <p className="text-xs text-muted-foreground italic">
+          {summaryFor(value)}
+        </p>
+      )}
+
+      {advancedOpen && mode === 'constant' && value.kind === 'constant' && (
         <ConstantInput
           type={prop.type}
           options={prop.options}
@@ -122,7 +202,7 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
         />
       )}
 
-      {(mode === 'attribute-match' || mode === 'attribute-interp') &&
+      {advancedOpen && (mode === 'attribute-match' || mode === 'attribute-interp') &&
         value.kind === 'attribute' && (
           <div className="space-y-2 rounded-md border bg-muted/20 p-2">
             <div className="flex items-center gap-2">
@@ -198,7 +278,7 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
           </div>
         )}
 
-      {mode === 'zoom' && value.kind === 'zoom' && (
+      {advancedOpen && mode === 'zoom' && value.kind === 'zoom' && (
         <div className="space-y-2 rounded-md border bg-muted/20 p-2">
           <StopsEditor
             inputType="number"
@@ -214,7 +294,7 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
         </div>
       )}
 
-      {mode === 'expression' && value.kind === 'expression' && (
+      {advancedOpen && mode === 'expression' && value.kind === 'expression' && (
         <Textarea
           className="font-mono text-xs"
           rows={3}
@@ -236,6 +316,21 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
           }}
           placeholder='e.g. ["get", "name"]'
         />
+      )}
+
+      {advancedOpen && isAdvancedMode && (
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={resetToConstant}
+          >
+            <RotateCcw className="mr-1 h-3 w-3" />
+            Reset to constant
+          </Button>
+        </div>
       )}
     </div>
   );
