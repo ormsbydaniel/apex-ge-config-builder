@@ -39,7 +39,7 @@ const CategoryList = ({
       <div className="bg-muted/20 rounded-lg overflow-hidden">
         {categories.map((category, index) => (
           <CategoryItem
-            key={`${category.label}-${category.color}-${category.value}-${index}`}
+            key={index}
             category={category}
             index={index}
             useValues={useValues}
