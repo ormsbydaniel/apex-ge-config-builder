@@ -2,7 +2,7 @@
  * Editor-side data model for the OpenLayers flat-style vector style array.
  *
  * Each saved entry follows OL's rule shape:
- *   { filter?, else?, style: { /* flat properties */ } }
+ *   { filter?, else?, style: { ...flat properties... } }
  *
  * The structured editor works in this richer model and round-trips with raw
  * JSON via `toFlatStyleArray` / `fromFlatStyleArray`.
