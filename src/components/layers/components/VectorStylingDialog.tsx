@@ -102,7 +102,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
                     <FileJson className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent side="bottom" align="end" sideOffset={6}>
                   {jsonActive ? 'Switch to basic styling' : 'Switch to JSON editor'}
                 </TooltipContent>
               </Tooltip>
