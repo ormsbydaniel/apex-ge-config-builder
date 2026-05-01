@@ -83,26 +83,7 @@ const CategoryManualEditor = ({
     setLocalCategories(localCategories.filter((_, i) => i !== index));
   }, [localCategories, setLocalCategories]);
 
-  const handleUseValuesToggle = (checked: boolean) => {
-    setUseValues(checked);
-    if (checked) {
-      const updatedCategories = localCategories.map((cat, index) => ({
-        ...cat,
-        value: cat.value !== undefined ? cat.value : index
-      }));
-      setLocalCategories(updatedCategories);
-      if (newCategory.value === undefined) {
-        setNewCategory({ ...newCategory, value: localCategories.length });
-      }
-    } else {
-      const updatedCategories = localCategories.map((cat, index) => ({
-        ...cat,
-        value: index
-      }));
-      setLocalCategories(updatedCategories);
-      setNewCategory({ ...newCategory, value: 0 });
-    }
-  };
+
 
   return (
     <div className="space-y-4">
