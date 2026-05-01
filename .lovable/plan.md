@@ -1,17 +1,27 @@
-## Stack property rows vertically (one per row)
+## Two-column grid: simple rows take 1 col, advanced spans 2
 
-Currently `PropertyForm` lays out property inputs in a 2-column responsive grid, so for a Line panel the user sees Color and Width side-by-side. The compact constant view inside `ValueInput` already renders as `Label | input | PlusCircle`, so switching the form container to a single vertical stack will give the requested layout:
+Today every property row is full-width. Simple constant rows (e.g. Line → Color, Width) only need a label + a small input + the ⊕ toggle, leaving lots of empty space on the right. When the user expands a row into advanced mode (attribute / zoom / expression / stops editor) the extra width becomes useful.
+
+### Behaviour
+
+- The panel becomes a responsive **2-column grid**.
+- A row whose value is **constant and not expanded** occupies **one column**.
+- A row that is in **advanced mode or whose advanced panel is open** spans **both columns** so the attribute picker, stops editor, expression textarea, etc. get the full width.
+- On narrow viewports (`< md`) it falls back to a single column for both states.
 
 ```text
-Line
-  Color    [#3b82f6 ▢]    ⊕
-  Width    [    2     ]   ⊕
+md+ viewport:
+  [ Color  #3b82f6 ⊕ ] [ Width  2  ⊕ ]
+  [ Opacity ────────────────────── ⊕ ]   ← spans 2 because advanced is open
+  [ By attribute (match): name             ... ]
 ```
 
-### Change
+### Changes
 
-- `src/components/vectorStyle/PropertyForm.tsx`: replace the `grid grid-cols-1 md:grid-cols-2 gap-3` wrapper with a `space-y-2` vertical stack so each property occupies its own row at all viewport widths.
+1. `src/components/vectorStyle/ValueInput.tsx`
+   - Wrap the component's returned root in a div whose className includes `md:col-span-2` when `showAdvanced` (i.e. `advancedOpen || isAdvancedMode`) is true. Constant + collapsed rows render with no col-span class so they sit in a single grid cell.
 
-This applies uniformly to Line, Fill, and Label panels (Marker uses the same `PropertyForm` under `MarkerPanel`).
+2. `src/components/vectorStyle/PropertyForm.tsx`
+   - Replace the `space-y-2` stack with `grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2`.
 
-No changes are required in `ValueInput` — its compact constant row already renders as Label | input | PlusCircle which matches the requested per-row format.
+No other panels/components are affected — `PropertyForm` is used by `LinePanel`, `FillPanel`, `LabelPanel`, and `MarkerPanel` so all four benefit.
