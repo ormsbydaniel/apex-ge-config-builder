@@ -41,7 +41,7 @@ export const defaultFill = (): FillPrimitive => ({
 export const defaultLabel = (firstStringField?: string): LabelPrimitive => ({
   props: {
     'text-value': firstStringField
-      ? { kind: 'attribute', field: firstStringField, mode: 'match', stops: [] }
+      ? { kind: 'expression', raw: ['get', firstStringField] }
       : constant(''),
     'text-font': constant('12px sans-serif'),
     'text-fill-color': constant('#ffffff'),
