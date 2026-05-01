@@ -1,92 +1,52 @@
-# Categories modal improvements
+## Goal
 
-Three changes, in this order: fix the stale-state bug first, then redesign the modal to a single editing surface, then add CSV import/export on top.
+When the user picks a layer from the "Copy from layer" dropdown and the editor already has categories, show a preview of the donor's categories as badges inside the confirmation dialog (`CategoryCopyLogic`), so the user can see what they're about to add or replace before deciding.
 
-## 1. Fix stale categories bug (issue c)
+If there are no existing categories, the copy is applied directly without a confirmation step today — no preview is needed in that path.
 
-`useCategoryEditorState.ts` initialises `localCategories` and `useValues` via `useState(...)`, which only runs on first mount. Because `CategoryEditorDialog` stays mounted across opens, reopening the modal after a copy shows stale data.
-
-Add a `useEffect` watching the `open` prop. When `open` transitions to `true`, reset:
-- `localCategories` from the current `categories` prop
-- `useValues` from the current `categories` prop
-- `activeTab` to its default
-- `selectedSourceLayer` to `''`
-- `newCategory` to its empty default
-
-This matches the project Core rule: *"Initialize dialog state inside `useEffect` watching the `open` prop to prevent stale overwrites."*
-
-## 2. Redesign modal as single editing surface (issue b)
-
-Remove the two-tab structure. Replace with one editing view that always shows the current categories, plus a row of action buttons above the list:
+## Proposed layout (inside the existing `Add categories` AlertDialog)
 
 ```text
-┌─ Edit Categories for <Layer Name> ────────────────────┐
-│  [+ Add]  [Copy from layer ▾]  [Import CSV]  [⬇ Export CSV]  │
-│  ☐ Use values                                         │
-├───────────────────────────────────────────────────────┤
-│  ● Forest    #2E7D32   1     [edit] [×]              │
-│  ● Water     #1565C0   2     [edit] [×]              │
-│  ● Urban     #9E9E9E   3     [edit] [×]              │
-├───────────────────────────────────────────────────────┤
-│                              [Cancel]  [Save]         │
-└───────────────────────────────────────────────────────┘
+┌─ Add categories ───────────────────────────────────────────┐
+│ You have 5 existing categories.                            │
+│ How would you like to add the 8 categories from "Land Use"?│
+│                                                            │
+│ Preview from "Land Use" (8)                                │
+│ ┌────────────────────────────────────────────────────────┐ │
+│ │ ● Forest  ● Water  ● Urban (3)  ● Crops  ● Bare ...   │ │
+│ │ ● Wetland  ● Snow  ● Grassland                         │ │
+│ └────────────────────────────────────────────────────────┘ │
+│                                                            │
+│              [Cancel] [Add to existing (13)] [Replace (8)] │
+└────────────────────────────────────────────────────────────┘
 ```
 
-Behaviour:
-- **Add** opens the existing inline add form (reuse `CategoryAddForm`).
-- **Copy from layer** is a popover/dropdown: pick a layer → if list is empty, copy immediately; if not, show Append / Replace choice inline. Result populates the visible list — no tab switch, no separate Save semantics.
-- **Save** only ever persists `localCategories`. It never triggers a copy.
-- **Cancel** discards local edits.
-- Export CSV is disabled when the list is empty.
+Layout details:
+- Small label above the badge area: `Preview from "<Layer>" (<n>)`, using muted-foreground.
+- Badges reuse the exact visual style already established by `CategoryPreview` (color dot + label, `(value)` shown when the donor `hasValues` is true), so it's instantly recognisable.
+- Container: `flex flex-wrap gap-1`, capped height (e.g. `max-h-32 overflow-y-auto`) with subtle `bg-muted/30 rounded-md p-2 border` so it reads as a distinct preview panel and won't blow up the dialog if the donor has many categories.
+- Sits between the description and the footer buttons; footer buttons remain unchanged.
 
-Code changes:
-- Delete `CategoryEditorTabs.tsx` and `CategoryCopyFromLayer.tsx` (move salient bits into a new `CategoryCopyFromLayerButton.tsx` popover).
-- Remove the legacy `showCopyConfirmation` AlertDialog and its state from `CategoryCopyLogic.tsx` — keep only the Append/Replace dialog (rename actions to "Add to existing" / "Replace all").
-- Simplify `CategoryEditorDialog.handleSave` to a single line: `onUpdate(localCategories); handleOpen(false);`.
-- Remove the `activeTab === 'copy'` branch and the `setActiveTab('manual')` side-effect in `performCopy`.
-- Per project guideline, move the deleted files to `src/utils/deprecated/` (or `src/components/deprecated/`) with a README explaining they were superseded by the unified editor, rather than hard-deleting.
+## Implementation
 
-## 3. CSV import/export (issue a)
+1. **Extract the badge rendering** out of `CategoryPreview.tsx` into a small reusable piece so both the main editor preview and the confirmation dialog render identical badges. Two reasonable shapes:
+   - Add an internal `CategoryBadgeList` (or simply export a `CategoryBadges` subcomponent) that takes `{ categories, useValues }` and renders the `flex flex-wrap` badge grid.
+   - `CategoryPreview` keeps its current outer styling and delegates to `CategoryBadgeList`.
+   This avoids duplicating the badge markup and keeps any future styling tweaks in one place (consistent with the project's "cohesion over premature splitting" guideline).
 
-New utility `src/utils/categoryCsv.ts` with two pure functions:
+2. **Update `CategoryCopyLogic.tsx`** to render the donor preview:
+   - Use `pendingCopyData.categories` and `pendingCopyData.hasValues` (already on the prop).
+   - Render `CategoryBadgeList` inside the dialog body, with the small heading described above.
+   - Guard against the empty case (e.g. CSV import with 0 rows) — skip the preview block if `incoming === 0`.
 
-- `categoriesToCsv(categories, useValues): string` — produces `label,color,value` (or `label,color` when `useValues` is false). Quote labels containing commas/quotes. Always emits `#RRGGBB` colours.
-- `parseCategoriesCsv(text): { categories: Category[]; useValues: boolean; errors: { row: number; message: string }[] }` — header-row required, accepts `label,color` or `label,color,value` in any column order, validates hex colours, coerces `value` to integer, flags duplicates and malformed rows. `useValues` is true iff a `value` column is present and every row has one.
+3. **No schema, type, or context changes** — `pendingCopyData` already carries everything needed (`name`, `categories`, `hasValues`).
 
-UI:
-- **Export CSV** button triggers a download named `<layerName>-categories.csv`.
-- **Import CSV** button opens a hidden `<input type="file" accept=".csv,text/csv">`. After parse:
-  - If errors exist, show a small inline error panel listing row numbers — do not import.
-  - If clean and current list is empty, replace silently.
-  - If clean and current list is non-empty, reuse the existing Append/Replace dialog (with the parsed set as `pendingCopyData`).
-  - When the parsed file has values but the editor was in "no values" mode (or vice versa), auto-switch `useValues` to match the file and show a one-line toast explaining the change.
+## Files touched
 
-CSV format documented in a short comment at the top of `categoryCsv.ts`:
-```text
-label,color,value
-Forest,#2E7D32,1
-Water,#1565C0,2
-"Mixed, urban",#9E9E9E,3
-```
-
-## Technical details
-
-- Files to edit:
-  - `src/hooks/useCategoryEditorState.ts` — add reset `useEffect`, drop tab-related state.
-  - `src/components/form/CategoryEditorDialog.tsx` — new layout, single Save path.
-  - `src/components/form/CategoryCopyLogic.tsx` — remove legacy dialog, rename actions.
-- Files to add:
-  - `src/utils/categoryCsv.ts` — parse/serialise.
-  - `src/components/form/CategoryCopyFromLayerButton.tsx` — popover replacing the tab.
-  - `src/components/form/CategoryCsvActions.tsx` — Import/Export buttons.
-  - `src/utils/__tests__/categoryCsv.test.ts` — unit tests for round-trip, error cases, value-detection.
-- Files to deprecate (move under `deprecated/` with README + `@deprecated`):
-  - `CategoryEditorTabs.tsx`, `CategoryCopyFromLayer.tsx`.
-- No schema or type changes — `Category` shape is unchanged.
-- Reuse existing `normalizeCategories` from `src/utils/categoryValidation.ts` after CSV import for value deduplication consistency.
+- `src/components/form/CategoryPreview.tsx` — extract `CategoryBadgeList` (or export the badges subcomponent).
+- `src/components/form/CategoryCopyLogic.tsx` — render the donor preview block between description and footer.
 
 ## Out of scope
 
-- Cross-config CSV sharing UI (the export file itself already serves this).
-- Bulk recolouring from a palette (separate feature).
-- Changes to how categories render in the legend or on the map.
+- Changing the immediate-copy path (when there are no existing categories) — no confirmation dialog appears there, so no preview is shown. Happy to add an inline preview there too if you'd like, but keeping the current "just do it" flow respects the existing behaviour.
+- Changing copy semantics (append/replace logic) or the dropdown itself.

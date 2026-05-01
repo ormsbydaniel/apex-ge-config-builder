@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Category } from '@/types/config';
+import { CategoryBadgeList } from './CategoryPreview';
 
 interface CategoryAppendReplaceDialogProps {
   open: boolean;
@@ -38,6 +39,21 @@ const CategoryCopyLogic = ({
             {incoming} categories from "{pendingCopyData?.name}"?
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        {pendingCopyData && incoming > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-xs text-muted-foreground">
+              Preview from "{pendingCopyData.name}" ({incoming})
+            </p>
+            <div className="rounded-md border bg-muted/30 p-2 max-h-32 overflow-y-auto">
+              <CategoryBadgeList
+                categories={pendingCopyData.categories}
+                useValues={pendingCopyData.hasValues}
+              />
+            </div>
+          </div>
+        )}
+
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <Button variant="outline" onClick={() => onChoose('append')}>
