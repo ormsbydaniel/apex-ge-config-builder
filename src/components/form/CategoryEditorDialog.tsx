@@ -56,6 +56,8 @@ const CategoryEditorDialog = ({
         name: source.name || 'Unnamed Layer',
         categories: normalizedCategories,
         hasValues: normalizedCategories.some(cat => cat.value !== undefined),
+        interfaceGroup: source.layout?.interfaceGroup,
+        subinterfaceGroup: source.layout?.subinterfaceGroup,
       };
     });
 
@@ -164,6 +166,7 @@ const CategoryEditorDialog = ({
               hasExistingCategories={localCategories.length > 0}
               onCopy={handleCopy}
               onRequestAppendReplace={handleRequestAppendReplace}
+              interfaceGroupOrder={config.interfaceGroups || []}
             />
             <CategoryCsvActions
               categories={localCategories}
