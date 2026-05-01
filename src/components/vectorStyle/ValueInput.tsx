@@ -162,7 +162,7 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 md:col-span-2">
       <div className="flex items-center gap-2">
         <Label className="text-xs flex-1">{prop.label}</Label>
         {showAdvanced && (
