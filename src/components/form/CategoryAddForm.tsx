@@ -38,9 +38,9 @@ const CategoryAddForm = ({
   };
 
   return (
-    <div className="space-y-2 px-3 py-3 bg-muted/30 rounded-lg">
+    <div className="space-y-2">
       <Label className="text-sm font-medium">Add New Category</Label>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 px-3 py-2 bg-muted/30 rounded-lg">
         <input
           type="color"
           value={newCategory.color}
