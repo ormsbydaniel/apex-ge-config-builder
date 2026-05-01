@@ -90,9 +90,12 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
                 <TooltipTrigger asChild>
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="icon"
-                    className={cn('h-8 w-8', jsonActive && 'text-primary bg-muted')}
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      'h-7 w-7 p-0 border-orange-500/30 text-orange-600 hover:bg-orange-50 hover:text-orange-700',
+                      jsonActive && 'bg-orange-100 hover:bg-orange-100',
+                    )}
                     aria-pressed={jsonActive}
                     onClick={toggleMode}
                   >
