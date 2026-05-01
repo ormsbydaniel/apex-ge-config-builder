@@ -66,7 +66,8 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
       }));
   }, [source.meta?.fields]);
 
-  // Reset on (re)open.
+  // Reset only when the dialog transitions to open, to avoid wiping
+  // in-progress edits when parent re-renders produce new array identities.
   useEffect(() => {
     if (!open) return;
     setEditedJson(initialJson);
@@ -74,7 +75,8 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     setRules(parsed.rules);
     setFallbackCount(parsed.fallbacks.length);
     setMode(lastMode);
-  }, [open, initialJson, initialStyle]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const toggleMode = () => {
     if (mode === 'basic') {
