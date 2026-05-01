@@ -2,7 +2,7 @@
 import React, { memo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { X } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Category } from '@/types/config';
 import { convertColorToHex } from '@/utils/colorUtils';
 
@@ -86,7 +86,7 @@ const CategoryItem = ({
         onClick={() => onRemove(index)}
         className="text-destructive hover:text-destructive h-8 w-8 p-0 flex-shrink-0"
       >
-        <X className="h-4 w-4" />
+        <Trash2 className="h-4 w-4" />
       </Button>
     </div>
   );
