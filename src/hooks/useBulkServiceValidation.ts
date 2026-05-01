@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Service, DataSourceFormat } from '@/types/config';
-import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
-import { fetchStacCapabilities } from '@/utils/stacCapabilities';
+import { fetchServiceCapabilitiesWithMetrics } from '@/utils/serviceCapabilities';
+import { fetchStacCapabilitiesWithMetrics } from '@/utils/stacCapabilities';
 import { useConfig } from '@/contexts/ConfigContext';
 import { parseS3Url, fetchS3BucketContents } from '@/utils/s3Utils';
 
 const CONCURRENCY = 4;
 
-export type ServiceValidationStatus = 'idle' | 'checking' | 'ok' | 'error';
+// Tunable diagnostic thresholds — adjust here, no UI exposure yet.
+const CAPABILITIES_SLOW_MS = 3000;
+const CAPABILITIES_LARGE_BYTES = 2 * 1024 * 1024;
+
+export type ServiceValidationStatus = 'idle' | 'checking' | 'ok' | 'warning' | 'error';
 export type ServiceKind = 'stac' | 'ogc' | 's3';
 
 export interface GroupProgress {
@@ -18,9 +22,10 @@ export interface GroupProgress {
 
 interface BulkValidationResult {
   statuses: Record<string, ServiceValidationStatus>;
+  warnings: Record<string, string[]>;
   progress: Record<ServiceKind, GroupProgress>;
   inFlightTotal: number;
-  recheck: (serviceId?: string) => void;
+  recheck: (id?: string) => void;
 }
 
 const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
@@ -29,14 +34,21 @@ const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
   s3: { total: 0, completed: 0, inFlight: 0 },
 };
 
+const formatBytes = (bytes: number): string => {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${bytes} B`;
+};
+
 // Module-scoped marker of the last `lastLoaded` value we auto-validated for.
 // Persists across ServicesManager mount/unmount (tab switches) so we only
 // auto-validate once per loaded config.
 let lastValidatedLoad: Date | null | 'manual' = null;
-// Module-scoped status cache, also keyed by `lastLoaded`. Survives tab
+// Module-scoped status / warning caches, keyed by `lastLoaded`. Survives tab
 // switches so the failures panel and per-card badges stay populated without
 // re-running probes.
 let cachedStatuses: Record<string, ServiceValidationStatus> = {};
+let cachedWarnings: Record<string, string[]> = {};
 
 const classify = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
@@ -79,14 +91,18 @@ async function runWithConcurrency<T>(
 /**
  * Validates services in three parallel groups (STAC, OGC, S3).
  * Auto-runs once per `lastLoaded` change for services missing capabilities.
+ *
+ * GeoJSON / data-source size checks are NOT performed here — those belong to
+ * the Layer QA "Run Data Source Validation" flow (see src/utils/layerValidation.ts).
  */
 export const useBulkServiceValidation = (
   services: Service[],
   enabled: boolean,
 ): BulkValidationResult => {
-  const { config, dispatch } = useConfig();
+  const { dispatch, config } = useConfig();
   const lastLoaded = config.lastLoaded;
   const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>(cachedStatuses);
+  const [warnings, setWarnings] = useState<Record<string, string[]>>(cachedWarnings);
   const [progress, setProgress] = useState<Record<ServiceKind, GroupProgress>>(INITIAL_PROGRESS);
   // Module-scoped (see top of file) so tab switches that unmount this hook
   // don't trigger re-validation for the same loaded config.
@@ -114,14 +130,41 @@ export const useBulkServiceValidation = (
     });
   }, []);
 
+  const setWarningMessages = useCallback((id: string, messages: string[]) => {
+    setWarnings(prev => {
+      const next = { ...prev };
+      if (messages.length === 0) {
+        delete next[id];
+      } else {
+        next[id] = messages;
+      }
+      cachedWarnings = next;
+      return next;
+    });
+  }, []);
+
+  const collectCapabilitiesWarnings = (durationMs?: number, bytes?: number): string[] => {
+    const msgs: string[] = [];
+    if (typeof durationMs === 'number' && durationMs > CAPABILITIES_SLOW_MS) {
+      msgs.push(`Slow GetCapabilities response: ${(durationMs / 1000).toFixed(1)}s (threshold ${(CAPABILITIES_SLOW_MS / 1000).toFixed(1)}s)`);
+    }
+    if (typeof bytes === 'number' && bytes > CAPABILITIES_LARGE_BYTES) {
+      msgs.push(`Large GetCapabilities response: ${formatBytes(bytes)} (threshold ${formatBytes(CAPABILITIES_LARGE_BYTES)})`);
+    }
+    return msgs;
+  };
+
   const validateStac = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
+    setWarningMessages(svc.id, []);
     updateProgress('stac', { inFlight: 1 });
     try {
-      const { capabilities } = await fetchStacCapabilities(svc.url);
+      const { capabilities, durationMs, bytes } = await fetchStacCapabilitiesWithMetrics(svc.url);
       if (capabilities) {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
-        setStatus(svc.id, 'ok');
+        const warns = collectCapabilitiesWarnings(durationMs, bytes);
+        setWarningMessages(svc.id, warns);
+        setStatus(svc.id, warns.length > 0 ? 'warning' : 'ok');
       } else {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
         setStatus(svc.id, 'error');
@@ -132,7 +175,7 @@ export const useBulkServiceValidation = (
     } finally {
       updateProgress('stac', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
 
   const validateOgc = useCallback(async (svc: Service) => {
     if (!svc.format) {
@@ -141,12 +184,15 @@ export const useBulkServiceValidation = (
       return;
     }
     setStatus(svc.id, 'checking');
+    setWarningMessages(svc.id, []);
     updateProgress('ogc', { inFlight: 1 });
     try {
-      const capabilities = await fetchServiceCapabilities(svc.url, svc.format as DataSourceFormat);
+      const { capabilities, durationMs, bytes } = await fetchServiceCapabilitiesWithMetrics(svc.url, svc.format as DataSourceFormat);
       if (capabilities) {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
-        setStatus(svc.id, 'ok');
+        const warns = collectCapabilitiesWarnings(durationMs, bytes);
+        setWarningMessages(svc.id, warns);
+        setStatus(svc.id, warns.length > 0 ? 'warning' : 'ok');
       } else {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
         setStatus(svc.id, 'error');
@@ -157,11 +203,12 @@ export const useBulkServiceValidation = (
     } finally {
       updateProgress('ogc', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
 
 
   const validateS3 = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
+    setWarningMessages(svc.id, []);
     updateProgress('s3', { inFlight: 1 });
     try {
       // Try a full bucket listing first (richer success); fall back to HEAD reachability.
@@ -226,17 +273,17 @@ export const useBulkServiceValidation = (
     } finally {
       updateProgress('s3', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
 
   const runBulk = useCallback(
-    async (targets: Service[]) => {
-      if (targets.length === 0) return;
+    async (svcTargets: Service[]) => {
+      if (svcTargets.length === 0) return;
 
-      const stacTargets = targets.filter(s => classify(s) === 'stac');
-      const ogcTargets = targets.filter(s => classify(s) === 'ogc');
-      const s3Targets = targets.filter(s => classify(s) === 's3');
+      const stacTargets = svcTargets.filter(s => classify(s) === 'stac');
+      const ogcTargets = svcTargets.filter(s => classify(s) === 'ogc');
+      const s3Targets = svcTargets.filter(s => classify(s) === 's3');
 
-      // Reset per-group totals/completed for this run, preserve nothing else.
+      // Reset per-group totals/completed for this run.
       setProgress({
         stac: { total: stacTargets.length, completed: 0, inFlight: 0 },
         ogc: { total: ogcTargets.length, completed: 0, inFlight: 0 },
@@ -259,7 +306,9 @@ export const useBulkServiceValidation = (
     // New config (or first load): clear stale status cache so badges from a
     // previous config don't bleed into this one.
     cachedStatuses = {};
+    cachedWarnings = {};
     setStatuses({});
+    setWarnings({});
     validatedForLoadRef.current = lastLoaded;
     lastValidatedLoad = lastLoaded;
 
@@ -270,17 +319,18 @@ export const useBulkServiceValidation = (
   }, [enabled, lastLoaded]);
 
   const recheck = useCallback(
-    (serviceId?: string) => {
-      if (serviceId) {
-        const svc = services.find(s => s.id === serviceId);
-        if (!svc) return;
-        const kind = classify(svc);
-        if (kind === 'stac') validateStac(svc);
-        else if (kind === 'ogc') validateOgc(svc);
-        else if (kind === 's3') validateS3(svc);
+    (id?: string) => {
+      if (id) {
+        const svc = services.find(s => s.id === id);
+        if (svc) {
+          const kind = classify(svc);
+          if (kind === 'stac') validateStac(svc);
+          else if (kind === 'ogc') validateOgc(svc);
+          else if (kind === 's3') validateS3(svc);
+        }
         return;
       }
-      // Re-check all classifiable services
+      // Re-check all classifiable services.
       const targets = services.filter(s => classify(s) !== null);
       validatedForLoadRef.current = 'manual';
       lastValidatedLoad = 'manual';
@@ -289,7 +339,8 @@ export const useBulkServiceValidation = (
     [services, validateStac, validateOgc, validateS3, runBulk],
   );
 
-  const inFlightTotal = progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight;
+  const inFlightTotal =
+    progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight;
 
-  return { statuses, progress, inFlightTotal, recheck };
+  return { statuses, warnings, progress, inFlightTotal, recheck };
 };

@@ -1,21 +1,35 @@
 import { ServiceCapabilities } from '@/types/config';
 
+export interface StacCapabilitiesMetrics {
+  capabilities: ServiceCapabilities | null;
+  title?: string;
+  durationMs?: number;
+  bytes?: number;
+}
+
+const measureFetch = async (url: string): Promise<{ res: Response; text: string; durationMs: number; bytes: number }> => {
+  const start = performance.now();
+  const res = await fetch(url);
+  const text = await res.text();
+  const durationMs = performance.now() - start;
+  const headerLen = Number(res.headers.get('Content-Length'));
+  const bytes = Number.isFinite(headerLen) && headerLen > 0 ? headerLen : text.length;
+  return { res, text, durationMs, bytes };
+};
+
 /**
- * Pure STAC catalogue capabilities fetcher (no React state, no toasts).
+ * Pure STAC catalogue capabilities fetcher with timing/size metrics.
  * Detects openEO job-result style responses (top-level "assets") and falls back
  * to a standard STAC Catalog by fetching `/collections?limit=100`.
- *
- * Returns `{ capabilities, title }` on success; `{ capabilities: null }` on failure.
  */
-export async function fetchStacCapabilities(
+export async function fetchStacCapabilitiesWithMetrics(
   url: string,
-): Promise<{ capabilities: ServiceCapabilities | null; title?: string }> {
+): Promise<StacCapabilitiesMetrics> {
   try {
     const ensureSlash = (u: string) => (u.endsWith('/') ? u : u + '/');
 
-    // Fetch root first to detect openEO job-result vs proper catalog
-    const rootRes = await fetch(url);
-    const rootJson = await rootRes.json();
+    const root = await measureFetch(url);
+    const rootJson = JSON.parse(root.text);
 
     // openEO job results: top-level "assets" object
     if (rootJson?.assets && typeof rootJson.assets === 'object') {
@@ -35,6 +49,8 @@ export async function fetchStacCapabilities(
           totalCount: assetCount,
         },
         title,
+        durationMs: root.durationMs,
+        bytes: root.bytes,
       };
     }
 
@@ -43,8 +59,8 @@ export async function fetchStacCapabilities(
     baseUrl.search = '';
     baseUrl.hash = '';
     const collectionsUrl = ensureSlash(baseUrl.toString()) + 'collections?limit=100';
-    const collRes = await fetch(collectionsUrl);
-    const collectionsJson = await collRes.json();
+    const coll = await measureFetch(collectionsUrl);
+    const collectionsJson = JSON.parse(coll.text);
 
     const catalogue = rootJson;
     const title = catalogue.title || catalogue.id || 'STAC Catalogue';
@@ -73,9 +89,22 @@ export async function fetchStacCapabilities(
         totalCount: totalCollections,
       },
       title,
+      // Combined duration/bytes across both fetches give a useful upper bound.
+      durationMs: root.durationMs + coll.durationMs,
+      bytes: root.bytes + coll.bytes,
     };
   } catch (error) {
     console.error('Error fetching STAC catalogue:', error);
     return { capabilities: null };
   }
+}
+
+/**
+ * Backward-compatible wrapper used by all existing call sites.
+ */
+export async function fetchStacCapabilities(
+  url: string,
+): Promise<{ capabilities: ServiceCapabilities | null; title?: string }> {
+  const { capabilities, title } = await fetchStacCapabilitiesWithMetrics(url);
+  return { capabilities, title };
 }

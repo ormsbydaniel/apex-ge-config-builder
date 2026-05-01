@@ -1,4 +1,18 @@
 import { DataSource, DataSourceItem, UrlValidationResult, LayerValidationResult } from '@/types/config';
+import { probeGeojsonSize } from '@/utils/geojsonProbe';
+import { probeCogPerformance } from '@/utils/cogPerformanceProbe';
+import { probeServiceCapabilitiesPerformance } from '@/utils/serviceCapabilitiesPerformanceProbe';
+import { probeTileRequest } from '@/utils/serviceTileProbe';
+import { checkMixedContent } from '@/utils/transportSecurityProbe';
+
+/** Threshold for flagging GeoJSON files as a performance warning. */
+const GEOJSON_PERF_WARNING_BYTES = 5 * 1024 * 1024;
+
+const formatBytes = (bytes: number): string => {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${bytes} B`;
+};
 
 /**
  * Validates a single URL with format-aware logic
@@ -21,12 +35,9 @@ async function validateUrl(
   };
 
   try {
-    // Handle XYZ tile templates - skip validation
+    // Handle XYZ tile templates - probe a representative tile
     if (format === 'xyz') {
-      result.status = 'skipped';
-      result.validationType = 'skipped';
-      result.error = 'Template URL (not validated)';
-      return result;
+      return await validateXyzUrl(url, type);
     }
 
     // Handle WMS/WMTS - validate via GetCapabilities
@@ -35,7 +46,44 @@ async function validateUrl(
     }
 
     // For direct file URLs (COG, GeoJSON, FlatGeobuf, etc.)
-    return await validateDirectUrl(url, type);
+    const directResult = await validateDirectUrl(url, type);
+
+    // GeoJSON-only performance check: layered on top of reachability,
+    // but only if the URL is reachable. Reachability problems remain 'error'.
+    if (directResult.status === 'valid' && format === 'geojson') {
+      const probe = await probeGeojsonSize(url, { largeBytes: GEOJSON_PERF_WARNING_BYTES });
+      // Only flag known-oversized files. "Size unknown" / errors here are ignored —
+      // the layer already passed reachability above.
+      if (probe.status === 'warning' && typeof probe.bytes === 'number') {
+        directResult.status = 'performance-warning';
+        directResult.warning = probe.message ?? `Large file: ${formatBytes(probe.bytes)} (threshold ${formatBytes(GEOJSON_PERF_WARNING_BYTES)})`;
+        directResult.bytes = probe.bytes;
+      }
+    }
+
+    // COG performance check: tile size, overviews, compression, interleave.
+    // Only runs if the URL is reachable; probe failures are swallowed so they
+    // never mask the upstream "valid" status.
+    if (directResult.status === 'valid' && format === 'cog') {
+      const cogProbe = await probeCogPerformance(url);
+      if (cogProbe.status === 'warning' && cogProbe.message) {
+        directResult.status = 'performance-warning';
+        directResult.warning = cogProbe.message;
+      }
+    }
+
+    // Mixed-content check: HTTP asset on an HTTPS page will be blocked.
+    // Layered on top of reachability — only flagged if otherwise valid/warning.
+    if (directResult.status === 'valid' || directResult.status === 'performance-warning') {
+      const mixed = checkMixedContent(url);
+      if (mixed) {
+        const existing = directResult.warning;
+        directResult.status = 'performance-warning';
+        directResult.warning = existing ? `${existing}; ${mixed.message}` : mixed.message;
+      }
+    }
+
+    return directResult;
     
   } catch (error) {
     if (error instanceof Error) {
@@ -77,6 +125,7 @@ async function validateServiceUrl(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout for capabilities
 
+    const startedAt = performance.now();
     const response = await fetch(capabilitiesUrl.toString(), {
       signal: controller.signal
     });
@@ -91,6 +140,10 @@ async function validateServiceUrl(
     }
 
     const xmlText = await response.text();
+    const durationMs = performance.now() - startedAt;
+    const headerLen = Number(response.headers.get('Content-Length'));
+    const bytes = Number.isFinite(headerLen) && headerLen > 0 ? headerLen : xmlText.length;
+
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -114,6 +167,33 @@ async function validateServiceUrl(
 
     result.status = 'valid';
     result.statusCode = response.status;
+    result.bytes = bytes;
+
+    // Performance checks (capabilities-only, no extra network calls).
+    // Never masks reachability errors — only runs once we're 'valid'.
+    const perfProbe = probeServiceCapabilitiesPerformance(
+      format,
+      layers,
+      xmlDoc,
+      { durationMs, bytes },
+    );
+    const perfIssues: string[] = [...perfProbe.issues];
+
+    // Active tile-request probe (one GetMap / GetTile call).
+    const tileProbe = await probeTileRequest(url, format, layers, xmlDoc);
+    if (tileProbe.status === 'warning' && tileProbe.message) {
+      perfIssues.push(tileProbe.message);
+    }
+
+    // Mixed-content check on the service URL itself.
+    const mixed = checkMixedContent(url);
+    if (mixed) perfIssues.push(mixed.message);
+
+    if (perfIssues.length > 0) {
+      result.status = 'performance-warning';
+      result.warning = perfIssues.join('; ');
+    }
+
     return result;
 
   } catch (error) {
@@ -153,6 +233,114 @@ function checkLayerInCapabilities(xmlDoc: Document, format: 'wms' | 'wmts', laye
     }
   }
   return false;
+}
+
+/** Thresholds for XYZ tile probe (matches WMS/WMTS tile probe). */
+const XYZ_SLOW_TILE_MS = 3000;
+const XYZ_LARGE_TILE_BYTES = 1 * 1024 * 1024;
+const XYZ_TIMEOUT_MS = 10000;
+
+const formatMsXyz = (ms: number): string =>
+  ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
+
+const formatBytesXyz = (bytes: number): string => {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${bytes} B`;
+};
+
+/**
+ * Substitute XYZ template placeholders with the world tile (z=0/x=0/y=0).
+ * Handles {z}/{x}/{y}, {-y} (TMS), and {s} subdomains.
+ * Returns null if the template doesn't contain z/x/y placeholders.
+ */
+function buildXyzProbeUrl(template: string): string | null {
+  if (!/\{z\}/i.test(template) || !/\{x\}/i.test(template) || !/\{[-]?y\}/i.test(template)) {
+    return null;
+  }
+  let url = template
+    .replace(/\{z\}/gi, '0')
+    .replace(/\{x\}/gi, '0')
+    .replace(/\{-?y\}/gi, '0');
+  // Pick the first subdomain if {s} is present (e.g. {s}.tile.openstreetmap.org -> a.tile...)
+  url = url.replace(/\{s\}/gi, 'a');
+  // Strip any other unsupported placeholders rather than leaving braces in the URL.
+  url = url.replace(/\{[^}]+\}/g, '');
+  return url;
+}
+
+/**
+ * Validates an XYZ tile template by fetching the z=0/x=0/y=0 tile.
+ * Reports both reachability and a basic performance signal.
+ */
+async function validateXyzUrl(url: string, type: 'data' | 'statistics'): Promise<UrlValidationResult> {
+  const result: UrlValidationResult = {
+    url,
+    type,
+    format: 'xyz',
+    status: 'checking',
+    validationType: 'head-request',
+  };
+
+  const probeUrl = buildXyzProbeUrl(url);
+  if (!probeUrl) {
+    result.status = 'skipped';
+    result.validationType = 'skipped';
+    result.error = 'XYZ template missing {z}/{x}/{y} placeholders';
+    return result;
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), XYZ_TIMEOUT_MS);
+
+  try {
+    const startedAt = performance.now();
+    const response = await fetch(probeUrl, { method: 'GET', signal: controller.signal });
+    clearTimeout(timer);
+
+    if (!response.ok) {
+      result.status = 'error';
+      result.statusCode = response.status;
+      result.error = `Tile request failed: HTTP ${response.status} ${response.statusText || ''}`.trim();
+      return result;
+    }
+
+    const blob = await response.blob();
+    const durationMs = performance.now() - startedAt;
+    const bytes = blob.size;
+
+    result.status = 'valid';
+    result.statusCode = response.status;
+    result.bytes = bytes;
+
+    const issues: string[] = [];
+    if (durationMs > XYZ_SLOW_TILE_MS) issues.push(`slow tile (${formatMsXyz(durationMs)})`);
+    if (bytes > XYZ_LARGE_TILE_BYTES) issues.push(`heavy tile (${formatBytesXyz(bytes)})`);
+
+    // Mixed-content check
+    const mixed = checkMixedContent(url);
+    if (mixed) issues.push(mixed.message);
+
+    if (issues.length > 0) {
+      result.status = 'performance-warning';
+      result.warning = issues.join('; ');
+    }
+
+    return result;
+  } catch (error) {
+    clearTimeout(timer);
+    if (error instanceof Error && error.name === 'AbortError') {
+      result.status = 'error';
+      result.error = `Tile request timeout (>${XYZ_TIMEOUT_MS / 1000}s)`;
+    } else if (error instanceof Error && (error.message.includes('CORS') || error.message.includes('Failed to fetch'))) {
+      result.status = 'error';
+      result.error = 'CORS error or network failure - unable to fetch tile';
+    } else {
+      result.status = 'error';
+      result.error = error instanceof Error ? error.message : 'Unknown error fetching tile';
+    }
+    return result;
+  }
 }
 
 /**
@@ -317,17 +505,20 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
     }
   }
 
-  // Determine overall status
+  // Determine overall status. Priority (highest first):
+  //   error > partial > performance-warning > valid
+  // Performance warnings never mask reachability failures.
   let overallStatus: LayerValidationResult['overallStatus'] = 'valid';
-  
+
   if (urlResults.length === 0) {
     overallStatus = 'valid'; // No URLs to validate
   } else {
     const errorCount = urlResults.filter(r => r.status === 'error').length;
     const checkingCount = urlResults.filter(r => r.status === 'checking').length;
     const skippedCount = urlResults.filter(r => r.status === 'skipped').length;
+    const perfWarningCount = urlResults.filter(r => r.status === 'performance-warning').length;
     const validatableCount = urlResults.length - skippedCount;
-    
+
     if (checkingCount > 0) {
       overallStatus = 'checking';
     } else if (validatableCount === 0) {
@@ -337,6 +528,8 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
       overallStatus = 'error';
     } else if (errorCount > 0) {
       overallStatus = 'partial';
+    } else if (perfWarningCount > 0) {
+      overallStatus = 'performance-warning';
     } else {
       overallStatus = 'valid';
     }
@@ -350,34 +543,52 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
   };
 }
 
+export interface ValidateBatchCallbacks {
+  onProgress?: (completed: number, total: number, layerName: string) => void;
+  /** Fired immediately before a layer's checks begin. Useful for showing a spinner on that row. */
+  onLayerStart?: (index: number, layerName: string) => void;
+  /** Fired as soon as a single layer's result is available — drives real-time UI updates. */
+  onLayerResult?: (index: number, result: LayerValidationResult) => void;
+}
+
 /**
- * Validates multiple layers in parallel with concurrency control
+ * Validates multiple layers in parallel with concurrency control.
+ *
+ * Backwards compatible: the third argument may be either a plain `onProgress`
+ * function (legacy) or a `ValidateBatchCallbacks` object with richer hooks.
  */
 export async function validateBatchLayers(
   layers: DataSource[],
   services?: any[],
-  onProgress?: (completed: number, total: number, layerName: string) => void
+  callbacksOrOnProgress?:
+    | ValidateBatchCallbacks
+    | ((completed: number, total: number, layerName: string) => void)
 ): Promise<Map<number, LayerValidationResult>> {
+  const callbacks: ValidateBatchCallbacks = typeof callbacksOrOnProgress === 'function'
+    ? { onProgress: callbacksOrOnProgress }
+    : (callbacksOrOnProgress ?? {});
+
   const results = new Map<number, LayerValidationResult>();
   const concurrencyLimit = 5; // Process 5 layers at a time
-  
+
   // Process layers in batches
   for (let i = 0; i < layers.length; i += concurrencyLimit) {
     const batch = layers.slice(i, i + concurrencyLimit);
     const batchPromises = batch.map(async (layer, batchIndex) => {
       const actualIndex = i + batchIndex;
+      callbacks.onLayerStart?.(actualIndex, layer.name);
+
       const result = await validateLayerUrls(layer, services);
       results.set(actualIndex, result);
-      
-      if (onProgress) {
-        onProgress(results.size, layers.length, layer.name);
-      }
-      
+
+      callbacks.onLayerResult?.(actualIndex, result);
+      callbacks.onProgress?.(results.size, layers.length, layer.name);
+
       return result;
     });
-    
+
     await Promise.all(batchPromises);
   }
-  
+
   return results;
 }

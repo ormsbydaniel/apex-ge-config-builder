@@ -16,6 +16,7 @@ interface LayersTabCoreProps {
   defaultInterfaceGroup?: string;
   defaultSubinterfaceGroup?: string;
   handleLayerTypeSelect: (type: LayerType) => void;
+  onImportLayer?: () => void;
   handleCancelLayerForm: () => void;
   addLayer: (layer: DataSource) => void;
   addService: (service: Service) => void;
@@ -44,6 +45,7 @@ const LayersTabCore = ({
   defaultInterfaceGroup,
   defaultSubinterfaceGroup,
   handleLayerTypeSelect,
+  onImportLayer,
   handleCancelLayerForm,
   addLayer,
   addService,
@@ -162,6 +164,7 @@ const LayersTabCore = ({
         editingChartIndex={layersLogic?.editingChartIndex ?? null}
         editingChartLayerIndex={layersLogic?.editingChartLayerIndex ?? null}
         onSelectType={handleLayerTypeSelect}
+        onImportLayer={onImportLayer}
         onLayerSaved={handleLayerSaved}
         onLayerFormCancel={handleLayerFormCancel}
         onDataSourceAdded={layersLogic?.handleDataSourceAdded || (() => {})}

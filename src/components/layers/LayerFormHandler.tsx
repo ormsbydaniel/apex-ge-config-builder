@@ -30,6 +30,7 @@ interface LayerFormHandlerProps {
   editingChartIndex?: number | null;
   editingChartLayerIndex?: number | null;
   onSelectType: (type: any) => void;
+  onImportLayer?: () => void;
   onLayerSaved: (layer: DataSource) => void;
   onLayerFormCancel: () => void;
   onDataSourceAdded: (dataSource: any) => void;
@@ -67,6 +68,7 @@ const LayerFormHandler = ({
   editingChartIndex = null,
   editingChartLayerIndex = null,
   onSelectType,
+  onImportLayer,
   onLayerSaved,
   onLayerFormCancel,
   onDataSourceAdded,
@@ -143,6 +145,7 @@ const LayerFormHandler = ({
           defaultSubinterfaceGroup={defaultSubinterfaceGroup}
           services={services}
           onSelectType={onSelectType}
+          onImportLayer={onImportLayer}
           onAddLayer={onLayerSaved}
           onAddService={onAddService}
           onCancel={onLayerFormCancel}

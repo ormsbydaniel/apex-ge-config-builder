@@ -9,12 +9,14 @@ import { useConfigExport } from '@/hooks/useConfigIO';
 import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
 import { useConfigBuilderState } from '@/hooks/useConfigBuilderState';
 import { useNavigationState } from '@/hooks/useNavigationState';
+import { useScrollToLayer } from '@/hooks/useScrollToLayer';
 import ServicesManager from './ServicesManager';
 import LayersTab from './config/LayersTab';
 import DrawOrderTab from './config/DrawOrderTab';
 import PreviewTab from './config/PreviewTab';
 import HomeTab from './config/HomeTab';
 import SettingsTab from './config/SettingsTab';
+import DonorConfigPickerDialog from './layers/import/DonorConfigPickerDialog';
 
 // Error boundary component to catch context errors
 class ConfigErrorBoundary extends React.Component<
@@ -89,12 +91,66 @@ const ConfigBuilderContent = () => {
     moveLayer,
     handleLayerTypeSelect,
     handleCancelLayerForm,
+    handleImportLayer,
+    handleApplyDonorImport,
+    donorPickerOpen,
+    setDonorPickerOpen,
+    importTargetGroup,
+    importTargetSubGroup,
     updateConfig
   } = useConfigBuilderState();
 
   // Track navigation state for Preview transitions
   const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setExpandedSubGroups, setScrollPosition } = useNavigationState();
+  const { scrollToLayer } = useScrollToLayer();
   const layersScrollRef = React.useRef<HTMLDivElement>(null);
+
+  const handleNavigateToLayer = React.useCallback((sourceIndex: number) => {
+    const cardId = `layer-${sourceIndex}`;
+    const source = config?.sources?.[sourceIndex];
+    const interfaceGroup: string | undefined = source?.layout?.interfaceGroup;
+    const subinterfaceGroup: string | undefined = source?.layout?.subinterfaceGroup;
+
+    // Pre-seed all three expansion levels so LayerHierarchy restores them on mount.
+    const currentLayers = navigationState.expandedLayers || [];
+    if (!currentLayers.includes(cardId)) {
+      setExpandedLayers([...currentLayers, cardId]);
+    }
+
+    // Interface group (or special bucket for ungrouped / base layers).
+    const isBaseLayer = (source as { isBaseLayer?: boolean })?.isBaseLayer === true;
+    const groupKey = interfaceGroup
+      ? interfaceGroup
+      : isBaseLayer
+        ? '__BASE_LAYERS__'
+        : '__UNGROUPED__';
+    const currentGroups = navigationState.expandedGroups || [];
+    if (!currentGroups.includes(groupKey)) {
+      setExpandedGroups([...currentGroups, groupKey]);
+    }
+
+    // Sub-interface group (only if present and within a real interface group).
+    if (interfaceGroup && subinterfaceGroup) {
+      const subKey = `${interfaceGroup}::${subinterfaceGroup}`;
+      const currentSubs = navigationState.expandedSubGroups || [];
+      if (!currentSubs.includes(subKey)) {
+        setExpandedSubGroups([...currentSubs, subKey]);
+      }
+    }
+
+    setActiveTab('layers');
+    scrollToLayer(sourceIndex, cardId);
+  }, [
+    config,
+    navigationState.expandedLayers,
+    navigationState.expandedGroups,
+    navigationState.expandedSubGroups,
+    setExpandedLayers,
+    setExpandedGroups,
+    setExpandedSubGroups,
+    setActiveTab,
+    scrollToLayer,
+  ]);
 
   const handleTabChange = (value: string) => {
     // Save scroll position before changing tabs
@@ -229,7 +285,7 @@ const ConfigBuilderContent = () => {
             </div>
 
             <TabsContent value="home">
-              <HomeTab config={config} />
+              <HomeTab config={config} onNavigateToLayer={handleNavigateToLayer} />
             </TabsContent>
 
             <TabsContent value="layers">
@@ -245,6 +301,7 @@ const ConfigBuilderContent = () => {
                   setDefaultInterfaceGroup={setDefaultInterfaceGroup}
                   setDefaultSubinterfaceGroup={setDefaultSubinterfaceGroup}
                   handleLayerTypeSelect={handleLayerTypeSelect}
+                  onImportLayer={handleImportLayer}
                 handleCancelLayerForm={handleCancelLayerForm} 
                 addLayer={addLayer} 
                 removeLayer={removeLayer} 
@@ -294,6 +351,14 @@ const ConfigBuilderContent = () => {
           </Tabs>
         </div>
       </div>
+
+      <DonorConfigPickerDialog
+        open={donorPickerOpen}
+        onOpenChange={setDonorPickerOpen}
+        targetInterfaceGroup={importTargetGroup}
+        targetSubinterfaceGroup={importTargetSubGroup}
+        onImport={handleApplyDonorImport}
+      />
     </div>
   );
 };

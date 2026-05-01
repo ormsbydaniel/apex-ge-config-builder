@@ -64,7 +64,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   >({ status: 'idle' });
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
-  const { statuses: validationStatuses, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
+  const { statuses: validationStatuses, warnings: validationWarnings, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
 
   // Tracks the URL+format signature of the most recent successful/failed probe
   // so a click on Save can skip re-probing if nothing has changed since.
@@ -125,13 +125,14 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     prevInFlightRef.current = inFlightTotal;
   }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total]);
 
-  // Derive failed counts at render time from validationStatuses, grouped by kind.
+  // Derive failed/warning counts at render time from validationStatuses, grouped by kind.
   const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
+  const warningByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
   for (const svc of services) {
     const kind = classifyService(svc);
-    if (kind && validationStatuses[svc.id] === 'error') {
-      failedByKind[kind]++;
-    }
+    if (!kind) continue;
+    if (validationStatuses[svc.id] === 'error') failedByKind[kind]++;
+    else if (validationStatuses[svc.id] === 'warning') warningByKind[kind]++;
   }
 
   const summaryHasAny = !!runSummary &&
@@ -558,17 +559,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
                 if (summary && summary.total > 0) {
                   const failed = failedByKind[kind];
+                  const warned = warningByKind[kind];
                   const reachable = summary.total - failed;
+                  const extras: string[] = [];
+                  if (failed > 0) extras.push(`${failed} failed`);
+                  if (warned > 0) extras.push(`${warned} warning${warned === 1 ? '' : 's'}`);
                   return (
                     <div key={kind} className="flex items-center gap-2">
-                      {failed > 0 ? (
+                      {failed > 0 || warned > 0 ? (
                         <AlertTriangle className="h-4 w-4 text-amber-600" />
                       ) : (
                         <Check className="h-4 w-4 text-emerald-600" />
                       )}
                       <span>
                         {label}: {reachable} of {summary.total} reachable
-                        {failed > 0 ? ` (${failed} failed)` : ''}
+                        {extras.length > 0 ? ` (${extras.join(', ')})` : ''}
                       </span>
                     </div>
                   );
@@ -578,7 +583,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               })}
               {inFlightTotal === 0 && (failedByKind.stac + failedByKind.ogc + failedByKind.s3) > 0 && (
                 <p className="text-xs text-muted-foreground italic mt-1 w-full">
-                  Invalid services are listed at the bottom of this page.
+                  Invalid services and sources are listed at the bottom of this page.
                 </p>
               )}
               {inFlightTotal === 0 && (
@@ -720,6 +725,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                           </Badge>
                         );
                       })()}
+                      {validationWarnings[service.id]?.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {validationWarnings[service.id].map((msg, i) => (
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className="border-amber-300 text-amber-700 whitespace-normal text-left"
+                              title={msg}
+                            >
+                              <AlertTriangle className="h-3 w-3 mr-1 flex-shrink-0" />
+                              {msg}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-1">
                       {onUpdateService && (

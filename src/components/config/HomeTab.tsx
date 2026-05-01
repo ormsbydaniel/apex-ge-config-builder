@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon } from 'lucide-react';
+import { Upload, Download, RotateCcw, AlertTriangle, Edit, Check, Triangle, ChevronDown, Layers, Users, Lock, Server, Map, FileText, Github, Sparkles, Link as LinkIcon, Stethoscope, CircleDot, XCircle, CircleDashed } from 'lucide-react';
+import { deriveHealthcheckColumns, dataAccessLabel, performanceLabel, DataAccessStatus, PerformanceStatus } from '@/utils/healthcheckColumns';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
@@ -25,9 +26,10 @@ import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 
 interface HomeTabProps {
   config: any;
+  onNavigateToLayer?: (sourceIndex: number) => void;
 }
 
-const HomeTab = ({ config }: HomeTabProps) => {
+const HomeTab = ({ config, onNavigateToLayer }: HomeTabProps) => {
   const { dispatch } = useConfig();
   const { handleFileSelect, importConfig, importConfigFromUrl } = useConfigImport();
   const { exportConfig } = useConfigExport();
@@ -37,6 +39,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showAttributionDialog, setShowAttributionDialog] = useState(false);
   const [showCompleteLayersDialog, setShowCompleteLayersDialog] = useState(false);
+  const [healthcheckAutoRun, setHealthcheckAutoRun] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [showLayerIssuesDialog, setShowLayerIssuesDialog] = useState(false);
   const [layerIssuesTitle, setLayerIssuesTitle] = useState('');
@@ -274,7 +277,7 @@ const HomeTab = ({ config }: HomeTabProps) => {
   return (
     <>
       <div className="space-y-4">
-        {/* Two Column Layout: Project 50%, Layer QA 50% */}
+        {/* Two Column Layout: Project 50%, Config QA 50% */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Project Card - 50% width */}
           <Card className="border-border/50 shadow-sm">
@@ -490,14 +493,18 @@ const HomeTab = ({ config }: HomeTabProps) => {
           </CardContent>
         </Card>
 
-          {/* Layer QA - 50% width */}
+          {/* Config QA - 50% width */}
           <Card className="border-border/50 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Layer QA</CardTitle>
+              <CardTitle className="text-xl">Config Quality Assurance</CardTitle>
             </CardHeader>
-            <CardContent className="pt-3 space-y-3">
+            <CardContent className="pt-3 space-y-4">
+              <h3 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">
+                Config file metrics
+              </h3>
               {/* QA Stats in one row */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+
                 <QAStatCard
                   icon={Check}
                   value={qaStats.success}
@@ -530,37 +537,117 @@ const HomeTab = ({ config }: HomeTabProps) => {
                   onClick={handleNoDataClick}
                 />
               </div>
-              
-              {/* Validation Button */}
-              <Button 
-                onClick={() => setShowCompleteLayersDialog(true)}
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                {validationResults.size > 0 ? 'Refresh Data Source Validation' : 'Run Data Source Validation'}
-              </Button>
-              
-              {/* Validation Results Summary */}
-              {validationResults.size > 0 && (
-                <button
-                  onClick={() => setShowCompleteLayersDialog(true)}
-                  className="w-full p-3 bg-muted/50 border border-border/50 rounded-lg hover:bg-muted/70 hover:border-border transition-all cursor-pointer text-left"
-                >
-                  <div className="text-xs font-medium text-muted-foreground mb-2">Last Validation Results</div>
-                  <div className="flex gap-3 text-xs">
-                    <span className="text-green-600 font-medium">
-                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'valid').length} Valid
-                    </span>
-                    <span className="text-amber-600 font-medium">
-                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'partial').length} Partial
-                    </span>
-                    <span className="text-red-600 font-medium">
-                      {Array.from(validationResults.values()).filter((r: LayerValidationResult) => r.overallStatus === 'error').length} Errors
-                    </span>
+
+              {/* Healthcheck section */}
+              <div className="space-y-2 pt-2">
+                <h3 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">
+                  Healthcheck
+                </h3>
+                <div className="rounded-lg border border-border/50 bg-muted/30 p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Left column: icon, description, run button */}
+                    <div className="flex flex-col items-center text-center gap-3">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Stethoscope className="h-6 w-6" />
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Full health check of all layers for validity and performance.
+                      </p>
+                      <Button
+                        onClick={() => { setHealthcheckAutoRun(true); setShowCompleteLayersDialog(true); }}
+                        size="sm"
+                        variant={validationResults.size > 0 ? 'secondary' : 'default'}
+                        className="whitespace-nowrap"
+                      >
+                        <Stethoscope className="h-4 w-4 mr-2" />
+                        {validationResults.size > 0 ? 'Re-run Healthcheck' : 'Run Healthcheck'}
+                      </Button>
+                    </div>
+
+                    {/* Right column: Last run nested card */}
+                    {(() => {
+                      if (validationResults.size === 0) {
+                        return (
+                          <Card className="h-full border-border/50 bg-background/40">
+                            <CardContent className="h-full flex items-center justify-center p-4">
+                              <p className="text-xs italic text-muted-foreground/70">
+                                Not run yet.
+                              </p>
+                            </CardContent>
+                          </Card>
+                        );
+                      }
+
+                      const results = Array.from(validationResults.values()) as LayerValidationResult[];
+                      const dataCounts: Record<DataAccessStatus, number> = { pass: 0, partial: 0, fail: 0, na: 0 };
+                      const perfCounts: Record<PerformanceStatus, number> = { good: 0, average: 0, poor: 0, na: 0 };
+                      let latest: Date | undefined;
+                      results.forEach(r => {
+                        const cols = deriveHealthcheckColumns(r);
+                        dataCounts[cols.dataAccess]++;
+                        perfCounts[cols.performance]++;
+                        if (r.checkedAt && (!latest || r.checkedAt > latest)) latest = r.checkedAt;
+                      });
+
+                      const dataRows: Array<{ key: DataAccessStatus; icon: typeof Check; color: string }> = [
+                        { key: 'pass', icon: Check, color: 'text-green-600' },
+                        { key: 'partial', icon: CircleDashed, color: 'text-amber-600' },
+                        { key: 'fail', icon: XCircle, color: 'text-red-600' },
+                      ];
+                      const perfRows: Array<{ key: PerformanceStatus; icon: typeof CircleDot; color: string }> = [
+                        { key: 'good', icon: CircleDot, color: 'text-green-600' },
+                        { key: 'average', icon: CircleDashed, color: 'text-amber-600' },
+                        { key: 'poor', icon: XCircle, color: 'text-red-600' },
+                      ];
+
+                      return (
+                        <Card
+                          onClick={() => { setHealthcheckAutoRun(false); setShowCompleteLayersDialog(true); }}
+                          className="h-full border-border/50 bg-background/60 cursor-pointer hover:bg-background hover:border-border transition-colors"
+                        >
+                          <CardContent className="p-3 space-y-3">
+                            <div className="text-xs font-semibold text-foreground/80 uppercase tracking-wide text-center">
+                              Results
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1.5">
+                                <div className="text-xs font-semibold text-foreground/80">Data Access</div>
+                                {dataRows.map(({ key, icon: Icon, color }) => (
+                                  <div key={key} className={`flex items-center gap-1.5 text-xs ${color}`}>
+                                    <Icon className="h-3.5 w-3.5" />
+                                    <span className="font-medium">{dataCounts[key]}</span>
+                                    <span>{dataAccessLabel[key]}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="space-y-1.5">
+                                <div className="text-xs font-semibold text-foreground/80">Performance</div>
+                                {perfRows.map(({ key, icon: Icon, color }) => (
+                                  <div key={key} className={`flex items-center gap-1.5 text-xs ${color}`}>
+                                    <Icon className="h-3.5 w-3.5" />
+                                    <span className="font-medium">{perfCounts[key]}</span>
+                                    <span>{performanceLabel[key]}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/40">
+                              <div className="text-[11px] text-muted-foreground uppercase tracking-wide">
+                                Last run
+                              </div>
+                              {latest && (
+                                <div className="text-[11px] text-muted-foreground">
+                                  {latest.toLocaleString()}
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })()}
                   </div>
-                </button>
-              )}
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -588,6 +675,9 @@ const HomeTab = ({ config }: HomeTabProps) => {
         config={config}
         onValidationComplete={handleValidationComplete}
         existingResults={validationResults}
+        autoRun={healthcheckAutoRun}
+        onRemoveLayer={(idx) => dispatch({ type: 'REMOVE_SOURCE', payload: idx })}
+        onEditLayer={(idx) => onNavigateToLayer?.(idx)}
       />
 
       <LayerIssuesDialog

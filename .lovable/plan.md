@@ -1,54 +1,52 @@
-## Field Selector Dialog for Field Values pie charts
+## Goal
+In the Healthcheck "View details" expanded row, add **Remove Layer** and **Edit Layer** action buttons placed **above** the URL Validation Details card (full-width row), aligned with the "URL Validation Details" header level. Keep the details card at its current width.
 
-Add a UI for editing the `inline` source's `fields` array. The dialog auto-detects properties from the first vector source on the layer (GeoJSON first feature or FlatGeoBuf header) using the existing `detectFieldsFromSource` helper.
+## Behaviour
 
-### Wire vector sources through to the form
+### Remove Layer
+- Destructive button (`text-red-600`, `Trash2` icon, outline variant).
+- On click → `AlertDialog` confirmation:
+  - Title: "Remove layer?"
+  - Body: `This will remove "<layer name>" entirely from this config.`
+  - Cancel + Confirm buttons; confirm uses destructive styling.
+- On confirm → dispatch `REMOVE_SOURCE` (payload: source index) and collapse the expanded row. Modal stays open so user can continue triaging other layers.
 
-**`src/components/layers/LayerFormHandler.tsx`**
-- Alongside `cogSources`, derive `vectorSources` from `currentLayer.data` filtering for `format === 'geojson' || format === 'flatgeobuf'`.
-- Pass as new `vectorSources` prop to `<ChartSourceForm />`.
+### Edit Layer
+- Standard button (`Edit` icon, outline variant).
+- On click → close the Healthcheck modal, switch to the **Layers** tab, scroll to + expand that layer's card. No edit form is opened.
 
-**`src/components/layers/components/ChartSourceForm.tsx`**
-- Extend `ChartSourceFormProps` with `vectorSources?: DataSourceItem[]` (default `[]`).
+## Changes
 
-### New dialog
+### 1. `src/components/config/CompleteLayersDialog.tsx`
+- Extend `CompleteLayersDialogProps`:
+  - `onRemoveLayer?: (sourceIndex: number) => void`
+  - `onEditLayer?: (sourceIndex: number) => void`
+- Inside the expanded `<TableRow>`'s cell, restructure to two stacked sections:
+  1. **Actions row** (new): a small flex header at top — left side blank / spacing, right side the two buttons (`Remove Layer`, `Edit Layer`). Only renders if at least one callback is supplied.
+  2. **URL Validation Details** card (existing): unchanged width and content.
+- Add `AlertDialog` state `confirmRemoveLayer: { index: number; name: string } | null` to back the confirmation.
+- After confirm, call `onRemoveLayer(idx)`, clear the expanded row, and close the alert.
+- Edit handler: call `onEditLayer(idx)` then `onOpenChange(false)`.
 
-**`src/components/charts/FieldSelectorDialog.tsx`** (new file, modelled on `BandLabelEditorDialog`)
-- Props: `open`, `onOpenChange`, `vectorSources`, `selectedFields: string[]`, `onSave: (fields: string[]) => void`.
-- On open (inside a `useEffect` watching `open`, per project core rule): pick `vectorSources[0]`, call `detectFieldsFromSource(url, format)`, show spinner during fetch.
-- Render a checkbox list of detected fields:
-  - Numeric/integer fields enabled and primary, with a small type badge.
-  - Non-numeric fields rendered with reduced opacity and a tooltip "Non-numeric — pie slice will be a placeholder value".
-- Quick actions: **Select all numeric (n)** and **Clear all**.
-- Manual-add input at the bottom (`+ Add` button or Enter key) — appends to a `manualFields` list and auto-checks it.
-- Manual entries get a `manual` badge and a remove button.
-- If `vectorSources.length === 0` or detection throws: show inline message and just expose the manual-add UI; previously-selected fields appear as manual entries.
-- Save returns checked fields in stable order (detected order first, then manual order).
+### 2. `src/components/config/HomeTab.tsx`
+- Add optional prop `onNavigateToLayer?: (sourceIndex: number) => void` on `HomeTabProps`.
+- Pass to `<CompleteLayersDialog>`:
+  - `onRemoveLayer={(idx) => dispatch({ type: 'REMOVE_SOURCE', payload: idx })}`
+  - `onEditLayer={(idx) => onNavigateToLayer?.(idx)}`
 
-### Hook into the form's Field Values branch
+### 3. `src/components/ConfigBuilder.tsx`
+- Wire `<HomeTab onNavigateToLayer={...} />`:
+  - Use existing `setActiveTab('layers')` to switch tabs.
+  - Use existing `useScrollToLayer` hook to scroll to the layer card.
+  - Use existing `setExpandedLayers([...])` from `useNavigationState` to expand the target layer card by ID.
 
-**`src/components/layers/components/ChartSourceForm.tsx`**
-- Replace the existing "Field Values configuration coming soon" placeholder (around lines 759–767) with:
-  - A header row `[Settings2 icon] Selected Fields  [Edit fields…] button`.
-  - A wrap of small chips for each selected field with a per-chip × button (removes from `inlineFields`).
-  - Empty state: "No fields selected — click Edit fields to choose."
-- Add `fieldDialogOpen` state and render `<FieldSelectorDialog />` next to the existing `<BandLabelEditorDialog />`.
-- Add `inlineFields` to the dirty-tracking `useEffect` deps so toggling fields enables Save.
+## Technical notes
+- `REMOVE_SOURCE` action already exists in `ConfigContext` (line 38) and removes by source index.
+- Layer cards in `LayersTab` already support being expanded via the `expandedLayers` array in `useNavigationState`. We pass the layer's stable card ID (derived from its source index) into that array.
+- `useScrollToLayer.scrollToLayer(idx)` already includes a 150ms `setTimeout` to allow the tab/DOM to settle, so no extra coordination required.
+- AlertDialog uses the existing `@/components/ui/alert-dialog` primitives (already imported elsewhere in `HomeTab`, will be added to `CompleteLayersDialog` imports).
 
-### Preview behaviour
-`PlotlyChartViewer` already synthesizes equal-weighted placeholder values from `sources[0].fields` for inline pies — no changes needed.
-
-### Memory
-- Create `mem://features/charts/field-values-selector` describing detection (first GeoJSON feature / FGB header), numeric-vs-string handling, and manual-add fallback.
-- Append a one-liner to `## Memories` in `mem://index.md`.
-
-### Out of scope
-- No schema changes (the `inline` source already accepts `fields: string[]`).
-- No real numeric aggregation across features — synthesized placeholder values remain.
-- No multi-source picker — first vector source wins.
-
-### Files to change
-- `src/components/layers/LayerFormHandler.tsx`
-- `src/components/layers/components/ChartSourceForm.tsx`
-- `src/components/charts/FieldSelectorDialog.tsx` (new)
-- `mem://features/charts/field-values-selector` (new), `mem://index.md`
+## Files to edit
+- `src/components/config/CompleteLayersDialog.tsx`
+- `src/components/config/HomeTab.tsx`
+- `src/components/ConfigBuilder.tsx`
