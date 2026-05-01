@@ -291,6 +291,27 @@ const StyleRuleCard = ({
                 />
               </PanelSection>
             )}
+
+            {/* Filter (When) - shown after drawing layers */}
+            {whenActive && (
+              <PanelSection title="When">
+                <FilterBuilder
+                  value={rule.filter}
+                  onChange={(filter) =>
+                    onChange({ ...rule, filter, else: filter ? false : rule.else })
+                  }
+                  fields={fields}
+                  isElse={!!rule.else}
+                  onElseChange={(isElse) =>
+                    onChange({
+                      ...rule,
+                      else: isElse,
+                      filter: isElse ? undefined : rule.filter,
+                    })
+                  }
+                />
+              </PanelSection>
+            )}
           </div>
         </CollapsibleContent>
       </Collapsible>
