@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-05-01",
+    title: "UI for vector data styling",
+    category: "Feature",
+  },
+  {
     date: "2026-04-30",
     title: "Added Healthcheck dashboard",
     category: "Feature",
