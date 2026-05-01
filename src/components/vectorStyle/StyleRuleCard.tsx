@@ -93,6 +93,25 @@ const StyleRuleCard = ({
   const [open, setOpen] = useState(true);
   const enabled = rule.enabled !== false;
 
+  const hasFilter =
+    rule.else === true ||
+    (rule.filter?.kind === 'simple' && rule.filter.clauses.length > 0) ||
+    rule.filter?.kind === 'expression';
+  const [whenOpen, setWhenOpen] = useState(hasFilter);
+  const whenActive = whenOpen || hasFilter;
+
+  const toggleWhen = () => {
+    if (whenActive) {
+      // Turning off: clear any filter / else and hide the panel.
+      if (hasFilter) {
+        onChange({ ...rule, filter: undefined, else: false });
+      }
+      setWhenOpen(false);
+    } else {
+      setWhenOpen(true);
+    }
+  };
+
   const togglePrimitive = (key: PrimitiveKey) => {
     const current = rule.primitives[key];
     const nextPrims: RulePrimitives = { ...rule.primitives };
