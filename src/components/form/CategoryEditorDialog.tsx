@@ -166,6 +166,7 @@ const CategoryEditorDialog = ({
               hasExistingCategories={localCategories.length > 0}
               onCopy={handleCopy}
               onRequestAppendReplace={handleRequestAppendReplace}
+              interfaceGroupOrder={config.interfaceGroups || []}
             />
             <CategoryCsvActions
               categories={localCategories}
