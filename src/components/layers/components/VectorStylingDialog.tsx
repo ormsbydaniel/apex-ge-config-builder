@@ -6,7 +6,7 @@ import { DataSourceItem } from '@/types/dataSource';
 import { isVectorFormat } from '@/utils/fieldDetection';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
-import { Palette, Braces } from 'lucide-react';
+import { Palette, FileJson } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
