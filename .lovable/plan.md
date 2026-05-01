@@ -1,52 +1,92 @@
-## Goal
-In the Healthcheck "View details" expanded row, add **Remove Layer** and **Edit Layer** action buttons placed **above** the URL Validation Details card (full-width row), aligned with the "URL Validation Details" header level. Keep the details card at its current width.
+# Categories modal improvements
 
-## Behaviour
+Three changes, in this order: fix the stale-state bug first, then redesign the modal to a single editing surface, then add CSV import/export on top.
 
-### Remove Layer
-- Destructive button (`text-red-600`, `Trash2` icon, outline variant).
-- On click → `AlertDialog` confirmation:
-  - Title: "Remove layer?"
-  - Body: `This will remove "<layer name>" entirely from this config.`
-  - Cancel + Confirm buttons; confirm uses destructive styling.
-- On confirm → dispatch `REMOVE_SOURCE` (payload: source index) and collapse the expanded row. Modal stays open so user can continue triaging other layers.
+## 1. Fix stale categories bug (issue c)
 
-### Edit Layer
-- Standard button (`Edit` icon, outline variant).
-- On click → close the Healthcheck modal, switch to the **Layers** tab, scroll to + expand that layer's card. No edit form is opened.
+`useCategoryEditorState.ts` initialises `localCategories` and `useValues` via `useState(...)`, which only runs on first mount. Because `CategoryEditorDialog` stays mounted across opens, reopening the modal after a copy shows stale data.
 
-## Changes
+Add a `useEffect` watching the `open` prop. When `open` transitions to `true`, reset:
+- `localCategories` from the current `categories` prop
+- `useValues` from the current `categories` prop
+- `activeTab` to its default
+- `selectedSourceLayer` to `''`
+- `newCategory` to its empty default
 
-### 1. `src/components/config/CompleteLayersDialog.tsx`
-- Extend `CompleteLayersDialogProps`:
-  - `onRemoveLayer?: (sourceIndex: number) => void`
-  - `onEditLayer?: (sourceIndex: number) => void`
-- Inside the expanded `<TableRow>`'s cell, restructure to two stacked sections:
-  1. **Actions row** (new): a small flex header at top — left side blank / spacing, right side the two buttons (`Remove Layer`, `Edit Layer`). Only renders if at least one callback is supplied.
-  2. **URL Validation Details** card (existing): unchanged width and content.
-- Add `AlertDialog` state `confirmRemoveLayer: { index: number; name: string } | null` to back the confirmation.
-- After confirm, call `onRemoveLayer(idx)`, clear the expanded row, and close the alert.
-- Edit handler: call `onEditLayer(idx)` then `onOpenChange(false)`.
+This matches the project Core rule: *"Initialize dialog state inside `useEffect` watching the `open` prop to prevent stale overwrites."*
 
-### 2. `src/components/config/HomeTab.tsx`
-- Add optional prop `onNavigateToLayer?: (sourceIndex: number) => void` on `HomeTabProps`.
-- Pass to `<CompleteLayersDialog>`:
-  - `onRemoveLayer={(idx) => dispatch({ type: 'REMOVE_SOURCE', payload: idx })}`
-  - `onEditLayer={(idx) => onNavigateToLayer?.(idx)}`
+## 2. Redesign modal as single editing surface (issue b)
 
-### 3. `src/components/ConfigBuilder.tsx`
-- Wire `<HomeTab onNavigateToLayer={...} />`:
-  - Use existing `setActiveTab('layers')` to switch tabs.
-  - Use existing `useScrollToLayer` hook to scroll to the layer card.
-  - Use existing `setExpandedLayers([...])` from `useNavigationState` to expand the target layer card by ID.
+Remove the two-tab structure. Replace with one editing view that always shows the current categories, plus a row of action buttons above the list:
 
-## Technical notes
-- `REMOVE_SOURCE` action already exists in `ConfigContext` (line 38) and removes by source index.
-- Layer cards in `LayersTab` already support being expanded via the `expandedLayers` array in `useNavigationState`. We pass the layer's stable card ID (derived from its source index) into that array.
-- `useScrollToLayer.scrollToLayer(idx)` already includes a 150ms `setTimeout` to allow the tab/DOM to settle, so no extra coordination required.
-- AlertDialog uses the existing `@/components/ui/alert-dialog` primitives (already imported elsewhere in `HomeTab`, will be added to `CompleteLayersDialog` imports).
+```text
+┌─ Edit Categories for <Layer Name> ────────────────────┐
+│  [+ Add]  [Copy from layer ▾]  [Import CSV]  [⬇ Export CSV]  │
+│  ☐ Use values                                         │
+├───────────────────────────────────────────────────────┤
+│  ● Forest    #2E7D32   1     [edit] [×]              │
+│  ● Water     #1565C0   2     [edit] [×]              │
+│  ● Urban     #9E9E9E   3     [edit] [×]              │
+├───────────────────────────────────────────────────────┤
+│                              [Cancel]  [Save]         │
+└───────────────────────────────────────────────────────┘
+```
 
-## Files to edit
-- `src/components/config/CompleteLayersDialog.tsx`
-- `src/components/config/HomeTab.tsx`
-- `src/components/ConfigBuilder.tsx`
+Behaviour:
+- **Add** opens the existing inline add form (reuse `CategoryAddForm`).
+- **Copy from layer** is a popover/dropdown: pick a layer → if list is empty, copy immediately; if not, show Append / Replace choice inline. Result populates the visible list — no tab switch, no separate Save semantics.
+- **Save** only ever persists `localCategories`. It never triggers a copy.
+- **Cancel** discards local edits.
+- Export CSV is disabled when the list is empty.
+
+Code changes:
+- Delete `CategoryEditorTabs.tsx` and `CategoryCopyFromLayer.tsx` (move salient bits into a new `CategoryCopyFromLayerButton.tsx` popover).
+- Remove the legacy `showCopyConfirmation` AlertDialog and its state from `CategoryCopyLogic.tsx` — keep only the Append/Replace dialog (rename actions to "Add to existing" / "Replace all").
+- Simplify `CategoryEditorDialog.handleSave` to a single line: `onUpdate(localCategories); handleOpen(false);`.
+- Remove the `activeTab === 'copy'` branch and the `setActiveTab('manual')` side-effect in `performCopy`.
+- Per project guideline, move the deleted files to `src/utils/deprecated/` (or `src/components/deprecated/`) with a README explaining they were superseded by the unified editor, rather than hard-deleting.
+
+## 3. CSV import/export (issue a)
+
+New utility `src/utils/categoryCsv.ts` with two pure functions:
+
+- `categoriesToCsv(categories, useValues): string` — produces `label,color,value` (or `label,color` when `useValues` is false). Quote labels containing commas/quotes. Always emits `#RRGGBB` colours.
+- `parseCategoriesCsv(text): { categories: Category[]; useValues: boolean; errors: { row: number; message: string }[] }` — header-row required, accepts `label,color` or `label,color,value` in any column order, validates hex colours, coerces `value` to integer, flags duplicates and malformed rows. `useValues` is true iff a `value` column is present and every row has one.
+
+UI:
+- **Export CSV** button triggers a download named `<layerName>-categories.csv`.
+- **Import CSV** button opens a hidden `<input type="file" accept=".csv,text/csv">`. After parse:
+  - If errors exist, show a small inline error panel listing row numbers — do not import.
+  - If clean and current list is empty, replace silently.
+  - If clean and current list is non-empty, reuse the existing Append/Replace dialog (with the parsed set as `pendingCopyData`).
+  - When the parsed file has values but the editor was in "no values" mode (or vice versa), auto-switch `useValues` to match the file and show a one-line toast explaining the change.
+
+CSV format documented in a short comment at the top of `categoryCsv.ts`:
+```text
+label,color,value
+Forest,#2E7D32,1
+Water,#1565C0,2
+"Mixed, urban",#9E9E9E,3
+```
+
+## Technical details
+
+- Files to edit:
+  - `src/hooks/useCategoryEditorState.ts` — add reset `useEffect`, drop tab-related state.
+  - `src/components/form/CategoryEditorDialog.tsx` — new layout, single Save path.
+  - `src/components/form/CategoryCopyLogic.tsx` — remove legacy dialog, rename actions.
+- Files to add:
+  - `src/utils/categoryCsv.ts` — parse/serialise.
+  - `src/components/form/CategoryCopyFromLayerButton.tsx` — popover replacing the tab.
+  - `src/components/form/CategoryCsvActions.tsx` — Import/Export buttons.
+  - `src/utils/__tests__/categoryCsv.test.ts` — unit tests for round-trip, error cases, value-detection.
+- Files to deprecate (move under `deprecated/` with README + `@deprecated`):
+  - `CategoryEditorTabs.tsx`, `CategoryCopyFromLayer.tsx`.
+- No schema or type changes — `Category` shape is unchanged.
+- Reuse existing `normalizeCategories` from `src/utils/categoryValidation.ts` after CSV import for value deduplication consistency.
+
+## Out of scope
+
+- Cross-config CSV sharing UI (the export file itself already serves this).
+- Bulk recolouring from a palette (separate feature).
+- Changes to how categories render in the legend or on the map.
