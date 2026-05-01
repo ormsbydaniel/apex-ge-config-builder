@@ -7,6 +7,11 @@ export interface Announcement {
 export const announcements: Announcement[] = [
   {
     date: "2026-05-01",
+    title: "Categories editor: CSV import/export, simpler copy-from-layer, stale state fix",
+    category: "Improvement",
+  },
+  {
+    date: "2026-05-01",
     title: "UI for vector data styling",
     category: "Feature",
   },
