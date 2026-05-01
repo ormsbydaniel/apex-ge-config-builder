@@ -31,12 +31,12 @@ const CategoryList = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3 min-h-0 flex-1">
       <Label className="text-sm font-medium">
         Categories ({categories.length})
       </Label>
       
-      <div className="bg-muted/20 rounded-lg overflow-hidden">
+      <div className="bg-muted/20 rounded-lg overflow-y-auto min-h-0 flex-1">
         {categories.map((category, index) => (
           <CategoryItem
             key={index}
