@@ -166,6 +166,13 @@ const CategoryEditorDialog = ({
             />
           </div>
 
+          {localCategories.length > 0 && (
+            <CategoryPreview
+              categories={localCategories}
+              useValues={useValues}
+            />
+          )}
+
           {importErrors.length > 0 && (
             <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs">
               <p className="font-medium text-destructive mb-1">
