@@ -143,7 +143,7 @@ const CategoryEditorDialog = ({
     <>
       <Dialog open={open} onOpenChange={handleOpen}>
         <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col gap-2">
           <DialogHeader>
             <DialogTitle>
               {layerName ? `Edit Categories for ${layerName}` : 'Edit Categories'}
