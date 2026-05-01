@@ -19,6 +19,7 @@ import CategoryManualEditor from './CategoryManualEditor';
 import CategoryCopyLogic from './CategoryCopyLogic';
 import CategoryCopyFromLayerButton, { AvailableSourceLayer } from './CategoryCopyFromLayerButton';
 import CategoryCsvActions from './CategoryCsvActions';
+import CategoryPreview from './CategoryPreview';
 
 interface CategoryEditorDialogProps {
   categories: Category[];
