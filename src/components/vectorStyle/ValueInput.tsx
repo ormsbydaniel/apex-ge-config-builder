@@ -14,7 +14,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Settings2, RotateCcw } from 'lucide-react';
+import { PlusCircle, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ConstantInput from './ConstantInput';
 import StopsEditor from './StopsEditor';
@@ -134,7 +134,7 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
           aria-pressed={showAdvanced}
           onClick={() => setAdvancedOpen(o => !o)}
         >
-          <Settings2 className="h-3.5 w-3.5" />
+          <PlusCircle className="h-3.5 w-3.5" />
         </Button>
       </TooltipTrigger>
       <TooltipContent side="top">Advanced</TooltipContent>
