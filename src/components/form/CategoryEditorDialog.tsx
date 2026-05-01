@@ -77,7 +77,12 @@ const CategoryEditorDialog = ({
   } = useCategoryEditorState({ categories });
 
   const handleSave = () => {
-    onUpdate(localCategories);
+    // If "Use Category Values" is off, strip values from saved categories so
+    // they don't end up in the persisted config.
+    const toSave = useValues
+      ? localCategories
+      : localCategories.map(({ value, ...rest }) => rest as Category);
+    onUpdate(toSave);
     handleOpen(false);
   };
 
@@ -172,21 +177,22 @@ const CategoryEditorDialog = ({
                 checked={useValues}
                 onCheckedChange={(checked) => {
                   setUseValues(checked);
+                  // Backfill values for any categories that don't have one yet,
+                  // but never overwrite existing values — so toggling off and
+                  // back on preserves the user's numbering.
                   if (checked) {
+                    let next = localCategories.reduce(
+                      (max, cat) => (cat.value !== undefined && cat.value > max ? cat.value : max),
+                      -1,
+                    );
                     setLocalCategories(
-                      localCategories.map((cat, index) => ({
-                        ...cat,
-                        value: cat.value !== undefined ? cat.value : index,
-                      }))
+                      localCategories.map((cat) =>
+                        cat.value !== undefined ? cat : { ...cat, value: ++next },
+                      ),
                     );
                     if (newCategory.value === undefined) {
-                      setNewCategory({ ...newCategory, value: localCategories.length });
+                      setNewCategory({ ...newCategory, value: next + 1 });
                     }
-                  } else {
-                    setLocalCategories(
-                      localCategories.map((cat, index) => ({ ...cat, value: index }))
-                    );
-                    setNewCategory({ ...newCategory, value: 0 });
                   }
                 }}
               />

@@ -41,16 +41,25 @@ const CategoryManualEditor = ({
 
   const handleAddCategory = () => {
     if (newCategory.label.trim()) {
+      // Always assign a value (max existing + 1) so numbering is preserved
+      // even if "Use Category Values" is currently off — the user can toggle
+      // it back on without losing their numbering.
+      const maxValue = localCategories.reduce(
+        (max, cat) => (cat.value !== undefined && cat.value > max ? cat.value : max),
+        -1,
+      );
+      const nextValue =
+        useValues && newCategory.value !== undefined ? newCategory.value : maxValue + 1;
       const categoryToAdd: Category = {
         color: convertColorToHex(newCategory.color),
         label: newCategory.label,
-        value: useValues ? (newCategory.value !== undefined ? newCategory.value : localCategories.length) : localCategories.length
+        value: nextValue,
       };
       setLocalCategories([...localCategories, categoryToAdd]);
       setNewCategory({
         label: '',
         color: '#000000',
-        value: 0
+        value: useValues ? nextValue + 1 : 0,
       });
     }
   };
@@ -74,26 +83,7 @@ const CategoryManualEditor = ({
     setLocalCategories(localCategories.filter((_, i) => i !== index));
   }, [localCategories, setLocalCategories]);
 
-  const handleUseValuesToggle = (checked: boolean) => {
-    setUseValues(checked);
-    if (checked) {
-      const updatedCategories = localCategories.map((cat, index) => ({
-        ...cat,
-        value: cat.value !== undefined ? cat.value : index
-      }));
-      setLocalCategories(updatedCategories);
-      if (newCategory.value === undefined) {
-        setNewCategory({ ...newCategory, value: localCategories.length });
-      }
-    } else {
-      const updatedCategories = localCategories.map((cat, index) => ({
-        ...cat,
-        value: index
-      }));
-      setLocalCategories(updatedCategories);
-      setNewCategory({ ...newCategory, value: 0 });
-    }
-  };
+
 
   return (
     <div className="space-y-4">
