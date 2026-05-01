@@ -2,8 +2,6 @@
 import React, { useCallback } from 'react';
 import { Category } from '@/types/config';
 import { convertColorToHex } from '@/utils/colorUtils';
-import CategoryPreview from './CategoryPreview';
-import CategoryValueToggle from './CategoryValueToggle';
 import CategoryAddForm from './CategoryAddForm';
 import CategoryList from './CategoryList';
 
@@ -99,11 +97,6 @@ const CategoryManualEditor = ({
 
   return (
     <div className="space-y-4 mt-4">
-      <CategoryValueToggle 
-        useValues={useValues}
-        onToggle={handleUseValuesToggle}
-      />
-
       <CategoryAddForm
         newCategory={newCategory}
         useValues={useValues}
