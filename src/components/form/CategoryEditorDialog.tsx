@@ -56,6 +56,8 @@ const CategoryEditorDialog = ({
         name: source.name || 'Unnamed Layer',
         categories: normalizedCategories,
         hasValues: normalizedCategories.some(cat => cat.value !== undefined),
+        interfaceGroup: source.layout?.interfaceGroup,
+        subinterfaceGroup: source.layout?.subinterfaceGroup,
       };
     });
 
