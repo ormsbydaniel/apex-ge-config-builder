@@ -1,99 +1,73 @@
-
 import React from 'react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Category } from '@/types/config';
+import { CategoryBadgeList } from './CategoryPreview';
 
-interface AvailableSourceLayer {
-  name: string;
-  categories: Category[];
-  hasValues: boolean;
-}
-
-interface CategoryCopyLogicProps {
-  availableSourceLayers: AvailableSourceLayer[];
-  selectedSourceLayer: string;
-  localCategories: Category[];
-  useValues: boolean;
-  showCopyConfirmation: boolean;
-  showAppendReplaceDialog: boolean;
+interface CategoryAppendReplaceDialogProps {
+  open: boolean;
+  localCategoriesCount: number;
   pendingCopyData: { categories: Category[]; hasValues: boolean; name: string } | null;
-  onSetShowCopyConfirmation: (show: boolean) => void;
-  onSetShowAppendReplaceDialog: (show: boolean) => void;
-  onPerformCopy: (sourceLayer: { categories: Category[]; hasValues: boolean; name: string }, mode: 'append' | 'replace') => void;
-  onHandleAppendReplaceSave: (mode: 'append' | 'replace') => void;
+  onOpenChange: (open: boolean) => void;
+  onChoose: (mode: 'append' | 'replace') => void;
 }
 
 const CategoryCopyLogic = ({
-  availableSourceLayers,
-  selectedSourceLayer,
-  localCategories,
-  useValues,
-  showCopyConfirmation,
-  showAppendReplaceDialog,
+  open,
+  localCategoriesCount,
   pendingCopyData,
-  onSetShowCopyConfirmation,
-  onSetShowAppendReplaceDialog,
-  onPerformCopy,
-  onHandleAppendReplaceSave
-}: CategoryCopyLogicProps) => {
-  const selectedSourceLayerData = availableSourceLayers.find(layer => layer.name === selectedSourceLayer);
-
+  onOpenChange,
+  onChoose,
+}: CategoryAppendReplaceDialogProps) => {
+  const incoming = pendingCopyData?.categories.length ?? 0;
   return (
-    <>
-      {/* Append/Replace Dialog */}
-      <AlertDialog open={showAppendReplaceDialog} onOpenChange={onSetShowAppendReplaceDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Add Categories</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have {localCategories.length} existing categories. How would you like to add the {pendingCopyData?.categories.length} categories from "{pendingCopyData?.name}"?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button 
-              variant="outline"
-              onClick={() => onHandleAppendReplaceSave('append')}
-            >
-              Append ({localCategories.length + (pendingCopyData?.categories.length || 0)} total)
-            </Button>
-            <AlertDialogAction 
-              onClick={() => onHandleAppendReplaceSave('replace')}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Replace ({pendingCopyData?.categories.length} total)
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Add categories</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have {localCategoriesCount} existing categories. How would you like to add the{' '}
+            {incoming} categories from "{pendingCopyData?.name}"?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-      {/* Legacy Copy Confirmation Dialog */}
-      <AlertDialog open={showCopyConfirmation} onOpenChange={onSetShowCopyConfirmation}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Replace Existing Categories?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will replace your current {localCategories.length} categories with {selectedSourceLayerData?.categories.length} categories from "{selectedSourceLayer}".
-              {selectedSourceLayerData?.hasValues !== useValues && (
-                <span className="block mt-2 text-amber-600">
-                  Note: The value settings will also change to match the source layer.
-                </span>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => selectedSourceLayerData && onPerformCopy(selectedSourceLayerData, 'replace')}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Replace All
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+        {pendingCopyData && incoming > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-xs text-muted-foreground">
+              Preview from "{pendingCopyData.name}" ({incoming})
+            </p>
+            <div className="rounded-md border bg-muted/30 p-2 max-h-32 overflow-y-auto">
+              <CategoryBadgeList
+                categories={pendingCopyData.categories}
+                useValues={pendingCopyData.hasValues}
+              />
+            </div>
+          </div>
+        )}
+
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <Button variant="outline" onClick={() => onChoose('append')}>
+            Add to existing ({localCategoriesCount + incoming} total)
+          </Button>
+          <AlertDialogAction
+            onClick={() => onChoose('replace')}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Replace all ({incoming} total)
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 

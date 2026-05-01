@@ -1,52 +1,52 @@
 ## Goal
-In the Healthcheck "View details" expanded row, add **Remove Layer** and **Edit Layer** action buttons placed **above** the URL Validation Details card (full-width row), aligned with the "URL Validation Details" header level. Keep the details card at its current width.
 
-## Behaviour
+When the user picks a layer from the "Copy from layer" dropdown and the editor already has categories, show a preview of the donor's categories as badges inside the confirmation dialog (`CategoryCopyLogic`), so the user can see what they're about to add or replace before deciding.
 
-### Remove Layer
-- Destructive button (`text-red-600`, `Trash2` icon, outline variant).
-- On click → `AlertDialog` confirmation:
-  - Title: "Remove layer?"
-  - Body: `This will remove "<layer name>" entirely from this config.`
-  - Cancel + Confirm buttons; confirm uses destructive styling.
-- On confirm → dispatch `REMOVE_SOURCE` (payload: source index) and collapse the expanded row. Modal stays open so user can continue triaging other layers.
+If there are no existing categories, the copy is applied directly without a confirmation step today — no preview is needed in that path.
 
-### Edit Layer
-- Standard button (`Edit` icon, outline variant).
-- On click → close the Healthcheck modal, switch to the **Layers** tab, scroll to + expand that layer's card. No edit form is opened.
+## Proposed layout (inside the existing `Add categories` AlertDialog)
 
-## Changes
+```text
+┌─ Add categories ───────────────────────────────────────────┐
+│ You have 5 existing categories.                            │
+│ How would you like to add the 8 categories from "Land Use"?│
+│                                                            │
+│ Preview from "Land Use" (8)                                │
+│ ┌────────────────────────────────────────────────────────┐ │
+│ │ ● Forest  ● Water  ● Urban (3)  ● Crops  ● Bare ...   │ │
+│ │ ● Wetland  ● Snow  ● Grassland                         │ │
+│ └────────────────────────────────────────────────────────┘ │
+│                                                            │
+│              [Cancel] [Add to existing (13)] [Replace (8)] │
+└────────────────────────────────────────────────────────────┘
+```
 
-### 1. `src/components/config/CompleteLayersDialog.tsx`
-- Extend `CompleteLayersDialogProps`:
-  - `onRemoveLayer?: (sourceIndex: number) => void`
-  - `onEditLayer?: (sourceIndex: number) => void`
-- Inside the expanded `<TableRow>`'s cell, restructure to two stacked sections:
-  1. **Actions row** (new): a small flex header at top — left side blank / spacing, right side the two buttons (`Remove Layer`, `Edit Layer`). Only renders if at least one callback is supplied.
-  2. **URL Validation Details** card (existing): unchanged width and content.
-- Add `AlertDialog` state `confirmRemoveLayer: { index: number; name: string } | null` to back the confirmation.
-- After confirm, call `onRemoveLayer(idx)`, clear the expanded row, and close the alert.
-- Edit handler: call `onEditLayer(idx)` then `onOpenChange(false)`.
+Layout details:
+- Small label above the badge area: `Preview from "<Layer>" (<n>)`, using muted-foreground.
+- Badges reuse the exact visual style already established by `CategoryPreview` (color dot + label, `(value)` shown when the donor `hasValues` is true), so it's instantly recognisable.
+- Container: `flex flex-wrap gap-1`, capped height (e.g. `max-h-32 overflow-y-auto`) with subtle `bg-muted/30 rounded-md p-2 border` so it reads as a distinct preview panel and won't blow up the dialog if the donor has many categories.
+- Sits between the description and the footer buttons; footer buttons remain unchanged.
 
-### 2. `src/components/config/HomeTab.tsx`
-- Add optional prop `onNavigateToLayer?: (sourceIndex: number) => void` on `HomeTabProps`.
-- Pass to `<CompleteLayersDialog>`:
-  - `onRemoveLayer={(idx) => dispatch({ type: 'REMOVE_SOURCE', payload: idx })}`
-  - `onEditLayer={(idx) => onNavigateToLayer?.(idx)}`
+## Implementation
 
-### 3. `src/components/ConfigBuilder.tsx`
-- Wire `<HomeTab onNavigateToLayer={...} />`:
-  - Use existing `setActiveTab('layers')` to switch tabs.
-  - Use existing `useScrollToLayer` hook to scroll to the layer card.
-  - Use existing `setExpandedLayers([...])` from `useNavigationState` to expand the target layer card by ID.
+1. **Extract the badge rendering** out of `CategoryPreview.tsx` into a small reusable piece so both the main editor preview and the confirmation dialog render identical badges. Two reasonable shapes:
+   - Add an internal `CategoryBadgeList` (or simply export a `CategoryBadges` subcomponent) that takes `{ categories, useValues }` and renders the `flex flex-wrap` badge grid.
+   - `CategoryPreview` keeps its current outer styling and delegates to `CategoryBadgeList`.
+   This avoids duplicating the badge markup and keeps any future styling tweaks in one place (consistent with the project's "cohesion over premature splitting" guideline).
 
-## Technical notes
-- `REMOVE_SOURCE` action already exists in `ConfigContext` (line 38) and removes by source index.
-- Layer cards in `LayersTab` already support being expanded via the `expandedLayers` array in `useNavigationState`. We pass the layer's stable card ID (derived from its source index) into that array.
-- `useScrollToLayer.scrollToLayer(idx)` already includes a 150ms `setTimeout` to allow the tab/DOM to settle, so no extra coordination required.
-- AlertDialog uses the existing `@/components/ui/alert-dialog` primitives (already imported elsewhere in `HomeTab`, will be added to `CompleteLayersDialog` imports).
+2. **Update `CategoryCopyLogic.tsx`** to render the donor preview:
+   - Use `pendingCopyData.categories` and `pendingCopyData.hasValues` (already on the prop).
+   - Render `CategoryBadgeList` inside the dialog body, with the small heading described above.
+   - Guard against the empty case (e.g. CSV import with 0 rows) — skip the preview block if `incoming === 0`.
 
-## Files to edit
-- `src/components/config/CompleteLayersDialog.tsx`
-- `src/components/config/HomeTab.tsx`
-- `src/components/ConfigBuilder.tsx`
+3. **No schema, type, or context changes** — `pendingCopyData` already carries everything needed (`name`, `categories`, `hasValues`).
+
+## Files touched
+
+- `src/components/form/CategoryPreview.tsx` — extract `CategoryBadgeList` (or export the badges subcomponent).
+- `src/components/form/CategoryCopyLogic.tsx` — render the donor preview block between description and footer.
+
+## Out of scope
+
+- Changing the immediate-copy path (when there are no existing categories) — no confirmation dialog appears there, so no preview is shown. Happy to add an inline preview there too if you'd like, but keeping the current "just do it" flow respects the existing behaviour.
+- Changing copy semantics (append/replace logic) or the dropdown itself.
