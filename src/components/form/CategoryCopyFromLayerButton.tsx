@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-} from '@/components/ui/select';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Copy } from 'lucide-react';
 import { Category } from '@/types/config';
 
@@ -93,9 +94,7 @@ const CategoryCopyFromLayerButton = ({
     [availableSourceLayers, interfaceGroupOrder],
   );
 
-  const handleSelect = (name: string) => {
-    const layer = availableSourceLayers.find(l => l.name === name);
-    if (!layer) return;
+  const handleSelect = (layer: AvailableSourceLayer) => {
     setOpen(false);
     if (hasExistingCategories) {
       onRequestAppendReplace(layer);
@@ -105,50 +104,51 @@ const CategoryCopyFromLayerButton = ({
   };
 
   return (
-    <Select
-      open={open}
-      onOpenChange={setOpen}
-      value=""
-      onValueChange={handleSelect}
-    >
-      <SelectTrigger
-        asChild
-        disabled={disabled}
-        title={disabled ? 'No other layers with categories available' : undefined}
-      >
-        <Button type="button" variant="outline" size="sm" disabled={disabled}>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={disabled}
+          title={disabled ? 'No other layers with categories available' : undefined}
+        >
           <Copy className="h-4 w-4 mr-2" />
           Copy from layer
         </Button>
-      </SelectTrigger>
-      <SelectContent align="start" className="max-h-80">
-        {grouped.map(group => (
-          <SelectGroup key={group.name}>
-            <SelectLabel className="text-xs uppercase tracking-wide text-muted-foreground">
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="max-h-80 overflow-y-auto w-72">
+        {grouped.map((group, groupIdx) => (
+          <DropdownMenuGroup key={group.name}>
+            {groupIdx > 0 && <DropdownMenuSeparator />}
+            <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
               {group.name}
-            </SelectLabel>
+            </DropdownMenuLabel>
             {group.subgroups.map(sub => (
               <React.Fragment key={`${group.name}::${sub.name || NO_SUBGROUP}`}>
                 {sub.name && (
-                  <SelectLabel className="pl-4 text-xs font-normal text-muted-foreground">
+                  <DropdownMenuLabel className="pl-4 text-xs font-normal text-muted-foreground">
                     {sub.name}
-                  </SelectLabel>
+                  </DropdownMenuLabel>
                 )}
                 {sub.layers.map(layer => (
-                  <SelectItem
+                  <DropdownMenuItem
                     key={layer.name}
-                    value={layer.name}
+                    onSelect={() => handleSelect(layer)}
                     className={sub.name ? 'pl-8' : 'pl-6'}
                   >
-                    {layer.name} ({layer.categories.length})
-                  </SelectItem>
+                    <span className="flex-1 truncate">{layer.name}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      ({layer.categories.length})
+                    </span>
+                  </DropdownMenuItem>
                 ))}
               </React.Fragment>
             ))}
-          </SelectGroup>
+          </DropdownMenuGroup>
         ))}
-      </SelectContent>
-    </Select>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
