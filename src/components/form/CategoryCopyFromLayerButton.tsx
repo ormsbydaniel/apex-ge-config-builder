@@ -1,7 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -9,7 +7,6 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select';
 import { Copy } from 'lucide-react';
 import { Category } from '@/types/config';
@@ -51,9 +48,6 @@ const buildGroupedLayers = (
   layers: AvailableSourceLayer[],
   interfaceGroupOrder: string[],
 ): Group[] => {
-  // Preserve discovery order for sub-groups and layers within them — this
-  // mirrors the order of config.sources, which is how the main config UI
-  // renders things.
   const groupMap = new Map<string, Map<string, AvailableSourceLayer[]>>();
   const groupOrder: string[] = [];
 
@@ -92,90 +86,69 @@ const CategoryCopyFromLayerButton = ({
   interfaceGroupOrder = [],
 }: CategoryCopyFromLayerButtonProps) => {
   const [open, setOpen] = useState(false);
-  const [selectedName, setSelectedName] = useState<string>('');
-
   const disabled = availableSourceLayers.length === 0;
-  const selected = availableSourceLayers.find(l => l.name === selectedName);
 
   const grouped = useMemo(
     () => buildGroupedLayers(availableSourceLayers, interfaceGroupOrder),
     [availableSourceLayers, interfaceGroupOrder],
   );
 
-  const handleCopy = () => {
-    if (!selected) return;
+  const handleSelect = (name: string) => {
+    const layer = availableSourceLayers.find(l => l.name === name);
+    if (!layer) return;
     setOpen(false);
     if (hasExistingCategories) {
-      onRequestAppendReplace(selected);
+      onRequestAppendReplace(layer);
     } else {
-      onCopy(selected, 'replace');
+      onCopy(layer, 'replace');
     }
-    setSelectedName('');
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={disabled}
-          title={disabled ? 'No other layers with categories available' : undefined}
-        >
+    <Select
+      open={open}
+      onOpenChange={setOpen}
+      value=""
+      onValueChange={handleSelect}
+    >
+      <SelectTrigger
+        asChild
+        disabled={disabled}
+        title={disabled ? 'No other layers with categories available' : undefined}
+      >
+        <Button type="button" variant="outline" size="sm" disabled={disabled}>
           <Copy className="h-4 w-4 mr-2" />
           Copy from layer
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80" align="start">
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Source layer</Label>
-          <Select value={selectedName} onValueChange={setSelectedName}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a layer..." />
-            </SelectTrigger>
-            <SelectContent>
-              {grouped.map(group => (
-                <SelectGroup key={group.name}>
-                  <SelectLabel className="text-xs uppercase tracking-wide text-muted-foreground">
-                    {group.name}
+      </SelectTrigger>
+      <SelectContent align="start" className="max-h-80">
+        {grouped.map(group => (
+          <SelectGroup key={group.name}>
+            <SelectLabel className="text-xs uppercase tracking-wide text-muted-foreground">
+              {group.name}
+            </SelectLabel>
+            {group.subgroups.map(sub => (
+              <React.Fragment key={`${group.name}::${sub.name || NO_SUBGROUP}`}>
+                {sub.name && (
+                  <SelectLabel className="pl-4 text-xs font-normal text-muted-foreground">
+                    {sub.name}
                   </SelectLabel>
-                  {group.subgroups.map(sub => (
-                    <React.Fragment key={`${group.name}::${sub.name || NO_SUBGROUP}`}>
-                      {sub.name && (
-                        <SelectLabel className="pl-4 text-xs font-normal text-muted-foreground">
-                          {sub.name}
-                        </SelectLabel>
-                      )}
-                      {sub.layers.map(layer => (
-                        <SelectItem
-                          key={layer.name}
-                          value={layer.name}
-                          className={sub.name ? 'pl-8' : 'pl-6'}
-                        >
-                          {layer.name} ({layer.categories.length})
-                        </SelectItem>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </SelectGroup>
-              ))}
-            </SelectContent>
-          </Select>
-          {selected && (
-            <p className="text-xs text-muted-foreground">
-              {selected.categories.length} categories
-              {selected.hasValues ? ' (with values)' : ' (without values)'}
-            </p>
-          )}
-          <div className="flex justify-end">
-            <Button type="button" size="sm" onClick={handleCopy} disabled={!selected}>
-              Copy
-            </Button>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+                )}
+                {sub.layers.map(layer => (
+                  <SelectItem
+                    key={layer.name}
+                    value={layer.name}
+                    className={sub.name ? 'pl-8' : 'pl-6'}
+                  >
+                    {layer.name} ({layer.categories.length})
+                  </SelectItem>
+                ))}
+              </React.Fragment>
+            ))}
+          </SelectGroup>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 
