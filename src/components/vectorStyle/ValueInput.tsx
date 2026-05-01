@@ -168,10 +168,10 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
   return (
     <div className="space-y-2 md:col-span-2">
       <div className="flex items-center gap-2">
-        <Label className="text-xs flex-1">{prop.label}</Label>
+        <Label className="text-xs w-20 shrink-0">{prop.label}</Label>
         {showAdvanced && (
           <Select value={mode} onValueChange={(v) => handleModeChange(v as Mode)}>
-            <SelectTrigger className="h-7 w-[180px] text-xs">
+            <SelectTrigger className="h-7 w-[180px] shrink-0 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -187,6 +187,18 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
             </SelectContent>
           </Select>
         )}
+        {advancedOpen && mode === 'constant' && value.kind === 'constant' ? (
+          <div className="flex-1 min-w-0">
+            <ConstantInput
+              type={prop.type}
+              options={prop.options}
+              value={value.value}
+              onChange={(v) => onChange({ kind: 'constant', value: v })}
+            />
+          </div>
+        ) : (
+          <div className="flex-1" />
+        )}
         {advancedToggle}
       </div>
 
@@ -195,15 +207,6 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
         <p className="text-xs text-muted-foreground italic">
           {summaryFor(value)}
         </p>
-      )}
-
-      {advancedOpen && mode === 'constant' && value.kind === 'constant' && (
-        <ConstantInput
-          type={prop.type}
-          options={prop.options}
-          value={value.value}
-          onChange={(v) => onChange({ kind: 'constant', value: v })}
-        />
       )}
 
       {advancedOpen && (mode === 'attribute-match' || mode === 'attribute-interp') &&
