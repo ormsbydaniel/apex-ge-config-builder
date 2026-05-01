@@ -16,6 +16,7 @@ import {
   ChevronDown as ChevronDownArrow,
   Eye,
   EyeOff,
+  Filter as FilterIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import FilterBuilder from './FilterBuilder';
