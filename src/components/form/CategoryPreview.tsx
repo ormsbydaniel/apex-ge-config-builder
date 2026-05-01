@@ -15,8 +15,8 @@ const CategoryPreview = ({
   if (categories.length === 0) {
     return null;
   }
-  return <div className={`space-y-2 pr-4 py-2 pt-2 bg-muted/30 rounded-lg ${className}`}>
-      
+  return <div className={`pr-4 py-1 bg-muted/30 rounded-lg ${className}`}>
+
       <div className="flex flex-wrap gap-1">
         {categories.map((category, index) => (
           <Badge 
