@@ -17,7 +17,7 @@ const CategoryPreview = ({
   }
   return <div className={`pr-4 py-1 bg-muted/30 rounded-lg ${className}`}>
 
-      <div className="flex flex-wrap gap-1 max-h-[8.5rem] overflow-y-auto pr-1">
+      <div className="flex flex-wrap gap-1 max-h-[8.4rem] overflow-y-auto pr-1">
         {categories.map((category, index) => (
           <Badge 
             key={`${category.color}-${category.label || `cat-${index}`}-${category.value}`} 
