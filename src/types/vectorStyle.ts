@@ -82,7 +82,7 @@ export type MarkerSubMode = 'circle' | 'icon' | 'shape';
 
 export interface MarkerPrimitive {
   subMode: MarkerSubMode;
-  /** Property name -> value model. Property names are the OL-spec keys (e.g. 'circle-radius'). */
+  /** Property name -> value model. Property names are the OL-spec keys (e.g. circle-radius). */
   props: Record<string, ValueModel>;
 }
 
