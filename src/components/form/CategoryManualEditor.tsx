@@ -117,11 +117,6 @@ const CategoryManualEditor = ({
         onUpdateCategory={handleUpdateCategory}
         onRemoveCategory={handleRemoveCategory}
       />
-
-      <CategoryPreview 
-        categories={localCategories} 
-        useValues={useValues} 
-      />
     </div>
   );
 };

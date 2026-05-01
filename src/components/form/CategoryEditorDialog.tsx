@@ -19,6 +19,7 @@ import CategoryManualEditor from './CategoryManualEditor';
 import CategoryCopyLogic from './CategoryCopyLogic';
 import CategoryCopyFromLayerButton, { AvailableSourceLayer } from './CategoryCopyFromLayerButton';
 import CategoryCsvActions from './CategoryCsvActions';
+import CategoryPreview from './CategoryPreview';
 
 interface CategoryEditorDialogProps {
   categories: Category[];
@@ -164,6 +165,13 @@ const CategoryEditorDialog = ({
               onImport={handleCsvImport}
             />
           </div>
+
+          {localCategories.length > 0 && (
+            <CategoryPreview
+              categories={localCategories}
+              useValues={useValues}
+            />
+          )}
 
           {importErrors.length > 0 && (
             <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs">
