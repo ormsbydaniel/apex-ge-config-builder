@@ -14,7 +14,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { PlusCircle, RotateCcw } from 'lucide-react';
+import { ChevronsRight, ChevronsLeft, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ConstantInput from './ConstantInput';
 import StopsEditor from './StopsEditor';
@@ -134,10 +134,14 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
           aria-pressed={showAdvanced}
           onClick={() => setAdvancedOpen(o => !o)}
         >
-          <PlusCircle className="h-3.5 w-3.5" />
+          {showAdvanced ? (
+            <ChevronsLeft className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronsRight className="h-3.5 w-3.5" />
+          )}
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="top">Advanced</TooltipContent>
+      <TooltipContent side="top">{showAdvanced ? 'Collapse' : 'Advanced'}</TooltipContent>
     </Tooltip>
   );
 
