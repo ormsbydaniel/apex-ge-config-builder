@@ -207,7 +207,7 @@ const StyleRuleCard = ({
         <CollapsibleContent>
           <div className="px-3 pb-3 space-y-3 border-t pt-3">
             {/* Primitive chips */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {(Object.keys(PRIMITIVE_LABEL) as PrimitiveKey[]).map((key) => {
                 const active = !!rule.primitives[key];
                 return (
@@ -224,27 +224,39 @@ const StyleRuleCard = ({
                   </Button>
                 );
               })}
+              <div className="mx-1 h-5 w-px bg-border" aria-hidden />
+              <Button
+                type="button"
+                variant={whenActive ? 'default' : 'outline'}
+                size="sm"
+                className="h-7 text-xs"
+                onClick={toggleWhen}
+              >
+                <FilterIcon className="mr-1 h-3 w-3" />
+                When
+              </Button>
             </div>
 
             {/* Filter */}
-            <div className="rounded-md border bg-muted/10 p-2">
-              <Label className="text-xs font-semibold mb-2 block">When</Label>
-              <FilterBuilder
-                value={rule.filter}
-                onChange={(filter) =>
-                  onChange({ ...rule, filter, else: filter ? false : rule.else })
-                }
-                fields={fields}
-                isElse={!!rule.else}
-                onElseChange={(isElse) =>
-                  onChange({
-                    ...rule,
-                    else: isElse,
-                    filter: isElse ? undefined : rule.filter,
-                  })
-                }
-              />
-            </div>
+            {whenActive && (
+              <PanelSection title="When">
+                <FilterBuilder
+                  value={rule.filter}
+                  onChange={(filter) =>
+                    onChange({ ...rule, filter, else: filter ? false : rule.else })
+                  }
+                  fields={fields}
+                  isElse={!!rule.else}
+                  onElseChange={(isElse) =>
+                    onChange({
+                      ...rule,
+                      else: isElse,
+                      filter: isElse ? undefined : rule.filter,
+                    })
+                  }
+                />
+              </PanelSection>
+            )}
 
             {/* Drawing layers */}
             {rule.primitives.marker && (
