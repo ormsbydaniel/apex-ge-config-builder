@@ -96,7 +96,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
                     aria-pressed={jsonActive}
                     onClick={toggleMode}
                   >
-                    <Braces className="h-4 w-4" />
+                    <FileJson className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
