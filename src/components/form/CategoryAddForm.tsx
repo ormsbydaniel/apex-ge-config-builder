@@ -38,21 +38,21 @@ const CategoryAddForm = ({
   };
 
   return (
-    <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+    <div className="space-y-2 px-3 py-3 bg-muted/30 rounded-lg">
       <Label className="text-sm font-medium">Add New Category</Label>
-      <div className="flex gap-3">
+      <div className="flex items-center gap-3">
         <input
           type="color"
           value={newCategory.color}
           onChange={(e) => handleColorChange(e.target.value)}
-          className="w-12 h-10 rounded border cursor-pointer"
+          className="w-8 h-8 rounded border cursor-pointer flex-shrink-0"
           title="Category color"
         />
         <Input
           value={newCategory.label}
           onChange={(e) => handleLabelChange(e.target.value)}
           placeholder="Category label"
-          className="flex-1"
+          className="flex-1 h-8 text-sm"
           onKeyDown={handleKeyDown}
         />
         {useValues && (
@@ -61,10 +61,16 @@ const CategoryAddForm = ({
             value={newCategory.value !== undefined ? newCategory.value : ''}
             onChange={(e) => handleValueChange(e.target.value ? parseInt(e.target.value) : 0)}
             placeholder="Value"
-            className="w-20"
+            className="w-16 h-8 text-sm"
           />
         )}
-        <Button type="button" onClick={onAddCategory} disabled={!newCategory.label.trim()}>
+        <Button
+          type="button"
+          onClick={onAddCategory}
+          disabled={!newCategory.label.trim()}
+          size="sm"
+          className="h-8 w-8 p-0 flex-shrink-0"
+        >
           <Plus className="h-4 w-4" />
         </Button>
       </div>
