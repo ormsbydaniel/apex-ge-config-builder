@@ -20,6 +20,8 @@ import CategoryCopyLogic from './CategoryCopyLogic';
 import CategoryCopyFromLayerButton, { AvailableSourceLayer } from './CategoryCopyFromLayerButton';
 import CategoryCsvActions from './CategoryCsvActions';
 import CategoryPreview from './CategoryPreview';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 interface CategoryEditorDialogProps {
   categories: Category[];
@@ -164,6 +166,34 @@ const CategoryEditorDialog = ({
               filenameBase={layerName || 'categories'}
               onImport={handleCsvImport}
             />
+            <div className="flex items-center gap-2 ml-2">
+              <Switch
+                id="use-category-values-toggle"
+                checked={useValues}
+                onCheckedChange={(checked) => {
+                  setUseValues(checked);
+                  if (checked) {
+                    setLocalCategories(
+                      localCategories.map((cat, index) => ({
+                        ...cat,
+                        value: cat.value !== undefined ? cat.value : index,
+                      }))
+                    );
+                    if (newCategory.value === undefined) {
+                      setNewCategory({ ...newCategory, value: localCategories.length });
+                    }
+                  } else {
+                    setLocalCategories(
+                      localCategories.map((cat, index) => ({ ...cat, value: index }))
+                    );
+                    setNewCategory({ ...newCategory, value: 0 });
+                  }
+                }}
+              />
+              <Label htmlFor="use-category-values-toggle" className="text-xs font-medium cursor-pointer">
+                Use Category Values
+              </Label>
+            </div>
           </div>
 
           {localCategories.length > 0 && (
