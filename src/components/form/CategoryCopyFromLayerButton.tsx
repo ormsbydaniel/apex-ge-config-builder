@@ -87,7 +87,15 @@ const CategoryCopyFromLayerButton = ({
   interfaceGroupOrder = [],
 }: CategoryCopyFromLayerButtonProps) => {
   const [open, setOpen] = useState(false);
+  const [contentWidth, setContentWidth] = useState<number | undefined>(undefined);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const disabled = availableSourceLayers.length === 0;
+
+  useLayoutEffect(() => {
+    if (open && triggerRef.current?.parentElement) {
+      setContentWidth(triggerRef.current.parentElement.getBoundingClientRect().width);
+    }
+  }, [open]);
 
   const grouped = useMemo(
     () => buildGroupedLayers(availableSourceLayers, interfaceGroupOrder),
