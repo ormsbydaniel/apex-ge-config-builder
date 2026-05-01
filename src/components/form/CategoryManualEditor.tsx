@@ -86,7 +86,7 @@ const CategoryManualEditor = ({
 
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4 min-h-0 flex-1">
       <CategoryAddForm
         newCategory={newCategory}
         useValues={useValues}
