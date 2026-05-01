@@ -166,7 +166,7 @@ const CategoryEditorDialog = ({
               filenameBase={layerName || 'categories'}
               onImport={handleCsvImport}
             />
-            <div className="flex items-center gap-2 ml-2">
+            <div className="flex items-center gap-2 mx-auto">
               <Switch
                 id="use-category-values-toggle"
                 checked={useValues}
