@@ -230,6 +230,28 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
               onChange={(v) => onChange({ kind: 'constant', value: v })}
             />
           </div>
+        ) : showAdvanced && mode === 'attribute' && value.kind === 'attribute' ? (
+          <div className="flex-1 min-w-0">
+            <Select value={attrField} onValueChange={handleFieldChange}>
+              <SelectTrigger className="h-7 w-[200px] text-xs">
+                <SelectValue placeholder="Pick a field" />
+              </SelectTrigger>
+              <SelectContent>
+                {fields.length === 0 ? (
+                  <div className="px-2 py-1 text-xs text-muted-foreground">
+                    No detected fields
+                  </div>
+                ) : (
+                  fields.map((f) => (
+                    <SelectItem key={f.name} value={f.name}>
+                      {f.name}
+                      {f.type ? ` (${f.type})` : ''}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
         ) : (
           <div className="flex-1" />
         )}
