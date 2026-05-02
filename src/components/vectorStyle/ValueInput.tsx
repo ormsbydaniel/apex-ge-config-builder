@@ -265,50 +265,25 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
         </p>
       )}
 
-      {advancedOpen && mode === 'attribute' && value.kind === 'attribute' && (
+      {advancedOpen && mode === 'attribute' && value.kind === 'attribute' && attrField && (
         <div className="space-y-2 rounded-md border bg-muted/20 p-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <Label className="text-xs w-16 shrink-0">Field</Label>
-            <Select value={attrField} onValueChange={handleFieldChange}>
-              <SelectTrigger className="h-7 w-[180px] text-xs">
-                <SelectValue placeholder="Pick a field" />
+            <Label className="text-xs shrink-0">Method</Label>
+            <Select
+              value={attrMethod ?? 'direct'}
+              onValueChange={(v) => handleMethodChange(v as AttrMethod)}
+            >
+              <SelectTrigger className="h-7 w-[200px] text-xs">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {fields.length === 0 ? (
-                  <div className="px-2 py-1 text-xs text-muted-foreground">
-                    No detected fields
-                  </div>
-                ) : (
-                  fields.map((f) => (
-                    <SelectItem key={f.name} value={f.name}>
-                      {f.name}
-                      {f.type ? ` (${f.type})` : ''}
-                    </SelectItem>
-                  ))
+                <SelectItem value="direct">{METHOD_LABEL.direct}</SelectItem>
+                <SelectItem value="match">{METHOD_LABEL.match}</SelectItem>
+                {interpAvailable(prop.type) && (
+                  <SelectItem value="interpolate">{METHOD_LABEL.interpolate}</SelectItem>
                 )}
               </SelectContent>
             </Select>
-
-            {attrField && (
-              <>
-                <Label className="text-xs shrink-0 ml-2">Method</Label>
-                <Select
-                  value={attrMethod ?? 'direct'}
-                  onValueChange={(v) => handleMethodChange(v as AttrMethod)}
-                >
-                  <SelectTrigger className="h-7 w-[200px] text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="direct">{METHOD_LABEL.direct}</SelectItem>
-                    <SelectItem value="match">{METHOD_LABEL.match}</SelectItem>
-                    {interpAvailable(prop.type) && (
-                      <SelectItem value="interpolate">{METHOD_LABEL.interpolate}</SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </>
-            )}
           </div>
 
           {attrField && value.mode === 'match' && (
