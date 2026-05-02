@@ -85,8 +85,8 @@ const interpAvailable = (type: PropType) => type === 'number' || type === 'color
 
 const MODE_LABEL: Record<Mode, string> = {
   constant: 'Constant',
-  'attribute-match': 'By attribute (match)',
-  'attribute-interp': 'By attribute (interpolate)',
+  'attribute-match': 'By field (match)',
+  'attribute-interp': 'By field (interpolate)',
   zoom: 'By zoom',
   expression: 'Expression',
 };
@@ -94,8 +94,8 @@ const MODE_LABEL: Record<Mode, string> = {
 const summaryFor = (value: ValueModel): string => {
   if (value.kind === 'attribute') {
     return value.mode === 'match'
-      ? `By attribute (match): ${value.field || '—'}`
-      : `By attribute (interpolate): ${value.field || '—'}`;
+      ? `By field (match): ${value.field || '—'}`
+      : `By field (interpolate): ${value.field || '—'}`;
   }
   if (value.kind === 'zoom') return 'By zoom';
   if (value.kind === 'expression') return 'Expression';
