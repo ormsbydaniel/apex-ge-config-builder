@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
-import { isVectorFormat } from '@/utils/fieldDetection';
+import { isVectorFormat, detectFieldsFromSource } from '@/utils/fieldDetection';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
 import { FileJson } from 'lucide-react';
@@ -41,6 +41,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const [editedJson, setEditedJson] = useState('');
   const [rules, setRules] = useState<StyleRule[]>([]);
   const [fallbackCount, setFallbackCount] = useState(0);
+  const [detectedFields, setDetectedFields] = useState<VectorFieldDescriptor[]>([]);
 
   const initialStyle: unknown[] = useMemo(() => {
     if (!open) return [];
@@ -55,7 +56,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     [initialStyle],
   );
 
-  const fields: VectorFieldDescriptor[] = useMemo(() => {
+  const configuredFields: VectorFieldDescriptor[] = useMemo(() => {
     const f = source.meta?.fields;
     if (!f || typeof f !== 'object') return [];
     return Object.entries(f)
@@ -65,6 +66,11 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
         type: (cfg as { type?: string } | undefined)?.type,
       }));
   }, [source.meta?.fields]);
+
+  // Prefer configured fields; fall back to fields auto-detected from the first vector data item.
+  const fields: VectorFieldDescriptor[] = configuredFields.length > 0
+    ? configuredFields
+    : detectedFields;
 
   // Reset only when the dialog transitions to open, to avoid wiping
   // in-progress edits when parent re-renders produce new array identities.
@@ -77,6 +83,30 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     setMode(lastMode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Auto-detect fields from the first vector source if none are configured.
+  useEffect(() => {
+    if (!open) return;
+    if (configuredFields.length > 0) return;
+    const vectorItem = source.data.find((item) => isVectorFormat(item.format) && item.url);
+    if (!vectorItem?.url) {
+      setDetectedFields([]);
+      return;
+    }
+    let cancelled = false;
+    detectFieldsFromSource(vectorItem.url, vectorItem.format)
+      .then((detected) => {
+        if (cancelled) return;
+        setDetectedFields(detected.map((d) => ({ name: d.name, type: d.type })));
+      })
+      .catch((err) => {
+        console.warn('Vector styling: field auto-detection failed', err);
+        if (!cancelled) setDetectedFields([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, configuredFields.length, source.data]);
 
   const toggleMode = () => {
     if (mode === 'basic') {
