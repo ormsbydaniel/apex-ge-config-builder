@@ -148,7 +148,7 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
   // Compact, single-line layout when in constant mode and not expanded.
   if (mode === 'constant' && !advancedOpen) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 md:col-start-1">
         <Label className="text-xs w-20 shrink-0">{prop.label}</Label>
         <div className="flex-1 min-w-0">
           {value.kind === 'constant' && (
