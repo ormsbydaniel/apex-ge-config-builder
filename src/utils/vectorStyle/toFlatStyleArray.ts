@@ -30,6 +30,9 @@ const valueToExpression = (v: ValueModel): unknown => {
     }
 
     case 'attribute': {
+      if (v.mode === 'direct') {
+        return ['get', v.field];
+      }
       if (v.mode === 'match') {
         const flatStops = (v.stops as AttributeStop[]).flatMap(s => [s.key, s.value]);
         const def = v.default !== undefined ? [v.default] : [getMatchFallback(v)];

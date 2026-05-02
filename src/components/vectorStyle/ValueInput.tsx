@@ -29,13 +29,19 @@ interface ValueInputProps {
   fields: VectorFieldDescriptor[];
 }
 
-type Mode = 'constant' | 'attribute-match' | 'attribute-interp' | 'zoom' | 'expression';
+type Mode = 'constant' | 'attribute' | 'zoom' | 'expression';
+type AttrMethod = 'direct' | 'match' | 'interpolate';
 
 const modeOf = (v: ValueModel): Mode => {
   if (v.kind === 'constant') return 'constant';
   if (v.kind === 'expression') return 'expression';
   if (v.kind === 'zoom') return 'zoom';
-  return v.mode === 'match' ? 'attribute-match' : 'attribute-interp';
+  return 'attribute';
+};
+
+const attrMethodOf = (v: ValueModel): AttrMethod | null => {
+  if (v.kind !== 'attribute') return null;
+  return v.mode;
 };
 
 const defaultConstantFor = (type: PropType) => {
@@ -53,22 +59,8 @@ const blankFor = (mode: Mode, prop: PropertyDef, fields: VectorFieldDescriptor[]
   switch (mode) {
     case 'constant':
       return { kind: 'constant', value: defaultConstantFor(prop.type) as any };
-    case 'attribute-match':
-      return {
-        kind: 'attribute',
-        field,
-        mode: 'match',
-        stops: [],
-        default: defaultConstantFor(prop.type) as any,
-      };
-    case 'attribute-interp':
-      return {
-        kind: 'attribute',
-        field,
-        mode: 'interpolate',
-        interpolation: 'linear',
-        stops: [],
-      };
+    case 'attribute':
+      return { kind: 'attribute', field, mode: 'direct' };
     case 'zoom':
       return {
         kind: 'zoom',
@@ -81,21 +73,52 @@ const blankFor = (mode: Mode, prop: PropertyDef, fields: VectorFieldDescriptor[]
   }
 };
 
+const buildAttribute = (
+  method: AttrMethod,
+  field: string,
+  prop: PropertyDef,
+): ValueModel => {
+  switch (method) {
+    case 'direct':
+      return { kind: 'attribute', field, mode: 'direct' };
+    case 'match':
+      return {
+        kind: 'attribute',
+        field,
+        mode: 'match',
+        stops: [],
+        default: defaultConstantFor(prop.type) as any,
+      };
+    case 'interpolate':
+      return {
+        kind: 'attribute',
+        field,
+        mode: 'interpolate',
+        interpolation: 'linear',
+        stops: [],
+      };
+  }
+};
+
 const interpAvailable = (type: PropType) => type === 'number' || type === 'color';
 
 const MODE_LABEL: Record<Mode, string> = {
   constant: 'Constant',
-  'attribute-match': 'By field (match)',
-  'attribute-interp': 'By field (interpolate)',
+  attribute: 'From field',
   zoom: 'By zoom',
   expression: 'Expression',
 };
 
+const METHOD_LABEL: Record<AttrMethod, string> = {
+  direct: 'Direct',
+  match: 'When field equals …',
+  interpolate: 'Interpolate',
+};
+
 const summaryFor = (value: ValueModel): string => {
   if (value.kind === 'attribute') {
-    return value.mode === 'match'
-      ? `By field (match): ${value.field || '—'}`
-      : `By field (interpolate): ${value.field || '—'}`;
+    const field = value.field || '—';
+    return `From field: ${field} (${METHOD_LABEL[value.mode]})`;
   }
   if (value.kind === 'zoom') return 'By zoom';
   if (value.kind === 'expression') return 'Expression';
@@ -165,6 +188,20 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
     );
   }
 
+  const attrMethod = attrMethodOf(value);
+  const attrField = value.kind === 'attribute' ? value.field : '';
+
+  const handleFieldChange = (field: string) => {
+    if (value.kind !== 'attribute') return;
+    onChange({ ...value, field } as ValueModel);
+  };
+
+  const handleMethodChange = (method: AttrMethod) => {
+    if (value.kind !== 'attribute') return;
+    if (method === value.mode) return;
+    onChange(buildAttribute(method, value.field, prop));
+  };
+
   return (
     <div className="space-y-2 md:col-span-2">
       <div className="flex items-center gap-2">
@@ -176,10 +213,7 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="constant">{MODE_LABEL.constant}</SelectItem>
-              <SelectItem value="attribute-match">{MODE_LABEL['attribute-match']}</SelectItem>
-              {interpAvailable(prop.type) && (
-                <SelectItem value="attribute-interp">{MODE_LABEL['attribute-interp']}</SelectItem>
-              )}
+              <SelectItem value="attribute">{MODE_LABEL.attribute}</SelectItem>
               {interpAvailable(prop.type) && (
                 <SelectItem value="zoom">{MODE_LABEL.zoom}</SelectItem>
               )}
@@ -209,81 +243,96 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
         </p>
       )}
 
-      {advancedOpen && (mode === 'attribute-match' || mode === 'attribute-interp') &&
-        value.kind === 'attribute' && (
-          <div className="space-y-2 rounded-md border bg-muted/20 p-2">
-            <div className="flex items-center gap-2">
-              <Label className="text-xs w-16">Attribute</Label>
-              <Select
-                value={value.field}
-                onValueChange={(field) =>
-                  onChange({ ...value, field } as ValueModel)
-                }
-              >
-                <SelectTrigger className="h-7 flex-1 text-xs">
-                  <SelectValue placeholder="Pick a field" />
-                </SelectTrigger>
-                <SelectContent>
-                  {fields.length === 0 ? (
-                    <div className="px-2 py-1 text-xs text-muted-foreground">
-                      No detected fields
-                    </div>
-                  ) : (
-                    fields.map((f) => (
-                      <SelectItem key={f.name} value={f.name}>
-                        {f.name}
-                        {f.type ? ` (${f.type})` : ''}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {mode === 'attribute-match' && value.mode === 'match' && (
-              <>
-                <StopsEditor
-                  inputType="string"
-                  outputType={prop.type}
-                  outputOptions={prop.options}
-                  inputLabel="When equals"
-                  outputLabel="Use"
-                  stops={value.stops}
-                  onChange={(stops) =>
-                    onChange({ ...value, stops: stops as any } as ValueModel)
-                  }
-                />
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs w-16">Default</Label>
-                  <div className="flex-1">
-                    <ConstantInput
-                      type={prop.type}
-                      options={prop.options}
-                      value={(value.default ?? defaultConstantFor(prop.type)) as any}
-                      onChange={(v) =>
-                        onChange({ ...value, default: v } as ValueModel)
-                      }
-                    />
+      {advancedOpen && mode === 'attribute' && value.kind === 'attribute' && (
+        <div className="space-y-2 rounded-md border bg-muted/20 p-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Label className="text-xs w-16 shrink-0">Field</Label>
+            <Select value={attrField} onValueChange={handleFieldChange}>
+              <SelectTrigger className="h-7 w-[180px] text-xs">
+                <SelectValue placeholder="Pick a field" />
+              </SelectTrigger>
+              <SelectContent>
+                {fields.length === 0 ? (
+                  <div className="px-2 py-1 text-xs text-muted-foreground">
+                    No detected fields
                   </div>
-                </div>
+                ) : (
+                  fields.map((f) => (
+                    <SelectItem key={f.name} value={f.name}>
+                      {f.name}
+                      {f.type ? ` (${f.type})` : ''}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+
+            {attrField && (
+              <>
+                <Label className="text-xs shrink-0 ml-2">Method</Label>
+                <Select
+                  value={attrMethod ?? 'direct'}
+                  onValueChange={(v) => handleMethodChange(v as AttrMethod)}
+                >
+                  <SelectTrigger className="h-7 w-[200px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="direct">{METHOD_LABEL.direct}</SelectItem>
+                    <SelectItem value="match">{METHOD_LABEL.match}</SelectItem>
+                    {interpAvailable(prop.type) && (
+                      <SelectItem value="interpolate">{METHOD_LABEL.interpolate}</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </>
             )}
+          </div>
 
-            {mode === 'attribute-interp' && value.mode === 'interpolate' && (
+          {attrField && value.mode === 'match' && (
+            <>
               <StopsEditor
-                inputType="number"
+                inputType="string"
                 outputType={prop.type}
                 outputOptions={prop.options}
-                inputLabel="At value"
+                inputLabel="When equals"
                 outputLabel="Use"
                 stops={value.stops}
                 onChange={(stops) =>
                   onChange({ ...value, stops: stops as any } as ValueModel)
                 }
               />
-            )}
-          </div>
-        )}
+              <div className="flex items-center gap-2">
+                <Label className="text-xs w-16">Default</Label>
+                <div className="flex-1">
+                  <ConstantInput
+                    type={prop.type}
+                    options={prop.options}
+                    value={(value.default ?? defaultConstantFor(prop.type)) as any}
+                    onChange={(v) =>
+                      onChange({ ...value, default: v } as ValueModel)
+                    }
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {attrField && value.mode === 'interpolate' && (
+            <StopsEditor
+              inputType="number"
+              outputType={prop.type}
+              outputOptions={prop.options}
+              inputLabel="At value"
+              outputLabel="Use"
+              stops={value.stops}
+              onChange={(stops) =>
+                onChange({ ...value, stops: stops as any } as ValueModel)
+              }
+            />
+          )}
+        </div>
+      )}
 
       {advancedOpen && mode === 'zoom' && value.kind === 'zoom' && (
         <div className="space-y-2 rounded-md border bg-muted/20 p-2">

@@ -1,38 +1,52 @@
-## Inline the constant value next to the mode dropdown
+## Consolidate attribute modes into a single "From field" flow
 
-When a user clicks `»` on a property row, today the expanded view stacks:
+Replace the current "By field (match)" and "By field (interpolate)" mode entries with a single **"From field"** option, then progressively reveal field + method controls.
 
-```text
-[ Color                       Constant ▾   » ]
-[ #3b82f6 ▢ ]
-```
-
-It should compact to a single line for the constant case, then only expand vertically when a non-constant mode is chosen:
+### New behaviour
 
 ```text
-Constant (default after »):
-[ Color   Constant ▾   #3b82f6 ▢   « ]
-
-After picking another mode (e.g. By attribute):
-[ Color   By attribute (match) ▾   « ]
-[ ┌─────────────────────────────────┐ ]
-[ │ Attribute  [name ▾]             │ ]
-[ │ When equals ... → Use ...       │ ]
-[ │ Default     [#3b82f6]           │ ]
-[ └─────────────────────────────────┘ ]
+[ Label   Mode ▾ (Constant | From field | By zoom | Expression)   « ]
+   when mode = From field:
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ Field  [ name ▾ ]   Method [ Direct | When field equals … | Interpolate ▾ ] │
+   │ ...method-specific editor (stops, default, etc.)...                          │
+   └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Change
+Rules:
 
-`src/components/vectorStyle/ValueInput.tsx` — in the expanded (`!compact`) branch:
+1. **Field dropdown** appears immediately after picking "From field". Populated from the existing `fields` prop (already sourced from the first feature in the GeoJSON / FlatGeobuf — see `useFieldsEditorState` and `flatgeobufMetadata.ts`). No change to data sourcing.
+2. **Method dropdown** appears only after a field is chosen. Options depend on `prop.type`:
+   - **Direct** — use the raw field value as-is. Always available. Especially useful for label `text-value`.
+   - **When field equals …** — discrete value mapping (replaces the prior "Match" wording). Always available.
+   - **Interpolate** — only when `interpAvailable(prop.type)` (number / color).
+3. The body of the editor (stops, default value, etc.) renders only after a method that needs it is chosen. Direct requires no further configuration.
 
-- Header row becomes: **Label · Mode dropdown · (constant value if mode === constant) · spacer · chevron toggle**.
-  - Label: fixed `w-20 shrink-0` (matches the collapsed compact row).
-  - Mode select: fixed `w-[180px] shrink-0`.
-  - When `mode === 'constant'`, render the `ConstantInput` inline inside a `flex-1 min-w-0` wrapper so it consumes the remaining width.
-  - When `mode !== 'constant'`, render an empty `flex-1` spacer to push the chevron to the right.
-- Remove the standalone block that previously rendered `ConstantInput` on its own line beneath the header (now redundant).
-- Sub-editors for `attribute-match`, `attribute-interp`, `zoom`, `expression` continue to render as full-width blocks below the header — unchanged.
-- Tooltip / chevron behaviour and "Reset to constant" footer remain as-is.
+### Data model change
 
-No other files are affected.
+`ValueModel` currently has no representation for "use the field's raw value". Add a third attribute mode:
+
+```ts
+| { kind: 'attribute'; field: string; mode: 'direct' }
+```
+
+Update `src/types/vectorStyle.ts`. In the OL flat-style serializer / parser under `src/utils/vectorStyle/`, serialize `direct` as `["get", field]` and parse `["get", <string>]` back to `{ kind: 'attribute', mode: 'direct', field }`.
+
+### File-level changes
+
+1. **`src/types/vectorStyle.ts`** — add `mode: 'direct'` variant to the `attribute` union.
+2. **`src/utils/vectorStyle/`** (toFlat / fromFlat) — handle the new `direct` mode (`["get", field]`).
+3. **`src/components/vectorStyle/ValueInput.tsx`**:
+   - Collapse `Mode` enum to: `'constant' | 'attribute' | 'zoom' | 'expression'`.
+   - Mode dropdown labels: `Constant`, `From field`, `By zoom`, `Expression`.
+   - When mode is `attribute`, render Field select; once a field is chosen, render Method select (`Direct` / `When field equals …` / `Interpolate?`).
+   - Switching method updates the underlying `ValueModel` while preserving `field`.
+   - `summaryFor` updated, e.g. `From field: <name> — when field equals …`.
+   - `MODE_LABEL` and `blankFor` updated; `blankFor('attribute', ...)` defaults to `direct` mode.
+4. **No Zod schema changes** — flat-style arrays already accept `["get", field]`.
+
+### Out of scope
+
+- No change to how `fields` are detected.
+- No change to chevron / collapsed-row behaviour.
+- No change to `By zoom`, `Expression`, or `Constant`.

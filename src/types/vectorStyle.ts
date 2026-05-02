@@ -28,6 +28,11 @@ export type ValueModel =
   | {
       kind: 'attribute';
       field: string;
+      mode: 'direct';
+    }
+  | {
+      kind: 'attribute';
+      field: string;
       mode: 'match';
       stops: AttributeStop[];
       default?: ConstantValue;

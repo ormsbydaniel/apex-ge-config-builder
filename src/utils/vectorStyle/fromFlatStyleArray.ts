@@ -55,6 +55,11 @@ const expressionToValue = (raw: unknown): ValueModel => {
     return { kind: 'expression', raw };
   }
 
+  // ['get', field]
+  if (raw[0] === 'get' && raw.length === 2 && typeof raw[1] === 'string') {
+    return { kind: 'attribute', field: raw[1], mode: 'direct' };
+  }
+
   // ['interpolate', <interp>, <input>, ...stops]
   if (raw[0] === 'interpolate' && raw.length >= 5) {
     const interp = parseInterpolation(raw[1]);
