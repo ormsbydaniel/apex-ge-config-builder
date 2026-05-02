@@ -84,29 +84,38 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  // Stable URL + format for the first vector data item — avoids re-fetching when
+  // the parent re-renders with a new `source.data` array identity.
+  const firstVectorItem = useMemo(() => {
+    return source.data.find((item) => isVectorFormat(item.format) && item.url);
+  }, [source.data]);
+  const firstVectorUrl = firstVectorItem?.url ?? '';
+  const firstVectorFormat = firstVectorItem?.format ?? '';
+
   // Auto-detect fields from the first vector source if none are configured.
   useEffect(() => {
     if (!open) return;
     if (configuredFields.length > 0) return;
-    const vectorItem = source.data.find((item) => isVectorFormat(item.format) && item.url);
-    if (!vectorItem?.url) {
+    if (!firstVectorUrl) {
       setDetectedFields([]);
       return;
     }
     let cancelled = false;
-    detectFieldsFromSource(vectorItem.url, vectorItem.format)
+    setDetectedFields([]);
+    detectFieldsFromSource(firstVectorUrl, firstVectorFormat)
       .then((detected) => {
         if (cancelled) return;
+        console.log('[VectorStylingDialog] auto-detected fields', detected);
         setDetectedFields(detected.map((d) => ({ name: d.name, type: d.type })));
       })
       .catch((err) => {
-        console.warn('Vector styling: field auto-detection failed', err);
+        console.warn('[VectorStylingDialog] field auto-detection failed', err);
         if (!cancelled) setDetectedFields([]);
       });
     return () => {
       cancelled = true;
     };
-  }, [open, configuredFields.length, source.data]);
+  }, [open, configuredFields.length, firstVectorUrl, firstVectorFormat]);
 
   const toggleMode = () => {
     if (mode === 'basic') {
