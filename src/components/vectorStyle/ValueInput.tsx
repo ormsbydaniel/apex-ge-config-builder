@@ -260,13 +260,13 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
 
       {/* Compact summary when advanced is collapsed but mode is non-constant */}
       {!advancedOpen && isAdvancedMode && (
-        <p className="text-xs text-muted-foreground italic">
+        <p className="text-xs text-muted-foreground italic pl-[5.5rem]">
           {summaryFor(value)}
         </p>
       )}
 
       {advancedOpen && mode === 'attribute' && value.kind === 'attribute' && attrField && (
-        <div className="space-y-2 rounded-md border bg-muted/20 p-2">
+        <div className="pl-[5.5rem]"><div className="space-y-2 rounded-md border bg-muted/20 p-2">
           <div className="flex items-center gap-2 flex-wrap">
             <Label className="text-xs shrink-0">Method</Label>
             <Select
@@ -328,11 +328,11 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
               }
             />
           )}
-        </div>
+        </div></div>
       )}
 
       {advancedOpen && mode === 'zoom' && value.kind === 'zoom' && (
-        <div className="space-y-2 rounded-md border bg-muted/20 p-2">
+        <div className="pl-[5.5rem]"><div className="space-y-2 rounded-md border bg-muted/20 p-2">
           <StopsEditor
             inputType="number"
             outputType={prop.type}
@@ -344,11 +344,11 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
               onChange({ ...value, stops: stops as any } as ValueModel)
             }
           />
-        </div>
+        </div></div>
       )}
 
       {advancedOpen && mode === 'expression' && value.kind === 'expression' && (
-        <Textarea
+        <div className="pl-[5.5rem]"><Textarea
           className="font-mono text-xs"
           rows={3}
           value={(() => {
@@ -368,11 +368,11 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
             }
           }}
           placeholder='e.g. ["get", "name"]'
-        />
+        /></div>
       )}
 
       {advancedOpen && isAdvancedMode && (
-        <div className="flex justify-end">
+        <div className="flex justify-end pl-[5.5rem]">
           <Button
             type="button"
             variant="ghost"
