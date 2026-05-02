@@ -230,25 +230,10 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
               onChange={(v) => onChange({ kind: 'constant', value: v })}
             />
           </div>
-        ) : (
-          <div className="flex-1" />
-        )}
-        {advancedToggle}
-      </div>
-
-      {/* Compact summary when advanced is collapsed but mode is non-constant */}
-      {!advancedOpen && isAdvancedMode && (
-        <p className="text-xs text-muted-foreground italic">
-          {summaryFor(value)}
-        </p>
-      )}
-
-      {advancedOpen && mode === 'attribute' && value.kind === 'attribute' && (
-        <div className="space-y-2 rounded-md border bg-muted/20 p-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Label className="text-xs w-16 shrink-0">Field</Label>
+        ) : showAdvanced && mode === 'attribute' && value.kind === 'attribute' ? (
+          <div className="flex-1 min-w-0">
             <Select value={attrField} onValueChange={handleFieldChange}>
-              <SelectTrigger className="h-7 w-[180px] text-xs">
+              <SelectTrigger className="h-7 w-[200px] text-xs">
                 <SelectValue placeholder="Pick a field" />
               </SelectTrigger>
               <SelectContent>
@@ -266,27 +251,39 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
                 )}
               </SelectContent>
             </Select>
+          </div>
+        ) : (
+          <div className="flex-1" />
+        )}
+        {advancedToggle}
+      </div>
 
-            {attrField && (
-              <>
-                <Label className="text-xs shrink-0 ml-2">Method</Label>
-                <Select
-                  value={attrMethod ?? 'direct'}
-                  onValueChange={(v) => handleMethodChange(v as AttrMethod)}
-                >
-                  <SelectTrigger className="h-7 w-[200px] text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="direct">{METHOD_LABEL.direct}</SelectItem>
-                    <SelectItem value="match">{METHOD_LABEL.match}</SelectItem>
-                    {interpAvailable(prop.type) && (
-                      <SelectItem value="interpolate">{METHOD_LABEL.interpolate}</SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </>
-            )}
+      {/* Compact summary when advanced is collapsed but mode is non-constant */}
+      {!advancedOpen && isAdvancedMode && (
+        <p className="text-xs text-muted-foreground italic">
+          {summaryFor(value)}
+        </p>
+      )}
+
+      {advancedOpen && mode === 'attribute' && value.kind === 'attribute' && attrField && (
+        <div className="space-y-2 rounded-md border bg-muted/20 p-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Label className="text-xs shrink-0">Method</Label>
+            <Select
+              value={attrMethod ?? 'direct'}
+              onValueChange={(v) => handleMethodChange(v as AttrMethod)}
+            >
+              <SelectTrigger className="h-7 w-[200px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="direct">{METHOD_LABEL.direct}</SelectItem>
+                <SelectItem value="match">{METHOD_LABEL.match}</SelectItem>
+                {interpAvailable(prop.type) && (
+                  <SelectItem value="interpolate">{METHOD_LABEL.interpolate}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           {attrField && value.mode === 'match' && (
