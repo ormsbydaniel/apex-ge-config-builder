@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
-import { isVectorFormat } from '@/utils/fieldDetection';
+import { isVectorFormat, detectFieldsFromSource } from '@/utils/fieldDetection';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
 import { FileJson } from 'lucide-react';
