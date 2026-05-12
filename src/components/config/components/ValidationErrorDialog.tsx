@@ -76,6 +76,8 @@ const ValidationErrorDialog = ({
     if (!canRecover || !rawConfig || !sourceLabel || !loadedSource) return;
     setBusy('fix');
     const { config: fixed, appliedFixes } = autoFixConfig(rawConfig, errors);
+    console.log('[autoFix] applied fixes:', appliedFixes);
+    console.log('[autoFix] flagged source indices:', errors.map(e => e.path).filter(p => p?.[0] === 'sources'));
     if (appliedFixes.length === 0) {
       setBusy(null);
       toast({
@@ -95,9 +97,10 @@ const ValidationErrorDialog = ({
       onRetryResult?.(true);
       onOpenChange(false);
     } else if (result.errors) {
+      console.log('[autoFix] remaining errors after fix:', result.errors);
       toast({
         title: 'Some errors remain',
-        description: `Applied ${appliedFixes.length} fix${appliedFixes.length === 1 ? '' : 'es'}, but ${result.errors.length} error${result.errors.length === 1 ? '' : 's'} still need attention.`,
+        description: `Applied ${appliedFixes.length} fix${appliedFixes.length === 1 ? '' : 'es'}, but ${result.errors.length} error${result.errors.length === 1 ? '' : 's'} still need attention. See console for details.`,
         variant: 'destructive',
       });
       onErrorsChange?.(result.errors);
