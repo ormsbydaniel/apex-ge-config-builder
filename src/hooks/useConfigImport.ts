@@ -32,6 +32,11 @@ export interface ImportResult {
   success: boolean;
   errors?: ValidationErrorDetails[];
   jsonError?: any;
+  /** Parsed JSON before validation — exposed so recovery flows can edit and retry. */
+  rawData?: any;
+  /** Original label / source so a retry can be issued without re-parsing. */
+  sourceLabel?: string;
+  loadedSource?: LoadedConfigSource;
   /** Number of services whose capabilities could not be fetched (errors / timeouts / skipped). */
   capabilitiesSkipped?: number;
   /** Total non-S3/non-STAC services that needed capabilities. */
