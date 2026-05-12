@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-05-12",
+    title: "Remove or fix invalid layers on config load",
+    category: "Feature",
+  },
+  {
     date: "2026-05-05",
     title: "Categories editor: CSV import/export, simpler copy-from-layer, stale state fix",
     category: "Improvement",
