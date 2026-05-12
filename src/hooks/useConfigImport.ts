@@ -32,6 +32,11 @@ export interface ImportResult {
   success: boolean;
   errors?: ValidationErrorDetails[];
   jsonError?: any;
+  /** Parsed JSON before validation — exposed so recovery flows can edit and retry. */
+  rawData?: any;
+  /** Original label / source so a retry can be issued without re-parsing. */
+  sourceLabel?: string;
+  loadedSource?: LoadedConfigSource;
   /** Number of services whose capabilities could not be fetched (errors / timeouts / skipped). */
   capabilitiesSkipped?: number;
   /** Total non-S3/non-STAC services that needed capabilities. */
@@ -162,9 +167,9 @@ export const useConfigImport = () => {
   const { dispatch } = useConfig();
   const { toast } = useToast();
 
-  const runImport = useCallback(
+  const runImportFromObject = useCallback(
     async (
-      jsonText: string,
+      jsonData: any,
       sourceLabel: string,
       loadedSource: LoadedConfigSource,
       options: ImportOptions,
@@ -173,19 +178,6 @@ export const useConfigImport = () => {
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
 
-        onProgress?.({ stage: 'parse' });
-        const parseResult = parseJSONWithLineNumbers(jsonText);
-
-        if (parseResult.error) {
-          dispatch({ type: 'SET_LOADING', payload: false });
-          const errorMessage = parseResult.error.lineNumber
-            ? `Invalid JSON at line ${parseResult.error.lineNumber}${parseResult.error.columnNumber ? `, column ${parseResult.error.columnNumber}` : ''}: ${parseResult.error.message}`
-            : `Invalid JSON: ${parseResult.error.message}`;
-          toast({ title: 'JSON Parse Error', description: errorMessage, variant: 'destructive' });
-          return { success: false, jsonError: parseResult.error };
-        }
-
-        const jsonData = parseResult.data;
         const detectedTransforms = detectTransformations(jsonData);
 
         onProgress?.({ stage: 'normalize' });
@@ -230,18 +222,30 @@ export const useConfigImport = () => {
 
         toast({ title: 'Configuration Loaded', description });
 
-        return { success: true, capabilitiesAttempted: attempted, capabilitiesSkipped: skipped };
+        return {
+          success: true,
+          rawData: jsonData,
+          sourceLabel,
+          loadedSource,
+          capabilitiesAttempted: attempted,
+          capabilitiesSkipped: skipped,
+        };
       } catch (error) {
         dispatch({ type: 'SET_LOADING', payload: false });
         if (error instanceof Error && error.name === 'ZodError') {
-          const parseResult = parseJSONWithLineNumbers(jsonText);
-          const formattedErrors = formatValidationErrors(error as any, parseResult?.data);
+          const formattedErrors = formatValidationErrors(error as any, jsonData);
           toast({
             title: 'Invalid Configuration',
             description: `Found ${formattedErrors.length} validation error${formattedErrors.length !== 1 ? 's' : ''}. See details for specific issues.`,
             variant: 'destructive',
           });
-          return { success: false, errors: formattedErrors };
+          return {
+            success: false,
+            errors: formattedErrors,
+            rawData: jsonData,
+            sourceLabel,
+            loadedSource,
+          };
         } else {
           console.error('Import error:', error);
           toast({
@@ -249,11 +253,35 @@ export const useConfigImport = () => {
             description: error instanceof Error ? error.message : 'An unexpected error occurred while importing the configuration.',
             variant: 'destructive',
           });
-          return { success: false };
+          return { success: false, rawData: jsonData, sourceLabel, loadedSource };
         }
       }
     },
     [dispatch, toast],
+  );
+
+  const runImport = useCallback(
+    async (
+      jsonText: string,
+      sourceLabel: string,
+      loadedSource: LoadedConfigSource,
+      options: ImportOptions,
+    ): Promise<ImportResult> => {
+      const { onProgress } = options;
+      onProgress?.({ stage: 'parse' });
+      const parseResult = parseJSONWithLineNumbers(jsonText);
+
+      if (parseResult.error) {
+        const errorMessage = parseResult.error.lineNumber
+          ? `Invalid JSON at line ${parseResult.error.lineNumber}${parseResult.error.columnNumber ? `, column ${parseResult.error.columnNumber}` : ''}: ${parseResult.error.message}`
+          : `Invalid JSON: ${parseResult.error.message}`;
+        toast({ title: 'JSON Parse Error', description: errorMessage, variant: 'destructive' });
+        return { success: false, jsonError: parseResult.error, sourceLabel, loadedSource };
+      }
+
+      return runImportFromObject(parseResult.data, sourceLabel, loadedSource, options);
+    },
+    [runImportFromObject, toast],
   );
 
   const importConfig = useCallback(
@@ -302,5 +330,5 @@ export const useConfigImport = () => {
     [runImport, dispatch, toast],
   );
 
-  return { importConfig, handleFileSelect, importConfigFromUrl };
+  return { importConfig, handleFileSelect, importConfigFromUrl, runImportFromObject };
 };

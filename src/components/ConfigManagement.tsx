@@ -2,12 +2,12 @@ import React, { useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Download, RotateCcw, FileText, AlertTriangle, Settings } from 'lucide-react';
+import { Upload, Download, RotateCcw, FileText, Settings } from 'lucide-react';
 import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
+import type { LoadedConfigSource } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails } from '@/types/config';
-import ValidationErrorDetailsComponent from './ValidationErrorDetails';
+import ValidationErrorDialog from './config/components/ValidationErrorDialog';
 import ExportOptionsDialog, { ExportOptions } from './ExportOptionsDialog';
 
 const ConfigManagement = () => {
@@ -20,6 +20,7 @@ const ConfigManagement = () => {
   const [validationErrors, setValidationErrors] = useState<ValidationErrorDetails[]>([]);
   const [jsonError, setJsonError] = useState<any>(null);
   const [errorFileName, setErrorFileName] = useState<string>('');
+  const [recoveryContext, setRecoveryContext] = useState<{ rawConfig: any; sourceLabel: string; loadedSource: LoadedConfigSource } | null>(null);
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -47,10 +48,14 @@ const ConfigManagement = () => {
         setValidationErrors(result.errors || []);
         setJsonError(result.jsonError || null);
         setErrorFileName(file.name);
+        setRecoveryContext(
+          result.rawData && result.sourceLabel && result.loadedSource
+            ? { rawConfig: result.rawData, sourceLabel: result.sourceLabel, loadedSource: result.loadedSource }
+            : null,
+        );
         setShowErrorDialog(true);
       }
     }
-    // Reset the input value to allow selecting the same file again
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -139,26 +144,17 @@ const ConfigManagement = () => {
         onExport={handleExportWithOptions}
       />
 
-      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-700">
-              <AlertTriangle className="h-5 w-5" />
-              Configuration Validation Errors
-            </DialogTitle>
-            <DialogDescription>
-              The configuration file contains errors that prevent it from being loaded. Review the details below to understand what needs to be fixed.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-4">
-            <ValidationErrorDetailsComponent 
-              errors={validationErrors}
-              fileName={errorFileName}
-              jsonError={jsonError}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ValidationErrorDialog
+        open={showErrorDialog}
+        onOpenChange={setShowErrorDialog}
+        errors={validationErrors}
+        jsonError={jsonError}
+        fileName={errorFileName}
+        rawConfig={recoveryContext?.rawConfig}
+        sourceLabel={recoveryContext?.sourceLabel}
+        loadedSource={recoveryContext?.loadedSource}
+        onErrorsChange={setValidationErrors}
+      />
     </>
   );
 };
