@@ -144,26 +144,17 @@ const ConfigManagement = () => {
         onExport={handleExportWithOptions}
       />
 
-      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-700">
-              <AlertTriangle className="h-5 w-5" />
-              Configuration Validation Errors
-            </DialogTitle>
-            <DialogDescription>
-              The configuration file contains errors that prevent it from being loaded. Review the details below to understand what needs to be fixed.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-4">
-            <ValidationErrorDetailsComponent 
-              errors={validationErrors}
-              fileName={errorFileName}
-              jsonError={jsonError}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ValidationErrorDialog
+        open={showErrorDialog}
+        onOpenChange={setShowErrorDialog}
+        errors={validationErrors}
+        jsonError={jsonError}
+        fileName={errorFileName}
+        rawConfig={recoveryContext?.rawConfig}
+        sourceLabel={recoveryContext?.sourceLabel}
+        loadedSource={recoveryContext?.loadedSource}
+        onErrorsChange={setValidationErrors}
+      />
     </>
   );
 };
