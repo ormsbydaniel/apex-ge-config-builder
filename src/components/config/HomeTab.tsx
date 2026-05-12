@@ -12,6 +12,8 @@ import { useConfigImport, useConfigExport } from '@/hooks/useConfigIO';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ValidationErrorDetails, LayerValidationResult } from '@/types/config';
 import ValidationErrorDetailsComponent from '../ValidationErrorDetails';
+import ValidationErrorDialog from './components/ValidationErrorDialog';
+import type { LoadedConfigSource } from '@/contexts/ConfigContext';
 import ExportOptionsDialog, { ExportOptions } from '../ExportOptionsDialog';
 import LoadConfigDialog from './LoadConfigDialog';
 import AttributionMissingDialog from './AttributionMissingDialog';
@@ -64,9 +66,16 @@ const HomeTab = ({ config, onNavigateToLayer }: HomeTabProps) => {
     guardAction(() => setShowLoadDialog(true));
   };
 
-  const handleLoadDialogError = (errors: ValidationErrorDetails[], fileName: string) => {
+  const [recoveryContext, setRecoveryContext] = useState<{ rawConfig: any; sourceLabel: string; loadedSource: LoadedConfigSource } | null>(null);
+
+  const handleLoadDialogError = (
+    errors: ValidationErrorDetails[],
+    fileName: string,
+    recovery?: { rawConfig: any; sourceLabel: string; loadedSource: LoadedConfigSource },
+  ) => {
     setValidationErrors(errors);
     setErrorFileName(fileName);
+    setRecoveryContext(recovery ?? null);
     setShowErrorDialog(true);
   };
 
