@@ -234,11 +234,6 @@ export const useConfigImport = () => {
         dispatch({ type: 'SET_LOADING', payload: false });
         if (error instanceof Error && error.name === 'ZodError') {
           const formattedErrors = formatValidationErrors(error as any, jsonData);
-          toast({
-            title: 'Invalid Configuration',
-            description: `Found ${formattedErrors.length} validation error${formattedErrors.length !== 1 ? 's' : ''}. See details for specific issues.`,
-            variant: 'destructive',
-          });
           return {
             success: false,
             errors: formattedErrors,
