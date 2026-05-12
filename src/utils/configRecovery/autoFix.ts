@@ -69,9 +69,26 @@ const fixSourceMeta = (source: any, fixes: string[], idx: number): any => {
 };
 
 const fixSourceLayout = (source: any, fixes: string[], idx: number, groups: string[]): any => {
-  if (source?.isBaseLayer === true) return source;
-  if (source?.layout && typeof source.layout === 'object') return source;
   const name = source?.name || `Source ${idx + 1}`;
+  const isBaseLayer = source?.isBaseLayer === true;
+  const layoutPresent = source?.layout && typeof source.layout === 'object' && !Array.isArray(source.layout);
+
+  // If layout exists, ensure layerCard is a valid object (LayoutSchema requires it).
+  if (layoutPresent) {
+    const lc = source.layout.layerCard;
+    const lcValid = lc && typeof lc === 'object' && !Array.isArray(lc);
+    if (!lcValid) {
+      fixes.push(`"${name}": added missing layout.layerCard`);
+      return {
+        ...source,
+        layout: { ...source.layout, layerCard: { toggleable: true } },
+      };
+    }
+    return source;
+  }
+
+  // No layout: base layers may omit it; non-base layers need a minimal one.
+  if (isBaseLayer) return source;
   const fallbackGroup = groups[0] || 'Ungrouped';
   fixes.push(`"${name}": added minimal layout`);
   return {
