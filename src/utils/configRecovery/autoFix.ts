@@ -22,25 +22,44 @@ const fixSourceMeta = (source: any, fixes: string[], idx: number): any => {
   const isBaseLayer = source?.isBaseLayer === true;
   const next = { ...source };
 
-  // Ensure meta exists for non-base layers
-  if (!isBaseLayer && (!next.meta || typeof next.meta !== 'object')) {
+  // For base layers, only touch meta if it's already present (it's optional otherwise).
+  // For non-base layers, meta is required — synthesise if missing.
+  const metaPresent = next.meta !== undefined && next.meta !== null;
+  if (!isBaseLayer && !metaPresent) {
     next.meta = {};
     fixes.push(`"${name}": added missing meta object`);
   }
 
-  if (next.meta && typeof next.meta === 'object') {
-    const meta = { ...next.meta };
+  if (!isBaseLayer || metaPresent) {
+    // Coerce non-object meta (e.g. a string) into an object so we can repair it.
+    let meta: any = next.meta;
+    if (typeof meta !== 'object' || Array.isArray(meta)) {
+      meta = {};
+      fixes.push(`"${name}": coerced meta to object`);
+    } else {
+      meta = { ...meta };
+    }
+
     if (!meta.description || typeof meta.description !== 'string') {
       meta.description = isBaseLayer
         ? `Base layer: ${name}`
         : `Auto-generated description for ${name}`;
       fixes.push(`"${name}": filled meta.description`);
     }
-    if (!meta.attribution || typeof meta.attribution !== 'object') {
+
+    // Attribution: handle missing, string-form (legacy), or missing .text
+    const attr = meta.attribution;
+    if (attr === undefined || attr === null) {
       meta.attribution = { text: 'Data attribution not specified' };
       fixes.push(`"${name}": filled meta.attribution`);
-    } else if (!meta.attribution.text || typeof meta.attribution.text !== 'string') {
-      meta.attribution = { ...meta.attribution, text: 'Data attribution not specified' };
+    } else if (typeof attr === 'string') {
+      meta.attribution = { text: attr };
+      fixes.push(`"${name}": converted meta.attribution string to object`);
+    } else if (typeof attr !== 'object' || Array.isArray(attr)) {
+      meta.attribution = { text: 'Data attribution not specified' };
+      fixes.push(`"${name}": replaced invalid meta.attribution`);
+    } else if (!attr.text || typeof attr.text !== 'string') {
+      meta.attribution = { ...attr, text: 'Data attribution not specified' };
       fixes.push(`"${name}": filled meta.attribution.text`);
     }
     next.meta = meta;
