@@ -330,5 +330,5 @@ export const useConfigImport = () => {
     [runImport, dispatch, toast],
   );
 
-  return { importConfig, handleFileSelect, importConfigFromUrl };
+  return { importConfig, handleFileSelect, importConfigFromUrl, runImportFromObject };
 };
