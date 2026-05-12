@@ -30,7 +30,11 @@ const DEFAULT_BRANCH = 'main';
 interface LoadConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onError: (errors: ValidationErrorDetails[], fileName: string) => void;
+  onError: (
+    errors: ValidationErrorDetails[],
+    fileName: string,
+    recovery?: { rawConfig: any; sourceLabel: string; loadedSource: import('@/contexts/ConfigContext').LoadedConfigSource },
+  ) => void;
 }
 
 interface TreeEntry {
