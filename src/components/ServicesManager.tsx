@@ -60,11 +60,11 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     | { status: 'idle' }
     | { status: 'checking' }
     | { status: 'ok'; message: string }
-    | { status: 'error'; message: string }
+    | { status: 'error'; message: string; diagnostic?: import('@/utils/serviceDiagnostics').ProbeDiagnostic }
   >({ status: 'idle' });
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
-  const { statuses: validationStatuses, warnings: validationWarnings, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
+  const { statuses: validationStatuses, warnings: validationWarnings, errors: validationErrors, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
 
   // Tracks the URL+format signature of the most recent successful/failed probe
   // so a click on Save can skip re-probing if nothing has changed since.
@@ -288,6 +288,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         setValidateState({
           status: result.ok ? 'ok' : 'error',
           message: result.message,
+          ...(result.ok ? {} : { diagnostic: result.diagnostic }),
         });
         lastValidatedSigRef.current = { url, format: selectedFormat };
       }
@@ -364,6 +365,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     setValidateState({
       status: result.ok ? 'ok' : 'error',
       message: result.message,
+      ...(result.ok ? {} : { diagnostic: result.diagnostic }),
     });
     lastValidatedSigRef.current = { url, format: selectedFormat };
   };
@@ -697,25 +699,35 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                           );
                         }
                         if (status === 'error') {
+                          const diag = validationErrors[service.id];
                           const errLabel =
-                            service.sourceType === 's3' ? "Couldn't reach endpoint" :
-                            service.sourceType === 'stac' ? "Couldn't fetch catalogue" :
-                            "Couldn't fetch capabilities";
+                            diag?.title ??
+                            (service.sourceType === 's3' ? "Couldn't reach endpoint" :
+                             service.sourceType === 'stac' ? "Couldn't fetch catalogue" :
+                             "Couldn't fetch capabilities");
                           return (
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="border-amber-300 text-amber-700">
-                                <AlertTriangle className="h-3 w-3 mr-1" />
-                                {errLabel}
-                              </Badge>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
-                                onClick={() => recheck(service.id)}
-                              >
-                                <RefreshCw className="h-3 w-3 mr-1" />
-                                Retry
-                              </Button>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge variant="outline" className="border-amber-300 text-amber-700 whitespace-normal text-left">
+                                  <AlertTriangle className="h-3 w-3 mr-1 flex-shrink-0" />
+                                  {errLabel}
+                                </Badge>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
+                                  onClick={() => recheck(service.id)}
+                                >
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  Retry
+                                </Button>
+                              </div>
+                              {diag?.detail && (
+                                <span className="text-xs text-muted-foreground">{diag.detail}</span>
+                              )}
+                              {diag?.hint && (
+                                <span className="text-xs text-muted-foreground">{diag.hint}</span>
+                              )}
                             </div>
                           );
                         }
@@ -951,7 +963,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               {validateState.status === 'error' && (
                 <>
                   <AlertTriangle className="h-4 w-4 mt-0.5 text-destructive shrink-0" />
-                  <span className="text-destructive">{validateState.message}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-destructive font-medium">
+                      {validateState.diagnostic?.title ?? validateState.message}
+                    </div>
+                    {validateState.diagnostic?.detail && (
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {validateState.diagnostic.detail}
+                      </div>
+                    )}
+                    {validateState.diagnostic?.hint && (
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {validateState.diagnostic.hint}
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
             </div>
