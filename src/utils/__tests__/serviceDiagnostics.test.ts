@@ -23,8 +23,7 @@ describe('serviceDiagnostics', () => {
     Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
   });
   afterEach(() => {
-    // @ts-expect-error restore
-    window.location = origLocation;
+    Object.defineProperty(window, 'location', { value: origLocation, writable: true, configurable: true });
   });
 
   describe('classifyInvalidUrl', () => {
