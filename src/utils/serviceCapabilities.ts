@@ -271,18 +271,33 @@ export const fetchServiceCapabilitiesWithMetrics = async (
         });
       }
 
+    const capabilities: ServiceCapabilities = {
+      layers,
+      title: getServiceMetadataText(xmlDoc, 'Title'),
+      abstract: getServiceMetadataText(xmlDoc, 'Abstract'),
+    };
+    const diagnostic: ProbeDiagnostic | undefined = layers.length === 0
+      ? {
+          category: 'empty',
+          title: 'Endpoint reachable but no layers were advertised',
+          hint: `The ${format.toUpperCase()} GetCapabilities response contained no usable layers.`,
+          durationMs,
+        }
+      : undefined;
+    return { capabilities, diagnostic, durationMs, bytes };
+  } catch (error) {
+    console.error('Error parsing GetCapabilities response:', error);
     return {
-      capabilities: {
-        layers: layers, // Remove the .slice(0, 50) limitation
-        title: getServiceMetadataText(xmlDoc, 'Title'),
-        abstract: getServiceMetadataText(xmlDoc, 'Abstract'),
+      capabilities: null,
+      diagnostic: {
+        category: 'parse-xml',
+        title: `Could not interpret GetCapabilities response`,
+        detail: error instanceof Error ? error.message : undefined,
+        durationMs,
       },
       durationMs,
       bytes,
     };
-  } catch (error) {
-    console.error('Error fetching GetCapabilities:', error);
-    return { capabilities: null };
   }
 };
 
