@@ -351,8 +351,10 @@ export const useBulkServiceValidation = (
     // previous config don't bleed into this one.
     cachedStatuses = {};
     cachedWarnings = {};
+    cachedErrors = {};
     setStatuses({});
     setWarnings({});
+    setErrors({});
     validatedForLoadRef.current = lastLoaded;
     lastValidatedLoad = lastLoaded;
 
