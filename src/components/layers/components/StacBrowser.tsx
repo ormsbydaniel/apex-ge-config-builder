@@ -16,6 +16,7 @@ import {
   getItemsUrl,
   getItemLinks,
   getChildLinks,
+  getXyzTileLinks,
   inferChildKind,
   extractNextLink,
   getSelfLink,
