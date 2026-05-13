@@ -8,7 +8,22 @@ import {
   ProbeDiagnostic,
   classifyFetchError,
   classifyHttpResponse,
+  classifyInvalidUrl,
+  classifyMixedContent,
 } from '@/utils/serviceDiagnostics';
+
+/**
+ * Run the same up-front URL + transport-security guards used by
+ * `validateSingleService` (add-time probe) so retries surface the precise
+ * "invalid URL" / "mixed content" diagnostics instead of a generic network
+ * error from the eventual fetch failure.
+ */
+const preflightDiagnostic = (url: string | undefined): ProbeDiagnostic | null => {
+  if (!url || !url.trim()) {
+    return { category: 'invalid-url', title: 'URL is empty' };
+  }
+  return classifyInvalidUrl(url) ?? classifyMixedContent(url) ?? null;
+};
 
 const CONCURRENCY = 4;
 
