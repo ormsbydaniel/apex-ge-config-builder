@@ -4,6 +4,11 @@ import { fetchServiceCapabilitiesWithMetrics } from '@/utils/serviceCapabilities
 import { fetchStacCapabilitiesWithMetrics } from '@/utils/stacCapabilities';
 import { useConfig } from '@/contexts/ConfigContext';
 import { parseS3Url, fetchS3BucketContents } from '@/utils/s3Utils';
+import {
+  ProbeDiagnostic,
+  classifyFetchError,
+  classifyHttpResponse,
+} from '@/utils/serviceDiagnostics';
 
 const CONCURRENCY = 4;
 
@@ -23,6 +28,8 @@ export interface GroupProgress {
 interface BulkValidationResult {
   statuses: Record<string, ServiceValidationStatus>;
   warnings: Record<string, string[]>;
+  /** Per-service structured failure diagnostic, populated when status === 'error'. */
+  errors: Record<string, ProbeDiagnostic>;
   progress: Record<ServiceKind, GroupProgress>;
   inFlightTotal: number;
   recheck: (id?: string) => void;
