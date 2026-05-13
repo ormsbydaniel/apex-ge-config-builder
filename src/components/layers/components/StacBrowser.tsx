@@ -126,6 +126,68 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     });
   };
 
+  /**
+   * Static-collection branch: when a Collection has no `rel:item` links but
+   * does expose collection-level `assets` and/or `rel:xyz` tile services
+   * (e.g. GTIF Austria), short-circuit to the assets step instead of trying
+   * to enumerate items.
+   *
+   * Returns true if the collection was handled here, false otherwise.
+   */
+  const tryShowCollectionAsAssets = (data: any, collectionUrl: string): boolean => {
+    if (!data || data.type !== 'Collection') return false;
+
+    const links: StacLink[] = Array.isArray(data.links) ? data.links : [];
+    const hasItemLinks = links.some((l) => l?.rel === 'item');
+    if (hasItemLinks) return false;
+
+    const inlineAssets: Record<string, StacAsset> =
+      data.assets && typeof data.assets === 'object' ? { ...data.assets } : {};
+    const xyzLinks = getXyzTileLinks(links, collectionUrl);
+
+    if (Object.keys(inlineAssets).length === 0 && xyzLinks.length === 0) return false;
+
+    // Synthesize asset entries for xyz tile services so they appear in the
+    // assets list alongside collection-level assets.
+    const mergedAssets: Record<string, StacAsset> = { ...inlineAssets };
+    xyzLinks.forEach((l, idx) => {
+      const baseKey = (l.title || `xyz-${idx + 1}`)
+        .toString()
+        .replace(/\s+/g, '-')
+        .toLowerCase();
+      let key = baseKey;
+      let n = 2;
+      while (key in mergedAssets) key = `${baseKey}-${n++}`;
+      mergedAssets[key] = {
+        href: l.href,
+        type: l.type || 'image/png',
+        title: l.title,
+        roles: ['tiles'],
+      } as StacAsset;
+    });
+
+    const assetEntries = Object.entries(mergedAssets) as [string, StacAsset][];
+    setDetectedMode('static-catalog');
+    setAssets(assetEntries);
+    setSelectedItem({
+      id: data.id || 'collection',
+      properties: {
+        title: data.title || data.id || 'STAC Collection',
+        description: data.description,
+      },
+      assets: mergedAssets,
+      links: data.links,
+    } as StacItem);
+    setSelectedCollection({
+      id: data.id || 'collection',
+      title: data.title || data.id || 'STAC Collection',
+      description: data.description,
+      links: data.links,
+    });
+    setCurrentStep('assets');
+    return true;
+  };
+
   // Detect STAC resource type and route appropriately
   const detectAndLoadStacResource = async () => {
     try {
