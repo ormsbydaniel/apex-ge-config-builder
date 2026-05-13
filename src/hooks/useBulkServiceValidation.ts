@@ -388,5 +388,5 @@ export const useBulkServiceValidation = (
   const inFlightTotal =
     progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight;
 
-  return { statuses, warnings, progress, inFlightTotal, recheck };
+  return { statuses, warnings, errors, progress, inFlightTotal, recheck };
 };
