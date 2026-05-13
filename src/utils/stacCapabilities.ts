@@ -111,7 +111,80 @@ export async function fetchStacCapabilitiesWithMetrics(
     };
   }
 
-  // Standard STAC catalog: fetch /collections
+  // Single Collection — the URL points at a leaf collection.json, not a catalog.
+  if (rootJson?.type === 'Collection') {
+    const name = rootJson.id || rootJson.title || 'collection';
+    const title = rootJson.title || rootJson.id || 'STAC Collection';
+    return {
+      capabilities: {
+        layers: [{
+          name,
+          title,
+          abstract: rootJson.description || 'STAC Collection',
+        }],
+        title: rootJson.title,
+        abstract: rootJson.description,
+        totalCount: 1,
+      },
+      title,
+      durationMs: root.durationMs,
+      bytes: root.bytes,
+    };
+  }
+
+  // Detect whether this Catalog is also a STAC API (exposes /collections).
+  const conformsTo: unknown = rootJson?.conformsTo;
+  const isStacApi =
+    Array.isArray(conformsTo) &&
+    conformsTo.some(
+      (c: unknown) =>
+        typeof c === 'string' &&
+        /stacspec\.org\/.+\/(core|collections|item-search|ogcapi-features)/.test(c),
+    );
+
+  // Static STAC Catalog — enumerate children from rootJson.links[rel=child].
+  if (!isStacApi) {
+    const childLinks: any[] = Array.isArray(rootJson?.links)
+      ? rootJson.links.filter((l: any) => l && l.rel === 'child')
+      : [];
+
+    if (childLinks.length > 0) {
+      const baseHref = url;
+      const layers = childLinks.map((l: any) => {
+        const href: string = l.href || '';
+        let name = l.id || l.title;
+        if (!name) {
+          try {
+            const abs = new URL(href, baseHref);
+            const parts = abs.pathname.split('/').filter(Boolean);
+            name = parts[parts.length - 2] || parts[parts.length - 1] || href;
+          } catch {
+            name = href || 'collection';
+          }
+        }
+        return {
+          name,
+          title: l.title || name,
+          abstract: 'STAC Collection',
+        };
+      });
+      return {
+        capabilities: {
+          layers,
+          title: rootJson.title,
+          abstract: rootJson.description,
+          totalCount: layers.length,
+        },
+        title: rootJson.title || rootJson.id || 'STAC Catalogue',
+        durationMs: root.durationMs,
+        bytes: root.bytes,
+      };
+    }
+    // No conformance hints AND no child links — fall through to the
+    // /collections probe; if that 404s we'll downgrade to an 'empty' diagnostic.
+  }
+
+  // Standard STAC API: fetch /collections
   const baseUrl = new URL(url);
   baseUrl.search = '';
   baseUrl.hash = '';
@@ -122,6 +195,20 @@ export async function fetchStacCapabilitiesWithMetrics(
   try {
     coll = await measureFetch(collectionsUrl);
   } catch (err) {
+    if (!isStacApi) {
+      return {
+        capabilities: { layers: [], title: rootJson.title, abstract: rootJson.description, totalCount: 0 },
+        title: rootJson.title || rootJson.id || 'STAC Catalogue',
+        diagnostic: {
+          category: 'empty',
+          title: 'Catalogue reachable but no collections discoverable',
+          hint: 'The root has no child links and /collections is unreachable.',
+          durationMs: root.durationMs,
+        },
+        durationMs: root.durationMs,
+        bytes: root.bytes,
+      };
+    }
     return failure(
       classifyFetchError(err, { url: collectionsUrl, durationMs: performance.now() - collStart }),
       root.durationMs,
@@ -130,7 +217,23 @@ export async function fetchStacCapabilitiesWithMetrics(
   }
 
   const collHttp = classifyHttpResponse(coll.res, { expectedKind: 'json', durationMs: coll.durationMs });
-  if (collHttp) return failure(collHttp, root.durationMs + coll.durationMs, root.bytes + coll.bytes);
+  if (collHttp) {
+    if (!isStacApi) {
+      return {
+        capabilities: { layers: [], title: rootJson.title, abstract: rootJson.description, totalCount: 0 },
+        title: rootJson.title || rootJson.id || 'STAC Catalogue',
+        diagnostic: {
+          category: 'empty',
+          title: 'Catalogue reachable but no collections discoverable',
+          hint: 'The root has no child links and /collections is not a valid endpoint.',
+          durationMs: root.durationMs + coll.durationMs,
+        },
+        durationMs: root.durationMs + coll.durationMs,
+        bytes: root.bytes + coll.bytes,
+      };
+    }
+    return failure(collHttp, root.durationMs + coll.durationMs, root.bytes + coll.bytes);
+  }
 
   let collectionsJson: any;
   try {
