@@ -1,5 +1,10 @@
 
 import { DataSourceFormat, ServiceCapabilities } from '@/types/config';
+import {
+  ProbeDiagnostic,
+  classifyFetchError,
+  classifyHttpResponse,
+} from '@/utils/serviceDiagnostics';
 
 const getDescendantsByLocalName = (root: ParentNode, localName: string): Element[] =>
   Array.from(root.querySelectorAll('*')).filter(el => el.localName === localName);
