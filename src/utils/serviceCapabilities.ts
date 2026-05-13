@@ -36,9 +36,17 @@ const getServiceMetadataText = (xmlDoc: Document, localName: 'Title' | 'Abstract
 
 export interface ServiceCapabilitiesMetrics {
   capabilities: ServiceCapabilities | null;
+  /** Present when capabilities is null, or when the response parsed but is empty/suspicious. */
+  diagnostic?: ProbeDiagnostic;
   durationMs?: number;
   bytes?: number;
 }
+
+// Function to fetch capabilities for a service (with optional timing/size metrics)
+export const fetchServiceCapabilitiesWithMetrics = async (
+  url: string,
+  format: DataSourceFormat,
+): Promise<ServiceCapabilitiesMetrics> => {
 
 // Function to fetch capabilities for a service (with optional timing/size metrics)
 export const fetchServiceCapabilitiesWithMetrics = async (
