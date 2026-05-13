@@ -179,9 +179,10 @@ export const useBulkServiceValidation = (
   const validateStac = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
+    setError(svc.id, undefined);
     updateProgress('stac', { inFlight: 1 });
     try {
-      const { capabilities, durationMs, bytes } = await fetchStacCapabilitiesWithMetrics(svc.url);
+      const { capabilities, durationMs, bytes, diagnostic } = await fetchStacCapabilitiesWithMetrics(svc.url);
       if (capabilities) {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
         const warns = collectCapabilitiesWarnings(durationMs, bytes);
@@ -189,27 +190,31 @@ export const useBulkServiceValidation = (
         setStatus(svc.id, warns.length > 0 ? 'warning' : 'ok');
       } else {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+        setError(svc.id, diagnostic ?? { category: 'unknown', title: "Couldn't fetch STAC catalogue" });
         setStatus(svc.id, 'error');
       }
-    } catch {
+    } catch (err) {
       dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, classifyFetchError(err, { url: svc.url }));
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('stac', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, setError, updateProgress]);
 
   const validateOgc = useCallback(async (svc: Service) => {
     if (!svc.format) {
       dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, { category: 'unknown', title: 'Missing service format' });
       setStatus(svc.id, 'error');
       return;
     }
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
+    setError(svc.id, undefined);
     updateProgress('ogc', { inFlight: 1 });
     try {
-      const { capabilities, durationMs, bytes } = await fetchServiceCapabilitiesWithMetrics(svc.url, svc.format as DataSourceFormat);
+      const { capabilities, durationMs, bytes, diagnostic } = await fetchServiceCapabilitiesWithMetrics(svc.url, svc.format as DataSourceFormat);
       if (capabilities) {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
         const warns = collectCapabilitiesWarnings(durationMs, bytes);
