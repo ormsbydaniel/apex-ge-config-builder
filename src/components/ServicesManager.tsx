@@ -60,7 +60,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     | { status: 'idle' }
     | { status: 'checking' }
     | { status: 'ok'; message: string }
-    | { status: 'error'; message: string }
+    | { status: 'error'; message: string; diagnostic?: import('@/utils/serviceDiagnostics').ProbeDiagnostic }
   >({ status: 'idle' });
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
