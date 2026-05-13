@@ -222,15 +222,17 @@ export const useBulkServiceValidation = (
         setStatus(svc.id, warns.length > 0 ? 'warning' : 'ok');
       } else {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+        setError(svc.id, diagnostic ?? { category: 'unknown', title: "Couldn't fetch capabilities" });
         setStatus(svc.id, 'error');
       }
-    } catch {
+    } catch (err) {
       dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, classifyFetchError(err, { url: svc.url }));
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('ogc', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, setError, updateProgress]);
 
 
   const validateS3 = useCallback(async (svc: Service) => {
