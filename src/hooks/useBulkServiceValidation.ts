@@ -111,6 +111,7 @@ export const useBulkServiceValidation = (
   const lastLoaded = config.lastLoaded;
   const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>(cachedStatuses);
   const [warnings, setWarnings] = useState<Record<string, string[]>>(cachedWarnings);
+  const [errors, setErrors] = useState<Record<string, ProbeDiagnostic>>(cachedErrors);
   const [progress, setProgress] = useState<Record<ServiceKind, GroupProgress>>(INITIAL_PROGRESS);
   // Module-scoped (see top of file) so tab switches that unmount this hook
   // don't trigger re-validation for the same loaded config.
