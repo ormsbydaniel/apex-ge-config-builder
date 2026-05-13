@@ -261,10 +261,25 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         }
       }
 
-      // Single Collection pasted directly: short-circuit to assets if it has
-      // collection-level assets / xyz tile services and no rel:item links.
-      if (data.type === 'Collection' && tryShowCollectionAsAssets(data, serviceUrl)) {
-        setLoading(false);
+      // Single Collection pasted directly.
+      if (data.type === 'Collection') {
+        // Short-circuit to assets if it exposes collection-level assets / xyz
+        // tile services and has no rel:item links (e.g. GTIF Austria).
+        if (tryShowCollectionAsAssets(data, serviceUrl)) {
+          setLoading(false);
+          return;
+        }
+        // Otherwise jump straight to its items (rel:item links or /items API).
+        setDetectedMode('catalog');
+        const collection: StacCollection = {
+          id: data.id || serviceName || 'collection',
+          title: data.title,
+          description: data.description,
+          keywords: data.keywords,
+          extent: data.extent,
+          links: data.links,
+        };
+        await fetchItems(collection, serviceUrl);
         return;
       }
 
