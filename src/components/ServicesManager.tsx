@@ -288,6 +288,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         setValidateState({
           status: result.ok ? 'ok' : 'error',
           message: result.message,
+          ...(result.ok ? {} : { diagnostic: result.diagnostic }),
         });
         lastValidatedSigRef.current = { url, format: selectedFormat };
       }
