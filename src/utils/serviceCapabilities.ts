@@ -47,12 +47,6 @@ export const fetchServiceCapabilitiesWithMetrics = async (
   url: string,
   format: DataSourceFormat,
 ): Promise<ServiceCapabilitiesMetrics> => {
-
-// Function to fetch capabilities for a service (with optional timing/size metrics)
-export const fetchServiceCapabilitiesWithMetrics = async (
-  url: string,
-  format: DataSourceFormat,
-): Promise<ServiceCapabilitiesMetrics> => {
   try {
     // Skip capabilities for formats that don't support OGC GetCapabilities
     if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf') {
