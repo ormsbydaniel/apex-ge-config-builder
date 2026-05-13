@@ -47,45 +47,91 @@ export const fetchServiceCapabilitiesWithMetrics = async (
   url: string,
   format: DataSourceFormat,
 ): Promise<ServiceCapabilitiesMetrics> => {
+  // Skip capabilities for formats that don't support OGC GetCapabilities
+  if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf') {
+    return { capabilities: null };
+  }
+
+  // Construct GetCapabilities URL
+  let capabilitiesUrl: URL;
   try {
-    // Skip capabilities for formats that don't support OGC GetCapabilities
-    if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf') {
-      return { capabilities: null };
-    }
+    capabilitiesUrl = new URL(url);
+  } catch {
+    return {
+      capabilities: null,
+      diagnostic: {
+        category: 'invalid-url',
+        title: 'URL is not well-formed',
+        hint: 'Check for typos and that the address starts with http:// or https://',
+      },
+    };
+  }
+  capabilitiesUrl.searchParams.set('service', format.toUpperCase());
+  capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
+  const version =
+    format === 'wms' ? '1.3.0' :
+    format === 'wfs' ? '2.0.0' :
+    '1.0.0';
+  capabilitiesUrl.searchParams.set('version', version);
 
-    // Construct GetCapabilities URL
-    const capabilitiesUrl = new URL(url);
-    capabilitiesUrl.searchParams.set('service', format.toUpperCase());
-    capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
-    const version =
-      format === 'wms' ? '1.3.0' :
-      format === 'wfs' ? '2.0.0' :
-      '1.0.0';
-    capabilitiesUrl.searchParams.set('version', version);
-
-    // Use AbortController to enforce a 10-second timeout per service
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-    const startedAt = performance.now();
-    let response: Response;
-    try {
-      response = await fetch(capabilitiesUrl.toString(), { signal: controller.signal });
-    } finally {
-      clearTimeout(timer);
-    }
-    const xmlText = await response.text();
+  // Use AbortController to enforce a 10-second timeout per service
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  const startedAt = performance.now();
+  let response: Response;
+  try {
+    response = await fetch(capabilitiesUrl.toString(), { signal: controller.signal });
+  } catch (err) {
     const durationMs = performance.now() - startedAt;
-    const headerLen = Number(response.headers.get('Content-Length'));
-    const bytes = Number.isFinite(headerLen) && headerLen > 0 ? headerLen : xmlText.length;
+    return {
+      capabilities: null,
+      diagnostic: classifyFetchError(err, { url: capabilitiesUrl.toString(), durationMs }),
+      durationMs,
+    };
+  } finally {
+    clearTimeout(timer);
+  }
 
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-    
-    // Check for parsing errors
-    const parseError = xmlDoc.querySelector('parsererror');
-    if (parseError) {
-      throw new Error('Failed to parse GetCapabilities response');
-    }
+  const durationMs = performance.now() - startedAt;
+  const httpDiag = classifyHttpResponse(response, { expectedKind: 'xml', durationMs });
+  if (httpDiag) {
+    return { capabilities: null, diagnostic: httpDiag, durationMs };
+  }
+
+  let xmlText: string;
+  try {
+    xmlText = await response.text();
+  } catch (err) {
+    return {
+      capabilities: null,
+      diagnostic: classifyFetchError(err, { url: capabilitiesUrl.toString(), durationMs }),
+      durationMs,
+    };
+  }
+  const headerLen = Number(response.headers.get('Content-Length'));
+  const bytes = Number.isFinite(headerLen) && headerLen > 0 ? headerLen : xmlText.length;
+
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+  // Check for parsing errors
+  const parseError = xmlDoc.querySelector('parsererror');
+  if (parseError) {
+    return {
+      capabilities: null,
+      diagnostic: {
+        category: 'parse-xml',
+        title: `Response wasn't valid XML`,
+        detail: `${format.toUpperCase()} GetCapabilities expected`,
+        hint: `The URL may not be a ${format.toUpperCase()} GetCapabilities endpoint.`,
+        durationMs,
+      },
+      durationMs,
+      bytes,
+    };
+  }
+
+  try {
 
     const layers: any[] = [];
     
