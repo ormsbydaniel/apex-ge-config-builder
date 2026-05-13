@@ -163,7 +163,10 @@ export const extractNextLink = (data: any): string | null => {
 export const detectAssetFormat = (asset: StacAsset): DataSourceFormat | string => {
   const href = asset.href.toLowerCase();
   const type = asset.type?.toLowerCase() || '';
-  
+
+  // XYZ tile templates (e.g. .../{z}/{y}/{x}.png) — must come before extension checks
+  if (href.includes('{z}') && href.includes('{x}') && href.includes('{y}')) return 'xyz';
+
   // Check by media type first
   if (type.includes('tiff') || type.includes('geotiff')) return 'cog';
   if (type.includes('json')) return 'geojson';
