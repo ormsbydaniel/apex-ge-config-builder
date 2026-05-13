@@ -64,7 +64,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   >({ status: 'idle' });
 
   const { addService, isLoadingCapabilities } = useServices(services, onAddService);
-  const { statuses: validationStatuses, warnings: validationWarnings, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
+  const { statuses: validationStatuses, warnings: validationWarnings, errors: validationErrors, progress, inFlightTotal, recheck } = useBulkServiceValidation(services, isActive);
 
   // Tracks the URL+format signature of the most recent successful/failed probe
   // so a click on Save can skip re-probing if nothing has changed since.
