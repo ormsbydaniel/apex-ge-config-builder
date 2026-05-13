@@ -268,6 +268,13 @@ export const useBulkServiceValidation = (
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
     setError(svc.id, undefined);
+    const pre = preflightDiagnostic(svc.url);
+    if (pre) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, pre);
+      setStatus(svc.id, 'error');
+      return;
+    }
     updateProgress('s3', { inFlight: 1 });
     try {
       // Try a full bucket listing first (richer success); fall back to HEAD reachability.
