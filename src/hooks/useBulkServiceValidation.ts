@@ -152,6 +152,19 @@ export const useBulkServiceValidation = (
     });
   }, []);
 
+  const setError = useCallback((id: string, diagnostic: ProbeDiagnostic | undefined) => {
+    setErrors(prev => {
+      const next = { ...prev };
+      if (!diagnostic) {
+        delete next[id];
+      } else {
+        next[id] = diagnostic;
+      }
+      cachedErrors = next;
+      return next;
+    });
+  }, []);
+
   const collectCapabilitiesWarnings = (durationMs?: number, bytes?: number): string[] => {
     const msgs: string[] = [];
     if (typeof durationMs === 'number' && durationMs > CAPABILITIES_SLOW_MS) {
