@@ -310,6 +310,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
       // If the child is actually a Collection, jump straight to items
       if (data.type === 'Collection') {
+        // Push current catalog onto stack so back-navigation returns here.
+        setCatalogStack(prev => [
+          ...prev,
+          { url: currentCatalogUrl, title: currentCatalogTitle, children: catalogChildren },
+        ]);
+
+        // Static-collection short-circuit: no rel:item but assets / xyz tiles
+        // are advertised at the collection level (e.g. GTIF Austria).
+        if (tryShowCollectionAsAssets(data, childUrl)) {
+          setLoading(false);
+          return;
+        }
+
         const collection: StacCollection = {
           id: data.id || childTitle,
           title: data.title,
@@ -318,11 +331,6 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           extent: data.extent,
           links: data.links,
         };
-        // Push current catalog onto stack so we can return
-        setCatalogStack(prev => [
-          ...prev,
-          { url: currentCatalogUrl, title: currentCatalogTitle, children: catalogChildren },
-        ]);
         setLoading(false);
         await fetchItems(collection, childUrl);
         return;
