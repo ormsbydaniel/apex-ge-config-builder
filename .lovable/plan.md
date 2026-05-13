@@ -1,85 +1,121 @@
-## Goal
+# Better service-add failure diagnostics
 
-When a config fails Zod validation today, the load is aborted and the user sees a list of errors with no recovery path. Add two recovery actions to the validation error dialog:
+Today, when adding a STAC / WMS / WMTS / WFS / S3 service, a failure surfaces as a single generic line ("Couldn't fetch capabilities", "Couldn't fetch STAC catalogue"). The browser actually has enough signal to distinguish many failure modes — we just throw it away inside `serviceCapabilities.ts` (catch returns `null`), `stacCapabilities.ts`, and the bare `fetch` in `serviceProbes.ts`.
 
-1. **Remove invalid layers** — drop the offending sources and load the rest.
-2. **Try to auto-fix** — apply targeted repair transformers to satisfy the schema, then re-validate.
+This plan adds a structured diagnostic result so the modal can show *what* went wrong and *what to try next*, without changing how successful adds work.
 
-## UX
+## Failure modes we can detect
 
-In `ValidationErrorDialog` (and the import flow that surfaces it), add two buttons next to **Close**:
+From a single browser-side `fetch`, these are reliably distinguishable:
 
-- **Remove invalid sources & load** — enabled only when every error path begins with `sources.<n>` (i.e. all failures are scoped to data sources). Disabled with tooltip otherwise.
-- **Try to fix it & reload** — always enabled when there are source-level errors. Runs auto-repair, re-validates, and either loads the result or re-shows the dialog with whatever errors remain.
+| Category | How we detect it | Suggested guidance |
+|---|---|---|
+| Invalid URL | `new URL(url)` throws | "URL is not well-formed" |
+| Mixed content | page is `https:`, URL is `http:` (existing `checkMixedContent`) | "Browsers block HTTP requests from HTTPS pages — use https://" |
+| Timeout | `AbortError` after our 10s `AbortController` | "Server did not respond within 10s" |
+| DNS / offline / connection refused | `TypeError` from `fetch` AND `navigator.onLine === false` OR no response object | "Endpoint unreachable — check the host name or your network" |
+| CORS blocked | `TypeError` from `fetch` while `navigator.onLine === true`, no `response` available, request was cross-origin | "Server reachable but did not return CORS headers — the endpoint must allow this origin" (likeliest cause of opaque `TypeError`s on cross-origin GET) |
+| HTTP 401 / 403 | `response.status` | "Endpoint requires authentication / access denied" |
+| HTTP 404 | `response.status` | "Not found — check the path; for WMS/WMTS the URL should be the service endpoint, not a tile URL" |
+| HTTP 5xx | `response.status` | "Server error HTTP {status} — try again later" |
+| HTTP 3xx with `type === 'opaqueredirect'` | redirect to a host that doesn't allow CORS | "Endpoint redirected to a location the browser can't follow — try the redirect target directly" |
+| Wrong content type | `Content-Type` is `text/html` for a capabilities request | "Server returned HTML — likely a login or error page, not a capabilities document" |
+| XML parse error (OGC) | existing `parsererror` branch | "Response wasn't valid XML — the URL may not be a {WMS|WMTS|WFS} GetCapabilities endpoint" |
+| JSON parse error (STAC) | `JSON.parse` throws | "Response wasn't valid JSON — the URL may not be a STAC catalogue/collection" |
+| Empty capabilities (parsed OK, 0 layers/collections) | post-parse | Already implied by success path; we'll flag it as a warning, not an error |
+| S3 listing denied but HEAD ok | existing branch | Keep current "reachable, listing not permitted" message |
 
-After either action the dialog closes on success and a toast summarises what happened (e.g. "Loaded config — removed 2 invalid sources" / "Auto-repaired 3 sources").
+CORS vs DNS disambiguation is heuristic (browsers deliberately don't tell us which), but `navigator.onLine` plus same-origin check covers the common cases well enough to give useful guidance.
 
-## Implementation
+## Code changes
 
-### 1. Plumb the raw JSON + retry through the dialog
+### 1. New `src/utils/serviceDiagnostics.ts`
 
-`useConfigImport.runImport` already returns `errors` on failure. Extend `ImportResult` to also return `rawData` (the parsed-but-pre-validation object) so the dialog can operate on it without re-parsing. Pass the original `sourceLabel`/`loadedSource` back too, or expose a `retry(modifiedJson)` callback.
+Pure helpers, no network calls:
 
-In `ConfigManagement` / `LoadConfigDialog` / `HomeTab` (the call sites that open `ValidationErrorDialog`), pass:
-- `rawConfig: any` — parsed JSON used for repair.
-- `onRetry: (config: any) => Promise<ImportResult>` — re-runs `runImport` with the modified object (skipping the parse step — see step 4).
+- `type ProbeFailureCategory = 'invalid-url' | 'mixed-content' | 'timeout' | 'network' | 'cors' | 'http-auth' | 'http-not-found' | 'http-server' | 'http-other' | 'bad-content-type' | 'parse-xml' | 'parse-json' | 'empty' | 'unknown'`
+- `interface ProbeDiagnostic { category: ProbeFailureCategory; title: string; detail?: string; hint?: string; httpStatus?: number; durationMs?: number }`
+- `classifyFetchError(err: unknown, ctx: { url, sameOrigin, durationMs }): ProbeDiagnostic` — maps `AbortError`, `TypeError`, etc. into the table above.
+- `classifyHttpResponse(res: Response): ProbeDiagnostic | undefined` — returns a diagnostic when `!res.ok` or content-type is suspicious; `undefined` when fine.
+- `formatDiagnostic(d: ProbeDiagnostic): string` — single-line fallback for callers that still want a string.
 
-### 2. "Remove invalid sources" action
+### 2. Refactor `src/utils/serviceCapabilities.ts`
 
-Pure utility in `src/utils/configRecovery/removeInvalidSources.ts`:
-
-```ts
-export function removeInvalidSources(
-  rawConfig: any,
-  errors: ValidationErrorDetails[],
-): { config: any; removed: { index: number; name: string }[] }
-```
-
-- Collect every distinct `sources.<n>` index from `errors[].path`.
-- Filter `rawConfig.sources` to exclude those indices.
-- Return the new config plus a list of what was removed (for the toast).
-
-If a removed source was referenced by `exclusivitySets` or `interfaceGroups`, leave the references alone (existing sanitisation handles dangling references on load).
-
-### 3. "Try to auto-fix" action
-
-Reuse the existing `importTransformations` pipeline, plus a new repair-only pass that targets the most common version-drift failures we know about. New module `src/utils/configRecovery/autoFix.ts`:
+Replace the silent `catch → return { capabilities: null }` with a `diagnostic` field on the result:
 
 ```ts
-export function autoFixConfig(
-  rawConfig: any,
-  errors: ValidationErrorDetails[],
-): { config: any; appliedFixes: string[] }
+export interface ServiceCapabilitiesMetrics {
+  capabilities: ServiceCapabilities | null;
+  diagnostic?: ProbeDiagnostic; // present iff capabilities === null
+  durationMs?: number;
+  bytes?: number;
+}
 ```
 
-Strategy — drive fixes by what the errors actually report, so we don't over-rewrite the config:
+Wrap the existing fetch + parse blocks so:
+- AbortError → `timeout`
+- `!response.ok` → `classifyHttpResponse`
+- `parsererror` → `parse-xml`
+- empty `layers` after parse → `empty` (warning, capabilities still returned)
+- otherwise → `unknown`
 
-- For each `sources.<n>` error, look at the source and apply only the relevant repair:
-  - **Base-layer meta** (the failure in the user's example): if `isBaseLayer === true` and `meta` is provided but missing `description` / `attribution.text`, fill defaults — same logic that `metaCompletionTransformer` already has, but invoked unconditionally on flagged sources rather than gated on detection.
-  - **Layer-card meta missing**: if not a base layer and `meta` is absent or incomplete, synthesise it (description from `name`, attribution placeholder).
-  - **Layout missing for layer cards**: insert minimal `layout: { interfaceGroup: '<first existing group or "Ungrouped">', layerCard: { toggleable: true } }`.
-  - **`data` shape**: if a single object instead of array, wrap; if `format` missing but inferable from URL extension, fill it. (Both already covered by existing transformers — call them directly.)
-  - **Unknown enum values**: if `format` is an unknown string, leave the source flagged for removal-fallback (do not silently change semantics).
+Keep the existing `fetchServiceCapabilities` wrapper unchanged so no other call sites break.
 
-- Track every fix applied as a string for the toast / follow-up dialog.
+### 3. Mirror the same change in `src/utils/stacCapabilities.ts`
 
-Re-run validation after the pass. If errors remain, re-show the dialog with the new error set and the same two buttons; the user can iterate ("fix again") or fall back to remove.
+Add a `diagnostic` to its return, classify JSON parse failures as `parse-json`, HTTP errors via `classifyHttpResponse`.
 
-### 4. Re-validate without re-parsing
+### 4. Update `src/utils/serviceProbes.ts`
 
-Add a `runImportFromObject(rawConfig, sourceLabel, loadedSource, options)` variant in `useConfigImport` that skips `parseJSONWithLineNumbers` and starts at `normalizeImportedConfig`. Both buttons call this with their modified config.
+`ProbeResult` becomes:
 
-### 5. Files touched
+```ts
+interface ProbeResult {
+  ok: boolean;
+  message: string;            // existing one-liner — unchanged for callers
+  diagnostic?: ProbeDiagnostic; // new
+}
+```
 
-- `src/utils/configRecovery/removeInvalidSources.ts` *(new)*
-- `src/utils/configRecovery/autoFix.ts` *(new)*
-- `src/utils/configRecovery/__tests__/*.test.ts` *(new — cover base-layer fix, missing layout, removal indices)*
-- `src/hooks/useConfigImport.ts` — extract `runImportFromObject`, return `rawData` in `ImportResult`.
-- `src/components/config/components/ValidationErrorDialog.tsx` — add the two action buttons + handlers, accept `rawConfig` and `onRetry` props.
-- `src/components/ConfigManagement.tsx`, `src/components/config/HomeTab.tsx`, `src/components/config/LoadConfigDialog.tsx` — wire `rawConfig` and `onRetry` through to the dialog.
+For each branch:
+- `stac` and `ogc`: pass through the new `diagnostic` from the underlying capabilities call.
+- `s3`: build diagnostics from the HEAD response status / classifyFetchError; preserve current "listing not permitted" success.
+- Always run `checkMixedContent(url)` first and short-circuit with a `mixed-content` diagnostic.
+- Always check `new URL(url)` first and short-circuit with `invalid-url`.
 
-### Out of scope
+### 5. UI surfacing in the add-service / validate flow
 
-- No schema changes. The Zod schema is the source of truth; recovery only edits user data.
-- No automatic migration of old-version configs across the board — only opt-in, error-driven repairs.
-- No changes to `validationUtils.ts` beyond what's needed to expose error paths (already exposed).
+`src/components/ServicesManager.tsx` (and the validate button in `useBulkServiceValidation.ts`) currently show `result.message`. Update the failure-state UI to render, when `diagnostic` is present:
+
+- Bold one-line title (`diagnostic.title`)
+- Optional muted detail line (`diagnostic.detail`, e.g. `HTTP 403 in 240 ms`)
+- Optional hint line in `text-muted-foreground` (`diagnostic.hint`)
+
+No layout/redesign work — reuse the existing failure block; just three stacked lines instead of one.
+
+### 6. Tests
+
+Add `src/utils/__tests__/serviceDiagnostics.test.ts` covering:
+- AbortError → `timeout`
+- `TypeError` + `navigator.onLine = false` → `network`
+- `TypeError` + cross-origin → `cors`
+- 401, 403, 404, 500 → matching categories with correct hints
+- HTML content-type → `bad-content-type`
+- Mixed content via `checkMixedContent` integration
+
+## Out of scope
+
+- No retry logic or proxy fallback.
+- No backend/edge-function diagnostic probe (browser-side only — same constraints as today).
+- No changes to bulk-validation table columns beyond rendering the existing message + hint.
+- No changes to the auto-fix / remove-invalid-sources flow.
+
+## Files touched
+
+- new: `src/utils/serviceDiagnostics.ts`
+- new: `src/utils/__tests__/serviceDiagnostics.test.ts`
+- edit: `src/utils/serviceCapabilities.ts`
+- edit: `src/utils/stacCapabilities.ts`
+- edit: `src/utils/serviceProbes.ts`
+- edit: `src/components/ServicesManager.tsx` (failure block only)
+- edit: `src/hooks/useBulkServiceValidation.ts` (pass diagnostic through)
