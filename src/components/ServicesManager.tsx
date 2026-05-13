@@ -953,7 +953,21 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               {validateState.status === 'error' && (
                 <>
                   <AlertTriangle className="h-4 w-4 mt-0.5 text-destructive shrink-0" />
-                  <span className="text-destructive">{validateState.message}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-destructive font-medium">
+                      {validateState.diagnostic?.title ?? validateState.message}
+                    </div>
+                    {validateState.diagnostic?.detail && (
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {validateState.diagnostic.detail}
+                      </div>
+                    )}
+                    {validateState.diagnostic?.hint && (
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {validateState.diagnostic.hint}
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
             </div>
