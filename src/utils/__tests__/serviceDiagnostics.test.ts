@@ -10,18 +10,11 @@ const origLocation = window.location;
 
 const setLocation = (origin: string) => {
   const url = new URL(origin);
-  // jsdom allows direct assignment in some versions; fall back to defineProperty
-  try {
-    // @ts-expect-error overwrite for test
-    delete window.location;
-    // @ts-expect-error narrow
-    window.location = { ...origLocation, href: origin, origin: url.origin, protocol: url.protocol } as Location;
-  } catch {
-    Object.defineProperty(window, 'location', {
-      value: { ...origLocation, href: origin, origin: url.origin, protocol: url.protocol },
-      writable: true,
-    });
-  }
+  Object.defineProperty(window, 'location', {
+    value: { ...origLocation, href: origin, origin: url.origin, protocol: url.protocol },
+    writable: true,
+    configurable: true,
+  });
 };
 
 describe('serviceDiagnostics', () => {
