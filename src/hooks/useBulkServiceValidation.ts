@@ -8,7 +8,22 @@ import {
   ProbeDiagnostic,
   classifyFetchError,
   classifyHttpResponse,
+  classifyInvalidUrl,
+  classifyMixedContent,
 } from '@/utils/serviceDiagnostics';
+
+/**
+ * Run the same up-front URL + transport-security guards used by
+ * `validateSingleService` (add-time probe) so retries surface the precise
+ * "invalid URL" / "mixed content" diagnostics instead of a generic network
+ * error from the eventual fetch failure.
+ */
+const preflightDiagnostic = (url: string | undefined): ProbeDiagnostic | null => {
+  if (!url || !url.trim()) {
+    return { category: 'invalid-url', title: 'URL is empty' };
+  }
+  return classifyInvalidUrl(url) ?? classifyMixedContent(url) ?? null;
+};
 
 const CONCURRENCY = 4;
 
@@ -180,6 +195,13 @@ export const useBulkServiceValidation = (
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
     setError(svc.id, undefined);
+    const pre = preflightDiagnostic(svc.url);
+    if (pre) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, pre);
+      setStatus(svc.id, 'error');
+      return;
+    }
     updateProgress('stac', { inFlight: 1 });
     try {
       const { capabilities, durationMs, bytes, diagnostic } = await fetchStacCapabilitiesWithMetrics(svc.url);
@@ -212,6 +234,13 @@ export const useBulkServiceValidation = (
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
     setError(svc.id, undefined);
+    const pre = preflightDiagnostic(svc.url);
+    if (pre) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, pre);
+      setStatus(svc.id, 'error');
+      return;
+    }
     updateProgress('ogc', { inFlight: 1 });
     try {
       const { capabilities, durationMs, bytes, diagnostic } = await fetchServiceCapabilitiesWithMetrics(svc.url, svc.format as DataSourceFormat);
@@ -239,6 +268,13 @@ export const useBulkServiceValidation = (
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
     setError(svc.id, undefined);
+    const pre = preflightDiagnostic(svc.url);
+    if (pre) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, pre);
+      setStatus(svc.id, 'error');
+      return;
+    }
     updateProgress('s3', { inFlight: 1 });
     try {
       // Try a full bucket listing first (richer success); fall back to HEAD reachability.
