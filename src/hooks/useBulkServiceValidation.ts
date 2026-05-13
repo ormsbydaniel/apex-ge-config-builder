@@ -317,7 +317,7 @@ export const useBulkServiceValidation = (
     } finally {
       updateProgress('s3', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, setError, updateProgress]);
 
   const runBulk = useCallback(
     async (svcTargets: Service[]) => {
