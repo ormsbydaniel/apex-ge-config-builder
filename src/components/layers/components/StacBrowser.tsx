@@ -261,6 +261,13 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         }
       }
 
+      // Single Collection pasted directly: short-circuit to assets if it has
+      // collection-level assets / xyz tile services and no rel:item links.
+      if (data.type === 'Collection' && tryShowCollectionAsAssets(data, serviceUrl)) {
+        setLoading(false);
+        return;
+      }
+
       // Catalog: prefer static-hierarchy traversal when `child` links exist
       if (data.type === 'Catalog') {
         const childLinks = getChildLinks(data.links, serviceUrl);
