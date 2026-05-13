@@ -56,6 +56,7 @@ let lastValidatedLoad: Date | null | 'manual' = null;
 // re-running probes.
 let cachedStatuses: Record<string, ServiceValidationStatus> = {};
 let cachedWarnings: Record<string, string[]> = {};
+let cachedErrors: Record<string, ProbeDiagnostic> = {};
 
 const classify = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
