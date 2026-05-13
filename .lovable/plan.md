@@ -1,38 +1,52 @@
 ## Problem
 
-`https://gtif-austria.github.io/public-catalog/GTIF-Austria/catalog.json` is a **static STAC Catalog** hosted on GitHub Pages. The probe correctly fetches it (200) but then unconditionally appends `/collections?limit=100`, which 404s. The same bug bites any STAC URL that points at:
+Static GTIF-Austria collections (e.g. `aquifer_eepot_w23_wocc/collection.json`) don't expose `rel:item` links. Instead, they declare:
 
-- a static `catalog.json` (no `/collections` endpoint exists)
-- a `collection.json` (it's a single Collection, not a catalog of collections — see the ECOSTRESS `eeh-tes-lst` request in the network log, which 403s on `…collection.json/collections?limit=100`)
+- collection-level `assets` (e.g. `geothermal`, `thumbnail`)
+- one or more `rel:xyz` tile services
+- an optional `rel:service` vector endpoint
 
-The card therefore shows a misleading "404 / endpoint did not return valid JSON" error even though the catalogue itself is perfectly reachable and parseable.
+When the user drills into one of these collections in the STAC browser today, `fetchItems` finds no `rel:item` links and falls back to `<serviceUrl>/collections/{id}/items`, which 404s. The correct experience is to skip the items step and show the collection's own assets — including the xyz tile services — as selectable entries.
 
-## Fix in `src/utils/stacCapabilities.ts`
+## Fix
 
-After successfully parsing the root JSON, branch on what we actually got before deciding how to enumerate collections:
+### 1. `src/components/layers/components/StacBrowser.tsx`
 
-1. **Single Collection** (`rootJson.type === "Collection"`)
-   - Treat the URL itself as the one "layer". Skip the `/collections` fetch entirely.
-   - `layers = [{ name: id, title, abstract: description }]`, `totalCount: 1`.
+In `enterCatalog`, when the fetched child has `type === 'Collection'`:
 
-2. **Static Catalog** (`rootJson.type === "Catalog"` AND no STAC API conformance)
-   - Detect "API-ness" via `Array.isArray(rootJson.conformsTo) && conformsTo.some(c => /stacspec\.org\/.+\/(core|collections|item-search)/.test(c))`.
-   - If not an API, enumerate children from `rootJson.links` where `rel === "child"`. Each child link becomes a layer (`name: link.id || basename(href)`, `title: link.title`, `abstract` left blank).
-   - Skip the `/collections` fetch entirely. No 404, no false-failure diagnostic.
+- After fetching the child JSON, inspect `data.assets` and `data.links`.
+- If the collection has **no `rel:item` links** AND (`data.assets` is non-empty OR there are `rel:xyz` links), bypass `fetchItems` and route straight to the existing `assets` step:
+  - Build the asset list from `Object.entries(data.assets || {})`.
+  - Append synthetic asset entries for each `rel:xyz` link, keyed by `link.title || basename(link.href)`, with `href = link.href`, `type = link.type` (defaults to `image/png`), `roles: ['tiles']`, and `title = link.title`.
+  - `setSelectedItem` to a synthetic item whose `id` is `data.id`, `properties` carry `title`/`description`, and `assets` is the merged map.
+  - `setSelectedCollection({ id, title, description, links })`.
+  - `setCurrentStep('assets')`.
 
-3. **STAC API Catalog** (conformsTo includes a STAC API class, e.g. FAO)
-   - Keep current behaviour: fetch `/collections?limit=100`.
+- Otherwise (has `rel:item` or it's a true API-style collection), keep the current `fetchItems(collection, childUrl)` path.
 
-4. **Fallback** — if a Catalog has neither `conformsTo` API hints nor `rel=child` links, keep the current `/collections` probe but downgrade its 404 to a structured `empty` diagnostic ("Catalogue reachable but no collections discoverable") instead of a hard error.
+This reuses the openEO-style branch the file already has at lines 141-160 — same shape, different trigger.
+
+### 2. `src/components/layers/components/StacBrowser.tsx` — initial detection (`detectAndLoadStacResource`)
+
+Apply the same logic when the user pastes a single `collection.json` URL directly: when `data.type === 'Collection'` AND there are no `rel:item` links AND (`assets` or `rel:xyz` exist), short-circuit to the assets step using the same builder. Today this case falls through and ends up trying `fetchCollectionsFromCatalog`, which 404s for static collections.
+
+### 3. `src/utils/stacUtils.ts` — small helper
+
+Add `getXyzTileLinks(links, baseUrl)` (mirroring `getChildLinks`) returning `{ href, title, type }[]` for `rel === 'xyz'`. Keeps the StacBrowser code tidy and matches the existing helper style in this file.
+
+### 4. Asset format detection
+
+`detectAssetFormat` in `stacUtils.ts` doesn't recognize XYZ tile templates (`.../{z}/{y}/{x}.jpeg`). Add a check at the top: if `href` contains `{z}` and `{x}` and `{y}`, return `'xyz'` (or fall through to the existing image/png/jpeg detection — the format string is only used for display + downstream picker, so `'XYZ'` as the display is enough). No schema changes — `'xyz'` is already a known DataSourceFormat in this project.
 
 ## Out of scope
 
-- No changes to `serviceCapabilities.ts`, bulk validation, or UI rendering. The existing diagnostic + retry path already surfaces whatever this function returns.
-- No recursive child-of-child enumeration for static catalogs — single level is sufficient to populate the card and matches how the existing layers list is consumed.
-- No new test file additions beyond optionally extending `serviceDiagnostics.test.ts` if useful; existing manual probe with the GTIF URL is the acceptance check.
+- No changes to `stacCapabilities.ts`. The capabilities listing for the parent catalog already correctly enumerates child collections (16 children for GTIF Austria); this fix is purely about what the **browser** does after the user clicks one of them.
+- No recursion through `rel:service` vector endpoints — those need a separate path because they're parameterised (`{{feature}}` placeholder) and aren't directly addable as a tile/COG layer.
+- No changes to bulk validation, `useBulkServiceValidation`, or diagnostics. The service still validates green.
 
 ## Acceptance
 
-- Adding `https://gtif-austria.github.io/public-catalog/GTIF-Austria/catalog.json` shows green "N collections available" (16+ from the visible `rel=child` links) instead of a 404 error.
-- Adding `https://s3.waw4-1.cloudferro.com/ECOSTRESS/stac/collections/eeh-tes-lst/collection.json` shows green "1 collection available" instead of the AccessDenied/404.
-- FAO STAC API (`https://data.apps.fao.org/geospatial/search/stac/`) continues to use `/collections?limit=100` and returns its full collection list unchanged.
+- Adding `https://gtif-austria.github.io/public-catalog/GTIF-Austria/catalog.json`, opening the browser, and clicking "Ground Source Heat Pump: Open Systems (Aquifer)" shows an Assets view with `geothermal`, `thumbnail`, plus the four xyz layers (`EOxCloudless 2024`, `Terrain light`, `OSM Background`, `Overlay labels`). No 404 toast.
+- Pasting `…/aquifer_eepot_w23_wocc/collection.json` directly into the service URL opens the same Assets view immediately.
+- ECOSTRESS `…/eeh-tes-lst/collection.json` (no xyz, no inline assets) continues to behave as today (single-Collection capability + whatever the existing browser does for that case — no regression).
+- FAO STAC API and other true STAC API catalogs are unaffected because they always have `rel:item` (or paginated `/items`) and never enter the new branch.
