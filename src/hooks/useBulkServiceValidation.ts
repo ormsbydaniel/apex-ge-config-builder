@@ -238,6 +238,7 @@ export const useBulkServiceValidation = (
   const validateS3 = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
+    setError(svc.id, undefined);
     updateProgress('s3', { inFlight: 1 });
     try {
       // Try a full bucket listing first (richer success); fall back to HEAD reachability.
@@ -271,8 +272,10 @@ export const useBulkServiceValidation = (
       if (!listed) {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 10000);
+        const startedAt = performance.now();
         try {
           const res = await fetch(svc.url, { method: 'HEAD', signal: controller.signal });
+          const durationMs = performance.now() - startedAt;
           // 200 = OK, 403 = bucket exists but list denied → still reachable
           if (res.ok || res.status === 403) {
             dispatch({
@@ -290,14 +293,26 @@ export const useBulkServiceValidation = (
             setStatus(svc.id, 'ok');
           } else {
             dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+            const httpDiag = classifyHttpResponse(res, { durationMs });
+            setError(svc.id, httpDiag ?? {
+              category: 'http-other',
+              title: `Endpoint returned HTTP ${res.status}`,
+              httpStatus: res.status,
+              durationMs,
+            });
             setStatus(svc.id, 'error');
           }
+        } catch (err) {
+          dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+          setError(svc.id, classifyFetchError(err, { url: svc.url, durationMs: performance.now() - startedAt }));
+          setStatus(svc.id, 'error');
         } finally {
           clearTimeout(timer);
         }
       }
-    } catch {
+    } catch (err) {
       dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, classifyFetchError(err, { url: svc.url }));
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('s3', { inFlight: -1, completed: 1 });
