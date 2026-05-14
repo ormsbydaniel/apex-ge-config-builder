@@ -1942,6 +1942,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Footer links
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="footer-links.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1958,6 +1976,97 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#list-page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List page
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-edit-form" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add / edit form
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Add / edit form">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standard-link" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Link
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email-mailto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Email (mailto)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#live-preview-on-the-settings-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live preview on the Settings tab
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2423,86 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#list-page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List page
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-edit-form" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add / edit form
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Add / edit form">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standard-link" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Link
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email-mailto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Email (mailto)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#live-preview-on-the-settings-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live preview on the Settings tab
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2519,108 @@
 
 
 <h1 id="footer-links">Footer links<a class="headerlink" href="#footer-links" title="Permanent link">&para;</a></h1>
-<p>Edit the links shown in the APEx Geospatial Explorer's footer bar. Supports per-page link sets.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>The <strong>Footer Links</strong> editor manages the links shown in the deployed APEx
+Geospatial Explorer's footer bar. Open it from the <a href="settings.html">Settings tab</a>
+by clicking <strong>Edit Footer Links</strong> under the Footer Links preview.</p>
+<p>The dialog is a two-page modal: a sortable list of existing links, and an
+add/edit form for a single link.</p>
+<h2 id="list-page">List page<a class="headerlink" href="#list-page" title="Permanent link">&para;</a></h2>
+<p>The list shows each configured link with its label, a type-aware icon, and
+controls to reorder (▲▼), edit (pencil), or delete (trash). Links appear
+in the deployed footer in the order shown here.</p>
+<p>Click <strong>+ Add Footer Link</strong> to open the edit form for a new link, or click
+the pencil icon on an existing row to edit it.</p>
+<p>Click <strong>Done</strong> to save changes back to the config, or <strong>Cancel</strong> to discard
+them.</p>
+<h2 id="add-edit-form">Add / edit form<a class="headerlink" href="#add-edit-form" title="Permanent link">&para;</a></h2>
+<p>Each link has two flavours selected via the <strong>Type</strong> dropdown:</p>
+<h3 id="standard-link">Standard Link<a class="headerlink" href="#standard-link" title="Permanent link">&para;</a></h3>
+<p>A regular <code>https://</code> URL, opened in a new tab in the deployed Explorer.</p>
+<p><img alt="Add Footer Link dialog — Standard Link type with Footer label and URL fields" src="../assets/screenshots/footer-links-add-standard.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Footer label</td>
+<td>Yes</td>
+<td>Display text shown in the footer.</td>
+</tr>
+<tr>
+<td>URL</td>
+<td>Yes</td>
+<td>Absolute <code>https://</code> URL.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="email-mailto">Email (mailto)<a class="headerlink" href="#email-mailto" title="Permanent link">&para;</a></h3>
+<p>An email link that opens the user's email client with optional pre-filled
+fields. The form fields are bidirectionally parsed from / serialised to a
+<code>mailto:</code> URL.</p>
+<p><img alt="Add Footer Link dialog — Mailto type with Email, CC, Draft subject, and Draft body fields" src="../assets/screenshots/footer-links-add-mailto.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Maps to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Footer label</td>
+<td>Yes</td>
+<td>Link display text.</td>
+</tr>
+<tr>
+<td>Email</td>
+<td>Yes</td>
+<td><code>mailto:&lt;email&gt;</code> recipient.</td>
+</tr>
+<tr>
+<td>CC</td>
+<td>No</td>
+<td><code>?cc=</code> query parameter.</td>
+</tr>
+<tr>
+<td>Draft subject</td>
+<td>No</td>
+<td><code>?subject=</code> query parameter.</td>
+</tr>
+<tr>
+<td>Draft body</td>
+<td>No</td>
+<td><code>?body=</code> query parameter (multi-line).</td>
+</tr>
+</tbody>
+</table>
+<p>The composed URL looks like
+<code>mailto:hello@example.com?cc=team@example.com&amp;subject=Feedback&amp;body=Hi%20there</code>.</p>
+<p>The <strong>Add</strong> / <strong>Save</strong> button is disabled until the required fields for
+the selected type are filled.</p>
+<h2 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
+<p>Footer links are stored under <code>layout.footer</code> as an ordered array of
+<code>FooterLink</code> objects (each <code>{ title, url }</code>). Mailto links are stored as
+fully-formed <code>mailto:</code> URLs:</p>
+<div class="highlight"><pre><span></span><code>{
+  &quot;layout&quot;: {
+    &quot;footer&quot;: [
+      { &quot;title&quot;: &quot;Documentation&quot;, &quot;url&quot;: &quot;https://docs.example.com&quot; },
+      { &quot;title&quot;: &quot;Contact us&quot;, &quot;url&quot;: &quot;mailto:hello@example.com?subject=Feedback&quot; }
+    ]
+  }
+}
+</code></pre></div>
+<h2 id="live-preview-on-the-settings-tab">Live preview on the Settings tab<a class="headerlink" href="#live-preview-on-the-settings-tab" title="Permanent link">&para;</a></h2>
+<p>Above the <strong>Edit Footer Links</strong> button, the Settings tab shows each
+configured link as a badge with a mail (<code>✉</code>) or external-link (<code>↗</code>) icon
+depending on the URL scheme. Empty configurations show
+<em>"No footer links configured."</em>.</p>
 
 
 

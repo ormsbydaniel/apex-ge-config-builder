@@ -2033,6 +2033,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON config
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="json-config.html" class="md-nav__link md-nav__link--active">
         
   
@@ -2049,6 +2067,75 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preview-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preview mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edit-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edit mode
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Edit mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#paste-to-load-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paste-to-load workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2401,64 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preview-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preview mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edit-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edit mode
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Edit mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#paste-to-load-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paste-to-load workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2475,53 @@
 
 
 <h1 id="json-config">JSON config<a class="headerlink" href="#json-config" title="Permanent link">&para;</a></h1>
-<p>The JSON config tab shows the raw configuration document. Use it to inspect the current state, copy it elsewhere, or paste in a configuration to load.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>The <strong>JSON Config</strong> tab shows the raw configuration document as it would
+be exported. Use it to inspect the current state, copy values into
+documentation, or paste in a configuration to load.</p>
+<p><img alt="JSON Config tab — read-only Configuration Preview with theme toggle and Edit JSON button" src="../assets/screenshots/json-config-tab.png" /></p>
+<p>The tab has two modes: <strong>Preview</strong> (default, read-only) and <strong>Edit</strong>.</p>
+<h2 id="preview-mode">Preview mode<a class="headerlink" href="#preview-mode" title="Permanent link">&para;</a></h2>
+<p>Shows the configuration as syntax-highlighted JSON. URLs are
+automatically <a href="../reference/url-parameters.html">sanitised</a> — query strings
+and signed-URL parameters are stripped from the rendered preview.</p>
+<p>The toggle next to the title switches between light and dark syntax
+themes, and <strong>Edit JSON</strong> enters edit mode.</p>
+<p>The same JSON is also available at the <code>/config.json</code> route as plain
+text, which is useful for fetching from scripts or piping into <code>jq</code>.</p>
+<h2 id="edit-mode">Edit mode<a class="headerlink" href="#edit-mode" title="Permanent link">&para;</a></h2>
+<p>Click <strong>Edit JSON</strong> to switch to a free-form editor.</p>
+<p><img alt="JSON Config tab — Edit mode with Find and Replace, Reset, Format JSON, and Apply Changes toolbar" src="../assets/screenshots/json-config-edit-mode.png" /></p>
+<p>The toolbar provides:</p>
+<ul>
+<li><strong>Find and Replace</strong> — opens a panel to search the buffer and
+  optionally replace matches.</li>
+<li><strong>Reset</strong> — discards edits and reloads the current in-memory config.</li>
+<li><strong>Format JSON</strong> — pretty-prints the buffer (2-space indent).</li>
+<li><strong>Apply Changes</strong> — validates the buffer against the configuration
+  <a href="#schema-validation">schema</a> and, if valid, replaces the in-memory
+  config.</li>
+<li><strong>Exit Edit</strong> — returns to preview mode without applying changes.</li>
+</ul>
+<h3 id="paste-to-load-workflow">Paste-to-load workflow<a class="headerlink" href="#paste-to-load-workflow" title="Permanent link">&para;</a></h3>
+<p>Edit mode is the recommended way to load a configuration that was
+emailed, pasted from a chat, or copied from another deployed Explorer:</p>
+<ol>
+<li>Click <strong>Edit JSON</strong>.</li>
+<li>Select all (Ctrl/Cmd + A) and paste the new JSON.</li>
+<li>Click <strong>Format JSON</strong> to normalise whitespace.</li>
+<li>Click <strong>Apply Changes</strong>.</li>
+</ol>
+<p>If validation fails, the tab keeps your edits and shows the errors so you
+can fix them in place.</p>
+<h2 id="schema-validation">Schema validation<a class="headerlink" href="#schema-validation" title="Permanent link">&para;</a></h2>
+<p><strong>Apply Changes</strong> runs the buffer through the same Zod schemas the rest
+of the app uses (<code>MetaSchema</code>, <code>LayoutSchema</code>, source/service schemas,
+etc.). Validation is strict: unknown top-level fields are rejected, and
+optional fields that fail their inner schema are reported with the path
+that caused the failure.</p>
+<p>For the canonical export workflow with optional sorting, see
+<a href="export-options.html">Export options</a>. For the read-only fetch endpoint,
+visit <a href="#preview-mode"><code>/config.json</code></a> on the deployed instance.</p>
 
 
 

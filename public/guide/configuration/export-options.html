@@ -1998,6 +1998,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export options
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="export-options.html" class="md-nav__link md-nav__link--active">
         
   
@@ -2014,6 +2032,75 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-export-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Export (Default)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#export-with-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Export with Options...
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Export with Options...">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sort-json-to-match-ui-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sort JSON to match UI order
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filename-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filename format
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2401,64 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-export-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Export (Default)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#export-with-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Export with Options...
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Export with Options...">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sort-json-to-match-ui-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sort JSON to match UI order
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filename-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filename format
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2475,56 @@
 
 
 <h1 id="export-options">Export options<a class="headerlink" href="#export-options" title="Permanent link">&para;</a></h1>
-<p>Options available when exporting the configuration to JSON, including ordering the JSON to match the UI.</p>
+<p>The <strong>Export</strong> action on the <a href="home.html">Home tab</a> is a split menu with two
+entries: a one-click default export, and a dialog for opting in to
+formatting options.</p>
+<p><img alt="Home tab — Export dropdown showing Quick Export (Default) and Export with Options menu items" src="../assets/screenshots/home-export-menu.png" /></p>
+<h2 id="quick-export-default">Quick Export (Default)<a class="headerlink" href="#quick-export-default" title="Permanent link">&para;</a></h2>
+<p>Exports the configuration as JSON immediately, with no transformations.
+The downloaded filename is
+<code>&lt;exportPrefix&gt;_YYYYMMMDD_HHMM.json</code> (the prefix is configured under
+<a href="settings.html#config-export-settings">Settings → Config Export Settings</a>).</p>
+<p>This is the recommended default — the file matches the in-memory
+configuration property-for-property, which is best for diffs and
+round-tripping.</p>
+<h2 id="export-with-options">Export with Options...<a class="headerlink" href="#export-with-options" title="Permanent link">&para;</a></h2>
+<p>Opens a dialog with a single toggle.</p>
+<p><img alt="Export Configuration dialog — Sort JSON to match UI order checkbox with Quick Export and Export with Options buttons" src="../assets/screenshots/export-options-dialog.png" /></p>
+<h3 id="sort-json-to-match-ui-order">Sort JSON to match UI order<a class="headerlink" href="#sort-json-to-match-ui-order" title="Permanent link">&para;</a></h3>
+<p>When enabled (<code>sortToMatchUiOrder: true</code>), the exporter reorders the
+config to make it easier to read in version control and side-by-side with
+the UI. Specifically:</p>
+<ul>
+<li><strong>Sources</strong> are reordered to match the <a href="interface-groups.html">interface group</a>
+  ordering — grouped sources first (in group order), then ungrouped
+  sources, then base layers.</li>
+<li><strong>Services</strong> are reordered by type priority — STAC first, then
+  WMS / WMTS, then S3, then any others, with alphabetical ordering within
+  each group.</li>
+<li><strong>Properties within each source</strong> are written in a fixed order:
+  <code>name</code>, <code>isActive</code>, <code>isBaseLayer</code>, <code>preview</code>, <code>meta</code>, <code>layout</code>,
+  <code>timeframe</code>, <code>defaultTimestamp</code>, <code>exclusivitySets</code>,
+  <code>hasFeatureStatistics</code>, <code>data</code>, <code>statistics</code>, <code>constraints</code>, <code>workflows</code>.</li>
+</ul>
+<p>When disabled (the default), no reordering is applied.</p>
+<p>The dialog has two buttons:</p>
+<ul>
+<li><strong>Quick Export (Default)</strong> — exports immediately with options off,
+  matching the menu's quick path.</li>
+<li><strong>Export with Options</strong> — exports with the chosen options applied.</li>
+</ul>
 <div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
+<p class="admonition-title">Read-only operation</p>
+<p>Sorting only affects the downloaded JSON. The in-memory config and
+the <a href="json-config.html">JSON config</a> tab are not modified.</p>
 </div>
+<h2 id="filename-format">Filename format<a class="headerlink" href="#filename-format" title="Permanent link">&para;</a></h2>
+<p>All exports — quick or with options — produce a filename of the form:</p>
+<div class="highlight"><pre><span></span><code>&lt;exportPrefix&gt;_YYYYMMMDD_HHMM.json
+</code></pre></div>
+<p>For example, <code>config_2026MAY14_1130.json</code>. The month is the three-letter
+uppercase abbreviation. Set the prefix on the
+<a href="settings.html#config-export-settings">Settings tab</a>.</p>
 
 
 

@@ -1970,6 +1970,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Layout
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="layout.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1986,6 +2004,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#layout-variant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout Variant
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#url-override" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL override
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#layout-variant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout Variant
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#url-override" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL override
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2463,79 @@
 
 
 <h1 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h1>
-<p>Choose the global layout variant of the APEx Geospatial Explorer (e.g. left-side panel vs. right-side panel) and other top-level chrome options.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>The <strong>Layout</strong> subsection of the <a href="settings.html">Settings tab</a> controls the
+top-level chrome of the deployed APEx Geospatial Explorer — the <strong>design
+variant</strong> plus any variant-specific parameters. It is persisted on the
+config's <code>layout.design</code> field.</p>
+<p><img alt="Settings tab — Design Variant section showing the Layout Variant dropdown and a Parameters row with position set to right" src="../assets/screenshots/settings-design-variant.png" /></p>
+<h2 id="layout-variant">Layout Variant<a class="headerlink" href="#layout-variant" title="Permanent link">&para;</a></h2>
+<p>Pick one of the predefined UI variants from the dropdown:</p>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fullscreen</code></td>
+<td>Map fills the viewport; layer panel and controls float over the map.</td>
+</tr>
+<tr>
+<td><code>sidebar</code></td>
+<td>Map is paired with a persistent side panel for layers, legends, and information.</td>
+</tr>
+</tbody>
+</table>
+<p>The selected value is written to <code>layout.design.variant</code>.</p>
+<p>Click the trash icon next to the dropdown to clear the design configuration
+entirely. When unset, the deployed Explorer falls back to its built-in
+default variant.</p>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<p>Variants accept an optional bag of key–value parameters that fine-tune
+their behaviour. Each row maps to a property under
+<code>layout.design.parameters</code>.</p>
+<p>The most common parameter is <code>position</code> for the <code>sidebar</code> variant:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Example values</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>position</code></td>
+<td><code>left</code>, <code>right</code></td>
+<td>Which side the sidebar is anchored to.</td>
+</tr>
+</tbody>
+</table>
+<p>Use <strong>+ Add Parameter</strong> to add a new key, edit the key/value inline, and
+click the trash icon to remove it. Parameters are typed as strings in the
+UI; numeric or boolean values that a variant expects can be entered as
+their string representation.</p>
+<h2 id="url-override">URL override<a class="headerlink" href="#url-override" title="Permanent link">&para;</a></h2>
+<p>End users can override the variant at load time via the <code>variant</code> URL
+parameter — for example <code>?variant=fullscreen</code>. See
+<a href="../reference/url-parameters.html">URL parameters</a> for the full list.</p>
+<h2 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>{
+  &quot;layout&quot;: {
+    &quot;design&quot;: {
+      &quot;variant&quot;: &quot;sidebar&quot;,
+      &quot;parameters&quot;: {
+        &quot;position&quot;: &quot;right&quot;
+      }
+    }
+  }
+}
+</code></pre></div>
+<p>Both <code>parameters</code> and the entire <code>design</code> object are optional. The
+<a href="json-config.html">JSON config</a> tab is the easiest place to inspect or paste
+in a <code>design</code> block.</p>
 
 
 
