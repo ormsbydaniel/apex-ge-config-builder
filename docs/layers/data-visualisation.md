@@ -10,14 +10,15 @@ The **Data Visualisation** section of the layer card (Eye icon) is where you con
 
 ## Mutually exclusive styling tools
 
-For each raster layer, only **one** styling tool can be active at a time. The priority order is:
+For each raster layer, only **one** styling tool can be active at a time. The sub-sections appear in the layer card in the same order as the UI:
 
 1. **Categories** — discrete classes with labels and fixed colours
 2. **Colormaps** — continuous gradient applied to a single band
 3. **RGB Composite** — three bands rendered as Red / Green / Blue channels
 4. **Gradient** — simple two-stop gradient
+5. **Vector Styling** — non-exclusive; only applies to vector sources (GeoJSON, FlatGeoBuf, WFS) and can coexist with any raster setting on layers that mix sources
 
-Activating one tool clears the others. **Vector Styling** is non-exclusive: it only applies to vector sources (GeoJSON, FlatGeoBuf, WFS) and can coexist with any raster setting on layers that mix sources.
+Activating one raster tool clears the others.
 
 !!! tip "Why exclusive?"
     A pixel can only be one colour. Letting two raster styling tools run at once would force the renderer to pick one silently, hiding the other from the configuration author.
@@ -26,7 +27,7 @@ Activating one tool clears the others. **Vector Styling** is non-exclusive: it o
 
 Each sub-section shows:
 
-- A **label** (Categories, Colormap, RGB Composite, Vector Style, Gradient)
+- A **label** (Categories, Colormap, RGB Composite, Gradient, Vector Style)
 - A **summary badge** of the current setting (e.g. coloured R/G/B band numbers, colormap swatch, category count)
 - **Pencil** (edit) and **Trash** (clear) icons aligned to the right
 
@@ -36,14 +37,15 @@ Empty sub-sections show an "Add…" affordance instead of the badges.
 
 | Source type | Recommended starting point |
 |---|---|
-| Single-band raster (e.g. NDVI, DEM) | **Colormap** |
 | Categorical raster (land cover, soil class) | **Categories** |
+| Single-band raster (e.g. NDVI, DEM) | **Colormap** |
 | Multi-band imagery (Sentinel-2, Landsat, hyperspectral) | **RGB Composite** |
 | GeoJSON / FlatGeoBuf points or polygons | **Vector Style** + **Vector Fields** |
 
 See the per-tool pages:
 
-- [Categories and colormaps](categories.md)
+- [Categories](categories.md)
+- [Colormaps](colormaps.md)
 - [RGB composite](rgb-composite.md)
 - [Vector styling](vector-styling.md)
 - [Vector fields](vector-fields.md)
