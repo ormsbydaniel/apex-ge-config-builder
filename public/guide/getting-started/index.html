@@ -1043,6 +1043,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#the-main-tabs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The main tabs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#core-concepts" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1126,17 +1137,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-main-tabs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The main tabs
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1168,6 +1168,47 @@
 <p>The Configuration Builder produces a single JSON file — the <strong>config</strong> — that
 fully describes an APEx Geospatial Explorer instance: its branding, layout,
 the services it talks to, and the layers and charts it shows.</p>
+<h2 id="the-main-tabs">The main tabs<a class="headerlink" href="#the-main-tabs" title="Permanent link">&para;</a></h2>
+<p>The top navigation gives you one tab per major concern.</p>
+<p><img alt="The main tab bar across the top of the Configuration Builder" src="../assets/screenshots/main-tabs-bar.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Tab</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><a href="../home/index.html">Home</a></strong></td>
+<td>The project dashboard — load and save configurations, edit project metadata, see what your config contains at a glance, and launch the healthcheck.</td>
+</tr>
+<tr>
+<td><strong><a href="../layers/index.html">Layers</a></strong></td>
+<td>Build the visible content of your APEx Geospatial Explorer — every map layer, its data source(s), how it is styled, and where it appears in the UI.</td>
+</tr>
+<tr>
+<td><strong><a href="../configuration/draw-order.html">Draw Order</a></strong></td>
+<td>Control the front-to-back stacking of layers on the map. Each layer's position here determines its <code>zIndex</code> in the rendered map.</td>
+</tr>
+<tr>
+<td><strong><a href="../services/index.html">Services</a></strong></td>
+<td>Register and validate reusable endpoint definitions (WMS, WMTS, WFS, COG, XYZ, GeoJSON, FlatGeoBuf, CSV, S3, STAC). Layers reference services by name, so you can swap an endpoint URL in one place.</td>
+</tr>
+<tr>
+<td><strong><a href="../settings/index.html">Settings</a></strong></td>
+<td>Top-level configuration that applies to the whole APEx Geospatial Explorer instance: export filename, design variant, navigation defaults, custom CRS, branding, footer links, interface groups, and URL parameters reference.</td>
+</tr>
+<tr>
+<td><strong><a href="../configuration/json-config.html">JSON Config</a></strong></td>
+<td>Inspect the raw configuration document as it would be exported, or paste in a configuration to load. URLs are sanitised in the preview.</td>
+</tr>
+<tr>
+<td><strong><a href="../configuration/preview.html">GE Preview</a></strong></td>
+<td>Run the actual APEx Geospatial Explorer inline using your current config — the fastest way to confirm a layer renders, a colormap looks right, or the layer panel reads sensibly before shipping.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="core-concepts">Core concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
 <h3 id="config">Config<a class="headerlink" href="#config" title="Permanent link">&para;</a></h3>
 <p>The whole document you are editing. You can load one from disk, from a GitHub
@@ -1195,46 +1236,6 @@ distinct part of the config.</p>
 <p>A built-in tool that probes every URL in your config and reports
 per-layer <strong>Data Access</strong> and <strong>Performance</strong> scores. See
 <a href="../services/healthcheck.html">Run Healthcheck</a>.</p>
-<h2 id="the-main-tabs">The main tabs<a class="headerlink" href="#the-main-tabs" title="Permanent link">&para;</a></h2>
-<p>The top navigation gives you one tab per major concern:</p>
-<table>
-<thead>
-<tr>
-<th>Tab</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Home</strong></td>
-<td>Project metadata, config statistics, QA cards, healthcheck entry.</td>
-</tr>
-<tr>
-<td><strong>Layers</strong></td>
-<td>Build the visible content of the APEx Geospatial Explorer.</td>
-</tr>
-<tr>
-<td><strong>Draw Order</strong></td>
-<td>Control which layers render on top of which.</td>
-</tr>
-<tr>
-<td><strong>Services</strong></td>
-<td>Register and validate endpoints.</td>
-</tr>
-<tr>
-<td><strong>Settings</strong></td>
-<td>Layout, interface groups, footer, projections (CRS), advanced options.</td>
-</tr>
-<tr>
-<td><strong>JSON Config</strong></td>
-<td>Inspect or edit the raw configuration document.</td>
-</tr>
-<tr>
-<td><strong>GE Preview</strong></td>
-<td>Run the actual APEx Geospatial Explorer inline using your current config.</td>
-</tr>
-</tbody>
-</table>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="first-config.html">Build your first config</a> — a guided walk-through, from blank canvas to exported JSON.</li>
