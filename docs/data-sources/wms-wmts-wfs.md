@@ -16,7 +16,7 @@ return rendered raster tiles; WFS returns vector features.
   to ship as a single GeoJSON/FlatGeoBuf.
 
 For all three you must add the service first on the
-[Services](../services/overview.md) tab so the builder can read its
+[Services](../services/index.md) tab so the builder can read its
 capabilities.
 
 ## Add a WMS/WMTS/WFS layer

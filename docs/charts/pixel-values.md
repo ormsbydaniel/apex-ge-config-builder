@@ -28,4 +28,4 @@ The **Pixel Values** chart source renders a spectral signature — one trace per
 ## Related
 
 - [COG data sources](../data-sources/cog.md)
-- [Charts overview](overview.md)
+- [Charts overview](index.md)

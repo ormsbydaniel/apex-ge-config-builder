@@ -5,7 +5,7 @@ title: STAC browser
 # STAC browser
 
 A three-level picker over any STAC catalogue or API registered on the
-[Services](../services/overview.md) tab. Walks you from
+[Services](../services/index.md) tab. Walks you from
 **Catalogue → Collection → Item → Asset**.
 
 ## Open the browser

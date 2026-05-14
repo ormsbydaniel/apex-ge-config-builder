@@ -5,7 +5,7 @@ title: Adding layers
 # Adding layers
 
 This page walks through adding a new layer to your configuration. For a
-conceptual overview of layers, see [Layers overview](overview.md).
+conceptual overview of layers, see [Layers overview](index.md).
 
 !!! tip "Follow along"
     Screenshots on this page were taken with the **Comprehensive demo**
@@ -98,7 +98,7 @@ standalone file — a one-off COG, GeoJSON, FlatGeoBuf, CSV, or XYZ template.
 
 ### From an existing service
 
-Pick one of the services declared on the [Services](../services/overview.md) tab.
+Pick one of the services declared on the [Services](../services/index.md) tab.
 The form then offers:
 
 - For **WMS/WMTS/WFS** — a layer/feature picker populated from

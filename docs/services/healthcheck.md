@@ -187,7 +187,7 @@ to look up a previous result.
   Services manager.
 - [Adding services](adding-services.md) — register endpoints that the
   healthcheck can validate against.
-- [Layers → Overview](../layers/overview.md) — where to fix layer-level
+- [Layers → Overview](../layers/index.md) — where to fix layer-level
   configuration once the healthcheck identifies a problem.
 - [Troubleshooting](../reference/troubleshooting.md) — broader recovery tips
   beyond healthcheck-specific errors.

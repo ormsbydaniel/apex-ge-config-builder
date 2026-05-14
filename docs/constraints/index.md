@@ -41,5 +41,5 @@ To expose the slider control set `layout.layerCard.controls.constraintSlider: tr
 
 ## Related
 
-- [Statistics](../statistics/overview.md) — same data-source shape, different role.
+- [Statistics](../statistics/index.md) — same data-source shape, different role.
 - [COG data sources](../data-sources/cog.md)
