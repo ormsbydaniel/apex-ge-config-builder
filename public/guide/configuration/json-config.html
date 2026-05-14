@@ -1131,11 +1131,25 @@
 
 
 <h1 id="json-config">JSON config<a class="headerlink" href="#json-config" title="Permanent link">&para;</a></h1>
-<p>The <strong>JSON Config</strong> tab shows the raw configuration document as it would
-be exported. Use it to inspect the current state, copy values into
-documentation, or paste in a configuration to load. For a field-by-field
-breakdown of every key, see the
-<a href="../reference/json-schema.html">JSON schema reference</a>.</p>
+<p>The <strong>JSON Config</strong> tab exposes the raw configuration document so you can
+view and edit it directly, rather than going through the form-based tabs.
+Use it to inspect the current state, copy values into documentation, or
+paste in a configuration to load.</p>
+<div class="admonition warning">
+<p class="admonition-title">Advanced users only</p>
+<p>Direct JSON editing bypasses the guard-rails of the visual editors
+and is best left to authors who are already comfortable with the
+configuration format and JSON syntax. A single misplaced comma or
+unknown field will cause validation to fail, and structural mistakes
+can leave the configuration in a state that is awkward to recover
+from through the UI. If you are not sure what a field does, prefer
+the dedicated tab for that area.</p>
+<p>Before editing by hand, consult the
+<a href="../reference/json-schema.html">JSON schema reference</a> for a
+field-by-field breakdown of every key, accepted types, and example
+snippets. Keeping it open alongside this tab is the fastest way to
+avoid validation errors.</p>
+</div>
 <p><img alt="JSON Config tab — read-only Configuration Preview with theme toggle and Edit JSON button" src="../assets/screenshots/json-config-tab.png" /></p>
 <p>The tab has two modes: <strong>Preview</strong> (default, read-only) and <strong>Edit</strong>.</p>
 <h2 id="preview-mode">Preview mode<a class="headerlink" href="#preview-mode" title="Permanent link">&para;</a></h2>
