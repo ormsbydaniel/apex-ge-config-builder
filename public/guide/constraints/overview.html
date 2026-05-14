@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/charts/csv-data.html">
+        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/constraints/overview.html">
       
       
-        <link rel="prev" href="field-values.html">
+        <link rel="prev" href="../statistics/overview.html">
       
       
-        <link rel="next" href="../configuration/draw-order.html">
+        <link rel="next" href="../charts/overview.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>CSV data - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>Constraints - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#csv-data" class="md-skip">
+        <a href="#constraints" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              CSV data
+              Constraints
             
           </span>
         </div>
@@ -1322,8 +1322,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -1338,13 +1340,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
         
           
           <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
@@ -1365,7 +1365,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1380,10 +1380,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../constraints/overview.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="overview.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1399,6 +1408,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1415,10 +1425,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -1441,11 +1449,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
         
           
           <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
@@ -1466,7 +1476,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1484,7 +1494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="overview.html" class="md-nav__link">
+      <a href="../charts/overview.html" class="md-nav__link">
         
   
   
@@ -1512,7 +1522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="visual-editor.html" class="md-nav__link">
+      <a href="../charts/visual-editor.html" class="md-nav__link">
         
   
   
@@ -1540,7 +1550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="pixel-values.html" class="md-nav__link">
+      <a href="../charts/pixel-values.html" class="md-nav__link">
         
   
   
@@ -1568,7 +1578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="field-values.html" class="md-nav__link">
+      <a href="../charts/field-values.html" class="md-nav__link">
         
   
   
@@ -1593,19 +1603,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="csv-data.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../charts/csv-data.html" class="md-nav__link">
         
   
   
@@ -1621,7 +1622,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -2329,8 +2329,8 @@
 
 
 
-<h1 id="csv-data">CSV data<a class="headerlink" href="#csv-data" title="Permanent link">&para;</a></h1>
-<p>How dates and numeric columns are detected when a CSV is used as a chart data source.</p>
+<h1 id="constraints">Constraints<a class="headerlink" href="#constraints" title="Permanent link">&para;</a></h1>
+<p>The Constraints section of the layer card defines limits and rules that control when and how a layer can be displayed (for example, zoom range or temporal constraints).</p>
 <div class="admonition note">
 <p class="admonition-title">Coming soon</p>
 <p>Detailed walk-through with screenshots is in progress.</p>

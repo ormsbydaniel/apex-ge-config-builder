@@ -1,45 +1,100 @@
-## Plan
+## Final nav restructure plan
 
-Capture screenshots via the in-app browser and embed them into the nine Phase 1 documentation pages, matching the style of `docs/services/healthcheck.md` (a "Follow along" admonition pointing at the Comprehensive demo, plus inline `![alt](path)` figures with descriptive alt text).
+Apply the revised nav with shorter section labels, and create three new stub pages so the build is clean.
 
-### Pages and screenshots to capture
+### `nav:` to write into `mkdocs.yml`
 
-For each page below, the browser will load the Comprehensive demo, navigate to the relevant tab/dialog, capture, and save to `docs/assets/screenshots/<filename>.png`.
+```text
+- Home: index.md
 
-1. **`configuration/home.md`** — Home tab overview, QA cards close-up, healthcheck launch button.
-   - `home-tab-overview.png`, `home-qa-cards.png`
-2. **`configuration/settings.md`** — Settings tab, branding section, map defaults, CRS list.
-   - `settings-tab.png`, `settings-branding.png`, `settings-crs.png`
-3. **`configuration/interface-groups.md`** — Interface Groups manager, add/edit dialog.
-   - `interface-groups-list.png`, `interface-groups-edit.png`
-4. **`configuration/preview.md`** — GE Preview tab with demo loaded, version switcher.
-   - `ge-preview-loaded.png`, `ge-preview-version-switch.png`
-5. **`services/overview.md`** — Services tab with validated services.
-   - `services-tab.png`, `services-validation-states.png`
-6. **`services/adding-services.md`** — Add Service dialog (WMTS example), validation result.
-   - `services-add-dialog.png`, `services-add-validated.png`
-7. **`layers/overview.md`** — Layers tab showing interface group hierarchy.
-   - `layers-tab-hierarchy.png`
-8. **`layers/adding-layers.md`** — Add Layer flow: data source picker, layer card after add.
-   - `layers-add-datasource.png`, `layers-card-after-add.png`
-9. **`getting-started/first-config.md`** — Step-by-step screenshots aligned with the tutorial steps (load example → add service → add layer → run healthcheck → preview).
-   - `first-config-step1-load.png` through `first-config-step5-preview.png`
+- Getting Started:
+    - Overview: getting-started/overview.md
+    - Build your first config: getting-started/first-config.md
+    - Loading and saving: getting-started/loading-saving.md
 
-### Editing pattern per page
+- Home tab:
+    - Overview: configuration/home.md
+    - Run Healthcheck: services/healthcheck.md
 
-- Add a `!!! tip "Follow along"` admonition near the top (same wording as healthcheck page).
-- Insert each `![alt](../assets/screenshots/<name>.png)` figure immediately after the section it illustrates, with descriptive alt text.
-- Keep all existing prose; only add the admonition and figures.
+- Layers tab:
+    - Overview: layers/overview.md
+    - Interface groups: configuration/interface-groups.md
+    - Adding layers: layers/adding-layers.md
+    - Base layers: layers/base-layers.md
+    - Swipe layers: layers/swipe-layers.md
 
-### Workflow
+- Data sources:
+    - COG: data-sources/cog.md
+    - WMS / WMTS / WFS: data-sources/wms-wmts-wfs.md
+    - XYZ: data-sources/xyz.md
+    - GeoJSON / FlatGeoBuf: data-sources/geojson-flatgeobuf.md
+    - CSV: data-sources/csv.md
+    - S3 browser: data-sources/s3-browser.md
+    - STAC browser: data-sources/stac-browser.md
 
-1. Open the live preview via `browser--navigate_to_sandbox`, load the Comprehensive demo from **Home → Load → Examples**.
-2. For each screenshot: navigate, observe, optionally interact (open dialog, switch tab), `browser--screenshot`, then copy result into `docs/assets/screenshots/`.
-3. Edit each Markdown file to insert the admonition and figures.
-4. Run `mkdocs build` to confirm the guide builds cleanly with all referenced images present.
+- Data visualisation:
+    - Overview: layers/data-visualisation.md
+    - RGB composite: layers/rgb-composite.md
+    - Vector styling: layers/vector-styling.md
+    - Vector fields: layers/vector-fields.md
+    - Categories and colormaps: layers/categories.md
 
-### Notes
+- Statistics:
+    - Overview: statistics/overview.md
 
-- Some states the browser may not be able to reach reliably (mid-validation toasts, transient spinners). For any state that fails after one retry, I'll skip it, finish the rest, and list the missing screenshots at the end so you can capture them manually.
-- All captures use the current preview viewport (1261x853). I won't resize unless a screenshot needs a wider canvas.
-- No source code in `src/` will be modified.
+- Constraints:
+    - Overview: constraints/overview.md
+
+- Charts:
+    - Overview: charts/overview.md
+    - Visual editor: charts/visual-editor.md
+    - Pixel values: charts/pixel-values.md
+    - Field values: charts/field-values.md
+    - CSV data: charts/csv-data.md
+
+- Draw order tab: configuration/draw-order.md
+
+- Services tab:
+    - Overview: services/overview.md
+    - Adding services: services/adding-services.md
+    - Diagnostics: services/diagnostics.md
+    - Recommended services: services/recommended.md
+
+- Settings tab:
+    - Overview: configuration/settings.md
+    - Footer links: configuration/footer-links.md
+    - Layout: configuration/layout.md
+    - Export options: configuration/export-options.md
+
+- JSON config: configuration/json-config.md
+
+- GE Preview tab: configuration/preview.md
+
+- Reference:
+    - URL parameters: reference/url-parameters.md
+    - Tips and shortcuts: reference/keyboard-and-tips.md
+    - Troubleshooting: reference/troubleshooting.md
+    - Authors guide: reference/authors-guide.md
+    - Glossary: reference/glossary.md
+```
+
+### Files to create (stubs, ~10 lines, "Coming soon" admonition matching existing style)
+
+- `docs/statistics/overview.md` — Layer-card Statistics section overview.
+- `docs/constraints/overview.md` — Layer-card Constraints section overview.
+- `docs/configuration/json-config.md` — JSON config tab overview (raw JSON view, validation, copy/paste workflow).
+
+### Files to edit
+
+- `mkdocs.yml` — replace the `nav:` block with the structure above.
+
+### Build verification
+
+- Run `mkdocs build --strict` after the edit to confirm no broken links and that all referenced files exist.
+- Spot-check the rendered sidebar in `public/guide/` to confirm sections appear in the intended order.
+
+### Out of scope
+
+- No content changes to existing pages.
+- No `src/` changes.
+- Future content phases (filling in stubs with screenshots) remain a separate effort.
