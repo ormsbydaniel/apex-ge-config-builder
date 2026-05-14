@@ -98,6 +98,32 @@ nav:
       - Export options: configuration/export-options.md
   - JSON config: configuration/json-config.md
   - GE Preview tab: configuration/preview.md
+  - How-to recipes:
+      - recipes/index.md
+      - Data sources & services:
+          - Add a WMTS service: recipes/add-wmts-service.md
+          - Add a COG from S3: recipes/add-cog-from-s3.md
+          - Load a STAC collection: recipes/load-stac-collection.md
+          - Add a GeoJSON overlay: recipes/add-geojson-overlay.md
+      - Visualisation:
+          - Style a raster with a colormap: recipes/style-raster-with-colormap.md
+          - Build an RGB composite: recipes/build-rgb-composite.md
+          - Style vectors by attribute: recipes/style-vector-by-attribute.md
+          - Configure vector fields: recipes/configure-vector-fields.md
+          - Swipe compare two layers: recipes/swipe-compare-two-layers.md
+      - Organisation & UX:
+          - Group layers into interfaces: recipes/group-layers-into-interfaces.md
+          - Set the default base layer: recipes/set-default-base-layer.md
+          - Customise footer and layout: recipes/customise-footer-and-layout.md
+          - Restrict the map extent: recipes/restrict-map-extent.md
+      - Charts:
+          - Build a chart from CSV: recipes/chart-from-csv.md
+          - Build a spectral signature chart: recipes/spectral-signature-chart.md
+          - Inline pie chart from vector data: recipes/inline-pie-chart-from-vector.md
+      - Lifecycle:
+          - Validate and publish a config: recipes/validate-and-publish.md
+          - Migrate an existing config: recipes/migrate-existing-config.md
+          - Edit JSON directly (safely): recipes/edit-json-directly.md
   - Reference:
       - URL parameters: reference/url-parameters.md
       - JSON schema reference: reference/json-schema.md
