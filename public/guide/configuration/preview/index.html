@@ -601,6 +601,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GE Preview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -617,6 +635,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#opening-ge-preview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opening GE Preview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-loads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What loads
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#top-bar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top bar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version updates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-ge-preview-vs-healthcheck" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use GE Preview vs. healthcheck
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1949,6 +2052,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#opening-ge-preview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opening GE Preview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-loads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What loads
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#top-bar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top bar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version updates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-ge-preview-vs-healthcheck" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use GE Preview vs. healthcheck
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1965,11 +2142,72 @@
 
 
 <h1 id="ge-preview">GE Preview<a class="headerlink" href="#ge-preview" title="Permanent link">&para;</a></h1>
-<p>Run the actual APEx Geospatial Explorer inline using your current configuration. Pick which APEx Geospatial Explorer bundle version to test against.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>The <strong>Preview</strong> tab (rendered as <strong>GE Preview</strong> in the navigation) runs
+the actual APEx Geospatial Explorer inline using your current
+configuration. It is the fastest way to confirm a layer renders, a
+colormap looks right, or the layer panel reads sensibly before you ship a
+config.</p>
+<h2 id="opening-ge-preview">Opening GE Preview<a class="headerlink" href="#opening-ge-preview" title="Permanent link">&para;</a></h2>
+<p>Click the <strong>Preview</strong> tab in the top navigation. Two preconditions:</p>
+<ul>
+<li><strong>No unsaved form changes.</strong> If a layer or service editor is open with
+  unsaved edits, the tab is disabled and a tooltip explains what to save
+  or cancel first.</li>
+<li><strong>A reachable APEx Geospatial Explorer bundle.</strong> The builder lists the
+  bundles available from the configured S3 location. If the list is empty
+  you will see an explanatory error.</li>
+</ul>
+<h2 id="what-loads">What loads<a class="headerlink" href="#what-loads" title="Permanent link">&para;</a></h2>
+<p>GE Preview loads your current in-memory config — the same one the Home tab
+shows statistics for — into a real instance of the APEx Geospatial Explorer
+running in an iframe. No file is written; nothing is uploaded; no export
+step is needed.</p>
+<p>The fields passed to the deployed Explorer are:</p>
+<p><code>version</code>, <code>layout</code>, <code>interfaceGroups</code>, <code>exclusivitySets</code>, <code>services</code>,
+<code>sources</code>, <code>mapConstraints</code>, <code>projections</code>.</p>
+<h2 id="top-bar">Top bar<a class="headerlink" href="#top-bar" title="Permanent link">&para;</a></h2>
+<p>A floating toolbar sits at the top of the preview surface with:</p>
+<ul>
+<li><strong>Back to Config Builder</strong> — returns to the previous tab (your scroll
+  position and edit state are preserved).</li>
+<li><strong>Geospatial Explorer Version</strong> — dropdown of available bundle versions.
+  Switching versions reloads the iframe with the new bundle. Your choice
+  is remembered for next session.</li>
+<li><strong>Loading / Ready</strong> badges — show the bundle status.</li>
+<li><strong>Retry</strong> — appears if loading failed; re-attempts with the same
+  version.</li>
+</ul>
+<h2 id="version-updates">Version updates<a class="headerlink" href="#version-updates" title="Permanent link">&para;</a></h2>
+<p>When you open the tab and a newer bundle version is available than the
+one you last used, an alert offers two choices:</p>
+<ul>
+<li><strong>Update to &lt;new version&gt;</strong> — switches to the latest and remembers
+  the choice.</li>
+<li><strong>Stay on &lt;current version&gt;</strong> — keeps your pinned version. The
+  alert is suppressed for the rest of the session.</li>
+</ul>
+<p>This lets QA work continue against a known version while letting other
+authors pick up new releases automatically.</p>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>GE Preview is a runtime view, not an editor — to change anything, use
+  <strong>Back to Config Builder</strong>.</li>
+<li>Network-dependent layers (WMS, WMTS, COG, S3) are fetched live; if your
+  network or the upstream service is down, those layers will fail to
+  render even though the config is valid.</li>
+<li>Some bundle versions may not support the newest configuration fields.
+  Switching to the latest version usually resolves "feature not available"
+  warnings.</li>
+</ul>
+<h2 id="when-to-use-ge-preview-vs-healthcheck">When to use GE Preview vs. healthcheck<a class="headerlink" href="#when-to-use-ge-preview-vs-healthcheck" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use <a href="../../services/healthcheck/">Run Healthcheck</a> for a structured
+  pass/fail report across every URL.</li>
+<li>Use <strong>GE Preview</strong> when you want to <em>see</em> the result — colour ramps,
+  legend layout, swipe behaviour, basemap interaction.</li>
+</ul>
+<p>A typical loop is <em>edit → save → GE Preview → back → edit → run
+healthcheck → export</em>.</p>
 
 
 

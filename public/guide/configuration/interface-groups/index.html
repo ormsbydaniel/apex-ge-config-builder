@@ -657,6 +657,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interface groups
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -673,6 +691,113 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-they-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where they live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a group
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#renaming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Renaming
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deleting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-occupancy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group occupancy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sub-interface-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-interface groups
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1949,6 +2074,102 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-they-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where they live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a group
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#renaming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Renaming
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deleting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-occupancy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group occupancy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sub-interface-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-interface groups
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1965,11 +2186,57 @@
 
 
 <h1 id="interface-groups">Interface groups<a class="headerlink" href="#interface-groups" title="Permanent link">&para;</a></h1>
-<p>Manage the user-facing groupings (e.g. Land Cover, Soils, Climate) that the APEx Geospatial Explorer's layer panel uses to organise layers.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p><strong>Interface groups</strong> are the user-facing groupings shown at the top level
+of the deployed APEx Geospatial Explorer's layer panel — for example
+<em>Land Cover</em>, <em>Soils</em>, <em>Climate</em>. Every layer card in the config must
+belong to one.</p>
+<h2 id="where-they-live">Where they live<a class="headerlink" href="#where-they-live" title="Permanent link">&para;</a></h2>
+<p>The <strong>Interface Groups</strong> card appears on the <a href="../settings/">Settings</a> tab.</p>
+<p>The card lists every group as a row, in the order the deployed Explorer
+will render them.</p>
+<h2 id="adding-a-group">Adding a group<a class="headerlink" href="#adding-a-group" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Type a name in the <strong>Enter group name</strong> field at the top of the card.</li>
+<li>Press <strong>Enter</strong> or click the <strong>+</strong> button.</li>
+</ol>
+<p>The new group is appended to the bottom of the list. Names are free-form
+but should be short — they appear as section headers in the layer panel.</p>
+<h2 id="reordering">Reordering<a class="headerlink" href="#reordering" title="Permanent link">&para;</a></h2>
+<p>Each row has up/down arrow buttons. The order in this list is the order
+groups appear in the deployed Explorer.</p>
+<ul>
+<li><strong>Single click</strong> ↑ / ↓ — move one position.</li>
+<li><strong>Double click</strong> ↑ / ↓ — jump to the top / bottom.</li>
+<li>The drag handle (⋮⋮) on the left supports drag-and-drop reordering for
+  longer lists.</li>
+</ul>
+<h2 id="renaming">Renaming<a class="headerlink" href="#renaming" title="Permanent link">&para;</a></h2>
+<p>Click the pencil icon on a row to enter rename mode. Edit the value and
+click the green check to confirm or the outline button to cancel. Press
+<strong>Enter</strong> to confirm from the keyboard.</p>
+<p>When you rename a group, every layer card that referenced the old name is
+updated to the new name automatically.</p>
+<h2 id="deleting">Deleting<a class="headerlink" href="#deleting" title="Permanent link">&para;</a></h2>
+<p>Click the red trash-can icon. You will be blocked from deleting a group
+that still contains layers — move or delete the layers first.</p>
+<h2 id="group-occupancy">Group occupancy<a class="headerlink" href="#group-occupancy" title="Permanent link">&para;</a></h2>
+<p>Each row shows a count: <code>(N sources)</code>. This is the number of data sources
+currently assigned to layers in that group, useful as a sanity check
+before deleting or reordering.</p>
+<h2 id="sub-interface-groups">Sub-interface groups<a class="headerlink" href="#sub-interface-groups" title="Permanent link">&para;</a></h2>
+<p>Sub-groups are <strong>not</strong> declared here. They are typed directly into the
+<strong>Sub-interface group</strong> field on each layer card. Any sub-group name used
+on at least one card automatically appears as a folder under its parent
+interface group in the deployed Explorer.</p>
+<p>For the conceptual model see <a href="../../layers/overview/#how-the-tab-is-laid-out">Layers overview → How the tab is laid out</a>.</p>
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Keep the number of top-level groups small (3–6 is ideal). Use sub-groups
+  on individual layer cards for finer-grained organisation.</li>
+<li>Group names are case-sensitive.</li>
+<li>The order in this list also drives the order in the
+  <a href="../draw-order/">Draw Order</a> tab's grouping.</li>
+</ul>
 
 
 

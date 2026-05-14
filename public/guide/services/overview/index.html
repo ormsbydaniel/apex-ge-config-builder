@@ -786,6 +786,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -802,6 +820,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-service-is" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a service is
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-services-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where services live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-service-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported service types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation states
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-services-vs-direct-urls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use services vs. direct URLs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1949,6 +2052,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-service-is" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a service is
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-services-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where services live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-service-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported service types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation states
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-services-vs-direct-urls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use services vs. direct URLs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1965,11 +2142,115 @@
 
 
 <h1 id="services-overview">Services overview<a class="headerlink" href="#services-overview" title="Permanent link">&para;</a></h1>
-<p>The <strong>Services</strong> tab lists every endpoint your config talks to. Each service is a reusable definition (URL plus type) that layers reference by name.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>A <strong>service</strong> is a reusable endpoint definition. Layers reference services
+by name, so you can swap an endpoint URL in one place and have every layer
+that uses it pick up the change.</p>
+<h2 id="what-a-service-is">What a service is<a class="headerlink" href="#what-a-service-is" title="Permanent link">&para;</a></h2>
+<p>A service captures three things:</p>
+<ol>
+<li>The <strong>type</strong> of endpoint (WMS, WMTS, WFS, COG, XYZ, GeoJSON, FlatGeoBuf,
+   CSV, S3 bucket, or STAC catalogue).</li>
+<li>The <strong>URL</strong> to reach it.</li>
+<li>A <strong>name</strong> you choose, used in dropdowns when you build layers.</li>
+</ol>
+<p>For OGC services and STAC catalogues, the builder also performs automatic
+discovery — <code>GetCapabilities</code> for OGC and catalogue metadata for STAC — and
+populates the service name for you.</p>
+<h2 id="where-services-live">Where services live<a class="headerlink" href="#where-services-live" title="Permanent link">&para;</a></h2>
+<p>The <strong>Services</strong> tab lists every service in the current config. The header
+of the <strong>Configured Services</strong> card has three buttons:</p>
+<table>
+<thead>
+<tr>
+<th>Button</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Re-check all</strong></td>
+<td>Re-runs validation against every service (STAC, OGC, S3). Useful after editing endpoints.</td>
+</tr>
+<tr>
+<td><strong>Add Recommended Services</strong></td>
+<td>Bulk-adds a curated list of common public services. See <a href="../recommended/">Recommended services</a>.</td>
+</tr>
+<tr>
+<td><strong>Add Service</strong></td>
+<td>Opens the <strong>Add Service</strong> dialog. See <a href="../adding-services/">Adding services</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>Below the header, each service is shown as a row with its name, URL, type
+badge, and per-service validation status.</p>
+<h2 id="supported-service-types">Supported service types<a class="headerlink" href="#supported-service-types" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Used for</th>
+<th>Discovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>WMS</strong></td>
+<td>Map images served per request from a WMS endpoint.</td>
+<td><code>GetCapabilities</code></td>
+</tr>
+<tr>
+<td><strong>WMTS</strong></td>
+<td>Pre-tiled raster pyramids.</td>
+<td><code>GetCapabilities</code></td>
+</tr>
+<tr>
+<td><strong>WFS</strong></td>
+<td>Vector features served from a WFS endpoint.</td>
+<td><code>GetCapabilities</code></td>
+</tr>
+<tr>
+<td><strong>STAC</strong></td>
+<td>Catalogues of imagery and assets.</td>
+<td>Catalogue root metadata.</td>
+</tr>
+<tr>
+<td><strong>S3</strong></td>
+<td>Public/private S3 buckets containing COG, GeoJSON, FlatGeoBuf, or CSV files.</td>
+<td>Bucket listing.</td>
+</tr>
+<tr>
+<td><strong>JSON or XML upload (beta)</strong></td>
+<td>One-off ingest of a saved capabilities or catalogue document.</td>
+<td>n/a</td>
+</tr>
+</tbody>
+</table>
+<p>Direct-URL data sources (a single COG, GeoJSON, FlatGeoBuf, XYZ, or CSV file)
+do not need a service entry — you can add them straight from the
+<a href="../../layers/adding-layers/">Layers</a> tab.</p>
+<h2 id="validation-states">Validation states<a class="headerlink" href="#validation-states" title="Permanent link">&para;</a></h2>
+<p>Each service shows one of:</p>
+<ul>
+<li><strong>OK</strong> — reachable, returned a valid response.</li>
+<li><strong>Checking…</strong> — a re-check is in flight.</li>
+<li><strong>Failed</strong> — could not reach the endpoint, or the response was unusable.
+  The error message is shown inline.</li>
+</ul>
+<p>Use <strong>Re-check all</strong> after a network change or when you suspect an upstream
+endpoint has moved.</p>
+<h2 id="when-to-use-services-vs-direct-urls">When to use services vs. direct URLs<a class="headerlink" href="#when-to-use-services-vs-direct-urls" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use a <strong>service</strong> when the same endpoint will host more than one layer
+  (the typical case for WMS/WMTS/WFS/STAC/S3) — you get one URL to maintain.</li>
+<li>Use a <strong>direct URL</strong> when the layer is a single standalone file (a one-off
+  COG or GeoJSON). You can still promote it to a service later.</li>
+</ul>
+<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../adding-services/">Adding services</a> — walk-through for adding each type.</li>
+<li><a href="../recommended/">Recommended services</a> — bulk-import the curated list.</li>
+<li><a href="../healthcheck/">Run Healthcheck</a> — validate every service plus every layer.</li>
+</ul>
 
 
 
