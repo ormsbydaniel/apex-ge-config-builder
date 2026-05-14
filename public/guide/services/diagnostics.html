@@ -1787,6 +1787,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="diagnostics.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1803,6 +1821,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-validation-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The validation summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-service-probes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-service probes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure categories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#re-running-probes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-running probes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-validation-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The validation summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-service-probes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-service probes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure categories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#re-running-probes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-running probes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,10 +2463,76 @@
 
 
 <h1 id="service-diagnostics">Service diagnostics<a class="headerlink" href="#service-diagnostics" title="Permanent link">&para;</a></h1>
-<p>Per-service probe results: reachability, GetCapabilities response, transport security, and tile probes. For a config-wide check, see <a href="healthcheck.html">Run Healthcheck</a>.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
+<p>Every service on the <a href="overview.html">Services</a> tab is probed independently so
+you can tell, at a glance, which endpoints are healthy and which are
+failing — without having to run a full layer
+<a href="healthcheck.html">Healthcheck</a>.</p>
+<p><img alt="Configured Services with the validation summary banner showing STAC catalogues 2 of 2 reachable, WMS check in progress 9 of 10, and S3 stores 1 of 1 reachable" src="../assets/screenshots/services-validation-progress.png" /></p>
+<h2 id="the-validation-summary">The validation summary<a class="headerlink" href="#the-validation-summary" title="Permanent link">&para;</a></h2>
+<p>The banner at the top of the <strong>Configured Services</strong> card aggregates
+results across the whole config:</p>
+<ul>
+<li><strong>STAC catalogues</strong> — <code>N of M reachable</code>.</li>
+<li><strong>WMS / WMTS / WFS services</strong> — counts as each <code>GetCapabilities</code> call
+  resolves; a spinner is shown while the batch is still running.</li>
+<li><strong>S3 stores</strong> — <code>N of M reachable</code>.</li>
+</ul>
+<p>A row turns red when a service fails any probe so you can spot it without
+scanning the whole list.</p>
+<h2 id="per-service-probes">Per-service probes<a class="headerlink" href="#per-service-probes" title="Permanent link">&para;</a></h2>
+<p>Each service card runs a focused set of checks for its type:</p>
+<table>
+<thead>
+<tr>
+<th>Service type</th>
+<th>Probes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WMS / WMTS / WFS</td>
+<td>URL well-formed, mixed-content check, network reachability, <code>GetCapabilities</code> parses, layer count populated.</td>
+</tr>
+<tr>
+<td>STAC</td>
+<td>URL well-formed, root document fetch, collection enumeration, total item count.</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>URL well-formed, bucket listing, format detection on listed objects.</td>
+</tr>
+</tbody>
+</table>
+<p>A successful probe attaches a green badge — for example
+<code>27 layers available</code>, <code>85 collections available</code>, or <code>Bucket reachable</code>.
+A failed probe marks the row in red and surfaces a short reason such as
+<strong>Mixed content</strong>, <strong>Timeout</strong>, <strong>HTTP 404</strong>, <strong>Network error</strong>, or
+<strong>Invalid URL</strong>.</p>
+<h2 id="failure-categories">Failure categories<a class="headerlink" href="#failure-categories" title="Permanent link">&para;</a></h2>
+<p>The classifier (see <code>src/utils/serviceDiagnostics.ts</code>) maps low-level
+errors into a short list of human-readable categories:</p>
+<ul>
+<li><strong>invalid-url</strong> — the URL string itself is malformed.</li>
+<li><strong>mixed-content</strong> — an <code>http://</code> endpoint called from an <code>https://</code>
+  builder; the browser blocks the request before it reaches the network.</li>
+<li><strong>network</strong> — DNS failure, offline, CORS, or transport reset.</li>
+<li><strong>timeout</strong> — the request was aborted before the server responded.</li>
+<li><strong>http-error</strong> — the server replied with <code>4xx</code> or <code>5xx</code>.</li>
+<li><strong>parse-error</strong> — the response body was not the expected
+  capabilities / catalogue document.</li>
+</ul>
+<p>The same categories drive the more detailed per-layer breakdown in the
+<a href="healthcheck.html">Run Healthcheck</a> dialog.</p>
+<h2 id="re-running-probes">Re-running probes<a class="headerlink" href="#re-running-probes" title="Permanent link">&para;</a></h2>
+<p>Click <strong>Re-check all</strong> in the card header to clear cached results and
+re-run every probe — useful after editing a URL or after an external
+endpoint has come back online. Probes for an individual service also
+re-run when you edit and save its URL.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>A service that is <strong>reachable but slow</strong> still validates green here.
+Performance grading happens at the layer level — see <a href="healthcheck.html#performance">Run
+Healthcheck</a> for the latency thresholds.</p>
 </div>
 
 

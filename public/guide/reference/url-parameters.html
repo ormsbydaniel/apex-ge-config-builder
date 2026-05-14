@@ -2153,6 +2153,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    URL parameters
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="url-parameters.html" class="md-nav__link md-nav__link--active">
         
   
@@ -2169,6 +2187,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#supported-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syntax-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syntax rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-a-deep-link" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building a deep link
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#supported-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syntax-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syntax rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-a-deep-link" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building a deep link
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,10 +2463,77 @@
 
 
 <h1 id="url-parameters">URL parameters<a class="headerlink" href="#url-parameters" title="Permanent link">&para;</a></h1>
-<p>Initial-state URL parameters supported by the APEx Geospatial Explorer (centre, zoom, active layers, time, etc.).</p>
+<p>A deployed APEx Geospatial Explorer reads a small set of query-string
+parameters on load. These <strong>override</strong> the defaults baked into the
+configuration so you can deep-link to a specific view, layer set, or
+layout without editing the JSON.</p>
+<p>The same reference table is rendered in-app on the <a href="../configuration/settings.html">Settings tab</a>
+so it travels with the config.</p>
+<p><img alt="URL Parameters reference table on the Settings tab listing variant, zoom, layerGroups, and lat/lng with examples" src="../assets/screenshots/settings-url-parameters.png" /></p>
+<h2 id="supported-parameters">Supported parameters<a class="headerlink" href="#supported-parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Example</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>variant=&lt;fullscreen\|standard&gt;</code></td>
+<td><code>&amp;variant=fullscreen</code></td>
+<td>Overrides the <a href="../configuration/layout.html">layout variant</a>. <code>fullscreen</code> hides the chrome around the map; <code>standard</code> shows the configured sidebar.</td>
+</tr>
+<tr>
+<td><code>zoom=&lt;level&gt;</code></td>
+<td><code>&amp;zoom=10</code></td>
+<td>Sets the initial map zoom. Integer in the map's zoom range.</td>
+</tr>
+<tr>
+<td><code>layerGroups=&lt;group-name&gt;</code></td>
+<td><code>&amp;layerGroups=Soils&amp;layerGroups=Cities</code></td>
+<td>Activates one or more <strong>interface groups</strong> at start. Repeat the parameter to enable multiple groups.</td>
+</tr>
+<tr>
+<td><code>lat=&lt;latitude&gt;&amp;lng=&lt;longitude&gt;</code></td>
+<td><code>&amp;lat=52.0&amp;lng=-2.0</code></td>
+<td>Sets the initial map centre. Decimal degrees. Both values must be supplied together.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="syntax-rules">Syntax rules<a class="headerlink" href="#syntax-rules" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The query string must start with <code>?</code>. Subsequent parameters are joined
+  with <code>&amp;</code>.</li>
+<li>Spaces in interface group names must be percent-encoded as <code>%20</code>
+  (<code>Urban Ecosystems</code> → <code>Urban%20Ecosystems</code>).</li>
+<li>Unknown parameters are silently ignored — safe to add tracking or
+  campaign parameters alongside.</li>
+<li>Parameters that fail to parse (for example <code>zoom=abc</code> or
+  <code>lat=999</code>) fall back to the configured default for that field.</li>
+</ul>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<p>Standard URL — uses every default from the config:</p>
+<div class="highlight"><pre><span></span><code>https://explorer.sef-ecosystems.apex.esa.int/
+</code></pre></div>
+<p>Parameterised URL — open in fullscreen, with two interface groups
+active, centred at 43°N 22°E and zoomed to level 6:</p>
+<div class="highlight"><pre><span></span><code>https://explorer.sef-ecosystems.apex.esa.int/?&amp;layerGroups=Urban%20Ecosystems&amp;layerGroups=Coastal%20Ecosystems&amp;zoom=6&amp;lat=43.0&amp;lng=22.0
+</code></pre></div>
+<h2 id="building-a-deep-link">Building a deep link<a class="headerlink" href="#building-a-deep-link" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Configure the view you want in the explorer (active groups, centre,
+   zoom).</li>
+<li>Read the resulting URL parameters from the address bar — the explorer
+   keeps <code>lat</code>, <code>lng</code>, and <code>zoom</code> in sync as you pan and zoom.</li>
+<li>Copy that URL as your share / bookmark / embed link.</li>
+</ol>
 <div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
+<p class="admonition-title">Layer-level state</p>
+<p>Per-layer toggles (visibility, opacity, time slider position) are
+<strong>not</strong> part of the URL parameter contract today. Use interface
+groups to express "open this collection of layers".</p>
 </div>
 
 

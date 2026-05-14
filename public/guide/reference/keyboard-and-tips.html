@@ -2181,6 +2181,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tips and shortcuts
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="keyboard-and-tips.html" class="md-nav__link md-nav__link--active">
         
   
@@ -2197,6 +2215,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tooltips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tooltips
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#double-click-to-zoom-to-bounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Double-click to zoom to bounds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compact-move-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compact move controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unsaved-changes-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unsaved changes guard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-long-urls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with long URLs
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2417,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tooltips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tooltips
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#double-click-to-zoom-to-bounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Double-click to zoom to bounds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compact-move-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compact move controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unsaved-changes-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unsaved changes guard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-long-urls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with long URLs
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2507,83 @@
 
 
 <h1 id="tips-and-shortcuts">Tips and shortcuts<a class="headerlink" href="#tips-and-shortcuts" title="Permanent link">&para;</a></h1>
-<p>Tooltip timing rules, double-click-to-zoom-to-bounds, compact move controls, and other small UX details.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>Small UX details that are easy to miss but pay off once you know them.</p>
+<h2 id="tooltips">Tooltips<a class="headerlink" href="#tooltips" title="Permanent link">&para;</a></h2>
+<p>Most icon-only controls have descriptive tooltips. To keep the UI quiet
+during normal use, tooltips follow two rules:</p>
+<ul>
+<li><strong>400 ms hover delay</strong> before they appear, so glancing past a control
+  does not flash a tooltip.</li>
+<li><strong>2-second auto-hide</strong> while the cursor is still over the control, so
+  the tooltip does not block what you are trying to read underneath.</li>
+</ul>
+<p>Move off the control and back on to bring the tooltip back.</p>
+<h2 id="double-click-to-zoom-to-bounds">Double-click to zoom to bounds<a class="headerlink" href="#double-click-to-zoom-to-bounds" title="Permanent link">&para;</a></h2>
+<p>Anywhere a layer or data source has a known bounding box (COG, WMS layer,
+GeoJSON, FlatGeoBuf, S3 object, STAC item), <strong>double-click</strong> the move
+controls beside it to zoom the embedded preview straight to that
+extent — no manual pan/zoom required.</p>
+<p>This is the same gesture used in:</p>
+<ul>
+<li>The <strong>GE Preview</strong> tab when iterating on layer styling.</li>
+<li>The <strong>STAC browser</strong> item list.</li>
+<li>The <strong>S3 browser</strong> when previewing a COG.</li>
+</ul>
+<h2 id="compact-move-controls">Compact move controls<a class="headerlink" href="#compact-move-controls" title="Permanent link">&para;</a></h2>
+<p>The up / down / pin buttons next to layers and groups stack vertically in
+the <strong>compact</strong> layout to keep wide cards readable on smaller windows.
+The button hit area stays the same — only the visual stack changes — so
+muscle memory carries over from the spacious layout.</p>
+<h2 id="unsaved-changes-guard">Unsaved changes guard<a class="headerlink" href="#unsaved-changes-guard" title="Permanent link">&para;</a></h2>
+<p>The builder tracks an <code>isDirty</code> flag on every editor dialog. If you try
+to:</p>
+<ul>
+<li>Close a dialog with unsaved edits,</li>
+<li>Switch tabs while an editor is dirty,</li>
+<li>Load a different config without exporting first,</li>
+</ul>
+<p>you will see a confirmation prompt rather than losing the work
+silently. <strong>Cancel</strong> the prompt to return to the editor; <strong>Discard</strong> to
+throw the edits away and continue.</p>
+<h2 id="keyboard">Keyboard<a class="headerlink" href="#keyboard" title="Permanent link">&para;</a></h2>
+<p>The builder relies on standard browser keyboard behaviour rather than
+custom shortcuts:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Tab</code> / <code>Shift+Tab</code></td>
+<td>Move between form fields and buttons.</td>
+</tr>
+<tr>
+<td><code>Enter</code></td>
+<td>Submit a focused form / confirm a dialog's primary button.</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Close the topmost dialog or popover.</td>
+</tr>
+<tr>
+<td><code>Ctrl/Cmd+F</code></td>
+<td>Browser search — works against the JSON Config tab to find a key fast.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="working-with-long-urls">Working with long URLs<a class="headerlink" href="#working-with-long-urls" title="Permanent link">&para;</a></h2>
+<p>Service URLs, S3 paths, and STAC self-links are often very long. The UI:</p>
+<ul>
+<li>Truncates the middle of the URL with an ellipsis,</li>
+<li>Shows the full URL on hover,</li>
+<li>Clicks through to the original resource (or to an external STAC
+  browser, where applicable).</li>
+</ul>
+<p>See the relevant <a href="../data-sources/stac-browser.html">signed URL handling</a>
+notes if you are pasting pre-signed S3 URLs.</p>
 
 
 

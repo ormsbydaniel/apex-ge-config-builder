@@ -2209,6 +2209,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="troubleshooting.html" class="md-nav__link md-nav__link--active">
         
   
@@ -2225,6 +2243,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#loading-a-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loading a config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Services tab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layers-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layers tab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data visualisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preview-explorer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preview / explorer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-all-else-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When all else fails
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2417,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#loading-a-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loading a config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Services tab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layers-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layers tab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data visualisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preview-explorer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preview / explorer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-all-else-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When all else fails
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2507,83 @@
 
 
 <h1 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h1>
-<p>Common errors when loading, validating, and previewing a configuration. For healthcheck-specific errors, see <a href="../services/healthcheck.html#common-failure-modes-and-what-to-do">Run Healthcheck → Common failure modes</a>.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>Common problems when loading, editing, validating, and previewing a
+configuration, and the fastest fix for each. For per-layer healthcheck
+failures, jump straight to
+<a href="../services/healthcheck.html#common-failure-modes-and-what-to-do">Run Healthcheck → Common failure modes</a>.</p>
+<h2 id="loading-a-config">Loading a config<a class="headerlink" href="#loading-a-config" title="Permanent link">&para;</a></h2>
+<p><strong>"Invalid configuration" toast on Load</strong>
+The JSON parsed but failed Zod schema validation. Open the
+<a href="../configuration/json-config.html">JSON Config tab</a>, switch to <strong>Edit
+mode</strong>, and re-apply — the validation panel lists the exact offending
+field path. Most often: a renamed enum value, a removed deprecated
+field, or a missing required <code>id</code>.</p>
+<p><strong>Config loads but layers are missing</strong>
+Layers reference services and sources by name. If a service or source is
+absent, the layer is silently skipped during sanitisation. Check the
+<strong>Services</strong> and <strong>Layers → Adding layers</strong> tabs to confirm the
+referenced names exist verbatim (case-sensitive).</p>
+<p><strong>"Unsaved changes" prompt on every Load</strong>
+You have an editor dialog open with edits in flight. Close or save the
+dialog first — see <a href="keyboard-and-tips.html#unsaved-changes-guard">Unsaved changes guard</a>.</p>
+<h2 id="services-tab">Services tab<a class="headerlink" href="#services-tab" title="Permanent link">&para;</a></h2>
+<p><strong>Service shows red — Mixed content</strong>
+The builder is served over <code>https://</code> and the service URL is <code>http://</code>.
+The browser blocks the request before it leaves the page. Ask the
+service owner for an HTTPS endpoint, or proxy the service.</p>
+<p><strong>Service shows red — Network error</strong>
+Most often a CORS denial. Open the browser DevTools console; if you see
+<code>No 'Access-Control-Allow-Origin' header</code>, the server must be configured
+to allow the builder's origin.</p>
+<p><strong>Service shows red — Timeout</strong>
+The endpoint is reachable but slow to respond to <code>GetCapabilities</code> /
+catalogue calls. Retry with <strong>Re-check all</strong>. If it persists, the server
+is over-loaded or firewalled — escalate to the service owner.</p>
+<p><strong>STAC catalogue reports "0 collections"</strong>
+The root document parsed but contains no <code>collections</code> link. Confirm you
+pasted the catalogue root and not a single collection or item URL — the
+<a href="../data-sources/stac-browser.html">STAC browser</a> page covers the
+expected URL shapes.</p>
+<h2 id="layers-tab">Layers tab<a class="headerlink" href="#layers-tab" title="Permanent link">&para;</a></h2>
+<p><strong>Layer disappears after editing</strong>
+Saving a layer with no source assigned strips it from the active
+config. Re-add the source on the layer card before saving.</p>
+<p><strong>Categories or colormap not applied</strong>
+Both must be defined in <code>meta</code> first. See
+<a href="../layers/categories.html">Categories and colormaps</a>. If the meta entry
+exists but is not picked up, check the <strong>Vector styling</strong> or
+<strong>RGB composite</strong> section is set to reference the correct meta name.</p>
+<h2 id="data-visualisation">Data visualisation<a class="headerlink" href="#data-visualisation" title="Permanent link">&para;</a></h2>
+<p><strong>RGB composite shows a black tile</strong>
+The min/max range is wrong for the data. Open the <strong>Advanced settings</strong>
+on the RGB composite section and widen the range, or click <strong>Auto</strong> to
+sample from the visible viewport — see
+<a href="../layers/rgb-composite.html">RGB composite</a>.</p>
+<p><strong>Pixel-values chart is empty</strong>
+The layer must use a COG data source with at least two bands. The
+<a href="../charts/pixel-values.html">Pixel values</a> page lists the validation
+warnings the chart raises when this is not the case.</p>
+<h2 id="preview-explorer">Preview / explorer<a class="headerlink" href="#preview-explorer" title="Permanent link">&para;</a></h2>
+<p><strong>Preview tab is blank</strong>
+The viewer iframe failed to load. Check the browser console for a
+<code>viewer.js</code> error and confirm the bundle version is reachable in
+<code>/viewer/&lt;version&gt;/</code>. See the <a href="../configuration/preview.html">GE Preview tab</a>
+for version pinning.</p>
+<p><strong>Deep link parameters do nothing</strong>
+Most likely a typo in the parameter name or missing <code>&amp;</code> separator.
+Re-read the <a href="url-parameters.html">URL parameters reference</a> — unknown
+parameters are silently ignored.</p>
+<h2 id="when-all-else-fails">When all else fails<a class="headerlink" href="#when-all-else-fails" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Run <a href="../services/healthcheck.html">Run Healthcheck</a> to get a
+   per-layer Data Access and Performance breakdown.</li>
+<li>Export the config from the <strong>Home</strong> tab and inspect the JSON
+   directly — the <a href="../configuration/json-config.html">JSON Config tab</a> is
+   useful for spotting structural drift between similar layers.</li>
+<li>Reproduce against the <strong>Comprehensive demo</strong> example (Home → Load
+   → Examples) to determine if the issue is config-specific or
+   builder-wide.</li>
+</ol>
 
 
 

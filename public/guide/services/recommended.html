@@ -1815,6 +1815,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recommended services
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="recommended.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1831,6 +1849,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#opening-the-dialog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opening the dialog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selecting-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selecting services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-gets-added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What gets added
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use it
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#opening-the-dialog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opening the dialog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selecting-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selecting services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-gets-added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What gets added
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use it
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2463,43 @@
 
 
 <h1 id="recommended-services">Recommended services<a class="headerlink" href="#recommended-services" title="Permanent link">&para;</a></h1>
-<p>Browse the curated catalogue of recommended services and add them to your config in one click.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>The <strong>Add Recommended Services</strong> dialog is a one-click way to seed a new
+configuration with a curated catalogue of public APEx-friendly endpoints —
+STAC catalogues, OGC WMS servers, and S3 buckets that are known to validate
+cleanly in the builder.</p>
+<h2 id="opening-the-dialog">Opening the dialog<a class="headerlink" href="#opening-the-dialog" title="Permanent link">&para;</a></h2>
+<p>On the <a href="overview.html">Services</a> tab, click <strong>Add Recommended Services</strong> in
+the <strong>Configured Services</strong> card header.</p>
+<p><img alt="Add Recommended Services dialog with twelve services pre-selected, showing STAC and WMS badges" src="../assets/screenshots/services-recommended-modal.png" /></p>
+<p>The dialog lists every recommended service that is <strong>not already present</strong>
+in the current config — services you have already added are filtered out so
+they cannot be duplicated.</p>
+<h2 id="selecting-services">Selecting services<a class="headerlink" href="#selecting-services" title="Permanent link">&para;</a></h2>
+<ul>
+<li>All entries are <strong>selected by default</strong>. Use the <strong>Deselect All / Select
+  All</strong> checkbox in the header to flip the whole list at once.</li>
+<li>Each row shows the service <strong>name</strong>, <strong>type badge</strong> (STAC, WMS, S3), and
+  <strong>URL</strong>. Click the row checkbox to include or exclude an individual
+  service.</li>
+<li>The footer button label updates as you toggle (<code>Add 12 Services</code>,
+  <code>Add 3 Services</code>, etc.). The button is disabled when nothing is selected.</li>
+</ul>
+<h2 id="what-gets-added">What gets added<a class="headerlink" href="#what-gets-added" title="Permanent link">&para;</a></h2>
+<p>Confirming inserts each selected service into <code>config.services</code> with its
+recommended <code>name</code>, <code>url</code>, <code>sourceType</code>, and <code>format</code>. After insertion the
+builder immediately runs the same validation pipeline used by <strong>Re-check
+all</strong> — STAC <code>GetCapabilities</code>-equivalent calls, OGC <code>GetCapabilities</code>, and
+S3 listings — so the new services pick up reachability and capability
+metadata without a page reload.</p>
+<p>If a recommended service later becomes unreachable or moves, edit it from
+the <strong>Services</strong> tab like any other entry; nothing about a "recommended"
+service is special after it is added.</p>
+<h2 id="when-to-use-it">When to use it<a class="headerlink" href="#when-to-use-it" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Bootstrapping a brand-new config so you have working layers to play with.</li>
+<li>Reproducing a healthcheck issue against a known-good baseline.</li>
+<li>Comparing your own service performance against the public set.</li>
+</ul>
 
 
 
