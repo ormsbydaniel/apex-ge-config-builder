@@ -1,0 +1,7 @@
+/* Match the APEx Config Builder app header teal */
+:root {
+  --md-primary-fg-color: #043346;
+  --md-primary-fg-color--light: #0a4a63;
+  --md-primary-fg-color--dark: #02212e;
+  --md-accent-fg-color: #0a8aa8;
+}
