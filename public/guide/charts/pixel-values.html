@@ -1549,6 +1549,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pixel values
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="pixel-values.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1565,6 +1583,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2463,30 @@
 
 
 <h1 id="pixel-values">Pixel values<a class="headerlink" href="#pixel-values" title="Permanent link">&para;</a></h1>
-<p>Render spectral signatures from multi-band COGs as line charts.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>The <strong>Pixel Values</strong> chart source renders a spectral signature — one trace per pixel sample, with band index on the X axis and pixel value on the Y axis — from a multi-band Cloud Optimized GeoTIFF on the layer.</p>
+<p><img alt="Pixel Values selected with no COG warning" src="../assets/screenshots/chart-pixel-values-empty.png" /></p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Hyperspectral or multi-band imagery (Sentinel-2, Landsat, EnMAP, PRISMA).</li>
+<li>Letting users click a pixel and see its full spectral profile.</li>
+</ul>
+<h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Add at least one COG data source to the layer's <strong>Datasets</strong> tab. The Pixel Values source type is disabled until a COG is present.</li>
+<li>In the layer's <strong>Charts</strong> tab, click <strong>Add Chart</strong> and choose <strong>Pixel Values</strong>.</li>
+<li>The X axis is auto-populated with band labels read from the COG metadata (or <code>Band 1, Band 2, …</code> if no labels are available).</li>
+<li>Each Y trace represents one sampled pixel; the runtime adds a trace per click on the map.</li>
+</ol>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Performance guards limit metadata reads on very large hyperspectral COGs — see the COG performance guards memory.</li>
+<li>BSQ-interleaved COGs are detected and downloaded band-by-band; BIP COGs stream all bands together.</li>
+</ul>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../data-sources/cog.html">COG data sources</a></li>
+<li><a href="overview.html">Charts overview</a></li>
+</ul>
 
 
 

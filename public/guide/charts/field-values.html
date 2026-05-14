@@ -1577,6 +1577,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="field-values.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1593,6 +1611,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2463,30 @@
 
 
 <h1 id="field-values">Field values<a class="headerlink" href="#field-values" title="Permanent link">&para;</a></h1>
-<p>Build inline pie charts from GeoJSON or FlatGeoBuf properties via the Field Values selector.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>The <strong>Field Values</strong> chart source builds inline pie charts from selected properties of a GeoJSON or FlatGeoBuf vector dataset on the layer. There is no external CSV; the values are read from the feature itself when the user clicks it.</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li>A vector dataset where each feature carries multiple numeric breakdown columns (e.g. land-cover percentages, voting shares, sector mix per polygon).</li>
+<li>You want a pie chart per feature in the info panel without serving a separate CSV.</li>
+</ul>
+<h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
+<ol>
+<li>The layer must have a GeoJSON or FlatGeoBuf data source on the <strong>Datasets</strong> tab.</li>
+<li>In the layer's <strong>Charts</strong> tab, click <strong>Add Chart</strong> and choose <strong>Field Values</strong>.</li>
+<li>The <strong>Field Values selector</strong> dialog opens, listing every property detected on the dataset. Tick the properties to include as pie slices.</li>
+<li>The selected names are stored in <code>charts[].sources[0].fields</code> with <code>type: "inline"</code>.</li>
+</ol>
+<p>The runtime reads each selected property from the clicked feature and builds the pie at view time, using the trace styling from the visual editor.</p>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Property auto-detection uses the FlatGeoBuf header where available, or samples the first feature for GeoJSON.</li>
+<li>Non-numeric properties are filtered out of the picker.</li>
+</ul>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../data-sources/geojson-flatgeobuf.html">GeoJSON / FlatGeoBuf data sources</a></li>
+<li><a href="../layers/vector-fields.html">Vector fields</a> — controlling info-panel display of the same properties.</li>
+</ul>
 
 
 

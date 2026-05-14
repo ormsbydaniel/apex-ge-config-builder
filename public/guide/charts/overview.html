@@ -1493,6 +1493,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="overview.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1509,6 +1527,58 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#source-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-chart-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported chart types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2384,47 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#source-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-chart-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported chart types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2441,48 @@
 
 
 <h1 id="charts-overview">Charts overview<a class="headerlink" href="#charts-overview" title="Permanent link">&para;</a></h1>
-<p>Supported chart types (Line, Area, Bar) and the editor surface.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>Charts are added per-layer from the <strong>Charts</strong> tab in the Data Sources section of the layer card. They render with Plotly and appear next to the layer in the APEx Geospatial Explorer when a user opens the info panel or selects a feature.</p>
+<p><img alt="Add Chart Source dialog with the four data source types" src="../assets/screenshots/chart-add-source-types.png" /></p>
+<h2 id="source-types">Source types<a class="headerlink" href="#source-types" title="Permanent link">&para;</a></h2>
+<p>A chart pulls data from one of four sources:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Use for</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Direct Connection</strong></td>
+<td>A CSV at a known URL</td>
+<td>Simplest case; the URL is fetched at runtime.</td>
+</tr>
+<tr>
+<td><strong>From Service</strong></td>
+<td>A configured backend service that returns CSV/JSON</td>
+<td>Pick a service registered in the Services tab.</td>
+</tr>
+<tr>
+<td><strong>Pixel Values</strong></td>
+<td>Spectral signature from a multi-band COG</td>
+<td>Requires at least one COG data source on the layer. See <a href="pixel-values.html">Pixel values</a>.</td>
+</tr>
+<tr>
+<td><strong>Field Values</strong></td>
+<td>Counts/sums from GeoJSON or FlatGeoBuf properties</td>
+<td>Used for inline pie charts. See <a href="field-values.html">Field values</a>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="supported-chart-types">Supported chart types<a class="headerlink" href="#supported-chart-types" title="Permanent link">&para;</a></h2>
+<p>The visual editor currently supports <strong>Line</strong>, <strong>Area</strong>, and <strong>Bar</strong> for <code>chartType: xy</code>, plus <strong>Pie</strong> charts for the <code>Field Values</code> source. Histogram support exists in the schema but is not yet exposed in the editor UI.</p>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="visual-editor.html">Visual editor</a> — building traces and styling them.</li>
+<li><a href="csv-data.html">CSV data</a> — date detection and numeric parsing rules.</li>
+</ul>
 
 
 

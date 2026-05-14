@@ -1605,6 +1605,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV data
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="csv-data.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1621,6 +1639,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#date-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Date detection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#numeric-parsing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numeric parsing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#header-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Header handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#date-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Date detection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#numeric-parsing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numeric parsing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#header-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Header handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2463,22 @@
 
 
 <h1 id="csv-data">CSV data<a class="headerlink" href="#csv-data" title="Permanent link">&para;</a></h1>
-<p>How dates and numeric columns are detected when a CSV is used as a chart data source.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>When a chart source is <strong>Direct Connection</strong> or <strong>From Service</strong> and returns CSV, the editor parses the file once and types each column before exposing it to the visual editor.</p>
+<h2 id="date-detection">Date detection<a class="headerlink" href="#date-detection" title="Permanent link">&para;</a></h2>
+<p>A column is treated as a date axis (<code>xaxis.type: date</code>) when its values parse cleanly as ISO 8601 dates, <code>YYYY-MM-DD</code>, or common Plotly-friendly date strings. Mixed numeric/date columns fall back to category.</p>
+<h2 id="numeric-parsing">Numeric parsing<a class="headerlink" href="#numeric-parsing" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Empty cells become <code>null</code> (gaps in the trace, not zeros).</li>
+<li>Strings with thousands separators (<code>1,234.5</code>) are normalised before parsing.</li>
+<li>Columns where every non-empty cell is a finite number are tagged numeric and shown in the Y picker; mixed columns appear only in the X picker.</li>
+</ul>
+<h2 id="header-handling">Header handling<a class="headerlink" href="#header-handling" title="Permanent link">&para;</a></h2>
+<p>The first row is always treated as the header. Header names are used verbatim as trace <code>name</code> and axis <code>title.text</code> defaults — rename them in the source CSV rather than the editor when you can, so multiple charts stay consistent.</p>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="overview.html">Charts overview</a></li>
+<li><a href="visual-editor.html">Visual editor</a></li>
+</ul>
 
 
 
