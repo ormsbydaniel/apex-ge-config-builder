@@ -53,7 +53,7 @@ nav:
       - Build your first config: getting-started/first-config.md
       - Loading and saving: getting-started/loading-saving.md
   - Home tab:
-      - configuration/home.md
+      - home/index.md
       - Run Healthcheck: services/healthcheck.md
   - Layers tab:
       - layers/index.md
@@ -91,7 +91,7 @@ nav:
       - Diagnostics: services/diagnostics.md
       - Recommended services: services/recommended.md
   - Settings tab:
-      - configuration/settings.md
+      - settings/index.md
       - Footer links: configuration/footer-links.md
       - Layout: configuration/layout.md
       - Export options: configuration/export-options.md
