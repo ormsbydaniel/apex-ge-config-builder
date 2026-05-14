@@ -8,9 +8,6 @@ The Configuration Builder produces a single JSON file — the **config** — tha
 fully describes an APEx Geospatial Explorer instance: its branding, layout,
 the services it talks to, and the layers and charts it shows.
 
-![The Configuration Builder produces a JSON config, hosted in a GitHub repository, which configures the APEx Geospatial Explorer for end users.](../assets/builder-explorer-flow.png)
-*The EO Project Team uses the Configuration Builder to author a JSON config (data sources, visualisation, functionality, content, settings). The config is hosted in a GitHub repository and consumed by the APEx Geospatial Explorer to deliver the configured experience to end users.*
-
 ## Core concepts
 
 ### Config
