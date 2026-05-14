@@ -8,6 +8,13 @@ The **Home** tab is the project dashboard. It is where you load and save
 configurations, edit project metadata, see what your config contains at a
 glance, and launch the healthcheck.
 
+!!! tip "Follow along"
+    Screenshots on this page were taken with the **Comprehensive demo**
+    config loaded. Load it from **Home → Load → Examples → Comprehensive
+    demo** to reproduce them.
+
+![Home tab with the Comprehensive demo loaded — Project card on the left, Config Quality Assurance card on the right](../assets/screenshots/home-tab-overview.png)
+
 ## Layout
 
 The tab is split into two equal cards.

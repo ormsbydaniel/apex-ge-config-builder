@@ -9,6 +9,13 @@ whole APEx Geospatial Explorer instance: export filename, design variant,
 navigation defaults, custom Coordinate Reference Systems (CRS), branding,
 footer links, and URL parameters reference.
 
+!!! tip "Follow along"
+    Screenshots on this page were taken with the **Comprehensive demo**
+    config loaded. Load it from **Home → Load → Examples → Comprehensive
+    demo** to reproduce them.
+
+![Settings tab — top of the page showing Config Export Settings, Design Variant, and Navigation Settings](../assets/screenshots/settings-tab.png)
+
 The tab is one long card, organised into subsections. Each subsection is
 covered below.
 
@@ -69,6 +76,8 @@ Two controls:
 Adding a custom CRS opens a dialog asking for an EPSG-style code and a
 proj4 string. Once added, it becomes available in the **Default CRS**
 dropdown and to every layer in the config.
+
+![Settings tab — Map centre, Zoom slider, and Coordinate Reference System controls with the Branding section visible below](../assets/screenshots/settings-map-and-crs.png)
 
 ## Branding Settings
 
