@@ -265,6 +265,7 @@ const ConfigBuilderContent = () => {
                 </Tooltip>
               </TooltipProvider>
             </TabsList>
+            {/* User Guide button hidden pre-launch — restore when ready to share with end users.
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -282,6 +283,7 @@ const ConfigBuilderContent = () => {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
