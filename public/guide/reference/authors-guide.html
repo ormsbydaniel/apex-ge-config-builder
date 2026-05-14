@@ -2288,6 +2288,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#common-edits-where-things-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common edits — where things live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#screenshot-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Screenshot conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#editing-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2452,6 +2474,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#common-edits-where-things-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common edits — where things live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#screenshot-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Screenshot conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#editing-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2570,6 +2614,48 @@ sources in <code>docs/</code> and publishing the rendered site to GitHub.</p>
 under <code>docs/</code>, the build output lands in <code>public/guide/</code>, and both are
 committed to the same repository so the published Lovable app can serve the
 guide directly from <code>/guide/</code>.</p>
+<h2 id="common-edits-where-things-live">Common edits — where things live<a class="headerlink" href="#common-edits-where-things-live" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>You want to…</th>
+<th>Edit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fix a typo or rewrite a paragraph</td>
+<td>The relevant <code>.md</code> under <code>docs/</code>. Filenames mirror the URL path.</td>
+</tr>
+<tr>
+<td>Add a new page</td>
+<td>Create the <code>.md</code> file, then add it to <code>nav:</code> in <code>mkdocs.yml</code>.</td>
+</tr>
+<tr>
+<td>Add a screenshot</td>
+<td>Use <code>scripts/add-screenshot.sh &lt;source.png&gt; &lt;kebab-name&gt;</code> — it copies into both <code>docs/assets/screenshots/</code> and <code>public/guide/assets/screenshots/</code>. See <a href="#screenshot-conventions">Screenshot conventions</a> below.</td>
+</tr>
+<tr>
+<td>Change the left-hand nav order or labels</td>
+<td>The <code>nav:</code> block in <code>mkdocs.yml</code>.</td>
+</tr>
+<tr>
+<td>Change site theme, colours, plugins</td>
+<td>The top of <code>mkdocs.yml</code> (<code>theme:</code>, <code>markdown_extensions:</code>, <code>plugins:</code>).</td>
+</tr>
+<tr>
+<td>Update the rendered HTML served by the live app</td>
+<td>Run <code>./build-docs.sh --push</code>, then <strong>Publish → Update</strong> in Lovable.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="screenshot-conventions">Screenshot conventions<a class="headerlink" href="#screenshot-conventions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>File names are <strong>kebab-case</strong>, descriptive, scoped to the feature: <code>layer-card-edit-top.png</code>, <code>chart-pixel-values-empty.png</code>.</li>
+<li>Files live in <code>docs/assets/screenshots/</code> and are mirrored to <code>public/guide/assets/screenshots/</code>. The <code>scripts/add-screenshot.sh</code> helper does both copies in one step.</li>
+<li>Reference them from Markdown with a relative <code>../assets/screenshots/&lt;name&gt;.png</code> path and an alt text that describes the visible UI state, not just the feature name.</li>
+<li>Capture against the <strong>Comprehensive demo</strong> config when possible, so screenshots stay consistent across pages.</li>
+</ul>
 <h2 id="editing-workflow">Editing workflow<a class="headerlink" href="#editing-workflow" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Edit Markdown files under <code>docs/</code> (typically inside Lovable, or directly in
