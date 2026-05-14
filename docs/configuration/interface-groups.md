@@ -15,7 +15,7 @@ belong to one.
 
 ## Where they live
 
-The **Interface Groups** card appears on the [Settings](settings.md) tab.
+The **Interface Groups** card appears on the [Settings](../settings/index.md) tab.
 
 The card lists every group as a row, in the order the deployed Explorer
 will render them.

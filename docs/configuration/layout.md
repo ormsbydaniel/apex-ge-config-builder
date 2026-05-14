@@ -4,7 +4,7 @@ title: Layout
 
 # Layout
 
-The **Layout** subsection of the [Settings tab](settings.md) controls the
+The **Layout** subsection of the [Settings tab](../settings/index.md) controls the
 top-level chrome of the deployed APEx Geospatial Explorer — the **design
 variant** plus any variant-specific parameters. It is persisted on the
 config's `layout.design` field.

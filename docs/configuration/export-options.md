@@ -4,7 +4,7 @@ title: Export options
 
 # Export options
 
-The **Export** action on the [Home tab](home.md) is a split menu with two
+The **Export** action on the [Home tab](../home/index.md) is a split menu with two
 entries: a one-click default export, and a dialog for opting in to
 formatting options.
 
