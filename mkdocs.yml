@@ -47,7 +47,7 @@ markdown_extensions:
       alternate_style: true
 
 nav:
-  - Home: index.md
+  - Welcome: index.md
   - Getting Started:
       - getting-started/index.md
       - Build your first config: getting-started/first-config.md
