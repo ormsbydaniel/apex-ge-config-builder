@@ -13,6 +13,24 @@ under `docs/`, the build output lands in `public/guide/`, and both are
 committed to the same repository so the published Lovable app can serve the
 guide directly from `/guide/`.
 
+## Common edits — where things live
+
+| You want to…                                          | Edit                                                                 |
+|-------------------------------------------------------|----------------------------------------------------------------------|
+| Fix a typo or rewrite a paragraph                     | The relevant `.md` under `docs/`. Filenames mirror the URL path.     |
+| Add a new page                                        | Create the `.md` file, then add it to `nav:` in `mkdocs.yml`.        |
+| Add a screenshot                                      | Use `scripts/add-screenshot.sh <source.png> <kebab-name>` — it copies into both `docs/assets/screenshots/` and `public/guide/assets/screenshots/`. See [Screenshot conventions](#screenshot-conventions) below. |
+| Change the left-hand nav order or labels              | The `nav:` block in `mkdocs.yml`.                                    |
+| Change site theme, colours, plugins                   | The top of `mkdocs.yml` (`theme:`, `markdown_extensions:`, `plugins:`). |
+| Update the rendered HTML served by the live app       | Run `./build-docs.sh --push`, then **Publish → Update** in Lovable.  |
+
+## Screenshot conventions
+
+- File names are **kebab-case**, descriptive, scoped to the feature: `layer-card-edit-top.png`, `chart-pixel-values-empty.png`.
+- Files live in `docs/assets/screenshots/` and are mirrored to `public/guide/assets/screenshots/`. The `scripts/add-screenshot.sh` helper does both copies in one step.
+- Reference them from Markdown with a relative `../assets/screenshots/<name>.png` path and an alt text that describes the visible UI state, not just the feature name.
+- Capture against the **Comprehensive demo** config when possible, so screenshots stay consistent across pages.
+
 ## Editing workflow
 
 1. Edit Markdown files under `docs/` (typically inside Lovable, or directly in
