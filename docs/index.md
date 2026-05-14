@@ -1,8 +1,8 @@
 ---
-title: APEx Geospatial Explorer — Configuration Builder
+title: Welcome
 ---
 
-# APEx Geospatial Explorer — Configuration Builder
+# Welcome
 
 The **Configuration Builder** is a web app for designing, validating, and exporting
 configuration files for the APEx Geospatial Explorer. You can use it to
@@ -11,6 +11,10 @@ assemble services, layers, charts, and UI options without hand-editing JSON.
 This guide is for **config authors** — anyone who builds or maintains an
 APEx Geospatial Explorer configuration. It is task-focused: each chapter
 explains what a feature does, when to use it, and how to drive it from the UI.
+
+![The Configuration Builder produces a JSON config, hosted in a GitHub repository, which configures the APEx Geospatial Explorer for end users.](assets/builder-explorer-flow.png)
+*The EO Project Team uses the Configuration Builder to author a JSON config (data sources, visualisation, functionality, content, settings). The config is hosted in a GitHub repository and consumed by the APEx Geospatial Explorer to deliver the configured experience to end users.*
+
 
 ## What you can do with the builder
 
