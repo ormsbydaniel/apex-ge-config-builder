@@ -8,6 +8,8 @@ The **Statistics** section of a layer card configures additional raster sources 
 
 Statistics sources are separate from the layer's display sources: the user sees the styled layer on the map, but stats are computed from the underlying scientific raster (often a higher-precision COG) listed under Statistics.
 
+![Statistics tab in the Data Sources section of the layer card](../assets/screenshots/data-sources-statistics-tab.png)
+
 ## When to use
 
 Add Statistics sources when you want users to:
