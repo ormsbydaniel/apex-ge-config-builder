@@ -4,11 +4,25 @@ title: JSON config
 
 # JSON config
 
-The **JSON Config** tab shows the raw configuration document as it would
-be exported. Use it to inspect the current state, copy values into
-documentation, or paste in a configuration to load. For a field-by-field
-breakdown of every key, see the
-[JSON schema reference](../reference/json-schema.md).
+The **JSON Config** tab exposes the raw configuration document so you can
+view and edit it directly, rather than going through the form-based tabs.
+Use it to inspect the current state, copy values into documentation, or
+paste in a configuration to load.
+
+!!! warning "Advanced users only"
+    Direct JSON editing bypasses the guard-rails of the visual editors
+    and is best left to authors who are already comfortable with the
+    configuration format and JSON syntax. A single misplaced comma or
+    unknown field will cause validation to fail, and structural mistakes
+    can leave the configuration in a state that is awkward to recover
+    from through the UI. If you are not sure what a field does, prefer
+    the dedicated tab for that area.
+
+    Before editing by hand, consult the
+    [JSON schema reference](../reference/json-schema.md) for a
+    field-by-field breakdown of every key, accepted types, and example
+    snippets. Keeping it open alongside this tab is the fastest way to
+    avoid validation errors.
 
 ![JSON Config tab — read-only Configuration Preview with theme toggle and Edit JSON button](../assets/screenshots/json-config-tab.png)
 
