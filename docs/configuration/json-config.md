@@ -6,7 +6,9 @@ title: JSON config
 
 The **JSON Config** tab shows the raw configuration document as it would
 be exported. Use it to inspect the current state, copy values into
-documentation, or paste in a configuration to load.
+documentation, or paste in a configuration to load. For a field-by-field
+breakdown of every key, see the
+[JSON schema reference](../reference/json-schema.md).
 
 ![JSON Config tab — read-only Configuration Preview with theme toggle and Edit JSON button](../assets/screenshots/json-config-tab.png)
 
