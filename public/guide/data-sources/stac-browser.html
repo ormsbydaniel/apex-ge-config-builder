@@ -993,6 +993,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    STAC browser
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="stac-browser.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1009,6 +1027,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#open-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open the browser
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drill-into-a-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drill into a collection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pick-an-asset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pick an asset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Format detection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#direct-stac-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direct STAC links
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2417,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#open-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open the browser
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drill-into-a-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drill into a collection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pick-an-asset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pick an asset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Format detection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#direct-stac-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direct STAC links
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2507,60 @@
 
 
 <h1 id="stac-browser">STAC browser<a class="headerlink" href="#stac-browser" title="Permanent link">&para;</a></h1>
-<p>Browse STAC catalogues, collections, and items — including static collection layouts and direct item / openEO URLs.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>A three-level picker over any STAC catalogue or API registered on the
+<a href="../services/overview.html">Services</a> tab. Walks you from
+<strong>Catalogue → Collection → Item → Asset</strong>.</p>
+<h2 id="open-the-browser">Open the browser<a class="headerlink" href="#open-the-browser" title="Permanent link">&para;</a></h2>
+<p>In a layer card's data source form, pick <strong>From Service</strong> and select your
+STAC service. The browser opens at the catalogue's root collections list.</p>
+<p><img alt="STAC browser at the catalogue root showing a Search collections field and several collections including AirQuality, Marine heatwaves, and LSTM-like Land Surface Temperature (CHILL-Y)" src="../assets/screenshots/stac-browser-collections.png" /></p>
+<p>The header shows:</p>
+<ul>
+<li>The catalogue name and a STAC type badge (<code>STAC API Catalog</code>, <code>STAC
+  Catalogue</code>, etc.).</li>
+<li>The catalogue URL — clickable, opens the live JSON in a new tab.</li>
+<li>A <strong>Search collections</strong> field.</li>
+<li>The collection count (e.g. <em>Showing 85 collections</em>).</li>
+</ul>
+<h2 id="drill-into-a-collection">Drill into a collection<a class="headerlink" href="#drill-into-a-collection" title="Permanent link">&para;</a></h2>
+<p>Click a collection to load its items. The header updates with the
+collection title, item count, and a back button to the catalogue.</p>
+<p><img alt="STAC browser inside AirQuality collection showing 19 items, each with a View Assets button and an Add All Filtered Items button at the bottom" src="../assets/screenshots/stac-browser-items.png" /></p>
+<p>You can search items, then either:</p>
+<ul>
+<li>Click <strong>View Assets</strong> on a single item to see its assets, or</li>
+<li>Click <strong>Add All Filtered Items (n)</strong> to add every visible item as a
+  separate data source — useful for time-series.</li>
+</ul>
+<h2 id="pick-an-asset">Pick an asset<a class="headerlink" href="#pick-an-asset" title="Permanent link">&para;</a></h2>
+<p>Items contain one or more <strong>assets</strong> (the actual file URLs). The asset
+view lists them with format badges, MIME type, and size.</p>
+<p><img alt="STAC browser inside an item showing two assets — a Thumbnail PNG and an SO2 Concentration Map for May 2025 PNG — each with format and size, plus an Add All Supported Assets button" src="../assets/screenshots/stac-browser-assets.png" /></p>
+<ul>
+<li>Toggle <strong>Show only supported formats</strong> to hide previews and metadata
+  files.</li>
+<li>Click <strong>Select</strong> on any asset to populate the data source form.</li>
+</ul>
+<h2 id="format-detection">Format detection<a class="headerlink" href="#format-detection" title="Permanent link">&para;</a></h2>
+<p>Each asset's format is detected from the actual MIME type returned by
+HEAD when possible, falling back to the extension. Supported formats
+match the rest of the builder: COG, GeoJSON, FlatGeoBuf, CSV; PNG/JPEG
+appear as previews only.</p>
+<h2 id="direct-stac-links">Direct STAC links<a class="headerlink" href="#direct-stac-links" title="Permanent link">&para;</a></h2>
+<p>You can paste a direct STAC item URL or an openEO results URL into the
+browser's URL field at any level — the builder figures out where in the
+catalogue tree to open. See the
+<a href="../reference/url-parameters.html">STAC direct links</a> reference for the
+supported shapes.</p>
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Catalogues with thousands of collections are paginated server-side. Use
+  the search field rather than scrolling.</li>
+<li>If a collection's items take a long time to list, the underlying STAC
+  API may be rate-limiting. Filter by date upstream where possible.</li>
+<li>Signed URLs are common in commercial STAC catalogues; the builder
+  stores the base URL and re-signs at view time when supported.</li>
+</ul>
 
 
 

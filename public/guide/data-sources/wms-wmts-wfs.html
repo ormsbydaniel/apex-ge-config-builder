@@ -27,7 +27,7 @@
     
     
       
-        <title>WMS, WMTS and WFS - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>WMS / WMTS / WFS - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#wms-wmts-and-wfs" class="md-skip">
+        <a href="#wms-wmts-wfs" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              WMS, WMTS and WFS
+              WMS / WMTS / WFS
             
           </span>
         </div>
@@ -853,6 +853,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WMS / WMTS / WFS
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="wms-wmts-wfs.html" class="md-nav__link md-nav__link--active">
         
   
@@ -869,6 +887,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-wmswmtswfs-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a WMS/WMTS/WFS layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#direct-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direct connection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2406,69 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-wmswmtswfs-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a WMS/WMTS/WFS layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#direct-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direct connection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2329,12 +2484,68 @@
 
 
 
-<h1 id="wms-wmts-and-wfs">WMS, WMTS and WFS<a class="headerlink" href="#wms-wmts-and-wfs" title="Permanent link">&para;</a></h1>
-<p>Working with OGC services. The builder runs GetCapabilities to populate available layers and CRSes.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<h1 id="wms-wmts-wfs">WMS / WMTS / WFS<a class="headerlink" href="#wms-wmts-wfs" title="Permanent link">&para;</a></h1>
+<p>OGC services that the builder consumes via <code>GetCapabilities</code>. WMS and WMTS
+return rendered raster tiles; WFS returns vector features.</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>WMS</strong> — server-rendered raster maps, e.g. EEA, Copernicus, GeoServer
+  endpoints. Good when the publisher controls the styling.</li>
+<li><strong>WMTS</strong> — pre-cached raster tiles. Faster than WMS for global basemaps.</li>
+<li><strong>WFS</strong> — server-side vector queries. Use when the dataset is too large
+  to ship as a single GeoJSON/FlatGeoBuf.</li>
+</ul>
+<p>For all three you must add the service first on the
+<a href="../services/overview.html">Services</a> tab so the builder can read its
+capabilities.</p>
+<h2 id="add-a-wmswmtswfs-layer">Add a WMS/WMTS/WFS layer<a class="headerlink" href="#add-a-wmswmtswfs-layer" title="Permanent link">&para;</a></h2>
+<p>In a Layer Card → <strong>Datasets → Add Dataset</strong>, choose <strong>From Service</strong> and
+pick the service. The builder loads the capabilities and shows a layer
+picker.</p>
+<p><img alt="Select Data Source dialog for a WMS service with a Search layers field and a note: No layers found. You can manually configure the layer name in the next step." src="../assets/screenshots/wms-layer-picker.png" /></p>
+<ul>
+<li>If layers are listed: search, click one, <strong>Select</strong>.</li>
+<li>If the picker reports no layers (capabilities blocked, CORS, or unusual
+  schema), close it and use <strong>Direct Connection</strong> instead — the form will
+  let you type the layer name by hand.</li>
+</ul>
+<h2 id="direct-connection">Direct connection<a class="headerlink" href="#direct-connection" title="Permanent link">&para;</a></h2>
+<p>Pick <strong>Direct Connection</strong>, set <strong>Data Format</strong> to WMS, WMTS, or WFS, and
+provide:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data Source URL</td>
+<td>Base endpoint without query string (e.g. <code>https://example.org/geoserver/ows</code>).</td>
+</tr>
+<tr>
+<td>Layer Name</td>
+<td>The OGC layer or feature type identifier (<code>workspace:layer</code>).</td>
+</tr>
+</tbody>
+</table>
+<p>The placeholder in the URL field shows the expected shape per format.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The healthcheck calls <code>GetCapabilities</code> and confirms the named layer is
+  present.</li>
+<li>Common failures: missing <code>https://</code>, the endpoint requires authentication,
+  or CORS isn't enabled for the deployed Explorer's origin.</li>
+</ul>
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prefer <strong>WMTS</strong> over <strong>WMS</strong> for basemaps — much lower latency.</li>
+<li>Pin the time/CRS in the layer URL when the service offers multiple, so
+  the deployed Explorer always requests the version you tested with.</li>
+<li>For WFS, watch the response size; the deployed Explorer pulls the full
+  feature collection in the viewport.</li>
+</ul>
 
 
 

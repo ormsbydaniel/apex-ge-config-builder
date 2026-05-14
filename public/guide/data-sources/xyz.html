@@ -27,7 +27,7 @@
     
     
       
-        <title>XYZ tile services - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>XYZ - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#xyz-tile-services" class="md-skip">
+        <a href="#xyz-tile-service" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              XYZ tile services
+              XYZ
             
           </span>
         </div>
@@ -881,6 +881,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XYZ
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="xyz.html" class="md-nav__link md-nav__link--active">
         
   
@@ -897,6 +915,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-an-xyz-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add an XYZ source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#as-a-base-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As a base layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2406,69 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-an-xyz-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add an XYZ source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#as-a-base-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As a base layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2329,12 +2484,58 @@
 
 
 
-<h1 id="xyz-tile-services">XYZ tile services<a class="headerlink" href="#xyz-tile-services" title="Permanent link">&para;</a></h1>
-<p>Adding a tile-template URL such as <code>https://example.com/tiles/{z}/{x}/{y}.png</code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<h1 id="xyz-tile-service">XYZ (Tile Service)<a class="headerlink" href="#xyz-tile-service" title="Permanent link">&para;</a></h1>
+<p>A simple URL template that returns a tile per <code>{z}/{x}/{y}</code> coordinate.
+Used for raster basemaps and pre-rendered overlays.</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Raster basemaps from providers like Mapbox, Stadia, OpenStreetMap, or
+  your own tile cache.</li>
+<li>Static raster overlays that are already pre-rendered to a <code>{z}/{x}/{y}</code>
+  pyramid.</li>
+</ul>
+<h2 id="add-an-xyz-source">Add an XYZ source<a class="headerlink" href="#add-an-xyz-source" title="Permanent link">&para;</a></h2>
+<p>Layer Card → <strong>Datasets → Add Dataset</strong> → <strong>Direct Connection</strong> → set
+<strong>Data Format</strong> to <strong>XYZ (Tile Service)</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>What to fill in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data Source URL</td>
+<td>A URL template containing <code>{z}</code>, <code>{x}</code>, <code>{y}</code>. Example: <code>https://tile.openstreetmap.org/{z}/{x}/{y}.png</code>.</td>
+</tr>
+<tr>
+<td>Z-Index</td>
+<td>Default 50. Lower this to send the layer to the back when adding it as a basemap.</td>
+</tr>
+</tbody>
+</table>
+<p>There is no service-backed flow for XYZ — it's always a direct URL.</p>
+<h2 id="as-a-base-layer">As a base layer<a class="headerlink" href="#as-a-base-layer" title="Permanent link">&para;</a></h2>
+<p>For map basemaps you usually want <strong>Add Layer → Base Layer</strong> instead of a
+full layer card. The base layer form is a slim variant of the data source
+form: just title, URL, and optional attribution. See
+<a href="../layers/base-layers.html">Base layers</a>.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The healthcheck fetches a sample tile (typically <code>0/0/0</code>) and confirms
+  it returns 200 with an image content type.</li>
+<li>Subdomain templates like <code>{s}.example.com</code> are not auto-rotated by the
+  builder; supply a single concrete subdomain in the URL.</li>
+</ul>
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Always include a tile-server attribution string — many providers require
+  it. Add it via the layer card's <strong>Description &amp; Attribution</strong> section.</li>
+<li>If the deployed Explorer renders blank tiles only at high zoom, the
+  layer's max-zoom probably exceeds the provider's. Limit zoom in the
+  layer's <strong>Constraints</strong> if needed.</li>
+</ul>
 
 
 

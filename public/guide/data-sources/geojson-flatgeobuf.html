@@ -27,7 +27,7 @@
     
     
       
-        <title>GeoJSON and FlatGeoBuf - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>GeoJSON / FlatGeoBuf - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#geojson-and-flatgeobuf" class="md-skip">
+        <a href="#geojson-flatgeobuf" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              GeoJSON and FlatGeoBuf
+              GeoJSON / FlatGeoBuf
             
           </span>
         </div>
@@ -909,6 +909,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GeoJSON / FlatGeoBuf
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="geojson-flatgeobuf.html" class="md-nav__link md-nav__link--active">
         
   
@@ -925,6 +943,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-geojson-or-flatgeobuf-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a GeoJSON or FlatGeoBuf source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vector-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vector fields
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2417,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-geojson-or-flatgeobuf-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a GeoJSON or FlatGeoBuf source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vector-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vector fields
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2329,12 +2506,85 @@
 
 
 
-<h1 id="geojson-and-flatgeobuf">GeoJSON and FlatGeoBuf<a class="headerlink" href="#geojson-and-flatgeobuf" title="Permanent link">&para;</a></h1>
-<p>Vector formats supported as data sources. FlatGeoBuf is recommended for large datasets because it streams.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<h1 id="geojson-flatgeobuf">GeoJSON / FlatGeoBuf<a class="headerlink" href="#geojson-flatgeobuf" title="Permanent link">&para;</a></h1>
+<p>Two vector formats served as a single static file over HTTPS. GeoJSON is
+the lingua franca; FlatGeoBuf (<code>.fgb</code>) is its high-performance binary
+cousin.</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Use for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GeoJSON</strong></td>
+<td>Small to mid-size feature collections (≲ a few MB), authoring tools, hand-edited data.</td>
+</tr>
+<tr>
+<td><strong>FlatGeoBuf</strong></td>
+<td>Anything bigger. Streamed via HTTP range requests, indexed for spatial queries — much faster than equivalent GeoJSON.</td>
+</tr>
+</tbody>
+</table>
+<p>Both work as the <strong>Data</strong> source of a vector layer and as the
+<strong>Statistics</strong> source for zonal-statistics overlays on raster layers (see
+<a href="../statistics/overview.html">Statistics</a>).</p>
+<h2 id="add-a-geojson-or-flatgeobuf-source">Add a GeoJSON or FlatGeoBuf source<a class="headerlink" href="#add-a-geojson-or-flatgeobuf-source" title="Permanent link">&para;</a></h2>
+<p>Layer Card → <strong>Datasets → Add Dataset</strong> → <strong>Direct Connection</strong>. Set
+<strong>Data Format</strong> to <strong>GeoJSON</strong> or <strong>FlatGeoBuf</strong> and paste the URL.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data Source URL</td>
+<td>Public HTTPS URL ending in <code>.geojson</code>, <code>.json</code>, or <code>.fgb</code>.</td>
+</tr>
+<tr>
+<td>Z-Index</td>
+<td>Default 50.</td>
+</tr>
+</tbody>
+</table>
+<p>You can also pick the file from an <a href="s3-browser.html">S3 browser</a> — the
+format is auto-detected from the extension.</p>
+<h2 id="vector-fields">Vector fields<a class="headerlink" href="#vector-fields" title="Permanent link">&para;</a></h2>
+<p>Once the source is set, open <strong>Vector fields</strong> (or click <em>Add Fields</em> in
+the layer card) to auto-populate the field list from the data. The
+builder reads the first feature for GeoJSON, or the FlatGeoBuf header,
+and lists all property names with detected types. See
+<a href="../layers/vector-fields.html">Vector fields</a>.</p>
+<h2 id="visualisation">Visualisation<a class="headerlink" href="#visualisation" title="Permanent link">&para;</a></h2>
+<p>Pick one styling tool in the layer card:</p>
+<ul>
+<li><strong>Vector styling</strong> — rule-based fills, strokes, point symbols.</li>
+<li><strong>Categories</strong> — colour features by a discrete property value.</li>
+</ul>
+<p>For polygon layers consider <strong>Statistics</strong> instead — pre-computed zonal
+stats are much faster than re-styling on every viewport change.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The healthcheck issues a HEAD request and confirms the file is reachable
+  and returns the expected content type.</li>
+<li>For FlatGeoBuf, the spatial index is sniffed; un-indexed <code>.fgb</code> files
+  still work but lose the streaming benefit.</li>
+</ul>
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Convert any GeoJSON over a few MB to FlatGeoBuf — same content, an order
+  of magnitude faster.</li>
+<li>Keep property names short and snake_case; they appear unmodified in the
+  deployed Explorer's info panel.</li>
+<li>Strip very large per-feature geometry (multi-thousand-vertex polygons)
+  by simplifying upstream — it speeds up rendering noticeably.</li>
+</ul>
 
 
 

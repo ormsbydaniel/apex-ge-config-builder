@@ -27,7 +27,7 @@
     
     
       
-        <title>COG (Cloud Optimized GeoTIFF) - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>COG - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              COG (Cloud Optimized GeoTIFF)
+              COG
             
           </span>
         </div>
@@ -825,6 +825,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COG
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="cog.html" class="md-nav__link md-nav__link--active">
         
   
@@ -841,6 +859,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-cog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a COG
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#from-an-s3-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From an S3 service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2417,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-cog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a COG
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#from-an-s3-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From an S3 service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2507,75 @@
 
 
 <h1 id="cog-cloud-optimized-geotiff">COG (Cloud Optimized GeoTIFF)<a class="headerlink" href="#cog-cloud-optimized-geotiff" title="Permanent link">&para;</a></h1>
-<p>How COG metadata is read, the performance guards used for hyperspectral COGs, and how interleave (BSQ vs BIP) is detected.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>A COG is a single GeoTIFF file laid out so that the APEx Geospatial
+Explorer can stream just the tiles it needs over HTTP. COGs are the
+preferred raster format for the builder.</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Single-band or multi-band rasters served from object storage (S3, MinIO,
+  OBS, Azure Blob via HTTPS).</li>
+<li>DEMs, classification maps, indices, hyperspectral cubes, RGB composites.</li>
+<li>Anywhere you would otherwise need a tile service but only have a static
+  file.</li>
+</ul>
+<h2 id="add-a-cog">Add a COG<a class="headerlink" href="#add-a-cog" title="Permanent link">&para;</a></h2>
+<p>Open a Layer Card → <strong>Datasets → Add Dataset</strong>. The default <strong>Source
+Type</strong> is <strong>Direct Connection</strong> and the default <strong>Data Format</strong> is COG.</p>
+<p><img alt="Add Data Source form with Direct Connection selected, Data Format set to COG, and a Data Source URL field with placeholder https://example.com/data.tif" src="../assets/screenshots/data-source-add-direct-cog.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>What to fill in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source Type</td>
+<td><strong>Direct Connection</strong> for a single COG; <strong>From Service</strong> if it lives inside a <a href="../services/adding-services.html">configured S3 service</a>.</td>
+</tr>
+<tr>
+<td>Data Format</td>
+<td><strong>COG (Cloud Optimized GeoTIFF)</strong>.</td>
+</tr>
+<tr>
+<td>Data Source URL</td>
+<td>Public HTTPS URL ending in <code>.tif</code>/<code>.tiff</code>.</td>
+</tr>
+<tr>
+<td>Z-Index</td>
+<td>Stacking hint, default 50. Leave it unless you know you need to override it.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="from-an-s3-service">From an S3 service<a class="headerlink" href="#from-an-s3-service" title="Permanent link">&para;</a></h2>
+<p>Pick <strong>From Service</strong>, choose your S3 service, then drill into the bucket
+in the <a href="s3-browser.html">S3 browser</a>. When the file's extension is <code>.tif</code>
+the format is auto-detected as COG and the <strong>Select</strong> button activates.</p>
+<p><img alt="S3 browser inside a folder showing a single Copernicus_DSM_COG_30_N51_00_W001_00_DEM.tif file with a COG badge and a Select button" src="../assets/screenshots/s3-browser-cog-detected.png" /></p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The healthcheck issues a HEAD/range request and confirms the file
+  returns 200 and looks like a COG (internal tiles + overviews).</li>
+<li>Files &gt;2&nbsp;GB or with very many bands (hyperspectral) take longer to
+  validate; the builder applies internal performance guards.</li>
+<li>If the COG is not actually cloud-optimised (no internal tiling) the
+  layer may still load but render slowly.</li>
+</ul>
+<h2 id="visualisation">Visualisation<a class="headerlink" href="#visualisation" title="Permanent link">&para;</a></h2>
+<p>After adding the source, pick a styling tool in the layer card:</p>
+<ul>
+<li>Single-band → <strong>Colormap</strong> (or <strong>Categories</strong> for discrete values).</li>
+<li>Multi-band → <strong>RGB composite</strong>, configured per source under the
+  <a href="../layers/rgb-composite.html">RGB composite</a> section.</li>
+</ul>
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prefer COGs that have internal overviews; they are dramatically faster
+  to render at coarse zooms.</li>
+<li>Files served from HTTP without range support will fail to load — host
+  COGs on S3, CloudFront, or any HTTPS server that honours <code>Range</code>.</li>
+</ul>
 
 
 

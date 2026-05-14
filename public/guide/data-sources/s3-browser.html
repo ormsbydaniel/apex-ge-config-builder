@@ -965,6 +965,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    S3 browser
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="s3-browser.html" class="md-nav__link md-nav__link--active">
         
   
@@ -981,6 +999,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#open-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open the browser
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#navigate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#select-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Select a file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bulk-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bulk add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported formats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2417,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#open-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open the browser
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#navigate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#select-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Select a file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bulk-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bulk add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported formats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2507,79 @@
 
 
 <h1 id="s3-browser">S3 browser<a class="headerlink" href="#s3-browser" title="Permanent link">&para;</a></h1>
-<p>Hierarchical browser for S3-compatible buckets (AWS S3, OBS, MinIO). Folders are reconstructed from key prefixes.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>A folder-style picker for any S3 service registered on the
+<a href="../services/overview.html">Services</a> tab. Works against AWS S3, Huawei
+OBS, MinIO, and other S3-compatible stores.</p>
+<h2 id="open-the-browser">Open the browser<a class="headerlink" href="#open-the-browser" title="Permanent link">&para;</a></h2>
+<p>In a layer card's data source form, choose <strong>From Service</strong> and select
+your S3 service. The browser opens at the bucket root.</p>
+<p><img alt="S3 browser dialog showing the bucket root with a Search field, a format filter dropdown, three folders (APEX-example-data, APEX-example-styles, software) and four files (logos and configs marked Unsupported)" src="../assets/screenshots/s3-browser-root.png" /></p>
+<p>The header shows:</p>
+<ul>
+<li>The service name and bucket URL.</li>
+<li>A <strong>Search objects</strong> field (filters the current folder).</li>
+<li>A <strong>Format filter</strong> dropdown — defaults to <em>All supported data formats</em>,
+  filter by COG, GeoJSON, FlatGeoBuf, CSV, etc.</li>
+<li>A <strong>breadcrumb</strong> showing the current path.</li>
+</ul>
+<h2 id="navigate">Navigate<a class="headerlink" href="#navigate" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Click any folder row to drill in. The breadcrumb updates so you can
+  jump back any number of levels.</li>
+<li>Files are listed beneath folders. Each file shows its detected format
+  (or <em>Unsupported</em>), size, and a per-row <strong>Select</strong> button.</li>
+</ul>
+<p><img alt="S3 browser inside APEX-example-data showing nested folders DEM, GAUL, HEATWISE, HI-RES-NUTS, and so on" src="../assets/screenshots/s3-browser-folder.png" /></p>
+<h2 id="select-a-file">Select a file<a class="headerlink" href="#select-a-file" title="Permanent link">&para;</a></h2>
+<p>Click <strong>Select</strong> on a file row. The dialog closes and the data source
+form is populated with the file's URL and detected format.</p>
+<p><img alt="S3 browser inside DEM folder showing a single Copernicus_DSM COG file with a COG format badge and a Select button" src="../assets/screenshots/s3-browser-cog-detected.png" /></p>
+<h2 id="bulk-add">Bulk add<a class="headerlink" href="#bulk-add" title="Permanent link">&para;</a></h2>
+<p>The <strong>Add All (n)</strong> button at the bottom adds every supported file in the
+current view (after search and format filtering) as separate data
+sources. Use this for time-series of many COGs in the same folder, or
+when seeding a layer from a folder of FlatGeoBuf shards.</p>
+<h2 id="supported-formats">Supported formats<a class="headerlink" href="#supported-formats" title="Permanent link">&para;</a></h2>
+<p>Files are auto-detected by extension:</p>
+<table>
+<thead>
+<tr>
+<th>Extension</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.tif</code>, <code>.tiff</code></td>
+<td>COG</td>
+</tr>
+<tr>
+<td><code>.geojson</code>, <code>.json</code></td>
+<td>GeoJSON</td>
+</tr>
+<tr>
+<td><code>.fgb</code></td>
+<td>FlatGeoBuf</td>
+</tr>
+<tr>
+<td><code>.csv</code></td>
+<td>CSV</td>
+</tr>
+<tr>
+<td>anything else</td>
+<td><em>Unsupported</em> (greyed out, not selectable)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Bucket listings need either public ACL or a CORS-friendly listing
+  endpoint. If the browser shows nothing, check the service URL in the
+  Services tab and the bucket's CORS policy.</li>
+<li>For signed URLs (presigned S3, MinIO temp creds), the browser strips
+  the query parameters when storing the base URL — the deployed Explorer
+  signs requests on its own.</li>
+</ul>
 
 
 

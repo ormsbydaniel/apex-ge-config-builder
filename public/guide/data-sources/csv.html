@@ -937,6 +937,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="csv.html" class="md-nav__link md-nav__link--active">
         
   
@@ -953,6 +971,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-csv-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a CSV source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-csv-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a CSV source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2463,62 @@
 
 
 <h1 id="csv">CSV<a class="headerlink" href="#csv" title="Permanent link">&para;</a></h1>
-<p>Hosted CSV files used as chart data sources, including date detection and numeric parsing rules.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>Plain comma-separated values. The builder treats CSV as a tabular data
+source — most commonly used to drive <a href="../charts/csv-data.html">Charts</a>
+rather than render features on the map.</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Time-series tables (date column + one or more value columns) plotted as
+  line, area, or bar charts.</li>
+<li>Tabular ancillary data linked to a vector layer through a join key.</li>
+<li>Any one-off dataset where you want to skip GIS conversion.</li>
+</ul>
+<h2 id="add-a-csv-source">Add a CSV source<a class="headerlink" href="#add-a-csv-source" title="Permanent link">&para;</a></h2>
+<p>Layer Card → <strong>Datasets → Add Dataset</strong> → <strong>Direct Connection</strong> → <strong>Data
+Format</strong> = <strong>CSV (Comma Separated Values)</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data Source URL</td>
+<td>HTTPS URL ending in <code>.csv</code>. The first row must be the header.</td>
+</tr>
+<tr>
+<td>Z-Index</td>
+<td>Default 50. Not used for chart-only CSVs.</td>
+</tr>
+</tbody>
+</table>
+<p>The builder fetches the file when it's referenced by a chart and parses
+columns:</p>
+<ul>
+<li>A column whose name or values look like ISO dates is detected as the
+  date axis.</li>
+<li>Numeric columns become available as Y-series.</li>
+<li>Other columns are exposed as labels for tooltips and filters.</li>
+</ul>
+<p>See <a href="../charts/csv-data.html">Chart CSV processing</a> for the detection
+rules.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The healthcheck does a HEAD request only — it does not parse the file.</li>
+<li>Bad delimiters or non-UTF-8 encodings are surfaced when a chart that
+  uses the CSV is opened in the visual editor.</li>
+</ul>
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Stick to UTF-8 with <code>\n</code> line endings. Excel-exported CSVs sometimes
+  use Windows-1252; re-save as UTF-8 if columns appear garbled.</li>
+<li>Quote any value containing a comma; the parser doesn't try to recover
+  from broken quoting.</li>
+<li>For very large CSVs (≳ 10&nbsp;MB), pre-aggregate upstream — the
+  deployed Explorer loads the whole file into memory.</li>
+</ul>
 
 
 
