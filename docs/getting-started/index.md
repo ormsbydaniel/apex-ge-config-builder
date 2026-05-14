@@ -64,19 +64,6 @@ A built-in tool that probes every URL in your config and reports
 per-layer **Data Access** and **Performance** scores. See
 [Run Healthcheck](../services/healthcheck.md).
 
-## The main tabs
-
-The top navigation gives you one tab per major concern:
-
-| Tab          | Purpose |
-|--------------|---------|
-| **Home**     | Project metadata, config statistics, QA cards, healthcheck entry. |
-| **Layers**   | Build the visible content of the APEx Geospatial Explorer. |
-| **Draw Order** | Control which layers render on top of which. |
-| **Services** | Register and validate endpoints. |
-| **Settings** | Layout, interface groups, footer, projections (CRS), advanced options. |
-| **JSON Config** | Inspect or edit the raw configuration document. |
-| **GE Preview**  | Run the actual APEx Geospatial Explorer inline using your current config. |
 
 ## Next steps
 
