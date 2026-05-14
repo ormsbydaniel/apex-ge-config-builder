@@ -5,8 +5,8 @@ title: Overview
 # Overview
 
 The Configuration Builder produces a single JSON file — the **config** — that
-fully describes a viewer instance: its branding, layout, the services it talks
-to, and the layers and charts it shows.
+fully describes an APEx Geospatial Explorer instance: its branding, layout,
+the services it talks to, and the layers and charts it shows.
 
 ## Core concepts
 
@@ -32,9 +32,9 @@ declares which **interface group** it belongs to. Layers are managed from the
 
 ### Interface group
 
-A user-facing grouping in the viewer's layer panel — for example
-"Land Cover", "Soils", "Climate". Interface groups give the viewer's UI its
-top-level structure. Manage them from **Settings → Interface Groups**.
+A user-facing grouping in the APEx Geospatial Explorer's layer panel — for example
+"Land Cover", "Soils", "Climate". Interface groups give the APEx Geospatial Explorer's
+UI its top-level structure. Manage them from **Settings → Interface Groups**.
 
 ### Base layer
 
@@ -55,12 +55,12 @@ The top navigation gives you one tab per major concern:
 | Tab          | Purpose |
 |--------------|---------|
 | **Home**     | Project metadata, config statistics, QA cards, healthcheck entry. |
-| **Layers**   | Build the visible content of the viewer. |
+| **Layers**   | Build the visible content of the APEx Geospatial Explorer. |
 | **Draw Order** | Control which layers render on top of which. |
 | **Services** | Register and validate endpoints. |
 | **Settings** | Layout, interface groups, footer, projections (CRS), advanced options. |
 | **JSON Config** | Inspect or edit the raw configuration document. |
-| **Preview**  | Run the actual viewer inline using your current config. |
+| **GE Preview**  | Run the actual APEx Geospatial Explorer inline using your current config. |
 
 ## Next steps
 

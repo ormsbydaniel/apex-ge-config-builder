@@ -4,7 +4,7 @@ title: Build your first config
 
 # Build your first config
 
-This walk-through builds a minimal but complete viewer configuration from
+This walk-through builds a minimal but complete APEx Geospatial Explorer configuration from
 scratch. If you would rather start from a working example, see
 [Loading and saving](loading-saving.md) and load the **Comprehensive demo**.
 
@@ -18,7 +18,7 @@ scratch. If you would rather start from a working example, see
     4. **Layers** — add a base layer and one or more data layers, each
        assigned to an interface group.
     5. **Draw Order** — confirm the stacking order.
-    6. **Preview** — verify the viewer renders correctly.
+    6. **GE Preview** — verify the APEx Geospatial Explorer renders correctly.
     7. **Home → Run Healthcheck** — validate every URL.
     8. **Home → Export** — download the final `config.json`.
 

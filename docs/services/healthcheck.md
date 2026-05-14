@@ -8,7 +8,7 @@ The **Run Healthcheck** tool validates every layer in your configuration in a
 single batch and reports two independent scores:
 
 - **Data Access** — can the URL be reached and does it respond correctly?
-- **Performance** — once reached, will it perform well in the viewer?
+- **Performance** — once reached, will it perform well in the APEx Geospatial Explorer?
 
 Use it after you load or modify a config to see, at a glance, which layers are
 broken, which are slow, and which are healthy.
@@ -22,7 +22,7 @@ broken, which are slow, and which are healthy.
 
 - Right after loading a config from disk, GitHub, or a URL.
 - After adding or editing services and layers, to confirm nothing regressed.
-- Before exporting a config that will be shipped to the public viewer.
+- Before exporting a config that will be shipped to the public APEx Geospatial Explorer.
 
 ## Launching the healthcheck
 

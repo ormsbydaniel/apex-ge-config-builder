@@ -1,10 +1,10 @@
 ---
-title: Preview
+title: GE Preview
 ---
 
-# Preview
+# GE Preview
 
-Run the actual viewer inline using your current configuration. Pick which viewer bundle version to test against.
+Run the actual APEx Geospatial Explorer inline using your current configuration. Pick which APEx Geospatial Explorer bundle version to test against.
 
 !!! note "Coming soon"
     Detailed walk-through with screenshots is in progress.
