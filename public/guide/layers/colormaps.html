@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/s3-browser.html">
+        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/layers/colormaps.html">
       
       
-        <link rel="prev" href="csv.html">
+        <link rel="prev" href="categories.html">
       
       
-        <link rel="next" href="stac-browser.html">
+        <link rel="next" href="rgb-composite.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>S3 browser - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>Colormaps - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#s3-browser" class="md-skip">
+        <a href="#colormaps" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              S3 browser
+              Colormaps
             
           </span>
         </div>
@@ -270,7 +270,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../layers/index.html" class="md-tabs__link">
+        <a href="index.html" class="md-tabs__link">
           
   
   
@@ -644,7 +644,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../layers/index.html" class="md-nav__link ">
+            <a href="index.html" class="md-nav__link ">
               
   
   
@@ -716,7 +716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../layers/adding-layers.html" class="md-nav__link">
+      <a href="adding-layers.html" class="md-nav__link">
         
   
   
@@ -744,7 +744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../layers/base-layers.html" class="md-nav__link">
+      <a href="base-layers.html" class="md-nav__link">
         
   
   
@@ -772,7 +772,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../layers/swipe-layers.html" class="md-nav__link">
+      <a href="swipe-layers.html" class="md-nav__link">
         
   
   
@@ -797,14 +797,80 @@
                 
   
   
-    
-  
   
   
     
     
       
         
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../data-sources/cog.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data sources
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
       
         
       
@@ -831,17 +897,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" checked>
         
           
-          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Data sources
+    Data visualisation
   
 
     
@@ -852,12 +918,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_7">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Data sources
+    Data visualisation
   
 
           </label>
@@ -870,14 +936,14 @@
   
   
     <li class="md-nav__item">
-      <a href="cog.html" class="md-nav__link">
+      <a href="data-visualisation.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    COG
+    Data visualisation
   
 
     
@@ -898,98 +964,14 @@
   
   
     <li class="md-nav__item">
-      <a href="wms-wmts-wfs.html" class="md-nav__link">
+      <a href="categories.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WMS / WMTS / WFS
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="xyz.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    XYZ
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="geojson-flatgeobuf.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    GeoJSON / FlatGeoBuf
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="csv.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CSV
+    Categories
   
 
     
@@ -1026,7 +1008,7 @@
   <span class="md-ellipsis">
     
   
-    S3 browser
+    Colormaps
   
 
     
@@ -1037,14 +1019,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="s3-browser.html" class="md-nav__link md-nav__link--active">
+      <a href="colormaps.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    S3 browser
+    Colormaps
   
 
     
@@ -1070,10 +1052,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#open-the-browser" class="md-nav__link">
+  <a href="#configuring-a-colormap" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Open the browser
+        Configuring a colormap
       
     </span>
   </a>
@@ -1081,10 +1063,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#navigate" class="md-nav__link">
+  <a href="#custom-ramps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Navigate
+        Custom ramps
       
     </span>
   </a>
@@ -1092,10 +1074,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#select-a-file" class="md-nav__link">
+  <a href="#choosing-a-preset" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Select a file
+        Choosing a preset
       
     </span>
   </a>
@@ -1103,32 +1085,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bulk-add" class="md-nav__link">
+  <a href="#when-colormaps-dont-fit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Bulk add
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#supported-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tips
+        When colormaps don't fit
       
     </span>
   </a>
@@ -1151,14 +1111,70 @@
   
   
     <li class="md-nav__item">
-      <a href="stac-browser.html" class="md-nav__link">
+      <a href="rgb-composite.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    STAC browser
+    RGB composite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vector-styling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector styling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vector-fields.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector fields
   
 
     
@@ -1174,72 +1190,6 @@
             
           </ul>
         </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-    
-    
-      
-        
-        
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-  
-    <a href="../layers/data-visualisation.html" class="md-nav__link">
-      
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Data visualisation
-  
-
-    
-  </span>
-  
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
       
     </li>
   
@@ -1670,10 +1620,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#open-the-browser" class="md-nav__link">
+  <a href="#configuring-a-colormap" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Open the browser
+        Configuring a colormap
       
     </span>
   </a>
@@ -1681,10 +1631,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#navigate" class="md-nav__link">
+  <a href="#custom-ramps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Navigate
+        Custom ramps
       
     </span>
   </a>
@@ -1692,10 +1642,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#select-a-file" class="md-nav__link">
+  <a href="#choosing-a-preset" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Select a file
+        Choosing a preset
       
     </span>
   </a>
@@ -1703,32 +1653,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bulk-add" class="md-nav__link">
+  <a href="#when-colormaps-dont-fit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Bulk add
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#supported-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tips
+        When colormaps don't fit
       
     </span>
   </a>
@@ -1752,79 +1680,52 @@
 
 
 
-<h1 id="s3-browser">S3 browser<a class="headerlink" href="#s3-browser" title="Permanent link">&para;</a></h1>
-<p>A folder-style picker for any S3 service registered on the
-<a href="../services/index.html">Services</a> tab. Works against AWS S3, Huawei
-OBS, MinIO, and other S3-compatible stores.</p>
-<h2 id="open-the-browser">Open the browser<a class="headerlink" href="#open-the-browser" title="Permanent link">&para;</a></h2>
-<p>In a layer card's data source form, choose <strong>From Service</strong> and select
-your S3 service. The browser opens at the bucket root.</p>
-<p><img alt="S3 browser dialog showing the bucket root with a Search field, a format filter dropdown, three folders (APEX-example-data, APEX-example-styles, software) and four files (logos and configs marked Unsupported)" src="../assets/screenshots/s3-browser-root.png" /></p>
-<p>The header shows:</p>
-<ul>
-<li>The service name and bucket URL.</li>
-<li>A <strong>Search objects</strong> field (filters the current folder).</li>
-<li>A <strong>Format filter</strong> dropdown — defaults to <em>All supported data formats</em>,
-  filter by COG, GeoJSON, FlatGeoBuf, CSV, etc.</li>
-<li>A <strong>breadcrumb</strong> showing the current path.</li>
-</ul>
-<h2 id="navigate">Navigate<a class="headerlink" href="#navigate" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Click any folder row to drill in. The breadcrumb updates so you can
-  jump back any number of levels.</li>
-<li>Files are listed beneath folders. Each file shows its detected format
-  (or <em>Unsupported</em>), size, and a per-row <strong>Select</strong> button.</li>
-</ul>
-<p><img alt="S3 browser inside APEX-example-data showing nested folders DEM, GAUL, HEATWISE, HI-RES-NUTS, and so on" src="../assets/screenshots/s3-browser-folder.png" /></p>
-<h2 id="select-a-file">Select a file<a class="headerlink" href="#select-a-file" title="Permanent link">&para;</a></h2>
-<p>Click <strong>Select</strong> on a file row. The dialog closes and the data source
-form is populated with the file's URL and detected format.</p>
-<p><img alt="S3 browser inside DEM folder showing a single Copernicus_DSM COG file with a COG format badge and a Select button" src="../assets/screenshots/s3-browser-cog-detected.png" /></p>
-<h2 id="bulk-add">Bulk add<a class="headerlink" href="#bulk-add" title="Permanent link">&para;</a></h2>
-<p>The <strong>Add All (n)</strong> button at the bottom adds every supported file in the
-current view (after search and format filtering) as separate data
-sources. Use this for time-series of many COGs in the same folder, or
-when seeding a layer from a folder of FlatGeoBuf shards.</p>
-<h2 id="supported-formats">Supported formats<a class="headerlink" href="#supported-formats" title="Permanent link">&para;</a></h2>
-<p>Files are auto-detected by extension:</p>
+<h1 id="colormaps">Colormaps<a class="headerlink" href="#colormaps" title="Permanent link">&para;</a></h1>
+<p>The <strong>Colormap</strong> sub-section of the layer card's <a href="data-visualisation.html">Data Visualisation</a> panel styles rasters whose pixel values are <strong>continuous numeric</strong> (e.g. NDVI, elevation, temperature). A colormap maps the value range to a gradient.</p>
+<p><img alt="Colormaps editor" src="../assets/screenshots/colormaps-editor.png" /></p>
+<h2 id="configuring-a-colormap">Configuring a colormap<a class="headerlink" href="#configuring-a-colormap" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Open the layer card → expand <strong>Data Visualisation</strong></li>
+<li>Click the <strong>+</strong> next to <strong>Colormap</strong></li>
+<li>Pick a preset (Viridis, Plasma, Turbo, RdBu, …) or build a custom ramp</li>
+<li>Set the <strong>min</strong> and <strong>max</strong> of the input range — values outside are clamped</li>
+<li>Optional: enable <strong>reverse</strong> to flip the gradient</li>
+<li>Save</li>
+</ol>
+<h2 id="custom-ramps">Custom ramps<a class="headerlink" href="#custom-ramps" title="Permanent link">&para;</a></h2>
+<p>Custom ramps are an ordered list of <code>(stop, colour)</code> pairs. The renderer interpolates linearly between adjacent stops. Use stops at <code>0</code> and <code>1</code> for a normalised input, or use the layer's value range directly.</p>
+<h2 id="choosing-a-preset">Choosing a preset<a class="headerlink" href="#choosing-a-preset" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Extension</th>
-<th>Format</th>
+<th>Data shape</th>
+<th>Recommended preset</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>.tif</code>, <code>.tiff</code></td>
-<td>COG</td>
+<td>Sequential, low-to-high (NDVI, biomass)</td>
+<td>Viridis, Plasma, Magma</td>
 </tr>
 <tr>
-<td><code>.geojson</code>, <code>.json</code></td>
-<td>GeoJSON</td>
+<td>Diverging around a midpoint (anomaly, change)</td>
+<td>RdBu, BrBG, PiYG</td>
 </tr>
 <tr>
-<td><code>.fgb</code></td>
-<td>FlatGeoBuf</td>
+<td>Cyclic (aspect, phase)</td>
+<td>Twilight, HSV</td>
 </tr>
 <tr>
-<td><code>.csv</code></td>
-<td>CSV</td>
-</tr>
-<tr>
-<td>anything else</td>
-<td><em>Unsupported</em> (greyed out, not selectable)</td>
+<td>High-contrast / categorical-like continuous</td>
+<td>Turbo</td>
 </tr>
 </tbody>
 </table>
-<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<h2 id="when-colormaps-dont-fit">When colormaps don't fit<a class="headerlink" href="#when-colormaps-dont-fit" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Bucket listings need either public ACL or a CORS-friendly listing
-  endpoint. If the browser shows nothing, check the service URL in the
-  Services tab and the bucket's CORS policy.</li>
-<li>For signed URLs (presigned S3, MinIO temp creds), the browser strips
-  the query parameters when storing the base URL — the deployed Explorer
-  signs requests on its own.</li>
+<li>For discrete classes → use <a href="categories.html">Categories</a></li>
+<li>For three-band imagery → use <a href="rgb-composite.html">RGB composite</a></li>
+<li>For vector data → use <a href="vector-styling.html">Vector styling</a></li>
 </ul>
 
 

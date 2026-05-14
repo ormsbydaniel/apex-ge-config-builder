@@ -71,10 +71,11 @@ nav:
           - STAC browser: data-sources/stac-browser.md
       - Data visualisation:
           - layers/data-visualisation.md
+          - Categories: layers/categories.md
+          - Colormaps: layers/colormaps.md
           - RGB composite: layers/rgb-composite.md
           - Vector styling: layers/vector-styling.md
           - Vector fields: layers/vector-fields.md
-          - Categories and colormaps: layers/categories.md
       - Statistics: statistics/index.md
       - Constraints: constraints/index.md
       - Charts:

@@ -12,7 +12,7 @@ Render a multi-band raster source — typically a Cloud Optimized GeoTIFF — as
 - False-colour analysis (e.g. NIR-Red-Green for vegetation)
 - Hyperspectral cubes where you want to inspect a specific three-band slice
 
-For single-band products use a [Colormap](categories.md) instead.
+For single-band products use a [Colormap](colormaps.md) instead.
 
 ## How the configuration is stored
 
