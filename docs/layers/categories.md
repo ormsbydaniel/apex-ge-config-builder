@@ -6,6 +6,12 @@ title: Categories and colormaps
 
 Two of the four mutually exclusive raster styling tools live behind the **Categories** and **Colormap** sub-sections of the layer card's [Data Visualisation](data-visualisation.md) panel. They serve very different data shapes.
 
+![Categories preview in the layer card](../assets/screenshots/categories-section.png)
+
+![Edit Categories dialog](../assets/screenshots/categories-editor.png)
+
+![Colormaps editor](../assets/screenshots/colormaps-editor.png)
+
 ## Categories — discrete classes
 
 Use when raster pixel values represent **discrete classes** (e.g. ESA WorldCover land-cover codes, soil type, administrative region).

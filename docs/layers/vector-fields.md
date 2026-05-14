@@ -6,6 +6,8 @@ title: Vector fields
 
 The **Fields editor** controls which feature properties appear in the APEx Geospatial Explorer's info panel and how each value is labelled and formatted. It is independent of [Vector styling](vector-styling.md): styling controls how a feature looks on the map, fields control what users see when they click a feature.
 
+![Manage Fields dialog with Define / Auto-detect / Copy from layer tabs](../assets/screenshots/fields-editor.png)
+
 ## When to use
 
 - Hide noisy or internal properties (`fid`, `geom_id`, raw timestamps)
