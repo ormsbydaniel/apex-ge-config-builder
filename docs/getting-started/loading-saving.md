@@ -43,7 +43,7 @@ From the **Home** tab use the **Export** dropdown:
 - **Export with Options…** — opens the [Export options](../configuration/export-options.md)
   dialog, where you can choose JSON ordering and other formatting options.
 
-The exported file is what you ship to the viewer host.
+The exported file is what you ship to the APEx Geospatial Explorer host.
 
 ## Starting fresh
 

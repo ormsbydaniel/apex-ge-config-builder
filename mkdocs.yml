@@ -1,5 +1,5 @@
 site_name: APEx Geospatial Explorer — Config Builder Guide
-site_description: End-user guide for building, validating, and exporting viewer configurations.
+site_description: End-user guide for building, validating, and exporting APEx Geospatial Explorer configurations.
 docs_dir: docs
 site_dir: public/guide
 site_url: https://apex-ge-config-builder.sparkgeo.uk/guide/
@@ -48,7 +48,7 @@ nav:
       - Layout: configuration/layout.md
       - Settings: configuration/settings.md
       - Draw order: configuration/draw-order.md
-      - Preview: configuration/preview.md
+      - GE Preview: configuration/preview.md
       - Footer links: configuration/footer-links.md
       - Interface groups: configuration/interface-groups.md
       - Export options: configuration/export-options.md
