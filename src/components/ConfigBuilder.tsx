@@ -268,6 +268,23 @@ const ConfigBuilderContent = () => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
+                  <a
+                    href="/guide/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-primary/20 bg-white hover:bg-primary hover:text-primary-foreground transition-colors"
+                  >
+                    <BookOpen className="h-4 w-4 text-muted-foreground" />
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>User Guide</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
                   <Button 
                     variant="outline" 
                     size="icon"
