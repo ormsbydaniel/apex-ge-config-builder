@@ -2175,6 +2175,11 @@
 <p>A <strong>service</strong> is a reusable endpoint definition. Layers reference services
 by name, so you can swap an endpoint URL in one place and have every layer
 that uses it pick up the change.</p>
+<div class="admonition tip">
+<p class="admonition-title">Follow along</p>
+<p>Screenshots on this page were taken with the <strong>Comprehensive demo</strong>
+config loaded.</p>
+</div>
 <h2 id="what-a-service-is">What a service is<a class="headerlink" href="#what-a-service-is" title="Permanent link">&para;</a></h2>
 <p>A service captures three things:</p>
 <ol>
@@ -2211,6 +2216,7 @@ of the <strong>Configured Services</strong> card has three buttons:</p>
 </tr>
 </tbody>
 </table>
+<p><img alt="Services tab with the Configured Services card open: STAC catalogues, WMS services, and an S3 bucket all showing as reachable" src="../assets/screenshots/services-tab.png" /></p>
 <p>Below the header, each service is shown as a row with its name, URL, type
 badge, and per-service validation status.</p>
 <h2 id="supported-service-types">Supported service types<a class="headerlink" href="#supported-service-types" title="Permanent link">&para;</a></h2>
@@ -2266,6 +2272,7 @@ do not need a service entry — you can add them straight from the
 <li><strong>Failed</strong> — could not reach the endpoint, or the response was unusable.
   The error message is shown inline.</li>
 </ul>
+<p><img alt="Services list showing healthy services with green &quot;layers available&quot; badges above an &quot;Invalid services&quot; section listing two failed entries with Server error (HTTP 503) and Server did not respond in time" src="../assets/screenshots/services-validation-states.png" /></p>
 <p>Use <strong>Re-check all</strong> after a network change or when you suspect an upstream
 endpoint has moved.</p>
 <h2 id="when-to-use-services-vs-direct-urls">When to use services vs. direct URLs<a class="headerlink" href="#when-to-use-services-vs-direct-urls" title="Permanent link">&para;</a></h2>

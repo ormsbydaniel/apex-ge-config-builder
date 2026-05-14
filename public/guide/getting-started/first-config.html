@@ -2287,6 +2287,12 @@ configuration from scratch — one base layer, one interface group, one
 data layer, validated and previewed.</p>
 <p>If you would rather start from a working example, see
 <a href="loading-saving.html">Loading and saving</a> and load the <strong>Comprehensive demo</strong>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Follow along</p>
+<p>Most screenshots in this tutorial were captured against the
+<strong>Comprehensive demo</strong> so you can see what a finished config looks
+like at each step.</p>
+</div>
 <h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">&para;</a></h2>
 <p>You need:</p>
 <ul>
@@ -2304,13 +2310,16 @@ data layer, validated and previewed.</p>
 </ul>
 <p>The five statistic counters (Interface Groups, Layers, Base Layers,
 Exclusivity Sets, Services) all read 0 — that is the empty starting state.</p>
+<p><img alt="Home tab — the Project card with Application Title and Version on the left, the Config Quality Assurance card on the right" src="../assets/screenshots/home-tab-overview.png" /></p>
 <h2 id="2-create-one-interface-group">2. Create one interface group<a class="headerlink" href="#2-create-one-interface-group" title="Permanent link">&para;</a></h2>
 <p>Open the <a href="../configuration/settings.html">Settings</a> tab and scroll to the
 <a href="../configuration/interface-groups.html">Interface Groups</a> card.</p>
 <p>Type a group name — for example <code>Land Cover</code> — and press <strong>Enter</strong>. The
 group appears in the list with <code>(0 sources)</code> next to it.</p>
+<p><img alt="Layers tab showing interface groups built from the Comprehensive demo — your first config will start with just one" src="../assets/screenshots/interface-groups-list.png" /></p>
 <h2 id="3-add-a-service">3. Add a service<a class="headerlink" href="#3-add-a-service" title="Permanent link">&para;</a></h2>
 <p>Open the <a href="../services/overview.html">Services</a> tab and click <strong>Add Service</strong>.</p>
+<p><img alt="Add Service dialog with Service Type set to WMS and an empty Service URL field" src="../assets/screenshots/services-add-dialog.png" /></p>
 <p>In the dialog:</p>
 <ol>
 <li>Pick a <strong>Service Type</strong> that matches your endpoint (start with <strong>WMTS</strong>
@@ -2336,6 +2345,7 @@ paste an XYZ tile template — for example
 <p>The Layers tab now shows a single base layer card under <strong>Base Layers</strong>.</p>
 <h2 id="5-add-a-data-layer">5. Add a data layer<a class="headerlink" href="#5-add-a-data-layer" title="Permanent link">&para;</a></h2>
 <p>Click <strong>Add Layer</strong> again. In the type selector, click <strong>Add Layer Card</strong>.</p>
+<p><img alt="Create Layer Card editor with Layer Type, Layout Style, and Basic Information sections" src="../assets/screenshots/layers-create-card.png" /></p>
 <p>In the layer editor:</p>
 <ol>
 <li><strong>Title</strong> — for example <code>Forest cover</code>.</li>
@@ -2364,6 +2374,7 @@ draws on top of the basemap. Drag to reorder if needed.</p>
 <p>Click <strong>Preview</strong> in the top navigation to open
 <a href="../configuration/preview.html">GE Preview</a>. The actual APEx Geospatial
 Explorer loads in an iframe with your config applied.</p>
+<p><img alt="GE Preview running with a loaded config: layer panel on the left, map in the middle, info panel on the right" src="../assets/screenshots/ge-preview-loaded.png" /></p>
 <p>Confirm:</p>
 <ul>
 <li>The basemap renders.</li>
