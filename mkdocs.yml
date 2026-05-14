@@ -59,28 +59,28 @@ nav:
       - Adding layers: layers/adding-layers.md
       - Base layers: layers/base-layers.md
       - Swipe layers: layers/swipe-layers.md
-  - Data sources:
-      - COG: data-sources/cog.md
-      - WMS / WMTS / WFS: data-sources/wms-wmts-wfs.md
-      - XYZ: data-sources/xyz.md
-      - GeoJSON / FlatGeoBuf: data-sources/geojson-flatgeobuf.md
-      - CSV: data-sources/csv.md
-      - S3 browser: data-sources/s3-browser.md
-      - STAC browser: data-sources/stac-browser.md
-  - Data visualisation:
-      - layers/data-visualisation.md
-      - RGB composite: layers/rgb-composite.md
-      - Vector styling: layers/vector-styling.md
-      - Vector fields: layers/vector-fields.md
-      - Categories and colormaps: layers/categories.md
-  - Statistics: statistics/index.md
-  - Constraints: constraints/index.md
-  - Charts:
-      - charts/index.md
-      - Visual editor: charts/visual-editor.md
-      - Pixel values: charts/pixel-values.md
-      - Field values: charts/field-values.md
-      - CSV data: charts/csv-data.md
+      - Data sources:
+          - COG: data-sources/cog.md
+          - WMS / WMTS / WFS: data-sources/wms-wmts-wfs.md
+          - XYZ: data-sources/xyz.md
+          - GeoJSON / FlatGeoBuf: data-sources/geojson-flatgeobuf.md
+          - CSV: data-sources/csv.md
+          - S3 browser: data-sources/s3-browser.md
+          - STAC browser: data-sources/stac-browser.md
+      - Data visualisation:
+          - layers/data-visualisation.md
+          - RGB composite: layers/rgb-composite.md
+          - Vector styling: layers/vector-styling.md
+          - Vector fields: layers/vector-fields.md
+          - Categories and colormaps: layers/categories.md
+      - Statistics: statistics/index.md
+      - Constraints: constraints/index.md
+      - Charts:
+          - charts/index.md
+          - Visual editor: charts/visual-editor.md
+          - Pixel values: charts/pixel-values.md
+          - Field values: charts/field-values.md
+          - CSV data: charts/csv-data.md
   - Draw order tab: configuration/draw-order.md
   - Services tab:
       - services/index.md
