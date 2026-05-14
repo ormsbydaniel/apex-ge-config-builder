@@ -10,25 +10,31 @@
       
       
       
+        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/loading-saving.html">
       
+      
+        <link rel="prev" href="first-config.html">
+      
+      
+        <link rel="next" href="../configuration/home.html">
       
       
         
       
       
-      <link rel="icon" href="/guide/assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>Loading and saving - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
-      <link rel="stylesheet" href="/guide/assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="/guide/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -47,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL("/guide/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -71,6 +77,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#loading-and-saving" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -83,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/guide/index.html" title="APEx Geospatial Explorer — Config Builder Guide" class="md-header__button md-logo" aria-label="APEx Geospatial Explorer — Config Builder Guide" data-md-component="logo">
+    <a href="../index.html" title="APEx Geospatial Explorer — Config Builder Guide" class="md-header__button md-logo" aria-label="APEx Geospatial Explorer — Config Builder Guide" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -103,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Loading and saving
             
           </span>
         </div>
@@ -199,7 +210,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/guide/index.html" title="APEx Geospatial Explorer — Config Builder Guide" class="md-nav__button md-logo" aria-label="APEx Geospatial Explorer — Config Builder Guide" data-md-component="logo">
+    <a href="../index.html" title="APEx Geospatial Explorer — Config Builder Guide" class="md-nav__button md-logo" aria-label="APEx Geospatial Explorer — Config Builder Guide" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -217,7 +228,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/index.html" class="md-nav__link">
+      <a href="../index.html" class="md-nav__link">
         
   
   
@@ -241,8 +252,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -261,13 +274,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -288,7 +299,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -306,7 +317,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/getting-started/overview.html" class="md-nav__link">
+      <a href="overview.html" class="md-nav__link">
         
   
   
@@ -334,7 +345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/getting-started/first-config.html" class="md-nav__link">
+      <a href="first-config.html" class="md-nav__link">
         
   
   
@@ -359,10 +370,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/guide/getting-started/loading-saving.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loading and saving
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="loading-saving.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -378,6 +416,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#loading-a-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loading a config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-unsaved-changes-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The unsaved-changes guard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exporting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exporting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starting-fresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starting fresh
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -469,7 +571,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/configuration/home.html" class="md-nav__link">
+      <a href="../configuration/home.html" class="md-nav__link">
         
   
   
@@ -497,7 +599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/configuration/layout.html" class="md-nav__link">
+      <a href="../configuration/layout.html" class="md-nav__link">
         
   
   
@@ -525,7 +627,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/configuration/settings.html" class="md-nav__link">
+      <a href="../configuration/settings.html" class="md-nav__link">
         
   
   
@@ -553,7 +655,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/configuration/draw-order.html" class="md-nav__link">
+      <a href="../configuration/draw-order.html" class="md-nav__link">
         
   
   
@@ -581,7 +683,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/configuration/preview.html" class="md-nav__link">
+      <a href="../configuration/preview.html" class="md-nav__link">
         
   
   
@@ -609,7 +711,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/configuration/footer-links.html" class="md-nav__link">
+      <a href="../configuration/footer-links.html" class="md-nav__link">
         
   
   
@@ -637,7 +739,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/configuration/interface-groups.html" class="md-nav__link">
+      <a href="../configuration/interface-groups.html" class="md-nav__link">
         
   
   
@@ -665,7 +767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/configuration/export-options.html" class="md-nav__link">
+      <a href="../configuration/export-options.html" class="md-nav__link">
         
   
   
@@ -766,7 +868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/services/overview.html" class="md-nav__link">
+      <a href="../services/overview.html" class="md-nav__link">
         
   
   
@@ -794,7 +896,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/services/adding-services.html" class="md-nav__link">
+      <a href="../services/adding-services.html" class="md-nav__link">
         
   
   
@@ -822,7 +924,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/services/diagnostics.html" class="md-nav__link">
+      <a href="../services/diagnostics.html" class="md-nav__link">
         
   
   
@@ -850,7 +952,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/services/healthcheck.html" class="md-nav__link">
+      <a href="../services/healthcheck.html" class="md-nav__link">
         
   
   
@@ -878,7 +980,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/services/recommended.html" class="md-nav__link">
+      <a href="../services/recommended.html" class="md-nav__link">
         
   
   
@@ -987,7 +1089,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/layers/overview.html" class="md-nav__link">
+      <a href="../layers/overview.html" class="md-nav__link">
         
   
   
@@ -1015,7 +1117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/layers/adding-layers.html" class="md-nav__link">
+      <a href="../layers/adding-layers.html" class="md-nav__link">
         
   
   
@@ -1043,7 +1145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/layers/base-layers.html" class="md-nav__link">
+      <a href="../layers/base-layers.html" class="md-nav__link">
         
   
   
@@ -1071,7 +1173,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/layers/swipe-layers.html" class="md-nav__link">
+      <a href="../layers/swipe-layers.html" class="md-nav__link">
         
   
   
@@ -1099,7 +1201,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/layers/data-visualisation.html" class="md-nav__link">
+      <a href="../layers/data-visualisation.html" class="md-nav__link">
         
   
   
@@ -1127,7 +1229,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/layers/rgb-composite.html" class="md-nav__link">
+      <a href="../layers/rgb-composite.html" class="md-nav__link">
         
   
   
@@ -1155,7 +1257,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/layers/vector-styling.html" class="md-nav__link">
+      <a href="../layers/vector-styling.html" class="md-nav__link">
         
   
   
@@ -1183,7 +1285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/layers/vector-fields.html" class="md-nav__link">
+      <a href="../layers/vector-fields.html" class="md-nav__link">
         
   
   
@@ -1211,7 +1313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/layers/categories.html" class="md-nav__link">
+      <a href="../layers/categories.html" class="md-nav__link">
         
   
   
@@ -1316,7 +1418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/data-sources/cog.html" class="md-nav__link">
+      <a href="../data-sources/cog.html" class="md-nav__link">
         
   
   
@@ -1344,7 +1446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/data-sources/wms-wmts-wfs.html" class="md-nav__link">
+      <a href="../data-sources/wms-wmts-wfs.html" class="md-nav__link">
         
   
   
@@ -1372,7 +1474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/data-sources/xyz.html" class="md-nav__link">
+      <a href="../data-sources/xyz.html" class="md-nav__link">
         
   
   
@@ -1400,7 +1502,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/data-sources/geojson-flatgeobuf.html" class="md-nav__link">
+      <a href="../data-sources/geojson-flatgeobuf.html" class="md-nav__link">
         
   
   
@@ -1428,7 +1530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/data-sources/csv.html" class="md-nav__link">
+      <a href="../data-sources/csv.html" class="md-nav__link">
         
   
   
@@ -1456,7 +1558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/data-sources/s3-browser.html" class="md-nav__link">
+      <a href="../data-sources/s3-browser.html" class="md-nav__link">
         
   
   
@@ -1484,7 +1586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/data-sources/stac-browser.html" class="md-nav__link">
+      <a href="../data-sources/stac-browser.html" class="md-nav__link">
         
   
   
@@ -1585,7 +1687,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/charts/overview.html" class="md-nav__link">
+      <a href="../charts/overview.html" class="md-nav__link">
         
   
   
@@ -1613,7 +1715,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/charts/visual-editor.html" class="md-nav__link">
+      <a href="../charts/visual-editor.html" class="md-nav__link">
         
   
   
@@ -1641,7 +1743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/charts/pixel-values.html" class="md-nav__link">
+      <a href="../charts/pixel-values.html" class="md-nav__link">
         
   
   
@@ -1669,7 +1771,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/charts/field-values.html" class="md-nav__link">
+      <a href="../charts/field-values.html" class="md-nav__link">
         
   
   
@@ -1697,7 +1799,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/charts/csv-data.html" class="md-nav__link">
+      <a href="../charts/csv-data.html" class="md-nav__link">
         
   
   
@@ -1796,7 +1898,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/reference/url-parameters.html" class="md-nav__link">
+      <a href="../reference/url-parameters.html" class="md-nav__link">
         
   
   
@@ -1824,7 +1926,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/reference/keyboard-and-tips.html" class="md-nav__link">
+      <a href="../reference/keyboard-and-tips.html" class="md-nav__link">
         
   
   
@@ -1852,7 +1954,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/reference/troubleshooting.html" class="md-nav__link">
+      <a href="../reference/troubleshooting.html" class="md-nav__link">
         
   
   
@@ -1880,7 +1982,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/guide/reference/glossary.html" class="md-nav__link">
+      <a href="../reference/glossary.html" class="md-nav__link">
         
   
   
@@ -1925,6 +2027,60 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#loading-a-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loading a config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-unsaved-changes-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The unsaved-changes guard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exporting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exporting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starting-fresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starting fresh
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1937,8 +2093,77 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+
+<h1 id="loading-and-saving">Loading and saving<a class="headerlink" href="#loading-and-saving" title="Permanent link">&para;</a></h1>
+<p>The Configuration Builder never auto-saves to a server — your work lives in
+the browser session and is exported as a JSON file. There are four ways to
+<strong>load</strong> an existing config and one way to <strong>export</strong>.</p>
+<h2 id="loading-a-config">Loading a config<a class="headerlink" href="#loading-a-config" title="Permanent link">&para;</a></h2>
+<p>From the <strong>Home</strong> tab click <strong>Load</strong> to open the <strong>Load Configuration</strong>
+dialog.</p>
+<p><img alt="Load Configuration dialog with the Examples tab selected" src="../assets/screenshots/load-config-examples.png" /></p>
+<p>Three sources are available:</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>When to use it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Upload</strong></td>
+<td>A <code>config.json</code> you already have on disk.</td>
+</tr>
+<tr>
+<td><strong>Examples</strong></td>
+<td>Start from the bundled <strong>Comprehensive demo</strong> — useful for learning the app or as a template.</td>
+</tr>
+<tr>
+<td><strong>From GitHub</strong></td>
+<td>Browse a configured GitHub repo (default: <code>ESA-APEx/apex_geospatial_explorer_configs</code>) and pick any <code>config.json</code> from any branch.</td>
+</tr>
+</tbody>
+</table>
+<p>While loading, the dialog shows a four-stage progress bar: <strong>Parsing JSON →
+Normalizing structure → Validating schema → Done</strong>. If the schema validation
+fails, the dialog hands the offending file to a recovery dialog where you can
+fix or remove invalid entries.</p>
+<h2 id="the-unsaved-changes-guard">The unsaved-changes guard<a class="headerlink" href="#the-unsaved-changes-guard" title="Permanent link">&para;</a></h2>
+<p>Anything that would discard the current config (loading a different one,
+clicking <strong>New</strong>, navigating away) prompts you with an <strong>Unsaved Changes</strong>
+warning when there are recent unexported edits. Confirm to continue or
+cancel and export first.</p>
+<h2 id="exporting">Exporting<a class="headerlink" href="#exporting" title="Permanent link">&para;</a></h2>
+<p>From the <strong>Home</strong> tab use the <strong>Export</strong> dropdown:</p>
+<ul>
+<li><strong>Quick Export (Default)</strong> — downloads the current config as JSON immediately.</li>
+<li><strong>Export with Options…</strong> — opens the <a href="../configuration/export-options.html">Export options</a>
+  dialog, where you can choose JSON ordering and other formatting options.</li>
+</ul>
+<p>The exported file is what you ship to the APEx Geospatial Explorer host.</p>
+<h2 id="starting-fresh">Starting fresh<a class="headerlink" href="#starting-fresh" title="Permanent link">&para;</a></h2>
+<p>Click <strong>New</strong> on the <strong>Home</strong> tab to reset the builder to an empty
+configuration. The unsaved-changes guard applies here too.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -1983,10 +2208,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/guide/", "features": ["navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "content.code.copy", "content.tabs.link"], "search": "/guide/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="/guide/assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

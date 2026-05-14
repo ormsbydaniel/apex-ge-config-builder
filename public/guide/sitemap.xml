@@ -1,171 +1,171 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/index.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/csv-data/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/csv-data.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/field-values/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/field-values.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/overview/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/overview.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/pixel-values/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/pixel-values.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/visual-editor/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/visual-editor.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/draw-order/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/draw-order.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/export-options/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/export-options.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/footer-links/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/footer-links.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/home/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/home.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/interface-groups/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/interface-groups.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/layout/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/layout.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/preview/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/preview.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/settings/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/settings.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/cog/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/cog.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/csv/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/csv.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/geojson-flatgeobuf/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/geojson-flatgeobuf.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/s3-browser/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/s3-browser.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/stac-browser/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/stac-browser.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/wms-wmts-wfs/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/wms-wmts-wfs.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/xyz/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/xyz.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/first-config/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/first-config.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/loading-saving/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/loading-saving.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/overview/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/overview.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/adding-layers/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/adding-layers.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/base-layers/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/base-layers.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/categories/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/categories.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/data-visualisation/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/data-visualisation.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/overview/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/overview.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/rgb-composite/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/rgb-composite.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/swipe-layers/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/swipe-layers.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/vector-fields/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/vector-fields.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/vector-styling/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/vector-styling.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/glossary/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/glossary.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/keyboard-and-tips/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/keyboard-and-tips.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/troubleshooting/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/troubleshooting.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/url-parameters/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/url-parameters.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/adding-services/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/adding-services.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/diagnostics/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/diagnostics.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/healthcheck/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/healthcheck.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/overview/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/overview.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/recommended/</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/recommended.html</loc>
          <lastmod>2026-05-14</lastmod>
     </url>
 </urlset>
