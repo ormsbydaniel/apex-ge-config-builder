@@ -3,7 +3,7 @@ site_description: End-user guide for building, validating, and exporting APEx Ge
 docs_dir: docs
 site_dir: public/guide
 site_url: https://apex-ge-config-builder.sparkgeo.uk/guide/
-use_directory_urls: true
+use_directory_urls: false
 
 theme:
   name: material
