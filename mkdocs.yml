@@ -100,6 +100,7 @@ nav:
   - GE Preview tab: configuration/preview.md
   - Reference:
       - URL parameters: reference/url-parameters.md
+      - JSON schema reference: reference/json-schema.md
       - Tips and shortcuts: reference/keyboard-and-tips.md
       - Troubleshooting: reference/troubleshooting.md
       - Authors guide: reference/authors-guide.md
