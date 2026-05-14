@@ -30,7 +30,7 @@ Pick the entry point that matches what you are doing right now:
 
 | If you are…                                              | Start here |
 |----------------------------------------------------------|------------|
-| New to the builder                                       | [Getting Started → Overview](getting-started/overview.md) — core concepts (config, service, layer, interface group). |
+| New to the builder                                       | [Getting Started → Overview](getting-started/index.md) — core concepts (config, service, layer, interface group). |
 | Building your first config from scratch                  | [Build your first config](getting-started/first-config.md) — guided walk-through. |
 | Evaluating a config you just loaded                      | [Run Healthcheck](services/healthcheck.md) — fastest way to find broken or slow layers. |
 | Looking for a specific feature                           | Use the left-hand nav, grouped by tab (Home, Layers, Services, Settings…). |

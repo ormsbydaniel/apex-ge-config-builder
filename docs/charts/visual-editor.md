@@ -28,5 +28,5 @@ The layout panel covers `xaxis`, `yaxis`, `legend`, and `barmode`. Axis titles u
 
 ## Related
 
-- [Charts overview](overview.md)
+- [Charts overview](index.md)
 - [CSV data](csv-data.md) — how columns are typed before they reach Quick Add.

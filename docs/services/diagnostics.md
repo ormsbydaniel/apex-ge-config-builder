@@ -4,7 +4,7 @@ title: Service diagnostics
 
 # Service diagnostics
 
-Every service on the [Services](overview.md) tab is probed independently so
+Every service on the [Services](index.md) tab is probed independently so
 you can tell, at a glance, which endpoints are healthy and which are
 failing — without having to run a full layer
 [Healthcheck](healthcheck.md).

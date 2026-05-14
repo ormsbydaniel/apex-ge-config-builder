@@ -61,7 +61,7 @@ A row of five compact counters summarises the config:
 | **Layers** | Data-source layers, excluding base layers. |
 | **Base Layers** | Background basemap layers. |
 | **Exclusivity Sets** | Mutual-exclusion groups defined in Settings. |
-| **Services** | Endpoints declared on the [Services](../services/overview.md) tab. |
+| **Services** | Endpoints declared on the [Services](../services/index.md) tab. |
 
 ### Status info
 

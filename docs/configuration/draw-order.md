@@ -37,4 +37,4 @@ Tips:
 ## Related
 
 - [Interface groups](interface-groups.md) — controls Layers-tab grouping, not draw order.
-- [Layers overview](../layers/overview.md)
+- [Layers overview](../layers/index.md)

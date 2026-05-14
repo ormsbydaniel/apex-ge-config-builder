@@ -17,7 +17,7 @@ cousin.
 
 Both work as the **Data** source of a vector layer and as the
 **Statistics** source for zonal-statistics overlays on raster layers (see
-[Statistics](../statistics/overview.md)).
+[Statistics](../statistics/index.md)).
 
 ## Add a GeoJSON or FlatGeoBuf source
 

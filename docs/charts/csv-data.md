@@ -22,5 +22,5 @@ The first row is always treated as the header. Header names are used verbatim as
 
 ## Related
 
-- [Charts overview](overview.md)
+- [Charts overview](index.md)
 - [Visual editor](visual-editor.md)

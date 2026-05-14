@@ -69,7 +69,7 @@ Sub-groups are **not** declared here. They are typed directly into the
 on at least one card automatically appears as a folder under its parent
 interface group in the deployed Explorer.
 
-For the conceptual model see [Layers overview → How the tab is laid out](../layers/overview.md#how-the-tab-is-laid-out).
+For the conceptual model see [Layers overview → How the tab is laid out](../layers/index.md#how-the-tab-is-laid-out).
 
 ## Tips
 

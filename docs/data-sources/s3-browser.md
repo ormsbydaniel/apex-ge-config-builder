@@ -5,7 +5,7 @@ title: S3 browser
 # S3 browser
 
 A folder-style picker for any S3 service registered on the
-[Services](../services/overview.md) tab. Works against AWS S3, Huawei
+[Services](../services/index.md) tab. Works against AWS S3, Huawei
 OBS, MinIO, and other S3-compatible stores.
 
 ## Open the browser

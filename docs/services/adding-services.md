@@ -5,7 +5,7 @@ title: Adding services
 # Adding services
 
 This page covers the **Add Service** dialog on the
-[Services](overview.md) tab.
+[Services](index.md) tab.
 
 ## Open the dialog
 
