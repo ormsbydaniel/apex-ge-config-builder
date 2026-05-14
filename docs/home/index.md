@@ -57,7 +57,7 @@ A row of five compact counters summarises the config:
 
 | Stat | What it counts |
 |------|----------------|
-| **Interface Groups** | Top-level groupings declared in [Settings](settings.md). |
+| **Interface Groups** | Top-level groupings declared in [Settings](../settings/index.md). |
 | **Layers** | Data-source layers, excluding base layers. |
 | **Base Layers** | Background basemap layers. |
 | **Exclusivity Sets** | Mutual-exclusion groups defined in Settings. |
