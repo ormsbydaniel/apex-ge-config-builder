@@ -95,4 +95,5 @@ in an iframe. Versions are pinned per config so a config built against
 ### Zod
 The runtime schema validation library used by `useValidatedConfig` and
 the [JSON Config tab](../configuration/json-config.md). Defines the
-canonical shape of every config field.
+canonical shape of every config field — see the
+[JSON schema reference](json-schema.md).
