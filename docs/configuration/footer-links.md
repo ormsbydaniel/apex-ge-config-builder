@@ -5,7 +5,7 @@ title: Footer links
 # Footer links
 
 The **Footer Links** editor manages the links shown in the deployed APEx
-Geospatial Explorer's footer bar. Open it from the [Settings tab](settings.md)
+Geospatial Explorer's footer bar. Open it from the [Settings tab](../settings/index.md)
 by clicking **Edit Footer Links** under the Footer Links preview.
 
 The dialog is a two-page modal: a sortable list of existing links, and an

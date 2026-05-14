@@ -22,18 +22,18 @@ covered below.
 ## Config Export Settings
 
 - **Export filename prefix** — the prefix used when you click **Export** on
-  the [Home tab](home.md). Exported filenames follow the pattern
+  the [Home tab](../home/index.md). Exported filenames follow the pattern
   `<prefix>_YYYYMMMDD_HHMM.json`. Pick something short and meaningful, for
   example `config_biodiversity` → `config_biodiversity_2025NOV14_1530.json`.
 
 For sort order and field-ordering options at export time see
-[Export options](export-options.md).
+[Export options](../configuration/export-options.md).
 
 ## Design Variant
 
 Pick one of the predefined UI variants for the deployed Explorer (for
 example, full-screen vs. side-panel layouts). The choice is persisted in
-the config's `layout.design` field. See [Layout](layout.md) for the visual
+the config's `layout.design` field. See [Layout](../configuration/layout.md) for the visual
 differences between variants.
 
 ## Navigation Settings
@@ -110,7 +110,7 @@ borders, etc.).
 
 A live preview of the current footer links is shown as badges (with mail or
 external-link icons depending on URL scheme). Click **Edit Footer Links** to
-open the [Footer Links](footer-links.md) editor, which supports per-page
+open the [Footer Links](../configuration/footer-links.md) editor, which supports per-page
 link sets.
 
 ## URL Parameters
@@ -122,6 +122,6 @@ to override the config at load time (for example `?variant=fullscreen`,
 
 ## Interface Groups
 
-The [Interface Groups](interface-groups.md) panel is rendered as a separate
+The [Interface Groups](../configuration/interface-groups.md) panel is rendered as a separate
 card on this tab. It controls the top-level structure of the layer panel.
 See its dedicated page for the full walk-through.

@@ -37,7 +37,7 @@ Three buttons sit at the top right of the **Project** card.
     - **Quick Export (Default)** — downloads the current config immediately as
       `<prefix>_YYYYMMMDD_HHMM.json`.
     - **Export with Options…** — opens the
-      [Export options](export-options.md) dialog where you can control
+      [Export options](../configuration/export-options.md) dialog where you can control
       JSON ordering and other formatting choices.
 - **New** clears the workspace back to an empty config. You will be warned if
   there are unsaved changes.
@@ -57,7 +57,7 @@ A row of five compact counters summarises the config:
 
 | Stat | What it counts |
 |------|----------------|
-| **Interface Groups** | Top-level groupings declared in [Settings](settings.md). |
+| **Interface Groups** | Top-level groupings declared in [Settings](../settings/index.md). |
 | **Layers** | Data-source layers, excluding base layers. |
 | **Base Layers** | Background basemap layers. |
 | **Exclusivity Sets** | Mutual-exclusion groups defined in Settings. |

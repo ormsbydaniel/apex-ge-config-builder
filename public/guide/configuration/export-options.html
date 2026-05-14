@@ -246,7 +246,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="home.html" class="md-tabs__link">
+        <a href="../home/index.html" class="md-tabs__link">
           
   
   
@@ -333,7 +333,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="settings.html" class="md-tabs__link">
+        <a href="../settings/index.html" class="md-tabs__link">
           
   
   
@@ -544,6 +544,8 @@
     
       
         
+          
+        
       
         
       
@@ -565,7 +567,7 @@
   
   
   
-    <a href="home.html" class="md-nav__link">
+    <a href="../home/index.html" class="md-nav__link">
       
   
   
@@ -768,6 +770,8 @@
     
       
         
+          
+        
       
         
       
@@ -794,8 +798,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../settings/index.html" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -809,8 +814,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_7">
@@ -823,32 +834,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="settings.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Settings
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1250,7 +1235,7 @@
 
 
 <h1 id="export-options">Export options<a class="headerlink" href="#export-options" title="Permanent link">&para;</a></h1>
-<p>The <strong>Export</strong> action on the <a href="home.html">Home tab</a> is a split menu with two
+<p>The <strong>Export</strong> action on the <a href="../home/index.html">Home tab</a> is a split menu with two
 entries: a one-click default export, and a dialog for opting in to
 formatting options.</p>
 <p><img alt="Home tab — Export dropdown showing Quick Export (Default) and Export with Options menu items" src="../assets/screenshots/home-export-menu.png" /></p>
@@ -1258,7 +1243,7 @@ formatting options.</p>
 <p>Exports the configuration as JSON immediately, with no transformations.
 The downloaded filename is
 <code>&lt;exportPrefix&gt;_YYYYMMMDD_HHMM.json</code> (the prefix is configured under
-<a href="settings.html#config-export-settings">Settings → Config Export Settings</a>).</p>
+<a href="../settings/index.html#config-export-settings">Settings → Config Export Settings</a>).</p>
 <p>This is the recommended default — the file matches the in-memory
 configuration property-for-property, which is best for diffs and
 round-tripping.</p>
@@ -1299,7 +1284,7 @@ the <a href="json-config.html">JSON config</a> tab are not modified.</p>
 </code></pre></div>
 <p>For example, <code>config_2026MAY14_1130.json</code>. The month is the three-letter
 uppercase abbreviation. Set the prefix on the
-<a href="settings.html#config-export-settings">Settings tab</a>.</p>
+<a href="../settings/index.html#config-export-settings">Settings tab</a>.</p>
 
 
 

@@ -28,7 +28,7 @@ The whole walk-through takes about 10 minutes.
 
 ## 1. Set the project title and version
 
-Open the [Home tab](../configuration/home.md). In the **Project** card:
+Open the [Home tab](../home/index.md). In the **Project** card:
 
 - Click the pencil next to **Application Title**, type a name (for example
   `My First Explorer`), click **Save**.
@@ -41,7 +41,7 @@ Exclusivity Sets, Services) all read 0 — that is the empty starting state.
 
 ## 2. Create one interface group
 
-Open the [Settings](../configuration/settings.md) tab and scroll to the
+Open the [Settings](../settings/index.md) tab and scroll to the
 [Interface Groups](../configuration/interface-groups.md) card.
 
 Type a group name — for example `Land Cover` — and press **Enter**. The
@@ -148,7 +148,7 @@ See [Run Healthcheck](../services/healthcheck.md) for the full reference.
 In the **Project** card, click **Export → Quick Export (Default)**. The
 builder downloads a file named like
 `<prefix>_2025NOV14_1530.json`. Set the prefix on the
-[Settings](../configuration/settings.md) tab if you want to change it.
+[Settings](../settings/index.md) tab if you want to change it.
 
 This file is what you ship to the APEx Geospatial Explorer host.
 
@@ -159,4 +159,4 @@ This file is what you ship to the APEx Geospatial Explorer host.
   [STAC](../data-sources/stac-browser.md),
   [GeoJSON / FlatGeoBuf](../data-sources/geojson-flatgeobuf.md).
 - Author [charts](../charts/index.md) from your data.
-- Tune branding under [Settings → Branding](../configuration/settings.md#branding-settings).
+- Tune branding under [Settings → Branding](../settings/index.md#branding-settings).

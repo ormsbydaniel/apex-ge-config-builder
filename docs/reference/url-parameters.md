@@ -9,7 +9,7 @@ parameters on load. These **override** the defaults baked into the
 configuration so you can deep-link to a specific view, layer set, or
 layout without editing the JSON.
 
-The same reference table is rendered in-app on the [Settings tab](../configuration/settings.md)
+The same reference table is rendered in-app on the [Settings tab](../settings/index.md)
 so it travels with the config.
 
 ![URL Parameters reference table on the Settings tab listing variant, zoom, layerGroups, and lat/lng with examples](../assets/screenshots/settings-url-parameters.png)
