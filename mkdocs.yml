@@ -10,7 +10,9 @@ theme:
   features:
     - navigation.tabs
     - navigation.tabs.sticky
-    - navigation.sections
+    # navigation.sections removed so nested groups (Data sources, Charts, …)
+    # inside a tab render as collapsible chevrons instead of always-visible
+    # bold headers.
     - navigation.indexes
     - navigation.prune
     - navigation.top
