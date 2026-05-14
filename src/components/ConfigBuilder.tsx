@@ -269,7 +269,7 @@ const ConfigBuilderContent = () => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <a
-                    href="/guide/"
+                    href="/guide/index.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-primary/20 bg-white hover:bg-primary hover:text-primary-foreground transition-colors"
