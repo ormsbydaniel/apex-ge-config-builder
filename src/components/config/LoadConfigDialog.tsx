@@ -30,7 +30,11 @@ const DEFAULT_BRANCH = 'main';
 interface LoadConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onError: (errors: ValidationErrorDetails[], fileName: string) => void;
+  onError: (
+    errors: ValidationErrorDetails[],
+    fileName: string,
+    recovery?: { rawConfig: any; sourceLabel: string; loadedSource: import('@/contexts/ConfigContext').LoadedConfigSource },
+  ) => void;
 }
 
 interface TreeEntry {
@@ -142,18 +146,20 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   };
 
   const finishLoading = (
-    success: boolean,
-    errors?: ValidationErrorDetails[],
+    result: { success: boolean; errors?: ValidationErrorDetails[]; rawData?: any; sourceLabel?: string; loadedSource?: any },
     fileName?: string,
   ) => {
     setIsLoading(false);
     abortRef.current = null;
-    if (!success && errors) {
+    if (!result.success && result.errors) {
       onOpenChange(false);
-      onError(errors, fileName || loadingLabel);
+      const recovery = result.rawData && result.sourceLabel && result.loadedSource
+        ? { rawConfig: result.rawData, sourceLabel: result.sourceLabel, loadedSource: result.loadedSource }
+        : undefined;
+      onError(result.errors, fileName || loadingLabel, recovery);
       return;
     }
-    if (success) {
+    if (result.success) {
       onOpenChange(false);
     }
   };
@@ -167,7 +173,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       signal: abortRef.current?.signal,
     });
     if (fileInputRef.current) fileInputRef.current.value = '';
-    finishLoading(result.success, result.errors, file.name);
+    finishLoading(result, file.name);
   };
 
   const handleLoadExample = async (exampleName?: string) => {
@@ -181,7 +187,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
         signal: abortRef.current?.signal,
       },
     );
-    finishLoading(result.success, result.errors, 'test-config.json');
+    finishLoading(result, 'test-config.json');
   };
 
   const handleLoadFromGithub = async (path: string) => {
@@ -195,7 +201,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
         signal: abortRef.current?.signal,
       },
     );
-    finishLoading(result.success, result.errors, path);
+    finishLoading(result, path);
   };
 
   const handleCancel = () => {

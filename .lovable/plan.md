@@ -1,52 +1,52 @@
-## Goal
+## Problem
 
-When the user picks a layer from the "Copy from layer" dropdown and the editor already has categories, show a preview of the donor's categories as badges inside the confirmation dialog (`CategoryCopyLogic`), so the user can see what they're about to add or replace before deciding.
+Static GTIF-Austria collections (e.g. `aquifer_eepot_w23_wocc/collection.json`) don't expose `rel:item` links. Instead, they declare:
 
-If there are no existing categories, the copy is applied directly without a confirmation step today — no preview is needed in that path.
+- collection-level `assets` (e.g. `geothermal`, `thumbnail`)
+- one or more `rel:xyz` tile services
+- an optional `rel:service` vector endpoint
 
-## Proposed layout (inside the existing `Add categories` AlertDialog)
+When the user drills into one of these collections in the STAC browser today, `fetchItems` finds no `rel:item` links and falls back to `<serviceUrl>/collections/{id}/items`, which 404s. The correct experience is to skip the items step and show the collection's own assets — including the xyz tile services — as selectable entries.
 
-```text
-┌─ Add categories ───────────────────────────────────────────┐
-│ You have 5 existing categories.                            │
-│ How would you like to add the 8 categories from "Land Use"?│
-│                                                            │
-│ Preview from "Land Use" (8)                                │
-│ ┌────────────────────────────────────────────────────────┐ │
-│ │ ● Forest  ● Water  ● Urban (3)  ● Crops  ● Bare ...   │ │
-│ │ ● Wetland  ● Snow  ● Grassland                         │ │
-│ └────────────────────────────────────────────────────────┘ │
-│                                                            │
-│              [Cancel] [Add to existing (13)] [Replace (8)] │
-└────────────────────────────────────────────────────────────┘
-```
+## Fix
 
-Layout details:
-- Small label above the badge area: `Preview from "<Layer>" (<n>)`, using muted-foreground.
-- Badges reuse the exact visual style already established by `CategoryPreview` (color dot + label, `(value)` shown when the donor `hasValues` is true), so it's instantly recognisable.
-- Container: `flex flex-wrap gap-1`, capped height (e.g. `max-h-32 overflow-y-auto`) with subtle `bg-muted/30 rounded-md p-2 border` so it reads as a distinct preview panel and won't blow up the dialog if the donor has many categories.
-- Sits between the description and the footer buttons; footer buttons remain unchanged.
+### 1. `src/components/layers/components/StacBrowser.tsx`
 
-## Implementation
+In `enterCatalog`, when the fetched child has `type === 'Collection'`:
 
-1. **Extract the badge rendering** out of `CategoryPreview.tsx` into a small reusable piece so both the main editor preview and the confirmation dialog render identical badges. Two reasonable shapes:
-   - Add an internal `CategoryBadgeList` (or simply export a `CategoryBadges` subcomponent) that takes `{ categories, useValues }` and renders the `flex flex-wrap` badge grid.
-   - `CategoryPreview` keeps its current outer styling and delegates to `CategoryBadgeList`.
-   This avoids duplicating the badge markup and keeps any future styling tweaks in one place (consistent with the project's "cohesion over premature splitting" guideline).
+- After fetching the child JSON, inspect `data.assets` and `data.links`.
+- If the collection has **no `rel:item` links** AND (`data.assets` is non-empty OR there are `rel:xyz` links), bypass `fetchItems` and route straight to the existing `assets` step:
+  - Build the asset list from `Object.entries(data.assets || {})`.
+  - Append synthetic asset entries for each `rel:xyz` link, keyed by `link.title || basename(link.href)`, with `href = link.href`, `type = link.type` (defaults to `image/png`), `roles: ['tiles']`, and `title = link.title`.
+  - `setSelectedItem` to a synthetic item whose `id` is `data.id`, `properties` carry `title`/`description`, and `assets` is the merged map.
+  - `setSelectedCollection({ id, title, description, links })`.
+  - `setCurrentStep('assets')`.
 
-2. **Update `CategoryCopyLogic.tsx`** to render the donor preview:
-   - Use `pendingCopyData.categories` and `pendingCopyData.hasValues` (already on the prop).
-   - Render `CategoryBadgeList` inside the dialog body, with the small heading described above.
-   - Guard against the empty case (e.g. CSV import with 0 rows) — skip the preview block if `incoming === 0`.
+- Otherwise (has `rel:item` or it's a true API-style collection), keep the current `fetchItems(collection, childUrl)` path.
 
-3. **No schema, type, or context changes** — `pendingCopyData` already carries everything needed (`name`, `categories`, `hasValues`).
+This reuses the openEO-style branch the file already has at lines 141-160 — same shape, different trigger.
 
-## Files touched
+### 2. `src/components/layers/components/StacBrowser.tsx` — initial detection (`detectAndLoadStacResource`)
 
-- `src/components/form/CategoryPreview.tsx` — extract `CategoryBadgeList` (or export the badges subcomponent).
-- `src/components/form/CategoryCopyLogic.tsx` — render the donor preview block between description and footer.
+Apply the same logic when the user pastes a single `collection.json` URL directly: when `data.type === 'Collection'` AND there are no `rel:item` links AND (`assets` or `rel:xyz` exist), short-circuit to the assets step using the same builder. Today this case falls through and ends up trying `fetchCollectionsFromCatalog`, which 404s for static collections.
+
+### 3. `src/utils/stacUtils.ts` — small helper
+
+Add `getXyzTileLinks(links, baseUrl)` (mirroring `getChildLinks`) returning `{ href, title, type }[]` for `rel === 'xyz'`. Keeps the StacBrowser code tidy and matches the existing helper style in this file.
+
+### 4. Asset format detection
+
+`detectAssetFormat` in `stacUtils.ts` doesn't recognize XYZ tile templates (`.../{z}/{y}/{x}.jpeg`). Add a check at the top: if `href` contains `{z}` and `{x}` and `{y}`, return `'xyz'` (or fall through to the existing image/png/jpeg detection — the format string is only used for display + downstream picker, so `'XYZ'` as the display is enough). No schema changes — `'xyz'` is already a known DataSourceFormat in this project.
 
 ## Out of scope
 
-- Changing the immediate-copy path (when there are no existing categories) — no confirmation dialog appears there, so no preview is shown. Happy to add an inline preview there too if you'd like, but keeping the current "just do it" flow respects the existing behaviour.
-- Changing copy semantics (append/replace logic) or the dropdown itself.
+- No changes to `stacCapabilities.ts`. The capabilities listing for the parent catalog already correctly enumerates child collections (16 children for GTIF Austria); this fix is purely about what the **browser** does after the user clicks one of them.
+- No recursion through `rel:service` vector endpoints — those need a separate path because they're parameterised (`{{feature}}` placeholder) and aren't directly addable as a tile/COG layer.
+- No changes to bulk validation, `useBulkServiceValidation`, or diagnostics. The service still validates green.
+
+## Acceptance
+
+- Adding `https://gtif-austria.github.io/public-catalog/GTIF-Austria/catalog.json`, opening the browser, and clicking "Ground Source Heat Pump: Open Systems (Aquifer)" shows an Assets view with `geothermal`, `thumbnail`, plus the four xyz layers (`EOxCloudless 2024`, `Terrain light`, `OSM Background`, `Overlay labels`). No 404 toast.
+- Pasting `…/aquifer_eepot_w23_wocc/collection.json` directly into the service URL opens the same Assets view immediately.
+- ECOSTRESS `…/eeh-tes-lst/collection.json` (no xyz, no inline assets) continues to behave as today (single-Collection capability + whatever the existing browser does for that case — no regression).
+- FAO STAC API and other true STAC API catalogs are unaffected because they always have `rel:item` (or paginated `/items`) and never enter the new branch.

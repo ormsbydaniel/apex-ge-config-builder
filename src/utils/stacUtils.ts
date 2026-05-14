@@ -116,6 +116,27 @@ export const getChildLinks = (
 };
 
 /**
+ * Returns all `rel: "xyz"` tile-template links from a STAC resource,
+ * resolved against the resource's own URL. XYZ links carry a
+ * `{z}/{x}/{y}` URL template and represent renderable tile services.
+ */
+export const getXyzTileLinks = (
+  links: StacLink[] | undefined,
+  baseUrl: string
+): { href: string; title?: string; type?: string }[] => {
+  return (links || [])
+    .filter((l) => l.rel === 'xyz')
+    .map((l) => ({
+      // Tile templates contain `{z}/{x}/{y}` and must NOT be URL-resolved
+      // (resolveAssetUrl would percent-encode the braces). They're always
+      // absolute in practice, so keep href as-is.
+      href: /^https?:\/\//i.test(l.href) ? l.href : resolveAssetUrl(l.href, baseUrl),
+      title: (l as any).title,
+      type: l.type,
+    }));
+};
+
+/**
  * Best-effort guess of whether a child link points to a Catalog or Collection
  * based on its href. Falls back to `'unknown'` when ambiguous.
  */
@@ -142,7 +163,10 @@ export const extractNextLink = (data: any): string | null => {
 export const detectAssetFormat = (asset: StacAsset): DataSourceFormat | string => {
   const href = asset.href.toLowerCase();
   const type = asset.type?.toLowerCase() || '';
-  
+
+  // XYZ tile templates (e.g. .../{z}/{y}/{x}.png) — must come before extension checks
+  if (href.includes('{z}') && href.includes('{x}') && href.includes('{y}')) return 'xyz';
+
   // Check by media type first
   if (type.includes('tiff') || type.includes('geotiff')) return 'cog';
   if (type.includes('json')) return 'geojson';

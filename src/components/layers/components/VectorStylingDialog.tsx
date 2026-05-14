@@ -3,15 +3,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
-import { isVectorFormat } from '@/utils/fieldDetection';
+import { isVectorFormat, detectFieldsFromSource } from '@/utils/fieldDetection';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
-import { Palette, FileJson } from 'lucide-react';
+import { FileJson } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import StyleEditor from '@/components/vectorStyle/StyleEditor';
+import type { VectorFieldDescriptor } from '@/components/vectorStyle/types';
+import type { StyleRule } from '@/types/vectorStyle';
+import { fromFlatStyleArray } from '@/utils/vectorStyle/fromFlatStyleArray';
+import { toFlatStyleArray } from '@/utils/vectorStyle/toFlatStyleArray';
 
 type StylingMode = 'basic' | 'json';
-let lastMode: StylingMode = 'json';
+let lastMode: StylingMode = 'basic';
 
 interface VectorStylingDialogProps {
   open: boolean;
@@ -21,62 +26,148 @@ interface VectorStylingDialogProps {
   onUpdateDataSources: (updatedData: DataSourceItem[]) => void;
 }
 
+const stripStylePrefix = (text: string): string => {
+  const trimmed = text.trim();
+  const colonIdx = trimmed.indexOf(':');
+  if (colonIdx !== -1 && trimmed.slice(0, colonIdx).includes('style')) {
+    return trimmed.slice(colonIdx + 1).trim();
+  }
+  return trimmed;
+};
+
 const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }: VectorStylingDialogProps) => {
   const { toast } = useToast();
-  const [editedJson, setEditedJson] = useState('');
   const [mode, setMode] = useState<StylingMode>(lastMode);
+  const [editedJson, setEditedJson] = useState('');
+  const [rules, setRules] = useState<StyleRule[]>([]);
+  const [fallbackCount, setFallbackCount] = useState(0);
+  const [detectedFields, setDetectedFields] = useState<VectorFieldDescriptor[]>([]);
 
-  const initialJson = useMemo(() => {
-    if (!open) return '[]';
+  const initialStyle: unknown[] = useMemo(() => {
+    if (!open) return [];
     const vectorItem = source.data.find(
       (item) => isVectorFormat(item.format) && Array.isArray(item.style)
     );
-    const styleArray = vectorItem?.style ?? [];
-    return `"style": ${JSON.stringify(styleArray, null, 2)}`;
+    return (vectorItem?.style as unknown[]) ?? [];
   }, [open, source.data]);
 
+  const initialJson = useMemo(
+    () => `"style": ${JSON.stringify(initialStyle, null, 2)}`,
+    [initialStyle],
+  );
+
+  const configuredFields: VectorFieldDescriptor[] = useMemo(() => {
+    const f = source.meta?.fields;
+    if (!f || typeof f !== 'object') return [];
+    return Object.entries(f)
+      .filter(([, cfg]) => cfg !== null)
+      .map(([name, cfg]) => ({
+        name,
+        type: (cfg as { type?: string } | undefined)?.type,
+      }));
+  }, [source.meta?.fields]);
+
+  // Prefer configured fields; fall back to fields auto-detected from the first vector data item.
+  const fields: VectorFieldDescriptor[] = configuredFields.length > 0
+    ? configuredFields
+    : detectedFields;
+
+  // Reset only when the dialog transitions to open, to avoid wiping
+  // in-progress edits when parent re-renders produce new array identities.
   useEffect(() => {
-    if (open) {
-      setEditedJson(initialJson);
-      setMode(lastMode);
+    if (!open) return;
+    setEditedJson(initialJson);
+    const parsed = fromFlatStyleArray(initialStyle);
+    setRules(parsed.rules);
+    setFallbackCount(parsed.fallbacks.length);
+    setMode(lastMode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  // Stable URL + format for the first vector data item — avoids re-fetching when
+  // the parent re-renders with a new `source.data` array identity.
+  const firstVectorItem = useMemo(() => {
+    return source.data.find((item) => isVectorFormat(item.format) && item.url);
+  }, [source.data]);
+  const firstVectorUrl = firstVectorItem?.url ?? '';
+  const firstVectorFormat = firstVectorItem?.format ?? '';
+
+  // Auto-detect fields from the first vector source if none are configured.
+  useEffect(() => {
+    if (!open) return;
+    if (configuredFields.length > 0) return;
+    if (!firstVectorUrl) {
+      setDetectedFields([]);
+      return;
     }
-  }, [open, initialJson]);
+    let cancelled = false;
+    setDetectedFields([]);
+    detectFieldsFromSource(firstVectorUrl, firstVectorFormat)
+      .then((detected) => {
+        if (cancelled) return;
+        console.log('[VectorStylingDialog] auto-detected fields', detected);
+        setDetectedFields(detected.map((d) => ({ name: d.name, type: d.type })));
+      })
+      .catch((err) => {
+        console.warn('[VectorStylingDialog] field auto-detection failed', err);
+        if (!cancelled) setDetectedFields([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, configuredFields.length, firstVectorUrl, firstVectorFormat]);
 
   const toggleMode = () => {
-    const next: StylingMode = mode === 'json' ? 'basic' : 'json';
-    setMode(next);
-    lastMode = next;
+    if (mode === 'basic') {
+      // Switching to JSON: serialise current rules.
+      const arr = toFlatStyleArray(rules);
+      setEditedJson(`"style": ${JSON.stringify(arr, null, 2)}`);
+      setMode('json');
+      lastMode = 'json';
+    } else {
+      // Switching back to basic: parse the JSON the user may have edited.
+      try {
+        const arr = JSON.parse(stripStylePrefix(editedJson));
+        if (!Array.isArray(arr)) throw new Error('not an array');
+        const parsed = fromFlatStyleArray(arr);
+        setRules(parsed.rules);
+        setFallbackCount(parsed.fallbacks.length);
+        setMode('basic');
+        lastMode = 'basic';
+      } catch {
+        toast({
+          title: 'Invalid JSON',
+          description: 'Fix the JSON before switching back to basic mode.',
+          variant: 'destructive',
+        });
+      }
+    }
   };
 
   const handleSave = () => {
+    let parsedArr: unknown;
     try {
-      let arrayContent = editedJson.trim();
-      const colonIndex = arrayContent.indexOf(':');
-      if (colonIndex !== -1) {
-        arrayContent = arrayContent.substring(colonIndex + 1).trim();
+      if (mode === 'json') {
+        parsedArr = JSON.parse(stripStylePrefix(editedJson));
+      } else {
+        parsedArr = toFlatStyleArray(rules);
       }
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(arrayContent);
-      } catch {
-        parsed = JSON.parse(editedJson.trim());
-      }
-      if (!Array.isArray(parsed)) {
-        toast({ title: 'Invalid style', description: 'The style must be a JSON array.', variant: 'destructive' });
-        return;
-      }
-      const updatedData = source.data.map((item) =>
-        isVectorFormat(item.format) ? { ...item, style: parsed } : item
-      );
-      onUpdateDataSources(updatedData);
-      onOpenChange(false);
-      toast({ title: 'Vector styling saved' });
     } catch {
       toast({ title: 'Invalid JSON', description: 'Please fix syntax errors before saving.', variant: 'destructive' });
+      return;
     }
+    if (!Array.isArray(parsedArr)) {
+      toast({ title: 'Invalid style', description: 'The style must be a JSON array.', variant: 'destructive' });
+      return;
+    }
+    const updatedData = source.data.map((item) =>
+      isVectorFormat(item.format) ? { ...item, style: parsedArr } : item
+    );
+    onUpdateDataSources(updatedData);
+    onOpenChange(false);
+    toast({ title: 'Vector styling saved' });
   };
 
-  const hasChanges = editedJson !== initialJson;
   const jsonActive = mode === 'json';
 
   return (
@@ -110,7 +201,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
           </div>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col overflow-y-auto">
           {jsonActive ? (
             <>
               <div className="text-xs text-muted-foreground mb-1">
@@ -123,18 +214,18 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
               />
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Palette className="h-10 w-10 text-muted-foreground/40 mb-4" />
-              <p className="text-sm text-muted-foreground">
-                Marker, line, fill and label styling coming soon
-              </p>
-            </div>
+            <StyleEditor
+              rules={rules}
+              onChange={setRules}
+              fields={fields}
+              fallbackCount={fallbackCount}
+            />
           )}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={!hasChanges}>Save</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

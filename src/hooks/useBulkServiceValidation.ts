@@ -4,6 +4,26 @@ import { fetchServiceCapabilitiesWithMetrics } from '@/utils/serviceCapabilities
 import { fetchStacCapabilitiesWithMetrics } from '@/utils/stacCapabilities';
 import { useConfig } from '@/contexts/ConfigContext';
 import { parseS3Url, fetchS3BucketContents } from '@/utils/s3Utils';
+import {
+  ProbeDiagnostic,
+  classifyFetchError,
+  classifyHttpResponse,
+  classifyInvalidUrl,
+  classifyMixedContent,
+} from '@/utils/serviceDiagnostics';
+
+/**
+ * Run the same up-front URL + transport-security guards used by
+ * `validateSingleService` (add-time probe) so retries surface the precise
+ * "invalid URL" / "mixed content" diagnostics instead of a generic network
+ * error from the eventual fetch failure.
+ */
+const preflightDiagnostic = (url: string | undefined): ProbeDiagnostic | null => {
+  if (!url || !url.trim()) {
+    return { category: 'invalid-url', title: 'URL is empty' };
+  }
+  return classifyInvalidUrl(url) ?? classifyMixedContent(url) ?? null;
+};
 
 const CONCURRENCY = 4;
 
@@ -23,6 +43,8 @@ export interface GroupProgress {
 interface BulkValidationResult {
   statuses: Record<string, ServiceValidationStatus>;
   warnings: Record<string, string[]>;
+  /** Per-service structured failure diagnostic, populated when status === 'error'. */
+  errors: Record<string, ProbeDiagnostic>;
   progress: Record<ServiceKind, GroupProgress>;
   inFlightTotal: number;
   recheck: (id?: string) => void;
@@ -49,6 +71,7 @@ let lastValidatedLoad: Date | null | 'manual' = null;
 // re-running probes.
 let cachedStatuses: Record<string, ServiceValidationStatus> = {};
 let cachedWarnings: Record<string, string[]> = {};
+let cachedErrors: Record<string, ProbeDiagnostic> = {};
 
 const classify = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
@@ -103,6 +126,7 @@ export const useBulkServiceValidation = (
   const lastLoaded = config.lastLoaded;
   const [statuses, setStatuses] = useState<Record<string, ServiceValidationStatus>>(cachedStatuses);
   const [warnings, setWarnings] = useState<Record<string, string[]>>(cachedWarnings);
+  const [errors, setErrors] = useState<Record<string, ProbeDiagnostic>>(cachedErrors);
   const [progress, setProgress] = useState<Record<ServiceKind, GroupProgress>>(INITIAL_PROGRESS);
   // Module-scoped (see top of file) so tab switches that unmount this hook
   // don't trigger re-validation for the same loaded config.
@@ -143,6 +167,19 @@ export const useBulkServiceValidation = (
     });
   }, []);
 
+  const setError = useCallback((id: string, diagnostic: ProbeDiagnostic | undefined) => {
+    setErrors(prev => {
+      const next = { ...prev };
+      if (!diagnostic) {
+        delete next[id];
+      } else {
+        next[id] = diagnostic;
+      }
+      cachedErrors = next;
+      return next;
+    });
+  }, []);
+
   const collectCapabilitiesWarnings = (durationMs?: number, bytes?: number): string[] => {
     const msgs: string[] = [];
     if (typeof durationMs === 'number' && durationMs > CAPABILITIES_SLOW_MS) {
@@ -157,9 +194,17 @@ export const useBulkServiceValidation = (
   const validateStac = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
+    setError(svc.id, undefined);
+    const pre = preflightDiagnostic(svc.url);
+    if (pre) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, pre);
+      setStatus(svc.id, 'error');
+      return;
+    }
     updateProgress('stac', { inFlight: 1 });
     try {
-      const { capabilities, durationMs, bytes } = await fetchStacCapabilitiesWithMetrics(svc.url);
+      const { capabilities, durationMs, bytes, diagnostic } = await fetchStacCapabilitiesWithMetrics(svc.url);
       if (capabilities) {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
         const warns = collectCapabilitiesWarnings(durationMs, bytes);
@@ -167,27 +212,38 @@ export const useBulkServiceValidation = (
         setStatus(svc.id, warns.length > 0 ? 'warning' : 'ok');
       } else {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+        setError(svc.id, diagnostic ?? { category: 'unknown', title: "Couldn't fetch STAC catalogue" });
         setStatus(svc.id, 'error');
       }
-    } catch {
+    } catch (err) {
       dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, classifyFetchError(err, { url: svc.url }));
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('stac', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, setError, updateProgress]);
 
   const validateOgc = useCallback(async (svc: Service) => {
     if (!svc.format) {
       dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, { category: 'unknown', title: 'Missing service format' });
       setStatus(svc.id, 'error');
       return;
     }
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
+    setError(svc.id, undefined);
+    const pre = preflightDiagnostic(svc.url);
+    if (pre) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, pre);
+      setStatus(svc.id, 'error');
+      return;
+    }
     updateProgress('ogc', { inFlight: 1 });
     try {
-      const { capabilities, durationMs, bytes } = await fetchServiceCapabilitiesWithMetrics(svc.url, svc.format as DataSourceFormat);
+      const { capabilities, durationMs, bytes, diagnostic } = await fetchServiceCapabilitiesWithMetrics(svc.url, svc.format as DataSourceFormat);
       if (capabilities) {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
         const warns = collectCapabilitiesWarnings(durationMs, bytes);
@@ -195,20 +251,30 @@ export const useBulkServiceValidation = (
         setStatus(svc.id, warns.length > 0 ? 'warning' : 'ok');
       } else {
         dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+        setError(svc.id, diagnostic ?? { category: 'unknown', title: "Couldn't fetch capabilities" });
         setStatus(svc.id, 'error');
       }
-    } catch {
+    } catch (err) {
       dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, classifyFetchError(err, { url: svc.url }));
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('ogc', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, setError, updateProgress]);
 
 
   const validateS3 = useCallback(async (svc: Service) => {
     setStatus(svc.id, 'checking');
     setWarningMessages(svc.id, []);
+    setError(svc.id, undefined);
+    const pre = preflightDiagnostic(svc.url);
+    if (pre) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, pre);
+      setStatus(svc.id, 'error');
+      return;
+    }
     updateProgress('s3', { inFlight: 1 });
     try {
       // Try a full bucket listing first (richer success); fall back to HEAD reachability.
@@ -242,8 +308,10 @@ export const useBulkServiceValidation = (
       if (!listed) {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 10000);
+        const startedAt = performance.now();
         try {
           const res = await fetch(svc.url, { method: 'HEAD', signal: controller.signal });
+          const durationMs = performance.now() - startedAt;
           // 200 = OK, 403 = bucket exists but list denied → still reachable
           if (res.ok || res.status === 403) {
             dispatch({
@@ -261,19 +329,31 @@ export const useBulkServiceValidation = (
             setStatus(svc.id, 'ok');
           } else {
             dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+            const httpDiag = classifyHttpResponse(res, { durationMs });
+            setError(svc.id, httpDiag ?? {
+              category: 'http-other',
+              title: `Endpoint returned HTTP ${res.status}`,
+              httpStatus: res.status,
+              durationMs,
+            });
             setStatus(svc.id, 'error');
           }
+        } catch (err) {
+          dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+          setError(svc.id, classifyFetchError(err, { url: svc.url, durationMs: performance.now() - startedAt }));
+          setStatus(svc.id, 'error');
         } finally {
           clearTimeout(timer);
         }
       }
-    } catch {
+    } catch (err) {
       dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, classifyFetchError(err, { url: svc.url }));
       setStatus(svc.id, 'error');
     } finally {
       updateProgress('s3', { inFlight: -1, completed: 1 });
     }
-  }, [dispatch, setStatus, setWarningMessages, updateProgress]);
+  }, [dispatch, setStatus, setWarningMessages, setError, updateProgress]);
 
   const runBulk = useCallback(
     async (svcTargets: Service[]) => {
@@ -307,8 +387,10 @@ export const useBulkServiceValidation = (
     // previous config don't bleed into this one.
     cachedStatuses = {};
     cachedWarnings = {};
+    cachedErrors = {};
     setStatuses({});
     setWarnings({});
+    setErrors({});
     validatedForLoadRef.current = lastLoaded;
     lastValidatedLoad = lastLoaded;
 
@@ -342,5 +424,5 @@ export const useBulkServiceValidation = (
   const inFlightTotal =
     progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight;
 
-  return { statuses, warnings, progress, inFlightTotal, recheck };
+  return { statuses, warnings, errors, progress, inFlightTotal, recheck };
 };

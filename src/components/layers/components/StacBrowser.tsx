@@ -16,6 +16,7 @@ import {
   getItemsUrl,
   getItemLinks,
   getChildLinks,
+  getXyzTileLinks,
   inferChildKind,
   extractNextLink,
   getSelfLink,
@@ -125,6 +126,68 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     });
   };
 
+  /**
+   * Static-collection branch: when a Collection has no `rel:item` links but
+   * does expose collection-level `assets` and/or `rel:xyz` tile services
+   * (e.g. GTIF Austria), short-circuit to the assets step instead of trying
+   * to enumerate items.
+   *
+   * Returns true if the collection was handled here, false otherwise.
+   */
+  const tryShowCollectionAsAssets = (data: any, collectionUrl: string): boolean => {
+    if (!data || data.type !== 'Collection') return false;
+
+    const links: StacLink[] = Array.isArray(data.links) ? data.links : [];
+    const hasItemLinks = links.some((l) => l?.rel === 'item');
+    if (hasItemLinks) return false;
+
+    const inlineAssets: Record<string, StacAsset> =
+      data.assets && typeof data.assets === 'object' ? { ...data.assets } : {};
+    const xyzLinks = getXyzTileLinks(links, collectionUrl);
+
+    if (Object.keys(inlineAssets).length === 0 && xyzLinks.length === 0) return false;
+
+    // Synthesize asset entries for xyz tile services so they appear in the
+    // assets list alongside collection-level assets.
+    const mergedAssets: Record<string, StacAsset> = { ...inlineAssets };
+    xyzLinks.forEach((l, idx) => {
+      const baseKey = (l.title || `xyz-${idx + 1}`)
+        .toString()
+        .replace(/\s+/g, '-')
+        .toLowerCase();
+      let key = baseKey;
+      let n = 2;
+      while (key in mergedAssets) key = `${baseKey}-${n++}`;
+      mergedAssets[key] = {
+        href: l.href,
+        type: l.type || 'image/png',
+        title: l.title,
+        roles: ['tiles'],
+      } as StacAsset;
+    });
+
+    const assetEntries = Object.entries(mergedAssets) as [string, StacAsset][];
+    setDetectedMode('static-catalog');
+    setAssets(assetEntries);
+    setSelectedItem({
+      id: data.id || 'collection',
+      properties: {
+        title: data.title || data.id || 'STAC Collection',
+        description: data.description,
+      },
+      assets: mergedAssets,
+      links: data.links,
+    } as StacItem);
+    setSelectedCollection({
+      id: data.id || 'collection',
+      title: data.title || data.id || 'STAC Collection',
+      description: data.description,
+      links: data.links,
+    });
+    setCurrentStep('assets');
+    return true;
+  };
+
   // Detect STAC resource type and route appropriately
   const detectAndLoadStacResource = async () => {
     try {
@@ -198,6 +261,28 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
         }
       }
 
+      // Single Collection pasted directly.
+      if (data.type === 'Collection') {
+        // Short-circuit to assets if it exposes collection-level assets / xyz
+        // tile services and has no rel:item links (e.g. GTIF Austria).
+        if (tryShowCollectionAsAssets(data, serviceUrl)) {
+          setLoading(false);
+          return;
+        }
+        // Otherwise jump straight to its items (rel:item links or /items API).
+        setDetectedMode('catalog');
+        const collection: StacCollection = {
+          id: data.id || serviceName || 'collection',
+          title: data.title,
+          description: data.description,
+          keywords: data.keywords,
+          extent: data.extent,
+          links: data.links,
+        };
+        await fetchItems(collection, serviceUrl);
+        return;
+      }
+
       // Catalog: prefer static-hierarchy traversal when `child` links exist
       if (data.type === 'Catalog') {
         const childLinks = getChildLinks(data.links, serviceUrl);
@@ -240,6 +325,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
 
       // If the child is actually a Collection, jump straight to items
       if (data.type === 'Collection') {
+        // Push current catalog onto stack so back-navigation returns here.
+        setCatalogStack(prev => [
+          ...prev,
+          { url: currentCatalogUrl, title: currentCatalogTitle, children: catalogChildren },
+        ]);
+
+        // Static-collection short-circuit: no rel:item but assets / xyz tiles
+        // are advertised at the collection level (e.g. GTIF Austria).
+        if (tryShowCollectionAsAssets(data, childUrl)) {
+          setLoading(false);
+          return;
+        }
+
         const collection: StacCollection = {
           id: data.id || childTitle,
           title: data.title,
@@ -248,11 +346,6 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           extent: data.extent,
           links: data.links,
         };
-        // Push current catalog onto stack so we can return
-        setCatalogStack(prev => [
-          ...prev,
-          { url: currentCatalogUrl, title: currentCatalogTitle, children: catalogChildren },
-        ]);
         setLoading(false);
         await fetchItems(collection, childUrl);
         return;

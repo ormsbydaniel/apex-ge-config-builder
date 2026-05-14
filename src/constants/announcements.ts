@@ -6,13 +6,23 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
-    date: "2026-05-01",
+    date: "2026-05-13",
+    title: "Support for static STAC collections",
+    category: "Feature",
+  },
+  {
+    date: "2026-05-12",
+    title: "Remove or fix invalid layers on config load",
+    category: "Feature",
+  },
+  {
+    date: "2026-05-05",
     title: "Categories editor: CSV import/export, simpler copy-from-layer, stale state fix",
     category: "Improvement",
   },
   {
-    date: "2026-05-01",
-    title: "UI for vector data styling",
+    date: "2026-05-05",
+    title: "UI for vector data styling (beta)",
     category: "Feature",
   },
   {
@@ -42,12 +52,14 @@ export const announcements: Announcement[] = [
   },
   {
     date: "2026-03-27",
-    title: "Recommended services improvement allowing users to choose which services are added (rather than all).  Interface sub-groups improvement with 'select all' option for including layers in sub-group.",
+    title:
+      "Recommended services improvement allowing users to choose which services are added (rather than all).  Interface sub-groups improvement with 'select all' option for including layers in sub-group.",
     category: "Improvement",
   },
   {
     date: "2026-03-25",
-    title: "Improvements to S3 browser. Addition of vector data styling UI control currently with direct JSON entry. Update to Description UI to include details of supported markdown. URL parameter details added in to Settings.",
+    title:
+      "Improvements to S3 browser. Addition of vector data styling UI control currently with direct JSON entry. Update to Description UI to include details of supported markdown. URL parameter details added in to Settings.",
     category: "Improvement",
   },
   {
