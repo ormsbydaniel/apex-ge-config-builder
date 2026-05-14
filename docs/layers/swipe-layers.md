@@ -6,6 +6,8 @@ title: Swipe layers
 
 A swipe layer compares two (or more) raster sources side-by-side under a draggable handle on the map. The user drags the handle left/right to reveal more or less of the **clipped** source over the **base** source(s).
 
+![Layer Type selector showing the Swipe option](../assets/screenshots/layer-card-edit-top.png)
+
 ## When to use
 
 - Before / after comparisons (e.g. pre- and post-event imagery).

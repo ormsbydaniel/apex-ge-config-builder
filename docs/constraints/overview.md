@@ -6,6 +6,8 @@ title: Constraints
 
 The **Constraints** section of a layer card defines additional raster masks that limit *where* a layer is rendered, based on threshold values pulled from another COG. A typical example: only show a vegetation index where elevation is below 2000 m, or where a land-cover class equals "forest".
 
+![Layer Card Controls row showing the Constraint Slider toggle](../assets/screenshots/layer-card-controls-exclusivity.png)
+
 ## When to use
 
 - Hide pixels outside a numeric range (continuous constraint).
