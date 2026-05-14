@@ -1640,6 +1640,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Draw order tab
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="draw-order.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1656,6 +1674,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2463,34 @@
 
 
 <h1 id="draw-order">Draw order<a class="headerlink" href="#draw-order" title="Permanent link">&para;</a></h1>
-<p>Control the stacking order of layers on the map. Drag rows to reorder; the topmost row renders on top.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>The <strong>Draw order</strong> tab controls the front-to-back stacking of layers on the map. Each layer's position here determines its <code>zIndex</code> in the rendered map: rows higher in the list draw on top of rows below them.</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<p>Visit this tab when:</p>
+<ul>
+<li>A vector layer is being hidden by a raster overlay and needs to come forward.</li>
+<li>Two raster overlays draw in the wrong order regardless of toggle order.</li>
+<li>You need to deterministically pin certain layers (labels, boundaries) above the rest.</li>
+</ul>
+<p>For day-to-day visibility, use the toggles in the Layers tab — draw order only affects stacking, not whether a layer is on or off.</p>
+<h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
+<p>The tab lists every active layer (base layers excluded — they always sit at the bottom). Drag a row up or down to change its position. The order is persisted into each <code>DataSourceItem.zIndex</code> when the config is saved.</p>
+<p>Tips:</p>
+<ul>
+<li>The <strong>topmost</strong> row in the list is drawn last, so it appears on top.</li>
+<li>Vector layers usually belong above raster layers so points and lines stay visible.</li>
+<li>Labels and annotation layers are typically pinned to the very top.</li>
+<li>Reordering here does not change the order layers appear inside the Layers tab — that is controlled by interface groups and within-group order.</li>
+</ul>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Every layer must have a unique <code>zIndex</code> after reorder; the editor renumbers automatically on save.</li>
+<li>Hidden layers still occupy a position; toggling them on later uses the saved order.</li>
+</ul>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="interface-groups.html">Interface groups</a> — controls Layers-tab grouping, not draw order.</li>
+<li><a href="../layers/overview.html">Layers overview</a></li>
+</ul>
 
 
 

@@ -1299,6 +1299,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="overview.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1315,6 +1333,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2463,36 @@
 
 
 <h1 id="statistics">Statistics<a class="headerlink" href="#statistics" title="Permanent link">&para;</a></h1>
-<p>The Statistics section of the layer card configures how summary statistics are computed and displayed for the layer.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>The <strong>Statistics</strong> section of a layer card configures additional raster sources used to compute summary statistics (mean, min, max, histogram) for the layer — typically over a user-drawn area of interest or a selected vector feature.</p>
+<p>Statistics sources are separate from the layer's display sources: the user sees the styled layer on the map, but stats are computed from the underlying scientific raster (often a higher-precision COG) listed under Statistics.</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<p>Add Statistics sources when you want users to:</p>
+<ul>
+<li>Draw an AOI and see numeric summaries for that region.</li>
+<li>Click a vector feature and see per-feature statistics.</li>
+<li>Compare multiple variables (e.g. temperature, NDVI) over the same AOI.</li>
+</ul>
+<p>If the layer is purely visual and no numeric summary is needed, leave Statistics empty.</p>
+<h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
+<p>In the <strong>layer card</strong>, expand <strong>Statistics</strong> and add one or more sources. Each entry uses the same <code>DataSourceItem</code> shape as the main <code>data</code> array:</p>
+<ul>
+<li><strong>URL</strong> — link to the statistics raster (usually a COG).</li>
+<li><strong>Format</strong> — almost always <code>cog</code>.</li>
+<li><strong>Band index</strong> / <strong>min</strong> / <strong>max</strong> / <strong>units</strong> — optional metadata used when displaying results.</li>
+</ul>
+<p>Set <code>layout.layerCard.showStatistics: true</code> to expose the Statistics panel in the viewer for this layer. The viewer's <strong>Feature statistics</strong> flag (<code>hasFeatureStatistics</code>) enables per-feature stats triggered by clicks on associated vector layers.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Each statistics source must have a <code>url</code> and a <code>format</code>.</li>
+<li>Bands referenced by <code>bandIndex</code> must exist in the COG.</li>
+<li>The statistics raster should cover the same area as the displayed layer; mismatches yield empty results.</li>
+</ul>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../layers/data-visualisation.html">Data visualisation</a></li>
+<li><a href="../data-sources/cog.html">COG data sources</a></li>
+<li><a href="../charts/pixel-values.html">Pixel-values charts</a> — point-sampled equivalent.</li>
+</ul>
 
 
 

@@ -720,6 +720,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Swipe layers
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="swipe-layers.html" class="md-nav__link md-nav__link--active">
         
   
@@ -736,6 +754,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2395,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2463,32 @@
 
 
 <h1 id="swipe-layers">Swipe layers<a class="headerlink" href="#swipe-layers" title="Permanent link">&para;</a></h1>
-<p>Configure two layers to be compared side-by-side with a draggable swipe handle.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>A swipe layer compares two (or more) raster sources side-by-side under a draggable handle on the map. The user drags the handle left/right to reveal more or less of the <strong>clipped</strong> source over the <strong>base</strong> source(s).</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Before / after comparisons (e.g. pre- and post-event imagery).</li>
+<li>Comparing two model outputs over the same area.</li>
+<li>A/B comparison of band combinations or processing levels.</li>
+</ul>
+<p>For two layers that should both be fully visible and toggleable independently, use two normal layer cards instead.</p>
+<h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
+<p>In the <strong>Layers tab</strong>, add a layer and set its type to <strong>Swipe</strong>. The swipe configuration lives in <code>meta.swipeConfig</code>:</p>
+<ul>
+<li><strong>Clipped source</strong> (<code>clippedSourceName</code>) — the source revealed under the swipe handle. Choose from the layer's data sources.</li>
+<li><strong>Base source(s)</strong> (<code>baseSourceNames</code>) — one or more sources rendered underneath. When more than one is provided, the viewer shows a small picker so the user can switch which base is compared against.</li>
+</ul>
+<p>Each source still uses the same data source format as a normal layer (COG, XYZ, WMS, etc.), and <code>position</code> on each <code>DataSourceItem</code> (<code>'left'</code>, <code>'right'</code>, <code>'background'</code>, <code>'spotlight'</code>) controls how it participates in the comparison.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Exactly one <code>clippedSourceName</code> is required and must match a source in <code>data</code>.</li>
+<li><code>baseSourceNames</code> must contain at least one entry, each matching a source in <code>data</code>.</li>
+<li>The clipped source and base sources should share a CRS and roughly cover the same extent for the comparison to be meaningful.</li>
+</ul>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="adding-layers.html">Adding layers</a></li>
+<li><a href="data-visualisation.html">Data visualisation</a> — styling applies independently to each side.</li>
+</ul>
 
 
 
