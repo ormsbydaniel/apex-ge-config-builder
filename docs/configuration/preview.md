@@ -10,6 +10,12 @@ configuration. It is the fastest way to confirm a layer renders, a
 colormap looks right, or the layer panel reads sensibly before you ship a
 config.
 
+!!! tip "Follow along"
+    Screenshots on this page were taken with the **Comprehensive demo**
+    config loaded.
+
+![GE Preview running the Comprehensive demo: top toolbar with version selector and Ready badge, layer panel on the left, an info panel on the right showing Topsoil Soil Organic Carbon details](../assets/screenshots/ge-preview-loaded.png)
+
 ## Opening GE Preview
 
 Click the **Preview** tab in the top navigation. Two preconditions:

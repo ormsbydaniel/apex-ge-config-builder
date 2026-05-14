@@ -9,12 +9,18 @@ of the deployed APEx Geospatial Explorer's layer panel — for example
 *Land Cover*, *Soils*, *Climate*. Every layer card in the config must
 belong to one.
 
+!!! tip "Follow along"
+    Screenshots on this page were taken with the **Comprehensive demo**
+    config loaded.
+
 ## Where they live
 
 The **Interface Groups** card appears on the [Settings](settings.md) tab.
 
 The card lists every group as a row, in the order the deployed Explorer
 will render them.
+
+![Layers tab showing six interface groups (Soils, Biodiversity & Ecosystem Accounting, Land Cover, Vegetation, etc.) with per-group layer counts](../assets/screenshots/interface-groups-list.png)
 
 ## Adding a group
 
@@ -42,6 +48,8 @@ click the green check to confirm or the outline button to cancel. Press
 
 When you rename a group, every layer card that referenced the old name is
 updated to the new name automatically.
+
+![Inline rename mode for the Soils interface group with green confirm and grey cancel buttons on the right](../assets/screenshots/interface-groups-edit.png)
 
 ## Deleting
 
