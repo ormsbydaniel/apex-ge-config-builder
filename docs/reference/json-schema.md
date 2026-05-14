@@ -34,7 +34,7 @@ Every configuration is a single JSON object with this shape:
 | `services` | object[] | no | Reusable endpoint definitions referenced by layers. Defaults to `[]`. |
 | `sources` | object[] | yes | All map layers (base layers, layer cards, swipe / comparison layers). |
 | `mapConstraints` | object | no | Initial zoom, centre, and CRS. |
-| `projections` | object[] | no | Custom proj4 [Coordinate Reference System](../settings/index.md#projections) definitions. |
+| `projections` | object[] | no | Custom proj4 [Coordinate Reference System](../settings/index.md) definitions. |
 
 Skeleton:
 
@@ -451,7 +451,7 @@ Initial map view.
 
 ## `projections[]`
 
-Custom proj4 [Coordinate Reference System](../settings/index.md#projections) definitions
+Custom proj4 [Coordinate Reference System](../settings/index.md) definitions
 made available to `mapConstraints.projection` and to the layer renderer.
 
 | Field | Type | Required | Notes |
