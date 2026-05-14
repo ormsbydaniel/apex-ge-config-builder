@@ -67,6 +67,11 @@ The top navigation gives you one tab per major concern:
 
 ## Next steps
 
-- [Build your first config](first-config.md) — a guided walk-through.
-- [Loading and saving](loading-saving.md) — pull in an existing config or
-  start from an example.
+- [Build your first config](first-config.md) — a guided walk-through, from blank canvas to exported JSON.
+- [Loading and saving](loading-saving.md) — pull in an existing config, or start from the **Comprehensive demo** example.
+- [Run Healthcheck](../services/healthcheck.md) — once a config is loaded, this is the fastest sanity check.
+
+!!! tip "Follow along with the demo"
+    Most screenshots in this guide were captured with the **Comprehensive
+    demo** loaded. Open it from **Home → Load → Examples** to see the same
+    state on screen as you read.
