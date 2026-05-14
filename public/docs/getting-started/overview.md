@@ -1,0 +1,69 @@
+---
+title: Overview
+---
+
+# Overview
+
+The Configuration Builder produces a single JSON file — the **config** — that
+fully describes a viewer instance: its branding, layout, the services it talks
+to, and the layers and charts it shows.
+
+## Core concepts
+
+### Config
+
+The whole document you are editing. You can load one from disk, from a GitHub
+repo, or from a URL, and you can export it back to JSON at any time. See
+[Loading and saving](loading-saving.md).
+
+### Service
+
+A reusable endpoint definition (WMTS, WMS, WFS, COG, XYZ, GeoJSON,
+FlatGeoBuf, CSV, S3 bucket, or STAC catalogue). Services are declared once
+and referenced by name from layers, so you can swap an endpoint URL in one
+place. Managed from the **Services** tab.
+
+### Layer (data source)
+
+A renderable thing on the map. A layer points at one or more service URLs
+(`data` and optional `statistics`), specifies how it should be styled, and
+declares which **interface group** it belongs to. Layers are managed from the
+**Layers** tab.
+
+### Interface group
+
+A user-facing grouping in the viewer's layer panel — for example
+"Land Cover", "Soils", "Climate". Interface groups give the viewer's UI its
+top-level structure. Manage them from **Settings → Interface Groups**.
+
+### Base layer
+
+A special layer type used for the underlying basemap (OSM, satellite, etc.).
+Base layers are listed separately in the layers panel and exported into a
+distinct part of the config.
+
+### Healthcheck
+
+A built-in tool that probes every URL in your config and reports
+per-layer **Data Access** and **Performance** scores. See
+[Run Healthcheck](../services/healthcheck.md).
+
+## The main tabs
+
+The top navigation gives you one tab per major concern:
+
+| Tab          | Purpose |
+|--------------|---------|
+| **Home**     | Project metadata, config statistics, QA cards, healthcheck entry. |
+| **Layers**   | Build the visible content of the viewer. |
+| **Draw Order** | Control which layers render on top of which. |
+| **Services** | Register and validate endpoints. |
+| **Settings** | Layout, interface groups, footer, projections (CRS), advanced options. |
+| **JSON Config** | Inspect or edit the raw configuration document. |
+| **Preview**  | Run the actual viewer inline using your current config. |
+
+## Next steps
+
+- [Build your first config](first-config.md) — a guided walk-through.
+- [Loading and saving](loading-saving.md) — pull in an existing config or
+  start from an example.
