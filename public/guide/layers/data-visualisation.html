@@ -16,7 +16,7 @@
         <link rel="prev" href="../data-sources/stac-browser.html">
       
       
-        <link rel="next" href="rgb-composite.html">
+        <link rel="next" href="categories.html">
       
       
         
@@ -882,6 +882,8 @@
       
         
       
+        
+      
     
     
     
@@ -1053,6 +1055,62 @@
   
   
     <li class="md-nav__item">
+      <a href="categories.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Categories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="colormaps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colormaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="rgb-composite.html" class="md-nav__link">
         
   
@@ -1117,34 +1175,6 @@
     
   
     Vector fields
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="categories.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Categories and colormaps
   
 
     
@@ -1654,14 +1684,15 @@
 <p>The <strong>Data Visualisation</strong> section of the layer card (Eye icon) is where you control how a layer is <em>rendered</em> on the map — colours, classifications, RGB band combinations, and vector styling.</p>
 <p><img alt="Data Visualisation section in the layer card" src="../assets/screenshots/data-visualisation-section.png" /></p>
 <h2 id="mutually-exclusive-styling-tools">Mutually exclusive styling tools<a class="headerlink" href="#mutually-exclusive-styling-tools" title="Permanent link">&para;</a></h2>
-<p>For each raster layer, only <strong>one</strong> styling tool can be active at a time. The priority order is:</p>
+<p>For each raster layer, only <strong>one</strong> styling tool can be active at a time. The sub-sections appear in the layer card in the same order as the UI:</p>
 <ol>
 <li><strong>Categories</strong> — discrete classes with labels and fixed colours</li>
 <li><strong>Colormaps</strong> — continuous gradient applied to a single band</li>
 <li><strong>RGB Composite</strong> — three bands rendered as Red / Green / Blue channels</li>
 <li><strong>Gradient</strong> — simple two-stop gradient</li>
+<li><strong>Vector Styling</strong> — non-exclusive; only applies to vector sources (GeoJSON, FlatGeoBuf, WFS) and can coexist with any raster setting on layers that mix sources</li>
 </ol>
-<p>Activating one tool clears the others. <strong>Vector Styling</strong> is non-exclusive: it only applies to vector sources (GeoJSON, FlatGeoBuf, WFS) and can coexist with any raster setting on layers that mix sources.</p>
+<p>Activating one raster tool clears the others.</p>
 <div class="admonition tip">
 <p class="admonition-title">Why exclusive?</p>
 <p>A pixel can only be one colour. Letting two raster styling tools run at once would force the renderer to pick one silently, hiding the other from the configuration author.</p>
@@ -1669,7 +1700,7 @@
 <h2 id="the-section-layout">The section layout<a class="headerlink" href="#the-section-layout" title="Permanent link">&para;</a></h2>
 <p>Each sub-section shows:</p>
 <ul>
-<li>A <strong>label</strong> (Categories, Colormap, RGB Composite, Vector Style, Gradient)</li>
+<li>A <strong>label</strong> (Categories, Colormap, RGB Composite, Gradient, Vector Style)</li>
 <li>A <strong>summary badge</strong> of the current setting (e.g. coloured R/G/B band numbers, colormap swatch, category count)</li>
 <li><strong>Pencil</strong> (edit) and <strong>Trash</strong> (clear) icons aligned to the right</li>
 </ul>
@@ -1684,12 +1715,12 @@
 </thead>
 <tbody>
 <tr>
-<td>Single-band raster (e.g. NDVI, DEM)</td>
-<td><strong>Colormap</strong></td>
-</tr>
-<tr>
 <td>Categorical raster (land cover, soil class)</td>
 <td><strong>Categories</strong></td>
+</tr>
+<tr>
+<td>Single-band raster (e.g. NDVI, DEM)</td>
+<td><strong>Colormap</strong></td>
 </tr>
 <tr>
 <td>Multi-band imagery (Sentinel-2, Landsat, hyperspectral)</td>
@@ -1703,7 +1734,8 @@
 </table>
 <p>See the per-tool pages:</p>
 <ul>
-<li><a href="categories.html">Categories and colormaps</a></li>
+<li><a href="categories.html">Categories</a></li>
+<li><a href="colormaps.html">Colormaps</a></li>
 <li><a href="rgb-composite.html">RGB composite</a></li>
 <li><a href="vector-styling.html">Vector styling</a></li>
 <li><a href="vector-fields.html">Vector fields</a></li>

@@ -59,7 +59,7 @@ config. Re-add the source on the layer card before saving.
 
 **Categories or colormap not applied**
 Both must be defined in `meta` first. See
-[Categories and colormaps](../layers/categories.md). If the meta entry
+[Categories](../layers/categories.md) and [Colormaps](../layers/colormaps.md). If the meta entry
 exists but is not picked up, check the **Vector styling** or
 **RGB composite** section is set to reference the correct meta name.
 
