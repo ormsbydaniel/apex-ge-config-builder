@@ -1150,6 +1150,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector styling
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="vector-styling.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1166,6 +1184,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editor-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Editor structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-a-value-driven-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building a value-driven style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rule-based-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule-based filtering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#markers-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markers (points)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2314,6 +2417,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editor-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Editor structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-a-value-driven-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building a value-driven style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rule-based-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule-based filtering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#markers-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markers (points)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2330,11 +2507,71 @@
 
 
 <h1 id="vector-styling">Vector styling<a class="headerlink" href="#vector-styling" title="Permanent link">&para;</a></h1>
-<p>Style GeoJSON and FlatGeoBuf layers with rule-based filters, value stops, markers, and constants.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming soon</p>
-<p>Detailed walk-through with screenshots is in progress.</p>
-</div>
+<p>Style GeoJSON, FlatGeoBuf, and WFS layers using rule-based fills, lines, and labels. The Vector Style editor lives in the <strong>Data Visualisation</strong> section of any vector layer card.</p>
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Colour polygons by an attribute (choropleth)</li>
+<li>Size or colour points by a numeric value</li>
+<li>Apply different styles to subsets of features (rule-based)</li>
+<li>Add data-driven labels</li>
+</ul>
+<p>If you only want to control which attributes appear in the info panel and how they are formatted, use <a href="vector-fields.html">Vector fields</a> instead — that is a separate, non-styling editor.</p>
+<h2 id="editor-structure">Editor structure<a class="headerlink" href="#editor-structure" title="Permanent link">&para;</a></h2>
+<p>The vector style editor is split into three property panels:</p>
+<table>
+<thead>
+<tr>
+<th>Panel</th>
+<th>Properties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fill</strong></td>
+<td>fill colour, opacity, fill pattern</td>
+</tr>
+<tr>
+<td><strong>Line</strong></td>
+<td>stroke colour, width, dash pattern, line cap/join</td>
+</tr>
+<tr>
+<td><strong>Label</strong></td>
+<td>text source field, font, halo, placement, offset</td>
+</tr>
+</tbody>
+</table>
+<p>Each property accepts one of three value modes:</p>
+<ul>
+<li><strong>Constant</strong> — a single literal (e.g. <code>#3b82f6</code>, <code>1.5</code>)</li>
+<li><strong>Stops</strong> — value-driven mapping: pick a feature property, define stop pairs (input → output)</li>
+<li><strong>Rules</strong> — filter expressions that scope a constant or stop set to a subset of features</li>
+</ul>
+<p>Switch modes via the chip selector at the top of each property row.</p>
+<h2 id="building-a-value-driven-style">Building a value-driven style<a class="headerlink" href="#building-a-value-driven-style" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Open the layer card → expand <strong>Data Visualisation</strong> → pencil-edit <strong>Vector Style</strong></li>
+<li>Pick the <strong>Fill</strong> panel</li>
+<li>Switch the <em>Colour</em> property to <strong>Stops</strong></li>
+<li>In the field selector, choose the property to drive colour from (auto-detected from the source's first feature)</li>
+<li>Define stops — for numeric fields use a ramp (e.g. <code>0 → #fef0d9</code>, <code>100 → #b30000</code>); for categorical fields use exact-match stops</li>
+<li>Save</li>
+</ol>
+<h2 id="rule-based-filtering">Rule-based filtering<a class="headerlink" href="#rule-based-filtering" title="Permanent link">&para;</a></h2>
+<p>Rules let you target a subset of features. Each rule is <code>(filter expression) → constant or stops</code>.</p>
+<p>Filter expressions are simple property comparisons:</p>
+<ul>
+<li><code>class == "forest"</code></li>
+<li><code>population &gt; 50000</code></li>
+<li><code>year &gt;= 2020 &amp;&amp; year &lt;= 2023</code></li>
+</ul>
+<p>Rules are evaluated top-down — the first matching rule wins. Features that don't match any rule fall through to the panel's default value.</p>
+<h2 id="markers-points">Markers (points)<a class="headerlink" href="#markers-points" title="Permanent link">&para;</a></h2>
+<p>Point sources surface a <strong>Marker</strong> sub-panel with shape (circle, square, triangle, icon), radius, and stroke options. All marker properties accept the same Constant / Stops / Rules modes as fills and lines.</p>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Vector style is stored inline on the data source <code>meta</code>. It is not currently shareable between layers — duplicate layers if you need the same style elsewhere.</li>
+<li>Heatmaps and cluster styling are not part of this editor. Configure them upstream in the source if needed.</li>
+</ul>
 
 
 
