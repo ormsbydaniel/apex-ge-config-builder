@@ -1,0 +1,87 @@
+site_name: APEx Geospatial Explorer — Config Builder Guide
+site_description: End-user guide for building, validating, and exporting viewer configurations.
+docs_dir: public/docs
+site_dir: site
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Overview: getting-started/overview.md
+      - Build your first config: getting-started/first-config.md
+      - Loading and saving: getting-started/loading-saving.md
+  - Configuration:
+      - Home tab: configuration/home.md
+      - Layout: configuration/layout.md
+      - Settings: configuration/settings.md
+      - Draw order: configuration/draw-order.md
+      - Preview: configuration/preview.md
+      - Footer links: configuration/footer-links.md
+      - Interface groups: configuration/interface-groups.md
+      - Export options: configuration/export-options.md
+  - Services:
+      - Overview: services/overview.md
+      - Adding services: services/adding-services.md
+      - Diagnostics: services/diagnostics.md
+      - Run Healthcheck: services/healthcheck.md
+      - Recommended services: services/recommended.md
+  - Layers:
+      - Overview: layers/overview.md
+      - Adding layers: layers/adding-layers.md
+      - Base layers: layers/base-layers.md
+      - Swipe layers: layers/swipe-layers.md
+      - Data visualisation: layers/data-visualisation.md
+      - RGB composite: layers/rgb-composite.md
+      - Vector styling: layers/vector-styling.md
+      - Vector fields: layers/vector-fields.md
+      - Categories and colormaps: layers/categories.md
+  - Data sources:
+      - COG: data-sources/cog.md
+      - WMS / WMTS / WFS: data-sources/wms-wmts-wfs.md
+      - XYZ: data-sources/xyz.md
+      - GeoJSON / FlatGeoBuf: data-sources/geojson-flatgeobuf.md
+      - CSV: data-sources/csv.md
+      - S3 browser: data-sources/s3-browser.md
+      - STAC browser: data-sources/stac-browser.md
+  - Charts:
+      - Overview: charts/overview.md
+      - Visual editor: charts/visual-editor.md
+      - Pixel values: charts/pixel-values.md
+      - Field values: charts/field-values.md
+      - CSV data: charts/csv-data.md
+  - Reference:
+      - URL parameters: reference/url-parameters.md
+      - Tips and shortcuts: reference/keyboard-and-tips.md
+      - Troubleshooting: reference/troubleshooting.md
+      - Glossary: reference/glossary.md
