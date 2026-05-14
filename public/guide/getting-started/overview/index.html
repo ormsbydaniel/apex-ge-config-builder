@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="End-user guide for building, validating, and exporting viewer configurations.">
+        <meta name="description" content="End-user guide for building, validating, and exporting APEx Geospatial Explorer configurations.">
       
       
       
@@ -751,7 +751,7 @@
   <span class="md-ellipsis">
     
   
-    Preview
+    GE Preview
   
 
     
@@ -2221,8 +2221,8 @@
 
 <h1 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h1>
 <p>The Configuration Builder produces a single JSON file — the <strong>config</strong> — that
-fully describes a viewer instance: its branding, layout, the services it talks
-to, and the layers and charts it shows.</p>
+fully describes an APEx Geospatial Explorer instance: its branding, layout,
+the services it talks to, and the layers and charts it shows.</p>
 <h2 id="core-concepts">Core concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
 <h3 id="config">Config<a class="headerlink" href="#config" title="Permanent link">&para;</a></h3>
 <p>The whole document you are editing. You can load one from disk, from a GitHub
@@ -2239,9 +2239,9 @@ place. Managed from the <strong>Services</strong> tab.</p>
 declares which <strong>interface group</strong> it belongs to. Layers are managed from the
 <strong>Layers</strong> tab.</p>
 <h3 id="interface-group">Interface group<a class="headerlink" href="#interface-group" title="Permanent link">&para;</a></h3>
-<p>A user-facing grouping in the viewer's layer panel — for example
-"Land Cover", "Soils", "Climate". Interface groups give the viewer's UI its
-top-level structure. Manage them from <strong>Settings → Interface Groups</strong>.</p>
+<p>A user-facing grouping in the APEx Geospatial Explorer's layer panel — for example
+"Land Cover", "Soils", "Climate". Interface groups give the APEx Geospatial Explorer's
+UI its top-level structure. Manage them from <strong>Settings → Interface Groups</strong>.</p>
 <h3 id="base-layer">Base layer<a class="headerlink" href="#base-layer" title="Permanent link">&para;</a></h3>
 <p>A special layer type used for the underlying basemap (OSM, satellite, etc.).
 Base layers are listed separately in the layers panel and exported into a
@@ -2266,7 +2266,7 @@ per-layer <strong>Data Access</strong> and <strong>Performance</strong> scores. 
 </tr>
 <tr>
 <td><strong>Layers</strong></td>
-<td>Build the visible content of the viewer.</td>
+<td>Build the visible content of the APEx Geospatial Explorer.</td>
 </tr>
 <tr>
 <td><strong>Draw Order</strong></td>
@@ -2285,8 +2285,8 @@ per-layer <strong>Data Access</strong> and <strong>Performance</strong> scores. 
 <td>Inspect or edit the raw configuration document.</td>
 </tr>
 <tr>
-<td><strong>Preview</strong></td>
-<td>Run the actual viewer inline using your current config.</td>
+<td><strong>GE Preview</strong></td>
+<td>Run the actual APEx Geospatial Explorer inline using your current config.</td>
 </tr>
 </tbody>
 </table>
