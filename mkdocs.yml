@@ -1,7 +1,9 @@
 site_name: APEx Geospatial Explorer — Config Builder Guide
 site_description: End-user guide for building, validating, and exporting viewer configurations.
-docs_dir: public/docs
-site_dir: site
+docs_dir: docs
+site_dir: public/guide
+site_url: https://apex-ge-config-builder.sparkgeo.uk/guide/
+use_directory_urls: true
 
 theme:
   name: material
