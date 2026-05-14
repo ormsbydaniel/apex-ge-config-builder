@@ -80,7 +80,7 @@ See [Data visualisation](data-visualisation.md) for the trade-offs.
 
 Lower sections cover legend image, attribution string, vector field labels,
 and UI controls (opacity slider, swipe handle, etc.). They are all optional
-but populating them clears Config QA flags on the [Home tab](../configuration/home.md).
+but populating them clears Config QA flags on the [Home tab](../home/index.md).
 
 ### Save
 

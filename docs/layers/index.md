@@ -100,7 +100,7 @@ RGB composite, swipe, mirror, spotlight, time-series).
 
 Before any layers exist the tab shows an empty-state panel inviting you to
 either **Add Layer** or load an example configuration from the
-[Home tab](../configuration/home.md).
+[Home tab](../home/index.md).
 
 ## Next steps
 
