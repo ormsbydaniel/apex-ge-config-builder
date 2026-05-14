@@ -11,7 +11,7 @@ cleanly in the builder.
 
 ## Opening the dialog
 
-On the [Services](overview.md) tab, click **Add Recommended Services** in
+On the [Services](index.md) tab, click **Add Recommended Services** in
 the **Configured Services** card header.
 
 ![Add Recommended Services dialog with twelve services pre-selected, showing STAC and WMS badges](../assets/screenshots/services-recommended-modal.png)
