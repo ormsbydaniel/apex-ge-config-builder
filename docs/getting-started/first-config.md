@@ -11,6 +11,11 @@ data layer, validated and previewed.
 If you would rather start from a working example, see
 [Loading and saving](loading-saving.md) and load the **Comprehensive demo**.
 
+!!! tip "Follow along"
+    Most screenshots in this tutorial were captured against the
+    **Comprehensive demo** so you can see what a finished config looks
+    like at each step.
+
 ## Before you start
 
 You need:
@@ -32,6 +37,8 @@ Open the [Home tab](../configuration/home.md). In the **Project** card:
 The five statistic counters (Interface Groups, Layers, Base Layers,
 Exclusivity Sets, Services) all read 0 — that is the empty starting state.
 
+![Home tab — the Project card with Application Title and Version on the left, the Config Quality Assurance card on the right](../assets/screenshots/home-tab-overview.png)
+
 ## 2. Create one interface group
 
 Open the [Settings](../configuration/settings.md) tab and scroll to the
@@ -40,9 +47,13 @@ Open the [Settings](../configuration/settings.md) tab and scroll to the
 Type a group name — for example `Land Cover` — and press **Enter**. The
 group appears in the list with `(0 sources)` next to it.
 
+![Layers tab showing interface groups built from the Comprehensive demo — your first config will start with just one](../assets/screenshots/interface-groups-list.png)
+
 ## 3. Add a service
 
 Open the [Services](../services/overview.md) tab and click **Add Service**.
+
+![Add Service dialog with Service Type set to WMS and an empty Service URL field](../assets/screenshots/services-add-dialog.png)
 
 In the dialog:
 
@@ -77,6 +88,8 @@ The Layers tab now shows a single base layer card under **Base Layers**.
 
 Click **Add Layer** again. In the type selector, click **Add Layer Card**.
 
+![Create Layer Card editor with Layer Type, Layout Style, and Basic Information sections](../assets/screenshots/layers-create-card.png)
+
 In the layer editor:
 
 1. **Title** — for example `Forest cover`.
@@ -107,6 +120,8 @@ draws on top of the basemap. Drag to reorder if needed.
 Click **Preview** in the top navigation to open
 [GE Preview](../configuration/preview.md). The actual APEx Geospatial
 Explorer loads in an iframe with your config applied.
+
+![GE Preview running with a loaded config: layer panel on the left, map in the middle, info panel on the right](../assets/screenshots/ge-preview-loaded.png)
 
 Confirm:
 

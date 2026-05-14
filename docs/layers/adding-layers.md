@@ -7,6 +7,10 @@ title: Adding layers
 This page walks through adding a new layer to your configuration. For a
 conceptual overview of layers, see [Layers overview](overview.md).
 
+!!! tip "Follow along"
+    Screenshots on this page were taken with the **Comprehensive demo**
+    config loaded.
+
 ## Step 1 — Open the Add New Layer screen
 
 There are two entry points:
@@ -24,10 +28,14 @@ The selector shows two tiles:
 - **Base Layer** — a background basemap (no UI). Replaced by **Import Layer
   Card (beta)** when you launched from inside a group.
 
+![Add Layer to Biodiversity & Ecosystem Accounting screen with two tiles: Add Layer Card and Import Layer Card (beta)](../assets/screenshots/layers-add-picker.png)
+
 ## Step 2 — Add Layer Card
 
 Click **Add Layer Card** to open the layer editor. The editor is divided
 into sections:
+
+![Create Layer Card editor showing Layer Type radios (Standard / Swipe / Mirror / Spotlight), Layout Style options, and Basic Information fields](../assets/screenshots/layers-create-card.png)
 
 ### Basic info
 

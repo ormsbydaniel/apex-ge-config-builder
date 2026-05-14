@@ -8,6 +8,12 @@ The **Layers** tab is where you build the visible content of your
 APEx Geospatial Explorer — every map layer, its data source(s), how it is
 styled, and where it appears in the UI.
 
+!!! tip "Follow along"
+    Screenshots on this page were taken with the **Comprehensive demo**
+    config loaded.
+
+![Layers tab showing the Map Layers header (42 layers total) and six interface groups: Soils, Biodiversity & Ecosystem Accounting, Land Cover, Vegetation, etc.](../assets/screenshots/layers-tab-hierarchy.png)
+
 ## Layer model
 
 Each layer in the config has three concerns:

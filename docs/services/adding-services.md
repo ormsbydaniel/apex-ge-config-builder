@@ -12,6 +12,8 @@ This page covers the **Add Service** dialog on the
 On the **Services** tab, click **Add Service** in the top right. The dialog
 opens with **Service Type** preselected to **WMS**.
 
+![Add Service dialog with Service Type set to WMS, an empty Service URL field showing the placeholder, and disabled Validate / Add Service buttons](../assets/screenshots/services-add-dialog.png)
+
 ## Step 1 — Choose the service type
 
 The **Service Type** dropdown offers:

@@ -8,6 +8,10 @@ A **service** is a reusable endpoint definition. Layers reference services
 by name, so you can swap an endpoint URL in one place and have every layer
 that uses it pick up the change.
 
+!!! tip "Follow along"
+    Screenshots on this page were taken with the **Comprehensive demo**
+    config loaded.
+
 ## What a service is
 
 A service captures three things:
@@ -31,6 +35,8 @@ of the **Configured Services** card has three buttons:
 | **Re-check all** | Re-runs validation against every service (STAC, OGC, S3). Useful after editing endpoints. |
 | **Add Recommended Services** | Bulk-adds a curated list of common public services. See [Recommended services](recommended.md). |
 | **Add Service** | Opens the **Add Service** dialog. See [Adding services](adding-services.md). |
+
+![Services tab with the Configured Services card open: STAC catalogues, WMS services, and an S3 bucket all showing as reachable](../assets/screenshots/services-tab.png)
 
 Below the header, each service is shown as a row with its name, URL, type
 badge, and per-service validation status.
@@ -58,6 +64,8 @@ Each service shows one of:
 - **Checking…** — a re-check is in flight.
 - **Failed** — could not reach the endpoint, or the response was unusable.
   The error message is shown inline.
+
+![Services list showing healthy services with green "layers available" badges above an "Invalid services" section listing two failed entries with Server error (HTTP 503) and Server did not respond in time](../assets/screenshots/services-validation-states.png)
 
 Use **Re-check all** after a network change or when you suspect an upstream
 endpoint has moved.
