@@ -58,11 +58,6 @@ build a three-level hierarchy in the explorer sidebar — see
 A renderable map item with a data source, styling, and metadata. Layers
 sit inside interface groups and are managed on the **Layers** tab.
 
-### Lovable Cloud
-This project does not use Lovable Cloud — it is a fully client-side
-configuration builder. The configuration JSON is the only state the
-builder produces.
-
 ### Meta
 The `meta` object in the configuration. Holds reusable definitions —
 projections, colormaps, categories, vector field schemas — that layers
