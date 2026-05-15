@@ -63,7 +63,7 @@ nav:
   - Layers tab:
       - Overview: layers/overview.md
       - Interface groups: configuration/interface-groups.md
-      - Layers:
+      - Adding Layers:
           - Overview: layers/types/overview.md
           - Standard layers: layers/standard-layers.md
           - Swipe layers: layers/swipe-layers.md
