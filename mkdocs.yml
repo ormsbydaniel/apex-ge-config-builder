@@ -132,7 +132,7 @@ nav:
           - Migrate an existing config: recipes/migrate-existing-config.md
           - Edit JSON directly (safely): recipes/edit-json-directly.md
   - Reference:
-      - Overview: reference/index.md
+      - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
       - JSON schema reference: reference/json-schema.md
       - Tips and shortcuts: reference/keyboard-and-tips.md
