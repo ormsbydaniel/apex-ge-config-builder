@@ -1,6 +1,5 @@
 ---
 title: Recommended services
-status: draft
 ---
 # Recommended services
 
