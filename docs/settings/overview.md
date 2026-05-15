@@ -118,8 +118,3 @@ to override the config at load time (for example `?variant=fullscreen`,
 `?center=...`, `?zoom=...`, `?layers=...`). For the canonical reference see
 [URL parameters](../reference/url-parameters.md).
 
-## Interface Groups
-
-The [Interface Groups](../configuration/interface-groups.md) panel is rendered as a separate
-card on this tab. It controls the top-level structure of the layer panel.
-See its dedicated page for the full walk-through.
