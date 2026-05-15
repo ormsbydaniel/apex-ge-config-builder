@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1224,24 +1224,25 @@
 
 
 <h1 id="welcome">Welcome<a class="headerlink" href="#welcome" title="Permanent link">&para;</a></h1>
-<p>The <strong>Configuration Builder</strong> is a web app for designing, validating, and exporting
-configuration files for the APEx Geospatial Explorer. You can use it to
-assemble services, layers, charts, and UI options without hand-editing JSON.</p>
-<p>This guide is for <strong>config authors</strong> — anyone who builds or maintains an
-APEx Geospatial Explorer configuration. It is task-focused: each chapter
-explains what a feature does, when to use it, and how to drive it from the UI.</p>
+<p>The <strong>APEx Geospatial Explorer</strong> is an interactive web map application used to display and visualise outputs from Earth Observation projects.  EO Project teams typically use the <strong>"GE"</strong> to support the communication of their results with interested stakeholders.</p>
+<p>The user interface structure, the content that it serves and the functionality presented in a given GE "instance" are all defined in a <strong>JSON</strong> configuration file that the <strong>GE</strong> reads at run time.  A <strong>GE Configuration Builder</strong> tool has been produced that allows <strong>config authors</strong> - anyone who builds or maintains a <strong>GE</strong> configuration - to develop and maintain a config file, <em>without</em> needing familiarity with JSON or the specific schema that the <strong>GE</strong> uses.   This guide provides a task focussed explanation on what the configuration builder tool does and how to use it.</p>
 <p><img alt="The Configuration Builder produces a JSON config, hosted in a GitHub repository, which configures the APEx Geospatial Explorer for end users." src="assets/builder-explorer-flow.png" />
 <em>The EO Project Team uses the Configuration Builder to author a JSON config (data sources, visualisation, functionality, content, settings). The config is hosted in a GitHub repository and consumed by the APEx Geospatial Explorer to deliver the configured experience to end users.</em></p>
 <h2 id="what-you-can-do-with-the-builder">What you can do with the builder<a class="headerlink" href="#what-you-can-do-with-the-builder" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Compose an APEx Geospatial Explorer configuration from <strong>services</strong> (WMTS, WMS, WFS, COG, XYZ,
-  GeoJSON, FlatGeoBuf, CSV) and <strong>layers</strong> organised into <strong>interface groups</strong>.</li>
+<li>Compose an APEx Geospatial Explorer configuration from <strong>data sources</strong> and <strong>services</strong> (WMTS, WMS, WFS, COG, XYZ,
+  GeoJSON, FlatGeoBuf, CSV) using <strong>layers</strong> organised into <strong>interface groups</strong></li>
+<li>Define the <strong>background maps</strong> that are available</li>
+<li>Style raster layers with <strong>categories</strong> and <strong>colormaps</strong>, build <strong>RGB composites</strong> and <strong>style
+  vector layers</strong> with rule-based filters and stops.</li>
+<li>Define <strong>statistics</strong> and <strong>constraint</strong> layers</li>
+<li>Author <strong>charts</strong> from CSV, COG pixel values, or vector feature properties.</li>
+<li>Configure specific <strong>functional controls</strong> for each layer - e.g opacity slider, download links</li>
 <li>Browse remote catalogues with the <strong>STAC</strong> and <strong>S3</strong> browsers.</li>
+<li>Inspect the <strong>metadata</strong> of data sources to understand their content</li>
 <li>Validate every URL in your config with the <strong>Run Healthcheck</strong> tool and see
   data-access plus performance scores at a glance.</li>
-<li>Style raster layers with colormaps or build <strong>RGB composites</strong>, and style
-  vector layers with rule-based filters and stops.</li>
-<li>Author <strong>charts</strong> from CSV, COG pixel values, or vector feature properties.</li>
+<li>Define specific <strong>branding</strong> and <strong>navigation defaults</strong> (e.g. projection; start location and scale)   </li>
 <li>Preview the resulting APEx Geospatial Explorer inline using <strong>GE Preview</strong> before exporting JSON.</li>
 </ul>
 <h2 id="where-to-start">Where to start<a class="headerlink" href="#where-to-start" title="Permanent link">&para;</a></h2>
@@ -1372,10 +1373,10 @@ explains what a feature does, when to use it, and how to drive it from the UI.</
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "content.code.copy", "content.tabs.link", "content.tooltips", "search.suggest", "search.highlight"], "search": "assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "content.code.copy", "content.tabs.link", "content.tooltips", "search.suggest", "search.highlight"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
