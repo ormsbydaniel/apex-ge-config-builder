@@ -64,7 +64,7 @@ before deleting or reordering.
 
 ## Sub-interface groups
 
-Sub-groups are **not** declared here. Each interface group heading on the
+Each interface group heading on the
 [Layers](../layers/index.md) tab has an **Add sub-group** button that
 opens a dialog where you name the new sub-group and pick which existing
 ungrouped layers to move into it. Once created, layer cards can be dragged
