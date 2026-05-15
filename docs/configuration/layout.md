@@ -1,6 +1,5 @@
 ---
 title: Layout
-status: draft
 ---
 # Layout
 

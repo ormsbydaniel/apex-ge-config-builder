@@ -1,6 +1,5 @@
 ---
 title: Footer links
-status: draft
 ---
 # Footer links
 
