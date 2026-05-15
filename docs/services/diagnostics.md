@@ -1,6 +1,5 @@
 ---
 title: Service diagnostics
-status: draft
 ---
 # Service diagnostics
 
