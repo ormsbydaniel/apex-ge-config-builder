@@ -69,9 +69,20 @@ layout settings configured in the [Visual editor](../charts/visual-editor.md)
 map directly to Plotly's trace/layout JSON.
 
 ### Service
-An endpoint definition — WMS, WMTS, WFS, STAC catalogue, S3 bucket, or
-generic URL — that one or more data sources reference by name. Managed
-on the **Services** tab.
+A reusable endpoint definition managed on the **Services** tab. Services
+play one of two roles today:
+
+- **WMS / WMTS / WFS** services are referenced live by layers — the chosen
+  layer from the service is the data source, and editing the service URL
+  re-points every layer that uses it.
+- **STAC catalogues** and **S3 buckets** act as discovery aids in the
+  builder UI. The resolved direct URL of each picked asset is what is
+  written into the config; the catalogue/bucket entry can be removed
+  afterwards without breaking the layers built from it.
+
+Support for referencing a **STAC collection** itself as a live data source
+(for example, to drive the temporal control with a time series) is planned
+for a future release.
 
 ### STAC
 **SpatioTemporal Asset Catalog.** A JSON specification for cataloguing
