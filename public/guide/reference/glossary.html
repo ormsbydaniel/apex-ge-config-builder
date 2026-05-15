@@ -1797,9 +1797,20 @@ reference by name.</p>
 layout settings configured in the <a href="../charts/visual-editor.html">Visual editor</a>
 map directly to Plotly's trace/layout JSON.</p>
 <h3 id="service">Service<a class="headerlink" href="#service" title="Permanent link">&para;</a></h3>
-<p>An endpoint definition — WMS, WMTS, WFS, STAC catalogue, S3 bucket, or
-generic URL — that one or more data sources reference by name. Managed
-on the <strong>Services</strong> tab.</p>
+<p>A reusable endpoint definition managed on the <strong>Services</strong> tab. Services
+play one of two roles today:</p>
+<ul>
+<li><strong>WMS / WMTS / WFS</strong> services are referenced live by layers — the chosen
+  layer from the service is the data source, and editing the service URL
+  re-points every layer that uses it.</li>
+<li><strong>STAC catalogues</strong> and <strong>S3 buckets</strong> act as discovery aids in the
+  builder UI. The resolved direct URL of each picked asset is what is
+  written into the config; the catalogue/bucket entry can be removed
+  afterwards without breaking the layers built from it.</li>
+</ul>
+<p>Support for referencing a <strong>STAC collection</strong> itself as a live data source
+(for example, to drive the temporal control with a time series) is planned
+for a future release.</p>
 <h3 id="stac">STAC<a class="headerlink" href="#stac" title="Permanent link">&para;</a></h3>
 <p><strong>SpatioTemporal Asset Catalog.</strong> A JSON specification for cataloguing
 geospatial assets. The builder browses STAC catalogues to find

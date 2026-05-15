@@ -1335,11 +1335,20 @@ repo, or from a URL, and you can export it back to JSON at any time. See
 declares which <strong>interface group</strong> it belongs to. Layers are managed from the
 <strong>Layers</strong> tab.</p>
 <h3 id="service">Service<a class="headerlink" href="#service" title="Permanent link">&para;</a></h3>
-<p>A reusable endpoint definition (WMTS, WMS, WFS, COG, XYZ, GeoJSON,
-FlatGeoBuf, CSV, S3 bucket, or STAC catalogue). Once a service has been
-defined, the datasets referenced with it can be easily found and added to a
-layer, by browsing the service via the config builder UI. Managed from the
-<strong>Services</strong> tab.</p>
+<p>A reusable endpoint definition managed from the <strong>Services</strong> tab. Services
+play one of two roles today:</p>
+<ul>
+<li><strong>WMS / WMTS / WFS</strong> services are referenced live by layers — the chosen
+  layer from the service is the data source, and editing the service URL
+  re-points every layer that uses it.</li>
+<li><strong>STAC catalogues</strong> and <strong>S3 buckets</strong> are primarily a way to <em>browse and
+  pick</em> assets in the config builder UI. The resolved direct URL of each
+  picked file (COG, GeoJSON, FlatGeoBuf, CSV) is what gets written into the
+  config; the catalogue/bucket entry itself is not required at runtime.</li>
+</ul>
+<p>Support for referencing a <strong>STAC collection</strong> itself as a live data source
+(for example to drive the temporal control with a time series of items) is
+planned for a future release.</p>
 <h3 id="interface-group">Interface group<a class="headerlink" href="#interface-group" title="Permanent link">&para;</a></h3>
 <p>A user-facing grouping in the APEx Geospatial Explorer's layer panel — for example
 "Land Cover", "Soils", "Climate". Interface groups give the APEx Geospatial Explorer's

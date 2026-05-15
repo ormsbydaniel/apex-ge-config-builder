@@ -772,14 +772,6 @@
   </span>
   
   
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
 
             </a>
             
@@ -823,14 +815,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
       </a>
@@ -1210,10 +1194,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-a-service-is" class="md-nav__link">
+  <a href="#how-services-are-used" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What a service is
+        How services are used
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-service-captures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a service captures
       
     </span>
   </a>
@@ -1293,25 +1288,53 @@
 
 
 <h1 id="services-overview">Services overview<a class="headerlink" href="#services-overview" title="Permanent link">&para;</a></h1>
-<p>A <strong>service</strong> is a reusable endpoint definition. Layers reference services
-by name, so you can swap an endpoint URL in one place and have every layer
-that uses it pick up the change.</p>
+<p>A <strong>service</strong> is a reusable endpoint definition registered in the config
+builder. Services play different roles depending on their type — some are
+referenced live by layers at runtime, others are purely a convenience for
+finding data while you build the config.</p>
 <div class="admonition tip">
 <p class="admonition-title">Follow along</p>
 <p>Screenshots on this page were taken with the <strong>Comprehensive demo</strong>
 config loaded.</p>
 </div>
-<h2 id="what-a-service-is">What a service is<a class="headerlink" href="#what-a-service-is" title="Permanent link">&para;</a></h2>
-<p>A service captures three things:</p>
+<h2 id="how-services-are-used">How services are used<a class="headerlink" href="#how-services-are-used" title="Permanent link">&para;</a></h2>
+<p>Services fall into three categories:</p>
+<table>
+<thead>
+<tr>
+<th>Service type</th>
+<th>Role</th>
+<th>What gets saved in the config</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>WMS / WMTS / WFS</strong></td>
+<td>Live endpoint reference. The chosen layer from the service <em>is</em> the data source.</td>
+<td>The service URL plus the chosen layer name. Edit the URL once and every layer that uses it re-points.</td>
+</tr>
+<tr>
+<td><strong>STAC catalogue / S3 bucket</strong></td>
+<td>Discovery aid in the builder only. Lets you browse the catalogue/bucket to find COG, GeoJSON, FlatGeoBuf, or CSV assets.</td>
+<td>The resolved direct URL of each picked file. The catalogue/bucket entry is not needed at runtime — you can delete it after layers are configured without breaking them.</td>
+</tr>
+<tr>
+<td><strong>STAC collection</strong> <em>(coming soon)</em></td>
+<td>Live reference to a STAC collection as the data source — for example, to feed a time series into the temporal control.</td>
+<td>The collection URL.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-a-service-captures">What a service captures<a class="headerlink" href="#what-a-service-captures" title="Permanent link">&para;</a></h2>
+<p>A service entry stores three things:</p>
 <ol>
-<li>The <strong>type</strong> of endpoint (WMS, WMTS, WFS, COG, XYZ, GeoJSON, FlatGeoBuf,
-   CSV, S3 bucket, or STAC catalogue).</li>
+<li>The <strong>type</strong> of endpoint (WMS, WMTS, WFS, STAC catalogue, or S3 bucket).</li>
 <li>The <strong>URL</strong> to reach it.</li>
 <li>A <strong>name</strong> you choose, used in dropdowns when you build layers.</li>
 </ol>
-<p>For OGC services and STAC catalogues, the builder also performs automatic
-discovery — <code>GetCapabilities</code> for OGC and catalogue metadata for STAC — and
-populates the service name for you.</p>
+<p>For OGC services and STAC catalogues, the builder performs automatic
+discovery — <code>GetCapabilities</code> for OGC and catalogue metadata for STAC —
+and populates the service name for you.</p>
 <h2 id="where-services-live">Where services live<a class="headerlink" href="#where-services-live" title="Permanent link">&para;</a></h2>
 <p>The <strong>Services</strong> tab lists every service in the current config. The header
 of the <strong>Configured Services</strong> card has three buttons:</p>
@@ -1398,10 +1421,17 @@ do not need a service entry — you can add them straight from the
 endpoint has moved.</p>
 <h2 id="when-to-use-services-vs-direct-urls">When to use services vs. direct URLs<a class="headerlink" href="#when-to-use-services-vs-direct-urls" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Use a <strong>service</strong> when the same endpoint will host more than one layer
-  (the typical case for WMS/WMTS/WFS/STAC/S3) — you get one URL to maintain.</li>
+<li>For <strong>WMS / WMTS / WFS</strong>, always use a service — it is the only way to
+  point a layer at that kind of endpoint, and editing the URL re-points
+  every layer that references it.</li>
+<li>For <strong>STAC catalogues</strong> and <strong>S3 buckets</strong>, add a service when you want
+  to browse the catalogue/bucket from the builder UI to find assets.
+  Once the layers are configured, the resolved file URLs are what live in
+  the config — the service entry can be removed later without affecting
+  those layers.</li>
 <li>Use a <strong>direct URL</strong> when the layer is a single standalone file (a one-off
-  COG or GeoJSON). You can still promote it to a service later.</li>
+  COG, GeoJSON, FlatGeoBuf, CSV, or XYZ tile pattern) and you do not need
+  the browser UI to find it.</li>
 </ul>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
