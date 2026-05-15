@@ -18,7 +18,7 @@ comparison.
 | Section | Purpose |
 |---------|---------|
 | **Basic info** | Title, description, interface group, optional sub-interface group. |
-| **Data sources** | One `data` source plus optional `statistics`. RGB composites, time-series, and Mirror/Spotlight comparison modes use multiple sources here. |
+| **Data sources** | One `data` source plus optional `statistics`. RGB composites and time-series use multiple sources here. |
 | **Visualisation** | Exactly one of: colormap, RGB composite, vector styling, or categories. See [Data visualisation](data-visualisation.md). |
 | **Legend, attribution, fields, controls** | Optional but they clear Config QA flags. |
 
@@ -29,14 +29,6 @@ comparison.
 | Standard raster or vector | One `data` source, optional `statistics`. |
 | RGB composite | Three or more raster sources, one per band. |
 | Time-series | One `data` source plus per-timestamp variants. |
-| Mirror | Two `data` sources: **Top** and **Bottom**. |
-| Spotlight | Two `data` sources: **Background** and **Spotlight**. |
-
-!!! note "Mirror and Spotlight"
-    Mirror and Spotlight are paired-source comparison modes that live on a
-    standard layer card. They are siblings of [Swipe](swipe-layers.md);
-    Swipe is documented separately because it has its own dedicated layer
-    type and `swipeConfig` block.
 
 ## Add a standard layer
 
@@ -58,7 +50,7 @@ The selector shows two tiles. Pick **Add Layer Card**.
 
 The layer editor opens. Work through the sections top to bottom.
 
-![Create Layer Card editor showing Layer Type radios (Standard / Swipe / Mirror / Spotlight), Layout Style options, and Basic Information fields](../assets/screenshots/layers-create-card.png)
+![Create Layer Card editor showing Layer Type radios (Standard / Swipe), Layout Style options, and Basic Information fields](../assets/screenshots/layers-create-card.png)
 
 **Basic info**
 
@@ -67,8 +59,7 @@ The layer editor opens. Work through the sections top to bottom.
   Explorer's info panel.
 - **Interface group** and optional **Sub-interface group**. Sub-groups are
   free text — type the same value on multiple cards to group them.
-- **Layer type** — leave on **Standard** (or pick **Mirror** /
-  **Spotlight** for paired comparison modes; pick **Swipe** to switch to
+- **Layer type** — leave on **Standard** (or pick **Swipe** to switch to
   the [Swipe layer](swipe-layers.md) flow).
 
 **Data sources**

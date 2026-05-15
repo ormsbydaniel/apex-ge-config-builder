@@ -1783,13 +1783,6 @@ reveal more or less of the <strong>clipped</strong> source over the <strong>base
 </ul>
 <p>For two layers that should both be fully visible and toggleable
 independently, use two <a href="standard-layers.html">standard layer cards</a> instead.</p>
-<div class="admonition note">
-<p class="admonition-title">Related comparison modes</p>
-<p><strong>Mirror</strong> (top/bottom split) and <strong>Spotlight</strong> (revealed circle) are
-related two-source comparison modes, but they sit on a
-<a href="standard-layers.html#sources-expected-by-sub-type">standard layer</a> — they
-do not use <code>swipeConfig</code>.</p>
-</div>
 <h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
 <p>Swipe configuration lives in <code>meta.swipeConfig</code>:</p>
 <ul>
@@ -1800,9 +1793,8 @@ do not use <code>swipeConfig</code>.</p>
   picker so the user can switch which base is compared against.</li>
 </ul>
 <p>Each source still uses the same data source format as a normal layer (COG,
-XYZ, WMS, etc.), and <code>position</code> on each <code>DataSourceItem</code> (<code>'left'</code>,
-<code>'right'</code>, <code>'background'</code>, <code>'spotlight'</code>) controls how it participates in
-the comparison.</p>
+XYZ, WMS, etc.), and <code>position</code> on each <code>DataSourceItem</code> (<code>'left'</code> or
+<code>'right'</code>) controls how it participates in the comparison.</p>
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Exactly one <code>clippedSourceName</code> is required and must match a source in
@@ -1841,8 +1833,7 @@ the comparison.</p>
 <h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="types/index.html">Layers</a> — overview of the three layer types.</li>
-<li><a href="standard-layers.html">Standard layers</a> — including Mirror and Spotlight
-  paired-source modes.</li>
+<li><a href="standard-layers.html">Standard layers</a> — toggleable overlays.</li>
 <li><a href="data-visualisation.html">Data visualisation</a> — styling applies
   independently to each side.</li>
 </ul>

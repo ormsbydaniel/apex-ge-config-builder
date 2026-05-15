@@ -1939,12 +1939,7 @@ five variants, distinguished by a few flag fields:</p>
 </tr>
 <tr>
 <td><strong>Swipe layer</strong></td>
-<td><code>meta.swipeConfig</code> present</td>
-<td><code>meta</code>, <code>layout</code> required</td>
-</tr>
-<tr>
-<td><strong>Comparison layer</strong></td>
-<td>one of <code>isSwipeLayer</code>, <code>isMirrorLayer</code>, <code>isSpotlightLayer</code> <code>= true</code></td>
+<td><code>meta.swipeConfig</code> present, or <code>isSwipeLayer: true</code></td>
 <td><code>meta</code>, <code>layout</code> required</td>
 </tr>
 <tr>
@@ -2020,10 +2015,10 @@ five variants, distinguished by a few flag fields:</p>
 <td>Marks the variant as a base layer.</td>
 </tr>
 <tr>
-<td><code>isSwipeLayer</code> / <code>isMirrorLayer</code> / <code>isSpotlightLayer</code></td>
+<td><code>isSwipeLayer</code></td>
 <td>boolean</td>
 <td>no</td>
-<td>At most one may be <code>true</code>.</td>
+<td>Marks the layer as a swipe layer.</td>
 </tr>
 <tr>
 <td><code>timeframe</code> / <code>defaultTimestamp</code></td>
@@ -2055,7 +2050,7 @@ five variants, distinguished by a few flag fields:</p>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Swipe / comparison layer example (note <code>position</code> on each <code>data</code> item and
+<p>Swipe layer example (note <code>position</code> on each <code>data</code> item and
 <code>isSwipeLayer: true</code>):</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Greece Level 1 Habitat Map 2020 vs S2&quot;</span><span class="p">,</span>
@@ -2137,7 +2132,7 @@ non-empty <code>images[]</code> array must be provided.</p>
 <td><code>position</code></td>
 <td>enum</td>
 <td>no</td>
-<td><code>left</code>, <code>right</code>, <code>background</code>, <code>spotlight</code> for comparison layers.</td>
+<td><code>left</code> or <code>right</code> for swipe layers.</td>
 </tr>
 <tr>
 <td><code>minZoom</code> / <code>maxZoom</code></td>

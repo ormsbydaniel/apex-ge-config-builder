@@ -1907,7 +1907,7 @@ config loaded.</p>
 </tr>
 <tr>
 <td><strong>Data sources</strong></td>
-<td>One <code>data</code> source plus optional <code>statistics</code>. RGB composites, time-series, and Mirror/Spotlight comparison modes use multiple sources here.</td>
+<td>One <code>data</code> source plus optional <code>statistics</code>. RGB composites and time-series use multiple sources here.</td>
 </tr>
 <tr>
 <td><strong>Visualisation</strong></td>
@@ -1940,23 +1940,8 @@ config loaded.</p>
 <td>Time-series</td>
 <td>One <code>data</code> source plus per-timestamp variants.</td>
 </tr>
-<tr>
-<td>Mirror</td>
-<td>Two <code>data</code> sources: <strong>Top</strong> and <strong>Bottom</strong>.</td>
-</tr>
-<tr>
-<td>Spotlight</td>
-<td>Two <code>data</code> sources: <strong>Background</strong> and <strong>Spotlight</strong>.</td>
-</tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="admonition-title">Mirror and Spotlight</p>
-<p>Mirror and Spotlight are paired-source comparison modes that live on a
-standard layer card. They are siblings of <a href="swipe-layers.html">Swipe</a>;
-Swipe is documented separately because it has its own dedicated layer
-type and <code>swipeConfig</code> block.</p>
-</div>
 <h2 id="add-a-standard-layer">Add a standard layer<a class="headerlink" href="#add-a-standard-layer" title="Permanent link">&para;</a></h2>
 <h3 id="step-1-open-the-add-new-layer-screen">Step 1 — Open the Add New Layer screen<a class="headerlink" href="#step-1-open-the-add-new-layer-screen" title="Permanent link">&para;</a></h3>
 <p>There are two entry points:</p>
@@ -1971,7 +1956,7 @@ type and <code>swipeConfig</code> block.</p>
 <p><img alt="Add Layer to Biodiversity &amp; Ecosystem Accounting screen with two tiles: Add Layer Card and Import Layer Card (beta)" src="../assets/screenshots/layers-add-picker.png" /></p>
 <h3 id="step-2-fill-in-the-editor">Step 2 — Fill in the editor<a class="headerlink" href="#step-2-fill-in-the-editor" title="Permanent link">&para;</a></h3>
 <p>The layer editor opens. Work through the sections top to bottom.</p>
-<p><img alt="Create Layer Card editor showing Layer Type radios (Standard / Swipe / Mirror / Spotlight), Layout Style options, and Basic Information fields" src="../assets/screenshots/layers-create-card.png" /></p>
+<p><img alt="Create Layer Card editor showing Layer Type radios (Standard / Swipe), Layout Style options, and Basic Information fields" src="../assets/screenshots/layers-create-card.png" /></p>
 <p><strong>Basic info</strong></p>
 <ul>
 <li><strong>Title</strong> — the label shown in the layer panel.</li>
@@ -1979,8 +1964,7 @@ type and <code>swipeConfig</code> block.</p>
   Explorer's info panel.</li>
 <li><strong>Interface group</strong> and optional <strong>Sub-interface group</strong>. Sub-groups are
   free text — type the same value on multiple cards to group them.</li>
-<li><strong>Layer type</strong> — leave on <strong>Standard</strong> (or pick <strong>Mirror</strong> /
-  <strong>Spotlight</strong> for paired comparison modes; pick <strong>Swipe</strong> to switch to
+<li><strong>Layer type</strong> — leave on <strong>Standard</strong> (or pick <strong>Swipe</strong> to switch to
   the <a href="swipe-layers.html">Swipe layer</a> flow).</li>
 </ul>
 <p><strong>Data sources</strong></p>

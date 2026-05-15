@@ -136,8 +136,7 @@ five variants, distinguished by a few flag fields:
 |---------|---------------|-----------------|
 | **Base layer** | `isBaseLayer: true` | `meta`, `layout` optional |
 | **Layer card** | (none of the flags below) | `meta`, `layout` required |
-| **Swipe layer** | `meta.swipeConfig` present | `meta`, `layout` required |
-| **Comparison layer** | one of `isSwipeLayer`, `isMirrorLayer`, `isSpotlightLayer` `= true` | `meta`, `layout` required |
+| **Swipe layer** | `meta.swipeConfig` present, or `isSwipeLayer: true` | `meta`, `layout` required |
 | Flexible fallback | — | accepts older configs while migrating |
 
 Common fields on every variant:
@@ -153,7 +152,7 @@ Common fields on every variant:
 | `charts` | object[] | no | Inline charts — see `charts[]`. |
 | `exclusivitySets` | string[] | no | Names from the top-level `exclusivitySets`. |
 | `isBaseLayer` | boolean | no | Marks the variant as a base layer. |
-| `isSwipeLayer` / `isMirrorLayer` / `isSpotlightLayer` | boolean | no | At most one may be `true`. |
+| `isSwipeLayer` | boolean | no | Marks the layer as a swipe layer. |
 | `timeframe` / `defaultTimestamp` | enum / number | no | Temporal config — see [Time Precision](../layers/index.md). |
 | `hasFeatureStatistics` | boolean | no | Hint for vector-feature stats. |
 
@@ -176,7 +175,7 @@ Base layer example:
 }
 ```
 
-Swipe / comparison layer example (note `position` on each `data` item and
+Swipe layer example (note `position` on each `data` item and
 `isSwipeLayer: true`):
 
 ```json
@@ -211,7 +210,7 @@ non-empty `images[]` array must be provided.
 | `layers` | string | no | OGC layer name (WMS/WMTS/WFS). |
 | `level` | number | no | Statistics level (NUTS, admin level, etc.). |
 | `style` | object | no | Renderer-specific style (e.g. OpenLayers style spec for COG / vectors). |
-| `position` | enum | no | `left`, `right`, `background`, `spotlight` for comparison layers. |
+| `position` | enum | no | `left` or `right` for swipe layers. |
 | `minZoom` / `maxZoom` | number | no | Visibility window. |
 | `timestamps` | number[] | no | Unix epochs for temporal data items. |
 | `opacity` | number 0–1 | no | Per-item opacity. |
