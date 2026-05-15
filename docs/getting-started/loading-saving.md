@@ -44,8 +44,8 @@ From the **Home** tab use the **Export** dropdown:
 
 ### Filename convention
 
-Exported files follow the pattern `<prefix>_YYYYMMMDD_HHMM.json` — for
-example `config_biodiversity_2025NOV14_1530.json`. The timestamp is added
+Exported files follow the pattern `<prefix>_YYYYMMDD_HHMM.json` — for
+example `config_biodiversity_20251114_1530.json`. The timestamp is added
 automatically so successive exports never overwrite each other.
 
 The `<prefix>` portion is taken from the **Export filename prefix** field in

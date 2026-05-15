@@ -14,7 +14,7 @@ formatting options.
 
 Exports the configuration as JSON immediately, with no transformations.
 The downloaded filename is
-`<exportPrefix>_YYYYMMMDD_HHMM.json` (the prefix is configured under
+`<exportPrefix>_YYYYMMDD_HHMM.json` (the prefix is configured under
 [Settings → Config Export Settings](../settings/index.md#config-export-settings)).
 
 This is the recommended default — the file matches the in-memory
@@ -61,9 +61,9 @@ The dialog has two buttons:
 All exports — quick or with options — produce a filename of the form:
 
 ```
-<exportPrefix>_YYYYMMMDD_HHMM.json
+<exportPrefix>_YYYYMMDD_HHMM.json
 ```
 
-For example, `config_2026MAY14_1130.json`. The month is the three-letter
-uppercase abbreviation. Set the prefix on the
+For example, `config_20260514_1130.json`. The month is the two-digit
+zero-padded number. Set the prefix on the
 [Settings tab](../settings/index.md#config-export-settings).
