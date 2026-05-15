@@ -9,7 +9,7 @@ top-level chrome of the deployed APEx Geospatial Explorer — the **design
 variant** plus any variant-specific parameters. It is persisted on the
 config's `layout.design` field.
 
-![Settings tab — Design Variant section showing the Layout Variant dropdown and a Parameters row with `position` set to `right`](../assets/screenshots/settings-design-variant.png)
+![Settings tab — Design Variant section showing the Layout Variant dropdown and an empty Parameters row](../assets/screenshots/settings-design-variant.png)
 
 ## Layout Variant
 
@@ -40,12 +40,6 @@ Variants accept an optional bag of key–value parameters that fine-tune
 their behaviour. Each row maps to a property under
 `layout.design.parameters`.
 
-The most common parameter is `position` for the `sidebar` variant:
-
-| Key        | Example values     | Effect                                              |
-|------------|--------------------|-----------------------------------------------------|
-| `position` | `left`, `right`    | Which side the sidebar is anchored to.              |
-
 Use **+ Add Parameter** to add a new key, edit the key/value inline, and
 click the trash icon to remove it. Parameters are typed as strings in the
 UI; numeric or boolean values that a variant expects can be entered as
@@ -64,9 +58,7 @@ parameter — for example `?variant=fullscreen`. See
   "layout": {
     "design": {
       "variant": "sidebar",
-      "parameters": {
-        "position": "right"
-      }
+      "parameters": {}
     }
   }
 }
