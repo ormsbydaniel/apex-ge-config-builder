@@ -1,6 +1,5 @@
 ---
 title: Settings overview
-status: draft
 ---
 # Settings overview
 The **Settings** tab holds top-level configuration that applies to the
@@ -22,8 +21,8 @@ covered below.
 
 - **Export filename prefix** — the prefix used when you click **Export** on
   the [Home tab](../home/index.md). Exported filenames follow the pattern
-  `<prefix>_YYYYMMMDD_HHMM.json`. Pick something short and meaningful, for
-  example `config_biodiversity` → `config_biodiversity_2025NOV14_1530.json`.
+  `<prefix>_YYYYMMDD_HHMM.json`. Pick something short and meaningful, for
+  example `config_biodiversity` → `config_biodiversity_20251114_1530.json`.
 
 For sort order and field-ordering options at export time see
 [Export options](../configuration/export-options.md).
