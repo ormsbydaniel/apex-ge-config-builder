@@ -8,6 +8,12 @@ A three-level picker over any STAC catalogue or API registered on the
 [Services](../services/index.md) tab. Walks you from
 **Catalogue → Collection → Item → Asset**.
 
+!!! info "What ends up in your config"
+    The STAC catalogue is a browsing aid only. When you select an asset,
+    the config stores its resolved direct URL (COG, GeoJSON, FlatGeoBuf,
+    CSV) — not a reference to the catalogue. You can delete the STAC
+    service entry afterwards without breaking layers built from it.
+
 ## Open the browser
 
 In a layer card's data source form, pick **From Service** and select your

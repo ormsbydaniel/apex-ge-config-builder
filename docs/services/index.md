@@ -1,29 +1,38 @@
 ---
 title: Services overview
-status: draft
 ---
 # Services overview
 
-A **service** is a reusable endpoint definition. Layers reference services
-by name, so you can swap an endpoint URL in one place and have every layer
-that uses it pick up the change.
+A **service** is a reusable endpoint definition registered in the config
+builder. Services play different roles depending on their type — some are
+referenced live by layers at runtime, others are purely a convenience for
+finding data while you build the config.
 
 !!! tip "Follow along"
     Screenshots on this page were taken with the **Comprehensive demo**
     config loaded.
 
-## What a service is
+## How services are used
 
-A service captures three things:
+Services fall into three categories:
 
-1. The **type** of endpoint (WMS, WMTS, WFS, COG, XYZ, GeoJSON, FlatGeoBuf,
-   CSV, S3 bucket, or STAC catalogue).
+| Service type | Role | What gets saved in the config |
+|---|---|---|
+| **WMS / WMTS / WFS** | Live endpoint reference. The chosen layer from the service *is* the data source. | The service URL plus the chosen layer name. Edit the URL once and every layer that uses it re-points. |
+| **STAC catalogue / S3 bucket** | Discovery aid in the builder only. Lets you browse the catalogue/bucket to find COG, GeoJSON, FlatGeoBuf, or CSV assets. | The resolved direct URL of each picked file. The catalogue/bucket entry is not needed at runtime — you can delete it after layers are configured without breaking them. |
+| **STAC collection** *(coming soon)* | Live reference to a STAC collection as the data source — for example, to feed a time series into the temporal control. | The collection URL. |
+
+## What a service captures
+
+A service entry stores three things:
+
+1. The **type** of endpoint (WMS, WMTS, WFS, STAC catalogue, or S3 bucket).
 2. The **URL** to reach it.
 3. A **name** you choose, used in dropdowns when you build layers.
 
-For OGC services and STAC catalogues, the builder also performs automatic
-discovery — `GetCapabilities` for OGC and catalogue metadata for STAC — and
-populates the service name for you.
+For OGC services and STAC catalogues, the builder performs automatic
+discovery — `GetCapabilities` for OGC and catalogue metadata for STAC —
+and populates the service name for you.
 
 ## Where services live
 
@@ -72,10 +81,17 @@ endpoint has moved.
 
 ## When to use services vs. direct URLs
 
-- Use a **service** when the same endpoint will host more than one layer
-  (the typical case for WMS/WMTS/WFS/STAC/S3) — you get one URL to maintain.
+- For **WMS / WMTS / WFS**, always use a service — it is the only way to
+  point a layer at that kind of endpoint, and editing the URL re-points
+  every layer that references it.
+- For **STAC catalogues** and **S3 buckets**, add a service when you want
+  to browse the catalogue/bucket from the builder UI to find assets.
+  Once the layers are configured, the resolved file URLs are what live in
+  the config — the service entry can be removed later without affecting
+  those layers.
 - Use a **direct URL** when the layer is a single standalone file (a one-off
-  COG or GeoJSON). You can still promote it to a service later.
+  COG, GeoJSON, FlatGeoBuf, CSV, or XYZ tile pattern) and you do not need
+  the browser UI to find it.
 
 ## Next steps
 

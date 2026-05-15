@@ -40,11 +40,20 @@ declares which **interface group** it belongs to. Layers are managed from the
 
 ### Service
 
-A reusable endpoint definition (WMTS, WMS, WFS, COG, XYZ, GeoJSON,
-FlatGeoBuf, CSV, S3 bucket, or STAC catalogue). Once a service has been
-defined, the datasets referenced with it can be easily found and added to a
-layer, by browsing the service via the config builder UI. Managed from the
-**Services** tab.
+A reusable endpoint definition managed from the **Services** tab. Services
+play one of two roles today:
+
+- **WMS / WMTS / WFS** services are referenced live by layers — the chosen
+  layer from the service is the data source, and editing the service URL
+  re-points every layer that uses it.
+- **STAC catalogues** and **S3 buckets** are primarily a way to *browse and
+  pick* assets in the config builder UI. The resolved direct URL of each
+  picked file (COG, GeoJSON, FlatGeoBuf, CSV) is what gets written into the
+  config; the catalogue/bucket entry itself is not required at runtime.
+
+Support for referencing a **STAC collection** itself as a live data source
+(for example to drive the temporal control with a time series of items) is
+planned for a future release.
 
 ### Interface group
 

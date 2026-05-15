@@ -8,6 +8,12 @@ A folder-style picker for any S3 service registered on the
 [Services](../services/index.md) tab. Works against AWS S3, Huawei
 OBS, MinIO, and other S3-compatible stores.
 
+!!! info "What ends up in your config"
+    The S3 bucket is a browsing aid only. When you select a file, the
+    config stores its resolved direct URL — not a reference to the bucket.
+    You can delete the S3 service entry afterwards without breaking layers
+    built from it.
+
 ## Open the browser
 
 In a layer card's data source form, choose **From Service** and select

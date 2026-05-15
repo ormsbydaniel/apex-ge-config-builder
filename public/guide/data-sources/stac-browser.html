@@ -1987,6 +1987,13 @@
 <p>A three-level picker over any STAC catalogue or API registered on the
 <a href="../services/index.html">Services</a> tab. Walks you from
 <strong>Catalogue → Collection → Item → Asset</strong>.</p>
+<div class="admonition info">
+<p class="admonition-title">What ends up in your config</p>
+<p>The STAC catalogue is a browsing aid only. When you select an asset,
+the config stores its resolved direct URL (COG, GeoJSON, FlatGeoBuf,
+CSV) — not a reference to the catalogue. You can delete the STAC
+service entry afterwards without breaking layers built from it.</p>
+</div>
 <h2 id="open-the-browser">Open the browser<a class="headerlink" href="#open-the-browser" title="Permanent link">&para;</a></h2>
 <p>In a layer card's data source form, pick <strong>From Service</strong> and select your
 STAC service. The browser opens at the catalogue's root collections list.</p>

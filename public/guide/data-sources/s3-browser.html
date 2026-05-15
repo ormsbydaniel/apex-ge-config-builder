@@ -1987,6 +1987,13 @@
 <p>A folder-style picker for any S3 service registered on the
 <a href="../services/index.html">Services</a> tab. Works against AWS S3, Huawei
 OBS, MinIO, and other S3-compatible stores.</p>
+<div class="admonition info">
+<p class="admonition-title">What ends up in your config</p>
+<p>The S3 bucket is a browsing aid only. When you select a file, the
+config stores its resolved direct URL — not a reference to the bucket.
+You can delete the S3 service entry afterwards without breaking layers
+built from it.</p>
+</div>
 <h2 id="open-the-browser">Open the browser<a class="headerlink" href="#open-the-browser" title="Permanent link">&para;</a></h2>
 <p>In a layer card's data source form, choose <strong>From Service</strong> and select
 your S3 service. The browser opens at the bucket root.</p>
