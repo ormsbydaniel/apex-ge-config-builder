@@ -84,6 +84,7 @@ nav:
           - RGB composite: layers/rgb-composite.md
           - Vector styling: layers/vector-styling.md
           - Vector fields: layers/vector-fields.md
+      - Time Series: layers/time-series.md
       - Statistics: statistics/overview.md
       - Constraints: constraints/overview.md
       - Charts:
