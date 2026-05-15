@@ -1,21 +1,30 @@
-## Update Layers overview "Layer model" table
+## Update `docs/configuration/interface-groups.md`
 
-Edit `docs/layers/index.md` — replace the current "Layer model" section.
+1. **Remove draft flag** — delete `status: draft` from front-matter.
 
-**Changes:**
-- Change intro line from *"Each layer in the config has three concerns:"* to *"The definition of a layer comprises:"*
-- Remove the table header row (markdown requires a header — use an empty header row that renders cleanly).
-- Reorder and expand rows:
+2. **Intro panel** — mention sub-groups, and broaden the "must belong to one" line:
 
-| | |
-|---|---|
-| **Where it lives in the UI** | An *interface group* (and optional *sub-interface group*) that determines where the layer appears in the Explorer's layer panel. |
-| **What it shows** | One or more *data sources* — service+layer references or direct URLs to COG, GeoJSON, FlatGeoBuf, CSV, WMS/WMTS layers, etc. |
-| **How it is visualised** | Style: colormap, RGB composite band assignments, vector styling rules, categorical classes. |
-| **Supporting content** | Description, attribution, legend, units. |
-| **Functional controls** | Opacity, temporal controls, zoom to layer, download link, layer toggles. |
-| **Advanced features** | Statistics, constraints, charts. |
+   > **Interface groups** are the top-level user-facing groupings shown in
+   > the deployed APEx Geospatial Explorer's layer panel — for example
+   > *Land Cover*, *Soils*, *Climate*. Each group can optionally contain
+   > **sub-interface groups** for finer-grained organisation. Every layer
+   > card in the config must belong to either an interface group or one of
+   > its sub-groups.
 
-- Then rebuild the mkdocs site (`python3 -m mkdocs build --clean`) so the `public/guide/` HTML reflects the change.
+3. **Rewrite "Sub-interface groups" section** — clarify that sub-groups are
+   created via the **Add sub-group** button on each interface group, not by
+   typing a name into the layer card:
+
+   > Each interface group heading on the [Layers](../layers/index.md) tab
+   > has an **Add sub-group** button that opens a dialog where you name
+   > the new sub-group and pick which existing ungrouped layers to move
+   > into it. Once created, layer cards can be dragged in or out of the
+   > sub-group, and the sub-group will appear as a folder under its parent
+   > interface group in the deployed Explorer.
+   >
+   > For the conceptual model see
+   > [Layers overview → How the tab is laid out](../layers/index.md#how-the-tab-is-laid-out).
+
+4. Rebuild the docs (`python3 -m mkdocs build --clean`).
 
 No other files need changing.
