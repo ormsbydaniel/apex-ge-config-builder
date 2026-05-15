@@ -81,10 +81,17 @@ endpoint has moved.
 
 ## When to use services vs. direct URLs
 
-- Use a **service** when the same endpoint will host more than one layer
-  (the typical case for WMS/WMTS/WFS/STAC/S3) — you get one URL to maintain.
+- For **WMS / WMTS / WFS**, always use a service — it is the only way to
+  point a layer at that kind of endpoint, and editing the URL re-points
+  every layer that references it.
+- For **STAC catalogues** and **S3 buckets**, add a service when you want
+  to browse the catalogue/bucket from the builder UI to find assets.
+  Once the layers are configured, the resolved file URLs are what live in
+  the config — the service entry can be removed later without affecting
+  those layers.
 - Use a **direct URL** when the layer is a single standalone file (a one-off
-  COG or GeoJSON). You can still promote it to a service later.
+  COG, GeoJSON, FlatGeoBuf, CSV, or XYZ tile pattern) and you do not need
+  the browser UI to find it.
 
 ## Next steps
 
