@@ -1,6 +1,5 @@
 ---
 title: GE Preview
-status: draft
 ---
 # GE Preview
 
