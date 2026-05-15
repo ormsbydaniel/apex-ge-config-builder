@@ -65,6 +65,10 @@
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/constraints/overview.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/index.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
@@ -326,6 +330,10 @@
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/statistics/index.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/statistics/overview.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
 </urlset>
