@@ -4,13 +4,9 @@ status: draft
 ---
 # Welcome
 
-The **Configuration Builder** is a web app for designing, validating, and exporting
-configuration files for the APEx Geospatial Explorer. You can use it to
-assemble services, layers, charts, and UI options without hand-editing JSON.
+The **APEx Geospatial Explorer** is an interactive web map application used to display and visualise outputs from Earth Observation projects.  EO Project teams typically use the **"GE"** to support the communication of their results with interested stakeholders.
 
-This guide is for **config authors** — anyone who builds or maintains an
-APEx Geospatial Explorer configuration. It is task-focused: each chapter
-explains what a feature does, when to use it, and how to drive it from the UI.
+The user interface structure, the content that it serves and the functionality presented in a given GE "instance" are all defined in a **JSON** configuration file that the **GE** reads at run time.  A **GE Configuration Builder** tool has been produced that allows **config authors** - anyone who builds or maintains a **GE** configuration - to develop and maintain a config file, *without* needing familiarity with JSON or the specific schema that the **GE** uses.   This guide provides a task focussed explanation on what the configuration builder tool does and how to use it.
 
 ![The Configuration Builder produces a JSON config, hosted in a GitHub repository, which configures the APEx Geospatial Explorer for end users.](assets/builder-explorer-flow.png)
 *The EO Project Team uses the Configuration Builder to author a JSON config (data sources, visualisation, functionality, content, settings). The config is hosted in a GitHub repository and consumed by the APEx Geospatial Explorer to deliver the configured experience to end users.*
@@ -18,14 +14,19 @@ explains what a feature does, when to use it, and how to drive it from the UI.
 
 ## What you can do with the builder
 
-- Compose an APEx Geospatial Explorer configuration from **services** (WMTS, WMS, WFS, COG, XYZ,
-  GeoJSON, FlatGeoBuf, CSV) and **layers** organised into **interface groups**.
+- Compose an APEx Geospatial Explorer configuration from **data sources** and **services** (WMTS, WMS, WFS, COG, XYZ,
+  GeoJSON, FlatGeoBuf, CSV) using **layers** organised into **interface groups**
+- Define the **background maps** that are available
+- Style raster layers with **categories** and **colormaps**, build **RGB composites** and **style
+  vector layers** with rule-based filters and stops.
+- Define **statistics** and **constraint** layers
+- Author **charts** from CSV, COG pixel values, or vector feature properties.
+- Configure specific **functional controls** for each layer - e.g opacity slider, download links
 - Browse remote catalogues with the **STAC** and **S3** browsers.
+- Inspect the **metadata** of data sources to understand their content
 - Validate every URL in your config with the **Run Healthcheck** tool and see
   data-access plus performance scores at a glance.
-- Style raster layers with colormaps or build **RGB composites**, and style
-  vector layers with rule-based filters and stops.
-- Author **charts** from CSV, COG pixel values, or vector feature properties.
+  - Define specific **branding** and **navigation defaults** (e.g. projection; start location and scale)   
 - Preview the resulting APEx Geospatial Explorer inline using **GE Preview** before exporting JSON.
 
 ## Where to start
