@@ -63,9 +63,11 @@ nav:
   - Layers tab:
       - layers/index.md
       - Interface groups: configuration/interface-groups.md
-      - Adding layers: layers/adding-layers.md
-      - Base layers: layers/base-layers.md
-      - Swipe layers: layers/swipe-layers.md
+      - Layers:
+          - layers/types/index.md
+          - Standard layers: layers/standard-layers.md
+          - Swipe layers: layers/swipe-layers.md
+          - Base layers: layers/base-layers.md
       - Data sources:
           - COG: data-sources/cog.md
           - WMS / WMTS / WFS: data-sources/wms-wmts-wfs.md

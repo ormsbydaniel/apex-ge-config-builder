@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/layers/adding-layers.html">
+        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/layers/standard-layers.html">
       
       
-        <link rel="prev" href="../configuration/interface-groups.html">
+        <link rel="prev" href="types/index.html">
       
       
-        <link rel="next" href="base-layers.html">
+        <link rel="next" href="swipe-layers.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Adding layers - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>Standard layers - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adding-layers" class="md-skip">
+        <a href="#standard-layers" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Adding layers
+              Standard layers
             
           </span>
         </div>
@@ -644,10 +644,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -681,14 +677,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
             </a>
@@ -757,6 +745,89 @@
   
   
   
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="types/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Layers
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Layers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
@@ -772,7 +843,7 @@
   <span class="md-ellipsis">
     
   
-    Adding layers
+    Standard layers
   
 
     
@@ -791,14 +862,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="adding-layers.html" class="md-nav__link md-nav__link--active">
+      <a href="standard-layers.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    Adding layers
+    Standard layers
   
 
     
@@ -832,6 +903,46 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#what-a-standard-layer-carries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a standard layer carries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What a standard layer carries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sources-expected-by-sub-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sources expected by sub-type
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-standard-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a standard layer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Add a standard layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#step-1-open-the-add-new-layer-screen" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -841,24 +952,12 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#step-2-add-layer-card" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2 — Add Layer Card
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Step 2 — Add Layer Card">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#basic-info" class="md-nav__link">
+  <a href="#step-2-fill-in-the-editor" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Basic info
+        Step 2 — Fill in the editor
       
     </span>
   </a>
@@ -866,55 +965,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#data-sources" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data sources
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#visualisation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Visualisation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#legend-attribution-fields-controls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Legend, attribution, fields, controls
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#save" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Save
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#step-3-the-data-source-form" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -923,55 +973,10 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step 3 — The Data Source form">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#direct-connection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Direct connection
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-an-existing-service" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From an existing service
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#statistics-source" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Statistics source
-      
-    </span>
-  </a>
-  
 </li>
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-4-add-base-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4 — Add Base Layer
-      
-    </span>
-  </a>
   
 </li>
       
@@ -997,10 +1002,57 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="swipe-layers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Swipe layers
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
     </li>
   
 
@@ -1042,37 +1094,9 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="swipe-layers.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Swipe layers
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
-
-      </a>
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1739,6 +1763,46 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#what-a-standard-layer-carries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a standard layer carries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What a standard layer carries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sources-expected-by-sub-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sources expected by sub-type
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-standard-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a standard layer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Add a standard layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#step-1-open-the-add-new-layer-screen" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1748,24 +1812,12 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#step-2-add-layer-card" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2 — Add Layer Card
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Step 2 — Add Layer Card">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#basic-info" class="md-nav__link">
+  <a href="#step-2-fill-in-the-editor" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Basic info
+        Step 2 — Fill in the editor
       
     </span>
   </a>
@@ -1773,55 +1825,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#data-sources" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data sources
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#visualisation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Visualisation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#legend-attribution-fields-controls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Legend, attribution, fields, controls
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#save" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Save
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#step-3-the-data-source-form" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1830,55 +1833,10 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step 3 — The Data Source form">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#direct-connection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Direct connection
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-an-existing-service" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From an existing service
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#statistics-source" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Statistics source
-      
-    </span>
-  </a>
-  
 </li>
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-4-add-base-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4 — Add Base Layer
-      
-    </span>
-  </a>
   
 </li>
       
@@ -1904,6 +1862,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1921,59 +1890,54 @@
 
 
 
-<h1 id="adding-layers">Adding layers<a class="headerlink" href="#adding-layers" title="Permanent link">&para;</a></h1>
-<p>This page walks through adding a new layer to your configuration. For a
-conceptual overview of layers, see <a href="index.html">Layers overview</a>.</p>
+<h1 id="standard-layers">Standard layers<a class="headerlink" href="#standard-layers" title="Permanent link">&para;</a></h1>
+<p>A <strong>standard layer</strong> is the default kind of layer card — a toggleable,
+styled overlay that the user picks from the layer panel. It is the right
+choice for almost any data overlay that is not a basemap or a swipe
+comparison.</p>
 <div class="admonition tip">
 <p class="admonition-title">Follow along</p>
 <p>Screenshots on this page were taken with the <strong>Comprehensive demo</strong>
 config loaded.</p>
 </div>
-<h2 id="step-1-open-the-add-new-layer-screen">Step 1 — Open the Add New Layer screen<a class="headerlink" href="#step-1-open-the-add-new-layer-screen" title="Permanent link">&para;</a></h2>
-<p>There are two entry points:</p>
-<ul>
-<li><strong>Layers tab → Add Layer</strong> (top of the tab) — opens the type selector
-  with no preselected interface group.</li>
-<li><strong>Layers tab → "+" inside an interface group</strong> — opens the type selector
-  with that group preselected; the screen header reads <em>Add Layer to
-  &lt;group name&gt;</em>.</li>
-</ul>
-<p>The selector shows two tiles:</p>
-<ul>
-<li><strong>Add Layer Card</strong> — a user-facing layer with metadata, styling, and UI
-  controls.</li>
-<li><strong>Base Layer</strong> — a background basemap (no UI). Replaced by <strong>Import Layer
-  Card (beta)</strong> when you launched from inside a group.</li>
-</ul>
-<p><img alt="Add Layer to Biodiversity &amp; Ecosystem Accounting screen with two tiles: Add Layer Card and Import Layer Card (beta)" src="../assets/screenshots/layers-add-picker.png" /></p>
-<h2 id="step-2-add-layer-card">Step 2 — Add Layer Card<a class="headerlink" href="#step-2-add-layer-card" title="Permanent link">&para;</a></h2>
-<p>Click <strong>Add Layer Card</strong> to open the layer editor. The editor is divided
-into sections:</p>
-<p><img alt="Create Layer Card editor showing Layer Type radios (Standard / Swipe / Mirror / Spotlight), Layout Style options, and Basic Information fields" src="../assets/screenshots/layers-create-card.png" /></p>
-<h3 id="basic-info">Basic info<a class="headerlink" href="#basic-info" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Title</strong> — the label shown in the layer panel.</li>
-<li><strong>Description</strong> — markdown is supported and rendered in the deployed
-  Explorer's info panel.</li>
-<li><strong>Interface group</strong> and optional <strong>Sub-interface group</strong>. Sub-groups are
-  free text — type the same value on multiple cards to group them.</li>
-<li><strong>Layer type</strong>: standard, swipe, mirror, spotlight, or time-series. The
-  type determines how many data sources you add and how the deployed
-  Explorer presents them.</li>
-</ul>
-<h3 id="data-sources">Data sources<a class="headerlink" href="#data-sources" title="Permanent link">&para;</a></h3>
-<p>Click <strong>Add Data Source</strong> to open the <a href="#step-3-the-data-source-form">Data Source form</a>.
-You can add multiple sources:</p>
+<h2 id="what-a-standard-layer-carries">What a standard layer carries<a class="headerlink" href="#what-a-standard-layer-carries" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Layer type</th>
-<th>Sources expected</th>
+<th>Section</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Standard</td>
+<td><strong>Basic info</strong></td>
+<td>Title, description, interface group, optional sub-interface group.</td>
+</tr>
+<tr>
+<td><strong>Data sources</strong></td>
+<td>One <code>data</code> source plus optional <code>statistics</code>. RGB composites, time-series, and Mirror/Spotlight comparison modes use multiple sources here.</td>
+</tr>
+<tr>
+<td><strong>Visualisation</strong></td>
+<td>Exactly one of: colormap, RGB composite, vector styling, or categories. See <a href="data-visualisation.html">Data visualisation</a>.</td>
+</tr>
+<tr>
+<td><strong>Legend, attribution, fields, controls</strong></td>
+<td>Optional but they clear Config QA flags.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sources-expected-by-sub-type">Sources expected by sub-type<a class="headerlink" href="#sources-expected-by-sub-type" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Sub-type</th>
+<th>Sources</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standard raster or vector</td>
 <td>One <code>data</code> source, optional <code>statistics</code>.</td>
 </tr>
 <tr>
@@ -1981,8 +1945,8 @@ You can add multiple sources:</p>
 <td>Three or more raster sources, one per band.</td>
 </tr>
 <tr>
-<td>Swipe</td>
-<td>Two <code>data</code> sources: <strong>Left</strong> and <strong>Right</strong>.</td>
+<td>Time-series</td>
+<td>One <code>data</code> source plus per-timestamp variants.</td>
 </tr>
 <tr>
 <td>Mirror</td>
@@ -1992,15 +1956,45 @@ You can add multiple sources:</p>
 <td>Spotlight</td>
 <td>Two <code>data</code> sources: <strong>Background</strong> and <strong>Spotlight</strong>.</td>
 </tr>
-<tr>
-<td>Time-series</td>
-<td>One <code>data</code> source plus per-timestamp variants.</td>
-</tr>
 </tbody>
 </table>
-<p>For comparison layers (swipe, mirror, spotlight), the data source form
-prompts for a <strong>Position</strong> before anything else.</p>
-<h3 id="visualisation">Visualisation<a class="headerlink" href="#visualisation" title="Permanent link">&para;</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Mirror and Spotlight</p>
+<p>Mirror and Spotlight are paired-source comparison modes that live on a
+standard layer card. They are siblings of <a href="swipe-layers.html">Swipe</a>;
+Swipe is documented separately because it has its own dedicated layer
+type and <code>swipeConfig</code> block.</p>
+</div>
+<h2 id="add-a-standard-layer">Add a standard layer<a class="headerlink" href="#add-a-standard-layer" title="Permanent link">&para;</a></h2>
+<h3 id="step-1-open-the-add-new-layer-screen">Step 1 — Open the Add New Layer screen<a class="headerlink" href="#step-1-open-the-add-new-layer-screen" title="Permanent link">&para;</a></h3>
+<p>There are two entry points:</p>
+<ul>
+<li><strong>Layers tab → Add Layer</strong> (top of the tab) — opens the type selector
+  with no preselected interface group.</li>
+<li><strong>Layers tab → "+" inside an interface group</strong> — opens the type selector
+  with that group preselected; the screen header reads <em>Add Layer to
+  &lt;group name&gt;</em>.</li>
+</ul>
+<p>The selector shows two tiles. Pick <strong>Add Layer Card</strong>.</p>
+<p><img alt="Add Layer to Biodiversity &amp; Ecosystem Accounting screen with two tiles: Add Layer Card and Import Layer Card (beta)" src="../assets/screenshots/layers-add-picker.png" /></p>
+<h3 id="step-2-fill-in-the-editor">Step 2 — Fill in the editor<a class="headerlink" href="#step-2-fill-in-the-editor" title="Permanent link">&para;</a></h3>
+<p>The layer editor opens. Work through the sections top to bottom.</p>
+<p><img alt="Create Layer Card editor showing Layer Type radios (Standard / Swipe / Mirror / Spotlight), Layout Style options, and Basic Information fields" src="../assets/screenshots/layers-create-card.png" /></p>
+<p><strong>Basic info</strong></p>
+<ul>
+<li><strong>Title</strong> — the label shown in the layer panel.</li>
+<li><strong>Description</strong> — markdown is supported and rendered in the deployed
+  Explorer's info panel.</li>
+<li><strong>Interface group</strong> and optional <strong>Sub-interface group</strong>. Sub-groups are
+  free text — type the same value on multiple cards to group them.</li>
+<li><strong>Layer type</strong> — leave on <strong>Standard</strong> (or pick <strong>Mirror</strong> /
+  <strong>Spotlight</strong> for paired comparison modes; pick <strong>Swipe</strong> to switch to
+  the <a href="swipe-layers.html">Swipe layer</a> flow).</li>
+</ul>
+<p><strong>Data sources</strong></p>
+<p>Click <strong>Add Data Source</strong> to open the <a href="#step-3-the-data-source-form">Data Source form</a>.
+Add as many as the sub-type needs (see the table above).</p>
+<p><strong>Visualisation</strong></p>
 <p>Pick exactly one styling tool — they are mutually exclusive:</p>
 <ul>
 <li><strong>Colormap</strong> — for single-band rasters.</li>
@@ -2009,21 +2003,20 @@ prompts for a <strong>Position</strong> before anything else.</p>
 <li><strong>Categories</strong> — discrete-value colour classification.</li>
 </ul>
 <p>See <a href="data-visualisation.html">Data visualisation</a> for the trade-offs.</p>
-<h3 id="legend-attribution-fields-controls">Legend, attribution, fields, controls<a class="headerlink" href="#legend-attribution-fields-controls" title="Permanent link">&para;</a></h3>
+<p><strong>Legend, attribution, fields, controls</strong></p>
 <p>Lower sections cover legend image, attribution string, vector field labels,
-and UI controls (opacity slider, swipe handle, etc.). They are all optional
-but populating them clears Config QA flags on the <a href="../home/index.html">Home tab</a>.</p>
-<h3 id="save">Save<a class="headerlink" href="#save" title="Permanent link">&para;</a></h3>
+and UI controls (opacity slider, swipe handle, etc.). All optional but
+populating them clears Config QA flags on the <a href="../home/index.html">Home tab</a>.</p>
+<p><strong>Save</strong></p>
 <p>Click <strong>Save Layer</strong> to add the card. The Layers tab updates immediately
 and the new card scrolls into view.</p>
-<h2 id="step-3-the-data-source-form">Step 3 — The Data Source form<a class="headerlink" href="#step-3-the-data-source-form" title="Permanent link">&para;</a></h2>
+<h3 id="step-3-the-data-source-form">Step 3 — The Data Source form<a class="headerlink" href="#step-3-the-data-source-form" title="Permanent link">&para;</a></h3>
 <p>The form has two paths.</p>
-<h3 id="direct-connection">Direct connection<a class="headerlink" href="#direct-connection" title="Permanent link">&para;</a></h3>
-<p>Provide a URL and pick the format. Use this when the data is a single
-standalone file — a one-off COG, GeoJSON, FlatGeoBuf, CSV, or XYZ template.</p>
-<h3 id="from-an-existing-service">From an existing service<a class="headerlink" href="#from-an-existing-service" title="Permanent link">&para;</a></h3>
-<p>Pick one of the services declared on the <a href="../services/index.html">Services</a> tab.
-The form then offers:</p>
+<p><strong>Direct connection.</strong> Provide a URL and pick the format. Use this when the
+data is a single standalone file — a one-off COG, GeoJSON, FlatGeoBuf, CSV,
+or XYZ template.</p>
+<p><strong>From an existing service.</strong> Pick one of the services declared on the
+<a href="../services/index.html">Services</a> tab. The form then offers:</p>
 <ul>
 <li>For <strong>WMS/WMTS/WFS</strong> — a layer/feature picker populated from
   <code>GetCapabilities</code>.</li>
@@ -2032,18 +2025,15 @@ The form then offers:</p>
 </ul>
 <p>After you pick the layer, the form pre-fills the URL and any time-series
 or band metadata it can detect.</p>
-<h3 id="statistics-source">Statistics source<a class="headerlink" href="#statistics-source" title="Permanent link">&para;</a></h3>
-<p>For COG-backed raster layers you can optionally add a <strong>Statistics</strong> source:
-a FlatGeoBuf or GeoJSON of zonal-statistics features. Click <strong>Add Statistics
-Source</strong> instead of <strong>Add Data Source</strong> to start the form in statistics
-mode.</p>
-<h2 id="step-4-add-base-layer">Step 4 — Add Base Layer<a class="headerlink" href="#step-4-add-base-layer" title="Permanent link">&para;</a></h2>
-<p>Selecting <strong>Base Layer</strong> opens a slimmer form: just the data source plus a
-title. There is no interface group, no legend, no categories. Save and the
-layer appears in the <strong>Base Layers</strong> sub-section of the Layers tab.</p>
+<p><strong>Statistics source.</strong> For COG-backed raster layers you can optionally add
+a <strong>Statistics</strong> source: a FlatGeoBuf or GeoJSON of zonal-statistics
+features. Click <strong>Add Statistics Source</strong> instead of <strong>Add Data Source</strong> to
+start the form in statistics mode.</p>
 <h2 id="import-layer-card-beta">Import Layer Card (beta)<a class="headerlink" href="#import-layer-card-beta" title="Permanent link">&para;</a></h2>
-<p>Available only when you opened the type selector from inside an interface
-group. Clicking it opens the <strong>Donor config picker</strong>:</p>
+<p>When you launch <strong>Add New Layer</strong> from inside an existing interface group,
+the second tile becomes <strong>Import Layer Card</strong> instead of <strong>Base Layer</strong>.
+This lets you copy one or more standard layer cards from another
+configuration into the current group.</p>
 <ol>
 <li>Pick a donor configuration (file upload, URL, GitHub repo, or example).</li>
 <li>The donor's layer cards are listed grouped by their original interface
@@ -2060,8 +2050,16 @@ are not already present. Duplicates are deduped by URL.</p>
 <li>Open <a href="../configuration/preview.html">GE Preview</a> to see the layer rendered
   in the actual APEx Geospatial Explorer.</li>
 <li>If the layer fails to render, double-check the data source URL, that
-  it appears in the right interface group, and that the chosen visualisation
-  matches the data type.</li>
+  it appears in the right interface group, and that the chosen
+  visualisation matches the data type.</li>
+</ul>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="types/index.html">Layers</a> — overview of the three layer types.</li>
+<li><a href="swipe-layers.html">Swipe layers</a> — for side-by-side raster comparison.</li>
+<li><a href="base-layers.html">Base layers</a> — for basemaps.</li>
+<li><a href="data-visualisation.html">Data visualisation</a> — colormaps, RGB composite,
+  vector rules, categories.</li>
 </ul>
 
 
@@ -2103,7 +2101,7 @@ are not already present. Duplicates are deduped by URL.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../configuration/interface-groups.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Interface groups">
+          <a href="types/index.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Layers">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2113,20 +2111,20 @@ are not already present. Duplicates are deduped by URL.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Interface groups
+                Layers
               </div>
             </div>
           </a>
         
         
           
-          <a href="base-layers.html" class="md-footer__link md-footer__link--next" aria-label="Next: Base layers">
+          <a href="swipe-layers.html" class="md-footer__link md-footer__link--next" aria-label="Next: Swipe layers">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Base layers
+                Swipe layers
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -644,10 +644,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -681,14 +677,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
             </a>
@@ -755,103 +743,59 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="adding-layers.html" class="md-nav__link">
+    
+    
+      
         
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="types/index.html" class="md-nav__link">
+      
   
   
   <span class="md-ellipsis">
     
   
-    Adding layers
+    Layers
   
 
     
   </span>
   
   
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
   
 
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="base-layers.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Base layers
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="swipe-layers.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Swipe layers
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
-
-      </a>
+      
     </li>
   
 
@@ -1529,52 +1473,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#two-kinds-of-layer" class="md-nav__link">
+  <a href="#layer-types" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Two kinds of layer
+        Layer types
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Two kinds of layer">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#add-layer-card" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Add Layer Card
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#base-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Base Layer
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#import-layer-card-beta" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Import Layer Card (beta)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1675,30 +1580,15 @@ config loaded.</p>
 </table>
 <p>Layers are managed through <strong>Layer Cards</strong>. Each card represents one
 selectable item in the deployed Explorer's layer panel.</p>
-<h2 id="two-kinds-of-layer">Two kinds of layer<a class="headerlink" href="#two-kinds-of-layer" title="Permanent link">&para;</a></h2>
-<p>The <strong>Add New Layer</strong> screen offers two options:</p>
-<h3 id="add-layer-card">Add Layer Card<a class="headerlink" href="#add-layer-card" title="Permanent link">&para;</a></h3>
-<p>A configurable layer that appears in the user-facing layer panel. It has:</p>
+<h2 id="layer-types">Layer types<a class="headerlink" href="#layer-types" title="Permanent link">&para;</a></h2>
+<p>The builder supports three layer types — <strong>Standard</strong>, <strong>Swipe</strong>, and
+<strong>Base</strong> — each with its own page under <a href="types/index.html">Layers</a>. In short:</p>
 <ul>
-<li>One or more data sources (<code>data</code>, optional <code>statistics</code>, optional swipe /
-  mirror / spotlight comparison sources).</li>
-<li>Metadata (title, description, attribution).</li>
-<li>A legend, categories, and UI controls.</li>
-<li>A target interface group and optional sub-interface group.</li>
+<li><strong>Standard</strong> — toggleable user-facing data overlays. The default for
+  almost everything.</li>
+<li><strong>Swipe</strong> — two rasters compared under a draggable handle.</li>
+<li><strong>Base</strong> — background basemaps picked from the basemap selector.</li>
 </ul>
-<p>Use this for almost everything you want a user to be able to toggle on
-the map.</p>
-<h3 id="base-layer">Base Layer<a class="headerlink" href="#base-layer" title="Permanent link">&para;</a></h3>
-<p>A background basemap. It has no UI controls or metadata and is rendered
-underneath everything else. Base layers are listed separately in the
-deployed Explorer's basemap picker.</p>
-<p>Use this for OSM, satellite imagery, terrain hillshades, and similar
-baseline reference layers.</p>
-<h3 id="import-layer-card-beta">Import Layer Card (beta)<a class="headerlink" href="#import-layer-card-beta" title="Permanent link">&para;</a></h3>
-<p>When you trigger <strong>Add Layer</strong> from inside an existing interface group,
-the second tile becomes <strong>Import Layer Card</strong> instead of <strong>Base Layer</strong> —
-this lets you copy one or more layer cards from another configuration into
-the current group. See <a href="adding-layers.html#import-layer-card-beta">Adding layers</a>.</p>
 <h2 id="how-the-tab-is-laid-out">How the tab is laid out<a class="headerlink" href="#how-the-tab-is-laid-out" title="Permanent link">&para;</a></h2>
 <p>The Layers tab uses a three-level hierarchy:</p>
 <div class="highlight"><pre><span></span><code>Interface Group
@@ -1736,8 +1626,11 @@ either <strong>Add Layer</strong> or load an example configuration from the
 <a href="../home/index.html">Home tab</a>.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="adding-layers.html">Adding layers</a> — walk-through for the <strong>Add Layer Card</strong>
-  and <strong>Add Base Layer</strong> flows.</li>
+<li><a href="types/index.html">Layers</a> — overview of the three layer types and how to
+  choose between them.</li>
+<li><a href="standard-layers.html">Standard layers</a> — including the <strong>Add a standard
+  layer</strong> walk-through and the Import Layer Card flow.</li>
+<li><a href="swipe-layers.html">Swipe layers</a> — side-by-side raster comparison.</li>
 <li><a href="base-layers.html">Base layers</a> — basemap-specific guidance.</li>
 <li><a href="data-visualisation.html">Data visualisation</a> — colormaps, RGB composite,
   vector rules, categories.</li>

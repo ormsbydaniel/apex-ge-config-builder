@@ -119,5 +119,5 @@ document, or when you want to seed a config offline. Upload `.json` or
 ## After adding a service
 
 - The service is now selectable wherever a service of that type is needed
-  on the [Layers](../layers/adding-layers.md) tab.
+  on the [Layers](../layers/standard-layers.md) tab.
 - Run the [healthcheck](healthcheck.md) to confirm everything still passes.

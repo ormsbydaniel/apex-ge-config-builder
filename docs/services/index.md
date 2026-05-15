@@ -63,7 +63,7 @@ badge, and per-service validation status.
 
 Direct-URL data sources (a single COG, GeoJSON, FlatGeoBuf, XYZ, or CSV file)
 do not need a service entry — you can add them straight from the
-[Layers](../layers/adding-layers.md) tab.
+[Layers](../layers/standard-layers.md) tab.
 
 ## Validation states
 
