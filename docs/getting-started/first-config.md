@@ -1,7 +1,7 @@
 ---
 title: Build your first config
+status: draft
 ---
-
 # Build your first config
 
 This walk-through builds a minimal but complete APEx Geospatial Explorer

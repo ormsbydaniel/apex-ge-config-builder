@@ -1,7 +1,7 @@
 ---
 title: Swipe layers
+status: draft
 ---
-
 # Swipe layers
 
 A swipe layer compares two (or more) raster sources side-by-side under a draggable handle on the map. The user drags the handle left/right to reveal more or less of the **clipped** source over the **base** source(s).

@@ -1,7 +1,7 @@
 ---
 title: Visual editor
+status: draft
 ---
-
 # Visual editor
 
 The chart **Visual editor** wraps Plotly's trace and layout schema in a focused UI. You pick a data source, then add traces by selecting an X column and one or more Y columns, then style each trace.

@@ -1,7 +1,7 @@
 ---
 title: Configure vector fields
+status: draft
 ---
-
 # Configure vector fields
 
 !!! info "Coming soon"

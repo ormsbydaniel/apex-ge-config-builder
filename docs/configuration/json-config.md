@@ -1,7 +1,7 @@
 ---
 title: JSON config
+status: draft
 ---
-
 # JSON config
 
 The **JSON Config** tab exposes the raw configuration document so you can

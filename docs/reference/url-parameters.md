@@ -1,7 +1,7 @@
 ---
 title: URL parameters
+status: draft
 ---
-
 # URL parameters
 
 A deployed APEx Geospatial Explorer reads a small set of query-string

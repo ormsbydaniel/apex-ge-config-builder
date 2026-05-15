@@ -1,7 +1,7 @@
 ---
 title: Load a STAC collection
+status: draft
 ---
-
 # Load a STAC collection
 
 !!! info "Coming soon"

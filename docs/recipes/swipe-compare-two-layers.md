@@ -1,7 +1,7 @@
 ---
 title: Swipe compare two layers
+status: draft
 ---
-
 # Swipe compare two layers
 
 !!! info "Coming soon"

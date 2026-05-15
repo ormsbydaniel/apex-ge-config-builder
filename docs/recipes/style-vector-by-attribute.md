@@ -1,7 +1,7 @@
 ---
 title: Style vectors by attribute
+status: draft
 ---
-
 # Style vectors by attribute
 
 !!! info "Coming soon"

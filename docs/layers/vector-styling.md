@@ -1,7 +1,7 @@
 ---
 title: Vector styling
+status: draft
 ---
-
 # Vector styling
 
 Style GeoJSON, FlatGeoBuf, and WFS layers using rule-based fills, lines, and labels. The Vector Style editor lives in the **Data Visualisation** section of any vector layer card.

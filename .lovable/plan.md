@@ -1,22 +1,52 @@
-## Remove Lovable references from documentation
+## Add "Draft" status badge to every docs page
 
-Two files mention Lovable. Plan to neutralise them while preserving the actual workflow info.
+Use Material for MkDocs' built-in **page status** feature — a small icon next to each nav entry, with a hover tooltip. Reviewing a page = deleting one front-matter line.
 
-### 1. `docs/reference/glossary.md`
-Remove the **Lovable Cloud** entry entirely (lines 61-64). It only exists to say "we don't use it" — irrelevant to readers without the Lovable framing.
+### 1. Enable the status indicator in `mkdocs.yml`
 
-### 2. `docs/reference/authors-guide.md`
-Replace Lovable-specific phrasing with neutral hosting/deployment language:
+Add to the `theme:` block:
+```yaml
+theme:
+  name: material
+  features:
+    - ...existing features...
+    - content.tooltips      # nicer hover label for the status icon
+  icon:
+    status:
+      draft: material/pencil-outline
+```
 
-- **Line 13**: "the published Lovable app" → "the published web app"
-- **Line 25**: "**Publish → Update** in Lovable" → "redeploy / publish the app from your hosting platform"
-- **Line 36**: "(typically inside Lovable, or directly in the GitHub repo…)" → "(directly in the GitHub repo…)"
-- **Lines 38-39**: drop the "Lovable does this automatically when you make changes via chat" sentence; keep the push-to-`origin/documentation` step.
-- **Lines 43-44**: "In Lovable, click **Publish → Update** so the new `public/guide/` is served from the live `.lovable.app`…" → "Redeploy the app so the new `public/guide/` is served from the live site (and any custom domain)."
-- **Line 99**: "Always edit on the Lovable side…" → "Always edit via the main repo workflow (or commit from `repo/` manually and push) before re-running."
+Add a top-level `extra:` block (or extend if one exists):
+```yaml
+extra:
+  status:
+    draft: Not yet reviewed
+```
 
-### 3. Rebuild
-After edits, run `mkdocs build --clean` so `public/guide/` HTML matches.
+### 2. Add `status: draft` to every `.md` page under `docs/`
 
-### Out of scope
-No changes to nav, app code, or other docs pages. A repo-wide grep confirmed only these two files mention Lovable in `docs/`.
+For each page (~55 files), ensure YAML front-matter contains `status: draft`:
+
+- Pages with existing front-matter (e.g. `title: Authors Guide`) — insert the `status: draft` line inside the existing `---` block.
+- Pages without front-matter — prepend a 3-line block:
+  ```
+  ---
+  status: draft
+  ---
+  ```
+
+Done via a single shell script (idempotent — skips files that already have `status: draft`).
+
+### 3. Reviewing workflow
+
+Once a page is reviewed, delete the `status: draft` line (or the whole front-matter block if it only contained that). The nav icon disappears, signalling progress.
+
+### 4. Rebuild
+
+`mkdocs build --clean` to regenerate `public/guide/`.
+
+### Scope
+
+- All `.md` files under `docs/` including `index.md`, section landings, recipes, reference pages.
+- Excludes `docs/assets/screenshots/README.md` (not in nav anyway).
+- No app code, no nav restructuring, no per-page banner.

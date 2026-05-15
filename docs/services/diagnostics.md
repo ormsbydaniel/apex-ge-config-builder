@@ -1,7 +1,7 @@
 ---
 title: Service diagnostics
+status: draft
 ---
-
 # Service diagnostics
 
 Every service on the [Services](index.md) tab is probed independently so

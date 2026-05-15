@@ -1,7 +1,7 @@
 ---
 title: Add a GeoJSON overlay
+status: draft
 ---
-
 # Add a GeoJSON overlay
 
 !!! info "Coming soon"

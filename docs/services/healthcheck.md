@@ -1,7 +1,7 @@
 ---
 title: Run Healthcheck
+status: draft
 ---
-
 # Run Healthcheck
 
 The **Run Healthcheck** tool validates every layer in your configuration in a

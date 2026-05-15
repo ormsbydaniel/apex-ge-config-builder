@@ -1,7 +1,7 @@
 ---
 title: Glossary
+status: draft
 ---
-
 # Glossary
 
 Definitions of terms used throughout this guide and in the builder UI.

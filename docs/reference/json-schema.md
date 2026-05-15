@@ -1,7 +1,7 @@
 ---
 title: JSON schema reference
+status: draft
 ---
-
 # JSON schema reference
 
 This page documents the underlying JSON structure of an APEx Geospatial

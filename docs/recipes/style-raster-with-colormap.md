@@ -1,7 +1,7 @@
 ---
 title: Style a raster with a colormap
+status: draft
 ---
-
 # Style a raster with a colormap
 
 !!! info "Coming soon"

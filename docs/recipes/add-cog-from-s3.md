@@ -1,7 +1,7 @@
 ---
 title: Add a COG from S3
+status: draft
 ---
-
 # Add a COG from S3
 
 !!! info "Coming soon"

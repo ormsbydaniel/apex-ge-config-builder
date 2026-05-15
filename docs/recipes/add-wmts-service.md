@@ -1,7 +1,7 @@
 ---
 title: Add a WMTS service
+status: draft
 ---
-
 # Add a WMTS service
 
 !!! info "Coming soon"

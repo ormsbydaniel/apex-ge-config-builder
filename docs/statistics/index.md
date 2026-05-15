@@ -1,7 +1,7 @@
 ---
 title: Statistics
+status: draft
 ---
-
 # Statistics
 
 The **Statistics** section of a layer card configures additional raster sources used to compute summary statistics (mean, min, max, histogram) for the layer — typically over a user-drawn area of interest or a selected vector feature.

@@ -1,7 +1,7 @@
 ---
 title: Services overview
+status: draft
 ---
-
 # Services overview
 
 A **service** is a reusable endpoint definition. Layers reference services

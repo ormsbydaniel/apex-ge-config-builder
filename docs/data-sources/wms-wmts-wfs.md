@@ -1,7 +1,7 @@
 ---
 title: WMS / WMTS / WFS
+status: draft
 ---
-
 # WMS / WMTS / WFS
 
 OGC services that the builder consumes via `GetCapabilities`. WMS and WMTS

@@ -1,7 +1,7 @@
 ---
 title: Restrict the map extent
+status: draft
 ---
-
 # Restrict the map extent
 
 !!! info "Coming soon"

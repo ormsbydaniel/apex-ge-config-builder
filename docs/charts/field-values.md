@@ -1,7 +1,7 @@
 ---
 title: Field values
+status: draft
 ---
-
 # Field values
 
 The **Field Values** chart source builds inline pie charts from selected properties of a GeoJSON or FlatGeoBuf vector dataset on the layer. There is no external CSV; the values are read from the feature itself when the user clicks it.

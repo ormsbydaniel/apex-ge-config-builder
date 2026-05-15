@@ -1,7 +1,7 @@
 ---
 title: Inline pie chart from vector data
+status: draft
 ---
-
 # Inline pie chart from vector data
 
 !!! info "Coming soon"

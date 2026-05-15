@@ -1,7 +1,7 @@
 ---
 title: CSV data
+status: draft
 ---
-
 # CSV data
 
 When a chart source is **Direct Connection** or **From Service** and returns CSV, the editor parses the file once and types each column before exposing it to the visual editor.

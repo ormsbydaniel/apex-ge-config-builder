@@ -1,7 +1,7 @@
 ---
 title: STAC browser
+status: draft
 ---
-
 # STAC browser
 
 A three-level picker over any STAC catalogue or API registered on the
