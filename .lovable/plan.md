@@ -1,65 +1,99 @@
 ## Goal
 
-Make the documentation clearly distinguish the three different roles a service can play, so authors understand what actually ends up in the saved config and why.
+Restructure the Layers tab docs so the three layer types (Standard, Swipe, Base) each have their own page sitting under a new **Layers** subsection. Split the current `adding-layers.md` content into a per-type "Add a … layer" section.
 
-## The three service roles to communicate
+## New nav structure (under "Layers tab")
 
-1. **Service-as-data-source (live endpoint reference)** — WMS, WMTS, WFS. The chosen layer from the service is the data source; the config keeps a live reference to the service URL plus a layer name. Changing the service URL changes what the layer renders.
+```text
+Layers tab:
+  - layers/index.md            (existing Layers tab overview — kept)
+  - Interface groups: ...      (unchanged)
+  - Layers:
+      - layers/types/index.md       (new — intro + the 3 types)
+      - Standard layers: layers/standard-layers.md   (new)
+      - Swipe layers:    layers/swipe-layers.md      (rewritten)
+      - Base layers:     layers/base-layers.md       (rewritten)
+  - Data sources: ...          (unchanged)
+  - Data visualisation: ...    (unchanged)
+  - Statistics, Constraints, Charts (unchanged)
+```
 
-2. **Service-as-discovery-aid (browser only)** — STAC catalogues and S3 buckets. The service is a convenience for *finding* assets in the config builder UI. What gets saved into the config is the resolved, direct URL to the underlying COG / GeoJSON / FlatGeoBuf / CSV. The service entry is not required at runtime — deleting it after layers are configured does not break those layers.
+`adding-layers.md` is deleted; its content is redistributed.
 
-3. **Service-as-data-source via STAC collection (future)** — referencing a STAC collection itself as the data source, so the collection drives behaviour like the temporal control's time-series. Flagged as forthcoming.
+## File changes
 
-## Proposed documentation changes
+### 1. New `docs/layers/types/index.md` — "Layers"
 
-### 1. `docs/services/index.md` — rewrite the framing
+Section landing page. Explains:
 
-Replace the current "A service is a reusable endpoint definition…" opener with an explicit **"How services are used"** section that names the three roles above, ideally as a small table:
+- What a layer is (renderable thing on the map; one or more data sources, an interface group, a styling choice, optional UI controls).
+- The three layer types and when to use each:
+  - **Standard layer** — the default. One data source (or RGB-composite multi-source / time-series variants). Toggleable, styled, lives in an interface group. The vast majority of layers.
+  - **Swipe layer** — compares two raster sources under a draggable handle. Includes the existing Mirror and Spotlight variants under the same comparison family (or noted as related comparison modes).
+  - **Base layer** — background basemap. Picked from the basemap selector, no UI controls, no statistics.
+- Quick "How to choose" decision list and links onward to each type page.
+- Pulls the conceptual material currently in `layers/index.md` "Two kinds of layer" so the overview doesn't duplicate it (the overview will instead link here).
 
-| Service type | Role | What gets saved in the config |
-|---|---|---|
-| WMS / WMTS / WFS | Live endpoint reference | The service URL + chosen layer name |
-| STAC catalogue | Discovery aid in the builder | The resolved direct URL to each picked asset (COG, GeoJSON, etc.) |
-| S3 bucket | Discovery aid in the builder | The resolved direct URL to each picked file |
-| STAC collection (future) | Live collection reference, drives temporal control | The collection URL |
+### 2. New `docs/layers/standard-layers.md`
 
-Update the existing "When to use services vs. direct URLs" section so it no longer implies STAC/S3 work the same way as WMS/WMTS — clarify that for STAC/S3 the service is purely a builder convenience and can be removed afterward.
+Full page for the most common layer type. Covers:
 
-Drop the misleading line "swap an endpoint URL in one place and have every layer that uses it pick up the change" from the intro — that is only true for WMS/WMTS/WFS, not STAC/S3.
+- What a standard layer is and what it can carry (data + optional statistics, RGB composite, time-series, comparison modes mirror/spotlight if those stay grouped here rather than under Swipe).
+- Sources expected per sub-type (table currently in adding-layers Step 2).
+- Visualisation choices (link to Data visualisation).
+- Legend / attribution / fields / controls (brief, link out).
+- **"Add a standard layer"** section at the end — Step 1 (open Add New Layer), Step 2 (Add Layer Card → editor sections), Step 3 (Data Source form: direct URL vs. From Service, Statistics source). Lifted from `adding-layers.md` and trimmed to just the standard-layer flow.
+- Includes the existing **Import Layer Card (beta)** subsection (it only applies to standard layer cards).
 
-### 2. `docs/getting-started/index.md` — tighten the Service definition
+### 3. Rewrite `docs/layers/swipe-layers.md`
 
-Expand the **Service** core-concept paragraph to a short two-sentence version that distinguishes:
-- WMS/WMTS/WFS services are referenced live by layers.
-- STAC and S3 services are mainly a way to *browse and pick* assets in the builder; the resolved file URL is what is stored.
+Keep current "What / When to use / Configure / Validation" content. Append:
 
-Mention forthcoming STAC-collection-as-data-source support in one sentence.
+- **"Add a swipe layer"** section — concrete steps: open Add New Layer → Add Layer Card → set Layer type to **Swipe** → add the **Left** and **Right** data sources (the comparison-position prompt) → set `clippedSourceName` / `baseSourceNames` → save.
+- Note about Mirror and Spotlight being related comparison modes (cross-link), if we keep them under Standard rather than promote to siblings.
 
-### 3. `docs/services/adding-services.md` — per-type clarification
+### 4. Rewrite `docs/layers/base-layers.md`
 
-Under each "Type-specific tips" subsection, add a one-line **"What gets saved"** note:
+Keep current What / When to use / Configure / Validation content. Append:
 
-- **WMS / WMTS / WFS** — "The config stores the service URL plus the chosen layer name. Editing the service URL re-points every layer that uses it."
-- **STAC** — "Used to browse the catalogue in the builder. When you add an item, the resolved asset URL is written into the layer; the STAC service entry itself is not required at runtime."
-- **S3** — Same pattern as STAC: discovery only, resolved file URL is saved.
-- Add a short "**Coming soon**" note that STAC collections will be able to act as a live data source feeding the temporal control.
+- **"Add a base layer"** section — open Add New Layer (from the top of the Layers tab, *not* from inside an interface group, because the Base Layer tile is replaced by Import Layer Card when launched from a group) → choose **Base Layer** tile → fill name / preview / data source / attribution → save → it appears in the Base Layers section at the top of the Layers tab.
 
-### 4. `docs/data-sources/stac-browser.md` and `docs/data-sources/s3-browser.md` — reinforce the model
+### 5. Update `docs/layers/index.md`
 
-Add a short callout near the top of each:
+- Remove the "Two kinds of layer" section (now lives in `types/index.md`).
+- Replace the "Next steps" list to point at: Layers subsection (`types/index.md`), Standard / Swipe / Base pages, Data visualisation.
+- Keep: Layer model table, hierarchy diagram, card actions, empty state.
+- Remove the `status: draft` flag (the page is being actively reviewed).
 
-> The STAC catalogue / S3 bucket is a browsing aid only. When you select an asset, the config stores its resolved URL directly — you can delete the catalogue/bucket entry afterward without breaking layers that were built from it.
+### 6. Delete `docs/layers/adding-layers.md`
 
-### 5. `docs/reference/glossary.md` — split the "Service" entry
+Its content has been redistributed across the three type pages. Search the rest of the docs for links to `adding-layers.md` and re-point them:
 
-Update the glossary entry for **Service** to note the two current modes (live reference vs. discovery aid) and flag the third (STAC collection as data source) as forthcoming, so the distinction lives in one canonical place.
+- `docs/layers/base-layers.md` Related section
+- `docs/layers/swipe-layers.md` Related section
+- `docs/layers/index.md` Next steps
+- Anywhere in `docs/recipes/`, `docs/services/`, etc.
 
-### 6. Defer until shipped
+Most should re-target `layers/standard-layers.md` (since "Adding layers" almost always meant a standard layer).
 
-Do **not** write a dedicated "STAC collection as a data source" page yet — only seed the forward references above. When the feature lands, add a focused page under `docs/data-sources/` and link from the Services overview table.
+### 7. Update `mkdocs.yml`
+
+Apply the nav structure shown above. The new nested **Layers** group renders as a collapsible subsection inside the Layers tab.
+
+### 8. Rebuild
+
+Run `python3 -m mkdocs build --clean` and verify no broken-link warnings beyond the pre-existing `services/healthcheck.md#performance` one.
+
+## Open question
+
+Where do **Mirror** and **Spotlight** belong? They are currently shown as `Layer type` options alongside Swipe in the editor. Two reasonable options:
+
+- **(A)** Treat them as variants of the Standard layer (covered briefly on the Standard page, since they are still one toggleable card with two sources).
+- **(B)** Cover them on the Swipe page as sibling comparison modes (since they share the "two-source on-map comparison" idiom).
+
+I'd suggest **(B)** — group them with Swipe under a single "comparison layers" page, mentioned at the top and configured the same way. Confirm before I start, or I'll proceed with (B) by default.
 
 ## Out of scope
 
+- No changes to `data-sources/`, `data-visualisation/`, recipes, or other tabs beyond link re-pointing.
 - No code changes.
-- No changes to recipes (they already work against the resolved URLs).
-- No mkdocs nav changes.
