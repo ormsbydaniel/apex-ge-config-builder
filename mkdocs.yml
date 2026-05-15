@@ -87,26 +87,26 @@ nav:
       - Statistics: statistics/index.md
       - Constraints: constraints/index.md
       - Charts:
-          - Overview: charts/index.md
+          - Overview: charts/overview.md
           - Visual editor: charts/visual-editor.md
           - Pixel values: charts/pixel-values.md
           - Field values: charts/field-values.md
           - CSV data: charts/csv-data.md
   - Draw order tab: configuration/draw-order.md
   - Services tab:
-      - Overview: services/index.md
+      - Overview: services/overview.md
       - Adding services: services/adding-services.md
       - Diagnostics: services/diagnostics.md
       - Recommended services: services/recommended.md
   - Settings tab:
-      - Overview: settings/index.md
+      - Overview: settings/overview.md
       - Footer links: configuration/footer-links.md
       - Layout: configuration/layout.md
       - Export options: configuration/export-options.md
   - JSON config: configuration/json-config.md
   - GE Preview tab: configuration/preview.md
   - How-to recipes:
-      - Overview: recipes/index.md
+      - Overview: recipes/overview.md
       - Data sources & services:
           - Add a WMTS service: recipes/add-wmts-service.md
           - Add a COG from S3: recipes/add-cog-from-s3.md
