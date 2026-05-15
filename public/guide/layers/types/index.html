@@ -1686,15 +1686,19 @@
 
 
 <h1 id="layers">Layers<a class="headerlink" href="#layers" title="Permanent link">&para;</a></h1>
-<p>A <strong>layer</strong> is a renderable thing the user sees on the map. Every layer
-combines:</p>
+<p>A <strong>layer</strong> is a renderable thing the user sees on the map. The definition
+of a layer comprises:</p>
 <ul>
-<li>One or more <strong>data sources</strong> (a service+layer reference, or a direct URL).</li>
-<li>A position in the UI — either an <strong>interface group</strong> (for user-facing
-  layers) or the basemap picker.</li>
-<li>A <strong>styling</strong> choice — colormap, RGB composite, vector rules, or
-  categories.</li>
-<li>Optional UI controls — opacity, swipe handle, legend, attribution.</li>
+<li><strong>Where it lives in the UI</strong> — an <em>interface group</em> (and optional
+  <em>sub-interface group</em>), or the basemap picker for base layers.</li>
+<li><strong>What it shows</strong> — one or more <em>data sources</em> (service+layer references
+  or direct URLs to COG, GeoJSON, FlatGeoBuf, CSV, WMS/WMTS layers, etc.).</li>
+<li><strong>How it is visualised</strong> — colormap, RGB composite, vector styling rules,
+  or categorical classes.</li>
+<li><strong>Supporting content</strong> — description, attribution, legend, units.</li>
+<li><strong>Functional controls</strong> — opacity, temporal controls, zoom to layer,
+  download link, layer toggles.</li>
+<li><strong>Advanced features</strong> — statistics, constraints, charts.</li>
 </ul>
 <p>The Configuration Builder supports three layer types. Each behaves
 differently in the deployed APEx Geospatial Explorer.</p>
