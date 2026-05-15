@@ -27,9 +27,9 @@ differently in the deployed APEx Geospatial Explorer.
 
 The default and the most common type. A user-facing layer card with a
 title, description, an interface group, and a styling choice. It can carry
-a single data source, multiple raster sources for an RGB composite, a
-time-series of variants, or a paired comparison source for **Mirror** and
-**Spotlight** modes.
+a single or multiple data sources for a raster dataset rendered as a
+colormap, an RGB composite, a time-series, plus statistics, constraints
+and charts.
 
 Use a standard layer for almost everything you want a user to be able to
 toggle on the map.
