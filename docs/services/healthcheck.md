@@ -1,6 +1,5 @@
 ---
 title: Run Healthcheck
-status: draft
 ---
 # Run Healthcheck
 

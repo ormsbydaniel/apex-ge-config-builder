@@ -548,14 +548,6 @@
   </span>
   
   
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
 
             </a>
             
@@ -645,14 +637,6 @@
   </span>
   
   
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -670,14 +654,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
       </a>
@@ -727,6 +703,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Exporting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filename-convention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filename convention
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -911,14 +904,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
       </a>
@@ -1311,6 +1296,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Exporting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filename-convention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filename convention
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1388,6 +1390,13 @@ cancel and export first.</p>
 <li><strong>Export with Options…</strong> — opens the <a href="../configuration/export-options.html">Export options</a>
   dialog, where you can choose JSON ordering and other formatting options.</li>
 </ul>
+<h3 id="filename-convention">Filename convention<a class="headerlink" href="#filename-convention" title="Permanent link">&para;</a></h3>
+<p>Exported files follow the pattern <code>&lt;prefix&gt;_YYYYMMMDD_HHMM.json</code> — for
+example <code>config_biodiversity_2025NOV14_1530.json</code>. The timestamp is added
+automatically so successive exports never overwrite each other.</p>
+<p>The <code>&lt;prefix&gt;</code> portion is taken from the <strong>Export filename prefix</strong> field in
+<a href="../settings/index.html#config-export-settings">Settings → Config Export Settings</a>.
+Change it there to match your project naming convention.</p>
 <p>The exported file is what you ship to the APEx Geospatial Explorer host.</p>
 <h2 id="starting-fresh">Starting fresh<a class="headerlink" href="#starting-fresh" title="Permanent link">&para;</a></h2>
 <p>Click <strong>New</strong> on the <strong>Home</strong> tab to reset the builder to an empty

@@ -720,14 +720,6 @@
   </span>
   
   
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -745,14 +737,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
       </a>
@@ -784,10 +768,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure" class="md-nav__link">
+  <a href="#default-z-levels" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure
+        Default Z-levels
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overriding-and-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overriding and fine-tuning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auto-tune" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto Tune
       
     </span>
   </a>
@@ -1190,10 +1196,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure" class="md-nav__link">
+  <a href="#default-z-levels" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure
+        Default Z-levels
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overriding-and-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overriding and fine-tuning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auto-tune" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto Tune
       
     </span>
   </a>
@@ -1240,7 +1268,7 @@
 
 
 <h1 id="draw-order">Draw order<a class="headerlink" href="#draw-order" title="Permanent link">&para;</a></h1>
-<p>The <strong>Draw order</strong> tab controls the front-to-back stacking of layers on the map. Each layer's position here determines its <code>zIndex</code> in the rendered map: rows higher in the list draw on top of rows below them.</p>
+<p>The <strong>Draw order</strong> tab controls the front-to-back stacking of layers on the map. Each layer's position here is persisted as the layer's <code>zIndex</code>: rows higher in the list draw on top of rows below them.</p>
 <p><img alt="Draw Order tab" src="../assets/screenshots/draw-order-tab.png" /></p>
 <h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
 <p>Visit this tab when:</p>
@@ -1250,18 +1278,91 @@
 <li>You need to deterministically pin certain layers (labels, boundaries) above the rest.</li>
 </ul>
 <p>For day-to-day visibility, use the toggles in the Layers tab — draw order only affects stacking, not whether a layer is on or off.</p>
-<h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
-<p>The tab lists every active layer (base layers excluded — they always sit at the bottom). Drag a row up or down to change its position. The order is persisted into each <code>DataSourceItem.zIndex</code> when the config is saved.</p>
+<h2 id="default-z-levels">Default Z-levels<a class="headerlink" href="#default-z-levels" title="Permanent link">&para;</a></h2>
+<p>When a data source is added to a layer, the builder assigns a default
+<code>zIndex</code> based on the source's <strong>format</strong> and (for vector data) <strong>geometry
+type</strong>. These defaults give a sensible stack out of the box: basemaps at the
+bottom, raster overlays above them, and vector geometry on top with points
+above lines above polygons.</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Formats</th>
+<th>Geometry</th>
+<th>Default Z</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base raster</td>
+<td><code>cog</code>, <code>wms</code>, <code>wmts</code>, <code>xyz</code></td>
+<td>—</td>
+<td><strong>10</strong></td>
+</tr>
+<tr>
+<td>Standard raster</td>
+<td><code>cog</code>, <code>wms</code>, <code>wmts</code>, <code>xyz</code></td>
+<td>—</td>
+<td><strong>50</strong></td>
+</tr>
+<tr>
+<td>Vector polygon</td>
+<td><code>geojson</code>, <code>flatgeobuf</code>, <code>wfs</code></td>
+<td>Polygon</td>
+<td><strong>100</strong></td>
+</tr>
+<tr>
+<td>Vector line</td>
+<td><code>geojson</code>, <code>flatgeobuf</code>, <code>wfs</code></td>
+<td>Line</td>
+<td><strong>110</strong></td>
+</tr>
+<tr>
+<td>Vector point</td>
+<td><code>geojson</code>, <code>flatgeobuf</code>, <code>wfs</code></td>
+<td>Point</td>
+<td><strong>120</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Higher numbers draw on top. The 10-unit gap between vector geometries and
+the 40-unit gap between raster categories leaves room to nudge individual
+layers without colliding with the next category.</p>
+<h2 id="overriding-and-fine-tuning">Overriding and fine-tuning<a class="headerlink" href="#overriding-and-fine-tuning" title="Permanent link">&para;</a></h2>
+<p>The Draw Order tab lists every active layer (base layers excluded — they
+always sit at the bottom). Drag a row up or down to override its default
+position. The new order is persisted into each <code>DataSourceItem.zIndex</code> when
+the config is saved.</p>
 <p>Tips:</p>
 <ul>
 <li>The <strong>topmost</strong> row in the list is drawn last, so it appears on top.</li>
 <li>Vector layers usually belong above raster layers so points and lines stay visible.</li>
 <li>Labels and annotation layers are typically pinned to the very top.</li>
 <li>Reordering here does not change the order layers appear inside the Layers tab — that is controlled by interface groups and within-group order.</li>
+<li>Small manual nudges within a category are fine; if the whole stack drifts away from the defaults, use <strong>Auto Tune</strong> to reset it.</li>
 </ul>
+<h2 id="auto-tune">Auto Tune<a class="headerlink" href="#auto-tune" title="Permanent link">&para;</a></h2>
+<p>The <strong>Auto Tune</strong> action resets every layer's <code>zIndex</code> to the default for
+its format and geometry type, using the table above. It is the quickest way
+to recover a clean baseline when a config has been edited heavily and the
+draw order has become inconsistent.</p>
+<p>When you click <strong>Auto Tune</strong>, a preview dialog shows:</p>
+<ul>
+<li>A summary of how many layers fall into each category.</li>
+<li>A per-layer table with the current <code>Z</code> next to the proposed <code>Z</code>, with rows that will change highlighted.</li>
+<li>A toggle to show only the layers that will change.</li>
+</ul>
+<p>Nothing is applied until you confirm. Use Auto Tune when:</p>
+<ul>
+<li>A freshly imported or migrated config has missing or arbitrary <code>zIndex</code> values.</li>
+<li>Vector layers are being hidden under raster overlays across the board.</li>
+<li>You want to start from a known-good baseline before making targeted manual nudges.</li>
+</ul>
+<p>If you have intentional, hand-tuned overrides you want to keep, review the preview carefully — Auto Tune will overwrite those overrides for any layer it touches.</p>
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Every layer must have a unique <code>zIndex</code> after reorder; the editor renumbers automatically on save.</li>
+<li>Every layer ends up with a <code>zIndex</code>; the editor renumbers as needed on save.</li>
 <li>Hidden layers still occupy a position; toggling them on later uses the saved order.</li>
 </ul>
 <h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
