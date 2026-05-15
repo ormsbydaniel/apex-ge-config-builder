@@ -1365,7 +1365,7 @@
 top-level chrome of the deployed APEx Geospatial Explorer — the <strong>design
 variant</strong> plus any variant-specific parameters. It is persisted on the
 config's <code>layout.design</code> field.</p>
-<p><img alt="Settings tab — Design Variant section showing the Layout Variant dropdown and a Parameters row with position set to right" src="../assets/screenshots/settings-design-variant.png" /></p>
+<p><img alt="Settings tab — Design Variant section showing the Layout Variant dropdown and an empty Parameters row" src="../assets/screenshots/settings-design-variant.png" /></p>
 <h2 id="layout-variant">Layout Variant<a class="headerlink" href="#layout-variant" title="Permanent link">&para;</a></h2>
 <p>Pick one of the predefined UI variants from the dropdown:</p>
 <table>
@@ -1398,23 +1398,6 @@ default variant.</p>
 <p>Variants accept an optional bag of key–value parameters that fine-tune
 their behaviour. Each row maps to a property under
 <code>layout.design.parameters</code>.</p>
-<p>The most common parameter is <code>position</code> for the <code>sidebar</code> variant:</p>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Example values</th>
-<th>Effect</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>position</code></td>
-<td><code>left</code>, <code>right</code></td>
-<td>Which side the sidebar is anchored to.</td>
-</tr>
-</tbody>
-</table>
 <p>Use <strong>+ Add Parameter</strong> to add a new key, edit the key/value inline, and
 click the trash icon to remove it. Parameters are typed as strings in the
 UI; numeric or boolean values that a variant expects can be entered as
@@ -1428,9 +1411,7 @@ parameter — for example <code>?variant=fullscreen</code>. See
   &quot;layout&quot;: {
     &quot;design&quot;: {
       &quot;variant&quot;: &quot;sidebar&quot;,
-      &quot;parameters&quot;: {
-        &quot;position&quot;: &quot;right&quot;
-      }
+      &quot;parameters&quot;: {}
     }
   }
 }
