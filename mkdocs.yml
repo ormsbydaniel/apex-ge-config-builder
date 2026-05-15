@@ -54,22 +54,22 @@ markdown_extensions:
 nav:
   - Welcome: index.md
   - Getting Started:
-      - Overview: getting-started/index.md
+      - Overview: getting-started/overview.md
       - Build your first config: getting-started/first-config.md
       - Loading and saving: getting-started/loading-saving.md
   - Home tab:
-      - Overview: home/index.md
+      - Overview: home/overview.md
       - Run Healthcheck: services/healthcheck.md
   - Layers tab:
-      - Overview: layers/index.md
+      - Overview: layers/overview.md
       - Interface groups: configuration/interface-groups.md
       - Layers:
-          - Overview: layers/types/index.md
+          - Overview: layers/types/overview.md
           - Standard layers: layers/standard-layers.md
           - Swipe layers: layers/swipe-layers.md
           - Base layers: layers/base-layers.md
       - Data sources:
-          - Overview: data-sources/index.md
+          - Overview: data-sources/overview.md
           - COG: data-sources/cog.md
           - WMS / WMTS / WFS: data-sources/wms-wmts-wfs.md
           - XYZ: data-sources/xyz.md
