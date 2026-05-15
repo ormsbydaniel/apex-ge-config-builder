@@ -1,13 +1,13 @@
 ---
 title: Interface groups
-status: draft
 ---
 # Interface groups
 
-**Interface groups** are the user-facing groupings shown at the top level
-of the deployed APEx Geospatial Explorer's layer panel — for example
-*Land Cover*, *Soils*, *Climate*. Every layer card in the config must
-belong to one.
+**Interface groups** are the top-level user-facing groupings shown in the
+deployed APEx Geospatial Explorer's layer panel — for example *Land Cover*,
+*Soils*, *Climate*. Each group can optionally contain **sub-interface
+groups** for finer-grained organisation. Every layer card in the config
+must belong to either an interface group or one of its sub-groups.
 
 !!! tip "Follow along"
     Screenshots on this page were taken with the **Comprehensive demo**
@@ -64,10 +64,12 @@ before deleting or reordering.
 
 ## Sub-interface groups
 
-Sub-groups are **not** declared here. They are typed directly into the
-**Sub-interface group** field on each layer card. Any sub-group name used
-on at least one card automatically appears as a folder under its parent
-interface group in the deployed Explorer.
+Sub-groups are **not** declared here. Each interface group heading on the
+[Layers](../layers/index.md) tab has an **Add sub-group** button that
+opens a dialog where you name the new sub-group and pick which existing
+ungrouped layers to move into it. Once created, layer cards can be dragged
+in or out of the sub-group, and the sub-group will appear as a folder
+under its parent interface group in the deployed Explorer.
 
 For the conceptual model see [Layers overview → How the tab is laid out](../layers/index.md#how-the-tab-is-laid-out).
 

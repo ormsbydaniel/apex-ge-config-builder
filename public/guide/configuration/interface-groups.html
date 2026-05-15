@@ -731,14 +731,6 @@
   </span>
   
   
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -756,14 +748,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
       </a>
@@ -1710,10 +1694,11 @@
 
 
 <h1 id="interface-groups">Interface groups<a class="headerlink" href="#interface-groups" title="Permanent link">&para;</a></h1>
-<p><strong>Interface groups</strong> are the user-facing groupings shown at the top level
-of the deployed APEx Geospatial Explorer's layer panel — for example
-<em>Land Cover</em>, <em>Soils</em>, <em>Climate</em>. Every layer card in the config must
-belong to one.</p>
+<p><strong>Interface groups</strong> are the top-level user-facing groupings shown in the
+deployed APEx Geospatial Explorer's layer panel — for example <em>Land Cover</em>,
+<em>Soils</em>, <em>Climate</em>. Each group can optionally contain <strong>sub-interface
+groups</strong> for finer-grained organisation. Every layer card in the config
+must belong to either an interface group or one of its sub-groups.</p>
 <div class="admonition tip">
 <p class="admonition-title">Follow along</p>
 <p>Screenshots on this page were taken with the <strong>Comprehensive demo</strong>
@@ -1755,10 +1740,12 @@ that still contains layers — move or delete the layers first.</p>
 currently assigned to layers in that group, useful as a sanity check
 before deleting or reordering.</p>
 <h2 id="sub-interface-groups">Sub-interface groups<a class="headerlink" href="#sub-interface-groups" title="Permanent link">&para;</a></h2>
-<p>Sub-groups are <strong>not</strong> declared here. They are typed directly into the
-<strong>Sub-interface group</strong> field on each layer card. Any sub-group name used
-on at least one card automatically appears as a folder under its parent
-interface group in the deployed Explorer.</p>
+<p>Sub-groups are <strong>not</strong> declared here. Each interface group heading on the
+<a href="../layers/index.html">Layers</a> tab has an <strong>Add sub-group</strong> button that
+opens a dialog where you name the new sub-group and pick which existing
+ungrouped layers to move into it. Once created, layer cards can be dragged
+in or out of the sub-group, and the sub-group will appear as a folder
+under its parent interface group in the deployed Explorer.</p>
 <p>For the conceptual model see <a href="../layers/index.html#how-the-tab-is-laid-out">Layers overview → How the tab is laid out</a>.</p>
 <h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
 <ul>
