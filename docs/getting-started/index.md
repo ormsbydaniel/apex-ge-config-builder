@@ -1,6 +1,5 @@
 ---
 title: Overview
-status: draft
 ---
 # Overview
 
@@ -32,19 +31,20 @@ The whole document you are editing. You can load one from disk, from a GitHub
 repo, or from a URL, and you can export it back to JSON at any time. See
 [Loading and saving](loading-saving.md).
 
-### Service
-
-A reusable endpoint definition (WMTS, WMS, WFS, COG, XYZ, GeoJSON,
-FlatGeoBuf, CSV, S3 bucket, or STAC catalogue). Services are declared once
-and referenced by name from layers, so you can swap an endpoint URL in one
-place. Managed from the **Services** tab.
-
 ### Layer (data source)
 
 A renderable thing on the map. A layer points at one or more service URLs
 (`data` and optional `statistics`), specifies how it should be styled, and
 declares which **interface group** it belongs to. Layers are managed from the
 **Layers** tab.
+
+### Service
+
+A reusable endpoint definition (WMTS, WMS, WFS, COG, XYZ, GeoJSON,
+FlatGeoBuf, CSV, S3 bucket, or STAC catalogue). Once a service has been
+defined, the datasets referenced with it can be easily found and added to a
+layer, by browsing the service via the config builder UI. Managed from the
+**Services** tab.
 
 ### Interface group
 

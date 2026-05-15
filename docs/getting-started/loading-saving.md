@@ -1,6 +1,5 @@
 ---
 title: Loading and saving
-status: draft
 ---
 # Loading and saving
 
@@ -42,6 +41,16 @@ From the **Home** tab use the **Export** dropdown:
 - **Quick Export (Default)** — downloads the current config as JSON immediately.
 - **Export with Options…** — opens the [Export options](../configuration/export-options.md)
   dialog, where you can choose JSON ordering and other formatting options.
+
+### Filename convention
+
+Exported files follow the pattern `<prefix>_YYYYMMMDD_HHMM.json` — for
+example `config_biodiversity_2025NOV14_1530.json`. The timestamp is added
+automatically so successive exports never overwrite each other.
+
+The `<prefix>` portion is taken from the **Export filename prefix** field in
+[Settings → Config Export Settings](../settings/index.md#config-export-settings).
+Change it there to match your project naming convention.
 
 The exported file is what you ship to the APEx Geospatial Explorer host.
 
