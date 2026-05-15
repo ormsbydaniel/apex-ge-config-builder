@@ -1,6 +1,5 @@
 ---
 title: Layers overview
-status: draft
 ---
 # Layers overview
 
@@ -27,38 +26,15 @@ Each layer in the config has three concerns:
 Layers are managed through **Layer Cards**. Each card represents one
 selectable item in the deployed Explorer's layer panel.
 
-## Two kinds of layer
+## Layer types
 
-The **Add New Layer** screen offers two options:
+The builder supports three layer types — **Standard**, **Swipe**, and
+**Base** — each with its own page under [Layers](types/index.md). In short:
 
-### Add Layer Card
-
-A configurable layer that appears in the user-facing layer panel. It has:
-
-- One or more data sources (`data`, optional `statistics`, optional swipe /
-  mirror / spotlight comparison sources).
-- Metadata (title, description, attribution).
-- A legend, categories, and UI controls.
-- A target interface group and optional sub-interface group.
-
-Use this for almost everything you want a user to be able to toggle on
-the map.
-
-### Base Layer
-
-A background basemap. It has no UI controls or metadata and is rendered
-underneath everything else. Base layers are listed separately in the
-deployed Explorer's basemap picker.
-
-Use this for OSM, satellite imagery, terrain hillshades, and similar
-baseline reference layers.
-
-### Import Layer Card (beta)
-
-When you trigger **Add Layer** from inside an existing interface group,
-the second tile becomes **Import Layer Card** instead of **Base Layer** —
-this lets you copy one or more layer cards from another configuration into
-the current group. See [Adding layers](adding-layers.md#import-layer-card-beta).
+- **Standard** — toggleable user-facing data overlays. The default for
+  almost everything.
+- **Swipe** — two rasters compared under a draggable handle.
+- **Base** — background basemaps picked from the basemap selector.
 
 ## How the tab is laid out
 
@@ -104,8 +80,11 @@ either **Add Layer** or load an example configuration from the
 
 ## Next steps
 
-- [Adding layers](adding-layers.md) — walk-through for the **Add Layer Card**
-  and **Add Base Layer** flows.
+- [Layers](types/index.md) — overview of the three layer types and how to
+  choose between them.
+- [Standard layers](standard-layers.md) — including the **Add a standard
+  layer** walk-through and the Import Layer Card flow.
+- [Swipe layers](swipe-layers.md) — side-by-side raster comparison.
 - [Base layers](base-layers.md) — basemap-specific guidance.
 - [Data visualisation](data-visualisation.md) — colormaps, RGB composite,
   vector rules, categories.
