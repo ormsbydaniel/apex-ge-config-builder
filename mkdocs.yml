@@ -135,3 +135,7 @@ nav:
       - Troubleshooting: reference/troubleshooting.md
       - Authors guide: reference/authors-guide.md
       - Glossary: reference/glossary.md
+
+extra:
+  status:
+    draft: Not yet reviewed
