@@ -102,11 +102,13 @@ nav:
   - Draw order tab: configuration/draw-order.md
   - Services tab:
       - services/index.md
+      - Overview: services/index.md
       - Adding services: services/adding-services.md
       - Diagnostics: services/diagnostics.md
       - Recommended services: services/recommended.md
   - Settings tab:
       - settings/index.md
+      - Overview: settings/index.md
       - Footer links: configuration/footer-links.md
       - Layout: configuration/layout.md
       - Export options: configuration/export-options.md
