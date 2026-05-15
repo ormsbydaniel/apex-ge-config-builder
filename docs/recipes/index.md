@@ -1,9 +1,8 @@
 ---
-title: How-to recipes
+title: How-to recipes overview
 status: draft
 ---
-# How-to recipes
-
+# How-to recipes overview
 Short, task-focused walkthroughs that cut across tabs. Each recipe takes you
 end-to-end through a single goal — what to click, in which tab, and how to
 verify the result.

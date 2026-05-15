@@ -1,8 +1,7 @@
 ---
-title: Layers overview
+title: Layers tab overview
 ---
-# Layers overview
-
+# Layers tab overview
 The **Layers** tab is where you build the visible content of your
 APEx Geospatial Explorer — every map layer, its data source(s), how it is
 styled, and where it appears in the UI.

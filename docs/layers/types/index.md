@@ -1,9 +1,8 @@
 ---
-title: Layers
+title: Layers overview
 status: draft
 ---
-# Layers
-
+# Layers overview
 A **layer** is a renderable thing the user sees on the map. The definition
 of a layer comprises:
 
