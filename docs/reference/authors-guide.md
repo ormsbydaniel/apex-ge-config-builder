@@ -10,7 +10,7 @@ sources in `docs/` and publishing the rendered site to GitHub.
 The user guide is built with [MkDocs](https://www.mkdocs.org/) using the
 [Material](https://squidfunk.github.io/mkdocs-material/) theme. Sources live
 under `docs/`, the build output lands in `public/guide/`, and both are
-committed to the same repository so the published Lovable app can serve the
+committed to the same repository so the published web app can serve the
 guide directly from `/guide/`.
 
 ## Common edits — where things live
@@ -22,7 +22,7 @@ guide directly from `/guide/`.
 | Add a screenshot                                      | Use `scripts/add-screenshot.sh <source.png> <kebab-name>` — it copies into both `docs/assets/screenshots/` and `public/guide/assets/screenshots/`. See [Screenshot conventions](#screenshot-conventions) below. |
 | Change the left-hand nav order or labels              | The `nav:` block in `mkdocs.yml`.                                    |
 | Change site theme, colours, plugins                   | The top of `mkdocs.yml` (`theme:`, `markdown_extensions:`, `plugins:`). |
-| Update the rendered HTML served by the live app       | Run `./build-docs.sh --push`, then **Publish → Update** in Lovable.  |
+| Update the rendered HTML served by the live app       | Run `./build-docs.sh --push`, then redeploy the app from your hosting platform. |
 
 ## Screenshot conventions
 
@@ -33,15 +33,14 @@ guide directly from `/guide/`.
 
 ## Editing workflow
 
-1. Edit Markdown files under `docs/` (typically inside Lovable, or directly in
-   the GitHub repo on the `documentation` branch).
-2. Push the change to `origin/documentation`. Lovable does this automatically
-   when you make changes via chat.
+1. Edit Markdown files under `docs/` directly in the GitHub repo on the
+   `documentation` branch.
+2. Push the change to `origin/documentation`.
 3. Run `./build-docs.sh --push` from `~/documentation/mkdocs-project/` to
    pull the latest `docs/`, rebuild `public/guide/`, and push the regenerated
    HTML back to GitHub.
-4. In Lovable, click **Publish → Update** so the new `public/guide/` is
-   served from the live `.lovable.app` (and any custom domain).
+4. Redeploy the app so the new `public/guide/` is served from the live site
+   (and any custom domain).
 
 Source edits and the corresponding rebuilt HTML always live in the same
 commit history, so there is one source of truth for what the published guide
@@ -96,8 +95,8 @@ cd ~/documentation/mkdocs-project
 !!! warning "Local edits inside `repo/` are discarded"
     Because the script hard-resets to `origin/<branch>` on every run, any
     uncommitted edits you make inside `~/documentation/mkdocs-project/repo/`
-    will be lost. Always edit on the Lovable side (or commit from `repo/`
-    manually and push) before re-running.
+    will be lost. Always edit via the main repo workflow (or commit from
+    `repo/` manually and push) before re-running.
 
 !!! note "Nothing to commit?"
     The build is deterministic. If no Markdown source changed since the last
