@@ -4,15 +4,19 @@ status: draft
 ---
 # Layers
 
-A **layer** is a renderable thing the user sees on the map. Every layer
-combines:
+A **layer** is a renderable thing the user sees on the map. The definition
+of a layer comprises:
 
-- One or more **data sources** (a service+layer reference, or a direct URL).
-- A position in the UI — either an **interface group** (for user-facing
-  layers) or the basemap picker.
-- A **styling** choice — colormap, RGB composite, vector rules, or
-  categories.
-- Optional UI controls — opacity, swipe handle, legend, attribution.
+- **Where it lives in the UI** — an *interface group* (and optional
+  *sub-interface group*), or the basemap picker for base layers.
+- **What it shows** — one or more *data sources* (service+layer references
+  or direct URLs to COG, GeoJSON, FlatGeoBuf, CSV, WMS/WMTS layers, etc.).
+- **How it is visualised** — colormap, RGB composite, vector styling rules,
+  or categorical classes.
+- **Supporting content** — description, attribution, legend, units.
+- **Functional controls** — opacity, temporal controls, zoom to layer,
+  download link, layer toggles.
+- **Advanced features** — statistics, constraints, charts.
 
 The Configuration Builder supports three layer types. Each behaves
 differently in the deployed APEx Geospatial Explorer.
