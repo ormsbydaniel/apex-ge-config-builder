@@ -1,8 +1,7 @@
 ---
-title: Home tab
+title: Home tab overview
 ---
-# Home tab
-
+# Home tab overview
 The **Home** tab is the project dashboard. It is where you load and save
 configurations, edit project metadata, see what your config contains at a
 glance, and launch the healthcheck.

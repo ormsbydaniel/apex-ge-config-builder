@@ -1,9 +1,8 @@
 ---
-title: Settings
+title: Settings overview
 status: draft
 ---
-# Settings
-
+# Settings overview
 The **Settings** tab holds top-level configuration that applies to the
 whole APEx Geospatial Explorer instance: export filename, design variant,
 navigation defaults, custom Coordinate Reference Systems (CRS), branding,

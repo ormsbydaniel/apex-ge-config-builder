@@ -1,8 +1,7 @@
 ---
-title: Overview
+title: Getting started overview
 ---
-# Overview
-
+# Getting started overview
 The Configuration Builder produces a single JSON file — the **config** — that
 fully describes an APEx Geospatial Explorer instance: its branding, layout,
 the services it talks to, and the layers and charts it shows.
