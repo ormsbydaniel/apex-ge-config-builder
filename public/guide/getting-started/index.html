@@ -548,14 +548,6 @@
   </span>
   
   
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
 
             </a>
             
@@ -635,14 +627,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
       </a>
@@ -812,14 +796,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
       </a>
@@ -1216,10 +1192,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#service" class="md-nav__link">
+  <a href="#layer-data-source" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Service
+        Layer (data source)
       
     </span>
   </a>
@@ -1227,10 +1203,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#layer-data-source" class="md-nav__link">
+  <a href="#service" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Layer (data source)
+        Service
       
     </span>
   </a>
@@ -1353,16 +1329,17 @@ the services it talks to, and the layers and charts it shows.</p>
 <p>The whole document you are editing. You can load one from disk, from a GitHub
 repo, or from a URL, and you can export it back to JSON at any time. See
 <a href="loading-saving.html">Loading and saving</a>.</p>
-<h3 id="service">Service<a class="headerlink" href="#service" title="Permanent link">&para;</a></h3>
-<p>A reusable endpoint definition (WMTS, WMS, WFS, COG, XYZ, GeoJSON,
-FlatGeoBuf, CSV, S3 bucket, or STAC catalogue). Services are declared once
-and referenced by name from layers, so you can swap an endpoint URL in one
-place. Managed from the <strong>Services</strong> tab.</p>
 <h3 id="layer-data-source">Layer (data source)<a class="headerlink" href="#layer-data-source" title="Permanent link">&para;</a></h3>
 <p>A renderable thing on the map. A layer points at one or more service URLs
 (<code>data</code> and optional <code>statistics</code>), specifies how it should be styled, and
 declares which <strong>interface group</strong> it belongs to. Layers are managed from the
 <strong>Layers</strong> tab.</p>
+<h3 id="service">Service<a class="headerlink" href="#service" title="Permanent link">&para;</a></h3>
+<p>A reusable endpoint definition (WMTS, WMS, WFS, COG, XYZ, GeoJSON,
+FlatGeoBuf, CSV, S3 bucket, or STAC catalogue). Once a service has been
+defined, the datasets referenced with it can be easily found and added to a
+layer, by browsing the service via the config builder UI. Managed from the
+<strong>Services</strong> tab.</p>
 <h3 id="interface-group">Interface group<a class="headerlink" href="#interface-group" title="Permanent link">&para;</a></h3>
 <p>A user-facing grouping in the APEx Geospatial Explorer's layer panel — for example
 "Land Cover", "Soils", "Climate". Interface groups give the APEx Geospatial Explorer's
