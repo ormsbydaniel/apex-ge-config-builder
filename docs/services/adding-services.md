@@ -1,6 +1,5 @@
 ---
 title: Adding services
-status: draft
 ---
 # Adding services
 
