@@ -19,8 +19,12 @@ theme:
     - navigation.footer
     - content.code.copy
     - content.tabs.link
+    - content.tooltips
     - search.suggest
     - search.highlight
+  icon:
+    status:
+      draft: material/pencil-outline
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
