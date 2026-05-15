@@ -1538,7 +1538,7 @@ sources in <code>docs/</code> and publishing the rendered site to GitHub.</p>
 <p>The user guide is built with <a href="https://www.mkdocs.org/">MkDocs</a> using the
 <a href="https://squidfunk.github.io/mkdocs-material/">Material</a> theme. Sources live
 under <code>docs/</code>, the build output lands in <code>public/guide/</code>, and both are
-committed to the same repository so the published Lovable app can serve the
+committed to the same repository so the published web app can serve the
 guide directly from <code>/guide/</code>.</p>
 <h2 id="common-edits-where-things-live">Common edits — where things live<a class="headerlink" href="#common-edits-where-things-live" title="Permanent link">&para;</a></h2>
 <table>
@@ -1571,7 +1571,7 @@ guide directly from <code>/guide/</code>.</p>
 </tr>
 <tr>
 <td>Update the rendered HTML served by the live app</td>
-<td>Run <code>./build-docs.sh --push</code>, then <strong>Publish → Update</strong> in Lovable.</td>
+<td>Run <code>./build-docs.sh --push</code>, then redeploy the app from your hosting platform.</td>
 </tr>
 </tbody>
 </table>
@@ -1584,15 +1584,14 @@ guide directly from <code>/guide/</code>.</p>
 </ul>
 <h2 id="editing-workflow">Editing workflow<a class="headerlink" href="#editing-workflow" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Edit Markdown files under <code>docs/</code> (typically inside Lovable, or directly in
-   the GitHub repo on the <code>documentation</code> branch).</li>
-<li>Push the change to <code>origin/documentation</code>. Lovable does this automatically
-   when you make changes via chat.</li>
+<li>Edit Markdown files under <code>docs/</code> directly in the GitHub repo on the
+   <code>documentation</code> branch.</li>
+<li>Push the change to <code>origin/documentation</code>.</li>
 <li>Run <code>./build-docs.sh --push</code> from <code>~/documentation/mkdocs-project/</code> to
    pull the latest <code>docs/</code>, rebuild <code>public/guide/</code>, and push the regenerated
    HTML back to GitHub.</li>
-<li>In Lovable, click <strong>Publish → Update</strong> so the new <code>public/guide/</code> is
-   served from the live <code>.lovable.app</code> (and any custom domain).</li>
+<li>Redeploy the app so the new <code>public/guide/</code> is served from the live site
+   (and any custom domain).</li>
 </ol>
 <p>Source edits and the corresponding rebuilt HTML always live in the same
 commit history, so there is one source of truth for what the published guide
@@ -1657,8 +1656,8 @@ clean tree that matches GitHub.</p>
 <p class="admonition-title">Local edits inside <code>repo/</code> are discarded</p>
 <p>Because the script hard-resets to <code>origin/&lt;branch&gt;</code> on every run, any
 uncommitted edits you make inside <code>~/documentation/mkdocs-project/repo/</code>
-will be lost. Always edit on the Lovable side (or commit from <code>repo/</code>
-manually and push) before re-running.</p>
+will be lost. Always edit via the main repo workflow (or commit from
+<code>repo/</code> manually and push) before re-running.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Nothing to commit?</p>
