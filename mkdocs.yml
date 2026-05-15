@@ -68,7 +68,7 @@ nav:
           - Standard layers: layers/standard-layers.md
           - Swipe layers: layers/swipe-layers.md
           - Base layers: layers/base-layers.md
-      - Data sources:
+      - Adding Data Sources:
           - Overview: data-sources/overview.md
           - COG: data-sources/cog.md
           - WMS / WMTS / WFS: data-sources/wms-wmts-wfs.md
