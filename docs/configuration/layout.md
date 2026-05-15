@@ -20,6 +20,14 @@ Pick one of the predefined UI variants from the dropdown:
 | `fullscreen` | Map fills the viewport; layer panel and controls float over the map.                                     |
 | `sidebar`    | Map is paired with a persistent side panel for layers, legends, and information.                         |
 
+**Sidebar (standard) mode** — layer panel docked to the side of the map:
+
+![APEx Geospatial Explorer in sidebar mode showing the layer panel docked on the left with Austria Wind Power Density at 100m active](../assets/screenshots/layout-variant-sidebar.png)
+
+**Fullscreen mode** — map fills the viewport with floating controls:
+
+![APEx Geospatial Explorer in fullscreen mode with the map covering the full viewport and the info panel floating on the right](../assets/screenshots/layout-variant-fullscreen.png)
+
 The selected value is written to `layout.design.variant`.
 
 Click the trash icon next to the dropdown to clear the design configuration
