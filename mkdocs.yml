@@ -54,22 +54,22 @@ markdown_extensions:
 nav:
   - Welcome: index.md
   - Getting Started:
-      - getting-started/index.md
+      - Overview: getting-started/index.md
       - Build your first config: getting-started/first-config.md
       - Loading and saving: getting-started/loading-saving.md
   - Home tab:
-      - home/index.md
+      - Overview: home/index.md
       - Run Healthcheck: services/healthcheck.md
   - Layers tab:
-      - layers/index.md
+      - Overview: layers/index.md
       - Interface groups: configuration/interface-groups.md
       - Layers:
-          - layers/types/index.md
+          - Overview: layers/types/index.md
           - Standard layers: layers/standard-layers.md
           - Swipe layers: layers/swipe-layers.md
           - Base layers: layers/base-layers.md
       - Data sources:
-          - data-sources/index.md
+          - Overview: data-sources/index.md
           - COG: data-sources/cog.md
           - WMS / WMTS / WFS: data-sources/wms-wmts-wfs.md
           - XYZ: data-sources/xyz.md
@@ -78,7 +78,7 @@ nav:
           - S3 browser: data-sources/s3-browser.md
           - STAC browser: data-sources/stac-browser.md
       - Data visualisation:
-          - layers/data-visualisation.md
+          - Overview: layers/data-visualisation.md
           - Categories: layers/categories.md
           - Colormaps: layers/colormaps.md
           - RGB composite: layers/rgb-composite.md
@@ -87,26 +87,26 @@ nav:
       - Statistics: statistics/index.md
       - Constraints: constraints/index.md
       - Charts:
-          - charts/index.md
+          - Overview: charts/index.md
           - Visual editor: charts/visual-editor.md
           - Pixel values: charts/pixel-values.md
           - Field values: charts/field-values.md
           - CSV data: charts/csv-data.md
   - Draw order tab: configuration/draw-order.md
   - Services tab:
-      - services/index.md
+      - Overview: services/index.md
       - Adding services: services/adding-services.md
       - Diagnostics: services/diagnostics.md
       - Recommended services: services/recommended.md
   - Settings tab:
-      - settings/index.md
+      - Overview: settings/index.md
       - Footer links: configuration/footer-links.md
       - Layout: configuration/layout.md
       - Export options: configuration/export-options.md
   - JSON config: configuration/json-config.md
   - GE Preview tab: configuration/preview.md
   - How-to recipes:
-      - recipes/index.md
+      - Overview: recipes/index.md
       - Data sources & services:
           - Add a WMTS service: recipes/add-wmts-service.md
           - Add a COG from S3: recipes/add-cog-from-s3.md
@@ -132,7 +132,7 @@ nav:
           - Migrate an existing config: recipes/migrate-existing-config.md
           - Edit JSON directly (safely): recipes/edit-json-directly.md
   - Reference:
-      - reference/index.md
+      - Overview: reference/index.md
       - URL parameters: reference/url-parameters.md
       - JSON schema reference: reference/json-schema.md
       - Tips and shortcuts: reference/keyboard-and-tips.md
