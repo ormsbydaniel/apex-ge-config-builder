@@ -1,7 +1,7 @@
 ---
 title: Build a spectral signature chart
+status: draft
 ---
-
 # Build a spectral signature chart
 
 !!! info "Coming soon"

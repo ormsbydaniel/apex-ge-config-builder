@@ -1,7 +1,7 @@
 ---
 title: Footer links
+status: draft
 ---
-
 # Footer links
 
 The **Footer Links** editor manages the links shown in the deployed APEx

@@ -1,7 +1,7 @@
 ---
 title: Pixel values
+status: draft
 ---
-
 # Pixel values
 
 The **Pixel Values** chart source renders a spectral signature — one trace per pixel sample, with band index on the X axis and pixel value on the Y axis — from a multi-band Cloud Optimized GeoTIFF on the layer.

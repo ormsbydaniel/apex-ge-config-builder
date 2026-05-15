@@ -1,7 +1,7 @@
 ---
 title: GeoJSON / FlatGeoBuf
+status: draft
 ---
-
 # GeoJSON / FlatGeoBuf
 
 Two vector formats served as a single static file over HTTPS. GeoJSON is

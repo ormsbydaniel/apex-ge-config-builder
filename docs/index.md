@@ -1,7 +1,7 @@
 ---
 title: Welcome
+status: draft
 ---
-
 # Welcome
 
 The **Configuration Builder** is a web app for designing, validating, and exporting

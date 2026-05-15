@@ -1,7 +1,7 @@
 ---
 title: Colormaps
+status: draft
 ---
-
 # Colormaps
 
 The **Colormap** sub-section of the layer card's [Data Visualisation](data-visualisation.md) panel styles rasters whose pixel values are **continuous numeric** (e.g. NDVI, elevation, temperature). A colormap maps the value range to a gradient.

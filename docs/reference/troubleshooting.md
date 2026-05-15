@@ -1,7 +1,7 @@
 ---
 title: Troubleshooting
+status: draft
 ---
-
 # Troubleshooting
 
 Common problems when loading, editing, validating, and previewing a

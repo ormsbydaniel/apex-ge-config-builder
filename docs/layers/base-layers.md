@@ -1,7 +1,7 @@
 ---
 title: Base layers
+status: draft
 ---
-
 # Base layers
 
 Base layers are the basemap that sits underneath all other layers on the map. They are managed separately from regular layer cards because only one base layer can be visible at a time, and they typically have no toggleable visibility, no statistics, and no constraints.

@@ -1,7 +1,7 @@
 ---
 title: Authors Guide
+status: draft
 ---
-
 # Authors Guide
 
 This page is for **documentation authors** — anyone editing the Markdown

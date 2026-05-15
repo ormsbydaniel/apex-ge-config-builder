@@ -1,7 +1,7 @@
 ---
 title: Categories
+status: draft
 ---
-
 # Categories
 
 The **Categories** sub-section of the layer card's [Data Visualisation](data-visualisation.md) panel styles rasters whose pixel values represent **discrete classes** (e.g. ESA WorldCover land-cover codes, soil type, administrative region).

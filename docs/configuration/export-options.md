@@ -1,7 +1,7 @@
 ---
 title: Export options
+status: draft
 ---
-
 # Export options
 
 The **Export** action on the [Home tab](../home/index.md) is a split menu with two

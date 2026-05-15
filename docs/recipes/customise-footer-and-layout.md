@@ -1,7 +1,7 @@
 ---
 title: Customise footer and layout
+status: draft
 ---
-
 # Customise footer and layout
 
 !!! info "Coming soon"

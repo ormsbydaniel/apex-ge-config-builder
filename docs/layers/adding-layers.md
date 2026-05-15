@@ -1,7 +1,7 @@
 ---
 title: Adding layers
+status: draft
 ---
-
 # Adding layers
 
 This page walks through adding a new layer to your configuration. For a

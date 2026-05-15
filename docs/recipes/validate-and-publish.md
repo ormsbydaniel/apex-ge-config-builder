@@ -1,7 +1,7 @@
 ---
 title: Validate and publish a config
+status: draft
 ---
-
 # Validate and publish a config
 
 !!! info "Coming soon"

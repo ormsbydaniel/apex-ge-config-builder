@@ -1,7 +1,7 @@
 ---
 title: RGB composite
+status: draft
 ---
-
 # RGB composite
 
 Render a multi-band raster source — typically a Cloud Optimized GeoTIFF — as a true-colour or false-colour composite by mapping three bands to the Red, Green, and Blue channels.

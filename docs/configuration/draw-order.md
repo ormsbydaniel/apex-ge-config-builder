@@ -1,7 +1,7 @@
 ---
 title: Draw order
+status: draft
 ---
-
 # Draw order
 
 The **Draw order** tab controls the front-to-back stacking of layers on the map. Each layer's position here determines its `zIndex` in the rendered map: rows higher in the list draw on top of rows below them.

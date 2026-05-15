@@ -1,7 +1,7 @@
 ---
 title: Build an RGB composite
+status: draft
 ---
-
 # Build an RGB composite
 
 !!! info "Coming soon"

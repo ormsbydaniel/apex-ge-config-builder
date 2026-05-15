@@ -1,7 +1,7 @@
 ---
 title: Charts overview
+status: draft
 ---
-
 # Charts overview
 
 Charts are added per-layer from the **Charts** tab in the Data Sources section of the layer card. They render with Plotly and appear next to the layer in the APEx Geospatial Explorer when a user opens the info panel or selects a feature.

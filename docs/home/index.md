@@ -1,7 +1,7 @@
 ---
 title: Home tab
+status: draft
 ---
-
 # Home tab
 
 The **Home** tab is the project dashboard. It is where you load and save

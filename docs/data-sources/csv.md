@@ -1,7 +1,7 @@
 ---
 title: CSV
+status: draft
 ---
-
 # CSV
 
 Plain comma-separated values. The builder treats CSV as a tabular data

@@ -1,7 +1,7 @@
 ---
 title: Layout
+status: draft
 ---
-
 # Layout
 
 The **Layout** subsection of the [Settings tab](../settings/index.md) controls the

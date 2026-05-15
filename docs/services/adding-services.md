@@ -1,7 +1,7 @@
 ---
 title: Adding services
+status: draft
 ---
-
 # Adding services
 
 This page covers the **Add Service** dialog on the

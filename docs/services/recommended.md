@@ -1,7 +1,7 @@
 ---
 title: Recommended services
+status: draft
 ---
-
 # Recommended services
 
 The **Add Recommended Services** dialog is a one-click way to seed a new

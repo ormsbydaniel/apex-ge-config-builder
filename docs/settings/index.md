@@ -1,7 +1,7 @@
 ---
 title: Settings
+status: draft
 ---
-
 # Settings
 
 The **Settings** tab holds top-level configuration that applies to the

@@ -1,7 +1,7 @@
 ---
 title: COG
+status: draft
 ---
-
 # COG (Cloud Optimized GeoTIFF)
 
 A COG is a single GeoTIFF file laid out so that the APEx Geospatial

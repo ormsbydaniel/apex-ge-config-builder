@@ -1,7 +1,7 @@
 ---
 title: XYZ
+status: draft
 ---
-
 # XYZ (Tile Service)
 
 A simple URL template that returns a tile per `{z}/{x}/{y}` coordinate.

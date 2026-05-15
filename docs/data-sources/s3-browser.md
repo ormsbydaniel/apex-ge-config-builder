@@ -1,7 +1,7 @@
 ---
 title: S3 browser
+status: draft
 ---
-
 # S3 browser
 
 A folder-style picker for any S3 service registered on the

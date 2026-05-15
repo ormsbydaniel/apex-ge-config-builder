@@ -1,7 +1,7 @@
 ---
 title: Tips and shortcuts
+status: draft
 ---
-
 # Tips and shortcuts
 
 Small UX details that are easy to miss but pay off once you know them.
