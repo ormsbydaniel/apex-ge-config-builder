@@ -73,7 +73,7 @@ Each layer card surfaces a small toolbar:
 
 The card itself shows the layer title, the interface group / sub-interface
 group it sits in, and metadata badges (data type, statistics availability,
-RGB composite, swipe, mirror, spotlight, time-series).
+RGB composite, swipe, time-series).
 
 ## Empty state
 

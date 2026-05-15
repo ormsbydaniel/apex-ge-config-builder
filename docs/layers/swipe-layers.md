@@ -19,12 +19,6 @@ reveal more or less of the **clipped** source over the **base** source(s).
 For two layers that should both be fully visible and toggleable
 independently, use two [standard layer cards](standard-layers.md) instead.
 
-!!! note "Related comparison modes"
-    **Mirror** (top/bottom split) and **Spotlight** (revealed circle) are
-    related two-source comparison modes, but they sit on a
-    [standard layer](standard-layers.md#sources-expected-by-sub-type) — they
-    do not use `swipeConfig`.
-
 ## Configure
 
 Swipe configuration lives in `meta.swipeConfig`:
@@ -36,9 +30,8 @@ Swipe configuration lives in `meta.swipeConfig`:
   picker so the user can switch which base is compared against.
 
 Each source still uses the same data source format as a normal layer (COG,
-XYZ, WMS, etc.), and `position` on each `DataSourceItem` (`'left'`,
-`'right'`, `'background'`, `'spotlight'`) controls how it participates in
-the comparison.
+XYZ, WMS, etc.), and `position` on each `DataSourceItem` (`'left'` or
+`'right'`) controls how it participates in the comparison.
 
 ## Validation
 
@@ -76,7 +69,6 @@ the comparison.
 ## Related
 
 - [Layers](types/index.md) — overview of the three layer types.
-- [Standard layers](standard-layers.md) — including Mirror and Spotlight
-  paired-source modes.
+- [Standard layers](standard-layers.md) — toggleable overlays.
 - [Data visualisation](data-visualisation.md) — styling applies
   independently to each side.

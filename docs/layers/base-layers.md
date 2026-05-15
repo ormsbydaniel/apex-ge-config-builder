@@ -9,7 +9,7 @@ map. They are managed separately from regular layer cards because only one
 base layer can be visible at a time, and they typically have no toggleable
 visibility, no statistics, and no constraints.
 
-![Layer Type selector — Standard / Swipe / Mirror / Spotlight — and Layout Style at the top of the layer card editor](../assets/screenshots/layer-card-edit-top.png)
+![Layer Type selector — Standard / Swipe — and Layout Style at the top of the layer card editor](../assets/screenshots/layer-card-edit-top.png)
 
 ## When to use
 
