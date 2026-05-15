@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/layers/base-layers.html">
       
       
-        <link rel="prev" href="adding-layers.html">
+        <link rel="prev" href="swipe-layers.html">
       
       
-        <link rel="next" href="swipe-layers.html">
+        <link rel="next" href="../data-sources/cog.html">
       
       
         
@@ -644,10 +644,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -681,14 +677,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
             </a>
@@ -753,17 +741,136 @@
                 
   
   
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="types/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Layers
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Layers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
-      <a href="adding-layers.html" class="md-nav__link">
+      <a href="standard-layers.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Adding layers
+    Standard layers
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="swipe-layers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Swipe layers
   
 
     
@@ -901,6 +1008,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#add-a-base-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a base layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -920,37 +1038,9 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="swipe-layers.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Swipe layers
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
-  
-
-      </a>
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1650,6 +1740,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#add-a-base-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a base layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1678,36 +1779,68 @@
 
 
 <h1 id="base-layers">Base layers<a class="headerlink" href="#base-layers" title="Permanent link">&para;</a></h1>
-<p>Base layers are the basemap that sits underneath all other layers on the map. They are managed separately from regular layer cards because only one base layer can be visible at a time, and they typically have no toggleable visibility, no statistics, and no constraints.</p>
+<p>Base layers are the basemap that sits underneath all other layers on the
+map. They are managed separately from regular layer cards because only one
+base layer can be visible at a time, and they typically have no toggleable
+visibility, no statistics, and no constraints.</p>
 <p><img alt="Layer Type selector — Standard / Swipe / Mirror / Spotlight — and Layout Style at the top of the layer card editor" src="../assets/screenshots/layer-card-edit-top.png" /></p>
 <h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
-<p>Use a base layer for any map background the user picks from a basemap selector — for example:</p>
+<p>Use a base layer for any map background the user picks from a basemap
+selector — for example:</p>
 <ul>
 <li>OpenStreetMap, Carto, or Stamen tile sets (XYZ)</li>
 <li>A WMTS topographic or satellite background</li>
 <li>A custom organisation basemap served as XYZ or WMS</li>
 </ul>
-<p>Use a regular layer card instead when the data should be <strong>toggleable</strong>, stack with other layers, or carry styling, statistics, or constraints.</p>
+<p>Use a <a href="standard-layers.html">standard layer card</a> instead when the data
+should be <strong>toggleable</strong>, stack with other layers, or carry styling,
+statistics, or constraints.</p>
 <h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
-<p>In the <strong>Layers tab</strong>, choose <strong>Add Base Layer</strong> (rather than Add Layer). Base layers appear in their own group at the top of the tab.</p>
 <p>Each base layer has:</p>
 <ul>
 <li><strong>Name</strong> — shown in the basemap picker.</li>
-<li><strong>Preview image</strong> — optional thumbnail (<code>preview</code> URL) shown next to the name in the picker.</li>
-<li><strong>Data source</strong> — usually a single XYZ, WMTS, or WMS source. Multiple sources are allowed but uncommon.</li>
+<li><strong>Preview image</strong> — optional thumbnail (<code>preview</code> URL) shown next to the
+  name in the picker.</li>
+<li><strong>Data source</strong> — usually a single XYZ, WMTS, or WMS source. Multiple
+  sources are allowed but uncommon.</li>
 <li><strong>Attribution</strong> — required text (and optional link) credited on the map.</li>
 </ul>
-<p>Layout, statistics, constraints, and most layer-card controls do not apply. The <code>isBaseLayer: true</code> flag at the top of the layer marks it as a basemap rather than a data overlay.</p>
+<p>Layout, statistics, constraints, and most layer-card controls do not apply.
+The <code>isBaseLayer: true</code> flag at the top of the layer marks it as a basemap
+rather than a data overlay.</p>
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
 <ul>
 <li>At least one data source is required.</li>
 <li>Attribution text is required.</li>
 <li>The first base layer in the list is the default selection on map load.</li>
 </ul>
+<h2 id="add-a-base-layer">Add a base layer<a class="headerlink" href="#add-a-base-layer" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Open the Add New Layer screen</strong> — click <strong>Add Layer</strong> at the <em>top</em> of
+   the Layers tab. This is important: when you launch Add Layer from inside
+   an interface group, the second tile becomes <strong>Import Layer Card</strong> and
+   the <strong>Base Layer</strong> option is hidden.</li>
+<li><strong>Pick the <em>Base Layer</em> tile</strong> in the type selector.</li>
+<li><strong>Fill in the slim base-layer form</strong>:<ul>
+<li><strong>Name</strong> — what the basemap picker will show.</li>
+<li><strong>Preview image URL</strong> — optional thumbnail.</li>
+<li><strong>Data source</strong> — provide the URL and pick the format (XYZ, WMTS, or
+  WMS are typical).</li>
+<li><strong>Attribution</strong> — required.</li>
+</ul>
+</li>
+<li><strong>Save Layer</strong>. The new base layer appears in the <strong>Base Layers</strong>
+   section at the top of the Layers tab.</li>
+<li>To make a base layer the default selection on map load, drag it to the
+   top of the Base Layers list.</li>
+</ol>
 <h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="adding-layers.html">Adding layers</a> — adding a regular (non-base) layer.</li>
-<li><a href="../data-sources/xyz.html">XYZ</a> and <a href="../data-sources/wms-wmts-wfs.html">WMS/WMTS/WFS</a> — common base-layer source formats.</li>
+<li><a href="types/index.html">Layers</a> — overview of the three layer types.</li>
+<li><a href="standard-layers.html">Standard layers</a> — for toggleable data overlays.</li>
+<li><a href="../data-sources/xyz.html">XYZ</a> and
+  <a href="../data-sources/wms-wmts-wfs.html">WMS / WMTS / WFS</a> — common base-layer
+  source formats.</li>
 </ul>
 
 
@@ -1749,7 +1882,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="adding-layers.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Adding layers">
+          <a href="swipe-layers.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Swipe layers">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1759,20 +1892,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Adding layers
+                Swipe layers
               </div>
             </div>
           </a>
         
         
           
-          <a href="swipe-layers.html" class="md-footer__link md-footer__link--next" aria-label="Next: Swipe layers">
+          <a href="../data-sources/cog.html" class="md-footer__link md-footer__link--next" aria-label="Next: COG">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Swipe layers
+                COG
               </div>
             </div>
             <div class="md-footer__button md-icon">

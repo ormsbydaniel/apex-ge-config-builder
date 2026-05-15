@@ -109,10 +109,6 @@
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/adding-layers.html</loc>
-         <lastmod>2026-05-15</lastmod>
-    </url>
-    <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/base-layers.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
@@ -133,6 +129,10 @@
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/standard-layers.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/swipe-layers.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
@@ -142,6 +142,10 @@
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/vector-styling.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/types/index.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>

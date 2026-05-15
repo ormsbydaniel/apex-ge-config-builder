@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/layers/swipe-layers.html">
       
       
-        <link rel="prev" href="base-layers.html">
+        <link rel="prev" href="standard-layers.html">
       
       
-        <link rel="next" href="../data-sources/cog.html">
+        <link rel="next" href="base-layers.html">
       
       
         
@@ -644,10 +644,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -681,14 +677,6 @@
     
   </span>
   
-  
-    
-  
-  
-    <span class="md-status md-status--draft" title="Not yet reviewed">
-    </span>
-  
-
   
 
             </a>
@@ -753,17 +741,48 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="adding-layers.html" class="md-nav__link">
+  
+    
+    
+      
         
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="types/index.html" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
     
   
-    Adding layers
+    Layers
   
 
     
@@ -779,10 +798,26 @@
 
   
 
-      </a>
-    </li>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Layers
   
 
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
               
             
               
@@ -792,14 +827,14 @@
   
   
     <li class="md-nav__item">
-      <a href="base-layers.html" class="md-nav__link">
+      <a href="standard-layers.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Base layers
+    Standard layers
   
 
     
@@ -937,6 +972,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#add-a-swipe-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a swipe layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -950,6 +996,50 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="base-layers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base layers
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -1650,6 +1740,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#add-a-swipe-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a swipe layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1678,7 +1779,9 @@
 
 
 <h1 id="swipe-layers">Swipe layers<a class="headerlink" href="#swipe-layers" title="Permanent link">&para;</a></h1>
-<p>A swipe layer compares two (or more) raster sources side-by-side under a draggable handle on the map. The user drags the handle left/right to reveal more or less of the <strong>clipped</strong> source over the <strong>base</strong> source(s).</p>
+<p>A <strong>swipe layer</strong> compares two (or more) raster sources side-by-side under
+a draggable handle on the map. The user drags the handle left/right to
+reveal more or less of the <strong>clipped</strong> source over the <strong>base</strong> source(s).</p>
 <p><img alt="Layer Type selector showing the Swipe option" src="../assets/screenshots/layer-card-edit-top.png" /></p>
 <h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1686,24 +1789,70 @@
 <li>Comparing two model outputs over the same area.</li>
 <li>A/B comparison of band combinations or processing levels.</li>
 </ul>
-<p>For two layers that should both be fully visible and toggleable independently, use two normal layer cards instead.</p>
+<p>For two layers that should both be fully visible and toggleable
+independently, use two <a href="standard-layers.html">standard layer cards</a> instead.</p>
+<div class="admonition note">
+<p class="admonition-title">Related comparison modes</p>
+<p><strong>Mirror</strong> (top/bottom split) and <strong>Spotlight</strong> (revealed circle) are
+related two-source comparison modes, but they sit on a
+<a href="standard-layers.html#sources-expected-by-sub-type">standard layer</a> — they
+do not use <code>swipeConfig</code>.</p>
+</div>
 <h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
-<p>In the <strong>Layers tab</strong>, add a layer and set its type to <strong>Swipe</strong>. The swipe configuration lives in <code>meta.swipeConfig</code>:</p>
+<p>Swipe configuration lives in <code>meta.swipeConfig</code>:</p>
 <ul>
-<li><strong>Clipped source</strong> (<code>clippedSourceName</code>) — the source revealed under the swipe handle. Choose from the layer's data sources.</li>
-<li><strong>Base source(s)</strong> (<code>baseSourceNames</code>) — one or more sources rendered underneath. When more than one is provided, the viewer shows a small picker so the user can switch which base is compared against.</li>
+<li><strong>Clipped source</strong> (<code>clippedSourceName</code>) — the source revealed under the
+  swipe handle. Choose from the layer's data sources.</li>
+<li><strong>Base source(s)</strong> (<code>baseSourceNames</code>) — one or more sources rendered
+  underneath. When more than one is provided, the viewer shows a small
+  picker so the user can switch which base is compared against.</li>
 </ul>
-<p>Each source still uses the same data source format as a normal layer (COG, XYZ, WMS, etc.), and <code>position</code> on each <code>DataSourceItem</code> (<code>'left'</code>, <code>'right'</code>, <code>'background'</code>, <code>'spotlight'</code>) controls how it participates in the comparison.</p>
+<p>Each source still uses the same data source format as a normal layer (COG,
+XYZ, WMS, etc.), and <code>position</code> on each <code>DataSourceItem</code> (<code>'left'</code>,
+<code>'right'</code>, <code>'background'</code>, <code>'spotlight'</code>) controls how it participates in
+the comparison.</p>
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Exactly one <code>clippedSourceName</code> is required and must match a source in <code>data</code>.</li>
-<li><code>baseSourceNames</code> must contain at least one entry, each matching a source in <code>data</code>.</li>
-<li>The clipped source and base sources should share a CRS and roughly cover the same extent for the comparison to be meaningful.</li>
+<li>Exactly one <code>clippedSourceName</code> is required and must match a source in
+  <code>data</code>.</li>
+<li><code>baseSourceNames</code> must contain at least one entry, each matching a source
+  in <code>data</code>.</li>
+<li>The clipped source and base sources should share a CRS and roughly cover
+  the same extent for the comparison to be meaningful.</li>
 </ul>
+<h2 id="add-a-swipe-layer">Add a swipe layer<a class="headerlink" href="#add-a-swipe-layer" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Open the Add New Layer screen</strong> — <strong>Layers tab → Add Layer</strong>, or click
+   the <strong>+</strong> inside an interface group.</li>
+<li><strong>Pick "Add Layer Card"</strong> in the type selector.</li>
+<li><strong>In the editor, set Layer type to <em>Swipe</em></strong> in the Basic info section.</li>
+<li><strong>Add the Left data source</strong> — click <strong>Add Data Source</strong>. The form
+   prompts for a <strong>Position</strong>; pick <strong>Left</strong>. Provide the source via direct
+   URL or <a href="standard-layers.html#step-3-the-data-source-form">from a service</a>.</li>
+<li><strong>Add the Right data source</strong> — click <strong>Add Data Source</strong> again, pick
+   <strong>Position: Right</strong>, and provide its URL.</li>
+<li><strong>Set the swipe configuration</strong> — under <code>meta.swipeConfig</code>:<ul>
+<li><strong>Clipped source</strong> → the source that should be revealed under the
+  handle (typically the <em>Right</em> source).</li>
+<li><strong>Base source(s)</strong> → the source(s) shown underneath (typically the
+  <em>Left</em> source). Add more than one if you want a base picker in the
+  viewer.</li>
+</ul>
+</li>
+<li><strong>Style each side</strong> — visualisation choices (colormap, RGB composite,
+   etc.) apply per source; see <a href="data-visualisation.html">Data visualisation</a>.</li>
+<li><strong>Save Layer</strong>. The new swipe card appears in the chosen interface
+   group, with a swipe badge.</li>
+<li>Open <a href="../configuration/preview.html">GE Preview</a> to confirm the handle
+   drags as expected.</li>
+</ol>
 <h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="adding-layers.html">Adding layers</a></li>
-<li><a href="data-visualisation.html">Data visualisation</a> — styling applies independently to each side.</li>
+<li><a href="types/index.html">Layers</a> — overview of the three layer types.</li>
+<li><a href="standard-layers.html">Standard layers</a> — including Mirror and Spotlight
+  paired-source modes.</li>
+<li><a href="data-visualisation.html">Data visualisation</a> — styling applies
+  independently to each side.</li>
 </ul>
 
 
@@ -1745,7 +1894,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="base-layers.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Base layers">
+          <a href="standard-layers.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Standard layers">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1755,20 +1904,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Base layers
+                Standard layers
               </div>
             </div>
           </a>
         
         
           
-          <a href="../data-sources/cog.html" class="md-footer__link md-footer__link--next" aria-label="Next: COG">
+          <a href="base-layers.html" class="md-footer__link md-footer__link--next" aria-label="Next: Base layers">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                COG
+                Base layers
               </div>
             </div>
             <div class="md-footer__button md-icon">
