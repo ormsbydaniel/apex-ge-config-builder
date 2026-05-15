@@ -1555,26 +1555,38 @@ config loaded.</p>
 </div>
 <p><img alt="Layers tab showing the Map Layers header (42 layers total) and six interface groups: Soils, Biodiversity &amp; Ecosystem Accounting, Land Cover, Vegetation, etc." src="../assets/screenshots/layers-tab-hierarchy.png" /></p>
 <h2 id="layer-model">Layer model<a class="headerlink" href="#layer-model" title="Permanent link">&para;</a></h2>
-<p>Each layer in the config has three concerns:</p>
+<p>The definition of a layer comprises:</p>
 <table>
 <thead>
 <tr>
-<th>Concern</th>
-<th>Captured by</th>
+<th></th>
+<th></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>What it shows</strong></td>
-<td>One or more <em>data sources</em> (a service+layer reference, or a direct URL).</td>
-</tr>
-<tr>
 <td><strong>Where it lives in the UI</strong></td>
-<td>An <em>interface group</em> (and optional <em>sub-interface group</em>).</td>
+<td>An <em>interface group</em> (and optional <em>sub-interface group</em>) that determines where the layer appears in the Explorer's layer panel.</td>
 </tr>
 <tr>
-<td><strong>How it looks</strong></td>
-<td>Style: colormap, RGB composite, vector rules, categories, legend, attribution.</td>
+<td><strong>What it shows</strong></td>
+<td>One or more <em>data sources</em> — service+layer references or direct URLs to COG, GeoJSON, FlatGeoBuf, CSV, WMS/WMTS layers, etc.</td>
+</tr>
+<tr>
+<td><strong>How it is visualised</strong></td>
+<td>Style: colormap, RGB composite band assignments, vector styling rules, categorical classes.</td>
+</tr>
+<tr>
+<td><strong>Supporting content</strong></td>
+<td>Description, attribution, legend, units.</td>
+</tr>
+<tr>
+<td><strong>Functional controls</strong></td>
+<td>Opacity, temporal controls, zoom to layer, download link, layer toggles.</td>
+</tr>
+<tr>
+<td><strong>Advanced features</strong></td>
+<td>Statistics, constraints, charts.</td>
 </tr>
 </tbody>
 </table>
