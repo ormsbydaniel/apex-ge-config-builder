@@ -79,11 +79,25 @@ In the services list, each row has:
 Point at the base endpoint (the one that responds to `?service=...&request=GetCapabilities`).
 Do not include the layer name or query string — those are picked per-layer.
 
+**What gets saved:** the config stores the service URL plus the chosen
+layer name. Editing the service URL re-points every layer that uses it.
+
 ### STAC
 
 Point at the catalogue root (the URL that returns the root `Catalog`
 or `Collection` JSON). The builder will read the title and use it as the
 service name.
+
+**What gets saved:** the STAC service is used to browse the catalogue in
+the builder. When you add an item, the resolved asset URL (COG, GeoJSON,
+FlatGeoBuf, CSV) is written into the layer. The STAC service entry itself
+is not required at runtime — you can delete it after the layers are
+configured without breaking them.
+
+!!! note "Coming soon"
+    Future releases will allow a STAC **collection** to be referenced
+    directly as a live data source — for example, to feed the items in a
+    collection into the temporal control as a time series.
 
 ### S3
 
@@ -91,6 +105,10 @@ Point at the bucket root URL. Both AWS-flavour (Amazon S3, OBS) and
 S3-compatible stores like MinIO are supported. Once added, you can browse
 the bucket from the [S3 browser](../data-sources/s3-browser.md) when
 adding layers.
+
+**What gets saved:** like STAC, the S3 service is a browsing aid. When you
+pick a file, its resolved URL is written into the layer; the S3 service
+entry can be removed later without affecting those layers.
 
 ### JSON or XML upload
 
