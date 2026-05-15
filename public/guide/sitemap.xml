@@ -21,6 +21,10 @@
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/overview.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/pixel-values.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
@@ -77,6 +81,10 @@
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/overview.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/s3-browser.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
@@ -105,7 +113,15 @@
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/overview.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/home/index.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/home/overview.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
@@ -126,6 +142,10 @@
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/data-visualisation.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/overview.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
@@ -150,6 +170,10 @@
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/types/index.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/types/overview.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
@@ -205,6 +229,10 @@
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/overview.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/restrict-map-extent.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
@@ -253,6 +281,10 @@
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/overview.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/troubleshooting.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
@@ -277,11 +309,19 @@
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/overview.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/recommended.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/settings/index.html</loc>
+         <lastmod>2026-05-15</lastmod>
+    </url>
+    <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/settings/overview.html</loc>
          <lastmod>2026-05-15</lastmod>
     </url>
     <url>
