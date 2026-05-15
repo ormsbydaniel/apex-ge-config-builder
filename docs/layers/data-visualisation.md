@@ -1,8 +1,8 @@
 ---
-title: Data visualisation
+title: Data visualisation overview
 status: draft
 ---
-# Data visualisation
+# Data visualisation overview
 
 The **Data Visualisation** section of the layer card (Eye icon) is where you control how a layer is *rendered* on the map — colours, classifications, RGB band combinations, and vector styling.
 
