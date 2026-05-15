@@ -1,6 +1,5 @@
 ---
 title: Welcome
-status: draft
 ---
 # Welcome
 
