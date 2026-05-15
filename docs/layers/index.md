@@ -15,13 +15,16 @@ styled, and where it appears in the UI.
 
 ## Layer model
 
-Each layer in the config has three concerns:
+The definition of a layer comprises:
 
-| Concern | Captured by |
-|---------|-------------|
-| **What it shows** | One or more *data sources* (a service+layer reference, or a direct URL). |
-| **Where it lives in the UI** | An *interface group* (and optional *sub-interface group*). |
-| **How it looks** | Style: colormap, RGB composite, vector rules, categories, legend, attribution. |
+| | |
+|---|---|
+| **Where it lives in the UI** | An *interface group* (and optional *sub-interface group*) that determines where the layer appears in the Explorer's layer panel. |
+| **What it shows** | One or more *data sources* — service+layer references or direct URLs to COG, GeoJSON, FlatGeoBuf, CSV, WMS/WMTS layers, etc. |
+| **How it is visualised** | Style: colormap, RGB composite band assignments, vector styling rules, categorical classes. |
+| **Supporting content** | Description, attribution, legend, units. |
+| **Functional controls** | Opacity, temporal controls, zoom to layer, download link, layer toggles. |
+| **Advanced features** | Statistics, constraints, charts. |
 
 Layers are managed through **Layer Cards**. Each card represents one
 selectable item in the deployed Explorer's layer panel.
