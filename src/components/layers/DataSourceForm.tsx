@@ -132,6 +132,11 @@ const DataSourceForm = ({
     editingDataSource?.useTimeParameter ?? true
   );
 
+  // WMS custom URL parameters (key/value rows)
+  const [parameterRows, setParameterRows] = useState<ParameterRow[]>(
+    recordToRows(editingDataSource?.parameters)
+  );
+
   // Track dirty state for unsaved changes
   const [isDirty, setIsDirty] = useState(false);
 
