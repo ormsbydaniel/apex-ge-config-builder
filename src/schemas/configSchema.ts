@@ -186,8 +186,8 @@ export const DataSourceItemSchema = z.object({
   timestamps: z.array(z.number()).optional(),
   // Opacity support (0-1 range)  
   opacity: z.number().min(0).max(1).optional(),
-  // Custom URL parameters (WMS only)
-  parameters: z.record(z.string(), z.string()).optional(),
+  // Custom URL parameters (WMS only) — values may be strings, numbers, or booleans in real configs
+  parameters: z.record(z.string(), z.unknown()).optional(),
 }).passthrough() // Allow arbitrary additional properties (e.g., env, styles, time, transparent)
 .refine(
   (data) => {

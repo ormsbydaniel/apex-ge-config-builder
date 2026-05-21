@@ -31,12 +31,12 @@ export const rowsToRecord = (rows: ParameterRow[]): Record<string, string> => {
 };
 
 export const recordToRows = (
-  record?: Record<string, string>
+  record?: Record<string, unknown>
 ): ParameterRow[] => {
   if (!record) return [];
   return Object.entries(record).map(([key, value]) => ({
     key,
-    value: String(value ?? ''),
+    value: value == null ? '' : String(value),
   }));
 };
 
