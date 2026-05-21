@@ -23,6 +23,8 @@ export interface DataSourceItem {
   // Temporal support
   timestamps?: number[]; // Array of Unix timestamps
   useTimeParameter?: boolean; // Use TIME parameter from WMS/WMTS service
+  // Custom URL parameters (WMS only) — appended to outgoing tile/map requests
+  parameters?: Record<string, string>;
   // Opacity support (0-1 range)
   opacity?: number;
   // RGB composite rendering flag

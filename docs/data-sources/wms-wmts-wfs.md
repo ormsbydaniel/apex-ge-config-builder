@@ -44,6 +44,27 @@ provide:
 
 The placeholder in the URL field shows the expected shape per format.
 
+## Custom parameters (WMS only)
+
+WMS layers support an optional **Parameters** section in the data source
+editor where you can add arbitrary `key` / `value` pairs. These are appended
+to every map request — useful for authentication tokens, server-side style
+selection, or vendor extensions. Example:
+
+```jsonc
+{
+  "url": "https://eccharts.ecmwf.int/wms/",
+  "format": "wms",
+  "layers": "composition_pm2p5",
+  "parameters": { "token": "public", "styles": "default" }
+}
+```
+
+The reserved keys `time`, `layers`, `service`, `version`, and `request` are
+managed by the viewer and cannot be overridden here. WMTS and WFS layers do
+not expose this editor.
+
+
 ## Validation
 
 - The healthcheck calls `GetCapabilities` and confirms the named layer is

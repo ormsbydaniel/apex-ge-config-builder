@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { ServiceSelectionModal } from './components/ServiceSelectionModals';
 import { ServiceCardList } from './components/ServiceCardList';
 import { determineZLevel } from '@/utils/drawOrderUtils';
+import ParametersEditor, { ParameterRow, recordToRows, rowsToRecord } from './ParametersEditor';
 
 interface DataSourceFormProps {
   services: Service[];
@@ -131,6 +132,11 @@ const DataSourceForm = ({
     editingDataSource?.useTimeParameter ?? true
   );
 
+  // WMS custom URL parameters (key/value rows)
+  const [parameterRows, setParameterRows] = useState<ParameterRow[]>(
+    recordToRows(editingDataSource?.parameters)
+  );
+
   // Track dirty state for unsaved changes
   const [isDirty, setIsDirty] = useState(false);
 
@@ -164,6 +170,7 @@ const DataSourceForm = ({
       setSelectedPosition(editingDataSource.position || (requiresPosition(layerType) ? getDefaultPosition(layerType) : undefined));
       setManualStatisticsLevel(editingDataSource.level ?? statisticsLevel);
       setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
+      setParameterRows(recordToRows(editingDataSource.parameters));
       
       // Handle date initialization
       if (editingDataSource.timestamps && editingDataSource.timestamps.length > 0) {
@@ -437,7 +444,12 @@ const DataSourceForm = ({
       ...(needsPosition && selectedPosition && { position: selectedPosition }),
       ...(shouldAddAsStatistics && { level: levelToUse }),
       ...(needsManualTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] }),
-      ...(isWmsOrWmts && useTimeParameter && { useTimeParameter: true })
+      ...(isWmsOrWmts && useTimeParameter && { useTimeParameter: true }),
+      ...((): Record<string, unknown> => {
+        if (selectedFormat !== 'wms') return {};
+        const params = rowsToRecord(parameterRows);
+        return Object.keys(params).length > 0 ? { parameters: params } : {};
+      })()
     };
 
     // Clear unsaved changes flag
@@ -814,6 +826,11 @@ const DataSourceForm = ({
                     </div>
                   </div>
                 )}
+
+                {/* WMS custom URL parameters */}
+                {selectedFormat === 'wms' && (
+                  <ParametersEditor rows={parameterRows} onChange={setParameterRows} />
+                )}
               </div>
             )}
 
@@ -1042,6 +1059,11 @@ const DataSourceForm = ({
                       )}
                     </div>
                   </div>
+                )}
+
+                {/* WMS custom URL parameters */}
+                {selectedFormat === 'wms' && (
+                  <ParametersEditor rows={parameterRows} onChange={setParameterRows} />
                 )}
               </div>
             )}
