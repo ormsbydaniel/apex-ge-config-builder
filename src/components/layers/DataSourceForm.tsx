@@ -1060,6 +1060,11 @@ const DataSourceForm = ({
                     </div>
                   </div>
                 )}
+
+                {/* WMS custom URL parameters */}
+                {selectedFormat === 'wms' && (
+                  <ParametersEditor rows={parameterRows} onChange={setParameterRows} />
+                )}
               </div>
             )}
 
