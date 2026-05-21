@@ -1,69 +1,45 @@
-## Goal
+## Problem
 
-Allow users to attach arbitrary URL parameters (e.g. `token=public`, `styles=default`) to **WMS** data sources, and have those parameters round-trip cleanly through import, export, edit, and copy. Shape mirrors the ECMWF example config:
+After adding the WMS `parameters` editor, opening Preview shows the GE viewer with the *default* config — `layout` collapses to just `{ navigation: { title: "Geospatial Explorer - Custom Config" } }` in the console. The user reports this happens whether or not any WMS source actually has `parameters`, so it isn't an editor-runtime bug — something added in the last change is making the loaded config fail validation (or be replaced) on its way to the viewer.
 
-```jsonc
-"data": [{
-  "url": "https://eccharts.ecmwf.int/wms/",
-  "format": "wms",
-  "layers": "composition_pm2p5",
-  "parameters": { "token": "public", "styles": "default" }
-}]
-```
+Two likely culprits introduced by the previous change:
 
-WMTS is **not** in scope — the parameters editor only appears for WMS layers.
+1. **Strict `parameters` schema.** `DataSourceItemSchema` now declares `parameters: z.record(z.string(), z.string()).optional()`. Real WMS configs (including the ECMWF sample we worked from) carry values that aren't always strings — e.g. `transparent: true`, `format: "image/png"`, numeric `tiled` flags etc. Because `parameters` is now a *known* field on the schema, `.passthrough()` no longer rescues it: any non-string value makes the whole `DataSourceItem` fail to parse. Depending on which call site uses `parse` vs `safeParse`, this can cascade into the config being treated as invalid and replaced with the default.
 
-## Storage shape
+2. **Form save rebuilds the data source from scratch.** `handleSave` in `DataSourceForm.tsx` constructs `dataSourceItem` from a fixed set of fields and only re-adds `parameters` when `selectedFormat === 'wms'`. Any passthrough fields the user already had on the source (`env`, `styles`, `time`, `transparent`, vendor extensions, etc.) are silently dropped on every edit. The previous behaviour was the same shape, but now that we explicitly *care* about `parameters`, the regression on every other passthrough field is part of the same root issue and worth fixing in the same pass.
 
-Keep the existing object-map shape already present in the example: `parameters: Record<string, string>`. UI-side the user edits an ordered list of `{ key, value }` rows; we serialize to/from the object on save/load. Empty keys are skipped; duplicate keys take the last value.
+## Plan
 
-## Changes
+### 1. Loosen the WMS parameters schema
 
-### 1. Types & schema
+`src/schemas/configSchema.ts`:
 
-- `src/types/dataSource.ts` — add `parameters?: Record<string, string>` to `DataSourceItem`.
-- `src/schemas/configSchema.ts` — add `parameters: z.record(z.string(), z.string()).optional()` to `DataSourceItemSchema`. The schema already has `.passthrough()`, so existing configs with `parameters` survive validation — this just makes it first-class and typed.
+- Change `parameters: z.record(z.string(), z.string()).optional()` to `parameters: z.record(z.string(), z.unknown()).optional()` on `DataSourceItemSchema`.
+- Keep `.passthrough()` as-is.
 
-### 2. Data source form UI (`src/components/layers/DataSourceForm.tsx`)
+`src/types/dataSource.ts`:
 
-- Render a new "Parameters" section **only** when `selectedFormat === 'wms'` (both Direct Connection and From Service branches).
-- New component `src/components/layers/ParametersEditor.tsx`:
-  - List of rows with `Key` + `Value` inputs and a remove button per row.
-  - "Add parameter" button appends an empty row.
-  - Reserved keys blocked (case-insensitive) to avoid collisions with viewer-managed values: `time`, `layers`, `service`, `version`, `request`. Inline helper text explains.
-  - Emits `Record<string, string>` upward; marks the form dirty.
-- New form state in `DataSourceForm`:
-  - `parameters` rows state initialized from `editingDataSource?.parameters`.
-  - Re-init inside the existing `useEffect` that syncs from `editingDataSource` (project rule: dialog state initialized in useEffect watching the source prop).
-- On save (`dataSourceItem` construction):
-  - Convert rows to an object, drop empty keys.
-  - Spread `...(selectedFormat === 'wms' && Object.keys(paramsObj).length > 0 && { parameters: paramsObj })`.
-  - Single merged dispatch (project rule: avoid split dispatches).
-- If the user switches format away from WMS, `parameters` is dropped from the saved item.
+- Widen `parameters?: Record<string, string>` to `parameters?: Record<string, string | number | boolean>` to match real-world WMS values.
 
-### 3. Copy / duplicate layer
+The UI editor continues to read/write strings (that's correct for a textbox), but the *schema* no longer rejects existing configs that store booleans/numbers.
 
-Audit `src/utils/` and layer-card actions for copy/duplicate paths. Because `parameters` is a plain JSON object and existing copy paths use spread or deep JSON clone, no change is expected — verify only and add a deep clone if a shallow spread is found.
+### 2. Preserve passthrough fields on edit
 
-### 4. Import / export
+`src/components/layers/DataSourceForm.tsx`, `handleSave`:
 
-- Import: Zod passthrough already preserves the field; the explicit schema entry types it. No transformer change in `src/utils/importTransformations/`.
-- Export: existing pipeline serializes the full `DataSourceItem`. Per the Export Options ordering rule, place `parameters` after `layers` / `useTimeParameter` in the sort utility.
+- When `editingDataSource` exists, start the new object with `...editingDataSource` and then overwrite the known fields (`url`, `format`, `zIndex`, `layers`, `position`, `level`, `timestamps`, `useTimeParameter`, `parameters`).
+- Explicitly `delete` fields that no longer apply after a format change (e.g. drop `parameters` when `selectedFormat !== 'wms'`, drop `useTimeParameter` when not WMS/WMTS, drop `timestamps` when using TIME parameter, drop `layers` for non-OGC formats).
+- For the *create* path (no `editingDataSource`), keep the current explicit construction.
 
-### 5. Verification
+### 3. Verify
 
-- Re-import the supplied `config_ecmwf_*.json`; the two CAMS WMS layers should round-trip with `parameters` intact.
-- Edit one via the UI, add a new key, save, re-export — confirm presence and order.
-- Duplicate a WMS layer; confirm parameters copied.
-- Switch a layer's format from `wms` to `xyz` or `wmts`; parameters should be dropped on save and the UI section should disappear.
-- Open a WMTS layer in the editor — no Parameters section is shown.
+- Reload the ECMWF config, open Preview, confirm the viewer receives the full layout/sources (not the default).
+- Edit a non-WMS source (e.g. an XYZ base layer) that has vendor passthrough fields, save, re-open — passthrough fields still present.
+- Edit a WMS source, add/remove parameters, save — parameters object round-trips; switching its format to `xyz` drops the parameters key on save.
+- Re-export the config and diff against the original — no field loss beyond intentional edits.
 
-### 6. Docs
+### Out of scope
 
-- `docs/data-sources/wms-wmts-wfs.md` — short "Custom parameters (WMS)" subsection explaining use cases (auth tokens, style overrides) and that this is WMS-only.
-
-## Out of scope
-
-- WMTS and WFS parameter editors.
-- Per-parameter typing (numbers/booleans) — values stored as strings; viewer appends them as query string params.
-- Templating / variable substitution in values.
+- Reworking how `useValidatedConfig` reports schema errors.
+- WMTS/WFS parameter editors.
+- Auto-converting historical string values like `"true"` to booleans (kept as-is to avoid surprises).
