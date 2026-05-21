@@ -444,7 +444,12 @@ const DataSourceForm = ({
       ...(needsPosition && selectedPosition && { position: selectedPosition }),
       ...(shouldAddAsStatistics && { level: levelToUse }),
       ...(needsManualTimestamp && selectedDate && { timestamps: [Math.floor(selectedDate.getTime() / 1000)] }),
-      ...(isWmsOrWmts && useTimeParameter && { useTimeParameter: true })
+      ...(isWmsOrWmts && useTimeParameter && { useTimeParameter: true }),
+      ...((): Record<string, unknown> => {
+        if (selectedFormat !== 'wms') return {};
+        const params = rowsToRecord(parameterRows);
+        return Object.keys(params).length > 0 ? { parameters: params } : {};
+      })()
     };
 
     // Clear unsaved changes flag
