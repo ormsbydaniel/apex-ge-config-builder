@@ -1,6 +1,5 @@
 ---
 title: WMS / WMTS / WFS
-status: draft
 ---
 # WMS / WMTS / WFS
 
@@ -47,22 +46,47 @@ The placeholder in the URL field shows the expected shape per format.
 ## Custom parameters (WMS only)
 
 WMS layers support an optional **Parameters** section in the data source
-editor where you can add arbitrary `key` / `value` pairs. These are appended
-to every map request — useful for authentication tokens, server-side style
-selection, or vendor extensions. Example:
+editor (visible after choosing **WMS** as the data format). Click
+**Add Parameter** to create `key` / `value` pairs. These are appended to every
+map request made by the deployed Explorer — useful for authentication tokens,
+server-side style selection, or vendor extensions.
+
+Values can be strings, numbers, or booleans. Example configuration:
 
 ```jsonc
 {
   "url": "https://eccharts.ecmwf.int/wms/",
   "format": "wms",
   "layers": "composition_pm2p5",
-  "parameters": { "token": "public", "styles": "default" }
+  "parameters": {
+    "token": "public",
+    "styles": "default",
+    "transparent": true,
+    "tiled": 1
+  }
 }
 ```
 
-The reserved keys `time`, `layers`, `service`, `version`, and `request` are
-managed by the viewer and cannot be overridden here. WMTS and WFS layers do
-not expose this editor.
+### Reserved keys
+
+The following keys are managed automatically by the viewer and cannot be
+overridden through custom parameters:
+
+- `time`
+- `layers`
+- `service`
+- `version`
+- `request`
+
+### Persistence
+
+Parameters are preserved across all builder operations:
+
+- **Import / Export** — included in the exported JSON and restored on import.
+- **Copying layers** — copied to the duplicate layer.
+- **Editing** — retained when you reopen a data source for editing.
+
+WMTS and WFS layers do not expose this editor.
 
 
 ## Validation
