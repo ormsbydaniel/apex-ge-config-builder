@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { ServiceSelectionModal } from './components/ServiceSelectionModals';
 import { ServiceCardList } from './components/ServiceCardList';
 import { determineZLevel } from '@/utils/drawOrderUtils';
+import ParametersEditor, { ParameterRow, recordToRows, rowsToRecord } from './ParametersEditor';
 
 interface DataSourceFormProps {
   services: Service[];
