@@ -1,6 +1,5 @@
 ---
 title: WMS / WMTS / WFS
-status: draft
 ---
 # WMS / WMTS / WFS
 
