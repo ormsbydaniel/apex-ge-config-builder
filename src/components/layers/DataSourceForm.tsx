@@ -170,6 +170,7 @@ const DataSourceForm = ({
       setSelectedPosition(editingDataSource.position || (requiresPosition(layerType) ? getDefaultPosition(layerType) : undefined));
       setManualStatisticsLevel(editingDataSource.level ?? statisticsLevel);
       setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
+      setParameterRows(recordToRows(editingDataSource.parameters));
       
       // Handle date initialization
       if (editingDataSource.timestamps && editingDataSource.timestamps.length > 0) {
