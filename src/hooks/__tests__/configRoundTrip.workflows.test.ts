@@ -23,7 +23,7 @@ describe('config round-trip with workflows', () => {
 
   it('preserves Shape A (meta + data) and Shape B (serviceDetails) workflow entries', () => {
     const parsed = ConfigurationSchema.parse(fixture);
-    const allWorkflows = parsed.sources.flatMap((s: any) => s.workflows ?? []);
+    const allWorkflows = (parsed as any).workflows ?? [];
     expect(allWorkflows.length).toBeGreaterThan(0);
 
     const shapeA = allWorkflows.find((w: any) => w.meta && Array.isArray(w.data));
@@ -42,8 +42,8 @@ describe('config round-trip with workflows', () => {
       JSON.parse(JSON.stringify(parsed))
     );
 
-    const originalWorkflows = parsed.sources.flatMap((s: any) => s.workflows ?? []);
-    const reparsedWorkflows = reparsed.sources.flatMap((s: any) => s.workflows ?? []);
+    const originalWorkflows = (parsed as any).workflows ?? [];
+    const reparsedWorkflows = re(parsed as any).workflows ?? [];
 
     expect(reparsedWorkflows.length).toBe(originalWorkflows.length);
     originalWorkflows.forEach((wf: any, i: number) => {
