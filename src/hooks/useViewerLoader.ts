@@ -21,7 +21,9 @@ interface UseViewerLoaderReturn {
   error: string | null;
   reload: () => void;
   iframeRef: React.RefObject<HTMLIFrameElement | null>;
+  deliveredConfig: any;
 }
+
 
 /**
  * Determine if a version uses the new window.explorerConfig pattern (3.6.0+)
