@@ -1,45 +1,41 @@
-## Problem
+# Investigate Preview config-loss regression
 
-After adding the WMS `parameters` editor, opening Preview shows the GE viewer with the *default* config — `layout` collapses to just `{ navigation: { title: "Geospatial Explorer - Custom Config" } }` in the console. The user reports this happens whether or not any WMS source actually has `parameters`, so it isn't an editor-runtime bug — something added in the last change is making the loaded config fail validation (or be replaced) on its way to the viewer.
+## What we know
 
-Two likely culprits introduced by the previous change:
-
-1. **Strict `parameters` schema.** `DataSourceItemSchema` now declares `parameters: z.record(z.string(), z.string()).optional()`. Real WMS configs (including the ECMWF sample we worked from) carry values that aren't always strings — e.g. `transparent: true`, `format: "image/png"`, numeric `tiled` flags etc. Because `parameters` is now a *known* field on the schema, `.passthrough()` no longer rescues it: any non-string value makes the whole `DataSourceItem` fail to parse. Depending on which call site uses `parse` vs `safeParse`, this can cascade into the config being treated as invalid and replaced with the default.
-
-2. **Form save rebuilds the data source from scratch.** `handleSave` in `DataSourceForm.tsx` constructs `dataSourceItem` from a fixed set of fields and only re-adds `parameters` when `selectedFormat === 'wms'`. Any passthrough fields the user already had on the source (`env`, `styles`, `time`, `transparent`, vendor extensions, etc.) are silently dropped on every edit. The previous behaviour was the same shape, but now that we explicitly *care* about `parameters`, the regression on every other passthrough field is part of the same root issue and worth fixing in the same pass.
+- Your last prompt was docs-only. Diffing the last commit confirms only `docs/data-sources/wms-wmts-wfs.md` changed. A markdown change cannot cause a runtime regression in the viewer pipeline.
+- The earlier "WMS parameters" change (loosened schema + preserve passthrough on edit) is still in place — the symptoms you are seeing now are the **same** symptoms as before that fix, which means either:
+  1. The previous fix did not actually cover the code path you are exercising now, **or**
+  2. The bug is reproduced by a different trigger (e.g. opening Preview from a particular state, or with a config that contains a field the schema still rejects).
+- Console logs show the Preview page renders **twice**: first with the correct `SEF Demo - Urban Environments` layout, then with the default `Geospatial Explorer - Custom Config`. That means something is mutating `ConfigContext` after the config has loaded — it is not the viewer dropping the config, it is the builder's own state being reset.
 
 ## Plan
 
-### 1. Loosen the WMS parameters schema
+1. **Add narrow, one-shot logging** (no render-loop risk) at three points:
+   - `ConfigContext` reducer: log every `LOAD_CONFIG` / `RESET_CONFIG` dispatch with `payload.layout?.navigation?.title` and a short stack trace.
+   - `useValidatedConfig`: log only when it produces a result whose source count or layout title differs from the input (it should never).
+   - `Preview.tsx`: log the `config` identity each render alongside the existing layout log.
+   This pinpoints whether the reset is a dispatch or a stale-context read.
 
-`src/schemas/configSchema.ts`:
+2. **Reproduce with the ECMWF config**:
+   - Load the SEF config.
+   - Click Preview.
+   - Capture the new logs and identify which dispatch fires between the two `[Config Builder Preview]` renders.
 
-- Change `parameters: z.record(z.string(), z.string()).optional()` to `parameters: z.record(z.string(), z.unknown()).optional()` on `DataSourceItemSchema`.
-- Keep `.passthrough()` as-is.
+3. **Fix at the source**. Likely candidates based on a quick scan:
+   - `ConfigManagement.tsx` line 30 and `config/ConfigSummary.tsx` / `HomeTab.tsx` all dispatch `RESET_CONFIG` — verify none of them are being triggered by an effect on Preview entry.
+   - `useConfigImport.ts` re-dispatches `LOAD_CONFIG`; check it is not re-running on navigation.
+   - Schema validation: if any field in the SEF config still fails `DataSourceItemSchema` (despite the `parameters` widening), the loader may be replacing the config with defaults. Run the SEF config through `ConfigurationSchema.safeParse` in a throwaway script and dump the first error path.
 
-`src/types/dataSource.ts`:
+4. **Remove the diagnostic logs** once the root cause is found and patched.
 
-- Widen `parameters?: Record<string, string>` to `parameters?: Record<string, string | number | boolean>` to match real-world WMS values.
+5. **Verify**: load the SEF config → Preview → confirm the layout title and full sources reach the viewer on every navigation, including a second Preview round-trip.
 
-The UI editor continues to read/write strings (that's correct for a textbox), but the *schema* no longer rejects existing configs that store booleans/numbers.
+## Out of scope
 
-### 2. Preserve passthrough fields on edit
+- Any further changes to the WMS parameter editor or schema (the previous edit already widened `parameters` to `z.unknown()`).
+- Refactoring `ConfigContext` or the validation pipeline beyond the targeted fix.
 
-`src/components/layers/DataSourceForm.tsx`, `handleSave`:
+## Technical notes
 
-- When `editingDataSource` exists, start the new object with `...editingDataSource` and then overwrite the known fields (`url`, `format`, `zIndex`, `layers`, `position`, `level`, `timestamps`, `useTimeParameter`, `parameters`).
-- Explicitly `delete` fields that no longer apply after a format change (e.g. drop `parameters` when `selectedFormat !== 'wms'`, drop `useTimeParameter` when not WMS/WMTS, drop `timestamps` when using TIME parameter, drop `layers` for non-OGC formats).
-- For the *create* path (no `editingDataSource`), keep the current explicit construction.
-
-### 3. Verify
-
-- Reload the ECMWF config, open Preview, confirm the viewer receives the full layout/sources (not the default).
-- Edit a non-WMS source (e.g. an XYZ base layer) that has vendor passthrough fields, save, re-open — passthrough fields still present.
-- Edit a WMS source, add/remove parameters, save — parameters object round-trips; switching its format to `xyz` drops the parameters key on save.
-- Re-export the config and diff against the original — no field loss beyond intentional edits.
-
-### Out of scope
-
-- Reworking how `useValidatedConfig` reports schema errors.
-- WMTS/WFS parameter editors.
-- Auto-converting historical string values like `"true"` to booleans (kept as-is to avoid surprises).
+- All logging must be guarded so it fires only on dispatches / mount, never inside render bodies that re-run on every keystroke — per the project's logging guideline.
+- The fix should not touch documentation files; this regression is purely in the runtime config flow.
