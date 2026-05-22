@@ -18,6 +18,7 @@ interface SubmissionFormData {
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
+  zoomToCenterExtent?: [number, number, number, number];
   download?: string;
   temporalControls: boolean;
   constraintSlider: boolean;
