@@ -1,0 +1,43 @@
+import { describe, it, expect } from 'vitest';
+import { ConfigurationSchema } from '@/schemas/configSchema';
+import fixture from '@/__fixtures__/config_workflow_execution.json';
+
+describe('config round-trip with workflows', () => {
+  it('parses the user fixture with no schema errors', () => {
+    const result = ConfigurationSchema.safeParse(fixture);
+    if (!result.success) {
+      console.error(JSON.stringify(result.error.issues, null, 2));
+    }
+    expect(result.success).toBe(true);
+  });
+
+  it('preserves Shape A (meta + data) and Shape B (serviceDetails) workflow entries', () => {
+    const parsed = ConfigurationSchema.parse(fixture);
+    const allWorkflows = parsed.sources.flatMap((s: any) => s.workflows ?? []);
+    expect(allWorkflows.length).toBeGreaterThan(0);
+
+    const shapeA = allWorkflows.find((w: any) => w.meta && Array.isArray(w.data));
+    expect(shapeA).toBeDefined();
+    expect(shapeA!.serviceId).toBeTruthy();
+    expect(shapeA!.serviceProvider).toBeTruthy();
+
+    const shapeB = allWorkflows.find((w: any) => w.serviceDetails);
+    expect(shapeB).toBeDefined();
+    expect(shapeB!.serviceDetails!.endpoint).toBeTruthy();
+  });
+
+  it('round-trips workflow entries through JSON serialise + re-validate', () => {
+    const parsed = ConfigurationSchema.parse(fixture);
+    const reparsed = ConfigurationSchema.parse(
+      JSON.parse(JSON.stringify(parsed))
+    );
+
+    const originalWorkflows = parsed.sources.flatMap((s: any) => s.workflows ?? []);
+    const reparsedWorkflows = reparsed.sources.flatMap((s: any) => s.workflows ?? []);
+
+    expect(reparsedWorkflows.length).toBe(originalWorkflows.length);
+    originalWorkflows.forEach((wf: any, i: number) => {
+      expect(reparsedWorkflows[i]).toEqual(wf);
+    });
+  });
+});
