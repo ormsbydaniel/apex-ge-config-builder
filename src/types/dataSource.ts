@@ -82,7 +82,9 @@ export interface ServiceDetails {
 }
 
 // Workflow configuration — mirrors the full source surface (all optional)
-// plus serviceId / serviceProvider / serviceDetails.
+// plus serviceId / serviceProvider / serviceDetails. Source-shape fields
+// are accepted via the index signature so this stays in sync with the
+// canonical SourceShape in configSchema.ts without manual duplication.
 export interface WorkflowItem {
   serviceId?: string;
   serviceProvider?: string;
@@ -91,23 +93,7 @@ export interface WorkflowItem {
   zIndex?: number;
   service?: string;
   label?: string;
-  // Full optional source surface
-  name?: string;
-  isActive?: boolean;
-  data?: DataField;
-  statistics?: any;
-  constraints?: ConstraintSourceItem[];
-  charts?: any[];
-  meta?: any;
-  layout?: any;
-  hasFeatureStatistics?: boolean;
-  isBaseLayer?: boolean;
-  exclusivitySets?: string[];
-  isSwipeLayer?: boolean;
-  isMirrorLayer?: boolean;
-  isSpotlightLayer?: boolean;
-  timeframe?: TimeframeType;
-  defaultTimestamp?: number;
-  // Allow arbitrary additional properties
+  // Full optional source surface (data, meta, layout, statistics, charts,
+  // constraints, layer-type flags, timeframe, etc.) accepted via passthrough.
   [key: string]: any;
 }
