@@ -236,11 +236,11 @@ const Preview = () => {
           <Button
             onClick={handleInspectConfig}
             variant="outline"
-            size="sm"
+            size="icon"
+            className="h-8 w-8"
             title="Inspect delivered config"
           >
-            <FileJson className="h-4 w-4 mr-2" />
-            Inspect Config
+            <FileJson className="h-4 w-4" />
           </Button>
 
           <div className="h-6 w-px bg-border" />
