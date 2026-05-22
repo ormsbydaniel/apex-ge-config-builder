@@ -12,6 +12,7 @@ interface LayerCardFormData {
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
+  zoomToCenterExtent?: [number, number, number, number];
   download?: string;
   temporalControls: boolean;
   constraintSlider: boolean;
