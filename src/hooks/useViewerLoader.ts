@@ -100,7 +100,7 @@ export function useViewerLoader({
         const iframe = iframeRef.current;
         if (iframe?.contentWindow && configRef.current) {
           iframe.contentWindow.postMessage(
-            { type: 'apex-viewer-config-delivery', config: configRef.current },
+            { type: 'apex-viewer-config-delivery', config: withEnv(configRef.current) },
             '*'
           );
         }
