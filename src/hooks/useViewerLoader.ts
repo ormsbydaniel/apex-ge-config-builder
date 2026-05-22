@@ -81,7 +81,7 @@ export function useViewerLoader({
     try {
       const iframeWindow = iframe.contentWindow as any;
       // Update the global config
-      iframeWindow.explorerConfig = configRef.current;
+      iframeWindow.explorerConfig = withEnv(configRef.current);
       // Invalidate the React Query cache so the viewer re-reads it
       if (iframeWindow.__queryClient) {
         iframeWindow.__queryClient.invalidateQueries({ queryKey: ['config'] });
