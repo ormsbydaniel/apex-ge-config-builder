@@ -21,11 +21,11 @@ Goal: users can choose between "Zoom to layer bounds" (boolean true) and "Zoom t
 When the "Zoom to layer" / "Zoom to Center" switch is ON, a second row appears below it with two radio-style choices:
 
 - **Layer bounds** (default) — writes `zoomToCenter: true`
-- **Custom extent** — reveals four numeric inputs for `[xmin, ymin, xmax, ymax]` and writes `zoomToCenter: { extent: [xmin, ymin, xmax, ymax] }`
+- **Custom extent** — reveals a single text input for typing the extent as four comma-separated numbers (e.g. `0.0, 52, 1.0, 53.0`) and writes `zoomToCenter: { extent: [xmin, ymin, xmax, ymax] }`
 
-If the switch is turned OFF, the sub-choice and inputs collapse and the field is removed from controls.
+If the switch is turned OFF, the sub-choice and input collapse and the field is removed from controls.
 
-If the user switches from "Custom extent" back to "Layer bounds", the previously entered extent values are retained in local state so they are not lost if the user toggles back.
+If the user switches from "Custom extent" back to "Layer bounds", the previously entered text is retained in local state so it is not lost if the user toggles back.
 
 ### 2.2 ControlsEditorDialog.tsx
 
