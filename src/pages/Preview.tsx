@@ -111,11 +111,32 @@ const Preview = () => {
     setShowUpdateDialog(false);
   };
 
-  const { isLoading, isReady, error, reload, iframeRef } = useViewerLoader({
+  const { isLoading, isReady, error, reload, iframeRef, deliveredConfig } = useViewerLoader({
     version: selectedVersion,
     config: viewerConfig,
     enabled: selectedVersion !== '',
   });
+
+  const [showConfigDialog, setShowConfigDialog] = useState(false);
+  const deliveredConfigJson = useMemo(
+    () => JSON.stringify(deliveredConfig, null, 2),
+    [deliveredConfig]
+  );
+
+  const handleInspectConfig = () => {
+    console.log('[Config Builder] Delivered config:', deliveredConfig);
+    setShowConfigDialog(true);
+  };
+
+  const handleCopyConfig = async () => {
+    try {
+      await navigator.clipboard.writeText(deliveredConfigJson);
+      toast.success('Config JSON copied to clipboard');
+    } catch {
+      toast.error('Failed to copy to clipboard');
+    }
+  };
+
 
   if (isLoadingVersions) {
     return (
