@@ -21,7 +21,7 @@ describe('WorkflowItemSchema (canonical SourceShape)', () => {
         categories: [{ color: '#fff', label: 'A', value: 1 }],
       },
       data: [
-        { format: 'cog', zIndex: 100, convertToRGB: true, bands: [1, 2, 3] },
+        { format: 'cog', zIndex: 100, url: 'https://x/a.tif', convertToRGB: true, bands: [1, 2, 3] },
       ],
     };
     const result = DataSourceSchema.safeParse(wrap([shapeA]));
@@ -48,7 +48,7 @@ describe('WorkflowItemSchema (canonical SourceShape)', () => {
       serviceProvider: 'provider',
       serviceDetails: { endpoint: 'https://x' },
       meta: { description: 'd', attribution: { text: 't' } },
-      data: [{ format: 'cog', zIndex: 1 }],
+      data: [{ format: 'cog', zIndex: 1, url: 'https://x/b.tif' }],
       statistics: [],
       constraints: [],
       charts: [],
@@ -77,7 +77,7 @@ describe('WorkflowItemSchema (canonical SourceShape)', () => {
       serviceProvider: 'p',
       serviceDetails: { endpoint: 'https://x', namespace: 'n' },
       meta: { description: 'd', attribution: { text: 't' }, units: 'm' },
-      data: [{ format: 'cog', zIndex: 5, bands: [1, 2, 3] }],
+      data: [{ format: 'cog', zIndex: 5, url: 'https://x/c.tif', bands: [1,2,3] }],
     };
     const parsed = DataSourceSchema.parse(wrap([entry])) as any;
     const wf = parsed.workflows[0];
