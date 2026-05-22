@@ -59,13 +59,9 @@ export const useValidatedConfig = () => {
       ...(constraint.bandIndex !== undefined && { bandIndex: constraint.bandIndex })
     }));
 
-    // Validate workflows array if it exists
-    const validatedWorkflows = source.workflows?.map(workflow => ({
-      ...workflow,
-      zIndex: workflow.zIndex ?? 10,
-      service: workflow.service || '',
-      label: workflow.label || ''
-    }));
+    // Pass workflows through unchanged — the schema accepts the full source
+    // surface plus serviceId/serviceProvider/serviceDetails, so no defaulting.
+    const validatedWorkflows = source.workflows?.map(workflow => ({ ...workflow }));
 
     // Enhanced base layer detection
     const isBaseLayer = source.isBaseLayer === true;
