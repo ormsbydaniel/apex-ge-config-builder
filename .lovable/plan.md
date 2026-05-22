@@ -1,37 +1,23 @@
-## Goal
+# Inspect Config Delivered to Viewer Iframe
 
-Make the viewer receive a fixed `env` object (Keycloak / dispatcher / feature flags / version) merged into the config it consumes. The env values are not user-editable, not part of import/export, and not stored in the schema — they are constants in the builder source.
+Add a way to inspect the exact config (including the merged `env` object) that gets delivered to the viewer iframe, accessible from the preview header bar next to the version selector.
 
-## Approach
+## Changes
 
-1. **New file `src/config/viewerEnv.ts`** — single source of truth for the env constants:
-   ```ts
-   export const VIEWER_ENV = {
-     KEYCLOAK_URL: 'https://auth.dev.apex.esa.int',
-     KEYCLOAK_CLIENT_ID: 'apex-explorer',
-     KEYCLOAK_REALM: 'apex',
-     APEX_DISPATCHER_API_BASE_URL: 'dispatch-api.dev.apex.esa.int',
-     FEATURE_FLAGS: { KEYCLOAK_ACTIVE: true },
-     VERSION: '3.0.0',
-   } as const;
-   ```
+### 1. `src/hooks/useViewerLoader.ts`
+- Export a stable reference to the "delivered config" (config merged with `VIEWER_ENV` via `withEnv`). Add `deliveredConfig` to the hook's return value, computed via `useMemo` from the incoming `config` so consumers always see exactly what is sent to the iframe.
+- Add a one-line `console.log('[Config Builder] Delivered config:', deliveredConfig)` whenever the delivered config changes (gated on `isReady` to avoid noise during initial mount).
 
-2. **`src/hooks/useViewerLoader.ts`** — wrap the delivered config so `env` rides along but never mutates the original config object:
-   - Add a helper `withEnv(config)` that returns `{ ...config, env: VIEWER_ENV }`.
-   - Use it in all three delivery paths:
-     - `apex-viewer-config-delivery` postMessage payload (modern host handshake)
-     - `setExplorerConfig` (modern, sets `iframe.contentWindow.explorerConfig`)
-     - `invalidateViewerConfig` (live updates after ready)
-     - `sendConfigLegacy` `apex-viewer-config` postMessage (legacy bundles)
-   - Source config in `configRef` stays untouched so export/import is unaffected.
+### 2. `src/pages/Preview.tsx`
+- Read `deliveredConfig` from `useViewerLoader`.
+- Add a small icon button (Lucide `Code2` or `FileJson`) in the header bar, placed between the version `Select` and the status badges, with a tooltip "Inspect delivered config".
+- Clicking it opens a `Dialog` (shadcn) showing:
+  - Title: "Config delivered to viewer"
+  - A scrollable `<pre>` block with `JSON.stringify(deliveredConfig, null, 2)`
+  - A "Copy JSON" button using `navigator.clipboard.writeText` with a toast confirmation
+- Also log the same payload to the console when the dialog opens, so users who prefer DevTools have it handy.
 
-3. **Out of scope (intentionally)**
-   - No schema, type, validation, or export changes.
-   - No UI for editing env.
-   - No changes to `public/viewer/viewer-host.html` — it already forwards whatever the parent delivers into `window.explorerConfig`, and the viewer bundle will read `config.env`.
-
-## Technical notes
-
-- `env` is attached as a sibling of existing top-level fields (`sources`, `layout`, `meta`, `workflows`, …). Since it is only added at delivery time, it cannot leak into the round-trip JSON or be stripped by sanitisation.
-- Keep the constants in a dedicated file (not inline in the hook) so a future "dev vs prod" swap is a one-file change.
-- No new dependencies, no test changes required (existing round-trip tests continue to assert env is absent from exported configs).
+## Out of scope
+- No changes to what gets delivered, only visibility.
+- No changes to `viewer-host.html` or the viewer bundle.
+- No persistence of the dialog state.

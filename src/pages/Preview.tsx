@@ -7,9 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle, RefreshCw, FileJson, Copy } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { 
   getAvailableViewerVersions, 
   getLatestVersion, 
@@ -108,11 +111,32 @@ const Preview = () => {
     setShowUpdateDialog(false);
   };
 
-  const { isLoading, isReady, error, reload, iframeRef } = useViewerLoader({
+  const { isLoading, isReady, error, reload, iframeRef, deliveredConfig } = useViewerLoader({
     version: selectedVersion,
     config: viewerConfig,
     enabled: selectedVersion !== '',
   });
+
+  const [showConfigDialog, setShowConfigDialog] = useState(false);
+  const deliveredConfigJson = useMemo(
+    () => JSON.stringify(deliveredConfig, null, 2),
+    [deliveredConfig]
+  );
+
+  const handleInspectConfig = () => {
+    console.log('[Config Builder] Delivered config:', deliveredConfig);
+    setShowConfigDialog(true);
+  };
+
+  const handleCopyConfig = async () => {
+    try {
+      await navigator.clipboard.writeText(deliveredConfigJson);
+      toast.success('Config JSON copied to clipboard');
+    } catch {
+      toast.error('Failed to copy to clipboard');
+    }
+  };
+
 
   if (isLoadingVersions) {
     return (
@@ -209,6 +233,20 @@ const Preview = () => {
 
           <div className="h-6 w-px bg-border" />
 
+          <Button
+            onClick={handleInspectConfig}
+            variant="outline"
+            size="sm"
+            title="Inspect delivered config"
+          >
+            <FileJson className="h-4 w-4 mr-2" />
+            Inspect Config
+          </Button>
+
+          <div className="h-6 w-px bg-border" />
+
+
+
           <div className="flex items-center gap-3">
             {isLoading && (
               <Badge variant="secondary" className="flex items-center gap-2">
@@ -260,8 +298,26 @@ const Preview = () => {
             title="Apex Viewer"
           />
       </div>
+
+      <Dialog open={showConfigDialog} onOpenChange={setShowConfigDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between gap-4 pr-6">
+              <span>Config delivered to viewer</span>
+              <Button onClick={handleCopyConfig} variant="outline" size="sm">
+                <Copy className="h-4 w-4 mr-2" />
+                Copy JSON
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          <pre className="flex-1 overflow-auto rounded-md bg-muted p-4 text-xs font-mono">
+            {deliveredConfigJson}
+          </pre>
+        </DialogContent>
+      </Dialog>
     </div>
     </>
+
   );
 };
 
