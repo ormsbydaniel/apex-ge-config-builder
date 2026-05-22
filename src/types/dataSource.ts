@@ -89,10 +89,6 @@ export interface WorkflowItem {
   serviceId?: string;
   serviceProvider?: string;
   serviceDetails?: ServiceDetails;
-  // Legacy fields kept for backward compatibility
-  zIndex?: number;
-  service?: string;
-  label?: string;
   // Full optional source surface (data, meta, layout, statistics, charts,
   // constraints, layer-type flags, timeframe, etc.) accepted via passthrough.
   [key: string]: any;
