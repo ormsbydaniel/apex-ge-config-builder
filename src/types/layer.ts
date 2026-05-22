@@ -44,7 +44,9 @@ export interface DataSourceLayout {
     };
     controls?: {
       opacitySlider?: boolean;
-      zoomToCenter?: boolean;
+      // boolean for default zoom-to-layer behaviour, or { extent: [xmin,ymin,xmax,ymax] }
+      // for a custom bounding box
+      zoomToCenter?: boolean | { extent: [number, number, number, number] };
       download?: string;
       temporalControls?: boolean;
       constraintSlider?: boolean;
@@ -59,7 +61,7 @@ export interface DataSourceLayout {
     };
     controls?: {
       opacitySlider?: boolean;
-      zoomToCenter?: boolean;
+      zoomToCenter?: boolean | { extent: [number, number, number, number] };
       download?: string;
       temporalControls?: boolean;
       constraintSlider?: boolean;
