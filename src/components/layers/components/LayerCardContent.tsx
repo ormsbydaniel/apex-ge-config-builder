@@ -50,13 +50,6 @@ const LayerCardContent = ({
   onMoveConstraintDown,
   onMoveConstraintToTop,
   onMoveConstraintToBottom,
-  onAddWorkflow,
-  onRemoveWorkflow,
-  onUpdateWorkflow,
-  onMoveWorkflowUp,
-  onMoveWorkflowDown,
-  onMoveWorkflowToTop,
-  onMoveWorkflowToBottom,
   onAddChart,
   onRemoveChart,
   onEditChart
