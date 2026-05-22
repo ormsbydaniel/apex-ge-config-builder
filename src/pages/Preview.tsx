@@ -233,6 +233,20 @@ const Preview = () => {
 
           <div className="h-6 w-px bg-border" />
 
+          <Button
+            onClick={handleInspectConfig}
+            variant="outline"
+            size="sm"
+            title="Inspect delivered config"
+          >
+            <FileJson className="h-4 w-4 mr-2" />
+            Inspect Config
+          </Button>
+
+          <div className="h-6 w-px bg-border" />
+
+
+
           <div className="flex items-center gap-3">
             {isLoading && (
               <Badge variant="secondary" className="flex items-center gap-2">
