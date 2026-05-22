@@ -39,7 +39,7 @@ const ControlsEditorDialog = ({
   const controls = isControlsObject ? rawControls : undefined;
 
   const [toggleable, setToggleable] = useState(!!source.layout?.layerCard?.toggleable);
-  const [zoomToCenter, setZoomToCenter] = useState(!!controls?.zoomToCenter);
+  const [zoomToCenter, setZoomToCenter] = useState(!!(controls as any)?.zoomToCenter);
   const [opacitySlider, setOpacitySlider] = useState(!!controls?.opacitySlider);
   const [blendControls, setBlendControls] = useState(!!controls?.blendControls);
   const [constraintSlider, setConstraintSlider] = useState(!!controls?.constraintSlider);
