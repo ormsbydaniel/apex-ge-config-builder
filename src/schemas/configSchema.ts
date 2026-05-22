@@ -365,11 +365,20 @@ const LegendSchema = z.object({
   }
 );
 
+// zoomToCenter accepts either a boolean toggle or a custom extent object
+// e.g. { extent: [xmin, ymin, xmax, ymax] }
+const ZoomToCenterSchema = z.union([
+  z.boolean(),
+  z.object({
+    extent: z.tuple([z.number(), z.number(), z.number(), z.number()]),
+  }),
+]);
+
 // Controls schema (reusable)
 const ControlsSchema = z.union([
   z.object({
     opacitySlider: z.boolean().optional(),
-    zoomToCenter: z.boolean().optional(),
+    zoomToCenter: ZoomToCenterSchema.optional(),
     download: z.string().optional(),
     temporalControls: z.boolean().optional(),
     constraintSlider: z.boolean().optional(),
