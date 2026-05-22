@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
 import { VIEWER_ENV } from '@/config/viewerEnv';
 import { compareVersions } from '@/utils/viewerVersions';
@@ -7,6 +7,7 @@ import { compareVersions } from '@/utils/viewerVersions';
 // the source object (so export/round-trip stays clean).
 const withEnv = (config: any) =>
   config ? { ...config, env: VIEWER_ENV } : config;
+
 
 interface UseViewerLoaderProps {
   version: string;
