@@ -41,6 +41,24 @@ export const useConfigExport = () => {
         exclusivitySets: config.exclusivitySets,
         ...(config.mapConstraints && { mapConstraints: config.mapConstraints }),
         ...(config.projections?.length && { projections: config.projections }),
+        // Top-level workflows array — sanitise URLs inside any nested data/statistics
+        ...((config as any).workflows && {
+          workflows: (config as any).workflows.map((wf: any) => ({
+            ...wf,
+            ...(Array.isArray(wf.data) && {
+              data: wf.data.map((item: any) => ({
+                ...item,
+                url: item.url ? sanitizeUrl(item.url) : item.url,
+              })),
+            }),
+            ...(Array.isArray(wf.statistics) && {
+              statistics: wf.statistics.map((item: any) => ({
+                ...item,
+                url: item.url ? sanitizeUrl(item.url) : item.url,
+              })),
+            }),
+          })),
+        }),
         // Export services without capabilities and with sanitized URLs
         services: config.services.map(service => ({
           id: service.id,
