@@ -171,6 +171,7 @@ const LayerCardForm = ({
     let layerCard = createLayerFromFormData({
       ...formData,
       zoomToCenter: (formData as any).zoomToCenter || false,
+      zoomToCenterExtent: (formData as any).zoomToCenterExtent,
       download: (formData as any).download,
       temporalControls: (formData as any).temporalControls || false,
       constraintSlider: (formData as any).constraintSlider || false,
