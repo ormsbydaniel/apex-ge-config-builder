@@ -251,12 +251,8 @@ const ConstraintSourceItemSchema = z.object({
   }
 );
 
-// Workflow schema
-const WorkflowItemSchema = z.object({
-  zIndex: z.number(),
-  service: z.string(),
-  label: z.string(),
-}).passthrough(); // Allow arbitrary additional properties
+// WorkflowItemSchema is defined further down, after MetaSchema/LayoutSchema,
+// so it can reuse the canonical SourceShape.
 
 // Updated Swipe configuration schema to support multiple base sources
 const SwipeConfigSchema = z.object({
@@ -420,25 +416,58 @@ const LayoutSchema = z.object({
   }
 );
 
-// Base object schema without refinements (so it can be extended)
-const BaseDataSourceObjectSchema = z.object({
+// ============= Canonical SourceShape =============
+// Single source of truth for fields shared between top-level sources and
+// workflow entries. Any new source-level field added here automatically
+// becomes valid inside a workflow entry too.
+const SourceShape = {
   name: z.string(),
   isActive: z.boolean(),
   data: DataFieldSchema,
-  statistics: StatisticsFieldSchema.optional(), // Add optional statistics array
-  constraints: z.array(ConstraintSourceItemSchema).optional(), // Add optional constraints array
-  workflows: z.array(WorkflowItemSchema).optional(), // Add optional workflows array
-  charts: z.array(ChartConfigSchema).optional(), // Add optional charts array
+  statistics: StatisticsFieldSchema.optional(),
+  constraints: z.array(ConstraintSourceItemSchema).optional(),
+  charts: z.array(ChartConfigSchema).optional(),
+  meta: MetaSchema.optional(),
+  layout: LayoutSchema.optional(),
   hasFeatureStatistics: z.boolean().optional(),
-  isBaseLayer: z.boolean().optional(), // Add optional isBaseLayer for new format
-  exclusivitySets: z.array(z.string()).optional(), // Array of exclusivity set names
-  // New layer type flags
+  isBaseLayer: z.boolean().optional(),
+  exclusivitySets: z.array(z.string()).optional(),
   isSwipeLayer: z.boolean().optional(),
   isMirrorLayer: z.boolean().optional(),
   isSpotlightLayer: z.boolean().optional(),
-  // Temporal configuration fields
   timeframe: z.enum(['None', 'Time', 'Days', 'Months', 'Years']).optional(),
   defaultTimestamp: z.number().optional(),
+} as const;
+
+// ============= Workflow schema =============
+// Workflow entries mirror the full source surface (all optional) and add
+// serviceId/serviceProvider plus an optional serviceDetails block.
+const ServiceDetailsSchema = z.object({
+  endpoint: z.string(),
+  namespace: z.string().optional(),
+  application: z.string().optional(),
+}).passthrough();
+
+const OptionalSourceShape = Object.fromEntries(
+  Object.entries(SourceShape).map(([k, v]) => [k, (v as z.ZodTypeAny).optional()])
+) as { [K in keyof typeof SourceShape]: z.ZodOptional<typeof SourceShape[K]> };
+
+const WorkflowItemSchema = z.object({
+  serviceId: z.string(),
+  serviceProvider: z.string(),
+  serviceDetails: ServiceDetailsSchema.optional(),
+  // Legacy fields kept for backward compatibility with existing configs
+  zIndex: z.number().optional(),
+  service: z.string().optional(),
+  label: z.string().optional(),
+  // Full source surface, all optional
+  ...OptionalSourceShape,
+}).passthrough();
+
+// Base object schema without refinements (so it can be extended)
+const BaseDataSourceObjectSchema = z.object({
+  ...SourceShape,
+  workflows: z.array(WorkflowItemSchema).optional(),
 });
 
 // Apply refinement to create the actual BaseDataSourceSchema

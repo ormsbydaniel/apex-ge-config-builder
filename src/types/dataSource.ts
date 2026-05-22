@@ -73,11 +73,27 @@ export interface ConstraintSourceItem {
   bandIndex?: number;
 }
 
-// Workflow configuration
+// Service details (Shape B — e.g. Terradue / Geohazards-TEP)
+export interface ServiceDetails {
+  endpoint?: string;
+  namespace?: string;
+  application?: string;
+  [key: string]: any;
+}
+
+// Workflow configuration — mirrors the full source surface (all optional)
+// plus serviceId / serviceProvider / serviceDetails. Source-shape fields
+// are accepted via the index signature so this stays in sync with the
+// canonical SourceShape in configSchema.ts without manual duplication.
 export interface WorkflowItem {
-  zIndex: number;
-  service: string;
-  label: string;
-  // Allow arbitrary additional properties
+  serviceId?: string;
+  serviceProvider?: string;
+  serviceDetails?: ServiceDetails;
+  // Legacy fields kept for backward compatibility
+  zIndex?: number;
+  service?: string;
+  label?: string;
+  // Full optional source surface (data, meta, layout, statistics, charts,
+  // constraints, layer-type flags, timeframe, etc.) accepted via passthrough.
   [key: string]: any;
 }

@@ -1,115 +1,100 @@
-# Custom bounding box for Zoom to Center — Phase 2 UI Plan
 
-Phase 1 (schema + pass-through) is complete. This plan covers the UI for setting a custom extent.
+# Unify workflow item schema with source schema (canonical SourceShape)
 
-## Target schema shape (already supported)
+## Goal
 
-```json
-"zoomToCenter": { "extent": [0.0, 52, 1.0, 53.0] }
+Make every `workflows[]` entry validate against the same field set as a top-level `sources[]` entry (meta, data, statistics, constraints, charts, layout, timeframe, layer-type flags, etc.). Shape A and Shape B become identical except Shape B additionally carries `serviceDetails`. A single canonical `SourceShape` is the only place these fields are defined.
+
+## Canonical `SourceShape`
+
+In `src/schemas/configSchema.ts`, define one plain object of Zod fields that both the source schema and the workflow schema consume:
+
+```ts
+const SourceShape = {
+  name: z.string(),
+  isActive: z.boolean(),
+  data: DataFieldSchema,
+  statistics: StatisticsFieldSchema.optional(),
+  constraints: z.array(ConstraintSourceItemSchema).optional(),
+  charts: z.array(ChartConfigSchema).optional(),
+  meta: MetaSchema.optional(),
+  layout: LayoutSchema.optional(),
+  hasFeatureStatistics: z.boolean().optional(),
+  isBaseLayer: z.boolean().optional(),
+  exclusivitySets: z.array(z.string()).optional(),
+  isSwipeLayer: z.boolean().optional(),
+  isMirrorLayer: z.boolean().optional(),
+  isSpotlightLayer: z.boolean().optional(),
+  timeframe: z.enum(['None','Time','Days','Months','Years']).optional(),
+  defaultTimestamp: z.number().optional(),
+} as const;
 ```
 
-Existing boolean form (`"zoomToCenter": true`) continues to work.
+Note: `workflows` is intentionally **not** part of `SourceShape` to avoid recursion. Sources add it themselves; workflow entries do not nest further workflows.
 
----
+### Source schema reuses `SourceShape`
 
-## Phase 2 — UI
+```ts
+const BaseDataSourceObjectSchema = z.object({
+  ...SourceShape,
+  workflows: z.array(WorkflowItemSchema).optional(),
+});
+```
 
-Goal: users can choose between "Zoom to layer bounds" (boolean true) and "Zoom to custom extent" (object with extent array) directly in the UI, without hand-editing JSON.
+All existing refinements (`BaseDataSourceSchema`, `BaseLayerSchema`, `SwipeLayerSchema`, `LayerCardSchema`, `ComparisonLayerSchema`, the `DataSourceSchema` union) continue to extend `BaseDataSourceObjectSchema` exactly as today — behaviour and error messages unchanged.
 
-### 2.1 Behaviour
+### Workflow schema reuses `SourceShape`
 
-When the "Zoom to layer" / "Zoom to Center" switch is ON, a second row appears below it with two radio-style choices:
+```ts
+const ServiceDetailsSchema = z.object({
+  endpoint: z.string(),
+  namespace: z.string().optional(),
+  application: z.string().optional(),
+}).passthrough();
 
-- **Layer bounds** (default) — writes `zoomToCenter: true`
-- **Custom extent** — reveals a single text input for typing the extent as four comma-separated numbers (e.g. `0.0, 52, 1.0, 53.0`) and writes `zoomToCenter: { extent: [xmin, ymin, xmax, ymax] }`
+// Make every source field optional inside a workflow entry,
+// since workflow entries populate only a subset.
+const OptionalSourceShape = Object.fromEntries(
+  Object.entries(SourceShape).map(([k, v]) => [k, (v as z.ZodTypeAny).optional()])
+) as { [K in keyof typeof SourceShape]: z.ZodOptional<typeof SourceShape[K]> };
 
-If the switch is turned OFF, the sub-choice and input collapse and the field is removed from controls.
+const WorkflowItemSchema = z.object({
+  serviceId: z.string(),
+  serviceProvider: z.string(),
+  serviceDetails: ServiceDetailsSchema.optional(),
+  // legacy fields kept for back-compat with existing configs
+  zIndex: z.number().optional(),
+  service: z.string().optional(),
+  label: z.string().optional(),
+  // full source surface, all optional
+  ...OptionalSourceShape,
+}).passthrough();
+```
 
-If the user switches from "Custom extent" back to "Layer bounds", the previously entered text is retained in local state so it is not lost if the user toggles back.
+### Why this works as the single source of truth
 
-### 2.2 ControlsEditorDialog.tsx
+- Any future field added to `SourceShape` is automatically valid inside a workflow entry — zero second-place updates.
+- The `WorkflowItemSchema` declaration is created before `BaseDataSourceObjectSchema` references it (standard hoisting via `const` ordering — declare `WorkflowItemSchema` first since it does not reference the source schema).
+- No circular type, because workflows do not contain `workflows`.
 
-This is the small inline dialog opened from the layer list for quick control edits.
+## Type changes (`src/types/dataSource.ts`)
 
-Changes needed:
+Update `WorkflowItem` to mirror the schema. It keeps the existing legacy fields optional and gains the full optional source surface plus `serviceId`, `serviceProvider`, and `serviceDetails`. `[key: string]: any` stays for passthrough.
 
-1. Add local state for `zoomToCenterMode: 'bounds' | 'custom'` and `zoomToCenterExtentText: string`.
-2. On dialog open, inspect the existing `controls.zoomToCenter` value:
-   - If `true` or missing/falsy → mode = 'bounds', switch ON.
-   - If object with `extent` → mode = 'custom', switch ON, populate text input from `extent.join(', ')`.
-   - If falsy → switch OFF.
-3. Render the Zoom to Center checkbox as today. When checked, show an indented sub-row:
-   - Two small buttons/pills or a segmented control: "Layer bounds" | "Custom extent"
-   - If "Custom extent" selected, show a single text input with placeholder `xmin, ymin, xmax, ymax` and a small help label.
-4. In `handleSave`:
-   - If switch OFF → omit `zoomToCenter`.
-   - If switch ON + mode 'bounds' → `zoomToCenter: true`.
-   - If switch ON + mode 'custom' → parse the comma-separated text into four numbers. If parsing succeeds, write `zoomToCenter: { extent: [parsed] }`; otherwise fall back to `zoomToCenter: true`.
-   - Preserve the existing fallback logic that keeps an already-stored object if the user merely leaves the switch on.
+## Preservation through import / export / JSON editor
 
-### 2.3 UnifiedControlsSection.tsx
+- `processSourceArrays` in `src/utils/importTransformations/utils/sourceHelpers.ts` already passes `workflows` through verbatim — no change needed.
+- Audit `src/utils/importTransformations/**` for any helper that iterates `source.data` / `source.meta` and confirm none recurse into `workflows[].data` / `workflows[].meta`. If one does, scope it to the top-level source only.
+- Export path: workflows are part of the source object and serialised as-is — no change.
+- JSON editor: uses `ConfigurationSchema` for validation, so the broader workflow shape is accepted automatically.
 
-This is the controls row in the main LayerCardForm (Create / Edit Layer Card).
+## Validation
 
-Changes needed:
+1. New test: parse the user's `config_workflow_execution.json` workflows array and assert no Zod errors for both Shape A (with `meta` + `data`) and Shape B (with `serviceDetails`).
+2. Round-trip test: parse → re-serialise → re-parse equals original (ensures nothing is stripped from a workflow entry that carries `meta`, `data`, `statistics`, etc.).
+3. Run existing schema tests to confirm no regression on sources/base layers/swipe/comparison layers.
 
-1. Accept a new prop `zoomToCenterExtent?: [number, number, number, number]`.
-2. Add local state for `zoomToCenterMode: 'bounds' | 'custom'` and `zoomToCenterExtentText: string`.
-3. When `zoomToCenter` switch is ON, show the sub-choice row below it (same pattern as ControlsEditorDialog).
-4. On mode 'custom', render a single text input with placeholder `xmin, ymin, xmax, ymax`.
-5. Call `onUpdate('zoomToCenterExtent', parsedArray)` when the text parses to four valid numbers; otherwise omit the update so the submission hook falls back to boolean true.
-6. Call `onUpdate('zoomToCenter', true/false)` when the main switch changes.
+## Out of scope (later phase)
 
-### 2.4 LayerCardForm.tsx wiring
-
-Pass `formData.zoomToCenterExtent` into `UnifiedControlsSection`.
-
-### 2.5 useLayerCardFormState.ts
-
-Already reads `zoomToCenterExtent` from `controlsObj.zoomToCenter.extent` (Phase 1). Verify it is correctly passed through to `LayerCardForm`.
-
-### 2.6 useLayerCardFormSubmission.ts
-
-Already reconstructs `{ extent: formData.zoomToCenterExtent }` when both `zoomToCenter` is true and `zoomToCenterExtent` is defined (Phase 1). No change needed.
-
-### 2.7 useLayerCardFormPersistence.ts
-
-Already reads and writes `zoomToCenterExtent` (Phase 1). No change needed.
-
-### 2.8 LayerControlsSection.tsx (legacy)
-
-Check if still mounted anywhere. If so, apply the same pattern as UnifiedControlsSection, or deprecate in favour of UnifiedControlsSection.
-
-### 2.9 Input validation
-
-- Parse the comma-separated text by splitting on commas and trimming whitespace.
-- Exactly four values are required.
-- Each value must parse to a valid finite number via `parseFloat`.
-- If parsing fails (wrong count, non-numeric, NaN, Infinity) when mode is 'custom', treat the extent as undefined and fall back to `zoomToCenter: true` on save.
-- No geographic validation (xmin < xmax etc.) — the viewer handles that.
-
-### 2.10 Styling
-
-Use the existing compact layout metrics (from project memory):
-- Indent the sub-choice row with `ml-6` or equivalent.
-- Use `h-8 text-sm` input to match the Download URL input pattern.
-- Keep the input at a moderate width (`max-w-[280px]`) so it does not dominate the controls row.
-
----
-
-## Out of scope
-
-- No map pick / draw-bbox-on-map interaction.
-- No CRS selector — extent is always in the map's default CRS (same as viewer behaviour).
-- No changes to viewer bundle — it already consumes the object form from Phase 1.
-
----
-
-## Acceptance criteria
-
-1. Open Edit Controls on a layer with `zoomToCenter: true` — dialog shows switch ON, "Layer bounds" selected.
-2. Hand-edit JSON to `zoomToCenter: { extent: [0,52,1,53] }`, reopen dialog — switch ON, "Custom extent" selected, input shows `0, 52, 1, 53`.
-3. Change the text to new values, save, export config — JSON contains the new extent array.
-4. In LayerCardForm, toggle "Zoom to layer" ON, choose "Custom extent", enter comma-separated values, create layer — resulting source has the object form.
-5. Toggle switch OFF — `zoomToCenter` is removed from controls entirely.
-6. Existing layers with plain `zoomToCenter: true` continue to work unchanged.
+- UI to edit `workflows[].meta`, `workflows[].data`, `serviceDetails`, etc.
+- Migration of legacy `{ zIndex, service, label }`-only workflow entries into the new shape.
