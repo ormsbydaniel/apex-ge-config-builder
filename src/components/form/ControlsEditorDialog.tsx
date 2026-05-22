@@ -28,6 +28,14 @@ interface ControlsEditorDialogProps {
   onSave: (layoutUpdates: Partial<DataSourceLayout>, sourceFieldUpdates: Record<string, any>) => void;
 }
 
+const parseExtentText = (text: string): [number, number, number, number] | null => {
+  const parts = text.split(',').map((p) => p.trim());
+  if (parts.length !== 4) return null;
+  const nums = parts.map((p) => parseFloat(p));
+  if (nums.some((n) => !Number.isFinite(n))) return null;
+  return nums as [number, number, number, number];
+};
+
 const ControlsEditorDialog = ({
   open,
   onOpenChange,
@@ -40,6 +48,8 @@ const ControlsEditorDialog = ({
 
   const [toggleable, setToggleable] = useState(!!source.layout?.layerCard?.toggleable);
   const [zoomToCenter, setZoomToCenter] = useState(!!(controls as any)?.zoomToCenter);
+  const [zoomToCenterMode, setZoomToCenterMode] = useState<'bounds' | 'custom'>('bounds');
+  const [zoomToCenterExtentText, setZoomToCenterExtentText] = useState('');
   const [opacitySlider, setOpacitySlider] = useState(!!controls?.opacitySlider);
   const [blendControls, setBlendControls] = useState(!!controls?.blendControls);
   const [constraintSlider, setConstraintSlider] = useState(!!controls?.constraintSlider);
@@ -55,9 +65,17 @@ const ControlsEditorDialog = ({
       const raw = source.layout?.layerCard?.controls || source.layout?.infoPanel?.controls;
       const isObj = raw && typeof raw === 'object' && !Array.isArray(raw);
       const ctrl = isObj ? raw : undefined;
+      const z = (ctrl as any)?.zoomToCenter;
 
       setToggleable(!!source.layout?.layerCard?.toggleable);
-      setZoomToCenter(!!(ctrl as any)?.zoomToCenter);
+      setZoomToCenter(!!z);
+      if (z && typeof z === 'object' && Array.isArray(z.extent)) {
+        setZoomToCenterMode('custom');
+        setZoomToCenterExtentText(z.extent.join(', '));
+      } else {
+        setZoomToCenterMode('bounds');
+        setZoomToCenterExtentText('');
+      }
       setOpacitySlider(!!ctrl?.opacitySlider);
       setBlendControls(!!ctrl?.blendControls);
       setConstraintSlider(!!ctrl?.constraintSlider);
@@ -73,12 +91,12 @@ const ControlsEditorDialog = ({
     const newControls: Record<string, any> = {};
     if (opacitySlider) newControls.opacitySlider = true;
     if (zoomToCenter) {
-      // Preserve any existing custom extent on the layer (Phase 1: no UI to edit it here)
-      const existing = (controls as any)?.zoomToCenter;
-      newControls.zoomToCenter =
-        existing && typeof existing === 'object' && Array.isArray(existing.extent)
-          ? existing
-          : true;
+      if (zoomToCenterMode === 'custom') {
+        const parsed = parseExtentText(zoomToCenterExtentText);
+        newControls.zoomToCenter = parsed ? { extent: parsed } : true;
+      } else {
+        newControls.zoomToCenter = true;
+      }
     }
     if (blendControls) newControls.blendControls = true;
     if (constraintSlider) newControls.constraintSlider = true;
