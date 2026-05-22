@@ -82,16 +82,18 @@ Check if still mounted anywhere. If so, apply the same pattern as UnifiedControl
 
 ### 2.9 Input validation
 
-- All four extent inputs must be valid finite numbers.
-- If any input is empty or non-numeric when mode is 'custom', treat the whole extent as undefined and fall back to `zoomToCenter: true` on save.
+- Parse the comma-separated text by splitting on commas and trimming whitespace.
+- Exactly four values are required.
+- Each value must parse to a valid finite number via `parseFloat`.
+- If parsing fails (wrong count, non-numeric, NaN, Infinity) when mode is 'custom', treat the extent as undefined and fall back to `zoomToCenter: true` on save.
 - No geographic validation (xmin < xmax etc.) — the viewer handles that.
 
 ### 2.10 Styling
 
 Use the existing compact layout metrics (from project memory):
 - Indent the sub-choice row with `ml-6` or equivalent.
-- Use `h-8 text-sm` inputs to match the Download URL input pattern.
-- Keep the 2x2 grid tight with `grid-cols-2 gap-2` inside a `max-w-[320px]` container.
+- Use `h-8 text-sm` input to match the Download URL input pattern.
+- Keep the input at a moderate width (`max-w-[280px]`) so it does not dominate the controls row.
 
 ---
 
