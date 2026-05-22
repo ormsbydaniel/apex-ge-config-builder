@@ -1,7 +1,13 @@
-# Custom bounding box for Zoom to Extent
+# Custom bounding box for Zoom to Center
 
 ## Goal
-In the Edit Controls modal, keep the existing "Zoom to Center" toggle, and add a "custom" affordance next to it that reveals four inputs (xmin, ymin, xmax, ymax). When set, the value is persisted as a 4-number array instead of `true`.
+In the Edit Controls modal, keep the existing "Zoom to Center" toggle, and add a "Custom" affordance next to it that reveals four inputs (xmin, ymin, xmax, ymax). When a custom extent is set, persist it as an object with an `extent` array, e.g.:
+
+```json
+"zoomToCenter": { "extent": [0.0, 52, 1.0, 53.0] }
+```
+
+When only the toggle is on (no custom extent), persist as `true` (current behaviour).
 
 ## Schema status
 The schema does **not** currently support this. Today:
@@ -10,7 +16,7 @@ The schema does **not** currently support this. Today:
 zoomToCenter: z.boolean().optional()
 ```
 
-It needs to be widened to accept either a boolean or a `[xmin, ymin, xmax, ymax]` tuple. Per project guideline #2, the Zod schema, the TypeScript interface, and the validation hook must all be updated together.
+Per project guideline #2, the Zod schema, the TypeScript interface, and the validation hook must all be updated together.
 
 ## Changes
 
@@ -20,38 +26,39 @@ Widen `zoomToCenter` inside `ControlsSchema`:
 ```ts
 zoomToCenter: z.union([
   z.boolean(),
-  z.tuple([z.number(), z.number(), z.number(), z.number()]),
+  z.object({
+    extent: z.tuple([z.number(), z.number(), z.number(), z.number()]),
+  }),
 ]).optional()
 ```
 
-### 2. Types (`src/types/layer.ts` or wherever `controls.zoomToCenter` is typed)
-Update the field to `boolean | [number, number, number, number]`.
+### 2. Types
+Update the matching TypeScript interface for `controls.zoomToCenter` to `boolean | { extent: [number, number, number, number] }`.
 
 ### 3. Validation hook (`src/hooks/useValidatedConfig.ts`)
-Verify nothing strips/normalizes `zoomToCenter`. If sanitization exists, allow the array form through unchanged.
+Confirm nothing strips or normalizes `zoomToCenter`. If sanitization exists, allow the object form through unchanged.
 
 ### 4. UI — `src/components/form/ControlsEditorDialog.tsx`
 - Keep the existing `Zoom to Center` checkbox.
-- Add a small "Custom" link/button to the right of the label.
-- Clicking it toggles open an inline panel (indented under the row) with four numeric inputs labelled `xmin`, `ymin`, `xmax`, `ymax`.
-- Local state:
-  - `zoomToCenter: boolean` (existing)
+- Add a small "Custom" link button to the right of the label.
+- Clicking it toggles an inline panel (indented under the row) with four numeric inputs labelled `xmin`, `ymin`, `xmax`, `ymax`.
+- Local state additions:
   - `customExtentOpen: boolean`
   - `extent: { xmin: string; ymin: string; xmax: string; ymax: string }`
-- Initialize from existing value:
-  - If `controls.zoomToCenter === true` → checkbox on, custom closed.
-  - If `controls.zoomToCenter` is an array → checkbox on, custom open, inputs populated.
+- Initialize from existing value inside the `open`-watching `useEffect`:
+  - If `zoomToCenter` is an object with `extent` → checkbox on, custom open, inputs populated.
+  - If `zoomToCenter === true` → checkbox on, custom closed.
   - Else → both off.
-- On save, decide what to write to `newControls.zoomToCenter`:
-  - If custom is open AND all four inputs parse as finite numbers → array `[xmin, ymin, xmax, ymax]`.
+- On save, decide `newControls.zoomToCenter`:
+  - If custom is open AND all four inputs parse as finite numbers → `{ extent: [xmin, ymin, xmax, ymax] }`.
   - Else if checkbox is on → `true`.
   - Else → omit.
-- Light client-side validation: highlight inputs that aren't valid numbers; do not save invalid extent (fall back to boolean true with a tiny inline hint, or block save — pick block save for clarity).
+- If custom is open but any input is invalid, block save with an inline hint.
 
 ### 5. Pass-through check
-Quick grep for any other place that reads `controls.zoomToCenter` as a strict boolean (viewer-bound code, exporters). Just confirm they tolerate the array shape — this configurator is a pass-through to GE viewer, so no behavioural change is needed here, only that the array survives serialization.
+Grep for other readers of `controls.zoomToCenter` (exporters, viewer-bound code). This configurator passes through to the GE viewer, so no behavioural change is required here — just confirm the object shape survives serialization round-trips (import, edit, export, preview).
 
 ## Out of scope
-- Rendering the bbox on a mini-map.
-- Reprojecting / CRS handling for the entered coordinates (assumed to match the viewer's CRS, same as everywhere else).
+- CRS handling for the entered coordinates (assumed to match viewer CRS, as elsewhere).
+- A map-pick UI for the bbox.
 - Any change to other controls in the dialog.
