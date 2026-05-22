@@ -210,11 +210,15 @@ export function useViewerLoader({
     }
   }, [enabled, version, loadViewer]);
 
+  const deliveredConfig = useMemo(() => withEnv(config), [config]);
+
   return {
     isLoading,
     isReady,
     error,
     reload: loadViewer,
     iframeRef,
+    deliveredConfig,
   };
 }
+
