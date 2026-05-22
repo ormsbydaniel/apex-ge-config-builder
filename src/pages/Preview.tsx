@@ -298,8 +298,26 @@ const Preview = () => {
             title="Apex Viewer"
           />
       </div>
+
+      <Dialog open={showConfigDialog} onOpenChange={setShowConfigDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between gap-4 pr-6">
+              <span>Config delivered to viewer</span>
+              <Button onClick={handleCopyConfig} variant="outline" size="sm">
+                <Copy className="h-4 w-4 mr-2" />
+                Copy JSON
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          <pre className="flex-1 overflow-auto rounded-md bg-muted p-4 text-xs font-mono">
+            {deliveredConfigJson}
+          </pre>
+        </DialogContent>
+      </Dialog>
     </div>
     </>
+
   );
 };
 
