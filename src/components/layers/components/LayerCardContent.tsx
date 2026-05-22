@@ -265,13 +265,6 @@ const LayerCardContent = ({
           onMoveConstraintToBottom={(_, constraintIndex) => onMoveConstraintToBottom?.(constraintIndex)}
           onReorderDataSource={() => {}}
           onReorderStatisticsSource={() => {}}
-          onAddWorkflow={(_, workflow) => onAddWorkflow?.(workflow)}
-          onRemoveWorkflow={(_, workflowIndex) => onRemoveWorkflow?.(workflowIndex)}
-          onUpdateWorkflow={(_, workflowIndex, workflow) => onUpdateWorkflow?.(workflowIndex, workflow)}
-          onMoveWorkflowUp={(_, workflowIndex) => onMoveWorkflowUp?.(workflowIndex)}
-          onMoveWorkflowDown={(_, workflowIndex) => onMoveWorkflowDown?.(workflowIndex)}
-          onMoveWorkflowToTop={(_, workflowIndex) => onMoveWorkflowToTop?.(workflowIndex)}
-          onMoveWorkflowToBottom={(_, workflowIndex) => onMoveWorkflowToBottom?.(workflowIndex)}
           onAddChart={() => onAddChart?.()}
           onRemoveChart={(_, chartIndex) => onRemoveChart?.(chartIndex)}
           onEditChart={(_, chartIndex) => onEditChart?.(chartIndex)}
