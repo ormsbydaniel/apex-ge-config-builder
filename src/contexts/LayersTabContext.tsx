@@ -1,4 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react';
+import { DataSource, Service, ConstraintSourceItem } from '@/types/config';
 import { ChartConfig } from '@/types/chart';
 
 export interface LayersTabContextValue {
