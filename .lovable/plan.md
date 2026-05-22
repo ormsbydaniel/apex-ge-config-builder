@@ -54,10 +54,10 @@ This is the controls row in the main LayerCardForm (Create / Edit Layer Card).
 Changes needed:
 
 1. Accept a new prop `zoomToCenterExtent?: [number, number, number, number]`.
-2. Add local state for `zoomToCenterMode: 'bounds' | 'custom'`.
+2. Add local state for `zoomToCenterMode: 'bounds' | 'custom'` and `zoomToCenterExtentText: string`.
 3. When `zoomToCenter` switch is ON, show the sub-choice row below it (same pattern as ControlsEditorDialog).
-4. On mode 'custom', render the 2x2 extent input grid.
-5. Call `onUpdate('zoomToCenterExtent', [xmin, ymin, xmax, ymax])` when inputs change.
+4. On mode 'custom', render a single text input with placeholder `xmin, ymin, xmax, ymax`.
+5. Call `onUpdate('zoomToCenterExtent', parsedArray)` when the text parses to four valid numbers; otherwise omit the update so the submission hook falls back to boolean true.
 6. Call `onUpdate('zoomToCenter', true/false)` when the main switch changes.
 
 ### 2.4 LayerCardForm.tsx wiring
