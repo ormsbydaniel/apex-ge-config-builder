@@ -56,7 +56,7 @@ export function useViewerLoader({
     const iframe = iframeRef.current;
     if (!iframe?.contentWindow || !configRef.current) return;
     try {
-      (iframe.contentWindow as any).explorerConfig = configRef.current;
+      (iframe.contentWindow as any).explorerConfig = withEnv(configRef.current);
     } catch (e) {
       // Cross-origin access may fail
     }
@@ -68,7 +68,7 @@ export function useViewerLoader({
     if (iframe?.contentWindow && configRef.current) {
       console.log('[Config Builder] Sending config to viewer iframe (legacy)');
       iframe.contentWindow.postMessage(
-        { type: 'apex-viewer-config', config: configRef.current },
+        { type: 'apex-viewer-config', config: withEnv(configRef.current) },
         '*'
       );
     }
