@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { TimeframeType } from '@/types/config';
@@ -8,6 +9,7 @@ import { TimeframeType } from '@/types/config';
 interface UnifiedControlsSectionProps {
   opacitySlider: boolean;
   zoomToCenter: boolean;
+  zoomToCenterExtent?: [number, number, number, number];
   download: string;
   temporalControls: boolean;
   constraintSlider: boolean;
@@ -16,9 +18,18 @@ interface UnifiedControlsSectionProps {
   onUpdate: (field: string, value: any) => void;
 }
 
+const parseExtentText = (text: string): [number, number, number, number] | null => {
+  const parts = text.split(',').map((p) => p.trim());
+  if (parts.length !== 4) return null;
+  const nums = parts.map((p) => parseFloat(p));
+  if (nums.some((n) => !Number.isFinite(n))) return null;
+  return nums as [number, number, number, number];
+};
+
 const UnifiedControlsSection = ({
   opacitySlider,
   zoomToCenter,
+  zoomToCenterExtent,
   download,
   temporalControls,
   constraintSlider,
@@ -26,10 +37,39 @@ const UnifiedControlsSection = ({
   timeframe,
   onUpdate
 }: UnifiedControlsSectionProps) => {
+  const [zoomToCenterMode, setZoomToCenterMode] = useState<'bounds' | 'custom'>(
+    zoomToCenterExtent ? 'custom' : 'bounds'
+  );
+  const [zoomToCenterExtentText, setZoomToCenterExtentText] = useState(
+    zoomToCenterExtent ? zoomToCenterExtent.join(', ') : ''
+  );
+
+  // Sync from incoming prop when it changes (e.g. when loaded into form)
+  useEffect(() => {
+    if (zoomToCenterExtent) {
+      setZoomToCenterMode('custom');
+      setZoomToCenterExtentText(zoomToCenterExtent.join(', '));
+    }
+  }, [zoomToCenterExtent]);
+
+  const handleModeChange = (mode: 'bounds' | 'custom') => {
+    setZoomToCenterMode(mode);
+    if (mode === 'bounds') {
+      onUpdate('zoomToCenterExtent', undefined);
+    } else {
+      const parsed = parseExtentText(zoomToCenterExtentText);
+      onUpdate('zoomToCenterExtent', parsed ?? undefined);
+    }
+  };
+
+  const handleExtentTextChange = (text: string) => {
+    setZoomToCenterExtentText(text);
+    const parsed = parseExtentText(text);
+    onUpdate('zoomToCenterExtent', parsed ?? undefined);
+  };
+
   const handleTimeframeChange = (newTimeframe: TimeframeType) => {
     onUpdate('timeframe', newTimeframe);
-    
-    // If switching to 'None', clear the default timestamp
     if (newTimeframe === 'None') {
       onUpdate('defaultTimestamp', undefined);
     }
@@ -39,7 +79,7 @@ const UnifiedControlsSection = ({
     <div className="space-y-4">
       <h4 className="font-medium">Layer Card Controls</h4>
       
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 flex-wrap">
         <div className="flex items-center justify-between space-x-2 min-w-[140px]">
           <Label htmlFor="zoomToCenter" className="min-w-[90px]">Zoom to layer:</Label>
           <Switch
@@ -116,6 +156,40 @@ const UnifiedControlsSection = ({
           </Select>
         </div>
       </div>
+
+      {zoomToCenter && (
+        <div className="ml-2 space-y-2">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm text-muted-foreground min-w-[90px]">Zoom target:</Label>
+            <Button
+              type="button"
+              size="sm"
+              variant={zoomToCenterMode === 'bounds' ? 'default' : 'outline'}
+              className="h-7 px-2 text-xs"
+              onClick={() => handleModeChange('bounds')}
+            >
+              Layer bounds
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={zoomToCenterMode === 'custom' ? 'default' : 'outline'}
+              className="h-7 px-2 text-xs"
+              onClick={() => handleModeChange('custom')}
+            >
+              Custom extent
+            </Button>
+            {zoomToCenterMode === 'custom' && (
+              <Input
+                className="h-8 text-sm max-w-[280px]"
+                placeholder="xmin, ymin, xmax, ymax"
+                value={zoomToCenterExtentText}
+                onChange={(e) => handleExtentTextChange(e.target.value)}
+              />
+            )}
+          </div>
+        </div>
+      )}
       
       {download !== undefined && (
         <div className="space-y-2">
