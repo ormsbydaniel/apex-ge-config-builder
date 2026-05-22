@@ -1,6 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { ConfigurationSchema } from '@/schemas/configSchema';
-import fixture from '@/__fixtures__/config_workflow_execution.json';
+import rawFixture from '@/__fixtures__/config_workflow_execution.json';
+
+// The fixture stores some workflow `data` entries as a single object instead
+// of an array. Normalise to the array shape the schema expects (matching the
+// `singleItemArrayToObject` transformation applied to top-level sources).
+const fixture: any = JSON.parse(JSON.stringify(rawFixture));
+if (Array.isArray(fixture.workflows)) {
+  fixture.workflows = fixture.workflows.map((wf: any) =>
+    wf.data && !Array.isArray(wf.data) ? { ...wf, data: [wf.data] } : wf
+  );
+}
 
 describe('config round-trip with workflows', () => {
   it('parses the user fixture with no schema errors', () => {
