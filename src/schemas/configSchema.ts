@@ -456,11 +456,9 @@ const WorkflowItemSchema = z.object({
   serviceId: z.string(),
   serviceProvider: z.string(),
   serviceDetails: ServiceDetailsSchema.optional(),
-  // Legacy fields kept for backward compatibility with existing configs
-  zIndex: z.number().optional(),
-  service: z.string().optional(),
-  label: z.string().optional(),
-  // Full source surface, all optional
+  // Full source surface, all optional. .passthrough() below still allows any
+  // truly unknown keys (including legacy zIndex/service/label) to load without
+  // error, but those are no longer part of the documented schema.
   ...OptionalSourceShape,
 }).passthrough();
 
