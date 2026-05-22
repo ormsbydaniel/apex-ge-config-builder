@@ -73,11 +73,41 @@ export interface ConstraintSourceItem {
   bandIndex?: number;
 }
 
-// Workflow configuration
+// Service details (Shape B — e.g. Terradue / Geohazards-TEP)
+export interface ServiceDetails {
+  endpoint: string;
+  namespace?: string;
+  application?: string;
+  [key: string]: any;
+}
+
+// Workflow configuration — mirrors the full source surface (all optional)
+// plus serviceId / serviceProvider / serviceDetails.
 export interface WorkflowItem {
-  zIndex: number;
-  service: string;
-  label: string;
+  serviceId?: string;
+  serviceProvider?: string;
+  serviceDetails?: ServiceDetails;
+  // Legacy fields kept for backward compatibility
+  zIndex?: number;
+  service?: string;
+  label?: string;
+  // Full optional source surface
+  name?: string;
+  isActive?: boolean;
+  data?: DataField;
+  statistics?: any;
+  constraints?: ConstraintSourceItem[];
+  charts?: any[];
+  meta?: any;
+  layout?: any;
+  hasFeatureStatistics?: boolean;
+  isBaseLayer?: boolean;
+  exclusivitySets?: string[];
+  isSwipeLayer?: boolean;
+  isMirrorLayer?: boolean;
+  isSpotlightLayer?: boolean;
+  timeframe?: TimeframeType;
+  defaultTimestamp?: number;
   // Allow arbitrary additional properties
   [key: string]: any;
 }
