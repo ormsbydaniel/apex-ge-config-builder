@@ -149,6 +149,38 @@ const ControlsEditorDialog = ({
             <Checkbox id="ctrl-zoom" checked={zoomToCenter} onCheckedChange={(v) => setZoomToCenter(!!v)} />
             <Label htmlFor="ctrl-zoom" className="text-sm font-normal">Zoom to Center</Label>
           </div>
+          {zoomToCenter && (
+            <div className="ml-6 space-y-1.5">
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={zoomToCenterMode === 'bounds' ? 'default' : 'outline'}
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setZoomToCenterMode('bounds')}
+                >
+                  Layer bounds
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={zoomToCenterMode === 'custom' ? 'default' : 'outline'}
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setZoomToCenterMode('custom')}
+                >
+                  Custom extent
+                </Button>
+              </div>
+              {zoomToCenterMode === 'custom' && (
+                <Input
+                  className="h-8 text-sm max-w-[280px]"
+                  placeholder="xmin, ymin, xmax, ymax"
+                  value={zoomToCenterExtentText}
+                  onChange={(e) => setZoomToCenterExtentText(e.target.value)}
+                />
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <Checkbox id="ctrl-opacity" checked={opacitySlider} onCheckedChange={(v) => setOpacitySlider(!!v)} />
             <Label htmlFor="ctrl-opacity" className="text-sm font-normal">Opacity Slider</Label>
