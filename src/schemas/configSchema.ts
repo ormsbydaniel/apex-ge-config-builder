@@ -251,12 +251,8 @@ const ConstraintSourceItemSchema = z.object({
   }
 );
 
-// Workflow schema
-const WorkflowItemSchema = z.object({
-  zIndex: z.number(),
-  service: z.string(),
-  label: z.string(),
-}).passthrough(); // Allow arbitrary additional properties
+// WorkflowItemSchema is defined further down, after MetaSchema/LayoutSchema,
+// so it can reuse the canonical SourceShape.
 
 // Updated Swipe configuration schema to support multiple base sources
 const SwipeConfigSchema = z.object({
