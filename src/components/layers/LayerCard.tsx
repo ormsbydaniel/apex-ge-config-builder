@@ -28,13 +28,6 @@ interface LayerCardProps {
   onMoveConstraintDown?: (constraintIndex: number) => void;
   onMoveConstraintToTop?: (constraintIndex: number) => void;
   onMoveConstraintToBottom?: (constraintIndex: number) => void;
-  onAddWorkflow?: (workflow: any) => void;
-  onRemoveWorkflow?: (workflowIndex: number) => void;
-  onUpdateWorkflow?: (workflowIndex: number, workflow: any) => void;
-  onMoveWorkflowUp?: (workflowIndex: number) => void;
-  onMoveWorkflowDown?: (workflowIndex: number) => void;
-  onMoveWorkflowToTop?: (workflowIndex: number) => void;
-  onMoveWorkflowToBottom?: (workflowIndex: number) => void;
   // Chart operations
   onAddChart?: () => void;
   onRemoveChart?: (chartIndex: number) => void;
@@ -64,13 +57,6 @@ const LayerCard = ({
   onMoveConstraintDown,
   onMoveConstraintToTop,
   onMoveConstraintToBottom,
-  onAddWorkflow,
-  onRemoveWorkflow,
-  onUpdateWorkflow,
-  onMoveWorkflowUp,
-  onMoveWorkflowDown,
-  onMoveWorkflowToTop,
-  onMoveWorkflowToBottom,
   onAddChart,
   onRemoveChart,
   onEditChart,
@@ -149,13 +135,6 @@ const LayerCard = ({
               onMoveConstraintDown={onMoveConstraintDown}
               onMoveConstraintToTop={onMoveConstraintToTop}
               onMoveConstraintToBottom={onMoveConstraintToBottom}
-              onAddWorkflow={onAddWorkflow}
-              onRemoveWorkflow={onRemoveWorkflow}
-              onUpdateWorkflow={onUpdateWorkflow}
-              onMoveWorkflowUp={onMoveWorkflowUp}
-              onMoveWorkflowDown={onMoveWorkflowDown}
-              onMoveWorkflowToTop={onMoveWorkflowToTop}
-              onMoveWorkflowToBottom={onMoveWorkflowToBottom}
               onAddChart={onAddChart}
               onRemoveChart={onRemoveChart}
               onEditChart={onEditChart}

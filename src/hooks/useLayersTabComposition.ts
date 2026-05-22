@@ -131,14 +131,6 @@ export const useLayersTabComposition = (props: LayersTabCompositionProps) => {
     handleMoveConstraintToTop: layerOperations.handleMoveConstraintToTop,
     handleMoveConstraintToBottom: layerOperations.handleMoveConstraintToBottom,
 
-    // Workflow handlers
-    handleAddWorkflow: layerOperations.handleAddWorkflow,
-    handleUpdateWorkflow: layerOperations.handleUpdateWorkflow,
-    handleRemoveWorkflow: layerOperations.handleRemoveWorkflow,
-    handleMoveWorkflowUp: layerOperations.handleMoveWorkflowUp,
-    handleMoveWorkflowDown: layerOperations.handleMoveWorkflowDown,
-    handleMoveWorkflowToTop: layerOperations.handleMoveWorkflowToTop,
-    handleMoveWorkflowToBottom: layerOperations.handleMoveWorkflowToBottom,
 
     // Chart handlers
     addChart: layerOperations.addChart,

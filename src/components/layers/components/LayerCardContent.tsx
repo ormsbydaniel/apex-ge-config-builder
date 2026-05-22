@@ -29,13 +29,6 @@ interface LayerCardContentProps {
   onMoveConstraintDown?: (constraintIndex: number) => void;
   onMoveConstraintToTop?: (constraintIndex: number) => void;
   onMoveConstraintToBottom?: (constraintIndex: number) => void;
-  onAddWorkflow?: (workflow: any) => void;
-  onRemoveWorkflow?: (workflowIndex: number) => void;
-  onUpdateWorkflow?: (workflowIndex: number, workflow: any) => void;
-  onMoveWorkflowUp?: (workflowIndex: number) => void;
-  onMoveWorkflowDown?: (workflowIndex: number) => void;
-  onMoveWorkflowToTop?: (workflowIndex: number) => void;
-  onMoveWorkflowToBottom?: (workflowIndex: number) => void;
   // Chart operations
   onAddChart?: () => void;
   onRemoveChart?: (chartIndex: number) => void;
@@ -57,13 +50,6 @@ const LayerCardContent = ({
   onMoveConstraintDown,
   onMoveConstraintToTop,
   onMoveConstraintToBottom,
-  onAddWorkflow,
-  onRemoveWorkflow,
-  onUpdateWorkflow,
-  onMoveWorkflowUp,
-  onMoveWorkflowDown,
-  onMoveWorkflowToTop,
-  onMoveWorkflowToBottom,
   onAddChart,
   onRemoveChart,
   onEditChart
@@ -279,13 +265,6 @@ const LayerCardContent = ({
           onMoveConstraintToBottom={(_, constraintIndex) => onMoveConstraintToBottom?.(constraintIndex)}
           onReorderDataSource={() => {}}
           onReorderStatisticsSource={() => {}}
-          onAddWorkflow={(_, workflow) => onAddWorkflow?.(workflow)}
-          onRemoveWorkflow={(_, workflowIndex) => onRemoveWorkflow?.(workflowIndex)}
-          onUpdateWorkflow={(_, workflowIndex, workflow) => onUpdateWorkflow?.(workflowIndex, workflow)}
-          onMoveWorkflowUp={(_, workflowIndex) => onMoveWorkflowUp?.(workflowIndex)}
-          onMoveWorkflowDown={(_, workflowIndex) => onMoveWorkflowDown?.(workflowIndex)}
-          onMoveWorkflowToTop={(_, workflowIndex) => onMoveWorkflowToTop?.(workflowIndex)}
-          onMoveWorkflowToBottom={(_, workflowIndex) => onMoveWorkflowToBottom?.(workflowIndex)}
           onAddChart={() => onAddChart?.()}
           onRemoveChart={(_, chartIndex) => onRemoveChart?.(chartIndex)}
           onEditChart={(_, chartIndex) => onEditChart?.(chartIndex)}

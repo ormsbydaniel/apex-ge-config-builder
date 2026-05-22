@@ -456,12 +456,13 @@ const WorkflowItemSchema = z.object({
   serviceId: z.string(),
   serviceProvider: z.string(),
   serviceDetails: ServiceDetailsSchema.optional(),
-  // Legacy fields kept for backward compatibility with existing configs
-  zIndex: z.number().optional(),
-  service: z.string().optional(),
-  label: z.string().optional(),
-  // Full source surface, all optional
+  // Full source surface, all optional. .passthrough() below still allows any
+  // truly unknown keys (including legacy zIndex/service/label) to load without
+  // error, but those are no longer part of the documented schema.
   ...OptionalSourceShape,
+  // Workflow data items don't always carry a URL (they describe computed
+  // outputs), so relax the per-item shape compared to top-level source data.
+  data: z.array(z.object({}).passthrough()).optional(),
 }).passthrough();
 
 // Base object schema without refinements (so it can be extended)
@@ -621,6 +622,8 @@ export const ConfigurationSchema = z.object({
   exclusivitySets: z.array(z.string()),
   services: z.array(ServiceSchema).optional().default([]), // Make services optional for backwards compatibility
   sources: z.array(DataSourceSchema),
+  // Top-level workflows array — mirrors the per-source workflows[] surface.
+  workflows: z.array(WorkflowItemSchema).optional(),
   mapConstraints: z.object({
     zoom: z.number().min(0).max(28),
     center: z.array(z.number()).length(2), // [longitude, latitude]

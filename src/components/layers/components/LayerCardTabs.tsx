@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { DataSource, Service, WorkflowItem } from '@/types/config';
-import { ChartConfig } from '@/types/chart';
+import { DataSource, Service } from '@/types/config';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { DataSourcesTab } from './DataSourcesTab';
 import { StatisticsSourcesTab } from './StatisticsSourcesTab';
 import { ConstraintSourcesTab } from './ConstraintSourcesTab';
-import { WorkflowsTab } from './WorkflowsTab';
 import { ChartsTab } from './ChartsTab';
-import { WorkflowEditorDialog } from './WorkflowEditorDialog';
 
 interface LayerCardTabsProps {
   source: DataSource;
@@ -31,13 +28,6 @@ interface LayerCardTabsProps {
   onMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
   onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
   onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
-  onAddWorkflow: (layerIndex: number, workflow: WorkflowItem) => void;
-  onRemoveWorkflow: (layerIndex: number, workflowIndex: number) => void;
-  onUpdateWorkflow: (layerIndex: number, workflowIndex: number, workflow: WorkflowItem) => void;
-  onMoveWorkflowUp: (layerIndex: number, workflowIndex: number) => void;
-  onMoveWorkflowDown: (layerIndex: number, workflowIndex: number) => void;
-  onMoveWorkflowToTop: (layerIndex: number, workflowIndex: number) => void;
-  onMoveWorkflowToBottom: (layerIndex: number, workflowIndex: number) => void;
   // Chart operations
   onAddChart: (layerIndex: number) => void;
   onRemoveChart: (layerIndex: number, chartIndex: number) => void;
@@ -68,13 +58,6 @@ export function LayerCardTabs({
   onMoveConstraintDown,
   onMoveConstraintToTop,
   onMoveConstraintToBottom,
-  onAddWorkflow,
-  onRemoveWorkflow,
-  onUpdateWorkflow,
-  onMoveWorkflowUp,
-  onMoveWorkflowDown,
-  onMoveWorkflowToTop,
-  onMoveWorkflowToBottom,
   onAddChart,
   onRemoveChart,
   onEditChart,
@@ -82,126 +65,83 @@ export function LayerCardTabs({
   onEditChartSource
 }: LayerCardTabsProps) {
   const [activeTab, setActiveTab] = useState('data');
-  const [workflowDialogOpen, setWorkflowDialogOpen] = useState(false);
-  const [editingWorkflowIndex, setEditingWorkflowIndex] = useState<number | null>(null);
 
   const dataCount = source.data?.length || 0;
   const statsCount = source.statistics?.length || 0;
   const constraintsCount = source.constraints?.length || 0;
-  const workflowsCount = source.workflows?.length || 0;
   const chartsCount = source.charts?.length || 0;
 
   return (
-    <>
-      <div className="space-y-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="data">
-              Datasets ({dataCount})
-            </TabsTrigger>
-            <TabsTrigger value="statistics">
-              Statistics ({statsCount})
-            </TabsTrigger>
-            <TabsTrigger value="constraints">
-              Constraints ({constraintsCount})
-            </TabsTrigger>
-            <TabsTrigger value="workflows">
-              Workflows ({workflowsCount})
-            </TabsTrigger>
-            <TabsTrigger value="charts">
-              Charts ({chartsCount})
-            </TabsTrigger>
-          </TabsList>
+    <div className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="data">
+            Datasets ({dataCount})
+          </TabsTrigger>
+          <TabsTrigger value="statistics">
+            Statistics ({statsCount})
+          </TabsTrigger>
+          <TabsTrigger value="constraints">
+            Constraints ({constraintsCount})
+          </TabsTrigger>
+          <TabsTrigger value="charts">
+            Charts ({chartsCount})
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="data">
-            <DataSourcesTab
-              source={source}
-              services={services}
-              layerIndex={layerIndex}
-              onAdd={(layerIndex) => onAddDataSource(layerIndex, false)}
-              onRemove={onRemoveDataSource}
-              onEdit={onEditDataSource}
-              onUpdateMeta={onUpdateMeta}
-              onUpdateLayout={onUpdateLayout}
-              onUpdateDataBands={onUpdateDataBands}
-            />
-          </TabsContent>
+        <TabsContent value="data">
+          <DataSourcesTab
+            source={source}
+            services={services}
+            layerIndex={layerIndex}
+            onAdd={(layerIndex) => onAddDataSource(layerIndex, false)}
+            onRemove={onRemoveDataSource}
+            onEdit={onEditDataSource}
+            onUpdateMeta={onUpdateMeta}
+            onUpdateLayout={onUpdateLayout}
+            onUpdateDataBands={onUpdateDataBands}
+          />
+        </TabsContent>
 
-          <TabsContent value="statistics">
-            <StatisticsSourcesTab
-              source={source}
-              services={services}
-              layerIndex={layerIndex}
-              onAdd={onAddStatisticsSource}
-              onRemove={onRemoveStatisticsSource}
-              onEdit={onEditStatisticsSource}
-            />
-          </TabsContent>
+        <TabsContent value="statistics">
+          <StatisticsSourcesTab
+            source={source}
+            services={services}
+            layerIndex={layerIndex}
+            onAdd={onAddStatisticsSource}
+            onRemove={onRemoveStatisticsSource}
+            onEdit={onEditStatisticsSource}
+          />
+        </TabsContent>
 
-          <TabsContent value="constraints">
-            <ConstraintSourcesTab
-              source={source}
-              services={services}
-              layerIndex={layerIndex}
-              onAddConstraintSource={onAddConstraintSource}
-              onRemove={onRemoveConstraintSource}
-              onEdit={onEditConstraintSource}
-              onMoveUp={onMoveConstraintUp}
-              onMoveDown={onMoveConstraintDown}
-              onMoveToTop={onMoveConstraintToTop}
-              onMoveToBottom={onMoveConstraintToBottom}
-            />
-          </TabsContent>
+        <TabsContent value="constraints">
+          <ConstraintSourcesTab
+            source={source}
+            services={services}
+            layerIndex={layerIndex}
+            onAddConstraintSource={onAddConstraintSource}
+            onRemove={onRemoveConstraintSource}
+            onEdit={onEditConstraintSource}
+            onMoveUp={onMoveConstraintUp}
+            onMoveDown={onMoveConstraintDown}
+            onMoveToTop={onMoveConstraintToTop}
+            onMoveToBottom={onMoveConstraintToBottom}
+          />
+        </TabsContent>
 
-          <TabsContent value="workflows">
-            <WorkflowsTab
-              source={source}
-              layerIndex={layerIndex}
-              onAdd={() => {
-                setEditingWorkflowIndex(null);
-                setWorkflowDialogOpen(true);
-              }}
-              onRemove={onRemoveWorkflow}
-              onEdit={(layerIndex, workflowIndex) => {
-                setEditingWorkflowIndex(workflowIndex);
-                setWorkflowDialogOpen(true);
-              }}
-              onMoveUp={onMoveWorkflowUp}
-              onMoveDown={onMoveWorkflowDown}
-              onMoveToTop={onMoveWorkflowToTop}
-              onMoveToBottom={onMoveWorkflowToBottom}
-            />
-          </TabsContent>
-
-          <TabsContent value="charts">
-            <ChartsTab
-              source={source}
-              services={services}
-              layerIndex={layerIndex}
-              onAdd={onAddChart}
-              onRemove={onRemoveChart}
-              onUpdate={onEditChart as any}
-              onStartChartForm={onStartChartForm}
-              // Use the same handler as the rest of the app so Edit opens the Chart Source form
-              onEditChartSource={onEditChart}
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      <WorkflowEditorDialog
-        open={workflowDialogOpen}
-        onOpenChange={setWorkflowDialogOpen}
-        workflow={editingWorkflowIndex !== null ? source.workflows?.[editingWorkflowIndex] : undefined}
-        onSave={(workflow) => {
-          if (editingWorkflowIndex !== null) {
-            onUpdateWorkflow(layerIndex, editingWorkflowIndex, workflow);
-          } else {
-            onAddWorkflow(layerIndex, workflow);
-          }
-          setEditingWorkflowIndex(null);
-        }}
-      />
-    </>
+        <TabsContent value="charts">
+          <ChartsTab
+            source={source}
+            services={services}
+            layerIndex={layerIndex}
+            onAdd={onAddChart}
+            onRemove={onRemoveChart}
+            onUpdate={onEditChart as any}
+            onStartChartForm={onStartChartForm}
+            onEditChartSource={onEditChart}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

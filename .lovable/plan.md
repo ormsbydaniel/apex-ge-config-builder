@@ -1,100 +1,106 @@
 
-# Unify workflow item schema with source schema (canonical SourceShape)
+# Round-trip workflows through import/export + remove legacy workflow code & UI
 
 ## Goal
 
-Make every `workflows[]` entry validate against the same field set as a top-level `sources[]` entry (meta, data, statistics, constraints, charts, layout, timeframe, layer-type flags, etc.). Shape A and Shape B become identical except Shape B additionally carries `serviceDetails`. A single canonical `SourceShape` is the only place these fields are defined.
+1. Import and export configs whose `sources[].workflows[]` entries carry the full source surface (`meta`, `data`, `statistics`, `serviceDetails`, etc.) without losing or polluting fields.
+2. Strip the obsolete legacy workflow shape (`{ zIndex, service, label }`) from the schema, types, and validation pipeline.
+3. Delete the existing Workflows tab + editor dialog wholesale — they're tied to the old shape and a fresh UI will be designed separately.
 
-## Canonical `SourceShape`
+## Changes
 
-In `src/schemas/configSchema.ts`, define one plain object of Zod fields that both the source schema and the workflow schema consume:
+### 1. Schema — drop legacy fields (`src/schemas/configSchema.ts`)
 
-```ts
-const SourceShape = {
-  name: z.string(),
-  isActive: z.boolean(),
-  data: DataFieldSchema,
-  statistics: StatisticsFieldSchema.optional(),
-  constraints: z.array(ConstraintSourceItemSchema).optional(),
-  charts: z.array(ChartConfigSchema).optional(),
-  meta: MetaSchema.optional(),
-  layout: LayoutSchema.optional(),
-  hasFeatureStatistics: z.boolean().optional(),
-  isBaseLayer: z.boolean().optional(),
-  exclusivitySets: z.array(z.string()).optional(),
-  isSwipeLayer: z.boolean().optional(),
-  isMirrorLayer: z.boolean().optional(),
-  isSpotlightLayer: z.boolean().optional(),
-  timeframe: z.enum(['None','Time','Days','Months','Years']).optional(),
-  defaultTimestamp: z.number().optional(),
-} as const;
-```
-
-Note: `workflows` is intentionally **not** part of `SourceShape` to avoid recursion. Sources add it themselves; workflow entries do not nest further workflows.
-
-### Source schema reuses `SourceShape`
+In `WorkflowItemSchema`, remove:
 
 ```ts
-const BaseDataSourceObjectSchema = z.object({
-  ...SourceShape,
-  workflows: z.array(WorkflowItemSchema).optional(),
-});
+zIndex: z.number().optional(),
+service: z.string().optional(),
+label: z.string().optional(),
 ```
 
-All existing refinements (`BaseDataSourceSchema`, `BaseLayerSchema`, `SwipeLayerSchema`, `LayerCardSchema`, `ComparisonLayerSchema`, the `DataSourceSchema` union) continue to extend `BaseDataSourceObjectSchema` exactly as today — behaviour and error messages unchanged.
+Keep `.passthrough()` so old configs that still contain those keys still load (they're preserved but undocumented), but they're no longer part of the schema, types, or UI contract.
 
-### Workflow schema reuses `SourceShape`
+### 2. Types — drop legacy fields (`src/types/dataSource.ts`)
+
+In `WorkflowItem`, remove `zIndex?`, `service?`, `label?`. `serviceId`, `serviceProvider`, `serviceDetails`, plus `[key: string]: any` remain.
+
+### 3. Validation pipeline — pass workflows through unchanged (`src/hooks/useValidatedConfig.ts`)
+
+Replace lines 62-68 with:
 
 ```ts
-const ServiceDetailsSchema = z.object({
-  endpoint: z.string(),
-  namespace: z.string().optional(),
-  application: z.string().optional(),
-}).passthrough();
-
-// Make every source field optional inside a workflow entry,
-// since workflow entries populate only a subset.
-const OptionalSourceShape = Object.fromEntries(
-  Object.entries(SourceShape).map(([k, v]) => [k, (v as z.ZodTypeAny).optional()])
-) as { [K in keyof typeof SourceShape]: z.ZodOptional<typeof SourceShape[K]> };
-
-const WorkflowItemSchema = z.object({
-  serviceId: z.string(),
-  serviceProvider: z.string(),
-  serviceDetails: ServiceDetailsSchema.optional(),
-  // legacy fields kept for back-compat with existing configs
-  zIndex: z.number().optional(),
-  service: z.string().optional(),
-  label: z.string().optional(),
-  // full source surface, all optional
-  ...OptionalSourceShape,
-}).passthrough();
+const validatedWorkflows = source.workflows?.map(workflow => ({ ...workflow }));
 ```
 
-### Why this works as the single source of truth
+No more injecting `zIndex: 10`, `service: ''`, `label: ''`.
 
-- Any future field added to `SourceShape` is automatically valid inside a workflow entry — zero second-place updates.
-- The `WorkflowItemSchema` declaration is created before `BaseDataSourceObjectSchema` references it (standard hoisting via `const` ordering — declare `WorkflowItemSchema` first since it does not reference the source schema).
-- No circular type, because workflows do not contain `workflows`.
+### 4. Delete the existing workflow UI entirely
 
-## Type changes (`src/types/dataSource.ts`)
+**Files to delete:**
+- `src/components/layers/components/WorkflowsTab.tsx`
+- `src/components/layers/components/WorkflowEditorDialog.tsx`
 
-Update `WorkflowItem` to mirror the schema. It keeps the existing legacy fields optional and gains the full optional source surface plus `serviceId`, `serviceProvider`, and `serviceDetails`. `[key: string]: any` stays for passthrough.
+**`src/components/layers/components/LayerCardTabs.tsx` — strip all workflow wiring:**
+- Remove imports of `WorkflowsTab`, `WorkflowEditorDialog`, `WorkflowItem`.
+- Remove props: `onAddWorkflow`, `onRemoveWorkflow`, `onUpdateWorkflow`, `onMoveWorkflowUp/Down/ToTop/ToBottom`.
+- Remove state: `workflowDialogOpen`, `editingWorkflowIndex`, `workflowsCount`.
+- Remove the `<TabsTrigger value="workflows">` and the `<TabsContent value="workflows">` block.
+- Remove the `<WorkflowEditorDialog .../>` render at the bottom.
 
-## Preservation through import / export / JSON editor
+**Cascade through callers** (each loses the same workflow prop set and any local handler wiring):
+- `src/components/layers/LayerCard.tsx`
+- `src/components/layers/LayersTabContainer.tsx`
+- `src/components/layers/components/SubInterfaceGroup.tsx`
+- `src/components/layers/components/LayerCardContent.tsx`
+- `src/components/layers/components/SortableLayerCard.tsx`
+- `src/components/layers/components/LayerGroup.tsx`
+- `src/hooks/useLayersTabComposition.ts`
+- `src/contexts/LayersTabContext.tsx`
 
-- `processSourceArrays` in `src/utils/importTransformations/utils/sourceHelpers.ts` already passes `workflows` through verbatim — no change needed.
-- Audit `src/utils/importTransformations/**` for any helper that iterates `source.data` / `source.meta` and confirm none recurse into `workflows[].data` / `workflows[].meta`. If one does, scope it to the top-level source only.
-- Export path: workflows are part of the source object and serialised as-is — no change.
-- JSON editor: uses `ConfigurationSchema` for validation, so the broader workflow shape is accepted automatically.
+**`src/utils/layerActions.ts`** — delete the workflow action helpers (`addWorkflow`, `removeWorkflow`, `updateWorkflow`, `moveWorkflowUp/Down/ToTop/ToBottom`) and update `src/utils/__tests__/layerActions.test.ts` to remove the corresponding test suites.
 
-## Validation
+**`src/hooks/__tests__/useLayerCardFormSubmission.test.ts`** — drop any workflow-prop assertions still referencing the old shape.
 
-1. New test: parse the user's `config_workflow_execution.json` workflows array and assert no Zod errors for both Shape A (with `meta` + `data`) and Shape B (with `serviceDetails`).
-2. Round-trip test: parse → re-serialise → re-parse equals original (ensures nothing is stripped from a workflow entry that carries `meta`, `data`, `statistics`, etc.).
-3. Run existing schema tests to confirm no regression on sources/base layers/swipe/comparison layers.
+**Data preservation:** `source.workflows` on existing configs is left intact end-to-end (schema accepts it, validation passes it through, export serialises it via the existing `...source` spread + `orderSourceProperties`). Users simply lose the UI to edit it until the new tab ships.
 
-## Out of scope (later phase)
+### 5. Export path — sanitise URLs nested inside workflow data/statistics (`src/hooks/useConfigExport.ts`)
 
-- UI to edit `workflows[].meta`, `workflows[].data`, `serviceDetails`, etc.
-- Migration of legacy `{ zIndex, service, label }`-only workflow entries into the new shape.
+In the `config.sources.map(...)` block, after the existing `constraints` handling, add:
+
+```ts
+...(source.workflows && {
+  workflows: source.workflows.map(wf => ({
+    ...wf,
+    ...(Array.isArray(wf.data) && {
+      data: wf.data.map((item: any) => ({
+        ...item,
+        url: item.url ? sanitizeUrl(item.url) : item.url,
+      })),
+    }),
+    ...(Array.isArray(wf.statistics) && {
+      statistics: wf.statistics.map((item: any) => ({
+        ...item,
+        url: item.url ? sanitizeUrl(item.url) : item.url,
+      })),
+    }),
+  })),
+}),
+```
+
+`configSorting.orderSourceProperties` already lists `workflows` in the export order and preserves unknown nested fields via its catch-all.
+
+### 6. Tests
+
+- Update `src/schemas/__tests__/workflowItemSchema.test.ts`: drop legacy-fields-as-contract; instead assert passthrough still tolerates them for back-compat.
+- Add `src/hooks/__tests__/configRoundTrip.workflows.test.ts`:
+  - Commit user's sample as `src/__fixtures__/config_workflow_execution.json`.
+  - Parse with `ConfigurationSchema` → assert success, Shape A keeps `meta`/`data`, Shape B keeps `serviceDetails`.
+  - Rebuild the export object the same way `useConfigExport` does → JSON.stringify → JSON.parse → re-validate → assert deep-equal on each workflow entry.
+
+## Out of scope
+
+- The replacement Workflows tab UI (clean-sheet design, separate task).
+- Recursing import transformations into `workflows[].data`.
+- Capabilities fetching for URLs nested inside a workflow.
+- Auto-migrating legacy `{ zIndex, service, label }` entries — passthrough keeps them loadable; they're effectively orphaned data until the user clears them.
