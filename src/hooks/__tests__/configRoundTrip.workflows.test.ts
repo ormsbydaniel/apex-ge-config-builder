@@ -43,7 +43,7 @@ describe('config round-trip with workflows', () => {
     );
 
     const originalWorkflows = (parsed as any).workflows ?? [];
-    const reparsedWorkflows = re(parsed as any).workflows ?? [];
+    const reparsedWorkflows = (reparsed as any).workflows ?? [];
 
     expect(reparsedWorkflows.length).toBe(originalWorkflows.length);
     originalWorkflows.forEach((wf: any, i: number) => {
