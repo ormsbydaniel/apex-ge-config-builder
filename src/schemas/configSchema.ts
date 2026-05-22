@@ -462,7 +462,7 @@ const WorkflowItemSchema = z.object({
   ...OptionalSourceShape,
   // Workflow data items don't always carry a URL (they describe computed
   // outputs), so relax the per-item shape compared to top-level source data.
-  data: z.array(z.record(z.string(), z.any()).passthrough()).optional(),
+  data: z.array(z.object({}).passthrough()).optional(),
 }).passthrough();
 
 // Base object schema without refinements (so it can be extended)
