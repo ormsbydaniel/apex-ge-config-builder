@@ -75,7 +75,7 @@ export interface ConstraintSourceItem {
 
 // Service details (Shape B — e.g. Terradue / Geohazards-TEP)
 export interface ServiceDetails {
-  endpoint: string;
+  endpoint?: string;
   namespace?: string;
   application?: string;
   [key: string]: any;
