@@ -1,0 +1,10 @@
+/* Match the APEx Config Builder app header teal.
+ * Use [data-md-color-primary] selector to win specificity against
+ * Material's built-in palette rule. */
+:root,
+[data-md-color-primary] {
+  --md-primary-fg-color: #043346;
+  --md-primary-fg-color--light: #0a4a63;
+  --md-primary-fg-color--dark: #02212e;
+  --md-accent-fg-color: #0a8aa8;
+}

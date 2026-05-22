@@ -12,6 +12,7 @@ interface LayerCardFormData {
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
+  zoomToCenterExtent?: [number, number, number, number];
   download?: string;
   temporalControls: boolean;
   constraintSlider: boolean;
@@ -62,7 +63,10 @@ export const useLayerCardFormState = ({
         attributionUrl: editingLayer.meta?.attribution?.url || '',
         toggleable: editingLayer.layout?.layerCard?.toggleable || false,
         opacitySlider: controlsObj?.opacitySlider || false,
-        zoomToCenter: controlsObj?.zoomToCenter || false,
+        zoomToCenter: !!controlsObj?.zoomToCenter,
+        zoomToCenterExtent: (controlsObj?.zoomToCenter && typeof controlsObj.zoomToCenter === 'object')
+          ? controlsObj.zoomToCenter.extent
+          : undefined,
         download: controlsObj?.download,
         temporalControls: controlsObj?.temporalControls || false,
         constraintSlider: controlsObj?.constraintSlider || false,

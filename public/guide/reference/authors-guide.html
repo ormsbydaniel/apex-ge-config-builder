@@ -1,0 +1,1995 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="End-user guide for building, validating, and exporting APEx Geospatial Explorer configurations.">
+      
+      
+      
+        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/reference/authors-guide.html">
+      
+      
+        <link rel="prev" href="troubleshooting.html">
+      
+      
+        <link rel="next" href="glossary.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Authors Guide - APEx Geospatial Explorer — Config Builder Guide</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#authors-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="APEx Geospatial Explorer — Config Builder Guide" class="md-header__button md-logo" aria-label="APEx Geospatial Explorer — Config Builder Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            APEx Geospatial Explorer — Config Builder Guide
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Authors Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Welcome
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../home/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Home tab
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../layers/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Layers tab
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../configuration/draw-order.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Draw order tab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Services tab
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../settings/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Settings tab
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../configuration/json-config.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  JSON config
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../configuration/preview.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  GE Preview tab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../recipes/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  How-to recipes
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="APEx Geospatial Explorer — Config Builder Guide" class="md-nav__button md-logo" aria-label="APEx Geospatial Explorer — Config Builder Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    APEx Geospatial Explorer — Config Builder Guide
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Welcome
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../getting-started/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../home/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home tab
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../layers/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Layers tab
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/draw-order.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Draw order tab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../services/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services tab
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../settings/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings tab
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/json-config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON config
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/preview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GE Preview tab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../recipes/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How-to recipes
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="url-parameters.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    URL parameters
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="json-schema.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON schema reference
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="keyboard-and-tips.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tips and shortcuts
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="troubleshooting.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authors guide
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="authors-guide.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authors guide
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-edits-where-things-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common edits — where things live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#screenshot-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Screenshot conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Editing workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-build-docssh-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The build-docs.sh script
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The build-docs.sh script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-it-does-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What it does, step by step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#live-preview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live preview
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-time-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-time setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full script
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="glossary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-edits-where-things-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common edits — where things live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#screenshot-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Screenshot conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Editing workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-build-docssh-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The build-docs.sh script
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The build-docs.sh script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-it-does-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What it does, step by step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#live-preview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live preview
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-time-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-time setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full script
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="authors-guide">Authors Guide<a class="headerlink" href="#authors-guide" title="Permanent link">&para;</a></h1>
+<p>This page is for <strong>documentation authors</strong> — anyone editing the Markdown
+sources in <code>docs/</code> and publishing the rendered site to GitHub.</p>
+<p>The user guide is built with <a href="https://www.mkdocs.org/">MkDocs</a> using the
+<a href="https://squidfunk.github.io/mkdocs-material/">Material</a> theme. Sources live
+under <code>docs/</code>, the build output lands in <code>public/guide/</code>, and both are
+committed to the same repository so the published web app can serve the
+guide directly from <code>/guide/</code>.</p>
+<h2 id="common-edits-where-things-live">Common edits — where things live<a class="headerlink" href="#common-edits-where-things-live" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>You want to…</th>
+<th>Edit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fix a typo or rewrite a paragraph</td>
+<td>The relevant <code>.md</code> under <code>docs/</code>. Filenames mirror the URL path.</td>
+</tr>
+<tr>
+<td>Add a new page</td>
+<td>Create the <code>.md</code> file, then add it to <code>nav:</code> in <code>mkdocs.yml</code>.</td>
+</tr>
+<tr>
+<td>Add a screenshot</td>
+<td>Use <code>scripts/add-screenshot.sh &lt;source.png&gt; &lt;kebab-name&gt;</code> — it copies into both <code>docs/assets/screenshots/</code> and <code>public/guide/assets/screenshots/</code>. See <a href="#screenshot-conventions">Screenshot conventions</a> below.</td>
+</tr>
+<tr>
+<td>Change the left-hand nav order or labels</td>
+<td>The <code>nav:</code> block in <code>mkdocs.yml</code>.</td>
+</tr>
+<tr>
+<td>Change site theme, colours, plugins</td>
+<td>The top of <code>mkdocs.yml</code> (<code>theme:</code>, <code>markdown_extensions:</code>, <code>plugins:</code>).</td>
+</tr>
+<tr>
+<td>Update the rendered HTML served by the live app</td>
+<td>Run <code>./build-docs.sh --push</code>, then redeploy the app from your hosting platform.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="screenshot-conventions">Screenshot conventions<a class="headerlink" href="#screenshot-conventions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>File names are <strong>kebab-case</strong>, descriptive, scoped to the feature: <code>layer-card-edit-top.png</code>, <code>chart-pixel-values-empty.png</code>.</li>
+<li>Files live in <code>docs/assets/screenshots/</code> and are mirrored to <code>public/guide/assets/screenshots/</code>. The <code>scripts/add-screenshot.sh</code> helper does both copies in one step.</li>
+<li>Reference them from Markdown with a relative <code>../assets/screenshots/&lt;name&gt;.png</code> path and an alt text that describes the visible UI state, not just the feature name.</li>
+<li>Capture against the <strong>Comprehensive demo</strong> config when possible, so screenshots stay consistent across pages.</li>
+</ul>
+<h2 id="editing-workflow">Editing workflow<a class="headerlink" href="#editing-workflow" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Edit Markdown files under <code>docs/</code> directly in the GitHub repo on the
+   <code>documentation</code> branch.</li>
+<li>Push the change to <code>origin/documentation</code>.</li>
+<li>Run <code>./build-docs.sh --push</code> from <code>~/documentation/mkdocs-project/</code> to
+   pull the latest <code>docs/</code>, rebuild <code>public/guide/</code>, and push the regenerated
+   HTML back to GitHub.</li>
+<li>Redeploy the app so the new <code>public/guide/</code> is served from the live site
+   (and any custom domain).</li>
+</ol>
+<p>Source edits and the corresponding rebuilt HTML always live in the same
+commit history, so there is one source of truth for what the published guide
+looks like.</p>
+<h2 id="the-build-docssh-script">The <code>build-docs.sh</code> script<a class="headerlink" href="#the-build-docssh-script" title="Permanent link">&para;</a></h2>
+<p>The script lives outside the project repo, at:</p>
+<div class="highlight"><pre><span></span><code>~/documentation/mkdocs-project/build-docs.sh
+</code></pre></div>
+<p>alongside a Python virtualenv (<code>venv/</code>) that has <code>mkdocs</code> and
+<code>mkdocs-material</code> installed. On first run it clones the
+<code>apex-ge-config-builder</code> repo into <code>./repo/</code>. On subsequent runs it
+hard-resets <code>./repo/</code> to <code>origin/&lt;branch&gt;</code> so the build is always against a
+clean tree that matches GitHub.</p>
+<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>~/documentation/mkdocs-project
+./build-docs.sh<span class="w"> </span>--help<span class="w">              </span><span class="c1"># show usage</span>
+./build-docs.sh<span class="w">                     </span><span class="c1"># build current branch (prompts to confirm)</span>
+./build-docs.sh<span class="w"> </span>-b<span class="w"> </span>documentation<span class="w">    </span><span class="c1"># build a specific branch</span>
+./build-docs.sh<span class="w"> </span>--push<span class="w">              </span><span class="c1"># build + commit + push</span>
+./build-docs.sh<span class="w"> </span>-b<span class="w"> </span>documentation<span class="w"> </span>-p<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-m<span class="w"> </span><span class="s2">&quot;Update charts section&quot;</span><span class="w">      </span><span class="c1"># build + push with custom commit message</span>
+</code></pre></div>
+<h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-b</code>, <code>--branch &lt;name&gt;</code></td>
+<td>Branch to build from (default: <code>documentation</code>). If omitted, the script prompts you to confirm or change the current branch interactively.</td>
+</tr>
+<tr>
+<td><code>-p</code>, <code>--push</code></td>
+<td>After a successful build, <code>git add</code> / <code>commit</code> / <code>push</code> the updated <code>docs/</code>, <code>public/guide/</code>, and <code>mkdocs.yml</code> back to the branch on GitHub. Without this flag, the script only builds locally.</td>
+</tr>
+<tr>
+<td><code>-m</code>, <code>--message &lt;msg&gt;</code></td>
+<td>Commit message used with <code>--push</code> (default: <code>Rebuild user guide</code>).</td>
+</tr>
+<tr>
+<td><code>-h</code>, <code>--help</code></td>
+<td>Show help and exit.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-it-does-step-by-step">What it does, step by step<a class="headerlink" href="#what-it-does-step-by-step" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Validates that <code>venv/bin/activate</code> exists.</li>
+<li>Clones the repo into <code>./repo/</code> on first run, otherwise <code>git fetch --all --prune</code>.</li>
+<li>Echoes the current branch and asks which branch to build (unless <code>-b</code> was passed).</li>
+<li><code>git checkout &lt;branch&gt;</code> then <code>git reset --hard origin/&lt;branch&gt;</code> — discards
+   any local edits inside <code>repo/</code>.</li>
+<li>Activates the venv and runs <code>mkdocs build --strict --config-file repo/mkdocs.yml</code>.</li>
+<li>If <code>--push</code>: stages <code>docs/</code>, <code>public/guide/</code>, and <code>mkdocs.yml</code>, commits if
+   there is a diff, and pushes to <code>origin/&lt;branch&gt;</code>.</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Local edits inside <code>repo/</code> are discarded</p>
+<p>Because the script hard-resets to <code>origin/&lt;branch&gt;</code> on every run, any
+uncommitted edits you make inside <code>~/documentation/mkdocs-project/repo/</code>
+will be lost. Always edit via the main repo workflow (or commit from
+<code>repo/</code> manually and push) before re-running.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nothing to commit?</p>
+<p>The build is deterministic. If no Markdown source changed since the last
+push, the rebuilt <code>public/guide/</code> will be byte-identical to what is
+already on <code>origin</code>, and the script will report
+<code>Nothing to commit — working tree matches origin.</code> That is expected.</p>
+</div>
+<h3 id="live-preview">Live preview<a class="headerlink" href="#live-preview" title="Permanent link">&para;</a></h3>
+<p>For a live-reloading local preview while drafting:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>~/documentation/mkdocs-project/repo
+mkdocs<span class="w"> </span>serve
+</code></pre></div>
+<p>Then open <a href="http://127.0.0.1:8000/guide/">http://127.0.0.1:8000/guide/</a>.</p>
+<h2 id="first-time-setup">First-time setup<a class="headerlink" href="#first-time-setup" title="Permanent link">&para;</a></h2>
+<p>If you do not already have the script and venv on your machine:</p>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>~/documentation/mkdocs-project
+<span class="nb">cd</span><span class="w"> </span>~/documentation/mkdocs-project
+python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate
+pip<span class="w"> </span>install<span class="w"> </span>mkdocs<span class="w"> </span>mkdocs-material
+<span class="c1"># then save build-docs.sh below into this directory</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>build-docs.sh
+./build-docs.sh<span class="w"> </span>--help
+</code></pre></div>
+<h2 id="full-script">Full script<a class="headerlink" href="#full-script" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env bash</span>
+<span class="c1"># build-docs.sh — Build (and optionally publish) the Apex GE Config Builder user guide.</span>
+<span class="c1">#</span>
+<span class="c1"># Location: ~/documentation/mkdocs-project/build-docs.sh</span>
+<span class="c1"># Assumes:  ~/documentation/mkdocs-project/venv  (python venv with mkdocs + mkdocs-material)</span>
+
+<span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+
+<span class="c1"># ---- Defaults -----------------------------------------------------------------</span>
+<span class="nv">REPO_URL</span><span class="o">=</span><span class="s2">&quot;https://github.com/ormsbydaniel/apex-ge-config-builder.git&quot;</span>
+<span class="nv">DEFAULT_BRANCH</span><span class="o">=</span><span class="s2">&quot;documentation&quot;</span>
+<span class="nv">PROJECT_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">REPO_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/repo&quot;</span>
+<span class="nv">VENV_ACTIVATE</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/venv/bin/activate&quot;</span>
+
+<span class="nv">PUSH</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">BRANCH</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="nv">COMMIT_MSG</span><span class="o">=</span><span class="s2">&quot;Rebuild user guide&quot;</span>
+
+<span class="c1"># ---- Help ---------------------------------------------------------------------</span>
+show_help<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span>cat<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">Usage: ./build-docs.sh [options]</span>
+
+<span class="s">Builds the MkDocs user guide for apex-ge-config-builder into repo/public/guide/.</span>
+
+<span class="s">Options:</span>
+<span class="s">  -b, --branch &lt;name&gt;     Branch to build from (default: ${DEFAULT_BRANCH}).</span>
+<span class="s">                          If omitted, the script prompts you to confirm or change</span>
+<span class="s">                          the current branch interactively.</span>
+<span class="s">  -p, --push              After a successful build, git add / commit / push the</span>
+<span class="s">                          updated docs/ and public/guide/ back to the branch on</span>
+<span class="s">                          GitHub. Without this flag, the script only builds</span>
+<span class="s">                          locally and leaves it to you to commit.</span>
+<span class="s">  -m, --message &lt;msg&gt;     Commit message used with --push</span>
+<span class="s">                          (default: &quot;${COMMIT_MSG}&quot;).</span>
+<span class="s">  -h, --help              Show this help and exit.</span>
+
+<span class="s">Examples:</span>
+<span class="s">  ./build-docs.sh                          # build the default branch (prompts)</span>
+<span class="s">  ./build-docs.sh -b documentation         # build a specific branch</span>
+<span class="s">  ./build-docs.sh --push                   # build + commit + push</span>
+<span class="s">  ./build-docs.sh -b documentation -p \\</span>
+<span class="s">      -m &quot;Update charts section&quot;           # build + push with custom message</span>
+
+<span class="s">Notes:</span>
+<span class="s">  * On first run the repo is cloned into ./repo/. On later runs it is hard-reset</span>
+<span class="s">    to origin/&lt;branch&gt; to discard local cruft.</span>
+<span class="s">  * Preview locally (live reload) with:</span>
+<span class="s">        cd repo &amp;&amp; mkdocs serve</span>
+<span class="s">    then open http://127.0.0.1:8000/guide/</span>
+<span class="s">EOF</span>
+<span class="o">}</span>
+
+<span class="c1"># ---- Arg parsing --------------------------------------------------------------</span>
+<span class="k">while</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$#</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">    </span>-b<span class="p">|</span>--branch<span class="o">)</span><span class="w">   </span><span class="nv">BRANCH</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">2</span><span class="p">:?</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="nb">shift</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span>-p<span class="p">|</span>--push<span class="o">)</span><span class="w">     </span><span class="nv">PUSH</span><span class="o">=</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="nb">shift</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span>-m<span class="p">|</span>--message<span class="o">)</span><span class="w">  </span><span class="nv">COMMIT_MSG</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">2</span><span class="p">:?</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="nb">shift</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span>-h<span class="p">|</span>--help<span class="o">)</span><span class="w">     </span>show_help<span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span>*<span class="o">)</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Unknown option: </span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="p">;</span><span class="w"> </span>echo<span class="p">;</span><span class="w"> </span>show_help<span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">  </span><span class="k">esac</span>
+<span class="k">done</span>
+
+<span class="c1"># ---- Sanity checks ------------------------------------------------------------</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">VENV_ACTIVATE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;ERROR: venv not found at </span><span class="si">${</span><span class="nv">VENV_ACTIVATE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Create it and install deps:  python3 -m venv venv &amp;&amp; source venv/bin/activate &amp;&amp; pip install mkdocs mkdocs-material&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="c1"># ---- Clone or update the repo -------------------------------------------------</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REPO_DIR</span><span class="si">}</span><span class="s2">/.git&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; Cloning </span><span class="si">${</span><span class="nv">REPO_URL</span><span class="si">}</span><span class="s2"> into </span><span class="si">${</span><span class="nv">REPO_DIR</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">  </span>git<span class="w"> </span>clone<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REPO_URL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REPO_DIR</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+
+<span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REPO_DIR</span><span class="si">}</span><span class="s2">&quot;</span>
+git<span class="w"> </span>fetch<span class="w"> </span>--all<span class="w"> </span>--prune
+
+<span class="nv">CURRENT_BRANCH</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>git<span class="w"> </span>rev-parse<span class="w"> </span>--abbrev-ref<span class="w"> </span>HEAD<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; Current branch in repo/: </span><span class="si">${</span><span class="nv">CURRENT_BRANCH</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># Determine which branch to build</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BRANCH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">read</span><span class="w"> </span>-r<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;Build which branch? [</span><span class="si">${</span><span class="nv">CURRENT_BRANCH</span><span class="si">}</span><span class="s2">] &quot;</span><span class="w"> </span>USER_BRANCH
+<span class="w">  </span><span class="nv">BRANCH</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">USER_BRANCH</span><span class="k">:-</span><span class="si">${</span><span class="nv">CURRENT_BRANCH</span><span class="si">}}</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; Building branch: </span><span class="si">${</span><span class="nv">BRANCH</span><span class="si">}</span><span class="s2">&quot;</span>
+
+git<span class="w"> </span>checkout<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BRANCH</span><span class="si">}</span><span class="s2">&quot;</span>
+git<span class="w"> </span>reset<span class="w"> </span>--hard<span class="w"> </span><span class="s2">&quot;origin/</span><span class="si">${</span><span class="nv">BRANCH</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># ---- Activate venv &amp; build ----------------------------------------------------</span>
+<span class="c1"># shellcheck disable=SC1090</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">VENV_ACTIVATE</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; Running mkdocs build (strict)&quot;</span>
+mkdocs<span class="w"> </span>build<span class="w"> </span>--strict<span class="w"> </span>--config-file<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REPO_DIR</span><span class="si">}</span><span class="s2">/mkdocs.yml&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; Build complete: </span><span class="si">${</span><span class="nv">REPO_DIR</span><span class="si">}</span><span class="s2">/public/guide/&quot;</span>
+
+<span class="c1"># ---- Optional commit + push ---------------------------------------------------</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PUSH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; Staging docs/ and public/guide/&quot;</span>
+<span class="w">  </span>git<span class="w"> </span>add<span class="w"> </span>docs<span class="w"> </span>public/guide<span class="w"> </span>mkdocs.yml
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>git<span class="w"> </span>diff<span class="w"> </span>--cached<span class="w"> </span>--quiet<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; Nothing to commit — working tree matches origin.&quot;</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">    </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">COMMIT_MSG</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; Pushing to origin/</span><span class="si">${</span><span class="nv">BRANCH</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BRANCH</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; Pushed.&quot;</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&gt;&gt;&gt; --push not set. To publish, run:&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;    cd </span><span class="si">${</span><span class="nv">REPO_DIR</span><span class="si">}</span><span class="s2"> &amp;&amp; git add docs public/guide mkdocs.yml &amp;&amp; git commit -m \&quot;</span><span class="si">${</span><span class="nv">COMMIT_MSG</span><span class="si">}</span><span class="s2">\&quot; &amp;&amp; git push origin </span><span class="si">${</span><span class="nv">BRANCH</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+</code></pre></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="troubleshooting.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Troubleshooting">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Troubleshooting
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="glossary.html" class="md-footer__link md-footer__link--next" aria-label="Next: Glossary">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Glossary
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "content.code.copy", "content.tabs.link", "content.tooltips", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

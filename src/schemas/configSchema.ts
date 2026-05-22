@@ -186,6 +186,8 @@ export const DataSourceItemSchema = z.object({
   timestamps: z.array(z.number()).optional(),
   // Opacity support (0-1 range)  
   opacity: z.number().min(0).max(1).optional(),
+  // Custom URL parameters (WMS only) — values may be strings, numbers, or booleans in real configs
+  parameters: z.record(z.string(), z.unknown()).optional(),
 }).passthrough() // Allow arbitrary additional properties (e.g., env, styles, time, transparent)
 .refine(
   (data) => {
@@ -363,11 +365,20 @@ const LegendSchema = z.object({
   }
 );
 
+// zoomToCenter accepts either a boolean toggle or a custom extent object
+// e.g. { extent: [xmin, ymin, xmax, ymax] }
+const ZoomToCenterSchema = z.union([
+  z.boolean(),
+  z.object({
+    extent: z.tuple([z.number(), z.number(), z.number(), z.number()]),
+  }),
+]);
+
 // Controls schema (reusable)
 const ControlsSchema = z.union([
   z.object({
     opacitySlider: z.boolean().optional(),
-    zoomToCenter: z.boolean().optional(),
+    zoomToCenter: ZoomToCenterSchema.optional(),
     download: z.string().optional(),
     temporalControls: z.boolean().optional(),
     constraintSlider: z.boolean().optional(),

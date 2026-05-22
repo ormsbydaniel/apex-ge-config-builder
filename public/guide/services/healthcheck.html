@@ -1,0 +1,1899 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="End-user guide for building, validating, and exporting APEx Geospatial Explorer configurations.">
+      
+      
+      
+        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/services/healthcheck.html">
+      
+      
+        <link rel="prev" href="../home/overview.html">
+      
+      
+        <link rel="next" href="../layers/overview.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Run Healthcheck - APEx Geospatial Explorer — Config Builder Guide</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#run-healthcheck" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="APEx Geospatial Explorer — Config Builder Guide" class="md-header__button md-logo" aria-label="APEx Geospatial Explorer — Config Builder Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            APEx Geospatial Explorer — Config Builder Guide
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Run Healthcheck
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Welcome
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../home/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Home tab
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../layers/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Layers tab
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../configuration/draw-order.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Draw order tab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Services tab
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../settings/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Settings tab
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../configuration/json-config.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  JSON config
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../configuration/preview.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  GE Preview tab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../recipes/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  How-to recipes
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/overview.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="APEx Geospatial Explorer — Config Builder Guide" class="md-nav__button md-logo" aria-label="APEx Geospatial Explorer — Config Builder Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    APEx Geospatial Explorer — Config Builder Guide
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Welcome
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../getting-started/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home tab
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Home tab
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../home/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Healthcheck
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="healthcheck.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Healthcheck
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#launching-the-healthcheck" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Launching the healthcheck
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#watching-a-run-in-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watching a run in progress
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-the-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading the results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading the results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-score-gauges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The score gauges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-access-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Access status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance status
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drilling-into-a-single-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drilling into a single layer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Drilling into a single layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-failing-layer-data-access-fail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A failing layer (Data Access = Fail)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-slow-but-reachable-layer-performance-poor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A slow but reachable layer (Performance = Poor)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filtering-the-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering the table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acting-on-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acting on results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#re-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-running
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-failure-modes-and-what-to-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common failure modes and what to do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../layers/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Layers tab
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/draw-order.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Draw order tab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services tab
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../settings/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings tab
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/json-config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON config
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/preview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GE Preview tab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../recipes/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How-to recipes
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../reference/overview.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#launching-the-healthcheck" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Launching the healthcheck
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#watching-a-run-in-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watching a run in progress
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-the-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading the results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading the results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-score-gauges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The score gauges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-access-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Access status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance status
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drilling-into-a-single-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drilling into a single layer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Drilling into a single layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-failing-layer-data-access-fail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A failing layer (Data Access = Fail)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-slow-but-reachable-layer-performance-poor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A slow but reachable layer (Performance = Poor)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filtering-the-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering the table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acting-on-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acting on results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#re-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-running
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-failure-modes-and-what-to-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common failure modes and what to do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="run-healthcheck">Run Healthcheck<a class="headerlink" href="#run-healthcheck" title="Permanent link">&para;</a></h1>
+<p>The <strong>Run Healthcheck</strong> tool validates every layer in your configuration in a
+single batch and reports two independent scores:</p>
+<ul>
+<li><strong>Data Access</strong> — can the URL be reached and does it respond correctly?</li>
+<li><strong>Performance</strong> — once reached, will it perform well in the APEx Geospatial Explorer?</li>
+</ul>
+<p>Use it after you load or modify a config to see, at a glance, which layers are
+broken, which are slow, and which are healthy.</p>
+<div class="admonition tip">
+<p class="admonition-title">Follow along</p>
+<p>All screenshots on this page were taken with the <strong>Comprehensive demo</strong>
+config loaded. Load it yourself from <strong>Home → Load → Examples →
+Comprehensive demo</strong> to reproduce them.</p>
+</div>
+<h2 id="when-to-use-it">When to use it<a class="headerlink" href="#when-to-use-it" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Right after loading a config from disk, GitHub, or a URL.</li>
+<li>After adding or editing services and layers, to confirm nothing regressed.</li>
+<li>Before exporting a config that will be shipped to the public APEx Geospatial Explorer.</li>
+</ul>
+<h2 id="launching-the-healthcheck">Launching the healthcheck<a class="headerlink" href="#launching-the-healthcheck" title="Permanent link">&para;</a></h2>
+<p>The entry point lives on the <strong>Home</strong> tab, in the <strong>Config Quality Assurance</strong>
+card on the right. Click <strong>Run Healthcheck</strong>.</p>
+<p><img alt="Home tab with the demo config loaded — the Run Healthcheck button is in the Config Quality Assurance card" src="../assets/screenshots/home-tab-loaded.png" /></p>
+<p>The <strong>Layer Healthcheck</strong> dialog opens and starts validating layers immediately.
+You do not need to configure anything — the run uses your current <code>sources</code> and
+<code>services</code> definitions.</p>
+<h2 id="watching-a-run-in-progress">Watching a run in progress<a class="headerlink" href="#watching-a-run-in-progress" title="Permanent link">&para;</a></h2>
+<p>The dialog runs validation in display order (Interface Group, then layer
+position) so the order in the table matches what you see on the <strong>Layers</strong> tab.</p>
+<p><img alt="Healthcheck dialog mid-run, showing 8 of 42 layers checked and live progress on the next layer" src="../assets/screenshots/healthcheck-running.png" /></p>
+<p>While the run is active you will see:</p>
+<ul>
+<li>A progress counter (<code>8 / 42</code>) and a spinner in the <strong>Results</strong> card header.</li>
+<li>The <strong>currently checking</strong> layer name, updated as each layer starts.</li>
+<li>The <strong>Data Access</strong> and <strong>Performance</strong> gauges on the right, recomputed live
+  as results come in.</li>
+<li>Per-row badges that move from <strong>Queued → Checking… → final status</strong>.</li>
+</ul>
+<p>You can leave the dialog open while it runs; you cannot close it accidentally
+because progress is incremental and resumable on the next run.</p>
+<h2 id="reading-the-results">Reading the results<a class="headerlink" href="#reading-the-results" title="Permanent link">&para;</a></h2>
+<p>When the run finishes the gauges, summary, and table are all populated.</p>
+<p><img alt="Completed healthcheck showing 33 Pass / 1 Partial / 8 Fail and 29 Good / 3 Average / 2 Poor" src="../assets/screenshots/healthcheck-complete.png" /></p>
+<h3 id="the-score-gauges">The score gauges<a class="headerlink" href="#the-score-gauges" title="Permanent link">&para;</a></h3>
+<p>Two semicircular gauges in the dialog header summarise the run as a 0–100
+score:</p>
+<table>
+<thead>
+<tr>
+<th>Score range</th>
+<th>Colour</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>95 – 100</td>
+<td>Green</td>
+<td>Healthy — safe to ship</td>
+</tr>
+<tr>
+<td>80 – 94</td>
+<td>Amber</td>
+<td>Mostly healthy, some issues to investigate</td>
+</tr>
+<tr>
+<td>70 – 79</td>
+<td>Amber</td>
+<td>Noticeable degradation</td>
+</tr>
+<tr>
+<td>Below 70</td>
+<td>Red</td>
+<td>Significant issues — review before publishing</td>
+</tr>
+<tr>
+<td><code>—</code></td>
+<td>Grey</td>
+<td>Not enough scorable layers to compute</td>
+</tr>
+</tbody>
+</table>
+<p>Each score is a weighted average over all layers that have a meaningful
+result; layers reported as <strong>N/A</strong> (e.g. layers with no URLs to check) are
+excluded so they do not skew the score.</p>
+<h3 id="data-access-status">Data Access status<a class="headerlink" href="#data-access-status" title="Permanent link">&para;</a></h3>
+<p>Per layer, <strong>Data Access</strong> rolls up the reachability of every URL on the
+layer (data URLs and statistics URLs).</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>When it is reported</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pass</strong></td>
+<td>All checkable URLs returned a successful response.</td>
+</tr>
+<tr>
+<td><strong>Partial Pass</strong></td>
+<td>At least one URL succeeded but at least one failed.</td>
+</tr>
+<tr>
+<td><strong>Fail</strong></td>
+<td>No URLs are reachable.</td>
+</tr>
+<tr>
+<td><strong>N/A</strong></td>
+<td>The layer has no URLs to validate, or all of them were skipped.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="performance-status">Performance status<a class="headerlink" href="#performance-status" title="Permanent link">&para;</a></h3>
+<p><strong>Performance</strong> is only computed when Data Access is not <strong>Fail</strong> — there is no
+point in measuring performance on something that does not load.</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>When it is reported</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Good</strong></td>
+<td>No performance warnings on any URL.</td>
+</tr>
+<tr>
+<td><strong>Average</strong></td>
+<td>Exactly one performance warning across the layer.</td>
+</tr>
+<tr>
+<td><strong>Poor</strong></td>
+<td>Two or more performance warnings, <strong>or</strong> any pixel-interleaved (BIP) COG (these are always treated as Poor regardless of count).</td>
+</tr>
+<tr>
+<td><strong>—</strong></td>
+<td>Not measured (Data Access was Fail or N/A).</td>
+</tr>
+</tbody>
+</table>
+<p>Common performance warnings include payload size above the <strong>2 MB advisory
+threshold</strong>, oversized internal tile sizes on COGs, missing overviews, and
+pixel-interleaved storage layouts.</p>
+<h2 id="drilling-into-a-single-layer">Drilling into a single layer<a class="headerlink" href="#drilling-into-a-single-layer" title="Permanent link">&para;</a></h2>
+<p>Click <strong>View details</strong> on any row to expand it. The expanded panel lists every
+URL the healthcheck probed, the request type used (<code>head-request</code>,
+<code>get-capabilities</code>, etc.), and the underlying error or warning message.</p>
+<h3 id="a-failing-layer-data-access-fail">A failing layer (Data Access = Fail)<a class="headerlink" href="#a-failing-layer-data-access-fail" title="Permanent link">&para;</a></h3>
+<p><img alt="Expanded row for &quot;Soil Water Index 1km daily time series&quot; showing a WMTS GetCapabilities error" src="../assets/screenshots/healthcheck-row-details-fail.png" /></p>
+<p>In this example the layer's WMTS endpoint returned <code>Failed to fetch</code> from a
+GetCapabilities probe. Typical root causes:</p>
+<ul>
+<li>The service URL has changed or the endpoint is offline.</li>
+<li>The host blocks browser requests with a missing or restrictive CORS header.</li>
+<li>A typo in the layer identifier (<code>Layer:</code> shown under the URL).</li>
+</ul>
+<h3 id="a-slow-but-reachable-layer-performance-poor">A slow but reachable layer (Performance = Poor)<a class="headerlink" href="#a-slow-but-reachable-layer-performance-poor" title="Permanent link">&para;</a></h3>
+<p><img alt="Expanded row for &quot;Portugal Land Cover Map&quot; showing a &quot;Tile size 1024 too large&quot; performance warning" src="../assets/screenshots/healthcheck-row-details-poor.png" /></p>
+<p>This COG <strong>passes</strong> Data Access — the file loads — but it is flagged
+<strong>Poor</strong> for performance. The expanded view spells out why:
+<code>Tile size 1024 too large (recommended 256–512)</code>. Re-tiling the COG with
+smaller internal tiles will move it to <strong>Good</strong>.</p>
+<h2 id="filtering-the-table">Filtering the table<a class="headerlink" href="#filtering-the-table" title="Permanent link">&para;</a></h2>
+<p>The <strong>Results</strong> card doubles as a quick filter. Click any of the count chips
+(e.g. <strong>2 Poor</strong>, <strong>8 Fail</strong>) to restrict the table to just those layers.
+Click the same chip again to clear the filter. The two columns of chips are
+mutually exclusive — selecting one in <strong>Performance</strong> clears any active
+<strong>Data Access</strong> filter.</p>
+<p>You can also sort the table by clicking the <strong>↕</strong> icon in either the
+<strong>Data Access</strong> or <strong>Performance</strong> column header. <strong>Worst first</strong> puts
+problems on top so they are easy to triage; <strong>Best first</strong> confirms what is
+healthy.</p>
+<h2 id="acting-on-results">Acting on results<a class="headerlink" href="#acting-on-results" title="Permanent link">&para;</a></h2>
+<p>From an expanded row you can:</p>
+<ul>
+<li><strong>Edit Layer</strong> — jumps to the layer's card on the <strong>Layers</strong> tab so you can
+  fix URLs, swap services, or adjust settings without leaving your place.</li>
+<li><strong>Remove Layer</strong> — deletes the layer from the config. You will be asked to
+  confirm; this is the right choice for layers whose source is permanently
+  gone.</li>
+</ul>
+<p>Both actions update the underlying config immediately. Your healthcheck
+results stay visible until you run again, so you can keep working through the
+list.</p>
+<h2 id="re-running">Re-running<a class="headerlink" href="#re-running" title="Permanent link">&para;</a></h2>
+<p>After fixing issues, return to the <strong>Home</strong> tab and click <strong>Re-run
+Healthcheck</strong>. The button label changes to <strong>Re-run Healthcheck</strong> as soon as
+any results exist for the current config, and the previous run's summary stays
+visible on the Home tab until the new one completes.</p>
+<p><img alt="Home tab after a healthcheck run — the Results card shows the per-status counts and the last-run timestamp" src="../assets/screenshots/home-tab-after-healthcheck.png" /></p>
+<p>You can also click the <strong>Results</strong> card on the Home tab to reopen the dialog
+in <strong>view-only</strong> mode without re-running, which is useful when you just want
+to look up a previous result.</p>
+<h2 id="common-failure-modes-and-what-to-do">Common failure modes and what to do<a class="headerlink" href="#common-failure-modes-and-what-to-do" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Symptom in details panel</th>
+<th>Likely cause</th>
+<th>What to try</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Failed to fetch</code> on a GetCapabilities probe</td>
+<td>CORS blocked, endpoint down, or DNS failure</td>
+<td>Open the URL in a new browser tab; if it loads there but fails here, it is almost certainly CORS. Ask the service operator to allow your origin.</td>
+</tr>
+<tr>
+<td>HTTP <code>403</code> from an S3-hosted asset</td>
+<td>Bucket policy denies anonymous reads</td>
+<td>Verify the object is public, or switch to a presigned URL workflow.</td>
+</tr>
+<tr>
+<td><code>Tile size NNN too large (recommended 256–512)</code></td>
+<td>COG was generated with an unusually large internal tile size</td>
+<td>Re-tile the COG with <code>gdal_translate -co BLOCKXSIZE=512 -co BLOCKYSIZE=512</code>.</td>
+</tr>
+<tr>
+<td><code>Pixel-interleaved</code> warning</td>
+<td>COG uses BIP interleave, which is slow to render</td>
+<td>Re-tile with <code>INTERLEAVE=BAND</code> (BSQ).</td>
+</tr>
+<tr>
+<td><code>Large file: NN MB</code></td>
+<td>Static asset above the 2 MB advisory threshold</td>
+<td>Consider tiling the asset or splitting the dataset by region or time.</td>
+</tr>
+<tr>
+<td><code>Timed out</code></td>
+<td>Service responded but took too long</td>
+<td>Often transient — re-run. Persistent timeouts usually mean the service needs a CDN in front of it.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="diagnostics.html">Diagnostics</a> — per-service probe results, run from the
+  Services manager.</li>
+<li><a href="adding-services.html">Adding services</a> — register endpoints that the
+  healthcheck can validate against.</li>
+<li><a href="../layers/index.html">Layers → Overview</a> — where to fix layer-level
+  configuration once the healthcheck identifies a problem.</li>
+<li><a href="../reference/troubleshooting.html">Troubleshooting</a> — broader recovery tips
+  beyond healthcheck-specific errors.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../home/overview.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Overview
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../layers/overview.html" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Overview
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "content.code.copy", "content.tabs.link", "content.tooltips", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

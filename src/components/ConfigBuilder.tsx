@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download } from 'lucide-react';
+import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useConfigExport } from '@/hooks/useConfigIO';
 import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
@@ -265,6 +265,25 @@ const ConfigBuilderContent = () => {
                 </Tooltip>
               </TooltipProvider>
             </TabsList>
+            {/* User Guide button hidden pre-launch — restore when ready to share with end users.
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a
+                    href="/guide/index.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-primary/20 bg-white hover:bg-primary hover:text-primary-foreground transition-colors"
+                  >
+                    <BookOpen className="h-4 w-4 text-muted-foreground" />
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>User Guide</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

@@ -1,0 +1,146 @@
+site_name: APEx Geospatial Explorer — Config Builder Guide
+site_description: End-user guide for building, validating, and exporting APEx Geospatial Explorer configurations.
+docs_dir: docs
+site_dir: public/guide
+site_url: https://apex-ge-config-builder.sparkgeo.uk/guide/
+use_directory_urls: false
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    # navigation.sections removed so nested groups (Data sources, Charts, …)
+    # inside a tab render as collapsible chevrons instead of always-visible
+    # bold headers.
+    - navigation.indexes
+    - navigation.prune
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.tabs.link
+    - content.tooltips
+    - search.suggest
+    - search.highlight
+  icon:
+    status:
+      draft: material/pencil-outline
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Welcome: index.md
+  - Getting Started:
+      - Overview: getting-started/overview.md
+      - Build your first config: getting-started/first-config.md
+      - Loading and saving: getting-started/loading-saving.md
+  - Home tab:
+      - Overview: home/overview.md
+      - Run Healthcheck: services/healthcheck.md
+  - Layers tab:
+      - Overview: layers/overview.md
+      - Interface groups: configuration/interface-groups.md
+      - Adding Layers:
+          - Overview: layers/types/overview.md
+          - Standard layers: layers/standard-layers.md
+          - Swipe layers: layers/swipe-layers.md
+          - Base layers: layers/base-layers.md
+      - Adding Data Sources:
+          - Overview: data-sources/overview.md
+          - COG: data-sources/cog.md
+          - WMS / WMTS / WFS: data-sources/wms-wmts-wfs.md
+          - XYZ: data-sources/xyz.md
+          - GeoJSON / FlatGeoBuf: data-sources/geojson-flatgeobuf.md
+          - CSV: data-sources/csv.md
+          - S3 browser: data-sources/s3-browser.md
+          - STAC browser: data-sources/stac-browser.md
+      - Data visualisation:
+          - Overview: layers/data-visualisation.md
+          - Categories: layers/categories.md
+          - Colormaps: layers/colormaps.md
+          - RGB composite: layers/rgb-composite.md
+          - Vector styling: layers/vector-styling.md
+          - Vector fields: layers/vector-fields.md
+      - Time Series: layers/time-series.md
+      - Statistics: statistics/overview.md
+      - Constraints: constraints/overview.md
+      - Charts:
+          - Overview: charts/overview.md
+          - Visual editor: charts/visual-editor.md
+          - Pixel values: charts/pixel-values.md
+          - Field values: charts/field-values.md
+          - CSV data: charts/csv-data.md
+  - Draw order tab: configuration/draw-order.md
+  - Services tab:
+      - Overview: services/overview.md
+      - Adding services: services/adding-services.md
+      - Diagnostics: services/diagnostics.md
+      - Recommended services: services/recommended.md
+  - Settings tab:
+      - Overview: settings/overview.md
+      - Footer links: configuration/footer-links.md
+      - Layout: configuration/layout.md
+      - Export options: configuration/export-options.md
+  - JSON config: configuration/json-config.md
+  - GE Preview tab: configuration/preview.md
+  - How-to recipes:
+      - Overview: recipes/overview.md
+      - Data sources & services:
+          - Add a WMTS service: recipes/add-wmts-service.md
+          - Add a COG from S3: recipes/add-cog-from-s3.md
+          - Load a STAC collection: recipes/load-stac-collection.md
+          - Add a GeoJSON overlay: recipes/add-geojson-overlay.md
+      - Visualisation:
+          - Style a raster with a colormap: recipes/style-raster-with-colormap.md
+          - Build an RGB composite: recipes/build-rgb-composite.md
+          - Style vectors by attribute: recipes/style-vector-by-attribute.md
+          - Configure vector fields: recipes/configure-vector-fields.md
+          - Swipe compare two layers: recipes/swipe-compare-two-layers.md
+      - Organisation & UX:
+          - Group layers into interfaces: recipes/group-layers-into-interfaces.md
+          - Set the default base layer: recipes/set-default-base-layer.md
+          - Customise footer and layout: recipes/customise-footer-and-layout.md
+          - Restrict the map extent: recipes/restrict-map-extent.md
+      - Charts:
+          - Build a chart from CSV: recipes/chart-from-csv.md
+          - Build a spectral signature chart: recipes/spectral-signature-chart.md
+          - Inline pie chart from vector data: recipes/inline-pie-chart-from-vector.md
+      - Lifecycle:
+          - Validate and publish a config: recipes/validate-and-publish.md
+          - Migrate an existing config: recipes/migrate-existing-config.md
+          - Edit JSON directly (safely): recipes/edit-json-directly.md
+  - Reference:
+      - Overview: reference/overview.md
+      - URL parameters: reference/url-parameters.md
+      - JSON schema reference: reference/json-schema.md
+      - Tips and shortcuts: reference/keyboard-and-tips.md
+      - Troubleshooting: reference/troubleshooting.md
+      - Authors guide: reference/authors-guide.md
+      - Glossary: reference/glossary.md
+
+extra:
+  status:
+    draft: Not yet reviewed

@@ -28,6 +28,14 @@ interface ControlsEditorDialogProps {
   onSave: (layoutUpdates: Partial<DataSourceLayout>, sourceFieldUpdates: Record<string, any>) => void;
 }
 
+const parseExtentText = (text: string): [number, number, number, number] | null => {
+  const parts = text.split(',').map((p) => p.trim());
+  if (parts.length !== 4) return null;
+  const nums = parts.map((p) => parseFloat(p));
+  if (nums.some((n) => !Number.isFinite(n))) return null;
+  return nums as [number, number, number, number];
+};
+
 const ControlsEditorDialog = ({
   open,
   onOpenChange,
@@ -39,7 +47,9 @@ const ControlsEditorDialog = ({
   const controls = isControlsObject ? rawControls : undefined;
 
   const [toggleable, setToggleable] = useState(!!source.layout?.layerCard?.toggleable);
-  const [zoomToCenter, setZoomToCenter] = useState(!!controls?.zoomToCenter);
+  const [zoomToCenter, setZoomToCenter] = useState(!!(controls as any)?.zoomToCenter);
+  const [zoomToCenterMode, setZoomToCenterMode] = useState<'bounds' | 'custom'>('bounds');
+  const [zoomToCenterExtentText, setZoomToCenterExtentText] = useState('');
   const [opacitySlider, setOpacitySlider] = useState(!!controls?.opacitySlider);
   const [blendControls, setBlendControls] = useState(!!controls?.blendControls);
   const [constraintSlider, setConstraintSlider] = useState(!!controls?.constraintSlider);
@@ -55,9 +65,17 @@ const ControlsEditorDialog = ({
       const raw = source.layout?.layerCard?.controls || source.layout?.infoPanel?.controls;
       const isObj = raw && typeof raw === 'object' && !Array.isArray(raw);
       const ctrl = isObj ? raw : undefined;
+      const z = (ctrl as any)?.zoomToCenter;
 
       setToggleable(!!source.layout?.layerCard?.toggleable);
-      setZoomToCenter(!!ctrl?.zoomToCenter);
+      setZoomToCenter(!!z);
+      if (z && typeof z === 'object' && Array.isArray(z.extent)) {
+        setZoomToCenterMode('custom');
+        setZoomToCenterExtentText(z.extent.join(', '));
+      } else {
+        setZoomToCenterMode('bounds');
+        setZoomToCenterExtentText('');
+      }
       setOpacitySlider(!!ctrl?.opacitySlider);
       setBlendControls(!!ctrl?.blendControls);
       setConstraintSlider(!!ctrl?.constraintSlider);
@@ -72,7 +90,14 @@ const ControlsEditorDialog = ({
   const handleSave = () => {
     const newControls: Record<string, any> = {};
     if (opacitySlider) newControls.opacitySlider = true;
-    if (zoomToCenter) newControls.zoomToCenter = true;
+    if (zoomToCenter) {
+      if (zoomToCenterMode === 'custom') {
+        const parsed = parseExtentText(zoomToCenterExtentText);
+        newControls.zoomToCenter = parsed ? { extent: parsed } : true;
+      } else {
+        newControls.zoomToCenter = true;
+      }
+    }
     if (blendControls) newControls.blendControls = true;
     if (constraintSlider) newControls.constraintSlider = true;
     if (temporalControls) newControls.temporalControls = true;
@@ -124,6 +149,38 @@ const ControlsEditorDialog = ({
             <Checkbox id="ctrl-zoom" checked={zoomToCenter} onCheckedChange={(v) => setZoomToCenter(!!v)} />
             <Label htmlFor="ctrl-zoom" className="text-sm font-normal">Zoom to Center</Label>
           </div>
+          {zoomToCenter && (
+            <div className="ml-6 space-y-1.5">
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={zoomToCenterMode === 'bounds' ? 'default' : 'outline'}
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setZoomToCenterMode('bounds')}
+                >
+                  Layer bounds
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={zoomToCenterMode === 'custom' ? 'default' : 'outline'}
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setZoomToCenterMode('custom')}
+                >
+                  Custom extent
+                </Button>
+              </div>
+              {zoomToCenterMode === 'custom' && (
+                <Input
+                  className="h-8 text-sm max-w-[280px]"
+                  placeholder="xmin, ymin, xmax, ymax"
+                  value={zoomToCenterExtentText}
+                  onChange={(e) => setZoomToCenterExtentText(e.target.value)}
+                />
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <Checkbox id="ctrl-opacity" checked={opacitySlider} onCheckedChange={(v) => setOpacitySlider(!!v)} />
             <Label htmlFor="ctrl-opacity" className="text-sm font-normal">Opacity Slider</Label>

@@ -18,6 +18,7 @@ interface SubmissionFormData {
   toggleable: boolean;
   opacitySlider: boolean;
   zoomToCenter: boolean;
+  zoomToCenterExtent?: [number, number, number, number];
   download?: string;
   temporalControls: boolean;
   constraintSlider: boolean;
@@ -56,9 +57,14 @@ export const useLayerCardFormSubmission = (
     };
 
     // Prepare controls object with all control fields
+    // Preserve custom extent (zoomToCenterExtent) when the toggle is on
+    const zoomToCenterValue: boolean | { extent: [number, number, number, number] } =
+      formData.zoomToCenter && formData.zoomToCenterExtent
+        ? { extent: formData.zoomToCenterExtent }
+        : formData.zoomToCenter;
     const controlsObject = {
       opacitySlider: formData.opacitySlider,
-      zoomToCenter: formData.zoomToCenter,
+      zoomToCenter: zoomToCenterValue,
       temporalControls: formData.temporalControls,
       constraintSlider: formData.constraintSlider,
       blendControls: formData.blendControls,
