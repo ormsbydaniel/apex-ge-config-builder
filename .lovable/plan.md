@@ -108,8 +108,8 @@ Use the existing compact layout metrics (from project memory):
 ## Acceptance criteria
 
 1. Open Edit Controls on a layer with `zoomToCenter: true` — dialog shows switch ON, "Layer bounds" selected.
-2. Hand-edit JSON to `zoomToCenter: { extent: [0,52,1,53] }`, reopen dialog — switch ON, "Custom extent" selected, inputs populated.
-3. Change inputs, save, export config — JSON contains the new extent values.
-4. In LayerCardForm, toggle "Zoom to layer" ON, choose "Custom extent", enter values, create layer — resulting source has the object form.
+2. Hand-edit JSON to `zoomToCenter: { extent: [0,52,1,53] }`, reopen dialog — switch ON, "Custom extent" selected, input shows `0, 52, 1, 53`.
+3. Change the text to new values, save, export config — JSON contains the new extent array.
+4. In LayerCardForm, toggle "Zoom to layer" ON, choose "Custom extent", enter comma-separated values, create layer — resulting source has the object form.
 5. Toggle switch OFF — `zoomToCenter` is removed from controls entirely.
 6. Existing layers with plain `zoomToCenter: true` continue to work unchanged.
