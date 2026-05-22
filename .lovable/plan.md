@@ -33,18 +33,18 @@ This is the small inline dialog opened from the layer list for quick control edi
 
 Changes needed:
 
-1. Add local state for `zoomToCenterMode: 'bounds' | 'custom'` and `zoomToCenterExtent: [number, number, number, number]`.
+1. Add local state for `zoomToCenterMode: 'bounds' | 'custom'` and `zoomToCenterExtentText: string`.
 2. On dialog open, inspect the existing `controls.zoomToCenter` value:
    - If `true` or missing/falsy → mode = 'bounds', switch ON.
-   - If object with `extent` → mode = 'custom', switch ON, populate inputs from `extent`.
+   - If object with `extent` → mode = 'custom', switch ON, populate text input from `extent.join(', ')`.
    - If falsy → switch OFF.
 3. Render the Zoom to Center checkbox as today. When checked, show an indented sub-row:
    - Two small buttons/pills or a segmented control: "Layer bounds" | "Custom extent"
-   - If "Custom extent" selected, show a 2x2 grid of numeric inputs (xmin, ymin, xmax, ymax) with labels.
+   - If "Custom extent" selected, show a single text input with placeholder `xmin, ymin, xmax, ymax` and a small help label.
 4. In `handleSave`:
    - If switch OFF → omit `zoomToCenter`.
    - If switch ON + mode 'bounds' → `zoomToCenter: true`.
-   - If switch ON + mode 'custom' → `zoomToCenter: { extent: [parsed values] }`.
+   - If switch ON + mode 'custom' → parse the comma-separated text into four numbers. If parsing succeeds, write `zoomToCenter: { extent: [parsed] }`; otherwise fall back to `zoomToCenter: true`.
    - Preserve the existing fallback logic that keeps an already-stored object if the user merely leaves the switch on.
 
 ### 2.3 UnifiedControlsSection.tsx
