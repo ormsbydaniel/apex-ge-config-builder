@@ -57,7 +57,7 @@ const ControlsEditorDialog = ({
       const ctrl = isObj ? raw : undefined;
 
       setToggleable(!!source.layout?.layerCard?.toggleable);
-      setZoomToCenter(!!ctrl?.zoomToCenter);
+      setZoomToCenter(!!(ctrl as any)?.zoomToCenter);
       setOpacitySlider(!!ctrl?.opacitySlider);
       setBlendControls(!!ctrl?.blendControls);
       setConstraintSlider(!!ctrl?.constraintSlider);
