@@ -1,26 +1,22 @@
 # Custom bounding box for Zoom to Center
 
-## Goal
-In the Edit Controls modal, keep the existing "Zoom to Center" toggle, and add a "Custom" affordance next to it that reveals four inputs (xmin, ymin, xmax, ymax). When a custom extent is set, persist it as an object with an `extent` array, e.g.:
+Two-phase delivery. Phase 1 lands the schema + plumbing only. Phase 2 (deferred) adds the UI in the Edit Controls modal.
+
+## Target schema shape
 
 ```json
 "zoomToCenter": { "extent": [0.0, 52, 1.0, 53.0] }
 ```
 
-When only the toggle is on (no custom extent), persist as `true` (current behaviour).
+Existing boolean form (`"zoomToCenter": true`) must continue to work.
 
-## Schema status
-The schema does **not** currently support this. Today:
+---
 
-```ts
-zoomToCenter: z.boolean().optional()
-```
+## Phase 1 — JSON / schema / pass-through
 
-Per project guideline #2, the Zod schema, the TypeScript interface, and the validation hook must all be updated together.
+Goal: any config containing `zoomToCenter: { extent: [...] }` round-trips cleanly through import, validation, edit, export, layer copy/duplicate, the raw JSON editor, and the viewer hand-off — without any UI to set it yet (users can hand-edit JSON to exercise it).
 
-## Changes
-
-### 1. Schema (`src/schemas/configSchema.ts`)
+### 1.1 Zod schema (`src/schemas/configSchema.ts`)
 Widen `zoomToCenter` inside `ControlsSchema`:
 
 ```ts
@@ -32,33 +28,47 @@ zoomToCenter: z.union([
 ]).optional()
 ```
 
-### 2. Types
-Update the matching TypeScript interface for `controls.zoomToCenter` to `boolean | { extent: [number, number, number, number] }`.
+### 1.2 TypeScript types
+Update the matching interface to:
 
-### 3. Validation hook (`src/hooks/useValidatedConfig.ts`)
-Confirm nothing strips or normalizes `zoomToCenter`. If sanitization exists, allow the object form through unchanged.
+```ts
+zoomToCenter?: boolean | { extent: [number, number, number, number] }
+```
 
-### 4. UI — `src/components/form/ControlsEditorDialog.tsx`
-- Keep the existing `Zoom to Center` checkbox.
-- Add a small "Custom" link button to the right of the label.
-- Clicking it toggles an inline panel (indented under the row) with four numeric inputs labelled `xmin`, `ymin`, `xmax`, `ymax`.
-- Local state additions:
-  - `customExtentOpen: boolean`
-  - `extent: { xmin: string; ymin: string; xmax: string; ymax: string }`
-- Initialize from existing value inside the `open`-watching `useEffect`:
-  - If `zoomToCenter` is an object with `extent` → checkbox on, custom open, inputs populated.
-  - If `zoomToCenter === true` → checkbox on, custom closed.
-  - Else → both off.
-- On save, decide `newControls.zoomToCenter`:
-  - If custom is open AND all four inputs parse as finite numbers → `{ extent: [xmin, ymin, xmax, ymax] }`.
-  - Else if checkbox is on → `true`.
-  - Else → omit.
-- If custom is open but any input is invalid, block save with an inline hint.
+Locate every `controls.zoomToCenter` type reference and update.
 
-### 5. Pass-through check
-Grep for other readers of `controls.zoomToCenter` (exporters, viewer-bound code). This configurator passes through to the GE viewer, so no behavioural change is required here — just confirm the object shape survives serialization round-trips (import, edit, export, preview).
+### 1.3 Validation hook (`src/hooks/useValidatedConfig.ts`)
+Confirm nothing strips or coerces `zoomToCenter`. If sanitisation logic exists, allow the object form through unchanged.
 
-## Out of scope
-- CRS handling for the entered coordinates (assumed to match viewer CRS, as elsewhere).
-- A map-pick UI for the bbox.
-- Any change to other controls in the dialog.
+### 1.4 Pass-through audit
+Grep the codebase for every reader/writer of `controls.zoomToCenter` and confirm each path preserves the object shape:
+
+- Config import (file upload, paste JSON)
+- Config export (download / copy JSON)
+- Raw JSON editor (parse + serialise round-trip)
+- Layer copy / duplicate / move between sources
+- ConfigContext reducer payloads
+- Viewer iframe hand-off (preview)
+- Any defaulting / normalisation utilities
+
+For each call site, either no change is needed (passes through unknown) or update to handle `boolean | { extent }`. No truthy-only checks may silently drop the object.
+
+### 1.5 Tests
+Add a focused round-trip test that:
+
+1. Parses a sample config containing `zoomToCenter: { extent: [0, 52, 1, 53] }` via `ConfigurationSchema`.
+2. Re-serialises and re-parses it.
+3. Asserts the extent array survives byte-for-byte.
+
+Plus a duplicate-layer test if a helper exists in `src/utils/__tests__/`.
+
+### 1.6 Out of scope for Phase 1
+- No changes to `ControlsEditorDialog.tsx`.
+- No new UI affordance for entering coordinates.
+- No CRS handling, no map-pick.
+
+---
+
+## Phase 2 — UI (deferred, separate plan)
+
+Edit Controls modal gets a "Custom" link next to the Zoom to Center checkbox that reveals four numeric inputs (xmin, ymin, xmax, ymax). Will be planned and approved separately once Phase 1 is verified.
