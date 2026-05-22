@@ -72,7 +72,14 @@ const ControlsEditorDialog = ({
   const handleSave = () => {
     const newControls: Record<string, any> = {};
     if (opacitySlider) newControls.opacitySlider = true;
-    if (zoomToCenter) newControls.zoomToCenter = true;
+    if (zoomToCenter) {
+      // Preserve any existing custom extent on the layer (Phase 1: no UI to edit it here)
+      const existing = (controls as any)?.zoomToCenter;
+      newControls.zoomToCenter =
+        existing && typeof existing === 'object' && Array.isArray(existing.extent)
+          ? existing
+          : true;
+    }
     if (blendControls) newControls.blendControls = true;
     if (constraintSlider) newControls.constraintSlider = true;
     if (temporalControls) newControls.temporalControls = true;
