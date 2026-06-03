@@ -1,23 +1,23 @@
-# Inspect Config Delivered to Viewer Iframe
+## Issue
 
-Add a way to inspect the exact config (including the merged `env` object) that gets delivered to the viewer iframe, accessible from the preview header bar next to the version selector.
+`src/components/layers/ParametersEditor.tsx` lists `version` in `RESERVED_KEYS`, which marks the row as invalid and strips it on save. WMS callers legitimately need to pin `VERSION` (e.g. `1.1.1` vs `1.3.0`) since coordinate-axis order and SRS/CRS handling differ between versions.
 
-## Changes
+## Change
 
-### 1. `src/hooks/useViewerLoader.ts`
-- Export a stable reference to the "delivered config" (config merged with `VIEWER_ENV` via `withEnv`). Add `deliveredConfig` to the hook's return value, computed via `useMemo` from the incoming `config` so consumers always see exactly what is sent to the iframe.
-- Add a one-line `console.log('[Config Builder] Delivered config:', deliveredConfig)` whenever the delivered config changes (gated on `isReady` to avoid noise during initial mount).
+In `src/components/layers/ParametersEditor.tsx`:
 
-### 2. `src/pages/Preview.tsx`
-- Read `deliveredConfig` from `useViewerLoader`.
-- Add a small icon button (Lucide `Code2` or `FileJson`) in the header bar, placed between the version `Select` and the status badges, with a tooltip "Inspect delivered config".
-- Clicking it opens a `Dialog` (shadcn) showing:
-  - Title: "Config delivered to viewer"
-  - A scrollable `<pre>` block with `JSON.stringify(deliveredConfig, null, 2)`
-  - A "Copy JSON" button using `navigator.clipboard.writeText` with a toast confirmation
-- Also log the same payload to the console when the dialog opens, so users who prefer DevTools have it handy.
+- Remove `'version'` from `RESERVED_KEYS` (line 18) so it becomes:
+  ```ts
+  const RESERVED_KEYS = ['time', 'layers', 'service', 'request'];
+  ```
+
+That single edit:
+- Allows users to add `VERSION` (any case) as a parameter.
+- Persists it through `rowsToRecord` into the saved config.
+- Updates the inline help text automatically (it's generated from the array).
 
 ## Out of scope
-- No changes to what gets delivered, only visibility.
-- No changes to `viewer-host.html` or the viewer bundle.
-- No persistence of the dialog state.
+
+- `time`, `layers`, `service`, `request` remain reserved (the viewer/OGC pipeline owns them).
+- No schema or type changes needed — parameters are already a free-form `Record<string, string>`.
+- No viewer-side change required; it already forwards extra params on WMS requests.
