@@ -93,6 +93,8 @@ describe('summariseStyleRule', () => {
     );
     expect(s.dominantKind).toBe('fill');
     expect(s.colour).toBe('#222');
+    expect(s.primitiveColours.fill?.colour).toBe('#222');
+    expect(s.primitiveColours.line?.colour).toBe('#111');
     expect(s.primitiveKinds).toEqual(['fill', 'line', 'marker', 'label']);
   });
 

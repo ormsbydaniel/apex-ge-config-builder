@@ -18,6 +18,8 @@ export interface RuleSummary {
   colour: string | 'data-driven' | undefined;
   /** First attribute field driving the dominant primitive's paint (if any). */
   drivingField?: string;
+  /** Resolved paint colour for each primitive present in the rule. */
+  primitiveColours: Partial<Record<PrimitiveKind, { colour: string | 'data-driven' | undefined; drivingField?: string }>>;
   /** Human-readable filter summary ('always' | 'else' | e.g. "status = 'open'"). */
   filterText: string;
 }
@@ -139,8 +141,11 @@ const formatFilter = (rule: StyleRule): string => {
 export const summariseStyleRule = (rule: StyleRule, index: number): RuleSummary => {
   const kinds = collectPrimitiveKinds(rule.primitives ?? {});
   const dominantKind = pickDominant(kinds);
+  const primitiveColours = Object.fromEntries(
+    kinds.map(kind => [kind, resolveColour(rule.primitives ?? {}, kind)]),
+  ) as RuleSummary['primitiveColours'];
   const { colour, drivingField } = dominantKind
-    ? resolveColour(rule.primitives ?? {}, dominantKind)
+    ? primitiveColours[dominantKind] ?? { colour: undefined, drivingField: undefined }
     : { colour: undefined, drivingField: undefined };
 
   return {
@@ -150,6 +155,7 @@ export const summariseStyleRule = (rule: StyleRule, index: number): RuleSummary 
     dominantKind,
     colour,
     drivingField,
+    primitiveColours,
     filterText: formatFilter(rule),
   };
 };

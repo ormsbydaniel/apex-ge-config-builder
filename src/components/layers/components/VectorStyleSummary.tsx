@@ -107,6 +107,24 @@ const SwatchGlyph: React.FC<{ kind: PrimitiveKind | undefined; colour: string | 
   );
 };
 
+const RuleGlyphs: React.FC<{ summary: RuleSummary }> = ({ summary }) => {
+  const kinds: Array<PrimitiveKind | undefined> = summary.primitiveKinds.length
+    ? summary.primitiveKinds
+    : [summary.dominantKind];
+
+  return (
+    <>
+      {kinds.map((kind, index) => (
+        <SwatchGlyph
+          key={kind ?? `unknown-${index}`}
+          kind={kind}
+          colour={kind ? summary.primitiveColours[kind]?.colour : summary.colour}
+        />
+      ))}
+    </>
+  );
+};
+
 const tooltipBody = (s: RuleSummary) => (
   <div className="space-y-0.5 text-xs">
     <div className="font-medium">{s.name}{s.enabled ? '' : ' (disabled)'}</div>
@@ -141,10 +159,10 @@ const VectorStyleSummary: React.FC<VectorStyleSummaryProps> = ({ rules }) => {
           <Tooltip key={i}>
             <TooltipTrigger asChild>
               <span
-                className="inline-flex"
+                className="inline-flex items-center gap-0.5"
                 style={{ opacity: s.enabled ? 1 : 0.4 }}
               >
-                <SwatchGlyph kind={s.dominantKind} colour={s.colour} />
+                <RuleGlyphs summary={s} />
               </span>
             </TooltipTrigger>
             <TooltipContent>{tooltipBody(s)}</TooltipContent>
