@@ -15,6 +15,7 @@ import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
+import VectorStyleSummary from '@/components/layers/components/VectorStyleSummary';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
