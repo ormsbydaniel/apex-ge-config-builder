@@ -95,14 +95,16 @@ const SwatchGlyph: React.FC<{ kind: PrimitiveKind | undefined; colour: string | 
     );
   }
 
-  // label
+  // label — filled tile with a letter, so it stays visible regardless of text colour
   return (
     <span
-      className="rounded-sm border border-border bg-background font-serif font-bold leading-none"
+      className="rounded-sm border border-border font-serif font-bold leading-none"
       style={{
         ...base,
-        color: isDataDriven ? 'hsl(var(--muted-foreground))' : resolvedColour,
+        background: background ?? resolvedColour,
+        color: isDataDriven ? 'hsl(var(--background))' : '#fff',
         fontSize: SWATCH_PX - 4,
+        textShadow: '0 0 1px rgba(0,0,0,0.6)',
       }}
       aria-hidden
     >
