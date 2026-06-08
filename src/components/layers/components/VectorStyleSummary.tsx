@@ -98,11 +98,15 @@ const SwatchGlyph: React.FC<{ kind: PrimitiveKind | undefined; colour: string | 
   // label
   return (
     <span
-      className="rounded-sm border border-border bg-background text-[9px] font-bold leading-none"
-      style={{ ...base, color: isDataDriven ? 'hsl(var(--muted-foreground))' : resolvedColour }}
+      className="rounded-sm border border-border bg-background font-serif font-bold leading-none"
+      style={{
+        ...base,
+        color: isDataDriven ? 'hsl(var(--muted-foreground))' : resolvedColour,
+        fontSize: SWATCH_PX - 4,
+      }}
       aria-hidden
     >
-      T
+      a
     </span>
   );
 };
