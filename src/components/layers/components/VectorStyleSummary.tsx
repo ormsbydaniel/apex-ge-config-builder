@@ -129,7 +129,8 @@ const VectorStyleSummary: React.FC<VectorStyleSummaryProps> = ({ rules }) => {
     return <>(None)</>;
   }
 
-  const summaries = summariseRules(rules);
+  const parsed = fromFlatStyleArray(rules);
+  const summaries = summariseRules(parsed.rules);
   const visible = summaries.slice(0, MAX_SWATCHES);
   const hidden = summaries.slice(MAX_SWATCHES);
 
