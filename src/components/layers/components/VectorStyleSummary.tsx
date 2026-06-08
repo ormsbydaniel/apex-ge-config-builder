@@ -1,10 +1,11 @@
 import React from 'react';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
-import type { StyleRule } from '@/types/vectorStyle';
 import { summariseRules, type PrimitiveKind, type RuleSummary } from '@/utils/vectorStyle/summariseStyleRule';
+import { fromFlatStyleArray } from '@/utils/vectorStyle/fromFlatStyleArray';
 
 interface VectorStyleSummaryProps {
-  rules: StyleRule[];
+  /** Raw OpenLayers flat-style array as persisted in the config. */
+  rules: unknown[];
 }
 
 const MAX_SWATCHES = 4;
