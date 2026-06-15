@@ -150,18 +150,15 @@ export const WorkflowFormDialog = ({
         </DialogHeader>
 
         {reviewMode ? (
-          <div className="space-y-4">
-            <ReadOnlyRow label="Service ID" value={serviceId} />
-            <ReadOnlyRow label="Service provider" value={serviceProvider} />
+          <div className="space-y-3">
+            <ReadOnlyInline label="Service ID:" value={serviceId} />
+            <ReadOnlyInline label="Service provider:" value={serviceProvider} />
+            {application && <ReadOnlyInline label="Application:" value={application} />}
 
-            {(endpoint || namespace || application) && (
+            {(endpoint || namespace) && (
               <div className="space-y-3 pt-2 border-t">
-                <div className="text-sm font-medium text-foreground">
-                  Service details
-                </div>
                 {endpoint && <ReadOnlyRow label="Endpoint" value={endpoint} />}
                 {namespace && <ReadOnlyRow label="Namespace" value={namespace} />}
-                {application && <ReadOnlyRow label="Application" value={application} />}
               </div>
             )}
 
