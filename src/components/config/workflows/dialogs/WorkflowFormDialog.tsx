@@ -77,6 +77,7 @@ export const WorkflowFormDialog = ({
     setApplication(src.serviceDetails?.application ?? '');
     setCopyDescription(!!cataloguePrefill?.description);
     setCopyAttribution(!!cataloguePrefill?.provider);
+    setCopyAttributionUrl(!!cataloguePrefill?.providerUrl);
   }, [open, initial, prefill, cataloguePrefill]);
 
   const providers = Array.from(
