@@ -62,6 +62,8 @@ export const WorkflowFormDialog = ({
   const handleSave = () => {
     if (!serviceId.trim()) return;
 
+    const isNew = !initial;
+
     // Build single merged workflow (Core memory: single dispatch)
     const next: WorkflowItem = {
       ...(initial ?? {}),
@@ -79,18 +81,26 @@ export const WorkflowFormDialog = ({
       delete (next as any).serviceDetails;
     }
 
+    // Seed meta with description (and an empty attribution skeleton for new
+    // workflows so inline editors render placeholders).
+    const baseMeta: any = { ...(initial?.meta ?? {}) };
     if (description.trim()) {
-      next.meta = {
-        ...(initial?.meta ?? {}),
-        description: description.trim(),
-      };
-    } else if (next.meta) {
-      const { description: _omit, ...rest } = next.meta as any;
-      if (Object.keys(rest).length > 0) {
-        next.meta = rest;
-      } else {
-        delete (next as any).meta;
-      }
+      baseMeta.description = description.trim();
+    } else {
+      delete baseMeta.description;
+    }
+    if (isNew && !baseMeta.attribution) {
+      baseMeta.attribution = { text: '' };
+    }
+    if (Object.keys(baseMeta).length > 0) {
+      next.meta = baseMeta;
+    } else {
+      delete (next as any).meta;
+    }
+
+    // Seed layout skeleton for new workflows so layerCard.* sections render.
+    if (isNew && !(next as any).layout) {
+      (next as any).layout = { layerCard: {} };
     }
 
     onSave(next);

@@ -16,11 +16,37 @@ export interface MigrationResult<C extends ConfigShape> {
   movedCount: number;
 }
 
+const isPlainObject = (v: unknown): v is Record<string, any> =>
+  !!v && typeof v === 'object' && !Array.isArray(v);
+
+/**
+ * Deep-merge `overlay` onto `base`. Overlay values win; nested plain objects
+ * are merged recursively; arrays and primitives are replaced wholesale.
+ */
+const deepMerge = <T extends Record<string, any>>(
+  base: T | undefined,
+  overlay: T | undefined,
+): T | undefined => {
+  if (!base && !overlay) return undefined;
+  if (!base) return overlay;
+  if (!overlay) return base;
+  const out: Record<string, any> = { ...base };
+  for (const [k, v] of Object.entries(overlay)) {
+    if (isPlainObject(v) && isPlainObject(out[k])) {
+      out[k] = deepMerge(out[k], v);
+    } else {
+      out[k] = v;
+    }
+  }
+  return out as T;
+};
+
 /**
  * Returns a new config with every `source.workflows[]` entry hoisted into
  * `config.workflows[]` (preserving source order). The original sources have
- * their `workflows` field removed in the returned config. Input is not
- * mutated.
+ * their `workflows` field removed in the returned config. Hoisted workflows
+ * inherit the parent source's `meta` and `layout` (workflow's own values
+ * win on conflict). Input is not mutated.
  */
 export function migrateSourceWorkflowsToTopLevel<C extends ConfigShape>(
   config: C,
@@ -33,8 +59,15 @@ export function migrateSourceWorkflowsToTopLevel<C extends ConfigShape>(
   const sources = (config.sources ?? []).map((source) => {
     const wfs = source.workflows;
     if (!Array.isArray(wfs) || wfs.length === 0) return source;
+    const parentMeta = (source as any).meta;
+    const parentLayout = (source as any).layout;
     for (const wf of wfs) {
-      topLevel.push(wf);
+      const merged: WorkflowItem = { ...(wf as any) };
+      const mergedMeta = deepMerge(parentMeta, (wf as any).meta);
+      const mergedLayout = deepMerge(parentLayout, (wf as any).layout);
+      if (mergedMeta) (merged as any).meta = mergedMeta;
+      if (mergedLayout) (merged as any).layout = mergedLayout;
+      topLevel.push(merged);
       moved += 1;
     }
     const { workflows: _drop, ...rest } = source;
