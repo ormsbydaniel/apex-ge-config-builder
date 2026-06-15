@@ -71,7 +71,8 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
       rows = rows.filter((e) =>
         e.name.toLowerCase().includes(q) ||
         e.provider.toLowerCase().includes(q) ||
-        e.description.toLowerCase().includes(q)
+        e.description.toLowerCase().includes(q) ||
+        getAlgorithmType(e).toLowerCase().includes(q)
       );
     }
     const dir = sortDir === 'asc' ? 1 : -1;
