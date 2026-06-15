@@ -14,7 +14,8 @@ describe('migrateSourceWorkflowsToTopLevel', () => {
   });
 
   it('hoists per-source workflows in source order and strips the field', () => {
-    const input = {
+    const input: any = {
+
       sources: [
         { name: 'A', workflows: [{ serviceId: 'a1', serviceProvider: 'vito' }] },
         { name: 'B' },
