@@ -85,6 +85,10 @@ export const WorkflowCard = ({
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onEdit} aria-label="Edit workflow">
             <Pencil className="h-3.5 w-3.5" />
           </Button>
+          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onEditJson} aria-label="Edit workflow JSON" title="Edit JSON">
+            <FileJson className="h-3.5 w-3.5" />
+          </Button>
+
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onDuplicate} aria-label="Duplicate workflow">
             <Copy className="h-3.5 w-3.5" />
           </Button>
