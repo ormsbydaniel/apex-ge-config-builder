@@ -23,11 +23,13 @@ export const WorkflowCard = ({
   isFirst,
   isLast,
   onEdit,
+  onEditJson,
   onDuplicate,
   onRemove,
   onMoveUp,
   onMoveDown,
 }: WorkflowCardProps) => {
+
   const title = workflow.serviceId || '(unnamed workflow)';
   const provider = workflow.serviceProvider;
   const description = workflow.meta?.description;
