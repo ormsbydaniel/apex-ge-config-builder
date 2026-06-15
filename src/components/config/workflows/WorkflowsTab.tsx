@@ -47,6 +47,9 @@ export const WorkflowsTab = ({
   const [catalogueOpen, setCatalogueOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [prefill, setPrefill] = useState<Partial<WorkflowItem> | null>(null);
+  const [cataloguePrefill, setCataloguePrefill] = useState<
+    { description?: string; provider?: string } | null
+  >(null);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [jsonIndex, setJsonIndex] = useState<number | null>(null);
   const editing = editIndex !== null ? workflows[editIndex] : null;
@@ -59,12 +62,17 @@ export const WorkflowsTab = ({
       ...(fields.serviceDetails && { serviceDetails: fields.serviceDetails }),
     };
     setPrefill(seed);
+    setCataloguePrefill({
+      description: fields.description,
+      provider: fields.providerLabel ?? fields.serviceProvider,
+    });
     setCatalogueOpen(false);
     setAddOpen(true);
   };
 
   const handleSkipCatalogue = () => {
     setPrefill(null);
+    setCataloguePrefill(null);
     setCatalogueOpen(false);
     setAddOpen(true);
   };
