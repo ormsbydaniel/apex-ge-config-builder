@@ -17,7 +17,7 @@ interface CatalogueBrowserDialogProps {
   onSkip?: () => void;
 }
 
-type SortKey = 'name' | 'provider' | 'description';
+type SortKey = 'name' | 'provider' | 'type' | 'description';
 
 export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }: CatalogueBrowserDialogProps) => {
   const [entries, setEntries] = useState<CatalogueEntry[]>(() => getCachedEntries() ?? []);
