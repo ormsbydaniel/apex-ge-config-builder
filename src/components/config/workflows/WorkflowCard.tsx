@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import {
   Collapsible,
   CollapsibleContent,
@@ -11,9 +10,6 @@ import {
 import {
   ChevronDown,
   ChevronRight,
-  Edit2,
-  Check,
-  X,
   Server,
   User,
   Pencil,
@@ -77,10 +73,6 @@ export const WorkflowCard = ({
   onUpdate,
 }: WorkflowCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [editName, setEditName] = useState(workflow.serviceId ?? '');
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isRenaming && inputRef.current) {
