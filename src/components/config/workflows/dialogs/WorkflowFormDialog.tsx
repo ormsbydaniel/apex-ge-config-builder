@@ -203,6 +203,17 @@ export const WorkflowFormDialog = ({
                   Copy attribution{hasProvider ? ` (“${cataloguePrefill!.provider}”)` : ''}
                 </Label>
               </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="wf-copy-attr-url"
+                  checked={copyAttributionUrl}
+                  disabled={!hasProviderUrl}
+                  onCheckedChange={(v) => setCopyAttributionUrl(v === true)}
+                />
+                <Label htmlFor="wf-copy-attr-url" className="cursor-pointer break-all">
+                  Copy attribution URL{hasProviderUrl ? ` (${cataloguePrefill!.providerUrl})` : ''}
+                </Label>
+              </div>
             </div>
           </div>
         ) : (
