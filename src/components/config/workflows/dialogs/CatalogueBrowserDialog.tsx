@@ -162,11 +162,14 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
               <Table>
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="cursor-pointer select-none w-[28%]" onClick={() => toggleSort('name')}>
+                    <TableHead className="cursor-pointer select-none w-[26%]" onClick={() => toggleSort('name')}>
                       Name{sortIndicator('name')}
                     </TableHead>
-                    <TableHead className="cursor-pointer select-none w-[18%]" onClick={() => toggleSort('provider')}>
+                    <TableHead className="cursor-pointer select-none w-[16%]" onClick={() => toggleSort('provider')}>
                       Provider{sortIndicator('provider')}
+                    </TableHead>
+                    <TableHead className="cursor-pointer select-none w-[12%]" onClick={() => toggleSort('type')}>
+                      Type{sortIndicator('type')}
                     </TableHead>
                     <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('description')}>
                       Description{sortIndicator('description')}
