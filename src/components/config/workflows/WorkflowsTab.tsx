@@ -24,6 +24,7 @@ import { WorkflowFormDialog } from './dialogs/WorkflowFormDialog';
 import WorkflowJsonEditorDialog from './dialogs/WorkflowJsonEditorDialog';
 import CatalogueBrowserDialog from './dialogs/CatalogueBrowserDialog';
 import type { MappedWorkflowFields } from '@/lib/catalogue/types';
+import { resolveProviderUrl, getCachedEntries } from '@/lib/catalogue/apexCatalogue';
 
 interface WorkflowsTabProps {
   workflows: WorkflowItem[];
@@ -48,14 +49,14 @@ export const WorkflowsTab = ({
   const [addOpen, setAddOpen] = useState(false);
   const [prefill, setPrefill] = useState<Partial<WorkflowItem> | null>(null);
   const [cataloguePrefill, setCataloguePrefill] = useState<
-    { description?: string; provider?: string } | null
+    { description?: string; provider?: string; providerUrl?: string } | null
   >(null);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [jsonIndex, setJsonIndex] = useState<number | null>(null);
   const editing = editIndex !== null ? workflows[editIndex] : null;
   const jsonEditing = jsonIndex !== null ? workflows[jsonIndex] : null;
 
-  const handleCatalogueSelect = (fields: MappedWorkflowFields) => {
+  const handleCatalogueSelect = async (fields: MappedWorkflowFields) => {
     const seed: Partial<WorkflowItem> = {
       serviceId: fields.serviceId,
       serviceProvider: fields.serviceProvider,
@@ -68,6 +69,19 @@ export const WorkflowsTab = ({
     });
     setCatalogueOpen(false);
     setAddOpen(true);
+
+    // Resolve provider attribution URL asynchronously and patch in when available.
+    const entry = getCachedEntries()?.find(
+      (e) => e.provider === fields.serviceProvider && (e.record.id === fields.serviceId || e.algorithmId === fields.serviceId),
+    );
+    if (entry) {
+      const providerUrl = await resolveProviderUrl(entry);
+      if (providerUrl) {
+        setCataloguePrefill((prev) =>
+          prev ? { ...prev, providerUrl } : { providerUrl },
+        );
+      }
+    }
   };
 
   const handleSkipCatalogue = () => {

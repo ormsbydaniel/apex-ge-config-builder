@@ -82,6 +82,37 @@ export async function loadCatalogue(): Promise<CatalogueEntry[]> {
 export const OPENEO_UDP_URI = 'https://apex.esa.int/core/openeo-udp';
 export const OGC_PROCESSES_URI = 'https://apex.esa.int/core/ogc-api-processes';
 
+const providerUrlCache = new Map<string, string | undefined>();
+
+export async function resolveProviderUrl(entry: CatalogueEntry): Promise<string | undefined> {
+  const providerLink = entry.record.links?.find((l) => l.rel === 'provider')?.href;
+  if (!providerLink) return undefined;
+  const baseRaw = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/${entry.path}`;
+  let resolved: string;
+  try {
+    resolved = new URL(providerLink, baseRaw).toString();
+  } catch {
+    return undefined;
+  }
+  if (providerUrlCache.has(resolved)) return providerUrlCache.get(resolved);
+  try {
+    const res = await fetch(resolved);
+    if (!res.ok) {
+      providerUrlCache.set(resolved, undefined);
+      return undefined;
+    }
+    const rec = (await res.json()) as CatalogueRecord;
+    const website =
+      rec.links?.find((l) => l.rel === 'website')?.href ||
+      rec.links?.find((l) => l.rel === 'about')?.href;
+    providerUrlCache.set(resolved, website);
+    return website;
+  } catch {
+    providerUrlCache.set(resolved, undefined);
+    return undefined;
+  }
+}
+
 function findLink(record: CatalogueRecord, rel: string): string | undefined {
   return record.links?.find((l) => l.rel === rel)?.href;
 }

@@ -17,7 +17,7 @@ interface WorkflowFormDialogProps {
   /** Optional seed values used only when creating a new workflow (initial is null). */
   prefill?: Partial<WorkflowItem> | null;
   /** Catalogue-derived metadata. When present, dialog renders in read-only review mode. */
-  cataloguePrefill?: { description?: string; provider?: string } | null;
+  cataloguePrefill?: { description?: string; provider?: string; providerUrl?: string } | null;
   services: Service[];
   onSave: (workflow: WorkflowItem) => void;
 }
@@ -58,11 +58,13 @@ export const WorkflowFormDialog = ({
   const [application, setApplication] = useState('');
   const [copyDescription, setCopyDescription] = useState(true);
   const [copyAttribution, setCopyAttribution] = useState(true);
+  const [copyAttributionUrl, setCopyAttributionUrl] = useState(true);
 
   const isNew = !initial;
   const reviewMode = isNew && !!cataloguePrefill;
   const hasDescription = !!cataloguePrefill?.description;
   const hasProvider = !!cataloguePrefill?.provider;
+  const hasProviderUrl = !!cataloguePrefill?.providerUrl;
 
   // Initialize state inside useEffect watching open (Core memory)
   useEffect(() => {
@@ -75,6 +77,7 @@ export const WorkflowFormDialog = ({
     setApplication(src.serviceDetails?.application ?? '');
     setCopyDescription(!!cataloguePrefill?.description);
     setCopyAttribution(!!cataloguePrefill?.provider);
+    setCopyAttributionUrl(!!cataloguePrefill?.providerUrl);
   }, [open, initial, prefill, cataloguePrefill]);
 
   const providers = Array.from(
@@ -116,6 +119,12 @@ export const WorkflowFormDialog = ({
         baseMeta.attribution = {
           ...(baseMeta.attribution ?? {}),
           text: cataloguePrefill.provider,
+        };
+      }
+      if (copyAttributionUrl && cataloguePrefill?.providerUrl) {
+        baseMeta.attribution = {
+          ...(baseMeta.attribution ?? {}),
+          url: cataloguePrefill.providerUrl,
         };
       }
     }
@@ -192,6 +201,17 @@ export const WorkflowFormDialog = ({
                 />
                 <Label htmlFor="wf-copy-attr" className="cursor-pointer">
                   Copy attribution{hasProvider ? ` (“${cataloguePrefill!.provider}”)` : ''}
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="wf-copy-attr-url"
+                  checked={copyAttributionUrl}
+                  disabled={!hasProviderUrl}
+                  onCheckedChange={(v) => setCopyAttributionUrl(v === true)}
+                />
+                <Label htmlFor="wf-copy-attr-url" className="cursor-pointer break-all">
+                  Copy attribution URL{hasProviderUrl ? ` (${cataloguePrefill!.providerUrl})` : ''}
                 </Label>
               </div>
             </div>
