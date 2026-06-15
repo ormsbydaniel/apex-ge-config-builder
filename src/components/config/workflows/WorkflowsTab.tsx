@@ -23,8 +23,8 @@ import SortableWorkflowCard from './SortableWorkflowCard';
 import { WorkflowFormDialog } from './dialogs/WorkflowFormDialog';
 import WorkflowJsonEditorDialog from './dialogs/WorkflowJsonEditorDialog';
 import CatalogueBrowserDialog from './dialogs/CatalogueBrowserDialog';
-import type { MappedWorkflowFields, CatalogueEntry } from '@/lib/catalogue/types';
-import { resolveProviderUrl } from '@/lib/catalogue/apexCatalogue';
+import type { MappedWorkflowFields } from '@/lib/catalogue/types';
+import { resolveProviderUrl, getCachedEntries } from '@/lib/catalogue/apexCatalogue';
 
 interface WorkflowsTabProps {
   workflows: WorkflowItem[];
