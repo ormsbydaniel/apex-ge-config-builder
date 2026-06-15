@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { Service, DataSource, DataSourceItem, DataSourceFormat, LayerValidationResult } from '@/types/config';
+import { WorkflowItem } from '@/types/dataSource';
 import { ValidatedConfiguration } from '@/schemas/configSchema';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
 import { validateImages } from '@/utils/imageValidation';
+
 
 export type LoadedConfigSource = {
   type: 'upload' | 'example' | 'github' | 'url';
@@ -44,7 +46,9 @@ type ConfigAction =
   | { type: 'UPDATE_VALIDATION_RESULTS'; payload: Map<number, LayerValidationResult> }
   | { type: 'SET_UNSAVED_FORM_CHANGES'; payload: { hasChanges: boolean; description: string | null } }
   | { type: 'UPDATE_PROJECTIONS'; payload: Array<{ name?: string; code: string; definition: string }> }
-  | { type: 'UPDATE_FOOTER'; payload: { title: string; url: string }[] };
+  | { type: 'UPDATE_FOOTER'; payload: { title: string; url: string }[] }
+  | { type: 'UPDATE_WORKFLOWS'; payload: WorkflowItem[] };
+
 
 const initialState: ConfigState = {
   version: '1.0.0',
@@ -58,8 +62,10 @@ const initialState: ConfigState = {
   interfaceGroups: ["Interface group 1", "Interface group 2", "Interface group 3"],
   exclusivitySets: [],
   services: [],
+  workflows: [],
   sources: [
     {
+
       name: "Open StreetMap",
       isActive: true,
       isBaseLayer: true,
@@ -169,6 +175,8 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...payloadWithoutSource,
         exportPrefix: payloadWithoutSource.exportPrefix || 'config',
         services: payloadWithoutSource.services || [],
+        workflows: payloadWithoutSource.workflows || [],
+
         // Only add default mapConstraints if none exist in the imported config
         mapConstraints: payloadWithoutSource.mapConstraints !== undefined 
           ? {
@@ -551,7 +559,14 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           footer: action.payload,
         },
       };
+    case 'UPDATE_WORKFLOWS':
+      return {
+        ...state,
+        isDirty: true,
+        workflows: action.payload,
+      };
     default:
+
       return state;
   }
 }

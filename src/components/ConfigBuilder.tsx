@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download, BookOpen } from 'lucide-react';
+import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download, BookOpen, Workflow as WorkflowIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useConfigExport } from '@/hooks/useConfigIO';
 import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
@@ -16,7 +16,9 @@ import DrawOrderTab from './config/DrawOrderTab';
 import PreviewTab from './config/PreviewTab';
 import HomeTab from './config/HomeTab';
 import SettingsTab from './config/SettingsTab';
+import WorkflowsTab from './config/workflows/WorkflowsTab';
 import DonorConfigPickerDialog from './layers/import/DonorConfigPickerDialog';
+
 
 // Error boundary component to catch context errors
 class ConfigErrorBoundary extends React.Component<
@@ -97,8 +99,14 @@ const ConfigBuilderContent = () => {
     setDonorPickerOpen,
     importTargetGroup,
     importTargetSubGroup,
-    updateConfig
+    updateConfig,
+    addWorkflow,
+    updateWorkflow,
+    removeWorkflow,
+    duplicateWorkflow,
+    moveWorkflow,
   } = useConfigBuilderState();
+
 
   // Track navigation state for Preview transitions
   const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setExpandedSubGroups, setScrollPosition } = useNavigationState();
@@ -217,7 +225,7 @@ const ConfigBuilderContent = () => {
             className="w-full"
           >
             <div className="flex items-center gap-2 mb-6">
-            <TabsList className="grid flex-1 grid-cols-7 bg-white border border-primary/20">
+            <TabsList className="grid flex-1 grid-cols-8 bg-white border border-primary/20">
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
                 Home
@@ -229,6 +237,10 @@ const ConfigBuilderContent = () => {
               <TabsTrigger value="draworder" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <ArrowUpDown className="h-4 w-4" />
                 Draw Order
+              </TabsTrigger>
+              <TabsTrigger value="workflows" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <WorkflowIcon className="h-4 w-4" />
+                Workflows
               </TabsTrigger>
               <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Globe className="h-4 w-4" />
@@ -242,6 +254,7 @@ const ConfigBuilderContent = () => {
                 <FileJson className="h-4 w-4" />
                 JSON Config
               </TabsTrigger>
+
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild={false} className="inline-block">
@@ -347,6 +360,20 @@ const ConfigBuilderContent = () => {
                 updateConfig={updateConfig}
               />
             </TabsContent>
+
+            <TabsContent value="workflows">
+              <WorkflowsTab
+                workflows={(config as any).workflows ?? []}
+                services={config.services}
+                addWorkflow={addWorkflow}
+                updateWorkflow={updateWorkflow}
+                removeWorkflow={removeWorkflow}
+                duplicateWorkflow={duplicateWorkflow}
+                moveWorkflow={moveWorkflow}
+              />
+            </TabsContent>
+
+
 
             <TabsContent value="services">
               <ServicesManager
