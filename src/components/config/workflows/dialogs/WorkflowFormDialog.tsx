@@ -45,11 +45,9 @@ export const WorkflowFormDialog = ({
     const src = initial ?? blank();
     setServiceId(src.serviceId ?? '');
     setServiceProvider(src.serviceProvider ?? '');
-    setDescription(src.meta?.description ?? '');
     setEndpoint(src.serviceDetails?.endpoint ?? '');
     setNamespace(src.serviceDetails?.namespace ?? '');
     setApplication(src.serviceDetails?.application ?? '');
-    setDetailsOpen(Boolean(src.serviceDetails));
   }, [open, initial]);
 
   const providers = Array.from(
