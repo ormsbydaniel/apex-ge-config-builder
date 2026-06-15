@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download, BookOpen } from 'lucide-react';
+import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download, BookOpen, Workflow as WorkflowIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useConfigExport } from '@/hooks/useConfigIO';
 import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
