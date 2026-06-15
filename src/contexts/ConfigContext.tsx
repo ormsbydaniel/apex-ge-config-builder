@@ -175,6 +175,8 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...payloadWithoutSource,
         exportPrefix: payloadWithoutSource.exportPrefix || 'config',
         services: payloadWithoutSource.services || [],
+        workflows: payloadWithoutSource.workflows || [],
+
         // Only add default mapConstraints if none exist in the imported config
         mapConstraints: payloadWithoutSource.mapConstraints !== undefined 
           ? {
