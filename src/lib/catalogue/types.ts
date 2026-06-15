@@ -17,6 +17,7 @@ export interface CatalogueEntry {
   name: string;
   description: string;
   path: string;
+  thumbnail?: string;
   record: CatalogueRecord;
 }
 
