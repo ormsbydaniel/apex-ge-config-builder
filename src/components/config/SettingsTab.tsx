@@ -292,13 +292,64 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                 <Label htmlFor="export-prefix" className="text-base font-medium whitespace-nowrap">Export filename prefix</Label>
               </div>
               <div className="flex-1 space-y-2">
-                <Input
-                  id="export-prefix"
-                  value={config.exportPrefix || ''}
-                  onChange={(e) => dispatch({ type: 'UPDATE_EXPORT_PREFIX', payload: e.target.value })}
-                  placeholder="e.g. config_biodiversity"
-                  className="max-w-md"
-                />
+                {isEditingPrefix ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="export-prefix"
+                      value={prefixInput}
+                      onChange={(e) => setPrefixInput(e.target.value)}
+                      placeholder="e.g. config_biodiversity"
+                      className="max-w-md"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          dispatch({ type: 'UPDATE_EXPORT_PREFIX', payload: prefixInput });
+                          setIsEditingPrefix(false);
+                        }
+                        if (e.key === 'Escape') {
+                          setPrefixInput(config.exportPrefix || '');
+                          setIsEditingPrefix(false);
+                        }
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        dispatch({ type: 'UPDATE_EXPORT_PREFIX', payload: prefixInput });
+                        setIsEditingPrefix(false);
+                      }}
+                      className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setPrefixInput(config.exportPrefix || '');
+                        setIsEditingPrefix(false);
+                      }}
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground min-w-[120px]">
+                      {(config.exportPrefix || '').trim() || '<prefix>'}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setIsEditingPrefix(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground">
                   Exported file names: {(config.exportPrefix || '').trim() || '<prefix>'}_YYYYMMMDD_HHMM.json
                 </p>
