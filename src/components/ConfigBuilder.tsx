@@ -361,6 +361,20 @@ const ConfigBuilderContent = () => {
               />
             </TabsContent>
 
+            <TabsContent value="workflows">
+              <WorkflowsTab
+                workflows={(config as any).workflows ?? []}
+                services={config.services}
+                addWorkflow={addWorkflow}
+                updateWorkflow={updateWorkflow}
+                removeWorkflow={removeWorkflow}
+                duplicateWorkflow={duplicateWorkflow}
+                moveWorkflow={moveWorkflow}
+              />
+            </TabsContent>
+
+
+
             <TabsContent value="services">
               <ServicesManager
                 services={config.services}
