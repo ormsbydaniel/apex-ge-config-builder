@@ -84,8 +84,10 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
     }
     const dir = sortDir === 'asc' ? 1 : -1;
     return [...rows].sort((a, b) => {
-      const av = (a[sortKey] ?? '').toString().toLowerCase();
-      const bv = (b[sortKey] ?? '').toString().toLowerCase();
+      const getValue = (e: CatalogueEntry) =>
+        sortKey === 'type' ? getAlgorithmType(e) : (e[sortKey] ?? '');
+      const av = getValue(a).toString().toLowerCase();
+      const bv = getValue(b).toString().toLowerCase();
       if (av < bv) return -1 * dir;
       if (av > bv) return 1 * dir;
       return 0;
