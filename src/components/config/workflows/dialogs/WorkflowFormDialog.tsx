@@ -150,52 +150,36 @@ export const WorkflowFormDialog = ({
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="wf-description">Description</Label>
-              <Textarea
-                id="wf-description"
-                rows={3}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Short description shown in the workflow list"
-              />
+            <div className="space-y-3 pt-2 border-t">
+              <div className="text-sm font-medium text-foreground">
+                Additional service details - EO Application Packages
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="wf-endpoint">Endpoint</Label>
+                <Input
+                  id="wf-endpoint"
+                  value={endpoint}
+                  onChange={(e) => setEndpoint(e.target.value)}
+                  placeholder="https://…"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="wf-namespace">Namespace</Label>
+                <Input
+                  id="wf-namespace"
+                  value={namespace}
+                  onChange={(e) => setNamespace(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="wf-application">Application</Label>
+                <Input
+                  id="wf-application"
+                  value={application}
+                  onChange={(e) => setApplication(e.target.value)}
+                />
+              </div>
             </div>
-
-            <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
-              <CollapsibleTrigger asChild>
-                <Button type="button" variant="ghost" size="sm" className="px-1 -ml-1">
-                  <ChevronRight className={`h-4 w-4 mr-1 transition-transform ${detailsOpen ? 'rotate-90' : ''}`} />
-                  Service details (optional)
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-3 pt-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="wf-endpoint">Endpoint</Label>
-                  <Input
-                    id="wf-endpoint"
-                    value={endpoint}
-                    onChange={(e) => setEndpoint(e.target.value)}
-                    placeholder="https://…"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="wf-namespace">Namespace</Label>
-                  <Input
-                    id="wf-namespace"
-                    value={namespace}
-                    onChange={(e) => setNamespace(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="wf-application">Application</Label>
-                  <Input
-                    id="wf-application"
-                    value={application}
-                    onChange={(e) => setApplication(e.target.value)}
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
           </div>
         </div>
 
