@@ -43,4 +43,40 @@ describe('migrateSourceWorkflowsToTopLevel', () => {
     migrateSourceWorkflowsToTopLevel(input);
     expect(input).toEqual(snapshot);
   });
+
+  it('hoisted workflows inherit parent meta/layout with workflow overrides winning', () => {
+    const input: any = {
+      sources: [
+        {
+          name: 'A',
+          meta: {
+            description: 'parent description',
+            attribution: { text: 'Parent attr' },
+            units: 'm',
+          },
+          layout: {
+            layerCard: { legend: { type: 'swatch' }, toggleable: true },
+          },
+          workflows: [
+            { serviceId: 'a1', serviceProvider: 'vito' },
+            {
+              serviceId: 'a2',
+              serviceProvider: 'vito',
+              meta: { description: 'override' },
+            },
+          ],
+        },
+      ],
+    };
+    const { config } = migrateSourceWorkflowsToTopLevel(input);
+    const [w1, w2] = config.workflows!;
+    expect((w1 as any).meta.description).toBe('parent description');
+    expect((w1 as any).meta.attribution.text).toBe('Parent attr');
+    expect((w1 as any).meta.units).toBe('m');
+    expect((w1 as any).layout.layerCard.legend.type).toBe('swatch');
+    expect((w1 as any).layout.layerCard.toggleable).toBe(true);
+    // Workflow overrides parent
+    expect((w2 as any).meta.description).toBe('override');
+    expect((w2 as any).meta.attribution.text).toBe('Parent attr');
+  });
 });
