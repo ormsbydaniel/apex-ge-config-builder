@@ -1,42 +1,104 @@
-# Fix: Vector Style Summary shows blank grey swatch
+## Goal
 
-## Root cause
+Add **Workflows** as a top-level tab between **Draw Order** and **Services**, backed by the top-level `config.workflows` array as the single source of truth. The page is a flat list of workflows (no groups). Adding/editing uses a modal that is scaffolded to grow into a catalogue browser later.
 
-`vectorItem.style` in the layer config is stored as the **OpenLayers flat-style array** (e.g. `[{ "stroke-color": "#3b82f6", "stroke-width": 2 }]`), not the editor's normalised `StyleRule[]` model.
+Per-source `source.workflows` is **deprecated** in this change — the new tab is the only place workflows live.
 
-`summariseStyleRule` expects the normalised shape with `rule.primitives.{fill,line,marker,label}`. Given a raw flat rule:
+## Reference shape
 
-- `collectPrimitiveKinds({})` returns `[]`
-- `dominantKind` is `undefined`
-- `SwatchGlyph` falls through to the "no kind" branch — a plain grey rounded square
-- Tooltip shows only `name` + `applies to all features` (no primitives row, no colour info)
+From the GE-265 demo config, top-level `workflows[]` entries use:
 
-This matches exactly what the user is seeing.
+```
+serviceId, serviceProvider, serviceDetails?, meta?, data?
+```
 
-The codebase already has the right converter: `fromFlatStyleArray` in `src/utils/vectorStyle/fromFlatStyleArray.ts`, which returns `{ rules: StyleRule[], ... }`. The same conversion is what the Vector Style editor uses when opening a rule set.
+`WorkflowItemSchema` already accepts the full source surface, and `configSchema.ts` already declares `workflows: z.array(WorkflowItemSchema).optional()` at the root. No schema changes required.
 
-## Change
+## Scope of changes
 
-**`src/components/layers/components/VectorStyleSummary.tsx`** — accept the raw flat array (typed as `unknown[]`) and normalise internally:
+### 1. State plumbing — top-level `workflows`
 
-1. Call `fromFlatStyleArray(rules)` to get `{ rules: StyleRule[] }`.
-2. Pass those normalised rules to `summariseRules`.
-3. Render exactly as today.
+- `src/types/common.ts` — extend `ExtendedConfigProps` and `ConfigUpdateProps` with optional `workflows: WorkflowItem[]`.
+- `src/contexts/ConfigContext.tsx` — include `workflows` in initial state (default `[]`), payload-import branch, and generic `UPDATE_CONFIG` merge.
+- `src/hooks/useConfigBuilderState.ts` — expose `addWorkflow`, `updateWorkflow`, `removeWorkflow`, `duplicateWorkflow`, `moveWorkflow`. Each handler dispatches a single `UPDATE_CONFIG` (Core memory: merge updates).
+- `src/hooks/useValidatedConfig.ts` / `useConfigSanitization.ts` — confirm top-level workflows survive validation (already pass-through in sanitization).
 
-Update the prop type from `StyleRule[]` to `unknown[]` (or `any[]`) and rename to `flatStyle` for clarity. Keep the empty/None handling.
+### 2. New top-level tab
 
-No change needed in `LayerDataVisualisationSection.tsx` beyond what's already there — it already passes `vectorItem?.style ?? []`.
+`src/components/ConfigBuilder.tsx`:
 
-## Tests
+- Add `workflows` `TabsTrigger` between Draw Order and Services with the lucide `Workflow` icon.
+- Bump `grid-cols-7` to `grid-cols-8`.
+- Render `<WorkflowsTab />` in a new `TabsContent value="workflows">`.
 
-Add one extra test (or a new tiny test file alongside `VectorStyleSummary`) that feeds the flat-style example from the user and asserts:
+### 3. `WorkflowsTab` page (flat list)
 
-- `summariseRules(fromFlatStyleArray([{ 'stroke-color': '#3b82f6', 'stroke-width': 2 }]).rules)` yields a single summary with `dominantKind === 'line'` and `colour === '#3b82f6'`.
+New folder `src/components/config/workflows/`:
 
-Existing `summariseStyleRule` tests stay as-is (they exercise the normalised model directly, which is still valid).
+```
+WorkflowsTab.tsx                  // page shell, "Add Workflow" button, flat list
+WorkflowCard.tsx                  // single workflow row (title, provider, badges, actions)
+WorkflowSummary.tsx               // compact serviceId / provider / description snippet
+dialogs/
+  AddWorkflowDialog.tsx           // modal form (catalogue-ready shell)
+  EditWorkflowDialog.tsx          // same form, prefilled
+hooks/
+  useWorkflowActions.ts           // add/update/remove/duplicate/move via updateConfig
+```
 
-## Out of scope
+Behaviour:
 
-- No schema, type, or persistence changes.
-- No edits to the rule editor or normaliser.
-- Pencil edit button untouched.
+- Header with "Add Workflow" button and workflow count.
+- Flat list of `WorkflowCard`s in `config.workflows` order. No grouping, no expand/collapse.
+- Each card shows: serviceId (title), serviceProvider (badge), `meta.description`, actions (edit / duplicate / remove / move up / move down).
+- Reuses compact metrics, badge, and move-control styles from the Layers page (`Compact Layout Metrics`, `Subtle Metadata Badges`, `Compact Move Controls` memories).
+- Empty state: "No workflows yet" + "Add Workflow" CTA.
+
+### 4. Add / Edit dialog (catalogue-ready shell)
+
+`AddWorkflowDialog.tsx`:
+
+- Left rail: placeholder for the future catalogue list — empty state "Catalogue browser coming soon".
+- Right pane: structured form with `serviceId` (required), `serviceProvider` (select from `config.services` providers, free-text fallback), `serviceDetails` (collapsible: `endpoint`, `namespace`, `application`), `meta.description` (textarea).
+- Footer: Cancel / Save. Save calls `addWorkflow` or `updateWorkflow`.
+- Form state initialised inside `useEffect` on `open` (Core memory). Single `onSave` dispatch (Core memory).
+
+`EditWorkflowDialog` reuses the same form body, omits the catalogue rail.
+
+### 5. Deprecation of `source.workflows`
+
+Per `Refactoring Philosophy` and Core memory ("Deprecate to `src/utils/deprecated/` with README and `@deprecated` rather than deleting code"):
+
+- Add `@deprecated` JSDoc on `BaseDataSource.workflows` (`src/types/layer.ts`) and `WorkflowItem` references inside source-shaped contexts where appropriate, pointing readers at top-level `config.workflows`.
+- Leave the field readable so existing configs still parse. The Layer Card no longer surfaces workflows (any Workflows tab / Workflows section inside the layer card is removed).
+- Add `src/utils/deprecated/sourceWorkflows/README.md` documenting:
+  - Why the field is deprecated (single top-level collection).
+  - That round-trip / import code still passes the field through unchanged.
+  - A one-time migration helper `migrateSourceWorkflowsToTopLevel(config)` that moves any `source.workflows[]` entries into `config.workflows[]` and clears them on the source. The helper is **not** auto-applied; it lives next to the README for users who want to upgrade old configs manually (e.g. via the JSON Config tab).
+- Remove per-source workflow UI affordances only — keep the schema field optional and pass-through so existing JSON loads without errors.
+- Existing tests covering per-source workflow round-trip stay in place to prove the field still survives import/export untouched.
+
+### 6. Export / round-trip
+
+`useConfigExport.ts` already serialises top-level `config.workflows` and per-source `source.workflows`. Both stay. Re-run `configRoundTrip.workflows.test.ts` against the new top-level actions.
+
+### 7. Tests
+
+- `useWorkflowActions.test.ts` — add/update/remove/duplicate/move on top-level workflows produce expected arrays.
+- `WorkflowsTab.test.tsx` — renders flat list, empty state, "Add Workflow" opens dialog, edit flow updates state.
+- `migrateSourceWorkflowsToTopLevel.test.ts` — helper hoists per-source workflows into the top-level array and clears the source field; no-ops when nothing to move.
+- Existing per-source round-trip tests remain green.
+
+## Explicitly out of scope
+
+- Workflow groups (flat list only for now).
+- Catalogue browser implementation (placeholder rail only; tracked as follow-up).
+- Auto-migration of existing per-source workflows on config load (manual helper only).
+- Removing the per-source `workflows` field from the schema (deprecated, kept for backward compatibility).
+- Editing workflow `data[]` / `statistics[]` / `charts[]` from the new page (raw JSON / future passes).
+
+## Risks
+
+- `ExtendedConfigProps` is consumed in many hooks — additions stay optional in `ConfigUpdateProps` to avoid touching unrelated callers.
+- `grid-cols-7 → grid-cols-8` shrinks tabs slightly; verify the bar fits at the smallest supported width.
+- Users with existing per-source workflows will not see them on the new Workflows tab until they run the migration helper. The deprecation README must call this out clearly.
