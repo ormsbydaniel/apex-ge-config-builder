@@ -156,14 +156,14 @@ export const WorkflowFormDialog = ({
             {application && <ReadOnlyInline label="Application:" value={application} />}
 
             {(endpoint || namespace) && (
-              <div className="space-y-3 pt-2 border-t">
+              <div className="space-y-3">
                 {endpoint && <ReadOnlyRow label="Endpoint" value={endpoint} />}
                 {namespace && <ReadOnlyRow label="Namespace" value={namespace} />}
               </div>
             )}
 
             {hasDescription && (
-              <div className="space-y-1.5 pt-2 border-t">
+              <div className="space-y-1.5">
                 <Label className="text-muted-foreground">Description</Label>
                 <div className="text-sm whitespace-pre-wrap max-h-40 overflow-auto rounded-md border bg-muted/30 p-2">
                   {cataloguePrefill!.description}
@@ -171,7 +171,7 @@ export const WorkflowFormDialog = ({
               </div>
             )}
 
-            <div className="space-y-2 pt-2 border-t">
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Checkbox
                   id="wf-copy-desc"
