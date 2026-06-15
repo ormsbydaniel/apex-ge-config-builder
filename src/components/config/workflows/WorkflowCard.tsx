@@ -280,7 +280,6 @@ export const WorkflowCard = ({
             {/* Service details (workflow-specific) */}
             {(() => {
               const sd = workflow.serviceDetails;
-              const hasAny = !!(sd?.endpoint || sd?.namespace || sd?.application);
               return (
                 <div className="space-y-2 -mt-2">
                   <div className="flex items-center gap-2">
@@ -295,30 +294,35 @@ export const WorkflowCard = ({
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  {hasAny ? (
-                    <div className="text-xs text-muted-foreground space-y-1 ml-6">
-                      {sd?.endpoint && (
-                        <div>
-                          <span className="font-medium">Endpoint:</span> {sd.endpoint}
-                        </div>
-                      )}
-                      {sd?.namespace && (
-                        <div>
-                          <span className="font-medium">Namespace:</span> {sd.namespace}
-                        </div>
-                      )}
-                      {sd?.application && (
-                        <div>
-                          <span className="font-medium">Application:</span> {sd.application}
-                        </div>
-                      )}
+                  <div className="text-xs text-muted-foreground space-y-1 ml-6">
+                    <div>
+                      <span className="font-medium">Service ID:</span>{' '}
+                      {workflow.serviceId || <span className="italic">not set</span>}
                     </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground ml-6">No service details configured.   Details are only required for OGC Process Services.</p>
-                  )}
+                    <div>
+                      <span className="font-medium">Provider:</span>{' '}
+                      {provider || <span className="italic">not set</span>}
+                    </div>
+                    {sd?.endpoint && (
+                      <div>
+                        <span className="font-medium">Endpoint:</span> {sd.endpoint}
+                      </div>
+                    )}
+                    {sd?.namespace && (
+                      <div>
+                        <span className="font-medium">Namespace:</span> {sd.namespace}
+                      </div>
+                    )}
+                    {sd?.application && (
+                      <div>
+                        <span className="font-medium">Application:</span> {sd.application}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })()}
+
 
 
             <LayerDescriptionAttributionDisplay
