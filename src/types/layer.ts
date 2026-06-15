@@ -77,7 +77,16 @@ interface BaseDataSource {
   data: DataField;
   statistics?: DataSourceItem[]; // Add statistics array
   constraints?: ConstraintSourceItem[]; // Add constraints array
-  workflows?: WorkflowItem[]; // Add workflows array
+  /**
+   * @deprecated Per-source workflows are deprecated. Workflows now live at
+   * the top level (`config.workflows`) and are managed via the Workflows tab.
+   * Existing configs are still accepted for backward compatibility and pass
+   * through import/export unchanged, but the UI no longer surfaces this
+   * field. Use {@link "src/utils/deprecated/sourceWorkflows".migrateSourceWorkflowsToTopLevel}
+   * to hoist any per-source entries into the top-level array.
+   */
+  workflows?: WorkflowItem[];
+
   charts?: ChartConfig[]; // Add charts array for Plotly chart configurations
   hasFeatureStatistics?: boolean;
   isBaseLayer?: boolean; // Add isBaseLayer as optional to base interface
