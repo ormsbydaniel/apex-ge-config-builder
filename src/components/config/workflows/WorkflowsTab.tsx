@@ -164,13 +164,18 @@ export const WorkflowsTab = ({
         open={addOpen}
         onOpenChange={(open) => {
           setAddOpen(open);
-          if (!open) setPrefill(null);
+          if (!open) {
+            setPrefill(null);
+            setCataloguePrefill(null);
+          }
         }}
         title="Review workflow"
         services={services}
         prefill={prefill}
+        cataloguePrefill={cataloguePrefill}
         onSave={(wf) => addWorkflow(wf)}
       />
+
 
 
       <WorkflowFormDialog
