@@ -90,7 +90,6 @@ export const WorkflowCard = ({
 
   const title = workflow.serviceId || '(unnamed workflow)';
   const provider = workflow.serviceProvider;
-  const description = workflow.meta?.description;
 
   const handleStartRename = (e: React.MouseEvent) => {
     e.stopPropagation();
