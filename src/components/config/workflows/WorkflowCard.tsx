@@ -314,7 +314,7 @@ export const WorkflowCard = ({
                       )}
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground ml-6">No service details configured</p>
+                    <p className="text-xs text-muted-foreground ml-6">No service details configured.   Details are only required for OGC Process Services.</p>
                   )}
                 </div>
               );
