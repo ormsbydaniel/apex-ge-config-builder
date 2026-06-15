@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Search, AlertCircle } from 'lucide-react';
-import { loadCatalogue, mapRecordToWorkflowFields, getCachedEntries } from '@/lib/catalogue/apexCatalogue';
+import { loadCatalogue, mapRecordToWorkflowFields, getCachedEntries, OPENEO_UDP_URI, OGC_PROCESSES_URI } from '@/lib/catalogue/apexCatalogue';
 import type { CatalogueEntry, MappedWorkflowFields } from '@/lib/catalogue/types';
 
 interface CatalogueBrowserDialogProps {
@@ -17,7 +17,14 @@ interface CatalogueBrowserDialogProps {
   onSkip?: () => void;
 }
 
-type SortKey = 'name' | 'provider' | 'description';
+function getAlgorithmType(entry: CatalogueEntry): string {
+  const ct = entry.record.conformsTo ?? [];
+  if (ct.includes(OGC_PROCESSES_URI)) return 'OGC Processes';
+  if (ct.includes(OPENEO_UDP_URI)) return 'openEO UDP';
+  return 'Unknown';
+}
+
+type SortKey = 'name' | 'provider' | 'type' | 'description';
 
 export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }: CatalogueBrowserDialogProps) => {
   const [entries, setEntries] = useState<CatalogueEntry[]>(() => getCachedEntries() ?? []);
@@ -71,13 +78,16 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
       rows = rows.filter((e) =>
         e.name.toLowerCase().includes(q) ||
         e.provider.toLowerCase().includes(q) ||
-        e.description.toLowerCase().includes(q)
+        e.description.toLowerCase().includes(q) ||
+        getAlgorithmType(e).toLowerCase().includes(q)
       );
     }
     const dir = sortDir === 'asc' ? 1 : -1;
     return [...rows].sort((a, b) => {
-      const av = (a[sortKey] ?? '').toString().toLowerCase();
-      const bv = (b[sortKey] ?? '').toString().toLowerCase();
+      const getValue = (e: CatalogueEntry) =>
+        sortKey === 'type' ? getAlgorithmType(e) : (e[sortKey] ?? '');
+      const av = getValue(a).toString().toLowerCase();
+      const bv = getValue(b).toString().toLowerCase();
       if (av < bv) return -1 * dir;
       if (av > bv) return 1 * dir;
       return 0;
@@ -152,11 +162,14 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
               <Table>
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="cursor-pointer select-none w-[28%]" onClick={() => toggleSort('name')}>
+                    <TableHead className="cursor-pointer select-none w-[26%]" onClick={() => toggleSort('name')}>
                       Name{sortIndicator('name')}
                     </TableHead>
-                    <TableHead className="cursor-pointer select-none w-[18%]" onClick={() => toggleSort('provider')}>
+                    <TableHead className="cursor-pointer select-none w-[16%]" onClick={() => toggleSort('provider')}>
                       Provider{sortIndicator('provider')}
+                    </TableHead>
+                    <TableHead className="cursor-pointer select-none w-[12%]" onClick={() => toggleSort('type')}>
+                      Type{sortIndicator('type')}
                     </TableHead>
                     <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('description')}>
                       Description{sortIndicator('description')}
@@ -180,6 +193,7 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
                       >
                         <TableCell className="font-medium">{entry.name}</TableCell>
                         <TableCell className="text-muted-foreground">{entry.provider}</TableCell>
+                        <TableCell className="text-muted-foreground">{getAlgorithmType(entry)}</TableCell>
                         <TableCell className="text-muted-foreground">
                           {entry.description ? (
                             <Tooltip>

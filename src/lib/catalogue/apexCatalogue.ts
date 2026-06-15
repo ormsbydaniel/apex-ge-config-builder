@@ -75,8 +75,8 @@ export async function loadCatalogue(): Promise<CatalogueEntry[]> {
   }
 }
 
-const OPENEO_UDP_URI = 'https://apex.esa.int/core/openeo-udp';
-const OGC_PROCESSES_URI = 'https://apex.esa.int/core/ogc-api-processes';
+export const OPENEO_UDP_URI = 'https://apex.esa.int/core/openeo-udp';
+export const OGC_PROCESSES_URI = 'https://apex.esa.int/core/ogc-api-processes';
 
 function findLink(record: CatalogueRecord, rel: string): string | undefined {
   return record.links?.find((l) => l.rel === rel)?.href;
