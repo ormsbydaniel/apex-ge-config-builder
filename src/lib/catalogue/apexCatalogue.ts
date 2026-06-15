@@ -95,6 +95,8 @@ export function mapRecordToWorkflowFields(entry: CatalogueEntry): MappedWorkflow
   const out: MappedWorkflowFields = {
     serviceId: record.id || entry.algorithmId,
     serviceProvider: provider,
+    ...(entry.description && { description: entry.description }),
+    ...(provider && { providerLabel: provider }),
   };
 
   if (conformsTo.includes(OGC_PROCESSES_URI)) {
