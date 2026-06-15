@@ -35,11 +35,9 @@ export const WorkflowFormDialog = ({
 }: WorkflowFormDialogProps) => {
   const [serviceId, setServiceId] = useState('');
   const [serviceProvider, setServiceProvider] = useState('');
-  const [description, setDescription] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [namespace, setNamespace] = useState('');
   const [application, setApplication] = useState('');
-  const [detailsOpen, setDetailsOpen] = useState(false);
 
   // Initialize state inside useEffect watching open (Core memory)
   useEffect(() => {
