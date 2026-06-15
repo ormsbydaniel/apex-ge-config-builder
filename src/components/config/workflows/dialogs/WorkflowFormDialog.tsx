@@ -40,6 +40,9 @@ export const WorkflowFormDialog = ({
   const [endpoint, setEndpoint] = useState('');
   const [namespace, setNamespace] = useState('');
   const [application, setApplication] = useState('');
+  const [catalogueOpen, setCatalogueOpen] = useState(false);
+
+  const isNew = !initial;
 
   // Initialize state inside useEffect watching open (Core memory)
   useEffect(() => {
@@ -50,7 +53,16 @@ export const WorkflowFormDialog = ({
     setEndpoint(src.serviceDetails?.endpoint ?? '');
     setNamespace(src.serviceDetails?.namespace ?? '');
     setApplication(src.serviceDetails?.application ?? '');
+    setCatalogueOpen(false);
   }, [open, initial]);
+
+  const handleCatalogueSelect = (fields: MappedWorkflowFields) => {
+    setServiceId(fields.serviceId);
+    setServiceProvider(fields.serviceProvider);
+    setEndpoint(fields.serviceDetails?.endpoint ?? '');
+    setNamespace(fields.serviceDetails?.namespace ?? '');
+    setApplication(fields.serviceDetails?.application ?? '');
+  };
 
   const providers = Array.from(
     new Set(services.map((s) => (s as any).provider).filter(Boolean) as string[])
