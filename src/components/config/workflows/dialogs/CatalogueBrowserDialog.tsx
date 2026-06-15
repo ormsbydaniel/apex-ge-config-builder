@@ -19,7 +19,7 @@ interface CatalogueBrowserDialogProps {
 
 type SortKey = 'name' | 'provider' | 'description';
 
-export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect }: CatalogueBrowserDialogProps) => {
+export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }: CatalogueBrowserDialogProps) => {
   const [entries, setEntries] = useState<CatalogueEntry[]>(() => getCachedEntries() ?? []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
