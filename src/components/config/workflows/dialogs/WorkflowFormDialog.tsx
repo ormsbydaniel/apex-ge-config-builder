@@ -163,7 +163,7 @@ export const WorkflowFormDialog = ({
             )}
 
             {hasDescription && (
-              <div className="space-y-1.5 pt-2 border-t">
+              <div className="space-y-1.5">
                 <Label className="text-muted-foreground">Description</Label>
                 <div className="text-sm whitespace-pre-wrap max-h-40 overflow-auto rounded-md border bg-muted/30 p-2">
                   {cataloguePrefill!.description}
