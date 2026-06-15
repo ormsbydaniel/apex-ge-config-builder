@@ -137,9 +137,7 @@ export const WorkflowCard = ({
                 className="border-violet-300 text-violet-700"
               >
                 <div className="flex items-center gap-1">
-                  <UserMessage>Actially in the exeuction details section on the main card, rather than saying "No service details .. etc", instead, repeat the serviceId and provider details, and then the additional service information where it is populated</UserMessage> 
-                  <UserMessage>Change the label from "Service Details" to "Execution Details.  When none are configured say "No service details configured.   Details are only required for OGC Process Services."</UserMessage>
-                  <Server className="h-3 w-3" />
+                  <User className="h-3 w-3" />
                   {provider}
                 </div>
               </Badge>
