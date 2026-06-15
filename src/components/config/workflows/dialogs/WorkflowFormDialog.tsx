@@ -121,6 +121,12 @@ export const WorkflowFormDialog = ({
           text: cataloguePrefill.provider,
         };
       }
+      if (copyAttributionUrl && cataloguePrefill?.providerUrl) {
+        baseMeta.attribution = {
+          ...(baseMeta.attribution ?? {}),
+          url: cataloguePrefill.providerUrl,
+        };
+      }
     }
 
     if (Object.keys(baseMeta).length > 0) {
