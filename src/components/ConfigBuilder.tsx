@@ -16,7 +16,9 @@ import DrawOrderTab from './config/DrawOrderTab';
 import PreviewTab from './config/PreviewTab';
 import HomeTab from './config/HomeTab';
 import SettingsTab from './config/SettingsTab';
+import WorkflowsTab from './config/workflows/WorkflowsTab';
 import DonorConfigPickerDialog from './layers/import/DonorConfigPickerDialog';
+
 
 // Error boundary component to catch context errors
 class ConfigErrorBoundary extends React.Component<
