@@ -285,7 +285,7 @@ export const WorkflowCard = ({
                 <div className="space-y-2 -mt-2">
                   <div className="flex items-center gap-2">
                     <Server className="h-4 w-4 text-muted-foreground" />
-                    <h4 className="text-sm font-medium text-foreground">Service Details</h4>
+                    <h4 className="text-sm font-medium text-foreground">Execution Details</h4>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -314,7 +314,7 @@ export const WorkflowCard = ({
                       )}
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground ml-6">No service details configured</p>
+                    <p className="text-xs text-muted-foreground ml-6">No service details configured.   Details are only required for OGC Process Services.</p>
                   )}
                 </div>
               );
