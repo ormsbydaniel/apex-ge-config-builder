@@ -225,7 +225,7 @@ const ConfigBuilderContent = () => {
             className="w-full"
           >
             <div className="flex items-center gap-2 mb-6">
-            <TabsList className="grid flex-1 grid-cols-7 bg-white border border-primary/20">
+            <TabsList className="grid flex-1 grid-cols-8 bg-white border border-primary/20">
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
                 Home
@@ -237,6 +237,10 @@ const ConfigBuilderContent = () => {
               <TabsTrigger value="draworder" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <ArrowUpDown className="h-4 w-4" />
                 Draw Order
+              </TabsTrigger>
+              <TabsTrigger value="workflows" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <WorkflowIcon className="h-4 w-4" />
+                Workflows
               </TabsTrigger>
               <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Globe className="h-4 w-4" />
@@ -250,6 +254,7 @@ const ConfigBuilderContent = () => {
                 <FileJson className="h-4 w-4" />
                 JSON Config
               </TabsTrigger>
+
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild={false} className="inline-block">
