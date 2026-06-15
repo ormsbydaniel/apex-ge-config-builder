@@ -6,6 +6,8 @@ import { WorkflowItem } from '@/types/dataSource';
 import { Service } from '@/types/config';
 import { WorkflowCard } from './WorkflowCard';
 import { WorkflowFormDialog } from './dialogs/WorkflowFormDialog';
+import WorkflowJsonEditorDialog from './dialogs/WorkflowJsonEditorDialog';
+
 
 interface WorkflowsTabProps {
   workflows: WorkflowItem[];
