@@ -99,8 +99,14 @@ const ConfigBuilderContent = () => {
     setDonorPickerOpen,
     importTargetGroup,
     importTargetSubGroup,
-    updateConfig
+    updateConfig,
+    addWorkflow,
+    updateWorkflow,
+    removeWorkflow,
+    duplicateWorkflow,
+    moveWorkflow,
   } = useConfigBuilderState();
+
 
   // Track navigation state for Preview transitions
   const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setExpandedSubGroups, setScrollPosition } = useNavigationState();
