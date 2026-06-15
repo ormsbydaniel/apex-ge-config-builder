@@ -277,11 +277,6 @@ export const WorkflowCard = ({
                   >
                     <Edit2 className="h-3 w-3" />
                   </button>
-                  {description && !expanded && (
-                    <span className="text-xs text-muted-foreground truncate ml-2">
-                      {description}
-                    </span>
-                  )}
                 </div>
               </CollapsibleTrigger>
             )}
