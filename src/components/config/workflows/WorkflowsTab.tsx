@@ -102,7 +102,20 @@ export const WorkflowsTab = ({
           setEditIndex(null);
         }}
       />
+
+      {jsonEditing && (
+        <WorkflowJsonEditorDialog
+          isOpen={jsonIndex !== null}
+          onClose={() => setJsonIndex(null)}
+          workflow={jsonEditing}
+          onSave={(wf) => {
+            if (jsonIndex !== null) updateWorkflow(jsonIndex, wf);
+            setJsonIndex(null);
+          }}
+        />
+      )}
     </Card>
+
   );
 };
 
