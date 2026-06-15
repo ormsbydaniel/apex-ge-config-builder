@@ -162,7 +162,7 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
               <Table className="table-fixed w-full">
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="w-[64px]"></TableHead>
+                    <TableHead className="w-[96px]"></TableHead>
                     <TableHead className="cursor-pointer select-none w-[24%]" onClick={() => toggleSort('name')}>
                       Name{sortIndicator('name')}
                     </TableHead>
@@ -198,11 +198,11 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
                               src={entry.thumbnail}
                               alt=""
                               loading="lazy"
-                              className="h-12 w-12 rounded object-cover bg-muted"
+                              className="h-20 w-20 rounded object-cover bg-muted"
                               onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }}
                             />
                           ) : (
-                            <div className="h-12 w-12 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground font-medium">
+                            <div className="h-20 w-20 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground font-medium">
                               {entry.name.charAt(0).toUpperCase()}
                             </div>
                           )}
