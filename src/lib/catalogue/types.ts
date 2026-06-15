@@ -29,4 +29,7 @@ export interface MappedWorkflowFields {
     namespace?: string;
     application?: string;
   };
+  /** Catalogue-derived metadata, available when selected from the catalogue browser. */
+  description?: string;
+  providerLabel?: string;
 }
