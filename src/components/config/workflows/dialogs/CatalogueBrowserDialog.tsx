@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Search, AlertCircle } from 'lucide-react';
-import { loadCatalogue, mapRecordToWorkflowFields, getCachedEntries } from '@/lib/catalogue/apexCatalogue';
+import { loadCatalogue, mapRecordToWorkflowFields, getCachedEntries, OPENEO_UDP_URI, OGC_PROCESSES_URI } from '@/lib/catalogue/apexCatalogue';
 import type { CatalogueEntry, MappedWorkflowFields } from '@/lib/catalogue/types';
 
 interface CatalogueBrowserDialogProps {
