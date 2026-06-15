@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Pencil, Copy, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Pencil, Copy, Trash2, ChevronUp, ChevronDown, FileJson } from 'lucide-react';
 import { WorkflowItem } from '@/types/dataSource';
 
 interface WorkflowCardProps {
