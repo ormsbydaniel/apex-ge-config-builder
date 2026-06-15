@@ -17,6 +17,13 @@ interface CatalogueBrowserDialogProps {
   onSkip?: () => void;
 }
 
+function getAlgorithmType(entry: CatalogueEntry): string {
+  const ct = entry.record.conformsTo ?? [];
+  if (ct.includes(OGC_PROCESSES_URI)) return 'OGC Processes';
+  if (ct.includes(OPENEO_UDP_URI)) return 'openEO UDP';
+  return 'Unknown';
+}
+
 type SortKey = 'name' | 'provider' | 'type' | 'description';
 
 export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }: CatalogueBrowserDialogProps) => {
