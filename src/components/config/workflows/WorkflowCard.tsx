@@ -3,7 +3,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,7 +16,9 @@ import {
   X,
   Server,
   User,
+  Pencil,
 } from 'lucide-react';
+
 import { WorkflowItem } from '@/types/dataSource';
 import {
   DataSource,
