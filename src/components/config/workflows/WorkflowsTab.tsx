@@ -30,7 +30,10 @@ export const WorkflowsTab = ({
 }: WorkflowsTabProps) => {
   const [addOpen, setAddOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [jsonIndex, setJsonIndex] = useState<number | null>(null);
   const editing = editIndex !== null ? workflows[editIndex] : null;
+  const jsonEditing = jsonIndex !== null ? workflows[jsonIndex] : null;
+
 
   return (
     <Card>
