@@ -13,6 +13,8 @@ interface CatalogueBrowserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (fields: MappedWorkflowFields, entry: CatalogueEntry) => void;
+  /** Optional: invoked when the user wants to bypass the catalogue and create a blank workflow. */
+  onSkip?: () => void;
 }
 
 type SortKey = 'name' | 'provider' | 'description';
