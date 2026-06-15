@@ -114,15 +114,18 @@ export const WorkflowFormDialog = ({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Configure a workflow entry. The catalogue browser will be available here in a future release.
+            Configure a workflow entry{isNew ? '. Browse the APEx catalogue to pre-fill service details.' : '.'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className={`grid gap-4 ${showCatalogueRail ? 'grid-cols-[220px_1fr]' : 'grid-cols-1'}`}>
-          {showCatalogueRail && (
-            <aside className="border rounded-md p-3 bg-muted/30 flex flex-col items-center justify-center text-center text-xs text-muted-foreground">
-              <Library className="h-6 w-6 mb-2 opacity-60" />
-              Catalogue browser coming soon
+        <div className={`grid gap-4 ${showCatalogueRail && isNew ? 'grid-cols-[220px_1fr]' : 'grid-cols-1'}`}>
+          {showCatalogueRail && isNew && (
+            <aside className="border rounded-md p-3 bg-muted/30 flex flex-col items-center justify-center text-center text-xs text-muted-foreground gap-2">
+              <Library className="h-6 w-6 opacity-60" />
+              <div>Pre-fill from the APEx algorithm catalogue.</div>
+              <Button size="sm" variant="secondary" onClick={() => setCatalogueOpen(true)}>
+                Browse catalogue
+              </Button>
             </aside>
           )}
 
