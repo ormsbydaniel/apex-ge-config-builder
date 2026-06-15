@@ -1,13 +1,27 @@
 import { useState } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Workflow as WorkflowIcon } from 'lucide-react';
 import { WorkflowItem } from '@/types/dataSource';
 import { Service } from '@/types/config';
-import { WorkflowCard } from './WorkflowCard';
+import SortableWorkflowCard from './SortableWorkflowCard';
 import { WorkflowFormDialog } from './dialogs/WorkflowFormDialog';
 import WorkflowJsonEditorDialog from './dialogs/WorkflowJsonEditorDialog';
-
 
 interface WorkflowsTabProps {
   workflows: WorkflowItem[];
@@ -34,6 +48,23 @@ export const WorkflowsTab = ({
   const editing = editIndex !== null ? workflows[editIndex] : null;
   const jsonEditing = jsonIndex !== null ? workflows[jsonIndex] : null;
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const ids = workflows.map((w, i) => `wf-${w.serviceId ?? 'unnamed'}-${i}`);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const from = ids.indexOf(String(active.id));
+    const to = ids.indexOf(String(over.id));
+    if (from < 0 || to < 0) return;
+    // Use moveWorkflow which expects from/to; arrayMove logic mirrors that.
+    void arrayMove;
+    moveWorkflow(from, to);
+  };
 
   return (
     <Card>
@@ -63,22 +94,33 @@ export const WorkflowsTab = ({
             </Button>
           </div>
         ) : (
-          workflows.map((workflow, index) => (
-            <WorkflowCard
-              key={`${workflow.serviceId ?? 'wf'}-${index}`}
-              workflow={workflow}
-              index={index}
-              isFirst={index === 0}
-              isLast={index === workflows.length - 1}
-              onEdit={() => setEditIndex(index)}
-              onEditJson={() => setJsonIndex(index)}
-              onDuplicate={() => duplicateWorkflow(index)}
-              onRemove={() => removeWorkflow(index)}
-              onMoveUp={() => moveWorkflow(index, index - 1)}
-              onMoveDown={() => moveWorkflow(index, index + 1)}
-              onUpdate={(wf) => updateWorkflow(index, wf)}
-            />
-          ))
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+              {workflows.map((workflow, index) => (
+                <SortableWorkflowCard
+                  key={ids[index]}
+                  id={ids[index]}
+                  workflow={workflow}
+                  index={index}
+                  isFirst={index === 0}
+                  isLast={index === workflows.length - 1}
+                  onEdit={() => setEditIndex(index)}
+                  onEditJson={() => setJsonIndex(index)}
+                  onDuplicate={() => duplicateWorkflow(index)}
+                  onRemove={() => removeWorkflow(index)}
+                  onMoveUp={() => moveWorkflow(index, index - 1)}
+                  onMoveDown={() => moveWorkflow(index, index + 1)}
+                  onMoveToTop={() => moveWorkflow(index, 0)}
+                  onMoveToBottom={() => moveWorkflow(index, workflows.length - 1)}
+                  onUpdate={(wf) => updateWorkflow(index, wf)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         )}
       </CardContent>
 
@@ -115,7 +157,6 @@ export const WorkflowsTab = ({
         />
       )}
     </Card>
-
   );
 };
 
