@@ -1,104 +1,73 @@
+# Unify Workflow Cards with Layer Source Cards (Option A)
+
 ## Goal
 
-Add **Workflows** as a top-level tab between **Draw Order** and **Services**, backed by the top-level `config.workflows` array as the single source of truth. The page is a flat list of workflows (no groups). Adding/editing uses a modal that is scaffolded to grow into a catalogue browser later.
+Make workflow cards full peers of layer source cards by reusing the existing `Layer*` display sections — so workflows get description/attribution, data visualisation, legend + units, vector fields, and controls — while keeping the workflow-specific bits (serviceId, serviceProvider, serviceDetails, future catalogue browser) as a distinct shell.
 
-Per-source `source.workflows` is **deprecated** in this change — the new tab is the only place workflows live.
+No schema changes — `WorkflowItemSchema` already carries `meta`, `layout`, `data`, etc. via `OptionalSourceShape`.
 
-## Reference shape
+## What changes
 
-From the GE-265 demo config, top-level `workflows[]` entries use:
+### 1. WorkflowCard becomes an expandable card
 
-```
-serviceId, serviceProvider, serviceDetails?, meta?, data?
-```
+`src/components/config/workflows/WorkflowCard.tsx` grows from a one-line summary into an expandable card mirroring `LayerCard`:
 
-`WorkflowItemSchema` already accepts the full source surface, and `configSchema.ts` already declares `workflows: z.array(WorkflowItemSchema).optional()` at the root. No schema changes required.
+- **Header (workflow-specific)**: `serviceId` title, `serviceProvider` badge, endpoint badge, expand/collapse chevron, action buttons (Edit, JSON, Duplicate, Remove, Move Up/Down).
+- **Body (shared with layer cards)**, in this order:
+    1. `LayerDescriptionAttributionDisplay` — `meta.description`, `meta.attribution`.
+    2. `LayerDataVisualisationSection` — categories, colormaps, gradient, RGB, vector styling.
+    3. `LayerLegendSection` — legend + units (`meta.n`).
+    4. `LayerFieldsDisplay` — vector fields, only if data is a vector format.
+    5. `LayerControlsDisplay` — opacity, zoom-to, download, temporal, constraint, blend, timeframe.
+- **No Data Sources tabs**: the Datasets / Statistics / Constraints / Charts tabbed block (`LayerCardTabs`) is not rendered on workflow cards. The underlying fields (`data`, `statistics`, `constraints`, `charts`) are left untouched on read/write so we can surface them later without data loss or schema changes.
+- **Service section (workflow-specific)**: a collapsible block at the top of the body for `serviceDetails.endpoint` / `namespace` / `application`, editable inline (matching how sources edit inline). The same fields remain editable in the form dialog.
 
-## Scope of changes
+### 2. Adapter at the call site (no refactor of layer components)
 
-### 1. State plumbing — top-level `workflows`
+The shared `Layer*` components are typed against `DataSource` (which requires `name` and `isActive`). Add a small adapter in `WorkflowCard` that wraps the `WorkflowItem` as a `DataSource`-shaped object for the children, supplying:
 
-- `src/types/common.ts` — extend `ExtendedConfigProps` and `ConfigUpdateProps` with optional `workflows: WorkflowItem[]`.
-- `src/contexts/ConfigContext.tsx` — include `workflows` in initial state (default `[]`), payload-import branch, and generic `UPDATE_CONFIG` merge.
-- `src/hooks/useConfigBuilderState.ts` — expose `addWorkflow`, `updateWorkflow`, `removeWorkflow`, `duplicateWorkflow`, `moveWorkflow`. Each handler dispatches a single `UPDATE_CONFIG` (Core memory: merge updates).
-- `src/hooks/useValidatedConfig.ts` / `useConfigSanitization.ts` — confirm top-level workflows survive validation (already pass-through in sanitization).
+- `name` = `workflow.serviceId ?? ''`
+- `isActive` = `true` (workflows aren't toggleable in this list)
+- `meta` / `layout` / `data` / `timeframe` — passed through unchanged.
 
-### 2. New top-level tab
+Edits coming back from the children write to the workflow via `updateWorkflow(index, nextWorkflow)`. The adapter strips the synthetic `name`/`isActive` on write so we don't pollute the workflow object.
 
-`src/components/ConfigBuilder.tsx`:
+### 3. Empty skeletons on add
 
-- Add `workflows` `TabsTrigger` between Draw Order and Services with the lucide `Workflow` icon.
-- Bump `grid-cols-7` to `grid-cols-8`.
-- Render `<WorkflowsTab />` in a new `TabsContent value="workflows">`.
+`WorkflowFormDialog` "Add Workflow" pre-populates the new workflow with empty `meta` and `layout` skeletons so the shared sections render as collapsed/empty placeholders ready to fill in:
 
-### 3. `WorkflowsTab` page (flat list)
-
-New folder `src/components/config/workflows/`:
-
-```
-WorkflowsTab.tsx                  // page shell, "Add Workflow" button, flat list
-WorkflowCard.tsx                  // single workflow row (title, provider, badges, actions)
-WorkflowSummary.tsx               // compact serviceId / provider / description snippet
-dialogs/
-  AddWorkflowDialog.tsx           // modal form (catalogue-ready shell)
-  EditWorkflowDialog.tsx          // same form, prefilled
-hooks/
-  useWorkflowActions.ts           // add/update/remove/duplicate/move via updateConfig
+```ts
+{
+  serviceId, serviceProvider, serviceDetails,
+  meta: { attribution: { text: '' } },
+  layout: { layerCard: {} },
+}
 ```
 
-Behaviour:
+`WorkflowFormDialog` itself keeps its current narrow scope (serviceId, provider, description, service details) — ongoing rich editing happens inline on the card, just like sources.
 
-- Header with "Add Workflow" button and workflow count.
-- Flat list of `WorkflowCard`s in `config.workflows` order. No grouping, no expand/collapse.
-- Each card shows: serviceId (title), serviceProvider (badge), `meta.description`, actions (edit / duplicate / remove / move up / move down).
-- Reuses compact metrics, badge, and move-control styles from the Layers page (`Compact Layout Metrics`, `Subtle Metadata Badges`, `Compact Move Controls` memories).
-- Empty state: "No workflows yet" + "Add Workflow" CTA.
+### 4. Hoisted workflows inherit parent meta/layout
 
-### 4. Add / Edit dialog (catalogue-ready shell)
+Update `src/utils/deprecated/sourceWorkflows/migrate.ts` (`migrateSourceWorkflowsToTopLevel`): when hoisting a per-source `workflows[]` entry to the top level, deep-merge the parent source's `meta` and `layout` into the workflow (workflow's own values win on conflict). Existing top-level workflows are untouched. Add a test covering: hoisted workflow gains parent's description/attribution/legend/units; workflow's own overrides take precedence.
 
-`AddWorkflowDialog.tsx`:
+## Files
 
-- Left rail: placeholder for the future catalogue list — empty state "Catalogue browser coming soon".
-- Right pane: structured form with `serviceId` (required), `serviceProvider` (select from `config.services` providers, free-text fallback), `serviceDetails` (collapsible: `endpoint`, `namespace`, `application`), `meta.description` (textarea).
-- Footer: Cancel / Save. Save calls `addWorkflow` or `updateWorkflow`.
-- Form state initialised inside `useEffect` on `open` (Core memory). Single `onSave` dispatch (Core memory).
+**Edit**
+- `src/components/config/workflows/WorkflowCard.tsx` — expandable layout, adapter, embed shared sections (no `LayerCardTabs`).
+- `src/components/config/workflows/WorkflowsTab.tsx` — pass through any new props (e.g. expand state if needed).
+- `src/components/config/workflows/dialogs/WorkflowFormDialog.tsx` — pre-populate `meta`/`layout` skeletons on add.
+- `src/utils/deprecated/sourceWorkflows/migrate.ts` — inherit parent `meta`/`layout` when hoisting.
+- `src/utils/deprecated/sourceWorkflows/__tests__/migrate.test.ts` — new inheritance test.
 
-`EditWorkflowDialog` reuses the same form body, omits the catalogue rail.
+**No changes**
+- Zod schemas / TypeScript interfaces (workflows already accept the full source shape).
+- `Layer*` display components (typed against `DataSource`; we adapt at the call site).
+- `LayerCardTabs` (untouched; simply not rendered by `WorkflowCard`).
+- `ConfigContext`, workflow hooks (`useWorkflowActions`).
 
-### 5. Deprecation of `source.workflows`
+## Out of scope
 
-Per `Refactoring Philosophy` and Core memory ("Deprecate to `src/utils/deprecated/` with README and `@deprecated` rather than deleting code"):
-
-- Add `@deprecated` JSDoc on `BaseDataSource.workflows` (`src/types/layer.ts`) and `WorkflowItem` references inside source-shaped contexts where appropriate, pointing readers at top-level `config.workflows`.
-- Leave the field readable so existing configs still parse. The Layer Card no longer surfaces workflows (any Workflows tab / Workflows section inside the layer card is removed).
-- Add `src/utils/deprecated/sourceWorkflows/README.md` documenting:
-  - Why the field is deprecated (single top-level collection).
-  - That round-trip / import code still passes the field through unchanged.
-  - A one-time migration helper `migrateSourceWorkflowsToTopLevel(config)` that moves any `source.workflows[]` entries into `config.workflows[]` and clears them on the source. The helper is **not** auto-applied; it lives next to the README for users who want to upgrade old configs manually (e.g. via the JSON Config tab).
-- Remove per-source workflow UI affordances only — keep the schema field optional and pass-through so existing JSON loads without errors.
-- Existing tests covering per-source workflow round-trip stay in place to prove the field still survives import/export untouched.
-
-### 6. Export / round-trip
-
-`useConfigExport.ts` already serialises top-level `config.workflows` and per-source `source.workflows`. Both stay. Re-run `configRoundTrip.workflows.test.ts` against the new top-level actions.
-
-### 7. Tests
-
-- `useWorkflowActions.test.ts` — add/update/remove/duplicate/move on top-level workflows produce expected arrays.
-- `WorkflowsTab.test.tsx` — renders flat list, empty state, "Add Workflow" opens dialog, edit flow updates state.
-- `migrateSourceWorkflowsToTopLevel.test.ts` — helper hoists per-source workflows into the top-level array and clears the source field; no-ops when nothing to move.
-- Existing per-source round-trip tests remain green.
-
-## Explicitly out of scope
-
-- Workflow groups (flat list only for now).
-- Catalogue browser implementation (placeholder rail only; tracked as follow-up).
-- Auto-migration of existing per-source workflows on config load (manual helper only).
-- Removing the per-source `workflows` field from the schema (deprecated, kept for backward compatibility).
-- Editing workflow `data[]` / `statistics[]` / `charts[]` from the new page (raw JSON / future passes).
-
-## Risks
-
-- `ExtendedConfigProps` is consumed in many hooks — additions stay optional in `ConfigUpdateProps` to avoid touching unrelated callers.
-- `grid-cols-7 → grid-cols-8` shrinks tabs slightly; verify the bar fits at the smallest supported width.
-- Users with existing per-source workflows will not see them on the new Workflows tab until they run the migration helper. The deprecation README must call this out clearly.
+- Refactoring `Layer*` components to a generic `SourceLike` prop type (Option B). Revisit only if the adapter proves painful.
+- Embedding a full `LayerCard` inside `WorkflowCard` (Option C). Layer-list concerns (active toggle, base layer, exclusivity, swipe/mirror/spotlight) don't apply.
+- Catalogue browser implementation — placeholder rail in `WorkflowFormDialog` stays as-is.
+- Datasets / Statistics / Constraints / Charts on workflows. Underlying fields preserved on read/write; UI deferred.
