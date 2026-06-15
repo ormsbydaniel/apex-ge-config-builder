@@ -113,7 +113,7 @@ export const WorkflowCard = ({
     onUpdate({
       ...(workflow as any),
       ...sourceFieldUpdates,
-      layout: { ...t, layout: { ...((workflow as any).layout ?? {}), ...layoutUpdates } },
+      layout: { ...((workflow as any).layout ?? {}), ...layoutUpdates },
     } as WorkflowItem);
   };
 
