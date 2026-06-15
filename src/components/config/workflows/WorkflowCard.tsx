@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Pencil, Copy, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Pencil, Copy, Trash2, ChevronUp, ChevronDown, FileJson } from 'lucide-react';
 import { WorkflowItem } from '@/types/dataSource';
 
 interface WorkflowCardProps {
@@ -10,22 +10,26 @@ interface WorkflowCardProps {
   isFirst: boolean;
   isLast: boolean;
   onEdit: () => void;
+  onEditJson: () => void;
   onDuplicate: () => void;
   onRemove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
 }
 
+
 export const WorkflowCard = ({
   workflow,
   isFirst,
   isLast,
   onEdit,
+  onEditJson,
   onDuplicate,
   onRemove,
   onMoveUp,
   onMoveDown,
 }: WorkflowCardProps) => {
+
   const title = workflow.serviceId || '(unnamed workflow)';
   const provider = workflow.serviceProvider;
   const description = workflow.meta?.description;
@@ -81,6 +85,10 @@ export const WorkflowCard = ({
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onEdit} aria-label="Edit workflow">
             <Pencil className="h-3.5 w-3.5" />
           </Button>
+          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onEditJson} aria-label="Edit workflow JSON" title="Edit JSON">
+            <FileJson className="h-3.5 w-3.5" />
+          </Button>
+
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onDuplicate} aria-label="Duplicate workflow">
             <Copy className="h-3.5 w-3.5" />
           </Button>

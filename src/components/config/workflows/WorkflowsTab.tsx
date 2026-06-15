@@ -6,6 +6,8 @@ import { WorkflowItem } from '@/types/dataSource';
 import { Service } from '@/types/config';
 import { WorkflowCard } from './WorkflowCard';
 import { WorkflowFormDialog } from './dialogs/WorkflowFormDialog';
+import WorkflowJsonEditorDialog from './dialogs/WorkflowJsonEditorDialog';
+
 
 interface WorkflowsTabProps {
   workflows: WorkflowItem[];
@@ -28,7 +30,10 @@ export const WorkflowsTab = ({
 }: WorkflowsTabProps) => {
   const [addOpen, setAddOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [jsonIndex, setJsonIndex] = useState<number | null>(null);
   const editing = editIndex !== null ? workflows[editIndex] : null;
+  const jsonEditing = jsonIndex !== null ? workflows[jsonIndex] : null;
+
 
   return (
     <Card>
@@ -66,6 +71,8 @@ export const WorkflowsTab = ({
               isFirst={index === 0}
               isLast={index === workflows.length - 1}
               onEdit={() => setEditIndex(index)}
+              onEditJson={() => setJsonIndex(index)}
+
               onDuplicate={() => duplicateWorkflow(index)}
               onRemove={() => removeWorkflow(index)}
               onMoveUp={() => moveWorkflow(index, index - 1)}
@@ -95,7 +102,20 @@ export const WorkflowsTab = ({
           setEditIndex(null);
         }}
       />
+
+      {jsonEditing && (
+        <WorkflowJsonEditorDialog
+          isOpen={jsonIndex !== null}
+          onClose={() => setJsonIndex(null)}
+          workflow={jsonEditing}
+          onSave={(wf) => {
+            if (jsonIndex !== null) updateWorkflow(jsonIndex, wf);
+            setJsonIndex(null);
+          }}
+        />
+      )}
     </Card>
+
   );
 };
 
