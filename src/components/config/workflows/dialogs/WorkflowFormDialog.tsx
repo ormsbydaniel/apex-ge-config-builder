@@ -156,7 +156,7 @@ export const WorkflowFormDialog = ({
             {application && <ReadOnlyInline label="Application:" value={application} />}
 
             {(endpoint || namespace) && (
-              <div className="space-y-3 pt-2 border-t">
+              <div className="space-y-3">
                 {endpoint && <ReadOnlyRow label="Endpoint" value={endpoint} />}
                 {namespace && <ReadOnlyRow label="Namespace" value={namespace} />}
               </div>
