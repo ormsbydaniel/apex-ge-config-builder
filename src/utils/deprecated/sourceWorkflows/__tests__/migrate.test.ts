@@ -35,7 +35,8 @@ describe('migrateSourceWorkflowsToTopLevel', () => {
   });
 
   it('does not mutate the input', () => {
-    const input = {
+    const input: any = {
+
       sources: [{ name: 'A', workflows: [{ serviceId: 'a1' }] }],
     };
     const snapshot = JSON.parse(JSON.stringify(input));
