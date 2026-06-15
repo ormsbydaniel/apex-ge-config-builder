@@ -203,6 +203,13 @@ export const WorkflowFormDialog = ({
           <Button onClick={handleSave} disabled={!serviceId.trim()}>Save workflow</Button>
         </DialogFooter>
       </DialogContent>
+      {isNew && (
+        <CatalogueBrowserDialog
+          open={catalogueOpen}
+          onOpenChange={setCatalogueOpen}
+          onSelect={handleCatalogueSelect}
+        />
+      )}
     </Dialog>
   );
 };
