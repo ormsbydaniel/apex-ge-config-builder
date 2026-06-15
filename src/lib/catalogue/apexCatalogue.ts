@@ -121,14 +121,9 @@ export function mapRecordToWorkflowFields(entry: CatalogueEntry): MappedWorkflow
       ...(applicationHref && { namespace: applicationHref }),
       ...(application && { application }),
     };
-  } else if (conformsTo.includes(OPENEO_UDP_URI) || serviceHref || applicationHref) {
-    // openEO UDP (default fallback when we have any service info)
-    out.serviceDetails = {
-      endpoint: serviceHref,
-      ...(applicationHref && { namespace: applicationHref }),
-      application: record.id || entry.algorithmId,
-    };
   }
+  // openEO UDP: only serviceId + serviceProvider are needed, no serviceDetails.
+
 
   return out;
 }
