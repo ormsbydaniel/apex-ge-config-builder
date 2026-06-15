@@ -559,7 +559,14 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           footer: action.payload,
         },
       };
+    case 'UPDATE_WORKFLOWS':
+      return {
+        ...state,
+        isDirty: true,
+        workflows: action.payload,
+      };
     default:
+
       return state;
   }
 }
