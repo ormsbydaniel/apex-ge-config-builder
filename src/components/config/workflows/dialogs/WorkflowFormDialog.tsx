@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Library } from 'lucide-react';
 import { WorkflowItem } from '@/types/dataSource';
 import { Service } from '@/types/config';
+import { CatalogueBrowserDialog } from './CatalogueBrowserDialog';
+import type { MappedWorkflowFields } from '@/lib/catalogue/types';
 
 interface WorkflowFormDialogProps {
   open: boolean;
