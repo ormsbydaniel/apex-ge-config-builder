@@ -22,6 +22,8 @@ import { Service } from '@/types/config';
 import SortableWorkflowCard from './SortableWorkflowCard';
 import { WorkflowFormDialog } from './dialogs/WorkflowFormDialog';
 import WorkflowJsonEditorDialog from './dialogs/WorkflowJsonEditorDialog';
+import CatalogueBrowserDialog from './dialogs/CatalogueBrowserDialog';
+import type { MappedWorkflowFields } from '@/lib/catalogue/types';
 
 interface WorkflowsTabProps {
   workflows: WorkflowItem[];
@@ -42,11 +44,30 @@ export const WorkflowsTab = ({
   duplicateWorkflow,
   moveWorkflow,
 }: WorkflowsTabProps) => {
+  const [catalogueOpen, setCatalogueOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [prefill, setPrefill] = useState<Partial<WorkflowItem> | null>(null);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [jsonIndex, setJsonIndex] = useState<number | null>(null);
   const editing = editIndex !== null ? workflows[editIndex] : null;
   const jsonEditing = jsonIndex !== null ? workflows[jsonIndex] : null;
+
+  const handleCatalogueSelect = (fields: MappedWorkflowFields) => {
+    const seed: Partial<WorkflowItem> = {
+      serviceId: fields.serviceId,
+      serviceProvider: fields.serviceProvider,
+      ...(fields.serviceDetails && { serviceDetails: fields.serviceDetails }),
+    };
+    setPrefill(seed);
+    setCatalogueOpen(false);
+    setAddOpen(true);
+  };
+
+  const handleSkipCatalogue = () => {
+    setPrefill(null);
+    setCatalogueOpen(false);
+    setAddOpen(true);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
