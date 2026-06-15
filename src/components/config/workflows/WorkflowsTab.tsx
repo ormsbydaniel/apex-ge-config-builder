@@ -22,6 +22,8 @@ import { Service } from '@/types/config';
 import SortableWorkflowCard from './SortableWorkflowCard';
 import { WorkflowFormDialog } from './dialogs/WorkflowFormDialog';
 import WorkflowJsonEditorDialog from './dialogs/WorkflowJsonEditorDialog';
+import CatalogueBrowserDialog from './dialogs/CatalogueBrowserDialog';
+import type { MappedWorkflowFields } from '@/lib/catalogue/types';
 
 interface WorkflowsTabProps {
   workflows: WorkflowItem[];
@@ -42,11 +44,30 @@ export const WorkflowsTab = ({
   duplicateWorkflow,
   moveWorkflow,
 }: WorkflowsTabProps) => {
+  const [catalogueOpen, setCatalogueOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [prefill, setPrefill] = useState<Partial<WorkflowItem> | null>(null);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [jsonIndex, setJsonIndex] = useState<number | null>(null);
   const editing = editIndex !== null ? workflows[editIndex] : null;
   const jsonEditing = jsonIndex !== null ? workflows[jsonIndex] : null;
+
+  const handleCatalogueSelect = (fields: MappedWorkflowFields) => {
+    const seed: Partial<WorkflowItem> = {
+      serviceId: fields.serviceId,
+      serviceProvider: fields.serviceProvider,
+      ...(fields.serviceDetails && { serviceDetails: fields.serviceDetails }),
+    };
+    setPrefill(seed);
+    setCatalogueOpen(false);
+    setAddOpen(true);
+  };
+
+  const handleSkipCatalogue = () => {
+    setPrefill(null);
+    setCatalogueOpen(false);
+    setAddOpen(true);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -78,7 +99,7 @@ export const WorkflowsTab = ({
             </span>
           </CardTitle>
         </div>
-        <Button onClick={() => setAddOpen(true)} size="sm">
+        <Button onClick={() => setCatalogueOpen(true)} size="sm">
           <Plus className="h-4 w-4 mr-2" />
           Add Workflow
         </Button>
@@ -88,7 +109,7 @@ export const WorkflowsTab = ({
           <div className="border border-dashed rounded-md py-10 text-center text-sm text-muted-foreground">
             <WorkflowIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="mb-3">No workflows yet</p>
-            <Button onClick={() => setAddOpen(true)} variant="outline" size="sm">
+            <Button onClick={() => setCatalogueOpen(true)} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Workflow
             </Button>
@@ -124,14 +145,25 @@ export const WorkflowsTab = ({
         )}
       </CardContent>
 
+      <CatalogueBrowserDialog
+        open={catalogueOpen}
+        onOpenChange={setCatalogueOpen}
+        onSelect={handleCatalogueSelect}
+        onSkip={handleSkipCatalogue}
+      />
+
       <WorkflowFormDialog
         open={addOpen}
-        onOpenChange={setAddOpen}
-        title="Add Workflow"
+        onOpenChange={(open) => {
+          setAddOpen(open);
+          if (!open) setPrefill(null);
+        }}
+        title="Review workflow"
         services={services}
-        showCatalogueRail
+        prefill={prefill}
         onSave={(wf) => addWorkflow(wf)}
       />
+
 
       <WorkflowFormDialog
         open={editIndex !== null}

@@ -5,19 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Library } from 'lucide-react';
 import { WorkflowItem } from '@/types/dataSource';
 import { Service } from '@/types/config';
-import { CatalogueBrowserDialog } from './CatalogueBrowserDialog';
-import type { MappedWorkflowFields } from '@/lib/catalogue/types';
 
 interface WorkflowFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
   initial?: WorkflowItem | null;
+  /** Optional seed values used only when creating a new workflow (initial is null). */
+  prefill?: Partial<WorkflowItem> | null;
   services: Service[];
-  showCatalogueRail?: boolean;
   onSave: (workflow: WorkflowItem) => void;
 }
 
@@ -31,8 +29,8 @@ export const WorkflowFormDialog = ({
   onOpenChange,
   title,
   initial,
+  prefill,
   services,
-  showCatalogueRail = false,
   onSave,
 }: WorkflowFormDialogProps) => {
   const [serviceId, setServiceId] = useState('');
@@ -40,29 +38,19 @@ export const WorkflowFormDialog = ({
   const [endpoint, setEndpoint] = useState('');
   const [namespace, setNamespace] = useState('');
   const [application, setApplication] = useState('');
-  const [catalogueOpen, setCatalogueOpen] = useState(false);
 
   const isNew = !initial;
 
   // Initialize state inside useEffect watching open (Core memory)
   useEffect(() => {
     if (!open) return;
-    const src = initial ?? blank();
+    const src: Partial<WorkflowItem> = initial ?? prefill ?? blank();
     setServiceId(src.serviceId ?? '');
     setServiceProvider(src.serviceProvider ?? '');
     setEndpoint(src.serviceDetails?.endpoint ?? '');
     setNamespace(src.serviceDetails?.namespace ?? '');
     setApplication(src.serviceDetails?.application ?? '');
-    setCatalogueOpen(false);
-  }, [open, initial]);
-
-  const handleCatalogueSelect = (fields: MappedWorkflowFields) => {
-    setServiceId(fields.serviceId);
-    setServiceProvider(fields.serviceProvider);
-    setEndpoint(fields.serviceDetails?.endpoint ?? '');
-    setNamespace(fields.serviceDetails?.namespace ?? '');
-    setApplication(fields.serviceDetails?.application ?? '');
-  };
+  }, [open, initial, prefill]);
 
   const providers = Array.from(
     new Set(services.map((s) => (s as any).provider).filter(Boolean) as string[])
@@ -114,86 +102,76 @@ export const WorkflowFormDialog = ({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Configure a workflow entry{isNew ? '. Browse the APEx catalogue to pre-fill service details.' : '.'}
+            {isNew
+              ? 'Review and adjust the workflow details before saving.'
+              : 'Edit the workflow configuration.'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className={`grid gap-4 ${showCatalogueRail && isNew ? 'grid-cols-[220px_1fr]' : 'grid-cols-1'}`}>
-          {showCatalogueRail && isNew && (
-            <aside className="border rounded-md p-3 bg-muted/30 flex flex-col items-center justify-center text-center text-xs text-muted-foreground gap-2">
-              <Library className="h-6 w-6 opacity-60" />
-              <div>Pre-fill from the APEx algorithm catalogue.</div>
-              <Button size="sm" variant="secondary" onClick={() => setCatalogueOpen(true)}>
-                Browse catalogue
-              </Button>
-            </aside>
-          )}
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="wf-service-id">Service ID *</Label>
+            <Input
+              id="wf-service-id"
+              value={serviceId}
+              onChange={(e) => setServiceId(e.target.value)}
+              placeholder="e.g. eurac_pv_farm_detection"
+            />
+          </div>
 
-          <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="wf-provider">Service provider</Label>
+            {providers.length > 0 ? (
+              <Select
+                value={providers.includes(serviceProvider) ? serviceProvider : '__free__'}
+                onValueChange={(v) => {
+                  if (v !== '__free__') setServiceProvider(v);
+                }}
+              >
+                <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
+                <SelectContent>
+                  {providers.map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                  <SelectItem value="__free__">Other / custom…</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : null}
+            <Input
+              value={serviceProvider}
+              onChange={(e) => setServiceProvider(e.target.value)}
+              placeholder="e.g. vito"
+            />
+          </div>
+
+          <div className="space-y-3 pt-2 border-t">
+            <div className="text-sm font-medium text-foreground">
+              Additional service details - EO Application Packages
+            </div>
             <div className="space-y-1.5">
-              <Label htmlFor="wf-service-id">Service ID *</Label>
+              <Label htmlFor="wf-endpoint">Endpoint</Label>
               <Input
-                id="wf-service-id"
-                value={serviceId}
-                onChange={(e) => setServiceId(e.target.value)}
-                placeholder="e.g. eurac_pv_farm_detection"
+                id="wf-endpoint"
+                value={endpoint}
+                onChange={(e) => setEndpoint(e.target.value)}
+                placeholder="https://…"
               />
             </div>
-
             <div className="space-y-1.5">
-              <Label htmlFor="wf-provider">Service provider</Label>
-              {providers.length > 0 ? (
-                <Select
-                  value={providers.includes(serviceProvider) ? serviceProvider : '__free__'}
-                  onValueChange={(v) => {
-                    if (v !== '__free__') setServiceProvider(v);
-                  }}
-                >
-                  <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
-                  <SelectContent>
-                    {providers.map((p) => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
-                    ))}
-                    <SelectItem value="__free__">Other / custom…</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : null}
+              <Label htmlFor="wf-namespace">Namespace</Label>
               <Input
-                value={serviceProvider}
-                onChange={(e) => setServiceProvider(e.target.value)}
-                placeholder="e.g. vito"
+                id="wf-namespace"
+                value={namespace}
+                onChange={(e) => setNamespace(e.target.value)}
               />
             </div>
-
-            <div className="space-y-3 pt-2 border-t">
-              <div className="text-sm font-medium text-foreground">
-                Additional service details - EO Application Packages
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="wf-endpoint">Endpoint</Label>
-                <Input
-                  id="wf-endpoint"
-                  value={endpoint}
-                  onChange={(e) => setEndpoint(e.target.value)}
-                  placeholder="https://…"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="wf-namespace">Namespace</Label>
-                <Input
-                  id="wf-namespace"
-                  value={namespace}
-                  onChange={(e) => setNamespace(e.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="wf-application">Application</Label>
-                <Input
-                  id="wf-application"
-                  value={application}
-                  onChange={(e) => setApplication(e.target.value)}
-                />
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="wf-application">Application</Label>
+              <Input
+                id="wf-application"
+                value={application}
+                onChange={(e) => setApplication(e.target.value)}
+              />
             </div>
           </div>
         </div>
@@ -203,13 +181,6 @@ export const WorkflowFormDialog = ({
           <Button onClick={handleSave} disabled={!serviceId.trim()}>Save workflow</Button>
         </DialogFooter>
       </DialogContent>
-      {isNew && (
-        <CatalogueBrowserDialog
-          open={catalogueOpen}
-          onOpenChange={setCatalogueOpen}
-          onSelect={handleCatalogueSelect}
-        />
-      )}
     </Dialog>
   );
 };

@@ -13,11 +13,13 @@ interface CatalogueBrowserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (fields: MappedWorkflowFields, entry: CatalogueEntry) => void;
+  /** Optional: invoked when the user wants to bypass the catalogue and create a blank workflow. */
+  onSkip?: () => void;
 }
 
 type SortKey = 'name' | 'provider' | 'description';
 
-export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect }: CatalogueBrowserDialogProps) => {
+export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }: CatalogueBrowserDialogProps) => {
   const [entries, setEntries] = useState<CatalogueEntry[]>(() => getCachedEntries() ?? []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,7 +105,7 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect }: Catalog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[100vw] w-screen h-screen sm:rounded-none p-0 flex flex-col gap-0">
+      <DialogContent className="w-[80vw] max-w-[80vw] h-[80vh] max-h-[80vh] p-0 flex flex-col gap-0">
         <DialogHeader className="px-6 py-4 border-b shrink-0">
           <DialogTitle>APEx Algorithm Catalogue</DialogTitle>
           <DialogDescription>
@@ -212,8 +214,12 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect }: Catalog
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            {onSkip && (
+              <Button variant="ghost" onClick={onSkip}>Skip — create blank</Button>
+            )}
             <Button onClick={confirm} disabled={!selectedEntry}>Use selected algorithm</Button>
           </div>
+
         </DialogFooter>
       </DialogContent>
     </Dialog>
