@@ -3,7 +3,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,7 +16,9 @@ import {
   X,
   Server,
   User,
+  Pencil,
 } from 'lucide-react';
+
 import { WorkflowItem } from '@/types/dataSource';
 import {
   DataSource,
@@ -76,7 +77,7 @@ export const WorkflowCard = ({
   onUpdate,
 }: WorkflowCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  const [serviceOpen, setServiceOpen] = useState(false);
+  
   const [isRenaming, setIsRenaming] = useState(false);
   const [editName, setEditName] = useState(workflow.serviceId ?? '');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -150,16 +151,8 @@ export const WorkflowCard = ({
     } as WorkflowItem);
   };
 
-  const updateServiceDetails = (
-    patch: Partial<NonNullable<WorkflowItem['serviceDetails']>>,
-  ) => {
-    const current = workflow.serviceDetails ?? { endpoint: '' };
-    const merged = { ...current, ...patch };
-    const cleaned: any = { endpoint: merged.endpoint ?? '' };
-    if (merged.namespace) cleaned.namespace = merged.namespace;
-    if (merged.application) cleaned.application = merged.application;
-    onUpdate({ ...(workflow as any), serviceDetails: cleaned } as WorkflowItem);
-  };
+
+
 
   const adapter = toSourceAdapter(workflow);
   const firstVectorSource = isDataSourceItemArray(adapter.data)
@@ -285,49 +278,48 @@ export const WorkflowCard = ({
         <CollapsibleContent>
           <CardContent className="space-y-4 pt-0 pl-[46px]">
             {/* Service details (workflow-specific) */}
-            <Collapsible open={serviceOpen} onOpenChange={setServiceOpen}>
-              <CollapsibleTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="px-1 -ml-1 h-7"
-                >
-                  <ChevronRight
-                    className={`h-4 w-4 mr-1 transition-transform ${serviceOpen ? 'rotate-90' : ''}`}
-                  />
-                  <Server className="h-4 w-4 mr-2 text-muted-foreground" />
-                  Service details
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-3 pt-2 pl-6">
-                <div className="space-y-1.5">
-                  <Label htmlFor={`wf-endpoint-${workflow.serviceId}`}>Endpoint</Label>
-                  <Input
-                    id={`wf-endpoint-${workflow.serviceId}`}
-                    value={workflow.serviceDetails?.endpoint ?? ''}
-                    onChange={(e) => updateServiceDetails({ endpoint: e.target.value })}
-                    placeholder="https://…"
-                  />
+            {(() => {
+              const sd = workflow.serviceDetails;
+              const hasAny = !!(sd?.endpoint || sd?.namespace || sd?.application);
+              return (
+                <div className="space-y-2 -mt-2">
+                  <div className="flex items-center gap-2">
+                    <Server className="h-4 w-4 text-muted-foreground" />
+                    <h4 className="text-sm font-medium text-foreground">Service Details</h4>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={onEdit}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                  {hasAny ? (
+                    <div className="text-xs text-muted-foreground space-y-1 ml-6">
+                      {sd?.endpoint && (
+                        <div>
+                          <span className="font-medium">Endpoint:</span> {sd.endpoint}
+                        </div>
+                      )}
+                      {sd?.namespace && (
+                        <div>
+                          <span className="font-medium">Namespace:</span> {sd.namespace}
+                        </div>
+                      )}
+                      {sd?.application && (
+                        <div>
+                          <span className="font-medium">Application:</span> {sd.application}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground ml-6">No service details configured</p>
+                  )}
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor={`wf-namespace-${workflow.serviceId}`}>Namespace</Label>
-                  <Input
-                    id={`wf-namespace-${workflow.serviceId}`}
-                    value={workflow.serviceDetails?.namespace ?? ''}
-                    onChange={(e) => updateServiceDetails({ namespace: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor={`wf-application-${workflow.serviceId}`}>Application</Label>
-                  <Input
-                    id={`wf-application-${workflow.serviceId}`}
-                    value={workflow.serviceDetails?.application ?? ''}
-                    onChange={(e) => updateServiceDetails({ application: e.target.value })}
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+              );
+            })()}
+
 
             <LayerDescriptionAttributionDisplay
               source={adapter}
