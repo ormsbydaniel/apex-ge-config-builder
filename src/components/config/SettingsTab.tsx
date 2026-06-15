@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, ExternalLink, Mail, Navigation, Paintbrush, Palette, Link2 } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, Check, ExternalLink, Mail, Navigation, Paintbrush, Palette, Link2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import DesignVariantEditor from './DesignVariantEditor';
@@ -32,6 +32,8 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [selectedLocation, setSelectedLocation] = useState<string>('custom');
   const [isEditingLogo, setIsEditingLogo] = useState(false);
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
+  const [isEditingPrefix, setIsEditingPrefix] = useState(false);
+  const [prefixInput, setPrefixInput] = useState(config.exportPrefix || '');
   
   // Theme colors state
   const [primaryColor, setPrimaryColor] = useState(config.layout.theme?.['primary-color'] || '#003247');
@@ -57,6 +59,10 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   useEffect(() => {
     setLogoUrl(config.layout.navigation.logo);
   }, [config.layout.navigation.logo]);
+
+  useEffect(() => {
+    setPrefixInput(config.exportPrefix || '');
+  }, [config.exportPrefix]);
 
   useEffect(() => {
     if (config.layout.theme) {
