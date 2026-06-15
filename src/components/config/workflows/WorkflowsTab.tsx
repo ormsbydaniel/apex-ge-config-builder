@@ -71,6 +71,8 @@ export const WorkflowsTab = ({
               isFirst={index === 0}
               isLast={index === workflows.length - 1}
               onEdit={() => setEditIndex(index)}
+              onEditJson={() => setJsonIndex(index)}
+
               onDuplicate={() => duplicateWorkflow(index)}
               onRemove={() => removeWorkflow(index)}
               onMoveUp={() => moveWorkflow(index, index - 1)}
