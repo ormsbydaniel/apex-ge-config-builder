@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { WorkflowItem } from '@/types/dataSource';
@@ -15,6 +16,8 @@ interface WorkflowFormDialogProps {
   initial?: WorkflowItem | null;
   /** Optional seed values used only when creating a new workflow (initial is null). */
   prefill?: Partial<WorkflowItem> | null;
+  /** Catalogue-derived metadata. When present, dialog renders in read-only review mode. */
+  cataloguePrefill?: { description?: string; provider?: string } | null;
   services: Service[];
   onSave: (workflow: WorkflowItem) => void;
 }
@@ -24,12 +27,20 @@ const blank = (): WorkflowItem => ({
   serviceProvider: '',
 });
 
+const ReadOnlyRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="space-y-1.5">
+    <Label className="text-muted-foreground">{label}</Label>
+    <div className="text-sm break-all">{value || <span className="text-muted-foreground italic">—</span>}</div>
+  </div>
+);
+
 export const WorkflowFormDialog = ({
   open,
   onOpenChange,
   title,
   initial,
   prefill,
+  cataloguePrefill,
   services,
   onSave,
 }: WorkflowFormDialogProps) => {
@@ -38,8 +49,13 @@ export const WorkflowFormDialog = ({
   const [endpoint, setEndpoint] = useState('');
   const [namespace, setNamespace] = useState('');
   const [application, setApplication] = useState('');
+  const [copyDescription, setCopyDescription] = useState(true);
+  const [copyAttribution, setCopyAttribution] = useState(true);
 
   const isNew = !initial;
+  const reviewMode = isNew && !!cataloguePrefill;
+  const hasDescription = !!cataloguePrefill?.description;
+  const hasProvider = !!cataloguePrefill?.provider;
 
   // Initialize state inside useEffect watching open (Core memory)
   useEffect(() => {
@@ -50,7 +66,9 @@ export const WorkflowFormDialog = ({
     setEndpoint(src.serviceDetails?.endpoint ?? '');
     setNamespace(src.serviceDetails?.namespace ?? '');
     setApplication(src.serviceDetails?.application ?? '');
-  }, [open, initial, prefill]);
+    setCopyDescription(!!cataloguePrefill?.description);
+    setCopyAttribution(!!cataloguePrefill?.provider);
+  }, [open, initial, prefill, cataloguePrefill]);
 
   const providers = Array.from(
     new Set(services.map((s) => (s as any).provider).filter(Boolean) as string[])
@@ -81,6 +99,20 @@ export const WorkflowFormDialog = ({
     if (isNew && !baseMeta.attribution) {
       baseMeta.attribution = { text: '' };
     }
+
+    // Apply catalogue copy choices in review mode (merged into single dispatch).
+    if (reviewMode) {
+      if (copyDescription && cataloguePrefill?.description) {
+        baseMeta.description = cataloguePrefill.description;
+      }
+      if (copyAttribution && cataloguePrefill?.provider) {
+        baseMeta.attribution = {
+          ...(baseMeta.attribution ?? {}),
+          text: cataloguePrefill.provider,
+        };
+      }
+    }
+
     if (Object.keys(baseMeta).length > 0) {
       next.meta = baseMeta;
     } else {
@@ -102,83 +134,139 @@ export const WorkflowFormDialog = ({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            {isNew
+            {reviewMode
+              ? 'Review the catalogue details below and choose which metadata to copy into the workflow.'
+              : isNew
               ? 'Review and adjust the workflow details before saving.'
               : 'Edit the workflow configuration.'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="wf-service-id">Service ID *</Label>
-            <Input
-              id="wf-service-id"
-              value={serviceId}
-              onChange={(e) => setServiceId(e.target.value)}
-              placeholder="e.g. eurac_pv_farm_detection"
-            />
-          </div>
+        {reviewMode ? (
+          <div className="space-y-4">
+            <ReadOnlyRow label="Service ID" value={serviceId} />
+            <ReadOnlyRow label="Service provider" value={serviceProvider} />
 
-          <div className="space-y-1.5">
-            <Label htmlFor="wf-provider">Service provider</Label>
-            {providers.length > 0 ? (
-              <Select
-                value={providers.includes(serviceProvider) ? serviceProvider : '__free__'}
-                onValueChange={(v) => {
-                  if (v !== '__free__') setServiceProvider(v);
-                }}
-              >
-                <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
-                <SelectContent>
-                  {providers.map((p) => (
-                    <SelectItem key={p} value={p}>{p}</SelectItem>
-                  ))}
-                  <SelectItem value="__free__">Other / custom…</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : null}
-            <Input
-              value={serviceProvider}
-              onChange={(e) => setServiceProvider(e.target.value)}
-              placeholder="e.g. vito"
-            />
-          </div>
+            {(endpoint || namespace || application) && (
+              <div className="space-y-3 pt-2 border-t">
+                <div className="text-sm font-medium text-foreground">
+                  Service details
+                </div>
+                {endpoint && <ReadOnlyRow label="Endpoint" value={endpoint} />}
+                {namespace && <ReadOnlyRow label="Namespace" value={namespace} />}
+                {application && <ReadOnlyRow label="Application" value={application} />}
+              </div>
+            )}
 
-          <div className="space-y-3 pt-2 border-t">
-            <div className="text-sm font-medium text-foreground">
-              Additional service details - EO Application Packages
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="wf-endpoint">Endpoint</Label>
-              <Input
-                id="wf-endpoint"
-                value={endpoint}
-                onChange={(e) => setEndpoint(e.target.value)}
-                placeholder="https://…"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="wf-namespace">Namespace</Label>
-              <Input
-                id="wf-namespace"
-                value={namespace}
-                onChange={(e) => setNamespace(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="wf-application">Application</Label>
-              <Input
-                id="wf-application"
-                value={application}
-                onChange={(e) => setApplication(e.target.value)}
-              />
+            {hasDescription && (
+              <div className="space-y-1.5 pt-2 border-t">
+                <Label className="text-muted-foreground">Description</Label>
+                <div className="text-sm whitespace-pre-wrap max-h-40 overflow-auto rounded-md border bg-muted/30 p-2">
+                  {cataloguePrefill!.description}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2 pt-2 border-t">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="wf-copy-desc"
+                  checked={copyDescription}
+                  disabled={!hasDescription}
+                  onCheckedChange={(v) => setCopyDescription(v === true)}
+                />
+                <Label htmlFor="wf-copy-desc" className="cursor-pointer">
+                  Copy description
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="wf-copy-attr"
+                  checked={copyAttribution}
+                  disabled={!hasProvider}
+                  onCheckedChange={(v) => setCopyAttribution(v === true)}
+                />
+                <Label htmlFor="wf-copy-attr" className="cursor-pointer">
+                  Copy attribution{hasProvider ? ` (“${cataloguePrefill!.provider}”)` : ''}
+                </Label>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="wf-service-id">Service ID *</Label>
+              <Input
+                id="wf-service-id"
+                value={serviceId}
+                onChange={(e) => setServiceId(e.target.value)}
+                placeholder="e.g. eurac_pv_farm_detection"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="wf-provider">Service provider</Label>
+              {providers.length > 0 ? (
+                <Select
+                  value={providers.includes(serviceProvider) ? serviceProvider : '__free__'}
+                  onValueChange={(v) => {
+                    if (v !== '__free__') setServiceProvider(v);
+                  }}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
+                  <SelectContent>
+                    {providers.map((p) => (
+                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    ))}
+                    <SelectItem value="__free__">Other / custom…</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : null}
+              <Input
+                value={serviceProvider}
+                onChange={(e) => setServiceProvider(e.target.value)}
+                placeholder="e.g. vito"
+              />
+            </div>
+
+            <div className="space-y-3 pt-2 border-t">
+              <div className="text-sm font-medium text-foreground">
+                Additional service details - EO Application Packages
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="wf-endpoint">Endpoint</Label>
+                <Input
+                  id="wf-endpoint"
+                  value={endpoint}
+                  onChange={(e) => setEndpoint(e.target.value)}
+                  placeholder="https://…"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="wf-namespace">Namespace</Label>
+                <Input
+                  id="wf-namespace"
+                  value={namespace}
+                  onChange={(e) => setNamespace(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="wf-application">Application</Label>
+                <Input
+                  id="wf-application"
+                  value={application}
+                  onChange={(e) => setApplication(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={!serviceId.trim()}>Save workflow</Button>
+          <Button onClick={handleSave} disabled={!serviceId.trim()}>
+            {reviewMode ? 'Add workflow' : 'Save workflow'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
