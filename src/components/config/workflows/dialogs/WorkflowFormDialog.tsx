@@ -71,8 +71,6 @@ export const WorkflowFormDialog = ({
   const handleSave = () => {
     if (!serviceId.trim()) return;
 
-    const isNew = !initial;
-
     // Build single merged workflow (Core memory: single dispatch)
     const next: WorkflowItem = {
       ...(initial ?? {}),
