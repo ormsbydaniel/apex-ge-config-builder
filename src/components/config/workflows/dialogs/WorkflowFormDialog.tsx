@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Library } from 'lucide-react';
 import { WorkflowItem } from '@/types/dataSource';
 import { Service } from '@/types/config';
+import { CatalogueBrowserDialog } from './CatalogueBrowserDialog';
+import type { MappedWorkflowFields } from '@/lib/catalogue/types';
 
 interface WorkflowFormDialogProps {
   open: boolean;
@@ -38,6 +40,9 @@ export const WorkflowFormDialog = ({
   const [endpoint, setEndpoint] = useState('');
   const [namespace, setNamespace] = useState('');
   const [application, setApplication] = useState('');
+  const [catalogueOpen, setCatalogueOpen] = useState(false);
+
+  const isNew = !initial;
 
   // Initialize state inside useEffect watching open (Core memory)
   useEffect(() => {
@@ -48,7 +53,16 @@ export const WorkflowFormDialog = ({
     setEndpoint(src.serviceDetails?.endpoint ?? '');
     setNamespace(src.serviceDetails?.namespace ?? '');
     setApplication(src.serviceDetails?.application ?? '');
+    setCatalogueOpen(false);
   }, [open, initial]);
+
+  const handleCatalogueSelect = (fields: MappedWorkflowFields) => {
+    setServiceId(fields.serviceId);
+    setServiceProvider(fields.serviceProvider);
+    setEndpoint(fields.serviceDetails?.endpoint ?? '');
+    setNamespace(fields.serviceDetails?.namespace ?? '');
+    setApplication(fields.serviceDetails?.application ?? '');
+  };
 
   const providers = Array.from(
     new Set(services.map((s) => (s as any).provider).filter(Boolean) as string[])
@@ -56,8 +70,6 @@ export const WorkflowFormDialog = ({
 
   const handleSave = () => {
     if (!serviceId.trim()) return;
-
-    const isNew = !initial;
 
     // Build single merged workflow (Core memory: single dispatch)
     const next: WorkflowItem = {
@@ -102,15 +114,18 @@ export const WorkflowFormDialog = ({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Configure a workflow entry. The catalogue browser will be available here in a future release.
+            Configure a workflow entry{isNew ? '. Browse the APEx catalogue to pre-fill service details.' : '.'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className={`grid gap-4 ${showCatalogueRail ? 'grid-cols-[220px_1fr]' : 'grid-cols-1'}`}>
-          {showCatalogueRail && (
-            <aside className="border rounded-md p-3 bg-muted/30 flex flex-col items-center justify-center text-center text-xs text-muted-foreground">
-              <Library className="h-6 w-6 mb-2 opacity-60" />
-              Catalogue browser coming soon
+        <div className={`grid gap-4 ${showCatalogueRail && isNew ? 'grid-cols-[220px_1fr]' : 'grid-cols-1'}`}>
+          {showCatalogueRail && isNew && (
+            <aside className="border rounded-md p-3 bg-muted/30 flex flex-col items-center justify-center text-center text-xs text-muted-foreground gap-2">
+              <Library className="h-6 w-6 opacity-60" />
+              <div>Pre-fill from the APEx algorithm catalogue.</div>
+              <Button size="sm" variant="secondary" onClick={() => setCatalogueOpen(true)}>
+                Browse catalogue
+              </Button>
             </aside>
           )}
 
@@ -188,6 +203,13 @@ export const WorkflowFormDialog = ({
           <Button onClick={handleSave} disabled={!serviceId.trim()}>Save workflow</Button>
         </DialogFooter>
       </DialogContent>
+      {isNew && (
+        <CatalogueBrowserDialog
+          open={catalogueOpen}
+          onOpenChange={setCatalogueOpen}
+          onSelect={handleCatalogueSelect}
+        />
+      )}
     </Dialog>
   );
 };
