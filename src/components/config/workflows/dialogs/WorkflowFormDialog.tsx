@@ -76,14 +76,8 @@ export const WorkflowFormDialog = ({
       delete (next as any).serviceDetails;
     }
 
-    // Seed meta with description (and an empty attribution skeleton for new
-    // workflows so inline editors render placeholders).
+    // Seed an empty attribution skeleton for new workflows so inline editors render placeholders.
     const baseMeta: any = { ...(initial?.meta ?? {}) };
-    if (description.trim()) {
-      baseMeta.description = description.trim();
-    } else {
-      delete baseMeta.description;
-    }
     if (isNew && !baseMeta.attribution) {
       baseMeta.attribution = { text: '' };
     }
