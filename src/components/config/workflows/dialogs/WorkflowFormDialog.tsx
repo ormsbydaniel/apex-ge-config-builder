@@ -58,11 +58,13 @@ export const WorkflowFormDialog = ({
   const [application, setApplication] = useState('');
   const [copyDescription, setCopyDescription] = useState(true);
   const [copyAttribution, setCopyAttribution] = useState(true);
+  const [copyAttributionUrl, setCopyAttributionUrl] = useState(true);
 
   const isNew = !initial;
   const reviewMode = isNew && !!cataloguePrefill;
   const hasDescription = !!cataloguePrefill?.description;
   const hasProvider = !!cataloguePrefill?.provider;
+  const hasProviderUrl = !!cataloguePrefill?.providerUrl;
 
   // Initialize state inside useEffect watching open (Core memory)
   useEffect(() => {
