@@ -77,7 +77,7 @@ export const WorkflowCard = ({
   onUpdate,
 }: WorkflowCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  const [serviceOpen, setServiceOpen] = useState(false);
+  
   const [isRenaming, setIsRenaming] = useState(false);
   const [editName, setEditName] = useState(workflow.serviceId ?? '');
   const inputRef = useRef<HTMLInputElement>(null);
