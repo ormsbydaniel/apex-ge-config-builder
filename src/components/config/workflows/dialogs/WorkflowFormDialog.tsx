@@ -34,6 +34,13 @@ const ReadOnlyRow = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
+const ReadOnlyInline = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-center gap-2 text-sm">
+    <span className="text-muted-foreground">{label}</span>
+    <span className="break-all">{value || <span className="text-muted-foreground italic">—</span>}</span>
+  </div>
+);
+
 export const WorkflowFormDialog = ({
   open,
   onOpenChange,
