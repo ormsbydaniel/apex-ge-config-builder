@@ -159,10 +159,11 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
 
           {!error && entries.length > 0 && (
             <TooltipProvider delayDuration={400}>
-              <Table>
+              <Table className="table-fixed w-full">
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="cursor-pointer select-none w-[26%]" onClick={() => toggleSort('name')}>
+                    <TableHead className="w-[64px]"></TableHead>
+                    <TableHead className="cursor-pointer select-none w-[24%]" onClick={() => toggleSort('name')}>
                       Name{sortIndicator('name')}
                     </TableHead>
                     <TableHead className="cursor-pointer select-none w-[16%]" onClick={() => toggleSort('provider')}>
@@ -191,14 +192,29 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
                           onOpenChange(false);
                         }}
                       >
-                        <TableCell className="font-medium">{entry.name}</TableCell>
-                        <TableCell className="text-muted-foreground">{entry.provider}</TableCell>
+                        <TableCell>
+                          {entry.thumbnail ? (
+                            <img
+                              src={entry.thumbnail}
+                              alt=""
+                              loading="lazy"
+                              className="h-12 w-12 rounded object-cover bg-muted"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }}
+                            />
+                          ) : (
+                            <div className="h-12 w-12 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground font-medium">
+                              {entry.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium break-words">{entry.name}</TableCell>
+                        <TableCell className="text-muted-foreground break-words">{entry.provider}</TableCell>
                         <TableCell className="text-muted-foreground">{getAlgorithmType(entry)}</TableCell>
-                        <TableCell className="text-muted-foreground">
+                        <TableCell className="text-muted-foreground min-w-0">
                           {entry.description ? (
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="line-clamp-2 block">{entry.description}</span>
+                                <span className="line-clamp-2 break-words block">{entry.description}</span>
                               </TooltipTrigger>
                               <TooltipContent className="max-w-md">
                                 <p className="text-xs whitespace-pre-wrap">{entry.description}</p>

@@ -48,12 +48,16 @@ export async function loadCatalogue(): Promise<CatalogueEntry[]> {
             const record = (await res.json()) as CatalogueRecord;
             const name = record.properties?.title?.trim() || record.id || p.algorithmId;
             const description = record.properties?.description?.trim() || '';
+            const thumbnail =
+              record.links?.find((l) => l.rel === 'thumbnail')?.href ||
+              record.links?.find((l) => l.rel === 'preview')?.href;
             return {
               provider: p.provider,
               algorithmId: p.algorithmId,
               name,
               description,
               path: p.path,
+              thumbnail,
               record,
             } as CatalogueEntry;
           } catch {
