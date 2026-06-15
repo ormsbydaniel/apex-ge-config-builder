@@ -151,16 +151,8 @@ export const WorkflowCard = ({
     } as WorkflowItem);
   };
 
-  const updateServiceDetails = (
-    patch: Partial<NonNullable<WorkflowItem['serviceDetails']>>,
-  ) => {
-    const current = workflow.serviceDetails ?? { endpoint: '' };
-    const merged = { ...current, ...patch };
-    const cleaned: any = { endpoint: merged.endpoint ?? '' };
-    if (merged.namespace) cleaned.namespace = merged.namespace;
-    if (merged.application) cleaned.application = merged.application;
-    onUpdate({ ...(workflow as any), serviceDetails: cleaned } as WorkflowItem);
-  };
+
+
 
   const adapter = toSourceAdapter(workflow);
   const firstVectorSource = isDataSourceItemArray(adapter.data)
