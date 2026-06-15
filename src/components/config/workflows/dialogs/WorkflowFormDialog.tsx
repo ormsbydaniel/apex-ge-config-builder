@@ -17,7 +17,7 @@ interface WorkflowFormDialogProps {
   /** Optional seed values used only when creating a new workflow (initial is null). */
   prefill?: Partial<WorkflowItem> | null;
   /** Catalogue-derived metadata. When present, dialog renders in read-only review mode. */
-  cataloguePrefill?: { description?: string; provider?: string } | null;
+  cataloguePrefill?: { description?: string; provider?: string; providerUrl?: string } | null;
   services: Service[];
   onSave: (workflow: WorkflowItem) => void;
 }
