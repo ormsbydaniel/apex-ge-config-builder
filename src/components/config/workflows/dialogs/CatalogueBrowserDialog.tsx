@@ -193,6 +193,7 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
                       >
                         <TableCell className="font-medium">{entry.name}</TableCell>
                         <TableCell className="text-muted-foreground">{entry.provider}</TableCell>
+                        <TableCell className="text-muted-foreground">{getAlgorithmType(entry)}</TableCell>
                         <TableCell className="text-muted-foreground">
                           {entry.description ? (
                             <Tooltip>
