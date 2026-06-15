@@ -214,8 +214,12 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            {onSkip && (
+              <Button variant="ghost" onClick={onSkip}>Skip — create blank</Button>
+            )}
             <Button onClick={confirm} disabled={!selectedEntry}>Use selected algorithm</Button>
           </div>
+
         </DialogFooter>
       </DialogContent>
     </Dialog>
