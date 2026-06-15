@@ -10,11 +10,13 @@ interface WorkflowCardProps {
   isFirst: boolean;
   isLast: boolean;
   onEdit: () => void;
+  onEditJson: () => void;
   onDuplicate: () => void;
   onRemove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
 }
+
 
 export const WorkflowCard = ({
   workflow,
