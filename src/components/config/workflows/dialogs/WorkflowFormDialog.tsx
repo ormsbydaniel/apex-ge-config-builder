@@ -34,6 +34,13 @@ const ReadOnlyRow = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
+const ReadOnlyInline = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-center gap-2 text-sm">
+    <span className="text-muted-foreground">{label}</span>
+    <span className="break-all">{value || <span className="text-muted-foreground italic">—</span>}</span>
+  </div>
+);
+
 export const WorkflowFormDialog = ({
   open,
   onOpenChange,
@@ -143,18 +150,15 @@ export const WorkflowFormDialog = ({
         </DialogHeader>
 
         {reviewMode ? (
-          <div className="space-y-4">
-            <ReadOnlyRow label="Service ID" value={serviceId} />
-            <ReadOnlyRow label="Service provider" value={serviceProvider} />
+          <div className="space-y-3">
+            <ReadOnlyInline label="Service ID:" value={serviceId} />
+            <ReadOnlyInline label="Service provider:" value={serviceProvider} />
+            {application && <ReadOnlyInline label="Application:" value={application} />}
 
-            {(endpoint || namespace || application) && (
+            {(endpoint || namespace) && (
               <div className="space-y-3 pt-2 border-t">
-                <div className="text-sm font-medium text-foreground">
-                  Service details
-                </div>
                 {endpoint && <ReadOnlyRow label="Endpoint" value={endpoint} />}
                 {namespace && <ReadOnlyRow label="Namespace" value={namespace} />}
-                {application && <ReadOnlyRow label="Application" value={application} />}
               </div>
             )}
 
