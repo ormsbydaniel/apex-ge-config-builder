@@ -171,7 +171,7 @@ export const WorkflowFormDialog = ({
               </div>
             )}
 
-            <div className="space-y-2 pt-2 border-t">
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Checkbox
                   id="wf-copy-desc"
