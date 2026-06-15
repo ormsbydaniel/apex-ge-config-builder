@@ -198,11 +198,11 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
                               src={entry.thumbnail}
                               alt=""
                               loading="lazy"
-                              className="h-12 w-12 rounded object-cover bg-muted"
+                              className="h-20 w-20 rounded object-cover bg-muted"
                               onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }}
                             />
                           ) : (
-                            <div className="h-12 w-12 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground font-medium">
+                            <div className="h-20 w-20 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground font-medium">
                               {entry.name.charAt(0).toUpperCase()}
                             </div>
                           )}
