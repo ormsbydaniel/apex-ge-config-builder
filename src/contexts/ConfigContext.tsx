@@ -63,8 +63,9 @@ const initialState: ConfigState = {
   exclusivitySets: [],
   services: [],
   workflows: [],
-
+  sources: [
     {
+
       name: "Open StreetMap",
       isActive: true,
       isBaseLayer: true,
