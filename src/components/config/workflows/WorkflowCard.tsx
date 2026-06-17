@@ -160,9 +160,9 @@ export const WorkflowCard = ({
                 onEditJson={onEditJson}
                 onDuplicate={onDuplicate}
                 onRemove={onRemove}
-                editLabel="Edit workflow"
-                duplicateLabel="Duplicate workflow"
-                removeLabel="Delete workflow"
+                editLabel="Edit algorithm"
+                duplicateLabel="Duplicate algorithm"
+                removeLabel="Delete algorithm"
               />
               <div className="h-6 w-px bg-border mx-2"></div>
               <LayerMoveControls
