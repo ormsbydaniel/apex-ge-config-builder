@@ -289,7 +289,7 @@ export const WorkflowFormDialog = ({
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={handleSave} disabled={!serviceId.trim()}>
-            {reviewMode ? 'Add workflow' : 'Save workflow'}
+            {reviewMode ? 'Add algorithm' : 'Save algorithm'}
           </Button>
         </DialogFooter>
       </DialogContent>
