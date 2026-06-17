@@ -1,42 +1,51 @@
-## Goal
+# Add `serviceTitle` to algorithm config + clarifying code comment
 
-When a workflow is selected from the APEx catalogue, the "Review workflow" modal should display the catalogue-derived fields as read-only values (not editable inputs) and offer two checkboxes that copy the catalogue's description and provider into the workflow's `meta` fields on save.
+## 1. Drop the "Workflow = Algorithm" comment
 
-## Changes
+Add a short note at the top of the canonical type and schema so future contributors aren't confused:
 
-### 1. Pass description + provider through from the catalogue
+- `src/types/dataSource.ts` — above `WorkflowItem` interface.
+- `src/schemas/configSchema.ts` — above `WorkflowItemSchema` (the existing comment block already explains the shape; extend it).
+- `src/components/config/workflows/WorkflowsTab.tsx` — one-line header comment.
 
-`src/components/config/workflows/WorkflowsTab.tsx`
-- In `handleCatalogueSelect`, also stash the catalogue entry's `description` and `provider` (currently only `serviceId`, `serviceProvider`, `serviceDetails` are seeded). Easiest path: extend `MappedWorkflowFields` (in `src/lib/catalogue/types.ts`) with optional `description` and `providerLabel`, populate them in `mapRecordToWorkflowFields` (`src/lib/catalogue/apexCatalogue.ts`) from `entry.description` and `entry.provider`, and forward them into the prefill object as transient sibling fields (e.g. `_cataloguePrefill: { description, provider }`) so `WorkflowFormDialog` can render and use them without polluting the saved `WorkflowItem`.
+Wording:
+```
+// NOTE: "Workflow" in code === "Algorithm" in the UI. Internal symbols and the
+// persisted `workflows` config key are kept for backwards compatibility with
+// existing config JSON. Rename UI labels only.
+```
 
-### 2. Review-mode (read-only) variant of `WorkflowFormDialog`
+## 2. Add `serviceTitle` (string, optional) to workflow items
 
-`src/components/config/workflows/dialogs/WorkflowFormDialog.tsx`
-- Detect "review from catalogue" mode: `isNew && prefill?._cataloguePrefill` (or an explicit `mode="review"` prop — preferred for clarity). Add a new optional prop `cataloguePrefill?: { description?: string; provider?: string }` instead of overloading `prefill`.
-- When in review mode:
-  - Render Service ID, Service provider, and (if present) Endpoint / Namespace / Application as read-only rows (label + plain text or a disabled, borderless display). No `<Input>` elements.
-  - Show the catalogue Description as a read-only multi-line block above the checkboxes.
-  - Add two `Checkbox` controls (using `@/components/ui/checkbox`):
-    - `Copy description` — default checked when a description is available.
-    - `Copy attribution` — default checked when a provider is available.
-  - On Save:
-    - If `Copy description` is checked → set `next.meta.description = cataloguePrefill.description`.
-    - If `Copy attribution` is checked → set `next.meta.attribution = { text: cataloguePrefill.provider, ...(existing url if any) }` (overrides the empty-skeleton seed).
-    - Merge into the single `onSave` dispatch (Core memory: single merged dispatch).
-  - Keep the existing edit-mode behavior unchanged (editable inputs as today) when not in review mode.
+Per project guidelines, update in this order: schema → type → consumers.
 
-### 3. Wire the new prop in `WorkflowsTab`
+### 2a. Schema (`src/schemas/configSchema.ts`)
+Extend `WorkflowItemSchema` with `serviceTitle: z.string().optional()` next to `serviceId` / `serviceProvider`. `.passthrough()` already preserves unknown keys, but declaring it explicitly makes it part of the documented schema and round-trip-safe.
 
-- Pass `cataloguePrefill={{ description, provider }}` to the Add/Review `WorkflowFormDialog` instance. Clear it alongside `prefill` when the dialog closes.
+### 2b. Type (`src/types/dataSource.ts`)
+Add `serviceTitle?: string;` to the `WorkflowItem` interface alongside `serviceId` / `serviceProvider`.
+
+### 2c. Catalogue mapping (`src/lib/catalogue/types.ts` + `apexCatalogue.ts`)
+- Add `serviceTitle?: string` to `MappedWorkflowFields`.
+- In `mapRecordToWorkflowFields`, populate it from `record.properties?.title` (fallback: `entry.name`). This means selecting an algorithm from the catalogue auto-fills `serviceTitle`.
+
+### 2d. Review/edit dialog (`src/components/config/workflows/dialogs/WorkflowFormDialog.tsx`)
+- Add `serviceTitle` to local state, initialise from `initial`/`prefill` in the `useEffect`.
+- **Review mode:** render a read-only `Service title:` inline row above `Service ID:` when present.
+- **Edit mode:** add a `Service title` text input above `Service ID *` (optional field).
+- Include `serviceTitle: serviceTitle.trim() || undefined` in the saved `WorkflowItem` (omit empty so we don't pollute JSON).
+
+### 2e. Card display (`src/components/config/workflows/WorkflowCard.tsx`)
+- Show `serviceTitle` as the card header `title` when set, falling back to `serviceId` (so the human-readable title surfaces in the list).
+- Add a `Service title:` row in the Execution Details block, above `Service ID:`.
+
+### 2f. JSON editor
+The existing `WorkflowJsonEditorDialog` parses arbitrary JSON against the schema — no code change required once the schema accepts `serviceTitle`. Round-trip (import/export/JSON edit) works automatically via schema passthrough + the explicit field.
+
+## 3. Verification
+- `bunx tsc --noEmit` for type safety.
+- Run `src/schemas/__tests__/workflowItemSchema.test.ts` and `src/hooks/__tests__/configRoundTrip.workflows.test.ts` to confirm round-trip still passes; no new tests needed unless you want one asserting `serviceTitle` survives.
 
 ## Out of scope
-
-- No change to the Edit Workflow dialog (still fully editable).
-- No schema/type changes beyond the two optional fields on `MappedWorkflowFields`. `meta.description` and `meta.attribution.text` already exist in the config schema and are written through the passthrough `meta` on `WorkflowItem`.
-
-## Acceptance
-
-- Selecting an algorithm from the catalogue opens the Review modal with non-editable fields and a visible description block.
-- Both checkboxes default to checked when data is available.
-- Saving with both checked produces a `WorkflowItem` whose `meta.description` equals the catalogue description and whose `meta.attribution.text` equals the catalogue provider.
-- Unchecking either checkbox omits the corresponding meta field from the saved workflow.
+- No rename of `Workflow*` symbols (covered by the clarifying comment instead).
+- No migration of existing configs — `serviceTitle` is purely additive and optional.
