@@ -21,8 +21,8 @@ export const useWorkflowActions = ({ config, dispatch }: UseWorkflowActionsProps
     const next = [...list(), workflow];
     dispatch({ type: 'UPDATE_WORKFLOWS', payload: next });
     toast({
-      title: 'Workflow added',
-      description: workflow.serviceId || 'New workflow',
+      title: 'Algorithm added',
+      description: workflow.serviceId || 'New algorithm',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.workflows, dispatch, toast]);
@@ -42,8 +42,8 @@ export const useWorkflowActions = ({ config, dispatch }: UseWorkflowActionsProps
     const next = current.filter((_, i) => i !== index);
     dispatch({ type: 'UPDATE_WORKFLOWS', payload: next });
     toast({
-      title: 'Workflow removed',
-      description: removed.serviceId || `Workflow ${index + 1}`,
+      title: 'Algorithm removed',
+      description: removed.serviceId || `Algorithm ${index + 1}`,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.workflows, dispatch, toast]);
