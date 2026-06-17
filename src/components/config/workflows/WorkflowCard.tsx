@@ -74,7 +74,7 @@ export const WorkflowCard = ({
 }: WorkflowCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
-  const title = workflow.serviceId || '(unnamed workflow)';
+  const title = workflow.serviceId || '(unnamed algorithm)';
   const provider = workflow.serviceProvider;
 
   const handleUpdateMeta = (updates: Partial<DataSourceMeta>) => {
