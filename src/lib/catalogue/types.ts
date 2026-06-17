@@ -24,6 +24,7 @@ export interface CatalogueEntry {
 export interface MappedWorkflowFields {
   serviceId: string;
   serviceProvider: string;
+  serviceTitle?: string;
   serviceDetails?: {
     endpoint: string;
     namespace?: string;
