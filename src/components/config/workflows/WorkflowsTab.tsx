@@ -115,7 +115,7 @@ export const WorkflowsTab = ({
         <div>
           <CardTitle className="flex items-center gap-2">
             <WorkflowIcon className="h-5 w-5" />
-            Workflows
+            Algorithms
             <span className="text-sm font-normal text-muted-foreground">
               ({workflows.length})
             </span>
@@ -123,17 +123,17 @@ export const WorkflowsTab = ({
         </div>
         <Button onClick={() => setCatalogueOpen(true)} size="sm">
           <Plus className="h-4 w-4 mr-2" />
-          Add Workflow
+          Add Algorithm
         </Button>
       </CardHeader>
       <CardContent className="space-y-2">
         {workflows.length === 0 ? (
           <div className="border border-dashed rounded-md py-10 text-center text-sm text-muted-foreground">
             <WorkflowIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="mb-3">No workflows yet</p>
+            <p className="mb-3">No algorithms yet</p>
             <Button onClick={() => setCatalogueOpen(true)} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Add Workflow
+              Add Algorithm
             </Button>
           </div>
         ) : (
