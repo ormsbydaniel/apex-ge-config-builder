@@ -32,10 +32,10 @@ const WorkflowJsonEditorDialog = ({ isOpen, onClose, workflow, onSave }: Workflo
     try {
       const parsed = JSON.parse(editedJson);
       if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-        throw new Error('Workflow must be a JSON object');
+        throw new Error('Algorithm must be a JSON object');
       }
       if (!parsed.serviceId || typeof parsed.serviceId !== 'string') {
-        throw new Error('Workflow is missing a string `serviceId`');
+        throw new Error('Algorithm is missing a string `serviceId`');
       }
       onSave(parsed as WorkflowItem);
       toast({
