@@ -17,7 +17,7 @@ interface WorkflowFormDialogProps {
   /** Optional seed values used only when creating a new workflow (initial is null). */
   prefill?: Partial<WorkflowItem> | null;
   /** Catalogue-derived metadata. When present, dialog renders in read-only review mode. */
-  cataloguePrefill?: { description?: string; provider?: string; providerUrl?: string } | null;
+  cataloguePrefill?: { description?: string; provider?: string; providerUrl?: string; title?: string } | null;
   services: Service[];
   onSave: (workflow: WorkflowItem) => void;
 }
@@ -52,6 +52,7 @@ export const WorkflowFormDialog = ({
   onSave,
 }: WorkflowFormDialogProps) => {
   const [serviceId, setServiceId] = useState('');
+  const [serviceTitle, setServiceTitle] = useState('');
   const [serviceProvider, setServiceProvider] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [namespace, setNamespace] = useState('');
@@ -71,6 +72,7 @@ export const WorkflowFormDialog = ({
     if (!open) return;
     const src: Partial<WorkflowItem> = initial ?? prefill ?? blank();
     setServiceId(src.serviceId ?? '');
+    setServiceTitle(src.serviceTitle ?? cataloguePrefill?.title ?? '');
     setServiceProvider(src.serviceProvider ?? '');
     setEndpoint(src.serviceDetails?.endpoint ?? '');
     setNamespace(src.serviceDetails?.namespace ?? '');
@@ -93,6 +95,11 @@ export const WorkflowFormDialog = ({
       serviceId: serviceId.trim(),
       serviceProvider: serviceProvider.trim(),
     };
+    if (serviceTitle.trim()) {
+      next.serviceTitle = serviceTitle.trim();
+    } else {
+      delete (next as any).serviceTitle;
+    }
 
     if (endpoint.trim() || namespace.trim() || application.trim()) {
       next.serviceDetails = {
@@ -160,6 +167,7 @@ export const WorkflowFormDialog = ({
 
         {reviewMode ? (
           <div className="space-y-3">
+            {serviceTitle && <ReadOnlyInline label="Service title:" value={serviceTitle} />}
             <ReadOnlyInline label="Service ID:" value={serviceId} />
             <ReadOnlyInline label="Service provider:" value={serviceProvider} />
             {application && <ReadOnlyInline label="Application:" value={application} />}
@@ -218,6 +226,16 @@ export const WorkflowFormDialog = ({
           </div>
         ) : (
           <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="wf-service-title">Service title</Label>
+              <Input
+                id="wf-service-title"
+                value={serviceTitle}
+                onChange={(e) => setServiceTitle(e.target.value)}
+                placeholder="Human-readable title (optional)"
+              />
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="wf-service-id">Service ID *</Label>
               <Input

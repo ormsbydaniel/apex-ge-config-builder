@@ -1,3 +1,6 @@
+// NOTE: "Workflow" in code === "Algorithm" in the UI. Internal symbols and the
+// persisted `workflows` config key are kept for backwards compatibility with
+// existing config JSON. Rename UI labels only.
 import { useState } from 'react';
 import {
   DndContext,
