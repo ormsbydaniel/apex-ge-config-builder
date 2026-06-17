@@ -40,6 +40,7 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
     if (!open) return;
     setSelectedPath(null);
     setQuery('');
+    setViewingJson(null);
     const cached = getCachedEntries();
     if (cached && cached.length > 0) {
       setEntries(cached);
