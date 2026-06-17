@@ -151,10 +151,10 @@ export const WorkflowFormDialog = ({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
             {reviewMode
-              ? 'Review the catalogue details below and choose which metadata to copy into the workflow.'
+              ? 'Review the catalogue details below and choose which metadata to copy into the algorithm.'
               : isNew
-              ? 'Review and adjust the workflow details before saving.'
-              : 'Edit the workflow configuration.'}
+              ? 'Review and adjust the algorithm details before saving.'
+              : 'Edit the algorithm configuration.'}
           </DialogDescription>
         </DialogHeader>
 
