@@ -32,14 +32,14 @@ const WorkflowJsonEditorDialog = ({ isOpen, onClose, workflow, onSave }: Workflo
     try {
       const parsed = JSON.parse(editedJson);
       if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-        throw new Error('Workflow must be a JSON object');
+        throw new Error('Algorithm must be a JSON object');
       }
       if (!parsed.serviceId || typeof parsed.serviceId !== 'string') {
-        throw new Error('Workflow is missing a string `serviceId`');
+        throw new Error('Algorithm is missing a string `serviceId`');
       }
       onSave(parsed as WorkflowItem);
       toast({
-        title: 'Workflow updated',
+        title: 'Algorithm updated',
         description: `"${parsed.serviceId}" saved.`,
       });
       onClose();
@@ -60,7 +60,7 @@ const WorkflowJsonEditorDialog = ({ isOpen, onClose, workflow, onSave }: Workflo
     onClose();
   };
 
-  const title = workflow.serviceId || '(unnamed workflow)';
+  const title = workflow.serviceId || '(unnamed algorithm)';
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -68,10 +68,10 @@ const WorkflowJsonEditorDialog = ({ isOpen, onClose, workflow, onSave }: Workflo
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileJson className="h-5 w-5" />
-            Edit Workflow JSON: {title}
+            Edit Algorithm JSON: {title}
           </DialogTitle>
           <DialogDescription>
-            Edit the JSON configuration for this workflow. Changes will be applied to your configuration when saved.
+            Edit the JSON configuration for this algorithm. Changes will be applied to your configuration when saved.
           </DialogDescription>
         </DialogHeader>
 

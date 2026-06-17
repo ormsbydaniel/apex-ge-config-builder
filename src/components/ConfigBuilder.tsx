@@ -240,7 +240,7 @@ const ConfigBuilderContent = () => {
               </TabsTrigger>
               <TabsTrigger value="workflows" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <WorkflowIcon className="h-4 w-4" />
-                Workflows
+                Algorithms
               </TabsTrigger>
               <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Globe className="h-4 w-4" />
