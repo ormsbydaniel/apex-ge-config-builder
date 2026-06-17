@@ -131,6 +131,9 @@ export const WorkflowsTab = ({
           Add Algorithm
         </Button>
       </CardHeader>
+      <div className="mx-6 mb-2 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-800">
+        Algorithm execution is supported in Geospatial Explorer version 4 and above
+      </div>
       <CardContent className="space-y-2">
         {workflows.length === 0 ? (
           <div className="border border-dashed rounded-md py-10 text-center text-sm text-muted-foreground">
