@@ -34,6 +34,7 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [viewingJson, setViewingJson] = useState<CatalogueEntry | null>(null);
 
   useEffect(() => {
     if (!open) return;
