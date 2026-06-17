@@ -119,12 +119,36 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[80vw] max-w-[80vw] h-[80vh] max-h-[80vh] p-0 flex flex-col gap-0">
         <DialogHeader className="px-6 py-4 border-b shrink-0">
-          <DialogTitle>APEx Algorithm Catalogue</DialogTitle>
+          <DialogTitle>
+            {viewingJson ? <>record.json — <span className="font-normal">{viewingJson.name}</span></> : 'APEx Algorithm Catalogue'}
+          </DialogTitle>
           <DialogDescription>
-            Browsing <code className="text-xs">ESA-APEx/apex_algorithms</code> @ <code className="text-xs">main</code>
+            {viewingJson ? (
+              <code className="text-xs break-all">{viewingJson.path}</code>
+            ) : (
+              <>Browsing <code className="text-xs">ESA-APEx/apex_algorithms</code> @ <code className="text-xs">main</code></>
+            )}
           </DialogDescription>
         </DialogHeader>
 
+        {viewingJson ? (
+          <>
+            <div className="px-6 py-3 border-b shrink-0">
+              <Button variant="ghost" size="sm" onClick={() => setViewingJson(null)}>
+                <ArrowLeft className="h-4 w-4 mr-1" /> Back to catalogue
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto px-6 py-3">
+              <pre className="font-mono text-xs whitespace-pre">
+                {JSON.stringify(viewingJson.record, null, 2)}
+              </pre>
+            </div>
+            <DialogFooter className="px-6 py-3 border-t shrink-0">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <>
         <div className="px-6 py-3 border-b shrink-0">
           <div className="relative max-w-md">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -177,6 +201,7 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
                     <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('description')}>
                       Description{sortIndicator('description')}
                     </TableHead>
+                    <TableHead className="w-[48px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -226,6 +251,26 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
                             <span className="italic opacity-60">—</span>
                           )}
                         </TableCell>
+                        <TableCell>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setViewingJson(entry);
+                                }}
+                              >
+                                <FileJson className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs">View raw record.json</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -253,6 +298,8 @@ export const CatalogueBrowserDialog = ({ open, onOpenChange, onSelect, onSkip }:
           </div>
 
         </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
