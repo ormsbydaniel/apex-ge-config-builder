@@ -1,3 +1,6 @@
+// NOTE: "Workflow" in code === "Algorithm" in the UI. Internal symbols and the
+// persisted `workflows` config key are kept for backwards compatibility with
+// existing config JSON. Rename UI labels only.
 import { useState } from 'react';
 import {
   DndContext,
@@ -49,7 +52,7 @@ export const WorkflowsTab = ({
   const [addOpen, setAddOpen] = useState(false);
   const [prefill, setPrefill] = useState<Partial<WorkflowItem> | null>(null);
   const [cataloguePrefill, setCataloguePrefill] = useState<
-    { description?: string; provider?: string; providerUrl?: string } | null
+    { description?: string; provider?: string; providerUrl?: string; title?: string } | null
   >(null);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [jsonIndex, setJsonIndex] = useState<number | null>(null);
@@ -60,12 +63,14 @@ export const WorkflowsTab = ({
     const seed: Partial<WorkflowItem> = {
       serviceId: fields.serviceId,
       serviceProvider: fields.serviceProvider,
+      ...(fields.serviceTitle && { serviceTitle: fields.serviceTitle }),
       ...(fields.serviceDetails && { serviceDetails: fields.serviceDetails }),
     };
     setPrefill(seed);
     setCataloguePrefill({
       description: fields.description,
       provider: fields.providerLabel ?? fields.serviceProvider,
+      title: fields.serviceTitle,
     });
     setCatalogueOpen(false);
     setAddOpen(true);

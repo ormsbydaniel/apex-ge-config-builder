@@ -440,8 +440,11 @@ const SourceShape = {
 } as const;
 
 // ============= Workflow schema =============
+// NOTE: "Workflow" in code === "Algorithm" in the UI. Internal symbols and the
+// persisted `workflows` config key are kept for backwards compatibility with
+// existing config JSON. Rename UI labels only.
 // Workflow entries mirror the full source surface (all optional) and add
-// serviceId/serviceProvider plus an optional serviceDetails block.
+// serviceId/serviceProvider/serviceTitle plus an optional serviceDetails block.
 const ServiceDetailsSchema = z.object({
   endpoint: z.string(),
   namespace: z.string().optional(),
@@ -455,6 +458,7 @@ const OptionalSourceShape = Object.fromEntries(
 const WorkflowItemSchema = z.object({
   serviceId: z.string(),
   serviceProvider: z.string(),
+  serviceTitle: z.string().optional(),
   serviceDetails: ServiceDetailsSchema.optional(),
   // Full source surface, all optional. .passthrough() below still allows any
   // truly unknown keys (including legacy zIndex/service/label) to load without

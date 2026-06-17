@@ -123,9 +123,11 @@ export function mapRecordToWorkflowFields(entry: CatalogueEntry): MappedWorkflow
   const serviceHref = findLink(record, 'service') ?? '';
   const applicationHref = findLink(record, 'application') ?? '';
 
+  const title = record.properties?.title?.trim() || entry.name;
   const out: MappedWorkflowFields = {
     serviceId: record.id || entry.algorithmId,
     serviceProvider: provider,
+    ...(title && { serviceTitle: title }),
     ...(entry.description && { description: entry.description }),
     ...(provider && { providerLabel: provider }),
   };

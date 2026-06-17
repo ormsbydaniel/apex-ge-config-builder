@@ -81,13 +81,17 @@ export interface ServiceDetails {
   [key: string]: any;
 }
 
+// NOTE: "Workflow" in code === "Algorithm" in the UI. Internal symbols and the
+// persisted `workflows` config key are kept for backwards compatibility with
+// existing config JSON. Rename UI labels only.
 // Workflow configuration — mirrors the full source surface (all optional)
-// plus serviceId / serviceProvider / serviceDetails. Source-shape fields
-// are accepted via the index signature so this stays in sync with the
+// plus serviceId / serviceProvider / serviceTitle / serviceDetails. Source-shape
+// fields are accepted via the index signature so this stays in sync with the
 // canonical SourceShape in configSchema.ts without manual duplication.
 export interface WorkflowItem {
   serviceId?: string;
   serviceProvider?: string;
+  serviceTitle?: string;
   serviceDetails?: ServiceDetails;
   // Full optional source surface (data, meta, layout, statistics, charts,
   // constraints, layer-type flags, timeframe, etc.) accepted via passthrough.

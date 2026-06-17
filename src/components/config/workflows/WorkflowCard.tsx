@@ -74,7 +74,7 @@ export const WorkflowCard = ({
 }: WorkflowCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
-  const title = workflow.serviceId || '(unnamed algorithm)';
+  const title = workflow.serviceTitle || workflow.serviceId || '(unnamed algorithm)';
   const provider = workflow.serviceProvider;
 
   const handleUpdateMeta = (updates: Partial<DataSourceMeta>) => {
@@ -214,6 +214,11 @@ export const WorkflowCard = ({
                     </Button>
                   </div>
                   <div className="text-xs text-muted-foreground space-y-1 ml-6">
+                    {workflow.serviceTitle && (
+                      <div>
+                        <span className="font-medium">Service title:</span> {workflow.serviceTitle}
+                      </div>
+                    )}
                     <div>
                       <span className="font-medium">Service ID:</span>{' '}
                       {workflow.serviceId || <span className="italic">not set</span>}
