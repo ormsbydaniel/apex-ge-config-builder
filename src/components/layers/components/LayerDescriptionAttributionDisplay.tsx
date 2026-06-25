@@ -43,6 +43,17 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
   const [attributionUrl, setAttributionUrl] = useState('');
 
 
+  // Catalogue sub-view state
+  const [catLoading, setCatLoading] = useState(false);
+  const [catError, setCatError] = useState<string | null>(null);
+  const [catEntry, setCatEntry] = useState<CatalogueEntry | null>(null);
+  const [catDescription, setCatDescription] = useState<string>('');
+  const [catAttrText, setCatAttrText] = useState<string>('');
+  const [catAttrUrl, setCatAttrUrl] = useState<string>('');
+  const [pickDescription, setPickDescription] = useState(true);
+  const [pickAttrText, setPickAttrText] = useState(true);
+  const [pickAttrUrl, setPickAttrUrl] = useState(true);
+
   const hasDescription = !!source.meta?.description;
   const hasAttribution = !!source.meta?.attribution?.text;
   const hasContent = hasDescription || hasAttribution;
@@ -64,6 +75,55 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
     });
     setIsOpen(false);
   };
+
+  // Fetch catalogue match when entering the catalogue sub-view
+  useEffect(() => {
+    if (view !== 'catalogue' || !catalogueLookup) return;
+    let cancelled = false;
+    setCatLoading(true);
+    setCatError(null);
+    setCatEntry(null);
+    setCatDescription('');
+    setCatAttrText('');
+    setCatAttrUrl('');
+    (async () => {
+      try {
+        const entries = await loadCatalogue();
+        if (cancelled) return;
+        const match = entries.find(
+          (e) =>
+            e.provider === catalogueLookup.serviceProvider &&
+            (e.record?.id === catalogueLookup.serviceId || e.algorithmId === catalogueLookup.serviceId),
+        );
+        if (!match) {
+          setCatLoading(false);
+          return;
+        }
+        setCatEntry(match);
+        setCatDescription(match.record?.properties?.description?.trim() || match.description || '');
+        setCatAttrText(match.provider || '');
+        const url = await resolveProviderUrl(match);
+        if (cancelled) return;
+        setCatAttrUrl(url || '');
+        setCatLoading(false);
+      } catch (e: any) {
+        if (cancelled) return;
+        setCatError(e?.message || 'Failed to load catalogue');
+        setCatLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [view, catalogueLookup?.serviceId, catalogueLookup?.serviceProvider]);
+
+  const applyFromCatalogue = () => {
+    if (pickDescription && catDescription) setDescription(catDescription);
+    if (pickAttrText && catAttrText) setAttributionText(catAttrText);
+    if (pickAttrUrl && catAttrUrl) setAttributionUrl(catAttrUrl);
+    setView('main');
+  };
+
 
   return (
     <>
