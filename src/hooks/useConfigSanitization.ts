@@ -10,6 +10,7 @@ export const useConfigSanitization = (config: any) => {
     exclusivitySets: config.exclusivitySets,
     ...(config.mapConstraints && { mapConstraints: config.mapConstraints }),
     ...(config.projections?.length && { projections: config.projections }),
+    ...(config.workflows && { workflows: config.workflows }),
     services: config.services?.map((service: any) => ({
       ...service,
       url: sanitizeUrl(service.url)

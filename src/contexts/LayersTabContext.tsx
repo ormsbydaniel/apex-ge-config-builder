@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { DataSource, Service, ConstraintSourceItem, WorkflowItem } from '@/types/config';
+import { DataSource, Service, ConstraintSourceItem } from '@/types/config';
 import { ChartConfig } from '@/types/chart';
 
 export interface LayersTabContextValue {
@@ -38,14 +38,6 @@ export interface LayersTabContextValue {
   onMoveConstraintDown: (layerIndex: number, constraintIndex: number) => void;
   onMoveConstraintToTop: (layerIndex: number, constraintIndex: number) => void;
   onMoveConstraintToBottom: (layerIndex: number, constraintIndex: number) => void;
-  // Workflow actions
-  onAddWorkflow: (layerIndex: number, workflow: WorkflowItem) => void;
-  onRemoveWorkflow: (layerIndex: number, workflowIndex: number) => void;
-  onUpdateWorkflow: (layerIndex: number, workflowIndex: number, workflow: WorkflowItem) => void;
-  onMoveWorkflowUp: (layerIndex: number, workflowIndex: number) => void;
-  onMoveWorkflowDown: (layerIndex: number, workflowIndex: number) => void;
-  onMoveWorkflowToTop: (layerIndex: number, workflowIndex: number) => void;
-  onMoveWorkflowToBottom: (layerIndex: number, workflowIndex: number) => void;
   // Chart actions
   onAddChart: (layerIndex: number, chart: ChartConfig) => void;
   onRemoveChart: (layerIndex: number, chartIndex: number) => void;

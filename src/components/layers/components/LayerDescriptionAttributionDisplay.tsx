@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Pencil, FileText, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Pencil, FileText, ArrowLeft, Download, Loader2 } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableHeader,
@@ -21,18 +22,37 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui/table';
+import { loadCatalogue, resolveProviderUrl } from '@/lib/catalogue/apexCatalogue';
+import type { CatalogueEntry } from '@/lib/catalogue/types';
 
 interface LayerDescriptionAttributionDisplayProps {
   source: DataSource;
   onUpdateMeta: (updates: Record<string, any>) => void;
+  /** When provided, enables an "Update from catalogue" action that pulls values
+   *  from the matching APEx Algorithm Catalogue record. */
+  catalogueLookup?: { serviceId: string; serviceProvider: string };
 }
 
-const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescriptionAttributionDisplayProps) => {
+type ViewMode = 'main' | 'help' | 'catalogue';
+
+const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLookup }: LayerDescriptionAttributionDisplayProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
+  const [view, setView] = useState<ViewMode>('main');
   const [description, setDescription] = useState('');
   const [attributionText, setAttributionText] = useState('');
   const [attributionUrl, setAttributionUrl] = useState('');
+
+
+  // Catalogue sub-view state
+  const [catLoading, setCatLoading] = useState(false);
+  const [catError, setCatError] = useState<string | null>(null);
+  const [catEntry, setCatEntry] = useState<CatalogueEntry | null>(null);
+  const [catDescription, setCatDescription] = useState<string>('');
+  const [catAttrText, setCatAttrText] = useState<string>('');
+  const [catAttrUrl, setCatAttrUrl] = useState<string>('');
+  const [pickDescription, setPickDescription] = useState(true);
+  const [pickAttrText, setPickAttrText] = useState(true);
+  const [pickAttrUrl, setPickAttrUrl] = useState(true);
 
   const hasDescription = !!source.meta?.description;
   const hasAttribution = !!source.meta?.attribution?.text;
@@ -55,6 +75,55 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
     });
     setIsOpen(false);
   };
+
+  // Fetch catalogue match when entering the catalogue sub-view
+  useEffect(() => {
+    if (view !== 'catalogue' || !catalogueLookup) return;
+    let cancelled = false;
+    setCatLoading(true);
+    setCatError(null);
+    setCatEntry(null);
+    setCatDescription('');
+    setCatAttrText('');
+    setCatAttrUrl('');
+    (async () => {
+      try {
+        const entries = await loadCatalogue();
+        if (cancelled) return;
+        const match = entries.find(
+          (e) =>
+            e.provider === catalogueLookup.serviceProvider &&
+            (e.record?.id === catalogueLookup.serviceId || e.algorithmId === catalogueLookup.serviceId),
+        );
+        if (!match) {
+          setCatLoading(false);
+          return;
+        }
+        setCatEntry(match);
+        setCatDescription(match.record?.properties?.description?.trim() || match.description || '');
+        setCatAttrText(match.provider || '');
+        const url = await resolveProviderUrl(match);
+        if (cancelled) return;
+        setCatAttrUrl(url || '');
+        setCatLoading(false);
+      } catch (e: any) {
+        if (cancelled) return;
+        setCatError(e?.message || 'Failed to load catalogue');
+        setCatLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [view, catalogueLookup?.serviceId, catalogueLookup?.serviceProvider]);
+
+  const applyFromCatalogue = () => {
+    if (pickDescription && catDescription) setDescription(catDescription);
+    if (pickAttrText && catAttrText) setAttributionText(catAttrText);
+    if (pickAttrUrl && catAttrUrl) setAttributionUrl(catAttrUrl);
+    setView('main');
+  };
+
 
   return (
     <>
@@ -100,9 +169,9 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
         )}
       </div>
 
-      <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setShowHelp(false); }}>
-        <DialogContent className="sm:max-w-[700px] h-[580px] flex flex-col">
-          {showHelp ? (
+      <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setView('main'); }}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
+          {view === 'help' ? (
             <>
               <DialogHeader>
                 <DialogTitle>Markdown Reference</DialogTitle>
@@ -110,7 +179,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
               <button
                 type="button"
                 className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 underline cursor-pointer"
-                onClick={() => setShowHelp(false)}
+                onClick={() => setView('main')}
               >
                 <ArrowLeft className="h-3 w-3" /> Back
               </button>
@@ -166,6 +235,93 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
                 </Table>
               </div>
             </>
+          ) : view === 'catalogue' ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Update from catalogue</DialogTitle>
+              </DialogHeader>
+              <button
+                type="button"
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 underline cursor-pointer"
+                onClick={() => setView('main')}
+              >
+                <ArrowLeft className="h-3 w-3" /> Back
+              </button>
+              <div className="flex-1 overflow-y-auto pr-2">
+                <div className="space-y-4 py-2">
+                  <p className="text-sm text-muted-foreground">
+                    Pull values from the matching APEx catalogue record.
+                  </p>
+                  {catLoading ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Looking up catalogue…
+                    </div>
+                  ) : catError ? (
+                    <p className="text-sm text-destructive">{catError}</p>
+                  ) : !catEntry ? (
+                    <p className="text-sm text-muted-foreground">No matching record found in the APEx catalogue.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      <label className="flex items-start gap-2 text-sm">
+                        <Checkbox
+                          checked={pickDescription}
+                          onCheckedChange={(v) => setPickDescription(!!v)}
+                          disabled={!catDescription}
+                          className="mt-0.5"
+                        />
+                        <span>
+                          <span className="font-medium">Description</span>
+                          {!catDescription && <span className="text-muted-foreground"> (not available)</span>}
+                          {catDescription && (
+                            <span className="block text-xs text-muted-foreground line-clamp-3">{catDescription}</span>
+                          )}
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-2 text-sm">
+                        <Checkbox
+                          checked={pickAttrText}
+                          onCheckedChange={(v) => setPickAttrText(!!v)}
+                          disabled={!catAttrText}
+                          className="mt-0.5"
+                        />
+                        <span>
+                          <span className="font-medium">Attribution text</span>
+                          {!catAttrText
+                            ? <span className="text-muted-foreground"> (not available)</span>
+                            : <span className="block text-xs text-muted-foreground">{catAttrText}</span>}
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-2 text-sm">
+                        <Checkbox
+                          checked={pickAttrUrl}
+                          onCheckedChange={(v) => setPickAttrUrl(!!v)}
+                          disabled={!catAttrUrl}
+                          className="mt-0.5"
+                        />
+                        <span>
+                          <span className="font-medium">Attribution URL</span>
+                          {!catAttrUrl
+                            ? <span className="text-muted-foreground"> (not available)</span>
+                            : <span className="block text-xs text-muted-foreground break-all">{catAttrUrl}</span>}
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setView('main')}>Cancel</Button>
+                <Button
+                  onClick={applyFromCatalogue}
+                  disabled={
+                    catLoading || !catEntry ||
+                    !((pickDescription && catDescription) || (pickAttrText && catAttrText) || (pickAttrUrl && catAttrUrl))
+                  }
+                >
+                  Apply
+                </Button>
+              </DialogFooter>
+            </>
           ) : (
             <>
               <DialogHeader>
@@ -173,6 +329,20 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
               </DialogHeader>
               <div className="flex-1 overflow-y-auto pr-2">
                 <div className="space-y-4 py-2">
+                  {catalogueLookup && (
+                    <div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setView('catalogue')}
+                        className="h-8"
+                      >
+                        <Download className="h-3.5 w-3.5 mr-1.5" />
+                        Update from catalogue
+                      </Button>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="layer-description">Description</Label>
                     <p className="text-xs text-muted-foreground">
@@ -180,7 +350,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescr
                       <button
                         type="button"
                         className="text-primary hover:text-primary/80 underline cursor-pointer"
-                        onClick={() => setShowHelp(true)}
+                        onClick={() => setView('help')}
                       >
                         Tell me more
                       </button>

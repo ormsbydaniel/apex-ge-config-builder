@@ -20,6 +20,7 @@ const ConfigJson = () => {
     exclusivitySets: config.exclusivitySets,
     ...(config.mapConstraints && { mapConstraints: config.mapConstraints }),
     ...(config.projections?.length && { projections: config.projections }),
+    ...((config as any).workflows && { workflows: (config as any).workflows }),
     services: config.services.map(service => ({
       id: service.id,
       name: service.name,

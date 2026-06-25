@@ -3,7 +3,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download, BookOpen } from 'lucide-react';
+import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download, BookOpen, Workflow as WorkflowIcon } from 'lucide-react';
+import AppSettingsDialog from './app-settings/AppSettingsDialog';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import { Button } from '@/components/ui/button';
 import { useConfigExport } from '@/hooks/useConfigIO';
 import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
@@ -16,7 +18,10 @@ import DrawOrderTab from './config/DrawOrderTab';
 import PreviewTab from './config/PreviewTab';
 import HomeTab from './config/HomeTab';
 import SettingsTab from './config/SettingsTab';
+import WorkflowsTab from './config/workflows/WorkflowsTab';
+import StorymapsTab from './config/StorymapsTab';
 import DonorConfigPickerDialog from './layers/import/DonorConfigPickerDialog';
+
 
 // Error boundary component to catch context errors
 class ConfigErrorBoundary extends React.Component<
@@ -61,6 +66,8 @@ class ConfigErrorBoundary extends React.Component<
 }
 
 const ConfigBuilderContent = () => {
+  const [appSettingsOpen, setAppSettingsOpen] = React.useState(false);
+  const { settings: appSettings } = useAppSettings();
   const navigate = useNavigate();
   const { config: configState } = useConfig();
   const { exportConfig } = useConfigExport();
@@ -97,8 +104,14 @@ const ConfigBuilderContent = () => {
     setDonorPickerOpen,
     importTargetGroup,
     importTargetSubGroup,
-    updateConfig
+    updateConfig,
+    addWorkflow,
+    updateWorkflow,
+    removeWorkflow,
+    duplicateWorkflow,
+    moveWorkflow,
   } = useConfigBuilderState();
+
 
   // Track navigation state for Preview transitions
   const { navigationState, setActiveTab, setExpandedLayers, setExpandedGroups, setExpandedSubGroups, setScrollPosition } = useNavigationState();
@@ -194,20 +207,76 @@ const ConfigBuilderContent = () => {
     }
   }, [navigationState.activeTab, navigationState.scrollPosition]);
 
+  // If user disables a tab while it's active, fall back to Home.
+  React.useEffect(() => {
+    if (navigationState.activeTab === 'workflows' && !appSettings.showAlgorithmsTab) {
+      setActiveTab('home');
+    } else if (navigationState.activeTab === 'storymaps' && !appSettings.showStorymapsTab) {
+      setActiveTab('home');
+    }
+  }, [appSettings.showAlgorithmsTab, appSettings.showStorymapsTab, navigationState.activeTab, setActiveTab]);
+
+  const visibleTabCount = 7 + (appSettings.showAlgorithmsTab ? 1 : 0) + (appSettings.showStorymapsTab ? 1 : 0);
+  // Explicit map so Tailwind JIT picks up the class names.
+  const gridColsByCount: Record<number, string> = {
+    7: 'grid-cols-7',
+    8: 'grid-cols-8',
+    9: 'grid-cols-9',
+  };
+  const gridColsClass = `grid w-full ${gridColsByCount[visibleTabCount]} bg-white border border-primary/20 mb-6`;
+
   return (
     <div className="min-h-screen" style={{
       backgroundColor: '#043346'
     }}>
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 bg-clip-text mb-2 flex items-center gap-3 text-slate-50">
-            <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg">
-              <Satellite className="h-8 w-8 text-white" />
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 bg-clip-text mb-2 flex items-center gap-3 text-slate-50">
+              <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg">
+                <Satellite className="h-8 w-8 text-white" />
+              </div>
+              ESA APEx Geospatial Explorer
+            </h1>
+            <p className="text-xl text-slate-100 font-medium">Configuration Builder</p>
+            <p className="text-slate-200 mt-1">Build and manage your interactive mapping application configuration</p>
+          </div>
+
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => setAppSettingsOpen(true)}
+              aria-label="Config Builder settings"
+              title="Config Builder settings"
+              className="p-1 rounded text-white/40 hover:text-white/80 transition-colors"
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+
+            <div className="flex items-center gap-1 bg-white/5 backdrop-blur-sm p-1.5 rounded-xl border border-white/10">
+              <a
+                href="/guide/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group"
+              >
+                <BookOpen className="h-5 w-5 opacity-80 group-hover:opacity-100" />
+                <span className="text-xs font-semibold tracking-wide uppercase">User Guide</span>
+              </a>
+
+              <div className="w-px h-6 bg-white/10 mx-1" />
+
+              <button
+                type="button"
+                onClick={() => exportConfig()}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group cursor-pointer"
+              >
+                <Download className="h-5 w-5 opacity-80 group-hover:opacity-100" />
+                <span className="text-xs font-semibold tracking-wide uppercase">Export</span>
+              </button>
             </div>
-            ESA APEx Geospatial Explorer
-          </h1>
-          <p className="text-xl text-slate-100 font-medium">Configuration Builder</p>
-          <p className="text-slate-200 mt-1">Build and manage your interactive mapping application configuration</p>
+          </div>
+
         </div>
 
         <div className="w-full">
@@ -216,8 +285,7 @@ const ConfigBuilderContent = () => {
             onValueChange={handleTabChange} 
             className="w-full"
           >
-            <div className="flex items-center gap-2 mb-6">
-            <TabsList className="grid flex-1 grid-cols-7 bg-white border border-primary/20">
+            <TabsList className={gridColsClass}>
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
                 Home
@@ -230,6 +298,18 @@ const ConfigBuilderContent = () => {
                 <ArrowUpDown className="h-4 w-4" />
                 Draw Order
               </TabsTrigger>
+              {appSettings.showAlgorithmsTab && (
+                <TabsTrigger value="workflows" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <WorkflowIcon className="h-4 w-4" />
+                  Algorithms
+                </TabsTrigger>
+              )}
+              {appSettings.showStorymapsTab && (
+                <TabsTrigger value="storymaps" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <BookOpen className="h-4 w-4" />
+                  Storymaps
+                </TabsTrigger>
+              )}
               <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Globe className="h-4 w-4" />
                 Services
@@ -242,12 +322,13 @@ const ConfigBuilderContent = () => {
                 <FileJson className="h-4 w-4" />
                 JSON Config
               </TabsTrigger>
+
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild={false} className="inline-block">
                     <span>
-                      <TabsTrigger 
-                        value="mappreview" 
+                      <TabsTrigger
+                        value="mappreview"
                         className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                         onClick={handlePreviewClick}
                         disabled={configState.hasUnsavedFormChanges}
@@ -265,43 +346,7 @@ const ConfigBuilderContent = () => {
                 </Tooltip>
               </TooltipProvider>
             </TabsList>
-            {/* User Guide button hidden pre-launch — restore when ready to share with end users.
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href="/guide/index.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-primary/20 bg-white hover:bg-primary hover:text-primary-foreground transition-colors"
-                  >
-                    <BookOpen className="h-4 w-4 text-muted-foreground" />
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>User Guide</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => exportConfig()}
-                    className="h-10 w-10 bg-white border-primary/20 hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <Download className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Export</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            </div>
+
 
             <TabsContent value="home">
               <HomeTab config={config} onNavigateToLayer={handleNavigateToLayer} />
@@ -350,6 +395,27 @@ const ConfigBuilderContent = () => {
               />
             </TabsContent>
 
+            {appSettings.showAlgorithmsTab && (
+              <TabsContent value="workflows">
+                <WorkflowsTab
+                  workflows={(config as any).workflows ?? []}
+                  services={config.services}
+                  addWorkflow={addWorkflow}
+                  updateWorkflow={updateWorkflow}
+                  removeWorkflow={removeWorkflow}
+                  duplicateWorkflow={duplicateWorkflow}
+                  moveWorkflow={moveWorkflow}
+                />
+              </TabsContent>
+            )}
+
+            {appSettings.showStorymapsTab && (
+              <TabsContent value="storymaps">
+                <StorymapsTab />
+              </TabsContent>
+            )}
+
+
             <TabsContent value="services">
               <ServicesManager
                 services={config.services}
@@ -378,6 +444,8 @@ const ConfigBuilderContent = () => {
         targetSubinterfaceGroup={importTargetSubGroup}
         onImport={handleApplyDonorImport}
       />
+
+      <AppSettingsDialog open={appSettingsOpen} onOpenChange={setAppSettingsOpen} />
     </div>
   );
 };

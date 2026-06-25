@@ -8,7 +8,75 @@ import { ValidationErrorDetails, DataSourceFormat, Service } from '@/types/confi
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
 import { normalizeImportedConfig, detectTransformations } from '@/utils/importTransformations';
 import { parseS3Url } from '@/utils/s3Utils';
+import { loadCatalogue } from '@/lib/catalogue/apexCatalogue';
 import type { LoadedConfigSource } from '@/contexts/ConfigContext';
+
+/**
+ * For any workflow entry missing serviceTitle, look up the default APEx
+ * Algorithm Catalogue and back-fill the title when a matching record is found.
+ * Never throws — catalogue failures leave the config untouched.
+ */
+async function enrichWorkflowsWithCatalogueTitles(
+  config: any,
+): Promise<{ config: any; filled: number }> {
+  const hasMissing = (workflows: any[] | undefined): boolean =>
+    Array.isArray(workflows) &&
+    workflows.some(
+      (w) => w && (!w.serviceTitle || String(w.serviceTitle).trim() === '') && w.serviceId && w.serviceProvider,
+    );
+
+  let anyMissing = hasMissing(config?.workflows);
+  if (!anyMissing && Array.isArray(config?.sources)) {
+    anyMissing = config.sources.some((s: any) => hasMissing(s?.workflows));
+  }
+  if (!anyMissing && Array.isArray(config?.dataSources)) {
+    anyMissing = config.dataSources.some((s: any) => hasMissing(s?.workflows));
+  }
+  if (!anyMissing) return { config, filled: 0 };
+
+  let entries;
+  try {
+    entries = await loadCatalogue();
+  } catch (e) {
+    console.warn('[catalogue] Failed to load APEx catalogue for title back-fill:', e);
+    return { config, filled: 0 };
+  }
+
+  const lookup = new Map<string, string>();
+  for (const e of entries) {
+    const id = e.record?.id || e.algorithmId;
+    const title = e.record?.properties?.title?.trim() || e.name;
+    if (id && title) lookup.set(`${e.provider}|${id}`, title);
+  }
+
+  let filled = 0;
+  const fillWorkflows = (workflows: any[] | undefined): any[] | undefined => {
+    if (!Array.isArray(workflows)) return workflows;
+    return workflows.map((w) => {
+      if (!w || (w.serviceTitle && String(w.serviceTitle).trim() !== '')) return w;
+      if (!w.serviceId || !w.serviceProvider) return w;
+      const title = lookup.get(`${w.serviceProvider}|${w.serviceId}`);
+      if (!title) return w;
+      filled++;
+      return { ...w, serviceTitle: title };
+    });
+  };
+
+  const next: any = { ...config };
+  if (config?.workflows !== undefined) next.workflows = fillWorkflows(config.workflows);
+  if (Array.isArray(config?.sources)) {
+    next.sources = config.sources.map((s: any) =>
+      s?.workflows ? { ...s, workflows: fillWorkflows(s.workflows) } : s,
+    );
+  }
+  if (Array.isArray(config?.dataSources)) {
+    next.dataSources = config.dataSources.map((s: any) =>
+      s?.workflows ? { ...s, workflows: fillWorkflows(s.workflows) } : s,
+    );
+  }
+
+  return { config: next, filled };
+}
 
 export type ImportProgress =
   | { stage: 'parse' | 'validate' | 'normalize' | 'done' }
@@ -192,11 +260,14 @@ export const useConfigImport = () => {
           throw zodError;
         }
 
+        const { config: configWithTitles, filled: titlesFilled } =
+          await enrichWorkflowsWithCatalogueTitles(validatedConfig);
+
         const { services: servicesWithCapabilities, attempted, skipped } =
-          await enrichServicesWithCapabilities(validatedConfig.services || [], options);
+          await enrichServicesWithCapabilities(configWithTitles.services || [], options);
 
         const configWithCapabilities = {
-          ...validatedConfig,
+          ...configWithTitles,
           services: servicesWithCapabilities,
         };
 
@@ -218,6 +289,9 @@ export const useConfigImport = () => {
         }
         if (skipped > 0) {
           description += ` (${skipped} of ${attempted} service capabilities could not be fetched — they'll load on demand.)`;
+        }
+        if (titlesFilled > 0) {
+          description += ` Populated ${titlesFilled} algorithm title${titlesFilled === 1 ? '' : 's'} from the APEx catalogue.`;
         }
 
         toast({ title: 'Configuration Loaded', description });

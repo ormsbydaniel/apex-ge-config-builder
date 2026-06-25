@@ -66,13 +66,6 @@ const SubInterfaceGroup = ({
     onMoveLayer,
     moveLayerToTop,
     moveLayerToBottom,
-    onAddWorkflow,
-    onRemoveWorkflow,
-    onUpdateWorkflow,
-    onMoveWorkflowUp,
-    onMoveWorkflowDown,
-    onMoveWorkflowToTop,
-    onMoveWorkflowToBottom,
     onAddChart,
     onRemoveChart,
     onUpdateChart,
@@ -266,13 +259,6 @@ const SubInterfaceGroup = ({
                               onMoveConstraintDown={constraintIndex => onMoveConstraintDown(actualIndex, constraintIndex)}
                               onMoveConstraintToTop={constraintIndex => onMoveConstraintToTop(actualIndex, constraintIndex)}
                               onMoveConstraintToBottom={constraintIndex => onMoveConstraintToBottom(actualIndex, constraintIndex)}
-                              onAddWorkflow={workflow => onAddWorkflow(actualIndex, workflow)}
-                              onRemoveWorkflow={workflowIndex => onRemoveWorkflow(actualIndex, workflowIndex)}
-                              onUpdateWorkflow={(workflowIndex, workflow) => onUpdateWorkflow(actualIndex, workflowIndex, workflow)}
-                              onMoveWorkflowUp={workflowIndex => onMoveWorkflowUp(actualIndex, workflowIndex)}
-                              onMoveWorkflowDown={workflowIndex => onMoveWorkflowDown(actualIndex, workflowIndex)}
-                              onMoveWorkflowToTop={workflowIndex => onMoveWorkflowToTop(actualIndex, workflowIndex)}
-                              onMoveWorkflowToBottom={workflowIndex => onMoveWorkflowToBottom(actualIndex, workflowIndex)}
                               onAddChart={() => onStartChartForm ? onStartChartForm(actualIndex) : onAddChart(actualIndex, { chartType: 'xy', sources: [] })}
                               onRemoveChart={chartIndex => onRemoveChart(actualIndex, chartIndex)}
                               onEditChart={chartIndex => onEditChartSource ? onEditChartSource(actualIndex, chartIndex) : undefined}

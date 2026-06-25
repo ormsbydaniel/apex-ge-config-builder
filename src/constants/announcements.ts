@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-06-25",
+    title: "Config Builder settings and tabs (currently hidden) for algorithms and storymaps",
+    category: "Feature",
+  },
+  {
     date: "2026-05-13",
     title: "Support for static STAC collections",
     category: "Feature",

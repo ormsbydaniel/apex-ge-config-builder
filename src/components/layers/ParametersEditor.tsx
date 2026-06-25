@@ -15,7 +15,7 @@ interface ParametersEditorProps {
 }
 
 // Keys managed by the viewer / OGC protocol — disallow user overrides.
-const RESERVED_KEYS = ['time', 'layers', 'service', 'version', 'request'];
+const RESERVED_KEYS = ['time', 'layers', 'service', 'request'];
 
 const isReserved = (key: string): boolean =>
   RESERVED_KEYS.includes(key.trim().toLowerCase());

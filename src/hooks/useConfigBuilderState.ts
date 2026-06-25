@@ -4,6 +4,7 @@ import { useLayoutState } from './useLayoutState';
 import { useExclusivitySets } from './useExclusivitySets';
 import { useServiceManagement } from './useServiceManagement';
 import { useLayerOperations } from './useLayerOperations';
+import { useWorkflowActions } from './useWorkflowActions';
 
 export const useConfigBuilderState = () => {
   const { config, dispatch } = useValidatedConfig();
@@ -19,6 +20,7 @@ export const useConfigBuilderState = () => {
   const exclusivitySets = useExclusivitySets({ config: configWithExclusivitySets, dispatch });
   const serviceManagement = useServiceManagement({ config, dispatch });
   const layerOperations = useLayerOperations({ config, dispatch });
+  const workflowActions = useWorkflowActions({ config: config as any, dispatch });
 
   return {
     config,
@@ -29,6 +31,9 @@ export const useConfigBuilderState = () => {
     // Service management
     ...serviceManagement,
     // Layer management
-    ...layerOperations
+    ...layerOperations,
+    // Workflow management
+    ...workflowActions,
   };
 };
+

@@ -15,6 +15,7 @@ import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
+import VectorStyleSummary from '@/components/layers/components/VectorStyleSummary';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
@@ -306,7 +307,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             Vector Styling <span className="normal-case tracking-normal font-normal italic">
               {(() => {
                 const vectorItem = source.data.find(item => isVectorFormat(item.format) && Array.isArray(item.style) && item.style.length > 0);
-                return vectorItem ? `(${vectorItem.style.length} rule${vectorItem.style.length !== 1 ? 's' : ''})` : '(None)';
+                return <VectorStyleSummary rules={vectorItem?.style ?? []} />;
               })()}
             </span>
             </span>
