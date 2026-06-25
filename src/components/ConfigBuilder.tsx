@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download, BookOpen, Workflow as WorkflowIcon } from 'lucide-react';
+import AppSettingsDialog from './app-settings/AppSettingsDialog';
 import { Button } from '@/components/ui/button';
 import { useConfigExport } from '@/hooks/useConfigIO';
 import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
@@ -64,6 +65,7 @@ class ConfigErrorBoundary extends React.Component<
 }
 
 const ConfigBuilderContent = () => {
+  const [appSettingsOpen, setAppSettingsOpen] = React.useState(false);
   const navigate = useNavigate();
   const { config: configState } = useConfig();
   const { exportConfig } = useConfigExport();
@@ -220,28 +222,41 @@ const ConfigBuilderContent = () => {
             <p className="text-slate-200 mt-1">Build and manage your interactive mapping application configuration</p>
           </div>
 
-          <div className="flex items-center gap-1 bg-white/5 backdrop-blur-sm p-1.5 rounded-xl border border-white/10 shrink-0">
-            <a
-              href="/guide/index.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group"
-            >
-              <BookOpen className="h-5 w-5 opacity-80 group-hover:opacity-100" />
-              <span className="text-xs font-semibold tracking-wide uppercase">User Guide</span>
-            </a>
-
-            <div className="w-px h-6 bg-white/10 mx-1" />
-
+          <div className="flex flex-col items-end gap-1 shrink-0">
             <button
               type="button"
-              onClick={() => exportConfig()}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group cursor-pointer"
+              onClick={() => setAppSettingsOpen(true)}
+              aria-label="Application settings"
+              title="Application settings"
+              className="p-1 rounded text-white/40 hover:text-white/80 transition-colors"
             >
-              <Download className="h-5 w-5 opacity-80 group-hover:opacity-100" />
-              <span className="text-xs font-semibold tracking-wide uppercase">Export</span>
+              <Settings className="h-4 w-4" />
             </button>
+
+            <div className="flex items-center gap-1 bg-white/5 backdrop-blur-sm p-1.5 rounded-xl border border-white/10">
+              <a
+                href="/guide/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group"
+              >
+                <BookOpen className="h-5 w-5 opacity-80 group-hover:opacity-100" />
+                <span className="text-xs font-semibold tracking-wide uppercase">User Guide</span>
+              </a>
+
+              <div className="w-px h-6 bg-white/10 mx-1" />
+
+              <button
+                type="button"
+                onClick={() => exportConfig()}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group cursor-pointer"
+              >
+                <Download className="h-5 w-5 opacity-80 group-hover:opacity-100" />
+                <span className="text-xs font-semibold tracking-wide uppercase">Export</span>
+              </button>
+            </div>
           </div>
+
         </div>
 
         <div className="w-full">
@@ -401,6 +416,8 @@ const ConfigBuilderContent = () => {
         targetSubinterfaceGroup={importTargetSubGroup}
         onImport={handleApplyDonorImport}
       />
+
+      <AppSettingsDialog open={appSettingsOpen} onOpenChange={setAppSettingsOpen} />
     </div>
   );
 };

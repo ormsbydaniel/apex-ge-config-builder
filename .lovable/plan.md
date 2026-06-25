@@ -1,41 +1,46 @@
-## Restyle User Guide + Export toolbar
+# App-level settings cog (top-right)
 
-Apply the selected "Grouped container + labels" direction to the two utility buttons above the tab bar in `src/components/ConfigBuilder.tsx`.
+Add a small, discreet settings gear at the very top right of the Configuration Builder, sitting above the existing Export pill. Clicking it opens a modal of **app preferences** stored in `localStorage` only — never written to the JSON config. The first (and only, for now) preference is **"Show dev versions in preview"**, off by default; when on, non-semver viewer bundles (e.g. `dev-3-6-0-candidate`, `dev-interface-groups`) appear in the Preview version picker.
 
-### Changes (single file)
+## What we'll build
 
-Replace the two standalone `TooltipProvider` button blocks (and the wrapping `<div className="flex justify-end gap-2 mb-3">`) with a single grouped container:
+1. **`src/hooks/useAppSettings.ts`** — single source of truth for app-level prefs.
+   - Shape: `{ showDevViewerVersions: boolean }` (extensible).
+   - Stored under one `localStorage` key (`apex-config-builder-app-settings`) as JSON.
+   - Exports `useAppSettings()` returning `{ settings, setSetting, resetSettings }`.
+   - Uses `useSyncExternalStore` + a tiny in-module pub/sub so cog and Preview both see updates without prop drilling.
+   - Tolerant of missing/corrupt JSON (falls back to defaults).
 
-```tsx
-<div className="flex justify-end mb-3">
-  <div className="flex items-center gap-1 bg-white/5 backdrop-blur-sm p-1.5 rounded-xl border border-white/10">
-    <a
-      href="/guide/index.html"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group"
-    >
-      <BookOpen className="h-5 w-5 opacity-80 group-hover:opacity-100" />
-      <span className="text-xs font-semibold tracking-wide uppercase">User Guide</span>
-    </a>
+2. **`src/components/app-settings/AppSettingsDialog.tsx`** — modal UI.
+   - shadcn `Dialog` titled "Application settings", description: "These preferences are stored in your browser only and do not affect the exported configuration."
+   - One checkbox row for now: **Show dev versions in preview** with helper text "By default the Preview tab only lists official semver viewer releases. Enable this to also list development / candidate bundles."
+   - Toggles apply immediately (no save button); a single "Done" closes the dialog.
+   - Layout designed so adding future checkboxes is a one-liner.
 
-    <div className="w-px h-6 bg-white/10 mx-1" />
+3. **Settings cog in `src/components/ConfigBuilder.tsx`**
+   - Discreet `Settings` (lucide) icon button placed above the existing Export pill, right-aligned in the header column that already contains the User Guide / Export toolbar.
+   - Styling: `h-4 w-4`, `text-white/40 hover:text-white/80`, transparent background, no border.
+   - `aria-label="Application settings"` + tooltip "Application settings".
+   - Opens `AppSettingsDialog` via local `useState`.
+   - Existing User Guide / Export pill is left untouched.
 
-    <button
-      type="button"
-      onClick={() => exportConfig()}
-      className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group cursor-pointer"
-    >
-      <Download className="h-5 w-5 opacity-80 group-hover:opacity-100" />
-      <span className="text-xs font-semibold tracking-wide uppercase">Export</span>
-    </button>
-  </div>
-</div>
-```
+4. **Wire the first setting into `src/pages/Preview.tsx`**
+   - After `getAvailableViewerVersions()` resolves, filter using `useAppSettings`:
+     - `showDevViewerVersions === false` → keep only entries matching `/^\d+\.\d+\.\d+$/` (same semver test already in `compareVersions`).
+     - `true` → keep all.
+   - Apply the same filter when picking the default/latest version so a dev bundle is never auto-selected for users who haven't opted in.
+   - If a previously saved version is filtered out, fall back to the latest remaining semver (existing "version no longer exists" branch handles this).
 
-### Notes
+## Files touched
 
-- Drops the now-redundant `Tooltip`s — labels are visible inline.
-- Keeps both icons (`BookOpen`, `Download`) and both actions (open guide in new tab, call `exportConfig()`) unchanged.
-- Uses translucent `white/*` utilities so the group reads as a quiet secondary surface against the dark teal shell, distinct from the white primary tab bar below.
-- No other components, no schema or context changes.
+- **New:** `src/hooks/useAppSettings.ts`
+- **New:** `src/components/app-settings/AppSettingsDialog.tsx`
+- **Edit:** `src/components/ConfigBuilder.tsx` — add cog above Export pill + mount dialog.
+- **Edit:** `src/pages/Preview.tsx` — filter version list by the new setting.
+
+## Non-goals
+
+- No backend persistence; no per-user accounts.
+- No changes to the exported JSON config schema, types, or validation.
+- No reshuffling of the existing User Guide / Export toolbar.
+- No additional checkboxes in this change.
