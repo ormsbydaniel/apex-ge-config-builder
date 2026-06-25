@@ -235,6 +235,93 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
                 </Table>
               </div>
             </>
+          ) : view === 'catalogue' ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Update from catalogue</DialogTitle>
+              </DialogHeader>
+              <button
+                type="button"
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 underline cursor-pointer"
+                onClick={() => setView('main')}
+              >
+                <ArrowLeft className="h-3 w-3" /> Back
+              </button>
+              <div className="flex-1 overflow-y-auto pr-2">
+                <div className="space-y-4 py-2">
+                  <p className="text-sm text-muted-foreground">
+                    Pull values from the matching APEx catalogue record.
+                  </p>
+                  {catLoading ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Looking up catalogue…
+                    </div>
+                  ) : catError ? (
+                    <p className="text-sm text-destructive">{catError}</p>
+                  ) : !catEntry ? (
+                    <p className="text-sm text-muted-foreground">No matching record found in the APEx catalogue.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      <label className="flex items-start gap-2 text-sm">
+                        <Checkbox
+                          checked={pickDescription}
+                          onCheckedChange={(v) => setPickDescription(!!v)}
+                          disabled={!catDescription}
+                          className="mt-0.5"
+                        />
+                        <span>
+                          <span className="font-medium">Description</span>
+                          {!catDescription && <span className="text-muted-foreground"> (not available)</span>}
+                          {catDescription && (
+                            <span className="block text-xs text-muted-foreground line-clamp-3">{catDescription}</span>
+                          )}
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-2 text-sm">
+                        <Checkbox
+                          checked={pickAttrText}
+                          onCheckedChange={(v) => setPickAttrText(!!v)}
+                          disabled={!catAttrText}
+                          className="mt-0.5"
+                        />
+                        <span>
+                          <span className="font-medium">Attribution text</span>
+                          {!catAttrText
+                            ? <span className="text-muted-foreground"> (not available)</span>
+                            : <span className="block text-xs text-muted-foreground">{catAttrText}</span>}
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-2 text-sm">
+                        <Checkbox
+                          checked={pickAttrUrl}
+                          onCheckedChange={(v) => setPickAttrUrl(!!v)}
+                          disabled={!catAttrUrl}
+                          className="mt-0.5"
+                        />
+                        <span>
+                          <span className="font-medium">Attribution URL</span>
+                          {!catAttrUrl
+                            ? <span className="text-muted-foreground"> (not available)</span>
+                            : <span className="block text-xs text-muted-foreground break-all">{catAttrUrl}</span>}
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setView('main')}>Cancel</Button>
+                <Button
+                  onClick={applyFromCatalogue}
+                  disabled={
+                    catLoading || !catEntry ||
+                    !((pickDescription && catDescription) || (pickAttrText && catAttrText) || (pickAttrUrl && catAttrUrl))
+                  }
+                >
+                  Apply
+                </Button>
+              </DialogFooter>
+            </>
           ) : (
             <>
               <DialogHeader>
@@ -242,6 +329,20 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
               </DialogHeader>
               <div className="flex-1 overflow-y-auto pr-2">
                 <div className="space-y-4 py-2">
+                  {catalogueLookup && (
+                    <div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setView('catalogue')}
+                        className="h-8"
+                      >
+                        <Download className="h-3.5 w-3.5 mr-1.5" />
+                        Update from catalogue
+                      </Button>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="layer-description">Description</Label>
                     <p className="text-xs text-muted-foreground">
@@ -249,7 +350,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
                       <button
                         type="button"
                         className="text-primary hover:text-primary/80 underline cursor-pointer"
-                        onClick={() => setShowHelp(true)}
+                        onClick={() => setView('help')}
                       >
                         Tell me more
                       </button>
