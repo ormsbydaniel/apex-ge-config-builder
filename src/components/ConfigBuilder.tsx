@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Globe, Layers, FileJson, Satellite, ArrowUpDown, Home, Settings, Map, Download, BookOpen, Workflow as WorkflowIcon } from 'lucide-react';
 import AppSettingsDialog from './app-settings/AppSettingsDialog';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import { Button } from '@/components/ui/button';
 import { useConfigExport } from '@/hooks/useConfigIO';
 import { ConfigProvider, useConfig } from '@/contexts/ConfigContext';
@@ -66,6 +67,7 @@ class ConfigErrorBoundary extends React.Component<
 
 const ConfigBuilderContent = () => {
   const [appSettingsOpen, setAppSettingsOpen] = React.useState(false);
+  const { settings: appSettings } = useAppSettings();
   const navigate = useNavigate();
   const { config: configState } = useConfig();
   const { exportConfig } = useConfigExport();
@@ -205,6 +207,24 @@ const ConfigBuilderContent = () => {
     }
   }, [navigationState.activeTab, navigationState.scrollPosition]);
 
+  // If user disables a tab while it's active, fall back to Home.
+  React.useEffect(() => {
+    if (navigationState.activeTab === 'workflows' && !appSettings.showAlgorithmsTab) {
+      setActiveTab('home');
+    } else if (navigationState.activeTab === 'storymaps' && !appSettings.showStorymapsTab) {
+      setActiveTab('home');
+    }
+  }, [appSettings.showAlgorithmsTab, appSettings.showStorymapsTab, navigationState.activeTab, setActiveTab]);
+
+  const visibleTabCount = 7 + (appSettings.showAlgorithmsTab ? 1 : 0) + (appSettings.showStorymapsTab ? 1 : 0);
+  // Explicit map so Tailwind JIT picks up the class names.
+  const gridColsByCount: Record<number, string> = {
+    7: 'grid-cols-7',
+    8: 'grid-cols-8',
+    9: 'grid-cols-9',
+  };
+  const gridColsClass = `grid w-full ${gridColsByCount[visibleTabCount]} bg-white border border-primary/20 mb-6`;
+
   return (
     <div className="min-h-screen" style={{
       backgroundColor: '#043346'
@@ -265,7 +285,7 @@ const ConfigBuilderContent = () => {
             onValueChange={handleTabChange} 
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-9 bg-white border border-primary/20 mb-6">
+            <TabsList className={gridColsClass}>
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
                 Home
@@ -278,14 +298,18 @@ const ConfigBuilderContent = () => {
                 <ArrowUpDown className="h-4 w-4" />
                 Draw Order
               </TabsTrigger>
-              <TabsTrigger value="workflows" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <WorkflowIcon className="h-4 w-4" />
-                Algorithms
-              </TabsTrigger>
-              <TabsTrigger value="storymaps" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <BookOpen className="h-4 w-4" />
-                Storymaps
-              </TabsTrigger>
+              {appSettings.showAlgorithmsTab && (
+                <TabsTrigger value="workflows" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <WorkflowIcon className="h-4 w-4" />
+                  Algorithms
+                </TabsTrigger>
+              )}
+              {appSettings.showStorymapsTab && (
+                <TabsTrigger value="storymaps" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <BookOpen className="h-4 w-4" />
+                  Storymaps
+                </TabsTrigger>
+              )}
               <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Globe className="h-4 w-4" />
                 Services
@@ -371,21 +395,25 @@ const ConfigBuilderContent = () => {
               />
             </TabsContent>
 
-            <TabsContent value="workflows">
-              <WorkflowsTab
-                workflows={(config as any).workflows ?? []}
-                services={config.services}
-                addWorkflow={addWorkflow}
-                updateWorkflow={updateWorkflow}
-                removeWorkflow={removeWorkflow}
-                duplicateWorkflow={duplicateWorkflow}
-                moveWorkflow={moveWorkflow}
-              />
-            </TabsContent>
+            {appSettings.showAlgorithmsTab && (
+              <TabsContent value="workflows">
+                <WorkflowsTab
+                  workflows={(config as any).workflows ?? []}
+                  services={config.services}
+                  addWorkflow={addWorkflow}
+                  updateWorkflow={updateWorkflow}
+                  removeWorkflow={removeWorkflow}
+                  duplicateWorkflow={duplicateWorkflow}
+                  moveWorkflow={moveWorkflow}
+                />
+              </TabsContent>
+            )}
 
-            <TabsContent value="storymaps">
-              <StorymapsTab />
-            </TabsContent>
+            {appSettings.showStorymapsTab && (
+              <TabsContent value="storymaps">
+                <StorymapsTab />
+              </TabsContent>
+            )}
 
 
             <TabsContent value="services">

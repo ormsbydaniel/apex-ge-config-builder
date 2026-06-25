@@ -9,12 +9,16 @@ import { useSyncExternalStore, useCallback } from 'react';
  */
 export interface AppSettings {
   showDevViewerVersions: boolean;
+  showAlgorithmsTab: boolean;
+  showStorymapsTab: boolean;
 }
 
 const STORAGE_KEY = 'apex-config-builder-app-settings';
 
 const DEFAULTS: AppSettings = {
   showDevViewerVersions: false,
+  showAlgorithmsTab: false,
+  showStorymapsTab: false,
 };
 
 function read(): AppSettings {
