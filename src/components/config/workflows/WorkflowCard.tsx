@@ -250,6 +250,11 @@ export const WorkflowCard = ({
             <LayerDescriptionAttributionDisplay
               source={adapter}
               onUpdateMeta={handleUpdateMeta}
+              catalogueLookup={
+                workflow.serviceId && workflow.serviceProvider
+                  ? { serviceId: workflow.serviceId, serviceProvider: workflow.serviceProvider }
+                  : undefined
+              }
             />
 
             <LayerDataVisualisationSection

@@ -1,35 +1,40 @@
-# Auto-populate `serviceTitle` from the APEx catalogue on import
+# "Update from catalogue" in the Description & Attribution modal
 
-When a config is loaded, any workflow (algorithm) entry missing `serviceTitle` will be looked up against the default APEx Algorithm Catalogue and back-filled if a matching record is found.
+Adds a way to pull description/attribution text/URL from the matching APEx Algorithm Catalogue record into the algorithm's Description & Attribution modal.
 
 ## Behaviour
 
-- Triggered after schema validation succeeds, before dispatching `LOAD_CONFIG`.
-- Scans both top-level `workflows[]` and every source's `workflows[]`.
-- Only entries where `serviceTitle` is missing/empty are considered.
-- Matching rule: `entry.serviceProvider === catalogue.provider` AND `entry.serviceId === catalogue.record.id` (falling back to `catalogue.algorithmId`).
-- If a match is found, set `serviceTitle` to the catalogue entry's title (`record.properties.title` or `entry.name`).
-- If the catalogue can't be loaded (network failure) or no match is found, leave the entry untouched — never block the import.
-- Show a toast addendum (e.g. "Populated titles for N algorithm(s) from the APEx catalogue.") only when at least one title was filled.
-- Skipped entirely if no workflow entries are missing `serviceTitle` (avoids the catalogue fetch).
+- Visible **only on algorithm cards** (the modal is shared with layers — layer cards see no change).
+- Trigger: a small "Update from catalogue" button at the top of the modal body (next to or just under the title), enabled only when the workflow has both `serviceId` and `serviceProvider`.
+- Clicking it switches the dialog body to a sub-view (similar to the existing Markdown help "Back" pattern) titled "Update from catalogue", with:
+  - A short note: "Pull values from the matching APEx catalogue record."
+  - Three checkboxes, all checked by default:
+    - Description
+    - Attribution text
+    - Attribution URL
+  - An "Apply" button and a "Back" link.
+- On Apply: only the ticked fields overwrite the corresponding inputs in the main modal view (Description textarea, Attribution Text input, Attribution URL input). The user still has to click the modal's main **Save** to persist — Apply does not save automatically. This keeps it consistent with the rest of the modal and lets users review/tweak before committing.
+- Loading state on the catalogue lookup; if the algorithm has no matching catalogue record show an inline message ("No matching record found in the APEx catalogue.") and disable Apply.
+- If the catalogue record has no value for a ticked field, that checkbox is disabled with a muted label suffix "(not available)".
+- Errors fetching the catalogue or provider URL show an inline error message; the modal stays open.
 
 ## Technical details
 
-**File: `src/hooks/useConfigImport.ts`**
-- Add a helper `enrichWorkflowsWithCatalogueTitles(config)` that:
-  - Collects all workflow entries (top-level + per-source) missing `serviceTitle`.
-  - Returns early with `{ config, filled: 0 }` if none.
-  - Calls `loadCatalogue()` from `src/lib/catalogue/apexCatalogue.ts` (already cached after first call).
-  - Builds a `Map<provider|id, title>` lookup once.
-  - Returns a new config with titles filled in (immutably), plus a count.
-  - Wraps the catalogue call in try/catch — on failure return original config + 0.
-- Call this helper inside `runImportFromObject` after `ConfigurationSchema.parse(...)` and before `enrichServicesWithCapabilities` (or in parallel; sequential is simpler and fine since catalogue is cached/small).
-- Append filled-count phrase to the success toast description when > 0.
+**File: `src/components/layers/components/LayerDescriptionAttributionDisplay.tsx`**
+- Add optional props `catalogueLookup?: { serviceId: string; serviceProvider: string }`.
+- When provided, render the "Update from catalogue" button and the new sub-view (alongside the existing markdown help sub-view — track via a `view: 'main' | 'help' | 'catalogue'` state).
+- Catalogue sub-view fetches via `loadCatalogue()` from `src/lib/catalogue/apexCatalogue.ts`, matches on `provider === serviceProvider` and `record.id === serviceId` (fallback `algorithmId`).
+- Resolves the provider URL via `resolveProviderUrl(entry)` (already async/cached upstream where used).
+- Pulls description from `entry.record.properties.description` (already exposed as `entry.description`), attribution text from `entry.providerLabel` / mapped fields, and attribution URL from `resolveProviderUrl`.
+- Apply only mutates local `description`, `attributionText`, `attributionUrl` state for ticked + available fields.
 
-**No schema, type, or UI changes.** `serviceTitle` is already optional on `WorkflowItemSchema` and present on `WorkflowItem`/`MappedWorkflowFields`.
+**File: `src/components/config/workflows/WorkflowCard.tsx`**
+- Pass `catalogueLookup={{ serviceId: workflow.serviceId, serviceProvider: workflow.serviceProvider }}` to `LayerDescriptionAttributionDisplay`.
+
+**No schema, type, or import-flow changes.** Existing import-time `serviceTitle` back-fill is unaffected.
 
 ## Out of scope
 
-- Re-fetching the catalogue if it failed previously (the existing `loadCatalogue()` caching is sufficient).
-- Populating other fields (description, serviceDetails). Only `serviceTitle` per the request.
-- A manual "refresh titles from catalogue" action — can be added later if useful.
+- Auto-saving when Apply is clicked (kept as an explicit Save click for consistency).
+- Pulling fields other than description / attribution text / attribution URL.
+- Adding the same button to layer cards.
