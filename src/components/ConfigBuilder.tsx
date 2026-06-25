@@ -217,7 +217,13 @@ const ConfigBuilderContent = () => {
   }, [appSettings.showAlgorithmsTab, appSettings.showStorymapsTab, navigationState.activeTab, setActiveTab]);
 
   const visibleTabCount = 7 + (appSettings.showAlgorithmsTab ? 1 : 0) + (appSettings.showStorymapsTab ? 1 : 0);
-  const gridColsClass = `grid w-full grid-cols-${visibleTabCount} bg-white border border-primary/20 mb-6`;
+  // Explicit map so Tailwind JIT picks up the class names.
+  const gridColsByCount: Record<number, string> = {
+    7: 'grid-cols-7',
+    8: 'grid-cols-8',
+    9: 'grid-cols-9',
+  };
+  const gridColsClass = `grid w-full ${gridColsByCount[visibleTabCount]} bg-white border border-primary/20 mb-6`;
 
   return (
     <div className="min-h-screen" style={{
