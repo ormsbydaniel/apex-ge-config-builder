@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Pencil, FileText, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Pencil, FileText, ArrowLeft, Download, Loader2 } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableHeader,
@@ -21,18 +22,26 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui/table';
+import { loadCatalogue, resolveProviderUrl } from '@/lib/catalogue/apexCatalogue';
+import type { CatalogueEntry } from '@/lib/catalogue/types';
 
 interface LayerDescriptionAttributionDisplayProps {
   source: DataSource;
   onUpdateMeta: (updates: Record<string, any>) => void;
+  /** When provided, enables an "Update from catalogue" action that pulls values
+   *  from the matching APEx Algorithm Catalogue record. */
+  catalogueLookup?: { serviceId: string; serviceProvider: string };
 }
 
-const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta }: LayerDescriptionAttributionDisplayProps) => {
+type ViewMode = 'main' | 'help' | 'catalogue';
+
+const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLookup }: LayerDescriptionAttributionDisplayProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
+  const [view, setView] = useState<ViewMode>('main');
   const [description, setDescription] = useState('');
   const [attributionText, setAttributionText] = useState('');
   const [attributionUrl, setAttributionUrl] = useState('');
+
 
   const hasDescription = !!source.meta?.description;
   const hasAttribution = !!source.meta?.attribution?.text;
