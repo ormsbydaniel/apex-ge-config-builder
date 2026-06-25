@@ -246,8 +246,8 @@ const ConfigBuilderContent = () => {
             <button
               type="button"
               onClick={() => setAppSettingsOpen(true)}
-              aria-label="Application settings"
-              title="Application settings"
+              aria-label="Config Builder settings"
+              title="Config Builder settings"
               className="p-1 rounded text-white/40 hover:text-white/80 transition-colors"
             >
               <Settings className="h-4 w-4" />
