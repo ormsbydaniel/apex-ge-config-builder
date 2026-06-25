@@ -1,24 +1,41 @@
-## Free up tab bar space
+## Restyle User Guide + Export toolbar
 
-The tab row added a 9th tab (Storymaps), pushing the Preview tab off-screen on narrower viewports. Move the two utility icon-buttons (User Guide, Export) out of the tab row so the `TabsList` reclaims full width.
+Apply the selected "Grouped container + labels" direction to the two utility buttons above the tab bar in `src/components/ConfigBuilder.tsx`.
 
-### Changes
+### Changes (single file)
 
-`src/components/ConfigBuilder.tsx` only:
-
-1. Remove the User Guide `<a>` and Export `<Button>` (and their wrapping `TooltipProvider`s) from inside the `flex` row at lines ~286–319.
-2. Drop the now-unnecessary `flex items-center gap-2 mb-6` wrapper around `TabsList` and put the two icon buttons in a new right-aligned row directly above it, e.g.:
+Replace the two standalone `TooltipProvider` button blocks (and the wrapping `<div className="flex justify-end gap-2 mb-3">`) with a single grouped container:
 
 ```tsx
-<div className="flex justify-end gap-2 mb-3">
-  {/* User Guide link */}
-  {/* Export button */}
+<div className="flex justify-end mb-3">
+  <div className="flex items-center gap-1 bg-white/5 backdrop-blur-sm p-1.5 rounded-xl border border-white/10">
+    <a
+      href="/guide/index.html"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group"
+    >
+      <BookOpen className="h-5 w-5 opacity-80 group-hover:opacity-100" />
+      <span className="text-xs font-semibold tracking-wide uppercase">User Guide</span>
+    </a>
+
+    <div className="w-px h-6 bg-white/10 mx-1" />
+
+    <button
+      type="button"
+      onClick={() => exportConfig()}
+      className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group cursor-pointer"
+    >
+      <Download className="h-5 w-5 opacity-80 group-hover:opacity-100" />
+      <span className="text-xs font-semibold tracking-wide uppercase">Export</span>
+    </button>
+  </div>
 </div>
-<TabsList className="grid w-full grid-cols-9 bg-white border border-primary/20 mb-6">
-  ...
-</TabsList>
 ```
 
-3. Update grid column count from `grid-cols-8` to `grid-cols-9` so all nine tab triggers (Home, Layers, Draw Order, Algorithms, Storymaps, Services, Settings, JSON Config, Preview) share the row evenly.
+### Notes
 
-No behaviour changes — same buttons, same tabs, just rearranged so the toolbar fits.
+- Drops the now-redundant `Tooltip`s — labels are visible inline.
+- Keeps both icons (`BookOpen`, `Download`) and both actions (open guide in new tab, call `exportConfig()`) unchanged.
+- Uses translucent `white/*` utilities so the group reads as a quiet secondary surface against the dark teal shell, distinct from the white primary tab bar below.
+- No other components, no schema or context changes.

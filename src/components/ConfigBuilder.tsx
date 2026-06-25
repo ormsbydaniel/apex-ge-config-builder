@@ -225,42 +225,31 @@ const ConfigBuilderContent = () => {
             onValueChange={handleTabChange} 
             className="w-full"
           >
-            <div className="flex justify-end gap-2 mb-3">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <a
-                      href="/guide/index.html"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-primary/20 bg-white hover:bg-primary hover:text-primary-foreground transition-colors"
-                    >
-                      <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    </a>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>User Guide</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => exportConfig()}
-                      className="h-10 w-10 bg-white border-primary/20 hover:bg-primary hover:text-primary-foreground"
-                    >
-                      <Download className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Export</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+            <div className="flex justify-end mb-3">
+              <div className="flex items-center gap-1 bg-white/5 backdrop-blur-sm p-1.5 rounded-xl border border-white/10">
+                <a
+                  href="/guide/index.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group"
+                >
+                  <BookOpen className="h-5 w-5 opacity-80 group-hover:opacity-100" />
+                  <span className="text-xs font-semibold tracking-wide uppercase">User Guide</span>
+                </a>
+
+                <div className="w-px h-6 bg-white/10 mx-1" />
+
+                <button
+                  type="button"
+                  onClick={() => exportConfig()}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group cursor-pointer"
+                >
+                  <Download className="h-5 w-5 opacity-80 group-hover:opacity-100" />
+                  <span className="text-xs font-semibold tracking-wide uppercase">Export</span>
+                </button>
+              </div>
             </div>
+
             <TabsList className="grid w-full grid-cols-9 bg-white border border-primary/20 mb-6">
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
