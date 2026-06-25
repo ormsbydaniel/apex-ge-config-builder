@@ -170,7 +170,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
       </div>
 
       <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setView('main'); }}>
-        <DialogContent className="sm:max-w-[700px] h-[580px] flex flex-col">
+        <DialogContent className="sm:max-w-[700px] h-[85vh] max-h-[800px] flex flex-col">
           {view === 'help' ? (
             <>
               <DialogHeader>
