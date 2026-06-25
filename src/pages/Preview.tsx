@@ -23,6 +23,9 @@ import {
   markVersionAlertAsShown
 } from '@/utils/viewerVersions';
 import type { ViewerVersion } from '@/types/viewer';
+import { useAppSettings } from '@/hooks/useAppSettings';
+
+const SEMVER_RE = /^\d+\.\d+\.\d+$/;
 
 
 
