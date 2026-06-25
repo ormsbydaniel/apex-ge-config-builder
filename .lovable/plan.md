@@ -1,17 +1,24 @@
-## Add "Storymaps" tab
+## Free up tab bar space
 
-Insert a new tab between Algorithms and Services in the main `ConfigBuilder` tab bar, showing a coming-soon placeholder.
+The tab row added a 9th tab (Storymaps), pushing the Preview tab off-screen on narrower viewports. Move the two utility icon-buttons (User Guide, Export) out of the tab row so the `TabsList` reclaims full width.
 
 ### Changes
 
-1. **`src/components/config/StorymapsTab.tsx`** (new) — simple centred card:
-   - Heading: "Storymaps"
-   - Body: "Story map functionality is coming soon to the Geospatial Explorer. Watch this space!"
-   - Uses the same `Card` / muted-text styling as other empty-state panels in the app.
+`src/components/ConfigBuilder.tsx` only:
 
-2. **`src/components/ConfigBuilder.tsx`**:
-   - Import `StorymapsTab` and an appropriate icon (e.g. `BookOpen`, already imported).
-   - Add a `<TabsTrigger value="storymaps">` between the Algorithms and Services triggers.
-   - Add a matching `<TabsContent value="storymaps"><StorymapsTab /></TabsContent>`.
+1. Remove the User Guide `<a>` and Export `<Button>` (and their wrapping `TooltipProvider`s) from inside the `flex` row at lines ~286–319.
+2. Drop the now-unnecessary `flex items-center gap-2 mb-6` wrapper around `TabsList` and put the two icon buttons in a new right-aligned row directly above it, e.g.:
 
-No schema, context, or config changes — purely presentational placeholder.
+```tsx
+<div className="flex justify-end gap-2 mb-3">
+  {/* User Guide link */}
+  {/* Export button */}
+</div>
+<TabsList className="grid w-full grid-cols-9 bg-white border border-primary/20 mb-6">
+  ...
+</TabsList>
+```
+
+3. Update grid column count from `grid-cols-8` to `grid-cols-9` so all nine tab triggers (Home, Layers, Draw Order, Algorithms, Storymaps, Services, Settings, JSON Config, Preview) share the row evenly.
+
+No behaviour changes — same buttons, same tabs, just rearranged so the toolbar fits.

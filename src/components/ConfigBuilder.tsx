@@ -225,8 +225,43 @@ const ConfigBuilderContent = () => {
             onValueChange={handleTabChange} 
             className="w-full"
           >
-            <div className="flex items-center gap-2 mb-6">
-            <TabsList className="grid flex-1 grid-cols-8 bg-white border border-primary/20">
+            <div className="flex justify-end gap-2 mb-3">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <a
+                      href="/guide/index.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-primary/20 bg-white hover:bg-primary hover:text-primary-foreground transition-colors"
+                    >
+                      <BookOpen className="h-4 w-4 text-muted-foreground" />
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>User Guide</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => exportConfig()}
+                      className="h-10 w-10 bg-white border-primary/20 hover:bg-primary hover:text-primary-foreground"
+                    >
+                      <Download className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Export</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <TabsList className="grid w-full grid-cols-9 bg-white border border-primary/20 mb-6">
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
                 Home
@@ -264,8 +299,8 @@ const ConfigBuilderContent = () => {
                 <Tooltip>
                   <TooltipTrigger asChild={false} className="inline-block">
                     <span>
-                      <TabsTrigger 
-                        value="mappreview" 
+                      <TabsTrigger
+                        value="mappreview"
                         className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                         onClick={handlePreviewClick}
                         disabled={configState.hasUnsavedFormChanges}
@@ -283,41 +318,7 @@ const ConfigBuilderContent = () => {
                 </Tooltip>
               </TooltipProvider>
             </TabsList>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href="/guide/index.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-primary/20 bg-white hover:bg-primary hover:text-primary-foreground transition-colors"
-                  >
-                    <BookOpen className="h-4 w-4 text-muted-foreground" />
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>User Guide</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => exportConfig()}
-                    className="h-10 w-10 bg-white border-primary/20 hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <Download className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Export</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            </div>
+
 
             <TabsContent value="home">
               <HomeTab config={config} onNavigateToLayer={handleNavigateToLayer} />
