@@ -17,6 +17,7 @@ import PreviewTab from './config/PreviewTab';
 import HomeTab from './config/HomeTab';
 import SettingsTab from './config/SettingsTab';
 import WorkflowsTab from './config/workflows/WorkflowsTab';
+import StorymapsTab from './config/StorymapsTab';
 import DonorConfigPickerDialog from './layers/import/DonorConfigPickerDialog';
 
 
@@ -242,6 +243,10 @@ const ConfigBuilderContent = () => {
                 <WorkflowIcon className="h-4 w-4" />
                 Algorithms
               </TabsTrigger>
+              <TabsTrigger value="storymaps" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <BookOpen className="h-4 w-4" />
+                Storymaps
+              </TabsTrigger>
               <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Globe className="h-4 w-4" />
                 Services
@@ -373,6 +378,9 @@ const ConfigBuilderContent = () => {
               />
             </TabsContent>
 
+            <TabsContent value="storymaps">
+              <StorymapsTab />
+            </TabsContent>
 
 
             <TabsContent value="services">
