@@ -67,6 +67,7 @@ class ConfigErrorBoundary extends React.Component<
 
 const ConfigBuilderContent = () => {
   const [appSettingsOpen, setAppSettingsOpen] = React.useState(false);
+  const { settings: appSettings } = useAppSettings();
   const navigate = useNavigate();
   const { config: configState } = useConfig();
   const { exportConfig } = useConfigExport();
