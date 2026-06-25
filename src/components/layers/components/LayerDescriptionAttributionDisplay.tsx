@@ -169,9 +169,9 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
         )}
       </div>
 
-      <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setShowHelp(false); }}>
+      <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setView('main'); }}>
         <DialogContent className="sm:max-w-[700px] h-[580px] flex flex-col">
-          {showHelp ? (
+          {view === 'help' ? (
             <>
               <DialogHeader>
                 <DialogTitle>Markdown Reference</DialogTitle>
@@ -179,7 +179,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
               <button
                 type="button"
                 className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 underline cursor-pointer"
-                onClick={() => setShowHelp(false)}
+                onClick={() => setView('main')}
               >
                 <ArrowLeft className="h-3 w-3" /> Back
               </button>
