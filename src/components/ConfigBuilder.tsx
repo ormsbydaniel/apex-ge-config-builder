@@ -207,6 +207,18 @@ const ConfigBuilderContent = () => {
     }
   }, [navigationState.activeTab, navigationState.scrollPosition]);
 
+  // If user disables a tab while it's active, fall back to Home.
+  React.useEffect(() => {
+    if (navigationState.activeTab === 'workflows' && !appSettings.showAlgorithmsTab) {
+      setActiveTab('home');
+    } else if (navigationState.activeTab === 'storymaps' && !appSettings.showStorymapsTab) {
+      setActiveTab('home');
+    }
+  }, [appSettings.showAlgorithmsTab, appSettings.showStorymapsTab, navigationState.activeTab, setActiveTab]);
+
+  const visibleTabCount = 7 + (appSettings.showAlgorithmsTab ? 1 : 0) + (appSettings.showStorymapsTab ? 1 : 0);
+  const gridColsClass = `grid w-full grid-cols-${visibleTabCount} bg-white border border-primary/20 mb-6`;
+
   return (
     <div className="min-h-screen" style={{
       backgroundColor: '#043346'
