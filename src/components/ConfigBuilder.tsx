@@ -378,6 +378,9 @@ const ConfigBuilderContent = () => {
               />
             </TabsContent>
 
+            <TabsContent value="storymaps">
+              <StorymapsTab />
+            </TabsContent>
 
 
             <TabsContent value="services">
