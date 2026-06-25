@@ -99,7 +99,7 @@ const Preview = () => {
     };
     
     loadVersions();
-  }, []);
+  }, [showDev]);
 
   const handleVersionChange = (version: string) => {
     setSelectedVersion(version);
