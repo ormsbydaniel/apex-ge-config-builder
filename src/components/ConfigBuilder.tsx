@@ -395,21 +395,25 @@ const ConfigBuilderContent = () => {
               />
             </TabsContent>
 
-            <TabsContent value="workflows">
-              <WorkflowsTab
-                workflows={(config as any).workflows ?? []}
-                services={config.services}
-                addWorkflow={addWorkflow}
-                updateWorkflow={updateWorkflow}
-                removeWorkflow={removeWorkflow}
-                duplicateWorkflow={duplicateWorkflow}
-                moveWorkflow={moveWorkflow}
-              />
-            </TabsContent>
+            {appSettings.showAlgorithmsTab && (
+              <TabsContent value="workflows">
+                <WorkflowsTab
+                  workflows={(config as any).workflows ?? []}
+                  services={config.services}
+                  addWorkflow={addWorkflow}
+                  updateWorkflow={updateWorkflow}
+                  removeWorkflow={removeWorkflow}
+                  duplicateWorkflow={duplicateWorkflow}
+                  moveWorkflow={moveWorkflow}
+                />
+              </TabsContent>
+            )}
 
-            <TabsContent value="storymaps">
-              <StorymapsTab />
-            </TabsContent>
+            {appSettings.showStorymapsTab && (
+              <TabsContent value="storymaps">
+                <StorymapsTab />
+              </TabsContent>
+            )}
 
 
             <TabsContent value="services">
