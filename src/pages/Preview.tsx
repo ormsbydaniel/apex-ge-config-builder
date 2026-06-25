@@ -55,13 +55,19 @@ const Preview = () => {
   const [isLoadingVersions, setIsLoadingVersions] = useState(true);
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [latestVersion, setLatestVersion] = useState<string>('');
+  const { settings } = useAppSettings();
+  const showDev = settings.showDevViewerVersions;
 
   // Load available versions and check for updates
   useEffect(() => {
     const loadVersions = async () => {
       setIsLoadingVersions(true);
-      const availableVersions = await getAvailableViewerVersions();
-      const manifestLatest = await getLatestVersionFromManifest();
+      const fetched = await getAvailableViewerVersions();
+      const availableVersions = showDev ? fetched : fetched.filter(v => SEMVER_RE.test(v.version));
+      const manifestLatestRaw = await getLatestVersionFromManifest();
+      const manifestLatest = manifestLatestRaw && (showDev || SEMVER_RE.test(manifestLatestRaw))
+        ? manifestLatestRaw
+        : null;
       
       setVersions(availableVersions);
       if (manifestLatest) {
