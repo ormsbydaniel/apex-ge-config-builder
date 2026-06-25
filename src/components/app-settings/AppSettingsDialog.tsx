@@ -15,7 +15,7 @@ const AppSettingsDialog = ({ open, onOpenChange }: AppSettingsDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Application settings</DialogTitle>
+          <DialogTitle>Config Builder settings</DialogTitle>
           <DialogDescription>
             These preferences are stored in your browser only and do not affect the exported configuration.
           </DialogDescription>
