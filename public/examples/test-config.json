@@ -1,5 +1,6 @@
 {
   "version": "3.3.5.1",
+  "exportPrefix": "config-builder-example",
   "layout": {
     "design": {
       "variant": "standard",
@@ -40,6 +41,7 @@
     ],
     "projection": "EPSG:3857"
   },
+  "workflows": [],
   "services": [
     {
       "id": "wms-service-1749555952736",
@@ -165,7 +167,6 @@
           "level": 3
         }
       ],
-      "isSwipeLayer": true,
       "meta": {
         "description": "Natural ecosystem types in 2020 based on the EUNIS 2021 habitat type hierarchy, with statistics using Nomenclature of Territorial Units for Statistics (NUTS) boundaries.",
         "attribution": {
@@ -239,7 +240,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "isSwipeLayer": true
     },
     {
       "name": "World Cover 2020 with NUTS statistics",
@@ -278,10 +280,6 @@
           "level": 3
         }
       ],
-      "exclusivitySets": [
-        "worldcover"
-      ],
-      "timeframe": "Years",
       "meta": {
         "description": "A 10 meter resolution global land cover product for the year 2020, developed and validated in near-real time based on Sentinel-1 and Sentinel-2 data.  Data is provided with statistics for NUTS (Nomenclature of territorial units for statistics) boundaries.  Select the \"statistics\" tab and click on a feature to view.",
         "attribution": {
@@ -365,7 +363,11 @@
             "blendControls": true
           }
         }
-      }
+      },
+      "exclusivitySets": [
+        "worldcover"
+      ],
+      "timeframe": "Years"
     },
     {
       "name": "World Cover 2021 with NUTS statistics",
@@ -404,10 +406,6 @@
           "level": 3
         }
       ],
-      "exclusivitySets": [
-        "worldcover"
-      ],
-      "timeframe": "Years",
       "meta": {
         "description": "A 10 meter resolution global land cover product for the year 2021, developed and validated in near-real time based on Sentinel-1 and Sentinel-2 data.  Data is provided with statistics for NUTS (Nomenclature of territorial units for statistics) boundaries.  Select the \"statistics\" tab and click on a feature to view.",
         "attribution": {
@@ -491,7 +489,11 @@
             "blendControls": true
           }
         }
-      }
+      },
+      "exclusivitySets": [
+        "worldcover"
+      ],
+      "timeframe": "Years"
     },
     {
       "name": "World Cover 2021 for Natura 2000 areas with statistics",
@@ -536,10 +538,6 @@
           ]
         }
       ],
-      "exclusivitySets": [
-        "worldcover"
-      ],
-      "timeframe": "Years",
       "meta": {
         "description": "Land cover map for 2021 with statistics using Natura 2000 boundaries.  Zoom in until the scale bar shows 10km to show Natura boundaries then click on a Natura area to view statisics.",
         "attribution": {
@@ -623,7 +621,11 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "exclusivitySets": [
+        "worldcover"
+      ],
+      "timeframe": "Years"
     },
     {
       "name": "Soil Water Index 1km daily time series - 2015 to present",
@@ -636,7 +638,6 @@
           "layers": "clms_global_swi_1km_v1_daily"
         }
       ],
-      "timeframe": "Days",
       "meta": {
         "description": "Quantifies the moisture condition at various depths in the soil. Daily observations are available for the continental Europe in the spatial resolution of 1 km and with the temporal extent from January 2015 to present",
         "attribution": {
@@ -663,7 +664,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Days"
     },
     {
       "name": "Topsoil Soil Organic Carbon time series - 2018 to 2022",
@@ -758,7 +760,6 @@
           "bandIndex": 3
         }
       ],
-      "timeframe": "Years",
       "meta": {
         "description": "Soil Organic Carbon content in the 0-20 cm top soil expressed in g kg-1 for 100 m resolution pixels with constraint layer from World Cover.  Time series dates indicate the end of the two year period over which the data is measured i.e. 2020 (2018 to 2020), 2021 (2019 to 2021), 2022 (2020 to 2022)",
         "attribution": {
@@ -766,11 +767,6 @@
           "url": "https://world-soils.com/"
         },
         "categories": [],
-        "units": "dg kg^(-1)",
-        "min": 0,
-        "max": 1800,
-        "startColor": "#ffffff",
-        "endColor": "#ffffff",
         "colormaps": [
           {
             "min": 0,
@@ -779,7 +775,12 @@
             "name": "copper",
             "reverse": true
           }
-        ]
+        ],
+        "units": "dg kg^(-1)",
+        "min": 0,
+        "max": 1800,
+        "startColor": "#ffffff",
+        "endColor": "#ffffff"
       },
       "layout": {
         "interfaceGroup": "Soils",
@@ -801,7 +802,8 @@
             "blendControls": true
           }
         }
-      }
+      },
+      "timeframe": "Years"
     },
     {
       "name": "Topsoil Soil Organic Carbon, uncertainty time series - 2018 to 2022",
@@ -826,7 +828,6 @@
       ],
       "statistics": [],
       "constraints": [],
-      "timeframe": "Years",
       "meta": {
         "description": "Ancillary layer for uncertainty of pixel values.  Values 0 to 50 indicate low uncertainty, above 50 are high.",
         "attribution": {
@@ -834,11 +835,6 @@
           "url": "https://world-soils.com/"
         },
         "categories": [],
-        "units": "Index ((P95-P5)/P50)*10",
-        "min": 0,
-        "max": 200,
-        "startColor": "#ffffff",
-        "endColor": "#ffffff",
         "colormaps": [
           {
             "min": 0,
@@ -847,7 +843,12 @@
             "name": "yiorrd",
             "reverse": true
           }
-        ]
+        ],
+        "units": "Index ((P95-P5)/P50)*10",
+        "min": 0,
+        "max": 200,
+        "startColor": "#ffffff",
+        "endColor": "#ffffff"
       },
       "layout": {
         "interfaceGroup": "Soils",
@@ -868,7 +869,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Years"
     },
     {
       "name": "Topsoil Soil Organic Carbon 2020-22 NUTS statistics",
@@ -960,11 +962,6 @@
           "url": "https://world-soils.com/"
         },
         "categories": [],
-        "units": "g kg^(-1)",
-        "min": 0,
-        "max": 4000,
-        "startColor": "#ffffff",
-        "endColor": "#ffffff",
         "colormaps": [
           {
             "min": 0,
@@ -973,7 +970,12 @@
             "name": "copper",
             "reverse": true
           }
-        ]
+        ],
+        "units": "g kg^(-1)",
+        "min": 0,
+        "max": 4000,
+        "startColor": "#ffffff",
+        "endColor": "#ffffff"
       },
       "layout": {
         "interfaceGroup": "Soils",
@@ -1092,11 +1094,6 @@
           "url": "https://www.worldpeatland.org/"
         },
         "categories": [],
-        "units": "mm / yr",
-        "min": -40,
-        "max": 40,
-        "startColor": "#ffffff",
-        "endColor": "#ffffff",
         "colormaps": [
           {
             "min": -40,
@@ -1105,7 +1102,12 @@
             "name": "rdbu",
             "reverse": false
           }
-        ]
+        ],
+        "units": "mm / yr",
+        "min": -40,
+        "max": 40,
+        "startColor": "#ffffff",
+        "endColor": "#ffffff"
       },
       "layout": {
         "interfaceGroup": "Soils",
@@ -1229,7 +1231,6 @@
           ]
         }
       ],
-      "timeframe": "Months",
       "meta": {
         "description": "Selected monthly scenes of Sentinel 2 Analysis Ready Data for the Saddleworth Area, from the UK EO Data Hub platform.",
         "attribution": {
@@ -1257,7 +1258,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Months"
     },
     {
       "name": "Saddleworth Moor, UK - Sentinel 2 NDVI time series",
@@ -1360,7 +1362,6 @@
           ]
         }
       ],
-      "timeframe": "Months",
       "meta": {
         "description": "Selected monthly scenes of Sentinel 2 Analysis Ready Data visualised as NDVI for the Saddleworth Area, from the UK EO Data Hub platform.",
         "attribution": {
@@ -1388,7 +1389,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Months"
     },
     {
       "name": "Above Ground Biomass, time series - 2017 to 2023",
@@ -1479,7 +1481,6 @@
           "bandIndex": 2
         }
       ],
-      "timeframe": "Years",
       "meta": {
         "description": "Above ground biomass (AGB) in t/ha in 20 m spatial resolution created with the BIOMASAR method using Sentinel-1 and ALOS 2 PALSAR 2 data",
         "attribution": {
@@ -1487,11 +1488,6 @@
           "url": "https://www.forestcarbonplatform.org/"
         },
         "categories": [],
-        "units": "tonnes / hectare",
-        "min": 0,
-        "max": 407,
-        "startColor": "#ffffff",
-        "endColor": "#ffffff",
         "colormaps": [
           {
             "min": 0,
@@ -1500,7 +1496,12 @@
             "name": "viridis",
             "reverse": true
           }
-        ]
+        ],
+        "units": "tonnes / hectare",
+        "min": 0,
+        "max": 407,
+        "startColor": "#ffffff",
+        "endColor": "#ffffff"
       },
       "layout": {
         "interfaceGroup": "Vegetation",
@@ -1520,7 +1521,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Years"
     },
     {
       "name": "Below Ground Biomass, time series - 2017 to 2023",
@@ -1559,7 +1561,6 @@
           ]
         }
       ],
-      "timeframe": "Years",
       "meta": {
         "description": "Below ground biomass (BGB) in t/ha in 20 m spatial resolution created with the BIOMASAR method using Sentinel-1 and ALOS 2 PALSAR 2 data.",
         "attribution": {
@@ -1567,11 +1568,6 @@
           "url": "https://www.forestcarbonplatform.org/"
         },
         "categories": [],
-        "units": "tonnes / hectare",
-        "min": 0,
-        "max": 76,
-        "startColor": "#ffffff",
-        "endColor": "#ffffff",
         "colormaps": [
           {
             "min": 0,
@@ -1580,7 +1576,12 @@
             "name": "earth",
             "reverse": true
           }
-        ]
+        ],
+        "units": "tonnes / hectare",
+        "min": 0,
+        "max": 76,
+        "startColor": "#ffffff",
+        "endColor": "#ffffff"
       },
       "layout": {
         "interfaceGroup": "Vegetation",
@@ -1600,7 +1601,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Years"
     },
     {
       "name": "Growing Stock Volume, time series - 2017 to 2023",
@@ -1639,7 +1641,6 @@
           ]
         }
       ],
-      "timeframe": "Years",
       "meta": {
         "description": "Growing stock volume (V) in m³/ha in 20 m spatial resolution created with the BIOMASAR method using Sentinel-1 and ALOS 2 PALSAR 2 data.",
         "attribution": {
@@ -1647,11 +1648,6 @@
           "url": "https://www.forestcarbonplatform.org/"
         },
         "categories": [],
-        "units": "m3 / ha",
-        "min": 0,
-        "max": 520,
-        "startColor": "#ffffff",
-        "endColor": "#ffffff",
         "colormaps": [
           {
             "min": 0,
@@ -1660,7 +1656,12 @@
             "name": "jet",
             "reverse": false
           }
-        ]
+        ],
+        "units": "m3 / ha",
+        "min": 0,
+        "max": 520,
+        "startColor": "#ffffff",
+        "endColor": "#ffffff"
       },
       "layout": {
         "interfaceGroup": "Vegetation",
@@ -1678,7 +1679,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Years"
     },
     {
       "name": "Greece Level 2 Habitat Map 2020 vs S2 with NUTS statistics",
@@ -1724,7 +1726,6 @@
           "level": 3
         }
       ],
-      "isSwipeLayer": true,
       "meta": {
         "description": "Natural ecosystem types in 2020 based on the EUNIS 2021 habitat type hierarchy, with statistics using Nomenclature of Territorial Units for Statistics (NUTS) boundaries.",
         "attribution": {
@@ -1893,7 +1894,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "isSwipeLayer": true
     },
     {
       "name": "Greece Coastal Condition Account 2022",
@@ -1983,7 +1985,6 @@
           "level": 3
         }
       ],
-      "isSwipeLayer": true,
       "meta": {
         "description": "Natural ecosystem types in 2020 based on the EUNIS 2012 habitat type hierarchy, with statistics using Nomenclature of Territorial Units for Statistics (NUTS) boundaries.",
         "attribution": {
@@ -2062,7 +2063,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "isSwipeLayer": true
     },
     {
       "name": "Slovakia Wood Provision Service Account 2021",
@@ -2157,7 +2159,6 @@
           "position": "left"
         }
       ],
-      "isSwipeLayer": true,
       "meta": {
         "description": "Natural ecosystem types in 2020 based on the EUNIS 2012 habitat type hierarchy.",
         "attribution": {
@@ -2421,7 +2422,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "isSwipeLayer": true
     },
     {
       "name": "CLMS NDVI 300m 10 daily time series - 2020 to present",
@@ -2434,7 +2436,6 @@
           "layers": "clms_global_ndvi_300m_v2_10daily"
         }
       ],
-      "timeframe": "Days",
       "meta": {
         "description": "NDVI is an indicator of the greenness of the biomes. Every 10-days estimates are available in near real time at global scale in the spatial resolution of about 300 m from July 2020 to the present.",
         "attribution": {
@@ -2462,7 +2463,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Days"
     },
     {
       "name": "FAPAR 1km 10 daily v2 time series - 1999 to 2020",
@@ -2475,7 +2477,6 @@
           "layers": "clms_global_fapar_1km_v2_10daily"
         }
       ],
-      "timeframe": "Days",
       "meta": {
         "description": "Quantifies the fraction of the solar radiation absorbed by live plants for photosynthesis. Every 10-days estimates are available at global scale in the spatial resolution of about 1 km covering the period from 1999 to June 2020 from SPOT/VEGETATION and PROBA-V data.",
         "attribution": {
@@ -2503,7 +2504,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Days"
     },
     {
       "name": "CLMS Forest Monitoring, time series 2020 to 2022",
@@ -2537,7 +2539,6 @@
           ]
         }
       ],
-      "timeframe": "Years",
       "meta": {
         "description": "Provides at pan-European level in the spatial resolution of 10 m and 100 m the level of tree cover density in a range from 0% to 100%",
         "attribution": {
@@ -2564,7 +2565,8 @@
             "constraintSlider": false
           }
         }
-      }
+      },
+      "timeframe": "Years"
     },
     {
       "name": "Portugal Land Cover Map - time series 2018 to 2023",
@@ -2859,7 +2861,6 @@
           ]
         }
       ],
-      "timeframe": "Years",
       "meta": {
         "description": "Trends in land cover between 2018 and 2023 are evaluated based on an automated algorithm to map land cover dynamics at 10 m resolution that combines deep learning and a pixel classifier on pre-processed Sentinel-2 imagery and ancillary input layer.",
         "attribution": {
@@ -2943,7 +2944,8 @@
             "blendControls": false
           }
         }
-      }
+      },
+      "timeframe": "Years"
     },
     {
       "name": "Portugal Land Cover Degradation between 2018 & 2023",
@@ -3068,10 +3070,6 @@
           "url": "https://esa-sen4ldn.org/"
         },
         "categories": [],
-        "min": -206,
-        "max": 129,
-        "startColor": "#ffffff",
-        "endColor": "#fffffff",
         "colormaps": [
           {
             "min": -206,
@@ -3080,7 +3078,11 @@
             "name": "jet",
             "reverse": false
           }
-        ]
+        ],
+        "min": -206,
+        "max": 129,
+        "startColor": "#ffffff",
+        "endColor": "#fffffff"
       },
       "layout": {
         "interfaceGroup": "Land Cover",
@@ -3113,15 +3115,15 @@
           "zIndex": 10
         }
       ],
-      "isBaseLayer": true,
       "meta": {
-        "description": "",
+        "description": "Base layer: Stadia Alidade Smooth Dark",
         "attribution": {
           "text": "© Stadia Maps © OpenMapTiles © OpenStreetMap",
           "url": "https://stadiamaps.com/"
         },
         "categories": []
-      }
+      },
+      "isBaseLayer": true
     },
     {
       "name": "Sentinel",
@@ -3135,9 +3137,6 @@
           "serviceId": "wms-service-1749555952736"
         }
       ],
-      "isBaseLayer": true,
-      "exclusivitySets": [],
-      "preview": "https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/refs/heads/main/resources/sentinel.png",
       "meta": {
         "description": "True colour composite of 2021 Sentinel 2 data.",
         "attribution": {
@@ -3145,7 +3144,10 @@
           "url": "https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2"
         },
         "categories": []
-      }
+      },
+      "isBaseLayer": true,
+      "exclusivitySets": [],
+      "preview": "https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/refs/heads/main/resources/sentinel.png"
     },
     {
       "name": "Blue Marble",
@@ -3158,17 +3160,17 @@
           "layers": "blue_marble:blue_marble"
         }
       ],
-      "isBaseLayer": true,
-      "exclusivitySets": [],
-      "preview": "https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/refs/heads/main/resources/bluemarble.png",
       "meta": {
-        "description": "",
+        "description": "Base layer: Blue Marble",
         "attribution": {
           "text": "NASA via EOC Base Map Service from DLR",
           "url": "https://earthobservatory.nasa.gov/features/BlueMarble"
         },
         "categories": []
-      }
+      },
+      "isBaseLayer": true,
+      "exclusivitySets": [],
+      "preview": "https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/refs/heads/main/resources/bluemarble.png"
     },
     {
       "name": "Open StreetMap",
@@ -3180,16 +3182,16 @@
           "zIndex": 10
         }
       ],
-      "isBaseLayer": true,
-      "exclusivitySets": [],
       "meta": {
-        "description": "",
+        "description": "Base layer: Open StreetMap",
         "attribution": {
           "text": "OpenStreetMap",
           "url": "https://www.openstreetmap.org/copyright"
         },
         "categories": []
-      }
+      },
+      "isBaseLayer": true,
+      "exclusivitySets": []
     },
     {
       "name": "Stadia Alidade Smooth Light",
@@ -3201,15 +3203,15 @@
           "zIndex": 10
         }
       ],
-      "isBaseLayer": true,
       "meta": {
-        "description": "",
+        "description": "Base layer: Stadia Alidade Smooth Light",
         "attribution": {
           "text": "© Stadia Maps © OpenMapTiles © OpenStreetMap",
           "url": "https://stadiamaps.com/"
         },
         "categories": []
-      }
+      },
+      "isBaseLayer": true
     },
     {
       "name": "Stadia Alidade Satellite",
@@ -3221,15 +3223,15 @@
           "zIndex": 10
         }
       ],
-      "isBaseLayer": true,
       "meta": {
-        "description": "",
+        "description": "Base layer: Stadia Alidade Satellite",
         "attribution": {
           "text": "© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | © Stadia Maps © OpenMapTiles © OpenStreetMap",
           "url": "https://stadiamaps.com/"
         },
         "categories": []
-      }
+      },
+      "isBaseLayer": true
     },
     {
       "name": "DEM",
@@ -3242,16 +3244,16 @@
           "layers": "COP_DEM_GLO_30M_COG"
         }
       ],
-      "isBaseLayer": true,
-      "exclusivitySets": [],
-      "preview": "https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/refs/heads/main/resources/copdem.png",
       "meta": {
-        "description": "",
+        "description": "Base layer: DEM",
         "attribution": {
           "text": "Copernicus"
         },
         "categories": []
-      }
+      },
+      "isBaseLayer": true,
+      "exclusivitySets": [],
+      "preview": "https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/refs/heads/main/resources/copdem.png"
     },
     {
       "name": "Austria Wind Power Density at 100m",
@@ -3408,7 +3410,6 @@
           "url": "https://gtif.esa.int/"
         },
         "categories": [],
-        "units": "w / m 2",
         "colormaps": [
           {
             "min": 0,
@@ -3417,7 +3418,8 @@
             "name": "jet",
             "reverse": false
           }
-        ]
+        ],
+        "units": "w / m 2"
       },
       "layout": {
         "interfaceGroup": "Energy",
@@ -3541,7 +3543,6 @@
           "layers": "WSF_Evolution"
         }
       ],
-      "timeframe": "Years",
       "meta": {
         "description": "The World Settlement Footprint (WSF®) Evolution is a 30m resolution dataset outlining the global settlement extent on a yearly basis from 1985 to 2015.",
         "attribution": {
@@ -3569,7 +3570,8 @@
             "blendControls": true
           }
         }
-      }
+      },
+      "timeframe": "Years"
     },
     {
       "name": "World Settlement Footprints - 2015 to 2019 time series",
@@ -3594,7 +3596,6 @@
           ]
         }
       ],
-      "timeframe": "Years",
       "meta": {
         "description": "The World Settlement Footprint (WSF®) is a 10m resolution binary mask outlining the extent of human settlements globally derived by means of 2015 and 2019 multitemporal Sentinel-1 (S1) and Sentinel-2 (S2) imagery.",
         "attribution": {
@@ -3627,7 +3628,8 @@
             "blendControls": true
           }
         }
-      }
+      },
+      "timeframe": "Years"
     },
     {
       "name": "Austria Annual Solar Power Potential",
@@ -3784,7 +3786,6 @@
           "url": "https://gtif.esa.int/"
         },
         "categories": [],
-        "units": "kw / m 2 / hr",
         "colormaps": [
           {
             "min": 0.1,
@@ -3793,7 +3794,8 @@
             "name": "jet",
             "reverse": false
           }
-        ]
+        ],
+        "units": "kw / m 2 / hr"
       },
       "layout": {
         "interfaceGroup": "Energy",
@@ -3817,52 +3819,6 @@
       }
     },
     {
-      "name": "Photovoltaic Farm Detection Workflow",
-      "isActive": false,
-      "data": [],
-      "workflows": [
-        {
-          "zIndex": 50,
-          "service": "eurac_pv_farm_detection",
-          "label": "PV farm detection"
-        }
-      ],
-      "meta": {
-        "description": "Detection workflow for mapping solar farms using Sentinel-2 imagery in an openEO process.   This workflow includes pre-processing steps such as cloud masking, gap filling, outliers filtering as well as feature extraction",
-        "attribution": {
-          "text": "Alasawedah, M., Claus, M., Jacob, A., Griffiths, P., Dries, J., and Lippens, S",
-          "url": "https://algorithm-catalogue.apex.esa.int/apps/eurac_pv_farm_detection#description"
-        },
-        "categories": [
-          {
-            "color": "#F10404",
-            "label": "PV panels",
-            "value": 1
-          }
-        ]
-      },
-      "layout": {
-        "interfaceGroup": "Energy",
-        "contentLocation": "infoPanel",
-        "layerCard": {
-          "toggleable": true
-        },
-        "infoPanel": {
-          "legend": {
-            "type": "image",
-            "url": "https://raw.githubusercontent.com/ESA-APEx/apex_algorithms/refs/heads/main/algorithm_catalog/eurac/eurac_pv_farm_detection/records/thumbnail.png"
-          },
-          "controls": {
-            "opacitySlider": true,
-            "zoomToCenter": true,
-            "temporalControls": false,
-            "constraintSlider": false,
-            "blendControls": false
-          }
-        }
-      }
-    },
-    {
       "name": "World Cover",
       "isActive": false,
       "data": [
@@ -3873,16 +3829,16 @@
           "layers": "WORLDCOVER_2021_MAP"
         }
       ],
-      "isBaseLayer": true,
-      "exclusivitySets": [],
-      "preview": "https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/refs/heads/main/resources/worldcover.png",
       "meta": {
-        "description": "",
+        "description": "Base layer: World Cover",
         "attribution": {
           "text": "(c) ESA World Cover"
         },
         "categories": []
-      }
+      },
+      "isBaseLayer": true,
+      "exclusivitySets": [],
+      "preview": "https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/refs/heads/main/resources/worldcover.png"
     },
     {
       "name": "Open Infrastructure Map",
@@ -3895,9 +3851,9 @@
         }
       ],
       "meta": {
-        "description": "",
+        "description": "Auto-generated description for Open Infrastructure Map",
         "attribution": {
-          "text": ""
+          "text": "Data attribution not specified"
         },
         "categories": []
       },
