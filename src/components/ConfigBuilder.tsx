@@ -285,7 +285,7 @@ const ConfigBuilderContent = () => {
             onValueChange={handleTabChange} 
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-9 bg-white border border-primary/20 mb-6">
+            <TabsList className={gridColsClass}>
               <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4" />
                 Home
@@ -298,14 +298,18 @@ const ConfigBuilderContent = () => {
                 <ArrowUpDown className="h-4 w-4" />
                 Draw Order
               </TabsTrigger>
-              <TabsTrigger value="workflows" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <WorkflowIcon className="h-4 w-4" />
-                Algorithms
-              </TabsTrigger>
-              <TabsTrigger value="storymaps" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <BookOpen className="h-4 w-4" />
-                Storymaps
-              </TabsTrigger>
+              {appSettings.showAlgorithmsTab && (
+                <TabsTrigger value="workflows" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <WorkflowIcon className="h-4 w-4" />
+                  Algorithms
+                </TabsTrigger>
+              )}
+              {appSettings.showStorymapsTab && (
+                <TabsTrigger value="storymaps" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <BookOpen className="h-4 w-4" />
+                  Storymaps
+                </TabsTrigger>
+              )}
               <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Globe className="h-4 w-4" />
                 Services
