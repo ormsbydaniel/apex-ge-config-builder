@@ -260,11 +260,14 @@ export const useConfigImport = () => {
           throw zodError;
         }
 
+        const { config: configWithTitles, filled: titlesFilled } =
+          await enrichWorkflowsWithCatalogueTitles(validatedConfig);
+
         const { services: servicesWithCapabilities, attempted, skipped } =
-          await enrichServicesWithCapabilities(validatedConfig.services || [], options);
+          await enrichServicesWithCapabilities(configWithTitles.services || [], options);
 
         const configWithCapabilities = {
-          ...validatedConfig,
+          ...configWithTitles,
           services: servicesWithCapabilities,
         };
 
