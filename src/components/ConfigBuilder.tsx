@@ -416,6 +416,8 @@ const ConfigBuilderContent = () => {
         targetSubinterfaceGroup={importTargetSubGroup}
         onImport={handleApplyDonorImport}
       />
+
+      <AppSettingsDialog open={appSettingsOpen} onOpenChange={setAppSettingsOpen} />
     </div>
   );
 };
