@@ -290,6 +290,9 @@ export const useConfigImport = () => {
         if (skipped > 0) {
           description += ` (${skipped} of ${attempted} service capabilities could not be fetched — they'll load on demand.)`;
         }
+        if (titlesFilled > 0) {
+          description += ` Populated ${titlesFilled} algorithm title${titlesFilled === 1 ? '' : 's'} from the APEx catalogue.`;
+        }
 
         toast({ title: 'Configuration Loaded', description });
 
