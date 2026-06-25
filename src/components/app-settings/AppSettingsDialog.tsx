@@ -35,6 +35,34 @@ const AppSettingsDialog = ({ open, onOpenChange }: AppSettingsDialogProps) => {
               </p>
             </div>
           </label>
+
+          <label className="flex items-start gap-3 cursor-pointer">
+            <Checkbox
+              checked={settings.showAlgorithmsTab}
+              onCheckedChange={(v) => setSetting('showAlgorithmsTab', v === true)}
+              className="mt-0.5"
+            />
+            <div className="space-y-1">
+              <div className="text-sm font-medium leading-none">Show algorithms tab</div>
+              <p className="text-xs text-muted-foreground">
+                Display the Algorithms tab in the configuration builder. Hidden by default.
+              </p>
+            </div>
+          </label>
+
+          <label className="flex items-start gap-3 cursor-pointer">
+            <Checkbox
+              checked={settings.showStorymapsTab}
+              onCheckedChange={(v) => setSetting('showStorymapsTab', v === true)}
+              className="mt-0.5"
+            />
+            <div className="space-y-1">
+              <div className="text-sm font-medium leading-none">Show storymaps tab</div>
+              <p className="text-xs text-muted-foreground">
+                Display the Storymaps tab in the configuration builder. Hidden by default.
+              </p>
+            </div>
+          </label>
         </div>
 
         <DialogFooter>
