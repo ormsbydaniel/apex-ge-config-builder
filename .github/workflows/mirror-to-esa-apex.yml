@@ -1,0 +1,120 @@
+name: Mirror to ESA-APEx
+
+# One-way mirror from this personal repo to ESA-APEx/ge_config_builder.
+# Manual only for now. To promote to automatic later, add `push` and
+# `release` triggers alongside `workflow_dispatch` — no other changes needed.
+#
+# Fast-forward only: any divergence on the ESA side fails the workflow
+# loudly without overwriting anything.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch or tag to mirror (e.g. main, dev, v0.1.0)"
+        required: true
+        default: "main"
+        type: string
+      mirror_release:
+        description: "Also mirror the GitHub Release attached to this ref (if any)"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    env:
+      ESA_REPO: ESA-APEx/ge_config_builder
+      ESA_TOKEN: ${{ secrets.ESA_APEX_MIRROR_TOKEN }}
+      REF: ${{ inputs.ref }}
+    steps:
+      - name: Validate token is configured
+        run: |
+          if [ -z "${ESA_TOKEN}" ]; then
+            echo "::error::ESA_APEX_MIRROR_TOKEN secret is not set in this repo."
+            exit 1
+          fi
+
+      - name: Checkout ref with full history
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Determine ref type (branch or tag)
+        id: reftype
+        run: |
+          set -euo pipefail
+          if git show-ref --verify --quiet "refs/tags/${REF}"; then
+            echo "kind=tag" >> "$GITHUB_OUTPUT"
+          elif git show-ref --verify --quiet "refs/remotes/origin/${REF}"; then
+            echo "kind=branch" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Ref '${REF}' is neither a known branch nor tag in this repo."
+            exit 1
+          fi
+          echo "Detected ref kind: $(cat "$GITHUB_OUTPUT")"
+
+      - name: Add ESA remote
+        run: |
+          git remote add esa "https://x-access-token:${ESA_TOKEN}@github.com/${ESA_REPO}.git"
+          # Identity needed only if any local commit object is ever created;
+          # not used for the push itself, but harmless to set.
+          git config user.name  "lovable-mirror-bot"
+          git config user.email "lovable-mirror-bot@users.noreply.github.com"
+
+      - name: Push to ESA (fast-forward only)
+        run: |
+          set -euo pipefail
+          KIND="${{ steps.reftype.outputs.kind }}"
+          if [ "$KIND" = "branch" ]; then
+            echo "Pushing branch '${REF}' to ${ESA_REPO} (fast-forward only)…"
+            # No --force / --force-with-lease: divergence fails loudly.
+            git push esa "refs/remotes/origin/${REF}:refs/heads/${REF}"
+          else
+            echo "Pushing tag '${REF}' to ${ESA_REPO}…"
+            git push esa "refs/tags/${REF}"
+          fi
+
+      - name: Mirror GitHub Release (optional)
+        if: ${{ inputs.mirror_release }}
+        env:
+          GH_TOKEN: ${{ secrets.ESA_APEX_MIRROR_TOKEN }}
+          SRC_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          # The Release tag must equal the ref being mirrored.
+          if [ "${{ steps.reftype.outputs.kind }}" != "tag" ]; then
+            # For branches, attempt to find a release whose tag === REF only
+            # if one exists; otherwise skip cleanly.
+            if ! GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh release view "${REF}" --repo "${SRC_REPO}" >/dev/null 2>&1; then
+              echo "No GitHub Release named '${REF}' on ${SRC_REPO}; nothing to mirror."
+              exit 0
+            fi
+          fi
+
+          echo "Fetching release '${REF}' from ${SRC_REPO}…"
+          TITLE=$(GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh release view "${REF}" --repo "${SRC_REPO}" --json name      --jq .name)
+          BODY=$( GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh release view "${REF}" --repo "${SRC_REPO}" --json body      --jq .body)
+          DRAFT=$(GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh release view "${REF}" --repo "${SRC_REPO}" --json isDraft   --jq .isDraft)
+          PRE=$(  GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh release view "${REF}" --repo "${SRC_REPO}" --json isPrerelease --jq .isPrerelease)
+
+          FLAGS=()
+          [ "$DRAFT" = "true" ] && FLAGS+=(--draft)
+          [ "$PRE"   = "true" ] && FLAGS+=(--prerelease)
+
+          if gh release view "${REF}" --repo "${ESA_REPO}" >/dev/null 2>&1; then
+            echo "Release exists on ${ESA_REPO}; updating notes verbatim."
+            gh release edit "${REF}" --repo "${ESA_REPO}" \
+              --title "${TITLE}" \
+              --notes "${BODY}"
+          else
+            echo "Creating release on ${ESA_REPO}."
+            gh release create "${REF}" --repo "${ESA_REPO}" \
+              --title "${TITLE}" \
+              --notes "${BODY}" \
+              "${FLAGS[@]}"
+          fi
