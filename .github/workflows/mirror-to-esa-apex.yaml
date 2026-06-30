@@ -62,8 +62,8 @@ jobs:
           git remote add esa "https://x-access-token:${ESA_TOKEN}@github.com/${ESA_REPO}.git"
           # Identity needed only if any local commit object is ever created;
           # not used for the push itself, but harmless to set.
-          git config user.name  "lovable-mirror-bot"
-          git config user.email "lovable-mirror-bot@users.noreply.github.com"
+          git config user.name  "Daniel Ormsby"
+          git config user.email "41817070+ormsbydaniel@users.noreply.github.com"
 
       - name: Push to ESA (fast-forward only)
         run: |
