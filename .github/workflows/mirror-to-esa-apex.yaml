@@ -36,6 +36,21 @@ jobs:
             exit 1
           fi
 
+      - name: Show mirror context
+        run: |
+          echo "Source repo:   ${{ github.repository }}"
+          echo "Workflow ref:  ${{ github.ref_name }}"
+          echo "Target repo:   ${ESA_REPO}"
+          echo "Requested ref: ${REF}"
+
+      - name: Verify ESA token can see target repo
+        env:
+          GH_TOKEN: ${{ env.ESA_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh auth status
+          gh repo view "${ESA_REPO}" --json nameWithOwner,visibility,defaultBranchRef
+
       - name: Checkout ref with full history
         uses: actions/checkout@v4
         with:
