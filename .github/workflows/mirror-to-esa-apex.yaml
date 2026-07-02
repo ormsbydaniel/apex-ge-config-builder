@@ -57,6 +57,7 @@ jobs:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: false
 
       - name: Determine ref type (branch or tag)
         id: reftype
