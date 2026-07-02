@@ -45,7 +45,7 @@ jobs:
 
       - name: Verify ESA token can see target repo
         env:
-          GH_TOKEN: ${{ env.ESA_TOKEN }}
+          GH_TOKEN: ${{ secrets.ESA_APEX_MIRROR_TOKEN }}
         run: |
           set -euo pipefail
           gh auth status
