@@ -7,7 +7,7 @@ export interface Announcement {
 export const announcements: Announcement[] = [
   {
     date: "2026-07-02",
-    title: "Deployment to https://ge-config-builder.dev.apex.esa.int/",
+    title: "Deployment to https://ge-config-builder.apex.esa.int/ and https://ge-config-builder.dev.apex.esa.int/",
     category: "Info",
   },
   {
