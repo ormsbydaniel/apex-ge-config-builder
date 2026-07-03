@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
@@ -8,10 +8,12 @@ import {
   Copy,
   Trash2,
   AlertTriangle,
+  Compass,
+  Crosshair,
+  Layers as LayersIcon,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Tooltip,
   TooltipContent,
@@ -21,6 +23,7 @@ import {
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import StepEditor from './StepEditor';
+import { cn } from '@/lib/utils';
 
 interface SortableStepCardProps {
   id: string;
@@ -37,9 +40,45 @@ interface SortableStepCardProps {
   onDirtyChange?: (dirty: boolean) => void;
 }
 
-const summariseViewport = (v: StoryStep['viewport']): string => {
-  if ('fitLayer' in v) return `Fit: ${v.fitLayer}`;
-  return `Zoom ${v.zoom} · [${v.center[0]}, ${v.center[1]}]${v.duration ? ` · ${v.duration}ms` : ''}`;
+/** Pill helper matching the layer card `<Badge variant="outline">` treatment. */
+const Pill: React.FC<{
+  tint?: 'neutral' | 'info' | 'amber';
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ tint = 'neutral', icon, children }) => {
+  const tintCls =
+    tint === 'info'
+      ? 'border-blue-300 text-blue-700'
+      : tint === 'amber'
+      ? 'border-amber-300 text-amber-700'
+      : 'border-border text-foreground/70';
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1 rounded-full border bg-background px-2 py-0.5 text-[11px] leading-none',
+        tintCls,
+      )}
+    >
+      {icon}
+      {children}
+    </span>
+  );
+};
+
+const viewportPill = (v: StoryStep['viewport']) => {
+  if ('fitLayer' in v) {
+    return (
+      <Pill tint="info" icon={<Crosshair className="h-3 w-3" />}>
+        Fit: {v.fitLayer}
+      </Pill>
+    );
+  }
+  return (
+    <Pill tint="info" icon={<Compass className="h-3 w-3" />}>
+      Zoom {v.zoom} · [{v.center[0]}, {v.center[1]}]
+      {v.duration ? ` · ${v.duration}ms` : ''}
+    </Pill>
+  );
 };
 
 export const SortableStepCard: React.FC<SortableStepCardProps> = ({
@@ -92,66 +131,88 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
             <button
               type="button"
               onClick={onToggleExpanded}
-              className="flex items-center gap-2 flex-1 min-w-0 text-left"
+              className="group flex items-center gap-2 flex-1 min-w-0 text-left hover:bg-muted/50 rounded-md -mx-1 px-1 py-1"
             >
-              {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-              <span className="text-xs text-muted-foreground">
-                Step {index + 1} of {totalSteps}
-              </span>
-              <span className="font-medium text-sm truncate">{step.title || '(untitled)'}</span>
-              <Badge variant="outline" className="text-[10px] font-normal">
-                {summariseViewport(step.viewport)}
-              </Badge>
+              {expanded ? (
+                <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              )}
+              <h3 className="text-sm font-bold truncate">
+                {step.title || '(untitled)'}
+              </h3>
+            </button>
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Pill>
+                Step {index + 1}/{totalSteps}
+              </Pill>
+              {viewportPill(step.viewport)}
               {activeCount > 0 && (
-                <Badge variant="outline" className="text-[10px] font-normal">
+                <Pill icon={<LayersIcon className="h-3 w-3" />}>
                   {activeCount} layer{activeCount === 1 ? '' : 's'}
-                </Badge>
+                </Pill>
               )}
               {hasWarnings && (
                 <TooltipProvider>
                   <Tooltip delayDuration={400}>
                     <TooltipTrigger asChild>
-                      <span className="text-amber-600 inline-flex items-center gap-1">
-                        <AlertTriangle className="h-3.5 w-3.5" />
-                        <span className="text-[10px]">{warnings!.length}</span>
+                      <span>
+                        <Pill tint="amber" icon={<AlertTriangle className="h-3 w-3" />}>
+                          {warnings!.length}
+                        </Pill>
                       </span>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <ul className="text-xs space-y-1">
-                        {warnings!.map((w, i) => <li key={i}>{w.message}</li>)}
+                        {warnings!.map((w, i) => (
+                          <li key={i}>{w.message}</li>
+                        ))}
                       </ul>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
-            </button>
 
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onDuplicate}
-                className="border-blue-500/30 text-blue-600 hover:bg-blue-50 h-6 w-6 p-0"
-                aria-label="Duplicate step"
-                title="Duplicate step"
-              >
-                <Copy className="h-3 w-3" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRemove}
-                className="text-destructive hover:bg-destructive/10 border-destructive/30 h-6 w-6 p-0"
-                aria-label="Delete step"
-                title="Delete step"
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
+              <div className="h-6 w-px bg-border mx-1" />
+
+              <div className="flex items-center gap-1">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={onDuplicate}
+                        className="border-blue-500/30 text-blue-600 hover:bg-blue-50 h-6 w-6 p-0"
+                        aria-label="Duplicate step"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Duplicate step</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={onRemove}
+                        className="text-destructive hover:bg-destructive/10 border-destructive/30 h-6 w-6 p-0"
+                        aria-label="Delete step"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Delete step</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           </CardHeader>
 
           {expanded && (
-            <CardContent className="px-3 pb-3">
+            <CardContent className="px-3 pb-3 pt-0">
               <StepEditor
                 step={step}
                 sources={sources}
