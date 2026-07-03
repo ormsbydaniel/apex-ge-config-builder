@@ -224,27 +224,32 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
 
           {!collapsed && (
             <div className="p-3 space-y-3">
-              {/* Story parent card (the deliberate deviation from the interface-group analogy) */}
-              <Card className="border-primary/20">
-                <CardContent className="py-3 px-3 space-y-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <p className="text-[11px] text-muted-foreground">
-                        <span className="font-medium text-foreground">ID:</span> {story.id}
-                      </p>
-                      <p className="text-sm whitespace-pre-wrap">
-                        <span className="text-[11px] font-medium text-foreground">Description:</span>{' '}
-                        {story.description
-                          ? <span className="text-muted-foreground">{story.description}</span>
-                          : <span className="text-muted-foreground italic">(none)</span>}
-                      </p>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={onEditStory}>
-                      <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
-                    </Button>
+              {/* Story info: matches layer card "Description & Attribution" pattern */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <h4 className="text-sm font-medium text-foreground">Description</h4>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={onEditStory}
+                    title="Edit story info"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                <div className="text-xs text-muted-foreground space-y-1 ml-6">
+                  {story.description ? (
+                    <p className="whitespace-pre-wrap">{story.description}</p>
+                  ) : (
+                    <p className="italic">No description configured</p>
+                  )}
+                  <div>
+                    <span className="font-medium">ID:</span> {story.id}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Steps */}
               <div className="space-y-2">
