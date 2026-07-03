@@ -11,6 +11,7 @@ export const useConfigSanitization = (config: any) => {
     ...(config.mapConstraints && { mapConstraints: config.mapConstraints }),
     ...(config.projections?.length && { projections: config.projections }),
     ...(config.workflows && { workflows: config.workflows }),
+    ...(config.stories && { stories: config.stories }),
     services: config.services?.map((service: any) => ({
       ...service,
       url: sanitizeUrl(service.url)

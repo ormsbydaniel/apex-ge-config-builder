@@ -59,6 +59,8 @@ export const useConfigExport = () => {
             }),
           })),
         }),
+        // Storymaps (Phase 1: passthrough — no URL sanitisation needed)
+        ...((config as any).stories && { stories: (config as any).stories }),
         // Export services without capabilities and with sanitized URLs
         services: config.services.map(service => ({
           id: service.id,
