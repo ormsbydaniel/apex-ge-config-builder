@@ -5,7 +5,6 @@ import {
   GripVertical,
   ChevronDown,
   ChevronRight,
-  MoreVertical,
   Copy,
   Trash2,
   AlertTriangle,
@@ -13,12 +12,6 @@ import {
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Tooltip,
   TooltipContent,
