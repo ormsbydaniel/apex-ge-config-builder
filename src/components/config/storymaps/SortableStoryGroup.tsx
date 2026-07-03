@@ -95,6 +95,19 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
 
   const [collapsed, setCollapsed] = useState(false);
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(story.title);
+
+  const commitTitle = () => {
+    const next = titleDraft.trim();
+    if (next && next !== story.title) onRenameStory(next);
+    else setTitleDraft(story.title);
+    setEditingTitle(false);
+  };
+  const cancelTitle = () => {
+    setTitleDraft(story.title);
+    setEditingTitle(false);
+  };
 
   const steps = story.steps ?? [];
   const stepIds = steps.map((s, i) => `story-${storyIndex}-step-${s.id ?? i}-${i}`);
