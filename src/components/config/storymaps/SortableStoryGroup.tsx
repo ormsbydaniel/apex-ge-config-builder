@@ -203,24 +203,35 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
                 </Badge>
               )}
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onEditStory}>
-                  <Pencil className="h-3.5 w-3.5 mr-2" /> Edit story info
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onDuplicateStory}>
-                  <Copy className="h-3.5 w-3.5 mr-2" /> Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onRemoveStory} className="text-destructive">
-                  <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onAddStep}
+                className="text-primary hover:bg-primary/10 border-primary/30"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Add Step
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={onEditStory}>
+                    <Pencil className="h-3.5 w-3.5 mr-2" /> Edit story info
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onDuplicateStory}>
+                    <Copy className="h-3.5 w-3.5 mr-2" /> Duplicate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onRemoveStory} className="text-destructive">
+                    <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           {!collapsed && (
@@ -291,11 +302,6 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
                   </DndContext>
                 )}
 
-                <div>
-                  <Button variant="outline" size="sm" onClick={onAddStep}>
-                    <Plus className="h-3.5 w-3.5 mr-1" /> Add step
-                  </Button>
-                </div>
               </div>
             </div>
           )}
