@@ -5,6 +5,7 @@ import { useExclusivitySets } from './useExclusivitySets';
 import { useServiceManagement } from './useServiceManagement';
 import { useLayerOperations } from './useLayerOperations';
 import { useWorkflowActions } from './useWorkflowActions';
+import { useStoryActions } from './useStoryActions';
 
 export const useConfigBuilderState = () => {
   const { config, dispatch } = useValidatedConfig();
@@ -21,6 +22,7 @@ export const useConfigBuilderState = () => {
   const serviceManagement = useServiceManagement({ config, dispatch });
   const layerOperations = useLayerOperations({ config, dispatch });
   const workflowActions = useWorkflowActions({ config: config as any, dispatch });
+  const storyActions = useStoryActions({ config: config as any, dispatch });
 
   return {
     config,
@@ -34,6 +36,7 @@ export const useConfigBuilderState = () => {
     ...layerOperations,
     // Workflow management
     ...workflowActions,
+    // Story management
+    ...storyActions,
   };
 };
-
