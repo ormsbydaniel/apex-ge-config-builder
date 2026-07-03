@@ -199,6 +199,10 @@ interface Props {
   sources: DataSource[];
   warnings?: StoryWarning[];
   onChange: (next: StoryStep) => void;
+  /** Optional custom header renderer. Receives count and add-action callback. */
+  renderHeader?: (args: { count: number; onAdd: () => void }) => React.ReactNode;
+  /** Skip the built-in section border-top when the header is combined elsewhere. */
+  bare?: boolean;
 }
 
 type OpenEditor =
@@ -210,7 +214,7 @@ type OpenEditor =
   | null;
 
 export const ActionsAndLayersSection: React.FC<Props> = ({
-  step, sources, warnings, onChange,
+  step, sources, warnings, onChange, renderHeader, bare,
 }) => {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
@@ -359,27 +363,31 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       : undefined;
 
   return (
-    <section className="space-y-2 border-t pt-3">
-      <div className="flex items-center gap-2">
-        <Film className="h-4 w-4 text-muted-foreground" />
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
-          Actions &amp; Layers
-        </h4>
-        {items.length > 0 && (
-          <span className="text-xs text-muted-foreground">({items.length})</span>
-        )}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="ml-auto h-6 px-2"
-          onClick={() => setPickerOpen(true)}
-        >
-          <Plus className="h-3 w-3 mr-1" /> Add action
-        </Button>
-      </div>
+    <section className={cn('space-y-2', !bare && 'border-t pt-3')}>
+      {renderHeader ? (
+        renderHeader({ count: items.length, onAdd: () => setPickerOpen(true) })
+      ) : (
+        <div className="flex items-center gap-2">
+          <Film className="h-4 w-4 text-muted-foreground" />
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+            Actions &amp; Layers
+          </h4>
+          {items.length > 0 && (
+            <span className="text-xs text-muted-foreground">({items.length})</span>
+          )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="ml-auto h-6 px-2"
+            onClick={() => setPickerOpen(true)}
+          >
+            <Plus className="h-3 w-3 mr-1" /> Add action
+          </Button>
+        </div>
+      )}
 
-      <div className="ml-6 space-y-2">
+      <div className={cn('space-y-2', !bare && 'ml-6')}>
         {items.length === 0 && (
           <p className="text-xs text-muted-foreground italic">
             No actions yet. Use “Add action” to define what this step does.
