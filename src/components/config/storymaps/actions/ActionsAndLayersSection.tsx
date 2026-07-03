@@ -363,27 +363,31 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       : undefined;
 
   return (
-    <section className="space-y-2 border-t pt-3">
-      <div className="flex items-center gap-2">
-        <Film className="h-4 w-4 text-muted-foreground" />
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
-          Actions &amp; Layers
-        </h4>
-        {items.length > 0 && (
-          <span className="text-xs text-muted-foreground">({items.length})</span>
-        )}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="ml-auto h-6 px-2"
-          onClick={() => setPickerOpen(true)}
-        >
-          <Plus className="h-3 w-3 mr-1" /> Add action
-        </Button>
-      </div>
+    <section className={cn('space-y-2', !bare && 'border-t pt-3')}>
+      {renderHeader ? (
+        renderHeader({ count: items.length, onAdd: () => setPickerOpen(true) })
+      ) : (
+        <div className="flex items-center gap-2">
+          <Film className="h-4 w-4 text-muted-foreground" />
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+            Actions &amp; Layers
+          </h4>
+          {items.length > 0 && (
+            <span className="text-xs text-muted-foreground">({items.length})</span>
+          )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="ml-auto h-6 px-2"
+            onClick={() => setPickerOpen(true)}
+          >
+            <Plus className="h-3 w-3 mr-1" /> Add action
+          </Button>
+        </div>
+      )}
 
-      <div className="ml-6 space-y-2">
+      <div className={cn('space-y-2', !bare && 'ml-6')}>
         {items.length === 0 && (
           <p className="text-xs text-muted-foreground italic">
             No actions yet. Use “Add action” to define what this step does.
