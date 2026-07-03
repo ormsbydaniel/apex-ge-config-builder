@@ -199,6 +199,10 @@ interface Props {
   sources: DataSource[];
   warnings?: StoryWarning[];
   onChange: (next: StoryStep) => void;
+  /** Optional custom header renderer. Receives count and add-action callback. */
+  renderHeader?: (args: { count: number; onAdd: () => void }) => React.ReactNode;
+  /** Skip the built-in section border-top when the header is combined elsewhere. */
+  bare?: boolean;
 }
 
 type OpenEditor =
@@ -210,7 +214,7 @@ type OpenEditor =
   | null;
 
 export const ActionsAndLayersSection: React.FC<Props> = ({
-  step, sources, warnings, onChange,
+  step, sources, warnings, onChange, renderHeader, bare,
 }) => {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
