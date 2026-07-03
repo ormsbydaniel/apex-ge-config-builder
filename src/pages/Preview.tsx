@@ -44,11 +44,12 @@ const Preview = () => {
       sources: config.sources,
       mapConstraints: config.mapConstraints,
       projections: config.projections,
+      stories: config.stories,
     };
     console.log('[Config Builder Preview] viewerConfig.layout:', vConfig.layout);
     console.log('[Config Builder Preview] viewerConfig.layout.theme:', vConfig.layout?.theme);
     return vConfig;
-  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints, config.projections]);
+  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints, config.projections, config.stories]);
   
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
