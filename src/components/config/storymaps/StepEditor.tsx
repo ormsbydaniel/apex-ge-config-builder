@@ -180,7 +180,9 @@ export const StepEditor: React.FC<StepEditorProps> = ({
           </label>
         </RadioGroup>
 
-        {viewportKind === 'zoom' && isZoomViewport(working.viewport) && (
+        {viewportKind === 'zoom' && isZoomViewport(working.viewport) && (() => {
+          const zv = working.viewport;
+          return (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <div>
               <Label className="text-xs">Zoom</Label>
@@ -188,14 +190,9 @@ export const StepEditor: React.FC<StepEditorProps> = ({
                 type="number"
                 min={0}
                 max={28}
-                value={working.viewport.zoom}
+                value={zv.zoom}
                 onChange={(e) =>
-                  patch({
-                    viewport: {
-                      ...(working.viewport as any),
-                      zoom: Number(e.target.value),
-                    },
-                  })
+                  patch({ viewport: { ...zv, zoom: Number(e.target.value) } })
                 }
               />
             </div>
@@ -204,13 +201,10 @@ export const StepEditor: React.FC<StepEditorProps> = ({
               <Input
                 type="number"
                 step="any"
-                value={working.viewport.center[0]}
+                value={zv.center[0]}
                 onChange={(e) =>
                   patch({
-                    viewport: {
-                      ...(working.viewport as any),
-                      center: [Number(e.target.value), working.viewport.center[1]],
-                    },
+                    viewport: { ...zv, center: [Number(e.target.value), zv.center[1]] },
                   })
                 }
               />
@@ -220,13 +214,10 @@ export const StepEditor: React.FC<StepEditorProps> = ({
               <Input
                 type="number"
                 step="any"
-                value={working.viewport.center[1]}
+                value={zv.center[1]}
                 onChange={(e) =>
                   patch({
-                    viewport: {
-                      ...(working.viewport as any),
-                      center: [working.viewport.center[0], Number(e.target.value)],
-                    },
+                    viewport: { ...zv, center: [zv.center[0], Number(e.target.value)] },
                   })
                 }
               />
@@ -236,11 +227,11 @@ export const StepEditor: React.FC<StepEditorProps> = ({
               <Input
                 type="number"
                 min={0}
-                value={working.viewport.duration ?? ''}
+                value={zv.duration ?? ''}
                 onChange={(e) =>
                   patch({
                     viewport: {
-                      ...(working.viewport as any),
+                      ...zv,
                       duration: e.target.value === '' ? undefined : Number(e.target.value),
                     },
                   })
@@ -248,7 +239,8 @@ export const StepEditor: React.FC<StepEditorProps> = ({
               />
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {viewportKind === 'fit' && !isZoomViewport(working.viewport) && (
           <div>
