@@ -1,0 +1,137 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Story } from '@/types/config';
+
+interface StoryFormDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  initial?: Story | null;
+  existingIds: string[];
+  onSave: (patch: { id: string; title: string; description?: string }) => void;
+}
+
+const slugify = (s: string): string =>
+  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'story';
+
+const uniqueId = (base: string, existing: string[]): string => {
+  if (!existing.includes(base)) return base;
+  let n = 2;
+  while (existing.includes(`${base}-${n}`)) n += 1;
+  return `${base}-${n}`;
+};
+
+/**
+ * Add / edit a story's own metadata (id, title, description). Body content
+ * (steps) is edited inline on the story card.
+ */
+export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
+  open,
+  onOpenChange,
+  initial,
+  existingIds,
+  onSave,
+}) => {
+  const isEdit = !!initial;
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [id, setId] = useState('');
+  const [idTouched, setIdTouched] = useState(false);
+
+  // Initialise dialog state inside useEffect on `open` — prevents stale
+  // overwrites (core memory rule).
+  useEffect(() => {
+    if (!open) return;
+    setTitle(initial?.title ?? '');
+    setDescription(initial?.description ?? '');
+    setId(initial?.id ?? '');
+    setIdTouched(!!initial);
+  }, [open, initial]);
+
+  // Auto-slug id from title while user hasn't touched id manually.
+  useEffect(() => {
+    if (isEdit || idTouched) return;
+    const base = slugify(title || 'story');
+    const others = existingIds.filter((x) => x !== initial?.id);
+    setId(uniqueId(base, others));
+  }, [title, isEdit, idTouched, existingIds, initial?.id]);
+
+  const canSave = title.trim().length > 0 && id.trim().length > 0;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{isEdit ? 'Edit story' : 'Add story'}</DialogTitle>
+          <DialogDescription>
+            A story groups one or more steps. Markdown is supported in the description.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="story-title">Title</Label>
+            <Input
+              id="story-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Austria Solar Potential"
+            />
+          </div>
+          <div>
+            <Label htmlFor="story-desc">Description (markdown)</Label>
+            <Textarea
+              id="story-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+              placeholder="Explore **annual solar power potential** across Austria."
+            />
+          </div>
+          <div>
+            <Label htmlFor="story-id">ID</Label>
+            <Input
+              id="story-id"
+              value={id}
+              onChange={(e) => {
+                setIdTouched(true);
+                setId(e.target.value);
+              }}
+              placeholder="austria-solar-intro"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Auto-generated from the title; edit if you need a stable identifier.
+            </p>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            disabled={!canSave}
+            onClick={() => {
+              onSave({ id: id.trim(), title: title.trim(), description: description || undefined });
+              onOpenChange(false);
+            }}
+          >
+            {isEdit ? 'Save' : 'Add story'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default StoryFormDialog;
