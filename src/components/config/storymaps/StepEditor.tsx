@@ -64,6 +64,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   onDirtyChange,
 }) => {
   const [working, setWorking] = useState<WorkingStep>(step);
+  const [editingContent, setEditingContent] = useState(false);
 
   // Reset when the incoming step reference changes (core memory: init inside
   // effect on the trigger prop to prevent stale overwrites).
