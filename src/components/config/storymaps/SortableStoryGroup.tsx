@@ -24,9 +24,12 @@ import {
   Trash2,
   Pencil,
   Plus,
+  Check,
+  X,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
@@ -45,6 +48,7 @@ interface SortableStoryGroupProps {
   sources: DataSource[];
   warnings: StepWarningsMap;
   onEditStory: () => void;
+  onRenameStory: (title: string) => void;
   onDuplicateStory: () => void;
   onRemoveStory: () => void;
   onAddStep: () => void;
@@ -62,6 +66,7 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
   sources,
   warnings,
   onEditStory,
+  onRenameStory,
   onDuplicateStory,
   onRemoveStory,
   onAddStep,
@@ -90,6 +95,19 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
 
   const [collapsed, setCollapsed] = useState(false);
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(story.title);
+
+  const commitTitle = () => {
+    const next = titleDraft.trim();
+    if (next && next !== story.title) onRenameStory(next);
+    else setTitleDraft(story.title);
+    setEditingTitle(false);
+  };
+  const cancelTitle = () => {
+    setTitleDraft(story.title);
+    setEditingTitle(false);
+  };
 
   const steps = story.steps ?? [];
   const stepIds = steps.map((s, i) => `story-${storyIndex}-step-${s.id ?? i}-${i}`);
@@ -127,14 +145,54 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
         <div className="flex-1 min-w-0 border border-primary/20 rounded-lg bg-muted/10">
           {/* Group header row */}
           <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-primary/10">
-            <button
-              type="button"
-              onClick={() => setCollapsed((c) => !c)}
-              className="flex items-center gap-2 flex-1 min-w-0 text-left"
-            >
-              {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">Story</span>
-              <span className="font-semibold text-sm truncate">{story.title}</span>
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <button
+                type="button"
+                onClick={() => setCollapsed((c) => !c)}
+                className="flex-shrink-0"
+                aria-label={collapsed ? 'Expand story' : 'Collapse story'}
+              >
+                {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </button>
+              {editingTitle ? (
+                <div className="flex items-center gap-1 flex-1 min-w-0">
+                  <Input
+                    value={titleDraft}
+                    onChange={(e) => setTitleDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') { e.preventDefault(); commitTitle(); }
+                      else if (e.key === 'Escape') { e.preventDefault(); cancelTitle(); }
+                    }}
+                    autoFocus
+                    className="h-7 text-sm"
+                  />
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={commitTitle} title="Save">
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={cancelTitle} title="Cancel">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setCollapsed((c) => !c)}
+                    className="font-semibold text-sm truncate text-left"
+                  >
+                    {story.title}
+                  </button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => { setTitleDraft(story.title); setEditingTitle(true); }}
+                    title="Rename story"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                </>
+              )}
               <Badge variant="outline" className="text-[10px] font-normal">
                 {steps.length} step{steps.length === 1 ? '' : 's'}
               </Badge>
@@ -143,7 +201,7 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
                   {totalWarnings} warning{totalWarnings === 1 ? '' : 's'}
                 </Badge>
               )}
-            </button>
+            </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-7 w-7">
@@ -170,20 +228,21 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
               <Card className="border-primary/20">
                 <CardContent className="py-3 px-3 space-y-1">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Story info</p>
-                      <p className="font-semibold text-sm">{story.title}</p>
-                      <p className="text-[11px] text-muted-foreground">ID: {story.id}</p>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="text-[11px] text-muted-foreground">
+                        <span className="font-medium text-foreground">ID:</span> {story.id}
+                      </p>
+                      <p className="text-sm whitespace-pre-wrap">
+                        <span className="text-[11px] font-medium text-foreground">Description:</span>{' '}
+                        {story.description
+                          ? <span className="text-muted-foreground">{story.description}</span>
+                          : <span className="text-muted-foreground italic">(none)</span>}
+                      </p>
                     </div>
                     <Button variant="ghost" size="sm" onClick={onEditStory}>
                       <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
                     </Button>
                   </div>
-                  {story.description && (
-                    <p className="text-sm whitespace-pre-wrap text-muted-foreground border-l-2 border-muted pl-2 mt-2">
-                      {story.description}
-                    </p>
-                  )}
                 </CardContent>
               </Card>
 
