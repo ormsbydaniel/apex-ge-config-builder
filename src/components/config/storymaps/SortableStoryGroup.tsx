@@ -24,6 +24,8 @@ import {
   Trash2,
   Pencil,
   Plus,
+  Check,
+  X,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
