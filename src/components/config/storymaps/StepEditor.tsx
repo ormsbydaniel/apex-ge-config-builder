@@ -14,7 +14,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, X, AlertTriangle } from 'lucide-react';
+import {
+  Trash2, Plus, X, AlertTriangle,
+  FileText, Compass, Layers as LayersIcon,
+  PanelRightOpen, SlidersHorizontal,
+} from 'lucide-react';
 import {
   DataSource,
   StoryStep,
@@ -136,247 +140,276 @@ export const StepEditor: React.FC<StepEditorProps> = ({
     setControls(controls.filter((_, i) => i !== idx));
   };
 
+  const SectionHeader: React.FC<{
+    icon: React.ReactNode;
+    label: string;
+    summary?: React.ReactNode;
+    action?: React.ReactNode;
+  }> = ({ icon, label, summary, action }) => (
+    <div className="flex items-center gap-2">
+      <span className="text-muted-foreground [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+        {label}
+      </h4>
+      {summary && (
+        <span className="text-xs text-muted-foreground truncate">({summary})</span>
+      )}
+      {action && <span className="ml-auto">{action}</span>}
+    </div>
+  );
+
   return (
-    <div className="space-y-4 border-t pt-4">
+    <div className="space-y-4 pt-3">
       {/* Basics */}
       <section className="space-y-2">
-        <h4 className="text-sm font-semibold">Basics</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <SectionHeader icon={<FileText />} label="Basics" />
+        <div className="ml-6 space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Title</Label>
+              <Input
+                value={working.title}
+                onChange={(e) => patch({ title: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">ID</Label>
+              <Input value={working.id} onChange={(e) => patch({ id: e.target.value })} />
+            </div>
+          </div>
           <div>
-            <Label className="text-xs">Title</Label>
-            <Input
-              value={working.title}
-              onChange={(e) => patch({ title: e.target.value })}
+            <Label className="text-xs">Description (markdown)</Label>
+            <Textarea
+              rows={3}
+              value={working.description ?? ''}
+              onChange={(e) => patch({ description: e.target.value || undefined })}
             />
           </div>
-          <div>
-            <Label className="text-xs">ID</Label>
-            <Input value={working.id} onChange={(e) => patch({ id: e.target.value })} />
-          </div>
-        </div>
-        <div>
-          <Label className="text-xs">Description (markdown)</Label>
-          <Textarea
-            rows={3}
-            value={working.description ?? ''}
-            onChange={(e) => patch({ description: e.target.value || undefined })}
-          />
         </div>
       </section>
 
       {/* Viewport */}
-      <section className="space-y-2">
-        <h4 className="text-sm font-semibold">Viewport</h4>
-        <RadioGroup
-          value={viewportKind}
-          onValueChange={(v) => setViewportKind(v as 'zoom' | 'fit')}
-          className="flex gap-4"
-        >
-          <label className="flex items-center gap-1 text-sm">
-            <RadioGroupItem value="zoom" /> Zoom + center
-          </label>
-          <label className="flex items-center gap-1 text-sm">
-            <RadioGroupItem value="fit" /> Fit to layer
-          </label>
-        </RadioGroup>
+      <section className="space-y-2 border-t pt-3">
+        <SectionHeader icon={<Compass />} label="Viewport" />
+        <div className="ml-6 space-y-2">
+          <RadioGroup
+            value={viewportKind}
+            onValueChange={(v) => setViewportKind(v as 'zoom' | 'fit')}
+            className="flex gap-4"
+          >
+            <label className="flex items-center gap-1 text-sm">
+              <RadioGroupItem value="zoom" /> Zoom + center
+            </label>
+            <label className="flex items-center gap-1 text-sm">
+              <RadioGroupItem value="fit" /> Fit to layer
+            </label>
+          </RadioGroup>
 
-        {viewportKind === 'zoom' && isZoomViewport(working.viewport) && (() => {
-          const zv = working.viewport;
-          return (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <div>
-              <Label className="text-xs">Zoom</Label>
-              <Input
-                type="number"
-                min={0}
-                max={28}
-                value={zv.zoom}
-                onChange={(e) =>
-                  patch({ viewport: { ...zv, zoom: Number(e.target.value) } })
-                }
-              />
-            </div>
-            <div>
-              <Label className="text-xs">Longitude</Label>
-              <Input
-                type="number"
-                step="any"
-                value={zv.center[0]}
-                onChange={(e) =>
-                  patch({
-                    viewport: { ...zv, center: [Number(e.target.value), zv.center[1]] },
-                  })
-                }
-              />
-            </div>
-            <div>
-              <Label className="text-xs">Latitude</Label>
-              <Input
-                type="number"
-                step="any"
-                value={zv.center[1]}
-                onChange={(e) =>
-                  patch({
-                    viewport: { ...zv, center: [zv.center[0], Number(e.target.value)] },
-                  })
-                }
-              />
-            </div>
-            <div>
-              <Label className="text-xs">Duration (ms)</Label>
-              <Input
-                type="number"
-                min={0}
-                value={zv.duration ?? ''}
-                onChange={(e) =>
-                  patch({
-                    viewport: {
-                      ...zv,
-                      duration: e.target.value === '' ? undefined : Number(e.target.value),
-                    },
-                  })
-                }
-              />
-            </div>
-          </div>
-          );
-        })()}
+          {viewportKind === 'zoom' && isZoomViewport(working.viewport) && (() => {
+            const zv = working.viewport;
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div>
+                  <Label className="text-xs">Zoom</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={28}
+                    value={zv.zoom}
+                    onChange={(e) =>
+                      patch({ viewport: { ...zv, zoom: Number(e.target.value) } })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Longitude</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={zv.center[0]}
+                    onChange={(e) =>
+                      patch({
+                        viewport: { ...zv, center: [Number(e.target.value), zv.center[1]] },
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Latitude</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={zv.center[1]}
+                    onChange={(e) =>
+                      patch({
+                        viewport: { ...zv, center: [zv.center[0], Number(e.target.value)] },
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Duration (ms)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={zv.duration ?? ''}
+                    onChange={(e) =>
+                      patch({
+                        viewport: {
+                          ...zv,
+                          duration: e.target.value === '' ? undefined : Number(e.target.value),
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            );
+          })()}
 
-        {viewportKind === 'fit' && !isZoomViewport(working.viewport) && (
+          {viewportKind === 'fit' && !isZoomViewport(working.viewport) && (
+            <div>
+              <Label className="text-xs">Fit layer</Label>
+              <Select
+                value={(working.viewport as any).fitLayer}
+                onValueChange={(v) => patch({ viewport: { fitLayer: v } })}
+              >
+                <SelectTrigger><SelectValue placeholder="Select a layer" /></SelectTrigger>
+                <SelectContent>
+                  {layerOptions.map((n) => (
+                    <SelectItem key={n} value={n}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Layers */}
+      <section className="space-y-2 border-t pt-3">
+        <SectionHeader icon={<LayersIcon />} label="Layers" />
+        <div className="ml-6 space-y-2">
           <div>
-            <Label className="text-xs">Fit layer</Label>
+            <Label className="text-xs">Focus layer</Label>
             <Select
-              value={(working.viewport as any).fitLayer}
-              onValueChange={(v) => patch({ viewport: { fitLayer: v } })}
+              value={working.focusLayer ?? '__none__'}
+              onValueChange={(v) => patch({ focusLayer: v === '__none__' ? undefined : v })}
             >
-              <SelectTrigger><SelectValue placeholder="Select a layer" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="None" />
+              </SelectTrigger>
               <SelectContent>
+                <SelectItem value="__none__">None</SelectItem>
                 {layerOptions.map((n) => (
                   <SelectItem key={n} value={n}>{n}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        )}
-      </section>
-
-      {/* Layers */}
-      <section className="space-y-2">
-        <h4 className="text-sm font-semibold">Layers</h4>
-        <div>
-          <Label className="text-xs">Focus layer</Label>
-          <Select
-            value={working.focusLayer ?? '__none__'}
-            onValueChange={(v) => patch({ focusLayer: v === '__none__' ? undefined : v })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="None" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">None</SelectItem>
-              {layerOptions.map((n) => (
-                <SelectItem key={n} value={n}>{n}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {warningFor('focusLayer') && (
-            <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-              <AlertTriangle className="h-3 w-3" /> {warningFor('focusLayer')!.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <Label className="text-xs">Active layers</Label>
-          <div className="border rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
-            {layerOptions.length === 0 && (
-              <p className="text-xs text-muted-foreground">No layers configured.</p>
+            {warningFor('focusLayer') && (
+              <p className="text-[11px] text-amber-600 mt-1 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" /> {warningFor('focusLayer')!.message}
+              </p>
             )}
-            {layerOptions.map((n) => (
-              <label key={n} className="flex items-center gap-2 text-sm">
-                <Checkbox
-                  checked={active.includes(n)}
-                  onCheckedChange={() => toggleActive(n)}
-                />
-                {n}
-              </label>
+          </div>
+
+          <div>
+            <Label className="text-xs">Active layers</Label>
+            <div className="border rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
+              {layerOptions.length === 0 && (
+                <p className="text-xs text-muted-foreground">No layers configured.</p>
+              )}
+              {layerOptions.map((n) => (
+                <label key={n} className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={active.includes(n)}
+                    onCheckedChange={() => toggleActive(n)}
+                  />
+                  {n}
+                </label>
+              ))}
+            </div>
+            {active.filter((n) => !layerOptions.includes(n)).map((n) => (
+              <p key={n} className="text-[11px] text-amber-600 mt-1 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" /> Unknown active layer: {n}
+                <button
+                  type="button"
+                  className="ml-1 underline"
+                  onClick={() => toggleActive(n)}
+                >
+                  remove
+                </button>
+              </p>
             ))}
           </div>
-          {/* Unknown references still in active */}
-          {active.filter((n) => !layerOptions.includes(n)).map((n) => (
-            <p key={n} className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-              <AlertTriangle className="h-3 w-3" /> Unknown active layer: {n}
-              <button
-                type="button"
-                className="ml-1 underline"
-                onClick={() => toggleActive(n)}
-              >
-                remove
-              </button>
-            </p>
-          ))}
         </div>
       </section>
 
       {/* Expand panels */}
-      <section className="space-y-2">
-        <h4 className="text-sm font-semibold">Expand panels</h4>
-        <div className="flex flex-wrap gap-1">
-          {panels.map((p) => (
-            <Badge key={p} variant="secondary" className="gap-1">
-              {p}
-              <button type="button" onClick={() => removePanel(p)}>
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          {panels.length === 0 && (
-            <span className="text-xs text-muted-foreground">None</span>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Input
-            value={panelDraft}
-            onChange={(e) => setPanelDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addPanel();
-              }
-            }}
-            placeholder="panel key"
-            className="max-w-xs"
-          />
-          <Button type="button" size="sm" variant="outline" onClick={addPanel}>
-            <Plus className="h-3 w-3 mr-1" /> Add
-          </Button>
+      <section className="space-y-2 border-t pt-3">
+        <SectionHeader
+          icon={<PanelRightOpen />}
+          label="Expand panels"
+          summary={panels.length === 0 ? 'None' : `${panels.length}`}
+        />
+        <div className="ml-6 space-y-2">
+          <div className="flex flex-wrap gap-1">
+            {panels.map((p) => (
+              <Badge key={p} variant="secondary" className="gap-1">
+                {p}
+                <button type="button" onClick={() => removePanel(p)}>
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={panelDraft}
+              onChange={(e) => setPanelDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addPanel();
+                }
+              }}
+              placeholder="panel key"
+              className="max-w-xs"
+            />
+            <Button type="button" size="sm" variant="outline" onClick={addPanel}>
+              <Plus className="h-3 w-3 mr-1" /> Add
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* Controls */}
-      <section className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-semibold">Per-layer controls</h4>
-          <Button type="button" size="sm" variant="outline" onClick={addControl}>
-            <Plus className="h-3 w-3 mr-1" /> Add control
-          </Button>
+      <section className="space-y-2 border-t pt-3">
+        <SectionHeader
+          icon={<SlidersHorizontal />}
+          label="Per-layer controls"
+          summary={controls.length === 0 ? 'None' : `${controls.length}`}
+          action={
+            <Button type="button" size="sm" variant="ghost" className="h-6 px-2" onClick={addControl}>
+              <Plus className="h-3 w-3 mr-1" /> Add
+            </Button>
+          }
+        />
+        <div className="ml-6 space-y-2">
+          {controls.map((c, i) => (
+            <ControlEditor
+              key={i}
+              control={c}
+              sources={sources}
+              warnings={warnings?.filter((w) => w.field?.startsWith(`controls[${i}]`))}
+              onChange={(next) => updateControl(i, next)}
+              onRemove={() => removeControl(i)}
+            />
+          ))}
         </div>
-        {controls.length === 0 && (
-          <p className="text-xs text-muted-foreground">No overrides.</p>
-        )}
-        {controls.map((c, i) => (
-          <ControlEditor
-            key={i}
-            control={c}
-            sources={sources}
-            warnings={warnings?.filter((w) => w.field?.startsWith(`controls[${i}]`))}
-            onChange={(next) => updateControl(i, next)}
-            onRemove={() => removeControl(i)}
-          />
-        ))}
       </section>
 
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-2 pt-2 border-t">
         <Button variant="outline" size="sm" onClick={onCancel}>
           Cancel
         </Button>
