@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import {
-  Trash2, Plus, X, AlertTriangle,
+  Trash2, Plus, X, AlertTriangle, Pencil,
   FileText, Compass, Layers as LayersIcon,
   PanelRightOpen, SlidersHorizontal,
 } from 'lucide-react';
@@ -64,6 +64,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   onDirtyChange,
 }) => {
   const [working, setWorking] = useState<WorkingStep>(step);
+  const [editingContent, setEditingContent] = useState(false);
 
   // Reset when the incoming step reference changes (core memory: init inside
   // effect on the trigger prop to prevent stale overwrites).
@@ -160,31 +161,52 @@ export const StepEditor: React.FC<StepEditorProps> = ({
 
   return (
     <div className="space-y-4 pt-3">
-      {/* Basics */}
+      {/* Content */}
       <section className="space-y-2">
-        <SectionHeader icon={<FileText />} label="Basics" />
+        <SectionHeader
+          icon={<FileText />}
+          label="Content"
+          action={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setEditingContent((v) => !v)}
+              title={editingContent ? 'Done editing' : 'Edit content'}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+          }
+        />
         <div className="ml-6 space-y-2">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Title</Label>
-              <Input
-                value={working.title}
-                onChange={(e) => patch({ title: e.target.value })}
-              />
+          {editingContent ? (
+            <>
+              <div>
+                <Label className="text-xs">ID</Label>
+                <Input value={working.id} onChange={(e) => patch({ id: e.target.value })} />
+              </div>
+              <div>
+                <Label className="text-xs">Description (markdown)</Label>
+                <Textarea
+                  rows={4}
+                  value={working.description ?? ''}
+                  onChange={(e) => patch({ description: e.target.value || undefined })}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="text-xs text-muted-foreground space-y-1">
+              {working.description ? (
+                <p className="whitespace-pre-wrap">{working.description}</p>
+              ) : (
+                <p className="italic">No description configured</p>
+              )}
+              <div>
+                <span className="font-medium">ID:</span> {working.id}
+              </div>
             </div>
-            <div>
-              <Label className="text-xs">ID</Label>
-              <Input value={working.id} onChange={(e) => patch({ id: e.target.value })} />
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Description (markdown)</Label>
-            <Textarea
-              rows={3}
-              value={working.description ?? ''}
-              onChange={(e) => patch({ description: e.target.value || undefined })}
-            />
-          </div>
+          )}
         </div>
       </section>
 
