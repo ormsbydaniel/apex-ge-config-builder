@@ -165,7 +165,7 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
                       else if (e.key === 'Escape') { e.preventDefault(); cancelTitle(); }
                     }}
                     autoFocus
-                    className="h-7 text-sm"
+                    className="h-8 text-base font-semibold"
                   />
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={commitTitle} title="Save">
                     <Check className="h-4 w-4" />
