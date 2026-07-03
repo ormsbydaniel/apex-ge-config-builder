@@ -15,6 +15,13 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
   Trash2, Plus, X, AlertTriangle, Pencil,
   FileText, Compass, Layers as LayersIcon,
   PanelRightOpen, SlidersHorizontal,
