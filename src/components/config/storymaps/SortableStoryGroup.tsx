@@ -47,6 +47,7 @@ interface SortableStoryGroupProps {
   sources: DataSource[];
   warnings: StepWarningsMap;
   onEditStory: () => void;
+  onRenameStory: (title: string) => void;
   onDuplicateStory: () => void;
   onRemoveStory: () => void;
   onAddStep: () => void;
@@ -64,6 +65,7 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
   sources,
   warnings,
   onEditStory,
+  onRenameStory,
   onDuplicateStory,
   onRemoveStory,
   onAddStep,
