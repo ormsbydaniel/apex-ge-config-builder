@@ -14,7 +14,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, X, AlertTriangle } from 'lucide-react';
+import {
+  Trash2, Plus, X, AlertTriangle,
+  FileText, Compass, Layers as LayersIcon,
+  PanelRightOpen, SlidersHorizontal,
+} from 'lucide-react';
 import {
   DataSource,
   StoryStep,
