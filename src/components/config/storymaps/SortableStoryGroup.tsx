@@ -228,20 +228,21 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
               <Card className="border-primary/20">
                 <CardContent className="py-3 px-3 space-y-1">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Story info</p>
-                      <p className="font-semibold text-sm">{story.title}</p>
-                      <p className="text-[11px] text-muted-foreground">ID: {story.id}</p>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="text-[11px] text-muted-foreground">
+                        <span className="font-medium text-foreground">ID:</span> {story.id}
+                      </p>
+                      <p className="text-sm whitespace-pre-wrap">
+                        <span className="text-[11px] font-medium text-foreground">Description:</span>{' '}
+                        {story.description
+                          ? <span className="text-muted-foreground">{story.description}</span>
+                          : <span className="text-muted-foreground italic">(none)</span>}
+                      </p>
                     </div>
                     <Button variant="ghost" size="sm" onClick={onEditStory}>
                       <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
                     </Button>
                   </div>
-                  {story.description && (
-                    <p className="text-sm whitespace-pre-wrap text-muted-foreground border-l-2 border-muted pl-2 mt-2">
-                      {story.description}
-                    </p>
-                  )}
                 </CardContent>
               </Card>
 
