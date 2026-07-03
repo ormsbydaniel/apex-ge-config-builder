@@ -105,6 +105,7 @@ nav:
       - Layout: configuration/layout.md
       - Export options: configuration/export-options.md
   - JSON config: configuration/json-config.md
+  - Storymaps (experimental): storymaps/overview.md
   - GE Preview tab: configuration/preview.md
   - How-to recipes:
       - Overview: recipes/overview.md
