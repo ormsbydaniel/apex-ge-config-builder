@@ -8,7 +8,7 @@ export type ActionKind =
   | 'layerControl'    // controls[i] (one per layer)
   | 'expandPanels';   // expandPanels[]
 
-export type ActionCategory = 'Navigation' | 'Layer display' | 'Layer control' | 'UI';
+export type ActionCategory = 'Navigation' | 'Layer display' | 'Apply constraints' | 'UI';
 
 export interface ActionMeta {
   kind: ActionKind;
@@ -43,8 +43,8 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
   },
   layerControl: {
     kind: 'layerControl',
-    category: 'Layer control',
-    label: 'Layer control',
+    category: 'Apply constraints',
+    label: 'Apply constraints',
     description: 'Set opacity, blending, and constraint selections for one layer.',
     singleton: false,
   },
@@ -60,7 +60,7 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
 export const CATEGORY_ORDER: ActionCategory[] = [
   'Navigation',
   'Layer display',
-  'Layer control',
+  'Apply constraints',
   'UI',
 ];
 

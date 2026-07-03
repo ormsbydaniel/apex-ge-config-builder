@@ -361,7 +361,7 @@ export const LayerControlEditor: React.FC<LayerControlEditorProps> = ({
   const save = () => { onSave(working); onOpenChange(false); };
 
   return (
-    <ActionModal open={open} onOpenChange={onOpenChange} title="Layer control"
+    <ActionModal open={open} onOpenChange={onOpenChange} title="Apply constraints"
       onSave={save} canSave={!!working.layer} wide>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
         <div className="sm:col-span-2">
