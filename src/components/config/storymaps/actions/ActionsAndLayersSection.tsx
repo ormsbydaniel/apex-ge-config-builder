@@ -137,7 +137,7 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
   const byCategory: Record<ActionCategory, ActionKind[]> = {
     'Navigation': ['navigation'],
     'Layer display': ['activeLayers', 'focusLayer'],
-    'Layer control': ['layerControl'],
+    'Apply constraints': ['layerControl'],
     'UI': ['expandPanels'],
   };
 
@@ -331,7 +331,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     items.push({
       key: `layerControl-${i}`,
       kind: 'layerControl',
-      title: 'Layer control',
+      title: 'Apply constraints',
       summary: <>{c.layer || <em>no layer</em>}{bits.length > 0 ? ` · ${bits.join(' · ')}` : ''}</>,
       warnings: warningsForAction(warnings, 'layerControl', i),
       onEdit: () => setOpenEditor({ kind: 'layerControl', index: i }),
