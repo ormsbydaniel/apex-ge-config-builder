@@ -20,8 +20,8 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { useConfigBuilderState } from '@/hooks/useConfigBuilderState';
 import { Story, StoryStep } from '@/types/config';
 import { validateStories } from '@/utils/storyValidation';
-import SortableStoryGroup from './SortableStoryGroup';
-import StoryFormDialog from './StoryFormDialog';
+import SortableStoryGroup from './storymaps/SortableStoryGroup';
+import StoryFormDialog from './storymaps/StoryFormDialog';
 
 const slugify = (s: string): string =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'step';
