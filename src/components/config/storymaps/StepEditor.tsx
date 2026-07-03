@@ -15,6 +15,13 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
   Trash2, Plus, X, AlertTriangle, Pencil,
   FileText, Compass, Layers as LayersIcon,
   PanelRightOpen, SlidersHorizontal,
@@ -144,20 +151,38 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   const SectionHeader: React.FC<{
     icon: React.ReactNode;
     label: string;
+    pencil?: React.ReactNode;
     summary?: React.ReactNode;
     action?: React.ReactNode;
-  }> = ({ icon, label, summary, action }) => (
+  }> = ({ icon, label, pencil, summary, action }) => (
     <div className="flex items-center gap-2">
       <span className="text-muted-foreground [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
       <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
         {label}
       </h4>
+      {pencil}
       {summary && (
         <span className="text-xs text-muted-foreground truncate">({summary})</span>
       )}
       {action && <span className="ml-auto">{action}</span>}
     </div>
   );
+
+  // Local draft state for the Content edit dialog so cancelling doesn't mutate.
+  const [contentDraftId, setContentDraftId] = useState(working.id);
+  const [contentDraftDescription, setContentDraftDescription] = useState(working.description ?? '');
+  const openContentDialog = () => {
+    setContentDraftId(working.id);
+    setContentDraftDescription(working.description ?? '');
+    setEditingContent(true);
+  };
+  const saveContentDialog = () => {
+    patch({
+      id: contentDraftId,
+      description: contentDraftDescription || undefined,
+    });
+    setEditingContent(false);
+  };
 
   return (
     <div className="space-y-4 pt-3">
@@ -166,48 +191,64 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         <SectionHeader
           icon={<FileText />}
           label="Content"
-          action={
+          pencil={
             <Button
               type="button"
               variant="ghost"
               size="icon"
               className="h-6 w-6"
-              onClick={() => setEditingContent((v) => !v)}
-              title={editingContent ? 'Done editing' : 'Edit content'}
+              onClick={openContentDialog}
+              title="Edit content"
             >
               <Pencil className="h-3.5 w-3.5" />
             </Button>
           }
         />
-        <div className="ml-6 space-y-2">
-          {editingContent ? (
-            <>
-              <div>
-                <Label className="text-xs">ID</Label>
-                <Input value={working.id} onChange={(e) => patch({ id: e.target.value })} />
-              </div>
-              <div>
-                <Label className="text-xs">Description (markdown)</Label>
-                <Textarea
-                  rows={4}
-                  value={working.description ?? ''}
-                  onChange={(e) => patch({ description: e.target.value || undefined })}
+        <div className="ml-6 space-y-1 text-xs text-muted-foreground">
+          {working.description ? (
+            <p className="whitespace-pre-wrap">{working.description}</p>
+          ) : (
+            <p className="italic">No description configured</p>
+          )}
+          <div>
+            <span className="font-medium">ID:</span> {working.id}
+          </div>
+        </div>
+
+        <Dialog open={editingContent} onOpenChange={setEditingContent}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Edit content</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label htmlFor="step-id">ID</Label>
+                <Input
+                  id="step-id"
+                  value={contentDraftId}
+                  onChange={(e) => setContentDraftId(e.target.value)}
                 />
               </div>
-            </>
-          ) : (
-            <div className="text-xs text-muted-foreground space-y-1">
-              {working.description ? (
-                <p className="whitespace-pre-wrap">{working.description}</p>
-              ) : (
-                <p className="italic">No description configured</p>
-              )}
-              <div>
-                <span className="font-medium">ID:</span> {working.id}
+              <div className="space-y-2">
+                <Label htmlFor="step-description">Description (markdown)</Label>
+                <Textarea
+                  id="step-description"
+                  rows={8}
+                  value={contentDraftDescription}
+                  onChange={(e) => setContentDraftDescription(e.target.value)}
+                  placeholder="Step description..."
+                  className="min-h-[180px]"
+                />
               </div>
             </div>
-          )}
-        </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditingContent(false)}>
+                Cancel
+              </Button>
+              <Button onClick={saveContentDialog}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </section>
 
       {/* Viewport */}
