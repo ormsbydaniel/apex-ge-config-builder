@@ -32,7 +32,7 @@ later phase.
 | `title` | string | Required |
 | `description` | string | Optional, Markdown |
 | `focusLayer` | string | Optional — name of the primary layer for the step |
-| `expandPanels` | `("layers" \| "legend" \| "constraints" \| "info")[]` | Optional |
+| `expandPanels` | `string[]` | Optional — viewer-defined panel identifiers |
 | `layers.active` | `string[]` | Required — exact set of layers visible in the step |
 | `viewport` | see below | Required |
 | `controls` | `StoryStepControl[]` | Optional per-layer overrides |

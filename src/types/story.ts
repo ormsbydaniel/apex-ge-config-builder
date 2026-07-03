@@ -6,7 +6,7 @@
  * cross-reference validation live in Phase 2.
  */
 
-export type StoryPanelKey = 'layers' | 'legend' | 'constraints' | 'info';
+export type StoryPanelKey = string;
 
 export interface StoryViewportZoom {
   zoom: number;

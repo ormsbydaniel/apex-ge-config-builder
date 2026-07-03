@@ -8,7 +8,9 @@ import { z } from 'zod';
  * the surrounding config — that lives in Phase 2.
  */
 
-const StoryPanelKeySchema = z.enum(['layers', 'legend', 'constraints', 'info']);
+// Panel identifiers are defined by the viewer, not the builder. Accept any
+// string so new panels don't require a schema update here.
+const StoryPanelKeySchema = z.string();
 
 const StoryViewportZoomSchema = z.object({
   zoom: z.number().min(0).max(28),
