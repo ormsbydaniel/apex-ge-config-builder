@@ -27,6 +27,7 @@ import {
   Check,
   X,
   FileText,
+  ListOrdered,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -265,6 +266,13 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
 
               {/* Steps */}
               <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <ListOrdered className="h-4 w-4 text-muted-foreground" />
+                  <h4 className="text-sm font-medium text-foreground">Steps</h4>
+                  {steps.length > 0 && (
+                    <span className="text-xs text-muted-foreground">({steps.length})</span>
+                  )}
+                </div>
                 {steps.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center py-2">
                     No steps yet.
