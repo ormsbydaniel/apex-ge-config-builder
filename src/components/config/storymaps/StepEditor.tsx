@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import {
-  Trash2, Plus, X, AlertTriangle,
+  Trash2, Plus, X, AlertTriangle, Pencil,
   FileText, Compass, Layers as LayersIcon,
   PanelRightOpen, SlidersHorizontal,
 } from 'lucide-react';
