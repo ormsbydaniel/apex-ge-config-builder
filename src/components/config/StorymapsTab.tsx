@@ -181,6 +181,7 @@ const StorymapsTab: React.FC = () => {
                   sources={config.sources ?? []}
                   warnings={warnings}
                   onEditStory={() => setEditStoryIndex(i)}
+                  onRenameStory={(title) => updateStory(i, { ...story, title })}
                   onDuplicateStory={() => duplicateStory(i)}
                   onRemoveStory={() => removeStory(i)}
                   onAddStep={() => handleAddStep(i)}
