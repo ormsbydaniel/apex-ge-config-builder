@@ -138,15 +138,18 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
               ) : (
                 <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               )}
+              <span
+                className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full border border-border bg-muted text-[11px] font-semibold text-foreground/70 flex-shrink-0"
+                title={`Step ${index + 1} of ${totalSteps}`}
+              >
+                {index + 1}
+              </span>
               <h3 className="text-sm font-bold truncate">
                 {step.title || '(untitled)'}
               </h3>
             </button>
 
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Pill>
-                Step {index + 1}/{totalSteps}
-              </Pill>
               {viewportPill(step.viewport)}
               {activeCount > 0 && (
                 <Pill icon={<LayersIcon className="h-3 w-3" />}>
