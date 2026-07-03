@@ -97,6 +97,27 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
 
   const [collapsed, setCollapsed] = useState(false);
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
+  // Track the just-added new step so we auto-open its Content modal, and can
+  // roll back the add if the user cancels.
+  const [newStepIndex, setNewStepIndex] = useState<number | null>(null);
+  const pendingAddRef = useRef(false);
+  const prevStepCountRef = useRef((story.steps ?? []).length);
+
+  const handleAddStep = () => {
+    pendingAddRef.current = true;
+    onAddStep();
+  };
+
+  useEffect(() => {
+    const nextCount = (story.steps ?? []).length;
+    if (pendingAddRef.current && nextCount > prevStepCountRef.current) {
+      const idx = nextCount - 1;
+      setNewStepIndex(idx);
+      setExpandedStep(idx);
+      pendingAddRef.current = false;
+    }
+    prevStepCountRef.current = nextCount;
+  }, [story.steps]);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(story.title);
 
