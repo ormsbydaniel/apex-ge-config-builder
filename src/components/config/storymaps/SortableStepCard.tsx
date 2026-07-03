@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
@@ -11,7 +11,11 @@ import {
   Compass,
   Crosshair,
   Layers as LayersIcon,
+  Edit2,
+  Check,
+  X,
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -115,6 +119,35 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
   const activeCount = step.layers?.active?.length ?? 0;
   const hasWarnings = (warnings?.length ?? 0) > 0;
 
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(step.title);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditingTitle && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  const startEditTitle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTitleDraft(step.title);
+    setIsEditingTitle(true);
+  };
+  const confirmEditTitle = () => {
+    const trimmed = titleDraft.trim();
+    if (trimmed && trimmed !== step.title) {
+      onSave({ ...step, title: trimmed });
+    }
+    setIsEditingTitle(false);
+  };
+  const cancelEditTitle = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setIsEditingTitle(false);
+    setTitleDraft(step.title);
+  };
+
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div className="flex items-stretch gap-2">
@@ -128,26 +161,83 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
 
         <Card className="flex-1 min-w-0">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 py-2 px-3">
-            <button
-              type="button"
-              onClick={onToggleExpanded}
-              className="group flex items-center gap-2 flex-1 min-w-0 text-left hover:bg-muted/50 rounded-md -mx-1 px-1 py-1"
-            >
-              {expanded ? (
-                <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              )}
-              <span
-                className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full border border-border bg-muted text-[11px] font-semibold text-foreground/70 flex-shrink-0"
-                title={`Step ${index + 1} of ${totalSteps}`}
+            {isEditingTitle ? (
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span
+                  className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full border border-border bg-muted text-[11px] font-semibold text-foreground/70 flex-shrink-0"
+                  title={`Step ${index + 1} of ${totalSteps}`}
+                >
+                  {index + 1}
+                </span>
+                <Input
+                  ref={inputRef}
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    e.stopPropagation();
+                    if (e.key === 'Enter') confirmEditTitle();
+                    else if (e.key === 'Escape') cancelEditTitle();
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-sm font-bold h-6 flex-1"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); confirmEditTitle(); }}
+                  className="h-5 w-5 p-0 bg-green-600 hover:bg-green-700 flex-shrink-0"
+                >
+                  <Check className="h-3 w-3" />
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); cancelEditTitle(); }}
+                  className="h-5 w-5 p-0 flex-shrink-0"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={onToggleExpanded}
+                className="group flex items-center gap-2 flex-1 min-w-0 text-left hover:bg-muted/50 rounded-md -mx-1 px-1 py-1"
               >
-                {index + 1}
-              </span>
-              <h3 className="text-sm font-bold truncate">
-                {step.title || '(untitled)'}
-              </h3>
-            </button>
+                {expanded ? (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                )}
+                <span
+                  className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full border border-border bg-muted text-[11px] font-semibold text-foreground/70 flex-shrink-0"
+                  title={`Step ${index + 1} of ${totalSteps}`}
+                >
+                  {index + 1}
+                </span>
+                <h3 className="text-sm font-bold truncate">
+                  {step.title || '(untitled)'}
+                </h3>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={startEditTitle}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setTitleDraft(step.title);
+                      setIsEditingTitle(true);
+                    }
+                  }}
+                  className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-0.5 rounded hover:bg-muted/80 transition-opacity text-muted-foreground hover:text-foreground"
+                  title="Rename step"
+                >
+                  <Edit2 className="h-3 w-3" />
+                </span>
+              </button>
+            )}
 
             <div className="flex items-center gap-2 flex-shrink-0">
               {viewportPill(step.viewport)}
