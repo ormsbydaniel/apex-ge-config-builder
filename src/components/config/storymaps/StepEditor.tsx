@@ -91,79 +91,106 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   };
 
   return (
-    <div className="space-y-4 pt-3">
-      {/* Content */}
-      <section className="space-y-2">
-        <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-muted-foreground" />
-          <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
-            Content
-          </h4>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={openContentDialog}
-            title="Edit content"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-        <div className="ml-6 space-y-1 text-xs text-muted-foreground">
-          {working.description ? (
-            <p className="whitespace-pre-wrap">{working.description}</p>
-          ) : (
-            <p className="italic">No description configured</p>
-          )}
-          <div>
-            <span className="font-medium">ID:</span> {working.id}
-          </div>
-        </div>
-
-        <Dialog open={editingContent} onOpenChange={handleContentOpenChange}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Edit content</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-2">
-              <div className="space-y-2">
-                <Label htmlFor="step-id">ID</Label>
-                <Input
-                  id="step-id"
-                  value={contentDraftId}
-                  onChange={(e) => setContentDraftId(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="step-description">Description (markdown)</Label>
-                <Textarea
-                  id="step-description"
-                  rows={8}
-                  value={contentDraftDescription}
-                  onChange={(e) => setContentDraftDescription(e.target.value)}
-                  placeholder="Step description..."
-                  className="min-h-[180px]"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => handleContentOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button onClick={saveContentDialog}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </section>
-
-      {/* Actions & Layers */}
+    <div className="space-y-3 pt-3">
+      {/* Combined header row: Content + Actions & Layers labels side-by-side */}
       <ActionsAndLayersSection
         step={working}
         sources={sources}
         warnings={warnings}
         onChange={(next) => setWorking(next)}
-      />
+        bare
+        renderHeader={({ count, onAdd }) => (
+          <div className="flex items-center gap-2 flex-wrap border-b pb-2">
+            {/* Content label group */}
+            <div className="flex items-center gap-1.5">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                Content
+              </h4>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={openContentDialog}
+                title="Edit content"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
+            <div className="h-4 w-px bg-border mx-1" />
+
+            {/* Actions & Layers label group */}
+            <div className="flex items-center gap-1.5">
+              <Film className="h-4 w-4 text-muted-foreground" />
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                Actions &amp; Layers
+              </h4>
+              {count > 0 && (
+                <span className="text-xs text-muted-foreground">({count})</span>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2"
+                onClick={onAdd}
+              >
+                <Plus className="h-3 w-3 mr-1" /> Add action
+              </Button>
+            </div>
+          </div>
+        )}
+      >
+      </ActionsAndLayersSection>
+
+      {/* Content body */}
+      <div className="space-y-1 text-xs text-muted-foreground">
+        {working.description ? (
+          <p className="whitespace-pre-wrap">{working.description}</p>
+        ) : (
+          <p className="italic">No description configured</p>
+        )}
+        <div>
+          <span className="font-medium">ID:</span> {working.id}
+        </div>
+      </div>
+
+      <Dialog open={editingContent} onOpenChange={handleContentOpenChange}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit content</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="step-id">ID</Label>
+              <Input
+                id="step-id"
+                value={contentDraftId}
+                onChange={(e) => setContentDraftId(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="step-description">Description (markdown)</Label>
+              <Textarea
+                id="step-description"
+                rows={8}
+                value={contentDraftDescription}
+                onChange={(e) => setContentDraftDescription(e.target.value)}
+                placeholder="Step description..."
+                className="min-h-[180px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => handleContentOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveContentDialog}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex justify-end gap-2 pt-2 border-t">
         <Button variant="outline" size="sm" onClick={onCancel}>
