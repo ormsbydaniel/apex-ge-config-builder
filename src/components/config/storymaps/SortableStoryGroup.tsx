@@ -179,7 +179,7 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
                   <button
                     type="button"
                     onClick={() => setCollapsed((c) => !c)}
-                    className="font-semibold text-sm truncate text-left"
+                    className="text-base font-semibold text-primary truncate text-left"
                   >
                     {story.title}
                   </button>
