@@ -128,22 +128,24 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
 
             <div className="flex items-center gap-1">
               <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
+                variant="outline"
+                size="sm"
                 onClick={onDuplicate}
+                className="border-blue-500/30 text-blue-600 hover:bg-blue-50 h-6 w-6 p-0"
+                aria-label="Duplicate step"
                 title="Duplicate step"
               >
-                <Copy className="h-3.5 w-3.5" />
+                <Copy className="h-3 w-3" />
               </Button>
               <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                variant="outline"
+                size="sm"
                 onClick={onRemove}
+                className="text-destructive hover:bg-destructive/10 border-destructive/30 h-6 w-6 p-0"
+                aria-label="Delete step"
                 title="Delete step"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-3 w-3" />
               </Button>
             </div>
           </CardHeader>
