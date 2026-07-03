@@ -102,6 +102,8 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
   onDuplicate,
   onRemove,
   onDirtyChange,
+  initiallyEditingContent,
+  onCancelNewStep,
 }) => {
   const {
     attributes,
