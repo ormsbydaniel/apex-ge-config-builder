@@ -1,11 +1,34 @@
 # Storymaps (Experimental)
 
 Storymaps let a configuration ship guided, step-by-step tours over its map
-layers. Phase 1 support is **schema-only**: the Config Builder validates the
-JSON shape and round-trips `stories` through import, the JSON editor, and
-export — but does not yet render a dedicated Storymaps UI (see the
-"Storymaps" tab placeholder). Editor UI and viewer-side playback land in a
-later phase.
+layers. The Config Builder validates the JSON shape, round-trips `stories`
+through import, the JSON editor, and export, and now provides a **Storymaps**
+tab for editing stories and their steps directly.
+
+Enable the tab from **Config Builder settings → Show Storymaps tab**.
+Viewer-side playback of storymaps is not yet implemented.
+
+## Editing storymaps in the builder
+
+Storymaps mirror the Layers tab: each **story** is a container (like an
+interface group) whose header carries its own editable title + markdown
+description, and each **step** inside a story is a draggable card (like a
+layer card) that expands to reveal the full step editor.
+
+- **Add story** — captures `id`, `title`, and a markdown `description`. The
+  id is auto-slugged from the title and made unique within the config.
+- **Reorder** — drag the grip on the story header, or on any step card.
+- **Edit story info** — pencil / overflow menu on the story header opens
+  the metadata dialog.
+- **Add step** — appends a new step with sensible defaults inside the
+  currently selected story.
+- **Edit step** — click the step header to expand its editor, then Save.
+
+Unresolved layer / constraint references surface as amber warning badges on
+the step header and inline next to the offending field. Warnings never
+block saving — they help authors catch drift from the underlying
+`sources`.
+
 
 ## Top-level shape
 
