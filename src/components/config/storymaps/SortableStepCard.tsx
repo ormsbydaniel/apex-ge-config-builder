@@ -42,6 +42,10 @@ interface SortableStepCardProps {
   onDuplicate: () => void;
   onRemove: () => void;
   onDirtyChange?: (dirty: boolean) => void;
+  /** When true, auto-open the Content dialog on mount. */
+  initiallyEditingContent?: boolean;
+  /** Called if the user cancels the initial Content dialog on a new step. */
+  onCancelNewStep?: () => void;
 }
 
 /** Pill helper matching the layer card `<Badge variant="outline">` treatment. */
