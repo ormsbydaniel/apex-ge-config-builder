@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { FileText, Pencil } from 'lucide-react';
+import { FileText, Film, Pencil, Plus } from 'lucide-react';
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import ActionsAndLayersSection from './actions/ActionsAndLayersSection';
