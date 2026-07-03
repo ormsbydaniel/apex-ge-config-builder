@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Service, DataSource, DataSourceItem, DataSourceFormat, LayerValidationResult } from '@/types/config';
+import { Service, DataSource, DataSourceItem, DataSourceFormat, LayerValidationResult, Story } from '@/types/config';
 import { WorkflowItem } from '@/types/dataSource';
 import { ValidatedConfiguration } from '@/schemas/configSchema';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
@@ -47,7 +47,8 @@ type ConfigAction =
   | { type: 'SET_UNSAVED_FORM_CHANGES'; payload: { hasChanges: boolean; description: string | null } }
   | { type: 'UPDATE_PROJECTIONS'; payload: Array<{ name?: string; code: string; definition: string }> }
   | { type: 'UPDATE_FOOTER'; payload: { title: string; url: string }[] }
-  | { type: 'UPDATE_WORKFLOWS'; payload: WorkflowItem[] };
+  | { type: 'UPDATE_WORKFLOWS'; payload: WorkflowItem[] }
+  | { type: 'UPDATE_STORIES'; payload: Story[] };
 
 
 const initialState: ConfigState = {
@@ -564,6 +565,12 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         ...state,
         isDirty: true,
         workflows: action.payload,
+      };
+    case 'UPDATE_STORIES':
+      return {
+        ...state,
+        isDirty: true,
+        stories: action.payload,
       };
     default:
 
