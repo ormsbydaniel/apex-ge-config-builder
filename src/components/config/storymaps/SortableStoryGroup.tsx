@@ -229,7 +229,7 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onAddStep}
+                onClick={handleAddStep}
                 className="text-primary hover:bg-primary/10 border-primary/30"
               >
                 <Plus className="h-3 w-3 mr-1" />
