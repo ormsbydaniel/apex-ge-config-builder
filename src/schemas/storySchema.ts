@@ -32,7 +32,7 @@ export const StoryConstraintSelectionSchema = z
     label: z.string().min(1),
     lower: z.number().optional(),
     upper: z.number().optional(),
-    values: z.array(z.union([z.string(), z.number()])).nonempty().optional(),
+    values: z.array(z.union([z.string(), z.number()])).optional(),
   })
   .refine(
     (v) =>
