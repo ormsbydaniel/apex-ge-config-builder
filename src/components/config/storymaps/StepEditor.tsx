@@ -160,15 +160,24 @@ export const StepEditor: React.FC<StepEditorProps> = ({
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
+              <Label htmlFor="step-title">Title</Label>
+              <Input
+                id="step-title"
+                autoFocus
+                value={contentDraftTitle}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Step title..."
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="step-description">Description (markdown)</Label>
               <Textarea
                 id="step-description"
-                autoFocus
-                rows={16}
+                rows={14}
                 value={contentDraftDescription}
                 onChange={(e) => setContentDraftDescription(e.target.value)}
                 placeholder="Step description..."
-                className="min-h-[360px]"
+                className="min-h-[320px]"
               />
             </div>
             <div className="space-y-2">
@@ -176,8 +185,11 @@ export const StepEditor: React.FC<StepEditorProps> = ({
               <Input
                 id="step-id"
                 value={contentDraftId}
-                onChange={(e) => setContentDraftId(e.target.value)}
+                onChange={(e) => handleIdChange(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                Auto-derived from the title as a slug. Edit to override.
+              </p>
             </div>
           </div>
           <DialogFooter>
