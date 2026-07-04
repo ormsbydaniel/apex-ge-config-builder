@@ -33,6 +33,11 @@ export interface CloneDonorLayerOptions {
    * the same caller don't collide with each other.
    */
   existingNames: Set<string>;
+  /**
+   * Mutated as new unique ids are produced. Optional — callers that don't
+   * pass this get local de-dupe against the donor's name only.
+   */
+  existingIds?: Set<string>;
 }
 
 const uniqueName = (base: string, taken: Set<string>): string => {
