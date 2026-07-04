@@ -93,7 +93,16 @@ export const useLayerOperations = ({
   // === LAYER MANAGEMENT ===
   
   const addLayer = useCallback((layer: DataSource) => {
-    dispatch({ type: 'ADD_SOURCE', payload: layer });
+    // Ensure new layers always get a unique id (auto-derived from name if
+    // the caller didn't provide one — e.g. legacy code paths).
+    const takenIds = new Set<string>(
+      (config.sources || []).map((s: any) => s?.id).filter((v: any): v is string => typeof v === 'string' && v.length > 0),
+    );
+    const withId: DataSource = layer.id && !takenIds.has(layer.id)
+      ? layer
+      : { ...layer, id: uniqueId(layer.id || layer.name || 'layer', takenIds) };
+
+    dispatch({ type: 'ADD_SOURCE', payload: withId });
     setState(prev => ({
       ...prev,
       showLayerForm: false,
@@ -101,7 +110,7 @@ export const useLayerOperations = ({
       defaultInterfaceGroup: undefined,
       defaultSubinterfaceGroup: undefined
     }));
-  }, [dispatch]);
+  }, [config.sources, dispatch]);
 
   const removeLayer = useCallback((index: number) => {
     dispatch({ type: 'REMOVE_SOURCE', payload: index });
