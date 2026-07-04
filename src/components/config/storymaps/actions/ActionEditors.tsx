@@ -101,7 +101,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
       ? String(step.viewport.duration) : ''
   );
   const [fitLayer, setFitLayer] = useState<string>(
-    !isZoomViewport(step.viewport) ? (step.viewport as any).fitLayer ?? '' : (layerOptions[0] ?? '')
+    !isZoomViewport(step.viewport) ? (step.viewport as any).fitLayer ?? '' : (layerOptions[0]?.id ?? '')
   );
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
       setLat(step.viewport.center[1]);
       setDuration(step.viewport.duration !== undefined ? String(step.viewport.duration) : '');
     } else {
-      setFitLayer((step.viewport as any).fitLayer ?? layerOptions[0] ?? '');
+      setFitLayer((step.viewport as any).fitLayer ?? layerOptions[0]?.id ?? '');
     }
   }, [open, step, layerOptions]);
 
