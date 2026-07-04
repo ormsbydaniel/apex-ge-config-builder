@@ -92,58 +92,23 @@ export const StepEditor: React.FC<StepEditorProps> = ({
 
   return (
     <div className="space-y-3 pt-3">
-      {/* Combined header row: Content + Actions & Layers labels side-by-side */}
-      <ActionsAndLayersSection
-        step={working}
-        sources={sources}
-        warnings={warnings}
-        onChange={(next) => setWorking(next)}
-        bare
-        renderHeader={({ count, onAdd }) => (
-          <div className="flex items-center gap-2 flex-wrap border-b pb-2">
-            {/* Content label group */}
-            <div className="flex items-center gap-1.5">
-              <FileText className="h-4 w-4 text-muted-foreground" />
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
-                Content
-              </h4>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={openContentDialog}
-                title="Edit content"
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-
-            <div className="h-4 w-px bg-border mx-1" />
-
-            {/* Actions & Layers label group */}
-            <div className="flex items-center gap-1.5">
-              <Film className="h-4 w-4 text-muted-foreground" />
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
-                Actions &amp; Layers
-              </h4>
-              {count > 0 && (
-                <span className="text-xs text-muted-foreground">({count})</span>
-              )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-6 px-2"
-                onClick={onAdd}
-              >
-                <Plus className="h-3 w-3 mr-1" /> Add action
-              </Button>
-            </div>
-          </div>
-        )}
-      >
-      </ActionsAndLayersSection>
+      {/* Content label */}
+      <div className="flex items-center gap-1.5 border-b pb-2">
+        <FileText className="h-4 w-4 text-muted-foreground" />
+        <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+          Content
+        </h4>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          onClick={openContentDialog}
+          title="Edit content"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+      </div>
 
       {/* Content body */}
       <div className="space-y-1 text-xs text-muted-foreground">
@@ -156,6 +121,15 @@ export const StepEditor: React.FC<StepEditorProps> = ({
           <span className="font-medium">ID:</span> {working.id}
         </div>
       </div>
+
+      {/* Actions & Layers section (default header + list) */}
+      <ActionsAndLayersSection
+        step={working}
+        sources={sources}
+        warnings={warnings}
+        onChange={(next) => setWorking(next)}
+        bare
+      />
 
       <Dialog open={editingContent} onOpenChange={handleContentOpenChange}>
         <DialogContent className="sm:max-w-[600px]">
