@@ -94,11 +94,14 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   };
 
   const saveContentDialog = () => {
-    patch({
+    const next: StoryStep = {
+      ...working,
       title: contentDraftTitle.trim() || working.title,
       id: contentDraftId || slugify(contentDraftTitle),
       description: contentDraftDescription || undefined,
-    });
+    };
+    setWorking(next);
+    onSave(next);
     setHasSavedNewContent(true);
     setEditingContent(false);
   };
