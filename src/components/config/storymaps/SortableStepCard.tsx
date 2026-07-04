@@ -28,6 +28,7 @@ import {
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import StepEditor from './StepEditor';
+import StepJsonEditorDialog from './StepJsonEditorDialog';
 import { cn } from '@/lib/utils';
 
 interface SortableStepCardProps {
