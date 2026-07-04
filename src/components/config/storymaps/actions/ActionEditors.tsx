@@ -186,7 +186,7 @@ interface ActiveLayersEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
-  layerOptions: string[];
+  layerOptions: LayerOption[];
   onSave: (active: string[]) => void;
 }
 
@@ -196,11 +196,13 @@ export const ActiveLayersEditor: React.FC<ActiveLayersEditorProps> = ({
   const [active, setActive] = useState<string[]>(step.layers?.active ?? []);
   useEffect(() => { if (open) setActive(step.layers?.active ?? []); }, [open, step]);
 
-  const toggle = (n: string) =>
-    setActive((prev) => prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n]);
+  const toggle = (id: string) =>
+    setActive((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
 
   const save = () => { onSave(active); onOpenChange(false); };
-  const unknown = active.filter((n) => !layerOptions.includes(n));
+  const knownIds = new Set(layerOptions.map((o) => o.id));
+  const knownNames = new Set(layerOptions.map((o) => o.name));
+  const unknown = active.filter((ref) => !knownIds.has(ref) && !knownNames.has(ref));
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Active layers" onSave={save}>
@@ -208,10 +210,13 @@ export const ActiveLayersEditor: React.FC<ActiveLayersEditorProps> = ({
         {layerOptions.length === 0 && (
           <p className="text-xs text-muted-foreground">No layers configured.</p>
         )}
-        {layerOptions.map((n) => (
-          <label key={n} className="flex items-center gap-2 text-sm">
-            <Checkbox checked={active.includes(n)} onCheckedChange={() => toggle(n)} />
-            {n}
+        {layerOptions.map((o) => (
+          <label key={o.id} className="flex items-center gap-2 text-sm">
+            <Checkbox
+              checked={active.includes(o.id) || active.includes(o.name)}
+              onCheckedChange={() => toggle(o.id)}
+            />
+            {optionLabel(o)}
           </label>
         ))}
       </div>
