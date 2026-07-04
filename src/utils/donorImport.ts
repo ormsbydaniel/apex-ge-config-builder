@@ -51,7 +51,7 @@ const uniqueName = (base: string, taken: Set<string>): string => {
 
 export const cloneDonorLayer = (
   source: any,
-  { interfaceGroup, subinterfaceGroup, existingNames }: CloneDonorLayerOptions,
+  { interfaceGroup, subinterfaceGroup, existingNames, existingIds }: CloneDonorLayerOptions,
 ): any => {
   const cloned = deepClone(source);
 
@@ -83,6 +83,12 @@ export const cloneDonorLayer = (
   const finalName = uniqueName(baseName, existingNames);
   cloned.name = finalName;
   existingNames.add(finalName);
+
+  // Always mint a fresh id — never inherit the donor's.
+  const idPool = existingIds ?? new Set<string>();
+  const finalId = uniqueId(finalName, idPool);
+  cloned.id = finalId;
+  idPool.add(finalId);
 
   return cloned;
 };
