@@ -14,6 +14,7 @@ import {
   Edit2,
   Check,
   X,
+  FileJson,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -27,6 +28,7 @@ import {
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import StepEditor from './StepEditor';
+import StepJsonEditorDialog from './StepJsonEditorDialog';
 import { cn } from '@/lib/utils';
 
 interface SortableStepCardProps {
@@ -127,6 +129,7 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(step.title);
+  const [jsonOpen, setJsonOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -282,6 +285,20 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setJsonOpen(true)}
+                        className="h-6 w-6 p-0"
+                        aria-label="Edit step JSON"
+                      >
+                        <FileJson className="h-3 w-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Edit JSON</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={onDuplicate}
                         className="border-blue-500/30 text-blue-600 hover:bg-blue-50 h-6 w-6 p-0"
                         aria-label="Duplicate step"
@@ -326,6 +343,13 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
           )}
         </Card>
       </div>
+
+      <StepJsonEditorDialog
+        isOpen={jsonOpen}
+        onClose={() => setJsonOpen(false)}
+        step={step}
+        onSave={onSave}
+      />
     </div>
   );
 };
