@@ -335,8 +335,6 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                 sources={sources}
                 warnings={warnings}
                 onSave={onSave}
-                onCancel={onToggleExpanded}
-                onDirtyChange={onDirtyChange}
                 initiallyEditingContent={initiallyEditingContent}
                 onCancelNewStep={onCancelNewStep}
               />
