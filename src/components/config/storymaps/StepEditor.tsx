@@ -46,9 +46,18 @@ export const StepEditor: React.FC<StepEditorProps> = ({
 }) => {
   const [working, setWorking] = useState<StoryStep>(step);
   const [editingContent, setEditingContent] = useState<boolean>(!!initiallyEditingContent);
+  const [contentDraftTitle, setContentDraftTitle] = useState(step.title);
   const [contentDraftId, setContentDraftId] = useState(step.id);
   const [contentDraftDescription, setContentDraftDescription] = useState(step.description ?? '');
+  const [idManuallyEdited, setIdManuallyEdited] = useState(false);
   const [hasSavedNewContent, setHasSavedNewContent] = useState(false);
+
+  const slugify = (v: string) =>
+    v.toLowerCase().trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
 
   // Reset when the incoming step reference changes.
   useEffect(() => {
@@ -58,10 +67,13 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   // Sync draft fields when opening the dialog.
   useEffect(() => {
     if (editingContent) {
+      setContentDraftTitle(working.title);
       setContentDraftId(working.id);
       setContentDraftDescription(working.description ?? '');
+      // If ID already matches slug of title, treat as auto-derived
+      setIdManuallyEdited(working.id !== slugify(working.title));
     }
-  }, [editingContent, working.id, working.description]);
+  }, [editingContent, working.title, working.id, working.description]);
 
   const dirty = JSON.stringify(working) !== JSON.stringify(step);
   useEffect(() => {
@@ -72,9 +84,19 @@ export const StepEditor: React.FC<StepEditorProps> = ({
 
   const openContentDialog = () => setEditingContent(true);
 
+  const handleTitleChange = (v: string) => {
+    setContentDraftTitle(v);
+    if (!idManuallyEdited) setContentDraftId(slugify(v));
+  };
+  const handleIdChange = (v: string) => {
+    setContentDraftId(v);
+    setIdManuallyEdited(true);
+  };
+
   const saveContentDialog = () => {
     patch({
-      id: contentDraftId,
+      title: contentDraftTitle.trim() || working.title,
+      id: contentDraftId || slugify(contentDraftTitle),
       description: contentDraftDescription || undefined,
     });
     setHasSavedNewContent(true);
@@ -138,15 +160,24 @@ export const StepEditor: React.FC<StepEditorProps> = ({
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
+              <Label htmlFor="step-title">Title</Label>
+              <Input
+                id="step-title"
+                autoFocus
+                value={contentDraftTitle}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Step title..."
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="step-description">Description (markdown)</Label>
               <Textarea
                 id="step-description"
-                autoFocus
-                rows={16}
+                rows={14}
                 value={contentDraftDescription}
                 onChange={(e) => setContentDraftDescription(e.target.value)}
                 placeholder="Step description..."
-                className="min-h-[360px]"
+                className="min-h-[320px]"
               />
             </div>
             <div className="space-y-2">
@@ -154,8 +185,11 @@ export const StepEditor: React.FC<StepEditorProps> = ({
               <Input
                 id="step-id"
                 value={contentDraftId}
-                onChange={(e) => setContentDraftId(e.target.value)}
+                onChange={(e) => handleIdChange(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                Auto-derived from the title as a slug. Edit to override.
+              </p>
             </div>
           </div>
           <DialogFooter>
