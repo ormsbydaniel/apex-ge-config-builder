@@ -118,22 +118,22 @@ export const StepEditor: React.FC<StepEditorProps> = ({
 
       {/* Content body */}
       <div className="space-y-1 text-xs text-muted-foreground">
-        {working.description ? (
-          <p className="whitespace-pre-wrap">{working.description}</p>
+        {step.description ? (
+          <p className="whitespace-pre-wrap">{step.description}</p>
         ) : (
           <p className="italic">No description configured</p>
         )}
         <div>
-          <span className="font-medium">ID:</span> {working.id}
+          <span className="font-medium">ID:</span> {step.id}
         </div>
       </div>
 
       {/* Actions & Layers section (default header + list) */}
       <ActionsAndLayersSection
-        step={working}
+        step={step}
         sources={sources}
         warnings={warnings}
-        onChange={(next) => setWorking(next)}
+        onChange={onSave}
         bare
       />
 
