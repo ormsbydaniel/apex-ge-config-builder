@@ -72,6 +72,7 @@ export interface DataSourceLayout {
 
 // Base interface with common required fields
 interface BaseDataSource {
+  id: string;
   name: string;
   isActive: boolean;
   data: DataField;

@@ -29,6 +29,11 @@ import type {
 // helpers
 // -----------------------------------------------------------------------------
 
+export interface LayerOption {
+  id: string;
+  name: string;
+}
+
 const isZoomViewport = (v: any): v is { zoom: number; center: [number, number]; duration?: number } =>
   v && typeof v === 'object' && 'zoom' in v;
 
@@ -36,10 +41,14 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
   if (!ref) return undefined;
   const slug = (s: string) => s.toLowerCase().trim().replace(/\s+/g, '-');
   return (
+    sources.find((s) => s.id === ref) ??
     sources.find((s) => s.name === ref) ??
     sources.find((s) => slug(s.name) === slug(ref))
   );
 };
+
+// Render a friendly label for an option: name followed by muted id.
+const optionLabel = (opt: LayerOption) => opt.name || opt.id;
 
 interface BaseModalProps {
   open: boolean;
@@ -76,7 +85,7 @@ interface NavigationEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
-  layerOptions: string[];
+  layerOptions: LayerOption[];
   onSave: (viewport: StoryStep['viewport']) => void;
 }
 
@@ -92,7 +101,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
       ? String(step.viewport.duration) : ''
   );
   const [fitLayer, setFitLayer] = useState<string>(
-    !isZoomViewport(step.viewport) ? (step.viewport as any).fitLayer ?? '' : (layerOptions[0] ?? '')
+    !isZoomViewport(step.viewport) ? (step.viewport as any).fitLayer ?? '' : (layerOptions[0]?.id ?? '')
   );
 
   useEffect(() => {
@@ -104,7 +113,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
       setLat(step.viewport.center[1]);
       setDuration(step.viewport.duration !== undefined ? String(step.viewport.duration) : '');
     } else {
-      setFitLayer((step.viewport as any).fitLayer ?? layerOptions[0] ?? '');
+      setFitLayer((step.viewport as any).fitLayer ?? layerOptions[0]?.id ?? '');
     }
   }, [open, step, layerOptions]);
 
@@ -160,7 +169,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
           <Select value={fitLayer} onValueChange={setFitLayer}>
             <SelectTrigger><SelectValue placeholder="Select a layer" /></SelectTrigger>
             <SelectContent>
-              {layerOptions.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+              {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
@@ -177,7 +186,7 @@ interface ActiveLayersEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
-  layerOptions: string[];
+  layerOptions: LayerOption[];
   onSave: (active: string[]) => void;
 }
 
@@ -187,11 +196,13 @@ export const ActiveLayersEditor: React.FC<ActiveLayersEditorProps> = ({
   const [active, setActive] = useState<string[]>(step.layers?.active ?? []);
   useEffect(() => { if (open) setActive(step.layers?.active ?? []); }, [open, step]);
 
-  const toggle = (n: string) =>
-    setActive((prev) => prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n]);
+  const toggle = (id: string) =>
+    setActive((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
 
   const save = () => { onSave(active); onOpenChange(false); };
-  const unknown = active.filter((n) => !layerOptions.includes(n));
+  const knownIds = new Set(layerOptions.map((o) => o.id));
+  const knownNames = new Set(layerOptions.map((o) => o.name));
+  const unknown = active.filter((ref) => !knownIds.has(ref) && !knownNames.has(ref));
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Active layers" onSave={save}>
@@ -199,10 +210,13 @@ export const ActiveLayersEditor: React.FC<ActiveLayersEditorProps> = ({
         {layerOptions.length === 0 && (
           <p className="text-xs text-muted-foreground">No layers configured.</p>
         )}
-        {layerOptions.map((n) => (
-          <label key={n} className="flex items-center gap-2 text-sm">
-            <Checkbox checked={active.includes(n)} onCheckedChange={() => toggle(n)} />
-            {n}
+        {layerOptions.map((o) => (
+          <label key={o.id} className="flex items-center gap-2 text-sm">
+            <Checkbox
+              checked={active.includes(o.id) || active.includes(o.name)}
+              onCheckedChange={() => toggle(o.id)}
+            />
+            {optionLabel(o)}
           </label>
         ))}
       </div>
@@ -228,7 +242,7 @@ interface FocusLayerEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
-  layerOptions: string[];
+  layerOptions: LayerOption[];
   onSave: (focusLayer: string | undefined) => void;
 }
 
@@ -243,6 +257,11 @@ export const FocusLayerEditor: React.FC<FocusLayerEditorProps> = ({
     onOpenChange(false);
   };
 
+  const knownRefs = new Set<string>([
+    ...layerOptions.map((o) => o.id),
+    ...layerOptions.map((o) => o.name),
+  ]);
+
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Focus layer" onSave={save}>
       <div>
@@ -251,8 +270,8 @@ export const FocusLayerEditor: React.FC<FocusLayerEditorProps> = ({
           <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="__none__">None</SelectItem>
-            {layerOptions.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-            {step.focusLayer && !layerOptions.includes(step.focusLayer) && (
+            {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
+            {step.focusLayer && !knownRefs.has(step.focusLayer) && (
               <SelectItem value={step.focusLayer}>{step.focusLayer} (unknown)</SelectItem>
             )}
           </SelectContent>
@@ -333,7 +352,9 @@ export const LayerControlEditor: React.FC<LayerControlEditorProps> = ({
 
   const source = findSource(sources, working.layer);
   const availableConstraints: ConstraintSourceItem[] = source?.constraints ?? [];
-  const layerOptions = sources.map((s) => s.name).filter(Boolean);
+  const layerOptions: LayerOption[] = sources
+    .map((s) => ({ id: s.id, name: s.name }))
+    .filter((o) => o.id);
 
   const patch = (p: Partial<StoryStepControl>) =>
     setWorking((prev) => ({ ...prev, ...p }));
@@ -369,8 +390,8 @@ export const LayerControlEditor: React.FC<LayerControlEditorProps> = ({
           <Select value={working.layer} onValueChange={(v) => patch({ layer: v })}>
             <SelectTrigger><SelectValue placeholder="Pick a layer" /></SelectTrigger>
             <SelectContent>
-              {layerOptions.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-              {working.layer && !layerOptions.includes(working.layer) && (
+              {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
+              {working.layer && !layerOptions.some((o) => o.id === working.layer || o.name === working.layer) && (
                 <SelectItem value={working.layer}>{working.layer} (unknown)</SelectItem>
               )}
             </SelectContent>

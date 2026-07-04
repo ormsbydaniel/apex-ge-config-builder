@@ -10,6 +10,7 @@ const baseConfig = {
   services: [],
   sources: [
     {
+      id: 'layer-1',
       name: 'Layer 1',
       isActive: true,
       data: [],

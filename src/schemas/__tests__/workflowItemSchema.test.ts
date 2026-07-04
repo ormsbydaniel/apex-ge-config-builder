@@ -4,6 +4,7 @@ import { DataSourceSchema } from '../configSchema';
 // Minimal source wrapper used to drive validation of the workflows[] array
 // through the public DataSourceSchema surface.
 const wrap = (workflows: unknown[]) => ({
+  id: 'host',
   name: 'host',
   isActive: true,
   data: [{ format: 'cog', zIndex: 1, url: 'https://example.com/x.tif' }],

@@ -2,12 +2,17 @@
 import { useConfig } from '@/contexts/ConfigContext';
 import { DataSource, Service, Category, DataSourceFormat } from '@/types/config';
 import { validateImages } from '@/utils/imageValidation';
+import { ensureSourceIds } from '@/utils/idHelpers';
 
 export const useValidatedConfig = () => {
   const { config, dispatch } = useConfig();
 
+  // Auto-fill missing source ids from slug(name), de-duped across the array,
+  // so legacy configs without ids still validate cleanly.
+  const sourcesWithIds = ensureSourceIds(config.sources as any[]) as DataSource[];
+
   // Ensure sources have required fields with defaults
-  const validatedSources: DataSource[] = config.sources.map((source): DataSource => {
+  const validatedSources: DataSource[] = sourcesWithIds.map((source): DataSource => {
     // Data is always an array now, so we can simplify validation
     const validatedData = source.data.map(dataItem => ({
       ...dataItem,

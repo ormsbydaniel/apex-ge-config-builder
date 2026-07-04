@@ -26,15 +26,19 @@ const slugify = (s: string): string =>
   s.toLowerCase().trim().replace(/\s+/g, '-');
 
 const buildLayerLookup = (sources: DataSource[]) => {
+  const byId = new Map<string, DataSource>();
   const byName = new Map<string, DataSource>();
   const bySlug = new Map<string, DataSource>();
   for (const src of sources) {
-    if (!src?.name) continue;
-    byName.set(src.name, src);
-    bySlug.set(slugify(src.name), src);
+    if (!src) continue;
+    if (typeof src.id === 'string' && src.id) byId.set(src.id, src);
+    if (src.name) {
+      byName.set(src.name, src);
+      bySlug.set(slugify(src.name), src);
+    }
   }
   return (ref: string): DataSource | undefined =>
-    byName.get(ref) ?? bySlug.get(slugify(ref));
+    byId.get(ref) ?? byName.get(ref) ?? bySlug.get(slugify(ref));
 };
 
 export const stepKey = (storyIndex: number, stepIndex: number): string =>
@@ -58,7 +62,7 @@ export const validateStories = (
         warnings.push({
           kind: 'unknown-layer',
           field: 'focusLayer',
-          message: `Focus layer "${step.focusLayer}" does not match any source name.`,
+          message: `Focus layer "${step.focusLayer}" does not match any source id or name.`,
         });
       }
 
@@ -68,7 +72,7 @@ export const validateStories = (
           warnings.push({
             kind: 'unknown-layer',
             field: `layers.active[${i}]`,
-            message: `Active layer "${ref}" does not match any source name.`,
+            message: `Active layer "${ref}" does not match any source id or name.`,
           });
         }
       });
@@ -80,7 +84,7 @@ export const validateStories = (
           warnings.push({
             kind: 'unknown-layer',
             field: `controls[${ci}].layer`,
-            message: `Control layer "${control.layer}" does not match any source name.`,
+            message: `Control layer "${control.layer}" does not match any source id or name.`,
           });
         }
 

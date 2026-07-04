@@ -219,13 +219,15 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
 
-  const layerOptions = sources.map((s) => s.name).filter(Boolean);
+  const layerOptions = sources
+    .map((s) => ({ id: s.id, name: s.name }))
+    .filter((o) => !!o.id);
   const patch = (p: Partial<StoryStep>) => onChange({ ...step, ...p });
 
   const handlePick = (kind: ActionKind) => {
     if (kind === 'layerControl') {
       // Append a new empty control and open its editor
-      const next = [...(step.controls ?? []), { layer: layerOptions[0] ?? '' }];
+      const next = [...(step.controls ?? []), { layer: layerOptions[0]?.id ?? '' }];
       onChange({ ...step, controls: next });
       setOpenEditor({ kind: 'layerControl', index: next.length - 1 });
     } else {

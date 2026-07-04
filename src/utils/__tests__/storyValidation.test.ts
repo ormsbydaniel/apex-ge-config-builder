@@ -3,6 +3,7 @@ import { validateStories, stepKey } from '@/utils/storyValidation';
 import { DataSource, Story } from '@/types/config';
 
 const source: DataSource = {
+  id: 'austria-solar-annual',
   name: 'austria-solar-annual',
   isActive: true,
   data: [{ url: 'x', format: 'cog', zIndex: 0 }],
@@ -153,7 +154,7 @@ describe('validateStories', () => {
   });
 
   it('matches layer references by slug of source name', () => {
-    const src: DataSource = { ...source, name: 'Austria Solar Annual' } as any;
+    const src: DataSource = { ...source, id: 'austria-solar-annual', name: 'Austria Solar Annual' } as any;
     const stories = [
       makeStory({
         focusLayer: 'austria-solar-annual',
@@ -163,4 +164,19 @@ describe('validateStories', () => {
     const warnings = validateStories(stories, [src]);
     expect(warnings.size).toBe(0);
   });
+
+  it('matches layer references by explicit source id', () => {
+    const src: DataSource = { ...source, id: 'solar-2024', name: 'Solar' } as any;
+    const stories = [
+      makeStory({
+        focusLayer: 'solar-2024',
+        layers: { active: ['solar-2024'] },
+        viewport: { fitLayer: 'solar-2024' },
+        controls: [{ layer: 'solar-2024' }],
+      }),
+    ];
+    const warnings = validateStories(stories, [src]);
+    expect(warnings.size).toBe(0);
+  });
 });
+

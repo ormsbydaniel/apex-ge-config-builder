@@ -422,6 +422,7 @@ const LayoutSchema = z.object({
 // workflow entries. Any new source-level field added here automatically
 // becomes valid inside a workflow entry too.
 const SourceShape = {
+  id: z.string().min(1),
   name: z.string(),
   isActive: z.boolean(),
   data: DataFieldSchema,
