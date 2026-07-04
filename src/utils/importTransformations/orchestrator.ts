@@ -99,6 +99,11 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
       return source;
     });
   }
-  
+
+  // Ensure every source has a stable id (auto-derive from name for legacy configs).
+  if (normalizedConfig.sources && Array.isArray(normalizedConfig.sources)) {
+    normalizedConfig.sources = ensureSourceIds(normalizedConfig.sources);
+  }
+
   return normalizedConfig;
 };
