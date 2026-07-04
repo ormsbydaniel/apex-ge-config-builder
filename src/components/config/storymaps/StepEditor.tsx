@@ -20,8 +20,6 @@ interface StepEditorProps {
   sources: DataSource[];
   warnings?: StoryWarning[];
   onSave: (next: StoryStep) => void;
-  onCancel: () => void;
-  onDirtyChange?: (dirty: boolean) => void;
   /** When true, auto-open the Content dialog on mount (for newly added steps). */
   initiallyEditingContent?: boolean;
   /** Called if the user cancels the Content dialog on a new step — the parent
@@ -31,20 +29,17 @@ interface StepEditorProps {
 
 /**
  * Editor for a single StoryStep.
- * Local state is held here; commits happen on Save via a single onSave dispatch
- * (Core memory: single onSave, init inside effect on the trigger prop).
+ * All edits commit immediately via onSave (from the Content modal, per-action
+ * modals, or the JSON modal). No local staging or Save/Cancel footer.
  */
 export const StepEditor: React.FC<StepEditorProps> = ({
   step,
   sources,
   warnings,
   onSave,
-  onCancel,
-  onDirtyChange,
   initiallyEditingContent,
   onCancelNewStep,
 }) => {
-  const [working, setWorking] = useState<StoryStep>(step);
   const [editingContent, setEditingContent] = useState<boolean>(!!initiallyEditingContent);
   const [contentDraftTitle, setContentDraftTitle] = useState(step.title);
   const [contentDraftId, setContentDraftId] = useState(step.id);
@@ -59,28 +54,15 @@ export const StepEditor: React.FC<StepEditorProps> = ({
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
 
-  // Reset when the incoming step reference changes.
-  useEffect(() => {
-    setWorking(step);
-  }, [step]);
-
   // Sync draft fields when opening the dialog.
   useEffect(() => {
     if (editingContent) {
-      setContentDraftTitle(working.title);
-      setContentDraftId(working.id);
-      setContentDraftDescription(working.description ?? '');
-      // If ID already matches slug of title, treat as auto-derived
-      setIdManuallyEdited(working.id !== slugify(working.title));
+      setContentDraftTitle(step.title);
+      setContentDraftId(step.id);
+      setContentDraftDescription(step.description ?? '');
+      setIdManuallyEdited(step.id !== slugify(step.title));
     }
-  }, [editingContent, working.title, working.id, working.description]);
-
-  const dirty = JSON.stringify(working) !== JSON.stringify(step);
-  useEffect(() => {
-    onDirtyChange?.(dirty);
-  }, [dirty, onDirtyChange]);
-
-  const patch = (p: Partial<StoryStep>) => setWorking((prev) => ({ ...prev, ...p }));
+  }, [editingContent, step.title, step.id, step.description]);
 
   const openContentDialog = () => setEditingContent(true);
 
@@ -95,12 +77,11 @@ export const StepEditor: React.FC<StepEditorProps> = ({
 
   const saveContentDialog = () => {
     const next: StoryStep = {
-      ...working,
-      title: contentDraftTitle.trim() || working.title,
+      ...step,
+      title: contentDraftTitle.trim() || step.title,
       id: contentDraftId || slugify(contentDraftTitle),
       description: contentDraftDescription || undefined,
     };
-    setWorking(next);
     onSave(next);
     setHasSavedNewContent(true);
     setEditingContent(false);
