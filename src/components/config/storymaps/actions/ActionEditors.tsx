@@ -390,8 +390,8 @@ export const LayerControlEditor: React.FC<LayerControlEditorProps> = ({
           <Select value={working.layer} onValueChange={(v) => patch({ layer: v })}>
             <SelectTrigger><SelectValue placeholder="Pick a layer" /></SelectTrigger>
             <SelectContent>
-              {layerOptions.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-              {working.layer && !layerOptions.includes(working.layer) && (
+              {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
+              {working.layer && !layerOptions.some((o) => o.id === working.layer || o.name === working.layer) && (
                 <SelectItem value={working.layer}>{working.layer} (unknown)</SelectItem>
               )}
             </SelectContent>
