@@ -99,7 +99,12 @@ export const normalizeImportedConfig = (config: any): any => {
       return source;
     });
   }
-  
+
+  // Ensure every source has a stable id (auto-derive from name for legacy configs).
+  if (currentConfig.sources && Array.isArray(currentConfig.sources)) {
+    currentConfig.sources = ensureSourceIds(currentConfig.sources);
+  }
+
   return currentConfig;
 };
 
