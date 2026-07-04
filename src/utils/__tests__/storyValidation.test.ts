@@ -3,6 +3,7 @@ import { validateStories, stepKey } from '@/utils/storyValidation';
 import { DataSource, Story } from '@/types/config';
 
 const source: DataSource = {
+  id: 'austria-solar-annual',
   name: 'austria-solar-annual',
   isActive: true,
   data: [{ url: 'x', format: 'cog', zIndex: 0 }],
