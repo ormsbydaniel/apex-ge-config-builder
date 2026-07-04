@@ -239,12 +239,16 @@ export const useLayerOperations = ({
       const existingNames = new Set<string>(
         (config.sources || []).map((s: any) => s?.name).filter((n): n is string => typeof n === 'string'),
       );
+      const existingIds = new Set<string>(
+        (config.sources || []).map((s: any) => s?.id).filter((v): v is string => typeof v === 'string' && v.length > 0),
+      );
       let added = 0;
       for (const donor of layers) {
         const cloned = cloneDonorLayer(donor, {
           interfaceGroup: importTargetGroup,
           subinterfaceGroup: importTargetSubGroup,
           existingNames,
+          existingIds,
         });
         dispatch({ type: 'ADD_SOURCE', payload: cloned });
         added += 1;
