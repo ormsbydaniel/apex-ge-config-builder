@@ -132,28 +132,29 @@ export const StepEditor: React.FC<StepEditorProps> = ({
       />
 
       <Dialog open={editingContent} onOpenChange={handleContentOpenChange}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[900px]">
           <DialogHeader>
             <DialogTitle>Edit content</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="step-description">Description (markdown)</Label>
+              <Textarea
+                id="step-description"
+                autoFocus
+                rows={16}
+                value={contentDraftDescription}
+                onChange={(e) => setContentDraftDescription(e.target.value)}
+                placeholder="Step description..."
+                className="min-h-[360px]"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="step-id">ID</Label>
               <Input
                 id="step-id"
                 value={contentDraftId}
                 onChange={(e) => setContentDraftId(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="step-description">Description (markdown)</Label>
-              <Textarea
-                id="step-description"
-                rows={8}
-                value={contentDraftDescription}
-                onChange={(e) => setContentDraftDescription(e.target.value)}
-                placeholder="Step description..."
-                className="min-h-[180px]"
               />
             </div>
           </div>
