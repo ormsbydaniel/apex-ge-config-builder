@@ -285,6 +285,20 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setJsonOpen(true)}
+                        className="h-6 w-6 p-0"
+                        aria-label="Edit step JSON"
+                      >
+                        <FileJson className="h-3 w-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Edit JSON</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={onDuplicate}
                         className="border-blue-500/30 text-blue-600 hover:bg-blue-50 h-6 w-6 p-0"
                         aria-label="Duplicate step"
