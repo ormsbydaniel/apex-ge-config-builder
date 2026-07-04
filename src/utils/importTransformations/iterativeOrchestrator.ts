@@ -12,6 +12,7 @@ import { reverseExclusivitySetsTransformation } from './transformers/exclusivity
 import { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
 import { preserveTemporalFields } from './transformers/temporalTransformer';
 import { normalizeServices } from './transformers/serviceNormalizer';
+import { ensureSourceIds } from '@/utils/idHelpers';
 
 /**
  * Enhanced iterative orchestrator with deep transformation tracking
