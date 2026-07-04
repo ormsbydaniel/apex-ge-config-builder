@@ -352,7 +352,9 @@ export const LayerControlEditor: React.FC<LayerControlEditorProps> = ({
 
   const source = findSource(sources, working.layer);
   const availableConstraints: ConstraintSourceItem[] = source?.constraints ?? [];
-  const layerOptions = sources.map((s) => s.name).filter(Boolean);
+  const layerOptions: LayerOption[] = sources
+    .map((s) => ({ id: s.id, name: s.name }))
+    .filter((o) => o.id);
 
   const patch = (p: Partial<StoryStepControl>) =>
     setWorking((prev) => ({ ...prev, ...p }));
