@@ -1,25 +1,22 @@
-## Add JSON view/edit dialog to each story step
+## Remove Cancel / Save Step footer from the step card
 
-Reuse the existing pattern from `LayerJsonEditorDialog` (Monaco-based, view + edit modes, unsaved-change guard) to give each step a `{ }` button that opens a full JSON editor for that single step.
+All step edits now flow through modals (Content, per-action editors, JSON) that each have their own Cancel/Save. The card-level footer is redundant and inconsistent with the layer card pattern.
 
-### New file
-- `src/components/config/storymaps/StepJsonEditorDialog.tsx`
-  - Mirrors `LayerJsonEditorDialog` structure: `MonacoJsonEditor` + `JsonEditorToolbar` + `useJsonEditor`.
-  - Props: `isOpen`, `onClose`, `step: StoryStep`, `onSave(next: StoryStep)`.
-  - Validates on apply by running the edited JSON through `StepSchema` from `src/schemas/storySchema.ts` and surfacing errors via toast (same UX as layer dialog).
-  - Title: `Edit Step JSON: {step.title}`.
+### Changes to `StepEditor.tsx`
+- Remove the bottom `Cancel | Save step` footer row entirely.
+- Drop the local `working` state, the `dirty` computation, the `onDirtyChange` effect, and the `useEffect` that resets `working` from the incoming `step`.
+- Read directly from the `step` prop for display (description, id, title).
+- Wire `ActionsAndLayersSection` `onChange` straight to `onSave` so action editor saves commit immediately (same pattern the Content modal already uses).
+- The Content modal continues to call `onSave` on its own Save button; its Cancel-on-new-step rollback path is unchanged.
+- Remove the now-unused `onCancel` and `onDirtyChange` props from `StepEditorProps`.
 
-### Wiring into the step card
-- `src/components/config/storymaps/SortableStepCard.tsx`
-  - Add a `FileJson` icon button in the header actions row (next to Duplicate/Delete, before the divider) with tooltip "Edit JSON".
-  - Local `jsonOpen` state; render `<StepJsonEditorDialog>` when open.
-  - On save, call the existing `onSave(next)` prop so the change flows through the normal step-update path (same one used by `StepEditor`) — no schema/type sync work needed since we're just replacing an existing `StoryStep`.
+### Changes to `SortableStepCard.tsx`
+- Stop passing `onCancel={onToggleExpanded}` and `onDirtyChange` to `StepEditor` (props are gone).
+- The card's existing chevron toggle continues to collapse/expand; no replacement close button needed.
 
-### Behaviour notes
-- Read-only by default, "Enable Editing" reveals the toolbar (matches layer dialog).
-- Unsaved-change confirm on close (reuses hook state).
-- No changes to `StepEditor` or the Content modal — this is purely an extra escape hatch on the card header.
+### Changes to `SortableStoryGroup.tsx`
+- Remove the `onStepDirtyChange` wiring passed into `SortableStepCard` (no longer used). If other callers of `SortableStoryGroup` still pass `onStepDirtyChange`, keep the prop as a no-op accepted-but-ignored to avoid a wider refactor — or drop it if the parent doesn't use it. I'll check the parent usage during implementation and drop it cleanly if safe.
 
 ### Out of scope
-- No bulk/multi-step JSON editing.
-- No changes to the story-level or config-level JSON editors.
+- No changes to the Content, JSON, or per-action modals themselves.
+- No changes to unsaved-change guards inside the individual modals (they already handle their own dirty state).
