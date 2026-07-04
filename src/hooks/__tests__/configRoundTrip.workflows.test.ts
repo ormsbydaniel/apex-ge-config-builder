@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ConfigurationSchema } from '@/schemas/configSchema';
+import { ensureSourceIds } from '@/utils/idHelpers';
 import rawFixture from '@/__fixtures__/config_workflow_execution.json';
 
 // The fixture stores some workflow `data` entries as a single object instead
@@ -10,6 +11,11 @@ if (Array.isArray(fixture.workflows)) {
   fixture.workflows = fixture.workflows.map((wf: any) =>
     wf.data && !Array.isArray(wf.data) ? { ...wf, data: [wf.data] } : wf
   );
+}
+// Legacy fixture predates the required `sources[].id` field; auto-fill it the
+// same way the import path does at runtime.
+if (Array.isArray(fixture.sources)) {
+  fixture.sources = ensureSourceIds(fixture.sources);
 }
 
 describe('config round-trip with workflows', () => {
