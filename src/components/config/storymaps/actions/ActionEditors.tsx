@@ -85,7 +85,7 @@ interface NavigationEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
-  layerOptions: string[];
+  layerOptions: LayerOption[];
   onSave: (viewport: StoryStep['viewport']) => void;
 }
 
