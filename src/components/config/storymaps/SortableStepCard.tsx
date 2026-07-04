@@ -129,6 +129,7 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(step.title);
+  const [jsonOpen, setJsonOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
