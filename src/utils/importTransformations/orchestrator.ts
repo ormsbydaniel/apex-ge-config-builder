@@ -6,7 +6,7 @@ import { transformBaseLayerPreview } from './transformers/baseLayerPreviewTransf
 import { reverseSwipeLayerTransformation } from './transformers/swipeLayerTransformer';
 import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseSingleItemTransformation } from './transformers/singleItemTransformer';
-import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformation' as any;
+import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 import { reverseFormatToTypeTransformation } from './transformers/formatToTypeTransformer';
 import { preserveTemporalFields } from './transformers/temporalTransformer';
 import { normalizeServices } from './transformers/serviceNormalizer';
