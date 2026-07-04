@@ -169,7 +169,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
           <Select value={fitLayer} onValueChange={setFitLayer}>
             <SelectTrigger><SelectValue placeholder="Select a layer" /></SelectTrigger>
             <SelectContent>
-              {layerOptions.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+              {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
