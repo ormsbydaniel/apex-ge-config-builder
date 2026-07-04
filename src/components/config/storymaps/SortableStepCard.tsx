@@ -343,6 +343,13 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
           )}
         </Card>
       </div>
+
+      <StepJsonEditorDialog
+        isOpen={jsonOpen}
+        onClose={() => setJsonOpen(false)}
+        step={step}
+        onSave={onSave}
+      />
     </div>
   );
 };
