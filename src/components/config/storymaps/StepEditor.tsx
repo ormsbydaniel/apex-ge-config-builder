@@ -46,9 +46,18 @@ export const StepEditor: React.FC<StepEditorProps> = ({
 }) => {
   const [working, setWorking] = useState<StoryStep>(step);
   const [editingContent, setEditingContent] = useState<boolean>(!!initiallyEditingContent);
+  const [contentDraftTitle, setContentDraftTitle] = useState(step.title);
   const [contentDraftId, setContentDraftId] = useState(step.id);
   const [contentDraftDescription, setContentDraftDescription] = useState(step.description ?? '');
+  const [idManuallyEdited, setIdManuallyEdited] = useState(false);
   const [hasSavedNewContent, setHasSavedNewContent] = useState(false);
+
+  const slugify = (v: string) =>
+    v.toLowerCase().trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
 
   // Reset when the incoming step reference changes.
   useEffect(() => {
@@ -58,10 +67,13 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   // Sync draft fields when opening the dialog.
   useEffect(() => {
     if (editingContent) {
+      setContentDraftTitle(working.title);
       setContentDraftId(working.id);
       setContentDraftDescription(working.description ?? '');
+      // If ID already matches slug of title, treat as auto-derived
+      setIdManuallyEdited(working.id !== slugify(working.title));
     }
-  }, [editingContent, working.id, working.description]);
+  }, [editingContent, working.title, working.id, working.description]);
 
   const dirty = JSON.stringify(working) !== JSON.stringify(step);
   useEffect(() => {
@@ -72,9 +84,19 @@ export const StepEditor: React.FC<StepEditorProps> = ({
 
   const openContentDialog = () => setEditingContent(true);
 
+  const handleTitleChange = (v: string) => {
+    setContentDraftTitle(v);
+    if (!idManuallyEdited) setContentDraftId(slugify(v));
+  };
+  const handleIdChange = (v: string) => {
+    setContentDraftId(v);
+    setIdManuallyEdited(true);
+  };
+
   const saveContentDialog = () => {
     patch({
-      id: contentDraftId,
+      title: contentDraftTitle.trim() || working.title,
+      id: contentDraftId || slugify(contentDraftTitle),
       description: contentDraftDescription || undefined,
     });
     setHasSavedNewContent(true);
