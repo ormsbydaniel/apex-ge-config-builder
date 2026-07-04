@@ -12,6 +12,7 @@ import { reverseExclusivitySetsTransformation } from './transformers/exclusivity
 import { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
 import { preserveTemporalFields } from './transformers/temporalTransformer';
 import { normalizeServices } from './transformers/serviceNormalizer';
+import { ensureSourceIds } from '@/utils/idHelpers';
 
 /**
  * Enhanced iterative orchestrator with deep transformation tracking
@@ -98,7 +99,12 @@ export const normalizeImportedConfig = (config: any): any => {
       return source;
     });
   }
-  
+
+  // Ensure every source has a stable id (auto-derive from name for legacy configs).
+  if (currentConfig.sources && Array.isArray(currentConfig.sources)) {
+    currentConfig.sources = ensureSourceIds(currentConfig.sources);
+  }
+
   return currentConfig;
 };
 
