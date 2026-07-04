@@ -185,14 +185,6 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         </DialogContent>
       </Dialog>
 
-      <div className="flex justify-end gap-2 pt-2 border-t">
-        <Button variant="outline" size="sm" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button size="sm" disabled={!dirty} onClick={() => onSave(working)}>
-          Save step
-        </Button>
-      </div>
     </div>
   );
 };
