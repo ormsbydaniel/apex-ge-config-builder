@@ -29,6 +29,11 @@ import type {
 // helpers
 // -----------------------------------------------------------------------------
 
+export interface LayerOption {
+  id: string;
+  name: string;
+}
+
 const isZoomViewport = (v: any): v is { zoom: number; center: [number, number]; duration?: number } =>
   v && typeof v === 'object' && 'zoom' in v;
 
@@ -36,10 +41,14 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
   if (!ref) return undefined;
   const slug = (s: string) => s.toLowerCase().trim().replace(/\s+/g, '-');
   return (
+    sources.find((s) => s.id === ref) ??
     sources.find((s) => s.name === ref) ??
     sources.find((s) => slug(s.name) === slug(ref))
   );
 };
+
+// Render a friendly label for an option: name followed by muted id.
+const optionLabel = (opt: LayerOption) => opt.name || opt.id;
 
 interface BaseModalProps {
   open: boolean;
