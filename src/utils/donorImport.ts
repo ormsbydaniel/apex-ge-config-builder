@@ -9,7 +9,10 @@
  *    destination chosen by the user
  *  - guarantee a unique `name` against an existing-name set, mutating that
  *    set so consecutive clones in the same batch also stay unique
+ *  - mint a fresh unique `id` (never inherit from the donor)
  */
+
+import { uniqueId } from './idHelpers';
 
 const deepClone = <T,>(value: T): T => {
   if (typeof structuredClone === 'function') {
