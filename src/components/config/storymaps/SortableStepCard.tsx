@@ -43,6 +43,7 @@ interface SortableStepCardProps {
   onSave: (next: StoryStep) => void;
   onDuplicate: () => void;
   onRemove: () => void;
+  /** @deprecated no longer used — all edits commit through modals. */
   onDirtyChange?: (dirty: boolean) => void;
   /** When true, auto-open the Content dialog on mount. */
   initiallyEditingContent?: boolean;
