@@ -242,7 +242,7 @@ interface FocusLayerEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
-  layerOptions: string[];
+  layerOptions: LayerOption[];
   onSave: (focusLayer: string | undefined) => void;
 }
 
@@ -257,6 +257,11 @@ export const FocusLayerEditor: React.FC<FocusLayerEditorProps> = ({
     onOpenChange(false);
   };
 
+  const knownRefs = new Set<string>([
+    ...layerOptions.map((o) => o.id),
+    ...layerOptions.map((o) => o.name),
+  ]);
+
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Focus layer" onSave={save}>
       <div>
@@ -265,8 +270,8 @@ export const FocusLayerEditor: React.FC<FocusLayerEditorProps> = ({
           <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="__none__">None</SelectItem>
-            {layerOptions.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-            {step.focusLayer && !layerOptions.includes(step.focusLayer) && (
+            {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
+            {step.focusLayer && !knownRefs.has(step.focusLayer) && (
               <SelectItem value={step.focusLayer}>{step.focusLayer} (unknown)</SelectItem>
             )}
           </SelectContent>
