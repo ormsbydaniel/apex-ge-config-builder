@@ -62,7 +62,7 @@ export const validateStories = (
         warnings.push({
           kind: 'unknown-layer',
           field: 'focusLayer',
-          message: `Focus layer "${step.focusLayer}" does not match any source name.`,
+          message: `Focus layer "${step.focusLayer}" does not match any source id or name.`,
         });
       }
 
@@ -72,7 +72,7 @@ export const validateStories = (
           warnings.push({
             kind: 'unknown-layer',
             field: `layers.active[${i}]`,
-            message: `Active layer "${ref}" does not match any source name.`,
+            message: `Active layer "${ref}" does not match any source id or name.`,
           });
         }
       });
@@ -84,7 +84,7 @@ export const validateStories = (
           warnings.push({
             kind: 'unknown-layer',
             field: `controls[${ci}].layer`,
-            message: `Control layer "${control.layer}" does not match any source name.`,
+            message: `Control layer "${control.layer}" does not match any source id or name.`,
           });
         }
 
