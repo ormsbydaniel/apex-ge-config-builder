@@ -286,7 +286,7 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                         variant="outline"
                         size="sm"
                         onClick={() => setJsonOpen(true)}
-                        className="h-6 w-6 p-0"
+                        className="h-6 w-6 p-0 border-orange-500/30 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
                         aria-label="Edit step JSON"
                       >
                         <FileJson className="h-3 w-3" />
