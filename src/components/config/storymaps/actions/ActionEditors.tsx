@@ -296,41 +296,44 @@ export const ExpandPanelsEditor: React.FC<ExpandPanelsEditorProps> = ({
   open, onOpenChange, step, onSave,
 }) => {
   const [panels, setPanels] = useState<string[]>(step.expandPanels ?? []);
-  const [draft, setDraft] = useState('');
-  useEffect(() => { if (open) { setPanels(step.expandPanels ?? []); setDraft(''); } }, [open, step]);
+  useEffect(() => { if (open) setPanels(step.expandPanels ?? []); }, [open, step]);
 
-  const add = () => {
-    const v = draft.trim();
-    if (!v || panels.includes(v)) return;
-    setPanels([...panels, v]);
-    setDraft('');
+  const AVAILABLE_PANELS: { key: string; label: string }[] = [
+    { key: 'filters', label: 'Filters' },
+    { key: 'styles', label: 'Styles' },
+  ];
+
+  const toggle = (key: string, checked: boolean) => {
+    setPanels((prev) =>
+      checked ? (prev.includes(key) ? prev : [...prev, key]) : prev.filter((p) => p !== key),
+    );
   };
-  const remove = (v: string) => setPanels(panels.filter((p) => p !== v));
 
   const save = () => { onSave(panels); onOpenChange(false); };
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Expand panels" onSave={save}>
-      <div className="flex flex-wrap gap-1 min-h-[24px]">
-        {panels.map((p) => (
-          <Badge key={p} variant="secondary" className="gap-1">
-            {p}
-            <button type="button" onClick={() => remove(p)}><X className="h-3 w-3" /></button>
-          </Badge>
-        ))}
-        {panels.length === 0 && <span className="text-xs text-muted-foreground">None</span>}
-      </div>
-      <div className="flex gap-2">
-        <Input value={draft} onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
-          placeholder="panel key" className="max-w-xs" />
-        <Button type="button" size="sm" variant="outline" onClick={add}>
-          <Plus className="h-3 w-3 mr-1" /> Add
-        </Button>
+      <div className="space-y-2">
+        {AVAILABLE_PANELS.map(({ key, label }) => {
+          const id = `expand-panel-${key}`;
+          return (
+            <div key={key} className="flex items-center gap-2">
+              <Checkbox
+                id={id}
+                checked={panels.includes(key)}
+                onCheckedChange={(v) => toggle(key, v === true)}
+              />
+              <Label htmlFor={id} className="text-sm font-normal cursor-pointer">
+                {label} <span className="text-muted-foreground">({key})</span>
+              </Label>
+            </div>
+          );
+        })}
       </div>
     </ActionModal>
   );
 };
+
 
 // -----------------------------------------------------------------------------
 // Layer control (opacity / blend / constraints for a single layer)
