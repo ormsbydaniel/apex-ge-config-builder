@@ -203,6 +203,14 @@ interface Props {
   renderHeader?: (args: { count: number; onAdd: () => void }) => React.ReactNode;
   /** Skip the built-in section border-top when the header is combined elsewhere. */
   bare?: boolean;
+  /** Restrict which action kinds this section manages. Defaults to all kinds. */
+  allowedKinds?: ActionKind[];
+  /** Header title (default: "Actions & Layers"). */
+  title?: string;
+  /** Header icon (default: Film). */
+  headerIcon?: React.ReactNode;
+  /** Add-button label (default: "Add action"). */
+  addLabel?: string;
 }
 
 type OpenEditor =
@@ -215,9 +223,12 @@ type OpenEditor =
 
 export const ActionsAndLayersSection: React.FC<Props> = ({
   step, sources, warnings, onChange, renderHeader, bare,
+  allowedKinds, title = 'Actions & Layers', headerIcon, addLabel = 'Add action',
 }) => {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
+  const isAllowed = (k: ActionKind) => !allowedKinds || allowedKinds.includes(k);
+
 
   const layerOptions = sources
     .map((s) => ({ id: s.id, name: s.name }))
