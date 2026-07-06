@@ -293,23 +293,15 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     items.push({
       key: 'navigation',
       kind: 'navigation',
-      title: 'Navigation',
+      title: isZoom ? 'Zoom to' : 'Fit to',
       summary: isZoom
         ? <>Zoom {v.zoom} · [{v.center[0]}, {v.center[1]}]</>
-        : <>Fit → {(v as any).fitLayer || <em>none</em>}</>,
-      pills: (
-        <>
-          {isZoom ? (
-            <Pill tint="info" icon={<Compass className="h-3 w-3" />}>Zoom &amp; center</Pill>
-          ) : (
-            <Pill tint="info" icon={<Crosshair className="h-3 w-3" />}>Fit to layer</Pill>
-          )}
-          {isZoom && v.duration !== undefined && <Pill>{v.duration}ms</Pill>}
-        </>
-      ),
+        : <>{(v as any).fitLayer || <em>none</em>}</>,
+      pills: isZoom && v.duration !== undefined ? <Pill>{v.duration}ms</Pill> : undefined,
       onEdit: () => setOpenEditor({ kind: 'navigation' }),
       onRemove: () => removeAction('navigation'),
     });
+
   }
 
   // Active layers
