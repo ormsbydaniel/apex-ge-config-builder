@@ -339,7 +339,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   }
 
   // Layer controls (one card per entry)
-  (step.controls ?? []).forEach((c, i) => {
+  if (isAllowed('layerControl')) (step.controls ?? []).forEach((c, i) => {
     const nConstraints = c.constraints?.length ?? 0;
     const bits: string[] = [];
     if (c.opacity !== undefined) bits.push(`opacity ${c.opacity}`);
