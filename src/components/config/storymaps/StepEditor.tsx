@@ -138,7 +138,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         allowedKinds={['navigation']}
         title="Navigation"
         headerIcon={<Compass className="h-4 w-4 text-muted-foreground" />}
-        addLabel="Edit navigation"
+        addLabel="Navigation settings"
       />
 
       {/* Layers */}
