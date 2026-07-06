@@ -311,7 +311,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   }
 
   // Active layers
-  if (hasKind(step, 'activeLayers')) {
+  if (hasKind(step, 'activeLayers') && isAllowed('activeLayers')) {
     const active = step.layers?.active ?? [];
     items.push({
       key: 'activeLayers',
