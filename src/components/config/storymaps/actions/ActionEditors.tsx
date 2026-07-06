@@ -301,6 +301,7 @@ export const ExpandPanelsEditor: React.FC<ExpandPanelsEditorProps> = ({
   const AVAILABLE_PANELS: { key: string; label: string }[] = [
     { key: 'filters', label: 'Filters' },
     { key: 'styles', label: 'Styles' },
+    { key: 'temporal', label: 'Temporal' },
   ];
 
   const toggle = (key: string, checked: boolean) => {
