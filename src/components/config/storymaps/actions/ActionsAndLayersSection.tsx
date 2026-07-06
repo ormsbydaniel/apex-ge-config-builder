@@ -131,15 +131,19 @@ interface AddActionMenuProps {
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
   onPick: (kind: ActionKind) => void;
+  allowedKinds?: ActionKind[];
 }
 
-const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step, onPick }) => {
+const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step, onPick, allowedKinds }) => {
+  const filter = (kinds: ActionKind[]) =>
+    allowedKinds ? kinds.filter((k) => allowedKinds.includes(k)) : kinds;
   const byCategory: Record<ActionCategory, ActionKind[]> = {
-    'Navigation': ['navigation'],
-    'Layer display': ['activeLayers', 'focusLayer'],
-    'Apply constraints': ['layerControl'],
-    'UI': ['expandPanels'],
+    'Navigation': filter(['navigation']),
+    'Layer display': filter(['activeLayers', 'focusLayer']),
+    'Apply constraints': filter(['layerControl']),
+    'UI': filter(['expandPanels']),
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
