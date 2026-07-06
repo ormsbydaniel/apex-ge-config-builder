@@ -10,10 +10,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { FileText, Film, Pencil, Plus } from 'lucide-react';
+import { Compass, FileText, Film, Layers as LayersIcon, Pencil, Plus, SlidersHorizontal } from 'lucide-react';
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import ActionsAndLayersSection from './actions/ActionsAndLayersSection';
+
 
 interface StepEditorProps {
   step: StoryStep;
@@ -128,14 +129,42 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         </div>
       </div>
 
-      {/* Actions & Layers section (default header + list) */}
+      {/* Navigation */}
       <ActionsAndLayersSection
         step={step}
         sources={sources}
         warnings={warnings}
         onChange={onSave}
-        bare
+        allowedKinds={['navigation']}
+        title="Navigation"
+        headerIcon={<Compass className="h-4 w-4 text-muted-foreground" />}
+        addLabel="Edit navigation"
       />
+
+      {/* Layers */}
+      <ActionsAndLayersSection
+        step={step}
+        sources={sources}
+        warnings={warnings}
+        onChange={onSave}
+        allowedKinds={['activeLayers', 'focusLayer']}
+        title="Layers"
+        headerIcon={<LayersIcon className="h-4 w-4 text-muted-foreground" />}
+        addLabel="Add layer action"
+      />
+
+      {/* Actions */}
+      <ActionsAndLayersSection
+        step={step}
+        sources={sources}
+        warnings={warnings}
+        onChange={onSave}
+        allowedKinds={['layerControl', 'expandPanels']}
+        title="Actions"
+        headerIcon={<SlidersHorizontal className="h-4 w-4 text-muted-foreground" />}
+        addLabel="Add action"
+      />
+
 
       <Dialog open={editingContent} onOpenChange={handleContentOpenChange}>
         <DialogContent className="sm:max-w-[900px]">

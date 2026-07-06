@@ -131,15 +131,19 @@ interface AddActionMenuProps {
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
   onPick: (kind: ActionKind) => void;
+  allowedKinds?: ActionKind[];
 }
 
-const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step, onPick }) => {
+const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step, onPick, allowedKinds }) => {
+  const filter = (kinds: ActionKind[]) =>
+    allowedKinds ? kinds.filter((k) => allowedKinds.includes(k)) : kinds;
   const byCategory: Record<ActionCategory, ActionKind[]> = {
-    'Navigation': ['navigation'],
-    'Layer display': ['activeLayers', 'focusLayer'],
-    'Apply constraints': ['layerControl'],
-    'UI': ['expandPanels'],
+    'Navigation': filter(['navigation']),
+    'Layer display': filter(['activeLayers', 'focusLayer']),
+    'Apply constraints': filter(['layerControl']),
+    'UI': filter(['expandPanels']),
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -148,8 +152,9 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
           <DialogTitle>Add action</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-1">
-          {CATEGORY_ORDER.map((cat) => (
+          {CATEGORY_ORDER.filter((cat) => byCategory[cat].length > 0).map((cat) => (
             <div key={cat} className="space-y-1">
+
               <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {cat}
               </h5>
@@ -203,6 +208,14 @@ interface Props {
   renderHeader?: (args: { count: number; onAdd: () => void }) => React.ReactNode;
   /** Skip the built-in section border-top when the header is combined elsewhere. */
   bare?: boolean;
+  /** Restrict which action kinds this section manages. Defaults to all kinds. */
+  allowedKinds?: ActionKind[];
+  /** Header title (default: "Actions & Layers"). */
+  title?: string;
+  /** Header icon (default: Film). */
+  headerIcon?: React.ReactNode;
+  /** Add-button label (default: "Add action"). */
+  addLabel?: string;
 }
 
 type OpenEditor =
@@ -215,9 +228,12 @@ type OpenEditor =
 
 export const ActionsAndLayersSection: React.FC<Props> = ({
   step, sources, warnings, onChange, renderHeader, bare,
+  allowedKinds, title = 'Actions & Layers', headerIcon, addLabel = 'Add action',
 }) => {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
+  const isAllowed = (k: ActionKind) => !allowedKinds || allowedKinds.includes(k);
+
 
   const layerOptions = sources
     .map((s) => ({ id: s.id, name: s.name }))
@@ -274,7 +290,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   const items: Item[] = [];
 
   // Navigation (always present because viewport is required)
-  if (step.viewport) {
+  if (step.viewport && isAllowed('navigation')) {
     const v = step.viewport;
     const isZoom = 'zoom' in v;
     items.push({
@@ -300,7 +316,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   }
 
   // Active layers
-  if (hasKind(step, 'activeLayers')) {
+  if (hasKind(step, 'activeLayers') && isAllowed('activeLayers')) {
     const active = step.layers?.active ?? [];
     items.push({
       key: 'activeLayers',
@@ -315,7 +331,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   }
 
   // Focus layer
-  if (hasKind(step, 'focusLayer')) {
+  if (hasKind(step, 'focusLayer') && isAllowed('focusLayer')) {
     items.push({
       key: 'focusLayer',
       kind: 'focusLayer',
@@ -328,7 +344,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   }
 
   // Layer controls (one card per entry)
-  (step.controls ?? []).forEach((c, i) => {
+  if (isAllowed('layerControl')) (step.controls ?? []).forEach((c, i) => {
     const nConstraints = c.constraints?.length ?? 0;
     const bits: string[] = [];
     if (c.opacity !== undefined) bits.push(`opacity ${c.opacity}`);
@@ -346,7 +362,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   });
 
   // Expand panels
-  if (hasKind(step, 'expandPanels')) {
+  if (hasKind(step, 'expandPanels') && isAllowed('expandPanels')) {
     const panels = step.expandPanels ?? [];
     items.push({
       key: 'expandPanels',
@@ -370,9 +386,9 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         renderHeader({ count: items.length, onAdd: () => setPickerOpen(true) })
       ) : (
         <div className="flex items-center gap-2">
-          <Film className="h-4 w-4 text-muted-foreground" />
+          {headerIcon ?? <Film className="h-4 w-4 text-muted-foreground" />}
           <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
-            Actions &amp; Layers
+            {title}
           </h4>
           {items.length > 0 && (
             <span className="text-xs text-muted-foreground">({items.length})</span>
@@ -384,9 +400,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
             className="ml-auto h-6 px-2"
             onClick={() => setPickerOpen(true)}
           >
-            <Plus className="h-3 w-3 mr-1" /> Add action
+            <Plus className="h-3 w-3 mr-1" /> {addLabel}
           </Button>
         </div>
+
       )}
 
       <div className={cn('space-y-2', !bare && 'ml-6')}>
@@ -414,7 +431,9 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         onOpenChange={setPickerOpen}
         step={step}
         onPick={handlePick}
+        allowedKinds={allowedKinds}
       />
+
 
       <NavigationEditor
         open={openEditor?.kind === 'navigation'}
