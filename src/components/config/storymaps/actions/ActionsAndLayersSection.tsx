@@ -357,7 +357,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   });
 
   // Expand panels
-  if (hasKind(step, 'expandPanels')) {
+  if (hasKind(step, 'expandPanels') && isAllowed('expandPanels')) {
     const panels = step.expandPanels ?? [];
     items.push({
       key: 'expandPanels',
