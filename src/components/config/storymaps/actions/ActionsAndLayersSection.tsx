@@ -326,7 +326,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   }
 
   // Focus layer
-  if (hasKind(step, 'focusLayer')) {
+  if (hasKind(step, 'focusLayer') && isAllowed('focusLayer')) {
     items.push({
       key: 'focusLayer',
       kind: 'focusLayer',
