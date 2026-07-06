@@ -10,10 +10,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { FileText, Film, Pencil, Plus } from 'lucide-react';
+import { Compass, FileText, Film, Layers as LayersIcon, Pencil, Plus, SlidersHorizontal } from 'lucide-react';
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import ActionsAndLayersSection from './actions/ActionsAndLayersSection';
+
 
 interface StepEditorProps {
   step: StoryStep;
