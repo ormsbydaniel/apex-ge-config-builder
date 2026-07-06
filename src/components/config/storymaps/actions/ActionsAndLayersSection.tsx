@@ -381,9 +381,9 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         renderHeader({ count: items.length, onAdd: () => setPickerOpen(true) })
       ) : (
         <div className="flex items-center gap-2">
-          <Film className="h-4 w-4 text-muted-foreground" />
+          {headerIcon ?? <Film className="h-4 w-4 text-muted-foreground" />}
           <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
-            Actions &amp; Layers
+            {title}
           </h4>
           {items.length > 0 && (
             <span className="text-xs text-muted-foreground">({items.length})</span>
@@ -395,9 +395,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
             className="ml-auto h-6 px-2"
             onClick={() => setPickerOpen(true)}
           >
-            <Plus className="h-3 w-3 mr-1" /> Add action
+            <Plus className="h-3 w-3 mr-1" /> {addLabel}
           </Button>
         </div>
+
       )}
 
       <div className={cn('space-y-2', !bare && 'ml-6')}>
