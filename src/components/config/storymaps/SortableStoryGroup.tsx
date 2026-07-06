@@ -321,8 +321,8 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
                           onSave={(next) => {
                             onUpdateStep(i, next);
                             if (newStepIndex === i) setNewStepIndex(null);
-                            setExpandedStep(null);
                           }}
+
                           onDuplicate={() => onDuplicateStep(i)}
                           onRemove={() => onRemoveStep(i)}
                           onDirtyChange={(d) => onStepDirtyChange?.(i, d)}
