@@ -74,41 +74,37 @@ const ActionCard: React.FC<ActionCardProps> = ({
 }) => {
   const hasWarn = (warnings?.length ?? 0) > 0;
   return (
-    <div className="border rounded-md bg-background px-3 py-2">
-      <div className="flex items-start gap-2">
-        <span className="text-muted-foreground mt-0.5">{ACTION_ICON[kind]}</span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
-              {title}
-            </span>
-            {pills}
-            {hasWarn && (
-              <TooltipProvider>
-                <Tooltip delayDuration={400}>
-                  <TooltipTrigger asChild>
-                    <span>
-                      <Pill tint="amber" icon={<AlertTriangle className="h-3 w-3" />}>
-                        {warnings!.length}
-                      </Pill>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <ul className="text-xs space-y-1">
-                      {warnings!.map((w, i) => <li key={i}>{w.message}</li>)}
-                    </ul>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
-          {summary && (
-            <div className="text-xs text-muted-foreground mt-0.5 truncate">
-              {summary}
-            </div>
+    <div className="px-1 py-1">
+      <div className="flex items-center gap-2 min-w-0">
+        <span className="text-muted-foreground flex-shrink-0">{ACTION_ICON[kind]}</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-foreground flex-shrink-0">
+          {title}
+        </span>
+        {summary && (
+          <span className="text-xs text-muted-foreground truncate min-w-0">
+            {summary}
+          </span>
+        )}
+        <div className="flex items-center gap-1 flex-shrink-0 ml-auto">
+          {pills}
+          {hasWarn && (
+            <TooltipProvider>
+              <Tooltip delayDuration={400}>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Pill tint="amber" icon={<AlertTriangle className="h-3 w-3" />}>
+                      {warnings!.length}
+                    </Pill>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <ul className="text-xs space-y-1">
+                    {warnings!.map((w, i) => <li key={i}>{w.message}</li>)}
+                  </ul>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
-        </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEdit} title="Edit action">
             <Pencil className="h-3.5 w-3.5" />
           </Button>
@@ -121,6 +117,7 @@ const ActionCard: React.FC<ActionCardProps> = ({
     </div>
   );
 };
+
 
 // -----------------------------------------------------------------------------
 // Add action menu
