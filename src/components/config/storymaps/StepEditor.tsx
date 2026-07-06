@@ -150,7 +150,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         allowedKinds={['activeLayers', 'focusLayer']}
         title="Layers"
         headerIcon={<LayersIcon className="h-4 w-4 text-muted-foreground" />}
-        addLabel="Add layer action"
+        addLabel="Layer settings"
       />
 
       {/* Actions */}
