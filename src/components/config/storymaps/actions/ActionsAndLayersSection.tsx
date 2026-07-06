@@ -77,9 +77,10 @@ const ActionCard: React.FC<ActionCardProps> = ({
     <div className="px-1 py-1">
       <div className="flex items-center gap-2 min-w-0">
         <span className="text-muted-foreground flex-shrink-0">{ACTION_ICON[kind]}</span>
-        <span className="text-xs font-semibold uppercase tracking-wide text-foreground flex-shrink-0">
+        <span className="text-xs font-semibold text-foreground flex-shrink-0">
           {title}
         </span>
+
         {summary && (
           <span className="text-xs text-muted-foreground truncate min-w-0">
             {summary}
