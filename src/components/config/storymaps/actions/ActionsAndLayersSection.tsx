@@ -285,7 +285,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   const items: Item[] = [];
 
   // Navigation (always present because viewport is required)
-  if (step.viewport) {
+  if (step.viewport && isAllowed('navigation')) {
     const v = step.viewport;
     const isZoom = 'zoom' in v;
     items.push({
