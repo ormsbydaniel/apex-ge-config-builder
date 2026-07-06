@@ -431,7 +431,9 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         onOpenChange={setPickerOpen}
         step={step}
         onPick={handlePick}
+        allowedKinds={allowedKinds}
       />
+
 
       <NavigationEditor
         open={openEditor?.kind === 'navigation'}
