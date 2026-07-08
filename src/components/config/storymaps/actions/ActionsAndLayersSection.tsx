@@ -345,15 +345,32 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     if (c.opacity !== undefined) bits.push(`opacity ${c.opacity}`);
     if (c.blend) bits.push('blend');
     if (constraintLabels.length > 0) {
-      const shown = constraintLabels.slice(0, 3).join(' · ');
-      const extra = constraintLabels.length - 3;
-      bits.push(extra > 0 ? `${shown} +${extra} more` : shown);
+      bits.push(constraintLabels.join(' · '));
     }
+    const controlSummary = (
+      <>
+        {c.layer || <em>no layer</em>}
+        {bits.length > 0 ? ` · ${bits.join(' · ')}` : ''}
+      </>
+    );
     items.push({
       key: `layerControl-${i}`,
       kind: 'layerControl',
       title: 'Apply constraints',
-      summary: <>{c.layer || <em>no layer</em>}{bits.length > 0 ? ` · ${bits.join(' · ')}` : ''}</>,
+      summary: constraintLabels.length > 0 ? (
+        <TooltipProvider>
+          <Tooltip delayDuration={400}>
+            <TooltipTrigger asChild>
+              <span className="text-xs text-muted-foreground truncate min-w-0 cursor-default">
+                {controlSummary}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-sm">
+              <p className="text-xs">{constraintLabels.join(' · ')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : controlSummary,
       warnings: warningsForAction(warnings, 'layerControl', i),
       onEdit: () => setOpenEditor({ kind: 'layerControl', index: i }),
       onRemove: () => removeAction('layerControl', i),
