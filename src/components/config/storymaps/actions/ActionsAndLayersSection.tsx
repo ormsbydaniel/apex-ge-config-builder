@@ -361,7 +361,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         <TooltipProvider>
           <Tooltip delayDuration={400}>
             <TooltipTrigger asChild>
-              <span className="text-xs text-muted-foreground truncate min-w-0 cursor-default">
+              <span className="text-xs text-muted-foreground cursor-default">
                 {controlSummary}
               </span>
             </TooltipTrigger>
