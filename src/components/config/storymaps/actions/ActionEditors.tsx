@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,36 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
 
 // Render a friendly label for an option: name followed by muted id.
 const optionLabel = (opt: LayerOption) => opt.name || opt.id;
+
+// Compute an OSM embed bbox from a centre point and zoom level.
+const bboxFromCenterZoom = (lon: number, lat: number, zoom: number) => {
+  const widthPx = 560;
+  const heightPx = 220;
+  const worldPx = 256 * 2 ** zoom;
+  const degPerPxLon = 360 / worldPx;
+  const degPerPxLat = degPerPxLon * Math.cos((lat * Math.PI) / 180);
+  const halfW = (widthPx / 2) * degPerPxLon;
+  const halfH = (heightPx / 2) * degPerPxLat;
+  return {
+    minLon: lon - halfW,
+    maxLon: lon + halfW,
+    minLat: Math.max(-85, lat - halfH),
+    maxLat: Math.min(85, lat + halfH),
+  };
+};
+
+// Reverse the bbox calculation to recover a centre point and approximate zoom.
+const parseBbox = (bbox: string): { center: [number, number]; zoom: number } | null => {
+  const parts = bbox.split(',').map(Number);
+  if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) return null;
+  const [minLon, minLat, maxLon, maxLat] = parts;
+  const centerLon = (minLon + maxLon) / 2;
+  const centerLat = (minLat + maxLat) / 2;
+  const widthPx = 560;
+  const zoom = Math.round(Math.log2((widthPx * 360) / (256 * (maxLon - minLon))));
+  if (!Number.isFinite(zoom)) return null;
+  return { center: [centerLon, centerLat], zoom: Math.min(19, Math.max(0, zoom)) };
+};
 
 interface BaseModalProps {
   open: boolean;
@@ -129,6 +159,8 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     onOpenChange(false);
   };
 
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
   // Debounced values for the OSM preview iframe, so typing doesn't hammer OSM.
   const [previewLon, setPreviewLon] = useState(lon);
   const [previewLat, setPreviewLat] = useState(lat);
@@ -145,19 +177,29 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
   const previewSrc = React.useMemo(() => {
     if (!Number.isFinite(previewLon) || !Number.isFinite(previewLat)) return null;
     const clampedZoom = Math.min(19, Math.max(0, Number.isFinite(previewZoom) ? previewZoom : 6));
-    const widthPx = 560;
-    const heightPx = 220;
-    const worldPx = 256 * 2 ** clampedZoom;
-    const degPerPxLon = 360 / worldPx;
-    const degPerPxLat = degPerPxLon * Math.cos((previewLat * Math.PI) / 180);
-    const halfW = (widthPx / 2) * degPerPxLon;
-    const halfH = (heightPx / 2) * degPerPxLat;
-    const minLon = previewLon - halfW;
-    const maxLon = previewLon + halfW;
-    const minLat = Math.max(-85, previewLat - halfH);
-    const maxLat = Math.min(85, previewLat + halfH);
-    return `https://www.openstreetmap.org/export/embed.html?bbox=${minLon},${minLat},${maxLon},${maxLat}&layer=mapnik&marker=${previewLat},${previewLon}`;
+    const bbox = bboxFromCenterZoom(previewLon, previewLat, clampedZoom);
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}&layer=mapnik`;
   }, [previewLon, previewLat, previewZoom]);
+
+  // Read the current map view back from the iframe URL and apply it to the inputs.
+  const applyCurrentView = () => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    try {
+      const src = iframe.contentWindow?.location?.href ?? iframe.src;
+      const url = new URL(src);
+      const bbox = url.searchParams.get('bbox');
+      if (!bbox) return;
+      const parsed = parseBbox(bbox);
+      if (!parsed) return;
+      const [nextLon, nextLat] = parsed.center;
+      setZoom(parsed.zoom);
+      setLon(nextLon);
+      setLat(nextLat);
+    } catch {
+      // Cross-origin or unreadable URL — ignore.
+    }
+  };
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save}>
@@ -196,18 +238,31 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
           </div>
 
           {previewSrc && (
-            <div className="space-y-1">
-              <div className="overflow-hidden rounded-md border">
+            <div className="space-y-2">
+              <div className="relative overflow-hidden rounded-md border">
                 <iframe
+                  ref={iframeRef}
                   title="Location preview"
                   src={previewSrc}
                   className="w-full h-48 border-0"
                   loading="lazy"
                 />
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                  <div className="relative w-8 h-8">
+                    <div className="absolute top-1/2 left-0 right-0 h-px bg-foreground/70" />
+                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-foreground/70" />
+                    <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground/70" />
+                  </div>
+                </div>
               </div>
-              <p className="text-[11px] text-muted-foreground">
-                Approximate preview — actual framing depends on the viewer.
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[11px] text-muted-foreground">
+                  Approximate preview — pan/zoom the map, then use the button to update the values.
+                </p>
+                <Button type="button" size="sm" variant="outline" onClick={applyCurrentView}>
+                  Use current view
+                </Button>
+              </div>
             </div>
           )}
         </>
