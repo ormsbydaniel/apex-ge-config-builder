@@ -489,25 +489,44 @@ export const FocusLayerEditor: React.FC<FocusLayerEditorProps> = ({
     onOpenChange(false);
   };
 
+  // Restrict choices to layers currently in this step's active list.
+  const activeRefs = step.layers?.active ?? [];
+  const activeSet = new Set(activeRefs);
+  const activeOptions = layerOptions.filter(
+    (o) => activeSet.has(o.id) || activeSet.has(o.name),
+  );
   const knownRefs = new Set<string>([
-    ...layerOptions.map((o) => o.id),
-    ...layerOptions.map((o) => o.name),
+    ...activeOptions.map((o) => o.id),
+    ...activeOptions.map((o) => o.name),
   ]);
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Focus layer" onSave={save}>
       <div>
         <Label className="text-xs">Focus layer</Label>
-        <Select value={focus} onValueChange={setFocus}>
-          <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+        <Select value={focus} onValueChange={setFocus} disabled={activeOptions.length === 0}>
+          <SelectTrigger>
+            <SelectValue placeholder={activeOptions.length === 0 ? 'No active layers' : 'None'} />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="__none__">None</SelectItem>
-            {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
+            {activeOptions.map((o) => (
+              <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>
+            ))}
             {step.focusLayer && !knownRefs.has(step.focusLayer) && (
-              <SelectItem value={step.focusLayer}>{step.focusLayer} (unknown)</SelectItem>
+              <SelectItem value={step.focusLayer}>{step.focusLayer} (not in active layers)</SelectItem>
             )}
           </SelectContent>
         </Select>
+        {activeOptions.length === 0 ? (
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Add layers to this step's Active layers first, then pick one to focus.
+          </p>
+        ) : (
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Choose from the layers activated in this step.
+          </p>
+        )}
       </div>
     </ActionModal>
   );
