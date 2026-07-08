@@ -340,11 +340,15 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
 
   // Layer controls (one card per entry)
   if (isAllowed('layerControl')) (step.controls ?? []).forEach((c, i) => {
-    const nConstraints = c.constraints?.length ?? 0;
+    const constraintLabels = (c.constraints ?? []).map(k => k.label || 'unnamed');
     const bits: string[] = [];
     if (c.opacity !== undefined) bits.push(`opacity ${c.opacity}`);
     if (c.blend) bits.push('blend');
-    if (nConstraints > 0) bits.push(`${nConstraints} constraint${nConstraints === 1 ? '' : 's'}`);
+    if (constraintLabels.length > 0) {
+      const shown = constraintLabels.slice(0, 3).join(' · ');
+      const extra = constraintLabels.length - 3;
+      bits.push(extra > 0 ? `${shown} +${extra} more` : shown);
+    }
     items.push({
       key: `layerControl-${i}`,
       kind: 'layerControl',
