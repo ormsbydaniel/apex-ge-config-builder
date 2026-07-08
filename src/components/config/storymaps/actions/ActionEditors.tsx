@@ -176,25 +176,19 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     onOpenChange(false);
   };
 
-  // Debounced values for the OSM preview iframe, so typing doesn't hammer OSM.
-  const [previewLon, setPreviewLon] = useState(lon);
-  const [previewLat, setPreviewLat] = useState(lat);
-  const [previewZoom, setPreviewZoom] = useState(zoom);
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setPreviewLon(lon);
-      setPreviewLat(lat);
-      setPreviewZoom(zoom);
-    }, 250);
-    return () => clearTimeout(t);
-  }, [lon, lat, zoom]);
-
-  const previewSrc = React.useMemo(() => {
-    if (!Number.isFinite(previewLon) || !Number.isFinite(previewLat)) return null;
-    const clampedZoom = Math.min(19, Math.max(0, Number.isFinite(previewZoom) ? previewZoom : 6));
-    const bbox = bboxFromCenterZoom(previewLon, previewLat, clampedZoom);
-    return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}&layer=mapnik`;
-  }, [previewLon, previewLat, previewZoom]);
+  const initialCenter = React.useMemo<[number, number]>(
+    () => [Number.isFinite(lat) ? lat : 0, Number.isFinite(lon) ? lon : 0],
+    // Only capture the values at mount; MapSync handles updates afterwards.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  const initialZoom = React.useMemo(
+    () => (Number.isFinite(zoom) ? Math.min(19, Math.max(0, zoom)) : 6),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  const clampedZoom = Math.min(19, Math.max(0, Number.isFinite(zoom) ? zoom : 6));
+  const showMap = Number.isFinite(lon) && Number.isFinite(lat);
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save}>
