@@ -106,6 +106,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
   const [fitLayer, setFitLayer] = useState<string>(
     !isZoomViewport(step.viewport) ? (step.viewport as any).fitLayer ?? '' : (layerOptions[0]?.id ?? '')
   );
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
