@@ -100,6 +100,16 @@ const MapSync: React.FC<MapSyncProps> = ({ lon, lat, zoom, onChange }) => {
   return null;
 };
 
+// Fits the map to the given bbox whenever it changes.
+const FitBoundsOnChange: React.FC<{ bbox: [number, number, number, number] }> = ({ bbox }) => {
+  const map = useMap();
+  useEffect(() => {
+    const [xmin, ymin, xmax, ymax] = bbox;
+    map.fitBounds([[ymin, xmin], [ymax, xmax]], { padding: [16, 16], animate: false });
+  }, [bbox, map]);
+  return null;
+};
+
 interface BaseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
