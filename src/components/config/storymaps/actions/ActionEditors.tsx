@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import {
   Dialog,
   DialogContent,
@@ -50,21 +52,48 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
 // Render a friendly label for an option: name followed by muted id.
 const optionLabel = (opt: LayerOption) => opt.name || opt.id;
 
-// Compute an OSM embed bbox from a centre point and zoom level.
-const bboxFromCenterZoom = (lon: number, lat: number, zoom: number) => {
-  const widthPx = 560;
-  const heightPx = 220;
-  const worldPx = 256 * 2 ** zoom;
-  const degPerPxLon = 360 / worldPx;
-  const degPerPxLat = degPerPxLon * Math.cos((lat * Math.PI) / 180);
-  const halfW = (widthPx / 2) * degPerPxLon;
-  const halfH = (heightPx / 2) * degPerPxLat;
-  return {
-    minLon: lon - halfW,
-    maxLon: lon + halfW,
-    minLat: Math.max(-85, lat - halfH),
-    maxLat: Math.min(85, lat + halfH),
-  };
+// Small child component: keeps Leaflet in sync with external lon/lat/zoom
+// (only when they diverge meaningfully) and reports back on user pan/zoom.
+interface MapSyncProps {
+  lon: number;
+  lat: number;
+  zoom: number;
+  onChange: (lon: number, lat: number, zoom: number) => void;
+}
+const MapSync: React.FC<MapSyncProps> = ({ lon, lat, zoom, onChange }) => {
+  const map = useMap();
+  const suppressRef = useRef(false);
+
+  // External -> map
+  useEffect(() => {
+    if (!Number.isFinite(lon) || !Number.isFinite(lat) || !Number.isFinite(zoom)) return;
+    const c = map.getCenter();
+    const z = map.getZoom();
+    const dLon = Math.abs(c.lng - lon);
+    const dLat = Math.abs(c.lat - lat);
+    const dZoom = Math.abs(z - zoom);
+    if (dLon < 1e-5 && dLat < 1e-5 && dZoom < 1e-3) return;
+    suppressRef.current = true;
+    map.setView([lat, lon], zoom, { animate: false });
+    // Allow the resulting moveend to fire before re-enabling reporting.
+    setTimeout(() => { suppressRef.current = false; }, 0);
+  }, [lon, lat, zoom, map]);
+
+  // Map -> external
+  useMapEvents({
+    moveend: () => {
+      if (suppressRef.current) return;
+      const c = map.getCenter();
+      const z = map.getZoom();
+      onChange(
+        Number(c.lng.toFixed(6)),
+        Number(c.lat.toFixed(6)),
+        Number(z.toFixed(2)),
+      );
+    },
+  });
+
+  return null;
 };
 
 interface BaseModalProps {
@@ -146,25 +175,19 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     onOpenChange(false);
   };
 
-  // Debounced values for the OSM preview iframe, so typing doesn't hammer OSM.
-  const [previewLon, setPreviewLon] = useState(lon);
-  const [previewLat, setPreviewLat] = useState(lat);
-  const [previewZoom, setPreviewZoom] = useState(zoom);
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setPreviewLon(lon);
-      setPreviewLat(lat);
-      setPreviewZoom(zoom);
-    }, 250);
-    return () => clearTimeout(t);
-  }, [lon, lat, zoom]);
-
-  const previewSrc = React.useMemo(() => {
-    if (!Number.isFinite(previewLon) || !Number.isFinite(previewLat)) return null;
-    const clampedZoom = Math.min(19, Math.max(0, Number.isFinite(previewZoom) ? previewZoom : 6));
-    const bbox = bboxFromCenterZoom(previewLon, previewLat, clampedZoom);
-    return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}&layer=mapnik`;
-  }, [previewLon, previewLat, previewZoom]);
+  const initialCenter = React.useMemo<[number, number]>(
+    () => [Number.isFinite(lat) ? lat : 0, Number.isFinite(lon) ? lon : 0],
+    // Only capture the values at mount; MapSync handles updates afterwards.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  const initialZoom = React.useMemo(
+    () => (Number.isFinite(zoom) ? Math.min(19, Math.max(0, zoom)) : 6),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  const clampedZoom = Math.min(19, Math.max(0, Number.isFinite(zoom) ? zoom : 6));
+  const showMap = Number.isFinite(lon) && Number.isFinite(lat);
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save}>
@@ -202,16 +225,32 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
             </div>
           </div>
 
-          {previewSrc && (
+          {showMap && (
             <div className="space-y-2">
               <div className="relative overflow-hidden rounded-md border">
-                <iframe
-                  title="Location preview"
-                  src={previewSrc}
-                  className="w-full h-48 border-0"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <MapContainer
+                  center={initialCenter}
+                  zoom={initialZoom}
+                  scrollWheelZoom
+                  className="w-full h-48"
+                  style={{ background: 'hsl(var(--muted))' }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <MapSync
+                    lon={lon}
+                    lat={lat}
+                    zoom={clampedZoom}
+                    onChange={(nLon, nLat, nZoom) => {
+                      setLon(nLon);
+                      setLat(nLat);
+                      setZoom(nZoom);
+                    }}
+                  />
+                </MapContainer>
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-[400]">
                   <div className="relative w-8 h-8">
                     <div className="absolute top-1/2 left-0 right-0 h-px bg-foreground/70" />
                     <div className="absolute left-1/2 top-0 bottom-0 w-px bg-foreground/70" />
@@ -220,7 +259,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
                 </div>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Approximate preview — the crosshair marks the centre defined by the inputs above. Pan/zoom is for browsing only; the OSM embed cannot report its new view back to the form.
+                Pan and zoom the map to update the centre and zoom values above.
               </p>
             </div>
           )}
