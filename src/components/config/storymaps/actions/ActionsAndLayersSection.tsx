@@ -245,8 +245,8 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
 
   const handlePick = (kind: ActionKind) => {
     if (kind === 'layerControl') {
-      // Append a new empty control and open its editor
-      const next = [...(step.controls ?? []), { layer: layerOptions[0]?.id ?? '' }];
+      // Append a new empty control and open its editor (layer chosen in modal)
+      const next = [...(step.controls ?? []), { layer: '' }];
       onChange({ ...step, controls: next });
       setOpenEditor({ kind: 'layerControl', index: next.length - 1 });
     } else {
