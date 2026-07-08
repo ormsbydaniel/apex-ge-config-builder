@@ -226,16 +226,32 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
             </div>
           </div>
 
-          {previewSrc && (
+          {showMap && (
             <div className="space-y-2">
               <div className="relative overflow-hidden rounded-md border">
-                <iframe
-                  title="Location preview"
-                  src={previewSrc}
-                  className="w-full h-48 border-0"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <MapContainer
+                  center={initialCenter}
+                  zoom={initialZoom}
+                  scrollWheelZoom
+                  className="w-full h-48"
+                  style={{ background: 'hsl(var(--muted))' }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <MapSync
+                    lon={lon}
+                    lat={lat}
+                    zoom={clampedZoom}
+                    onChange={(nLon, nLat, nZoom) => {
+                      setLon(nLon);
+                      setLat(nLat);
+                      setZoom(nZoom);
+                    }}
+                  />
+                </MapContainer>
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-[400]">
                   <div className="relative w-8 h-8">
                     <div className="absolute top-1/2 left-0 right-0 h-px bg-foreground/70" />
                     <div className="absolute left-1/2 top-0 bottom-0 w-px bg-foreground/70" />
@@ -244,7 +260,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
                 </div>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Approximate preview — the crosshair marks the centre defined by the inputs above. Pan/zoom is for browsing only; the OSM embed cannot report its new view back to the form.
+                Pan and zoom the map to update the centre and zoom values above.
               </p>
             </div>
           )}
