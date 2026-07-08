@@ -16,7 +16,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, X, Trash2, ChevronRight, ChevronDown } from 'lucide-react';
+import { Plus, X, Trash2, ChevronRight, ChevronDown, Crosshair } from 'lucide-react';
+import MapCentrePickerDialog from '@/components/config/MapCentrePickerDialog';
 import type {
   DataSource,
   StoryStep,
@@ -105,6 +106,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
   const [fitLayer, setFitLayer] = useState<string>(
     !isZoomViewport(step.viewport) ? (step.viewport as any).fitLayer ?? '' : (layerOptions[0]?.id ?? '')
   );
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -166,6 +168,29 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
                 onChange={(e) => setDuration(e.target.value)} />
             </div>
           </div>
+          <div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPickerOpen(true)}
+              className="gap-2"
+            >
+              <Crosshair className="h-4 w-4" />
+              Pick on map
+            </Button>
+          </div>
+          <MapCentrePickerDialog
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+            center={[lon, lat]}
+            zoom={zoom}
+            onApply={(c, z) => {
+              setLon(c[0]);
+              setLat(c[1]);
+              setZoom(z);
+            }}
+          />
         </>
       ) : (
         <div className="space-y-2">
