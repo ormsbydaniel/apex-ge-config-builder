@@ -131,7 +131,6 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     onOpenChange(false);
   };
 
-
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save}>
       <RadioGroup value={kind} onValueChange={(v) => setKind(v as any)} className="flex gap-4">
