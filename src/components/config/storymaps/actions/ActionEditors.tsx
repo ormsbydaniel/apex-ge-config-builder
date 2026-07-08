@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
-import type { Map as LeafletMap } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   Dialog,
