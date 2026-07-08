@@ -303,26 +303,154 @@ export const ActiveLayersEditor: React.FC<ActiveLayersEditorProps> = ({
   const toggle = (id: string) =>
     setActive((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
 
+  const isChecked = (o: LayerOption) => active.includes(o.id) || active.includes(o.name);
+
   const save = () => { onSave(active); onOpenChange(false); };
   const knownIds = new Set(layerOptions.map((o) => o.id));
   const knownNames = new Set(layerOptions.map((o) => o.name));
   const unknown = active.filter((ref) => !knownIds.has(ref) && !knownNames.has(ref));
 
+  // Build tree: interfaceGroup -> subinterfaceGroup -> layers.
+  // Preserve source order. Empty group labels are grouped under "Ungrouped".
+  const UNGROUPED = '__ungrouped__';
+  const tree = React.useMemo(() => {
+    const groups: Array<{
+      key: string;
+      label: string;
+      subs: Array<{ key: string; label: string; layers: LayerOption[] }>;
+    }> = [];
+    const groupIdx = new Map<string, number>();
+    const subIdx = new Map<string, number>();
+
+    for (const o of layerOptions) {
+      const gLabel = o.interfaceGroup?.trim() || '';
+      const sLabel = o.subinterfaceGroup?.trim() || '';
+      const gKey = gLabel || UNGROUPED;
+      if (!groupIdx.has(gKey)) {
+        groupIdx.set(gKey, groups.length);
+        groups.push({ key: gKey, label: gLabel || 'Ungrouped', subs: [] });
+      }
+      const g = groups[groupIdx.get(gKey)!];
+      const sKey = `${gKey}::${sLabel || UNGROUPED}`;
+      if (!subIdx.has(sKey)) {
+        subIdx.set(sKey, g.subs.length);
+        g.subs.push({ key: sKey, label: sLabel, layers: [] });
+      }
+      g.subs[subIdx.get(sKey)!].layers.push(o);
+    }
+    return groups;
+  }, [layerOptions]);
+
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggleCollapsed = (key: string) => setCollapsed((prev) => {
+    const next = new Set(prev);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    return next;
+  });
+
+  // Group-level toggle: if all checked -> uncheck all, else check all
+  const setGroupChecked = (layers: LayerOption[], checked: boolean) => {
+    setActive((prev) => {
+      const set = new Set(prev);
+      for (const o of layers) {
+        // Remove both id and name aliases to avoid duplicates
+        set.delete(o.id);
+        set.delete(o.name);
+        if (checked) set.add(o.id);
+      }
+      return Array.from(set);
+    });
+  };
+
+  const groupState = (layers: LayerOption[]): 'all' | 'some' | 'none' => {
+    const checked = layers.filter(isChecked).length;
+    if (checked === 0) return 'none';
+    if (checked === layers.length) return 'all';
+    return 'some';
+  };
+
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Active layers" onSave={save}>
-      <div className="border rounded-md p-2 max-h-64 overflow-y-auto space-y-1">
+      <div className="border rounded-md p-2 max-h-80 overflow-y-auto">
         {layerOptions.length === 0 && (
           <p className="text-xs text-muted-foreground">No layers configured.</p>
         )}
-        {layerOptions.map((o) => (
-          <label key={o.id} className="flex items-center gap-2 text-sm">
-            <Checkbox
-              checked={active.includes(o.id) || active.includes(o.name)}
-              onCheckedChange={() => toggle(o.id)}
-            />
-            {optionLabel(o)}
-          </label>
-        ))}
+        {tree.map((group) => {
+          const groupLayers = group.subs.flatMap((s) => s.layers);
+          const gState = groupState(groupLayers);
+          const gCollapsed = collapsed.has(group.key);
+          return (
+            <div key={group.key} className="mb-1">
+              <div className="flex items-center gap-1 py-1 rounded hover:bg-muted/50">
+                <button
+                  type="button"
+                  onClick={() => toggleCollapsed(group.key)}
+                  className="p-0.5 text-muted-foreground hover:text-foreground"
+                  aria-label={gCollapsed ? 'Expand group' : 'Collapse group'}
+                >
+                  {gCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                </button>
+                <Checkbox
+                  checked={gState === 'all' ? true : gState === 'some' ? 'indeterminate' : false}
+                  onCheckedChange={(v) => setGroupChecked(groupLayers, v === true)}
+                />
+                <span className="text-sm font-medium">{group.label}</span>
+                <span className="text-[11px] text-muted-foreground ml-1">
+                  ({groupLayers.filter(isChecked).length}/{groupLayers.length})
+                </span>
+              </div>
+              {!gCollapsed && (
+                <div className="ml-5 border-l pl-2">
+                  {group.subs.map((sub) => {
+                    const showSub = !!sub.label;
+                    const sState = groupState(sub.layers);
+                    const sCollapsed = collapsed.has(sub.key);
+                    return (
+                      <div key={sub.key} className="mt-0.5">
+                        {showSub && (
+                          <div className="flex items-center gap-1 py-1 rounded hover:bg-muted/50">
+                            <button
+                              type="button"
+                              onClick={() => toggleCollapsed(sub.key)}
+                              className="p-0.5 text-muted-foreground hover:text-foreground"
+                              aria-label={sCollapsed ? 'Expand sub-group' : 'Collapse sub-group'}
+                            >
+                              {sCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                            </button>
+                            <Checkbox
+                              checked={sState === 'all' ? true : sState === 'some' ? 'indeterminate' : false}
+                              onCheckedChange={(v) => setGroupChecked(sub.layers, v === true)}
+                            />
+                            <span className="text-sm">{sub.label}</span>
+                            <span className="text-[11px] text-muted-foreground ml-1">
+                              ({sub.layers.filter(isChecked).length}/{sub.layers.length})
+                            </span>
+                          </div>
+                        )}
+                        {(!showSub || !sCollapsed) && (
+                          <div className={showSub ? 'ml-5 border-l pl-2' : ''}>
+                            {sub.layers.map((o) => (
+                              <label
+                                key={o.id}
+                                className="flex items-center gap-2 text-sm py-0.5 pl-1 rounded hover:bg-muted/50 cursor-pointer"
+                              >
+                                <Checkbox
+                                  checked={isChecked(o)}
+                                  onCheckedChange={() => toggle(o.id)}
+                                />
+                                {optionLabel(o)}
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
       {unknown.length > 0 && (
         <div className="text-xs text-amber-600 space-y-1">
