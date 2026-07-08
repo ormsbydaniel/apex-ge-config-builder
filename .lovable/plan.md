@@ -1,24 +1,39 @@
-Update the existing OSM iframe preview in the story navigation settings so it remains interactive for browsing, but clearly communicates that the centre point is what drives the Lon/Lat/Zoom inputs, and adds a way to copy the current map view back into those inputs.
+# Refine "Apply constraints" modal
 
-## Scope
-- Only affects the navigation action editor in `src/components/config/storymaps/actions/ActionEditors.tsx`.
-- Only renders when the action type is "Zoom + center".
-- No new runtime dependencies.
+Keep the existing "one card per layer" model — each "Apply constraints" action targets exactly one layer. Rework the modal so the layer picker is scoped to the step's active layers, and the constraints list is driven by that layer's authored constraints instead of a free-form label picker.
 
-## Changes
-1. **Remove the marker from the embed URL** so the OSM iframe no longer shows a misleading pinned location icon.
-2. **Add a fixed centre crosshair overlay** on top of the iframe. The crosshair stays at the visual centre of the map frame, indicating that the centre of the current view is the value being configured.
-3. **Add a "Use current view" button** below the map. Clicking it reads the current map centre and zoom from the OSM iframe URL (`bbox` and `layer` parameters, or from the iframe's `src` query string) and writes them back into the Longitude, Latitude, and Zoom inputs. If the URL does not contain readable values, the button is disabled or shows a short "Zoom/pan the map, then click here" hint.
-4. **Keep the existing 250ms debounced preview state** so the live preview still reflects the input values as the user types.
-5. **Visual polish**: rounded border, subtle crosshair lines (e.g. 1px primary/foreground with a small central dot), and compact button styling consistent with the existing panel.
+## Flow
 
-## Out of scope
-- Two-way live sync while dragging (not possible with the OSM embed without switching to a real mapping library).
-- Replacing the iframe with Leaflet or another library.
-- Changing the navigation modal layout or other story action types.
+1. **Add action → Apply constraints** — creates a new card and opens the modal empty (no layer preselected).
+2. **Select layer** — dropdown listing only the current step's active layers (from `step.layers.active`). If the step has no active layers, show a hint ("Add active layers first") and disable Save.
+3. **Select constraints** — once a layer is chosen, look up its `DataSource` and read `source.constraints` (`ConstraintSourceItem[]`). Render one row per authored constraint with a checkbox to enable it. States:
+   - source has none → "No constraints defined for this layer."
+   - source has one/many → each shown with its authored label.
+4. **Define constraint settings** — inputs appear inline under each ticked constraint, driven by its `type`:
+   - `continuous` → Lower / Upper numeric inputs, defaulted to the source's `min` / `max`.
+   - `categorical` → checkbox list of `constrainTo` options (label + value). No free-text add box.
+5. **Save** — writes back a single `StoryStepControl` for that layer.
+6. **Edit later** — clicking the card's pencil reopens the same modal with the layer pre-selected and its previously configured constraints pre-ticked and pre-filled, so the user lands on step 4/5.
 
-## Acceptance
-- The map preview no longer displays a static location marker.
-- A crosshair is visibly centred on the map frame.
-- The user can pan/zoom the map, then click "Use current view" to update the Lon/Lat/Zoom inputs.
-- The preview still updates when the user edits the inputs directly.
+To configure constraints on a second layer (e.g. "solar energy"), the user repeats Add action → Apply constraints, producing a second card.
+
+## Guard rails
+
+- Prevent picking a layer that already has an "Apply constraints" card in this step (grey it out in the dropdown with a "(already configured)" suffix), so we never end up with two cards for the same layer.
+- Opacity and Blend inputs stay in the modal, unchanged, as per-layer settings on the same control.
+
+## Data model
+
+No schema changes. Reuses existing `StoryStepControl` (single `layer` field) and `StoryConstraintSelection` shapes. The modal simply constrains what the user can pick and how they configure it.
+
+## Files touched
+
+- `src/components/config/storymaps/actions/ActionEditors.tsx`
+  - `LayerControlEditor`: scope the layer dropdown to `step.layers.active` (new prop `activeLayerIds` + resolve names via `sources`); exclude layers already used by other `step.controls`; disable Save until a layer is picked; render the constraints list from `source.constraints` only.
+  - `ConstraintSelectionRow`: replace the "Pick constraint" label dropdown with a fixed row per authored constraint (checkbox + type-specific inputs). Drop the "(unknown)" fallback.
+  - `CategoricalValuesEditor`: remove the manual add input; render only the authored `constrainTo` options as checkboxes.
+- `src/components/config/storymaps/actions/ActionsAndLayersSection.tsx`
+  - Pass `step` (for active layers + sibling controls) into `LayerControlEditor`.
+  - When picking "Apply constraints" from the Add menu, still append a new empty control (as today) and open its editor.
+
+No changes to `src/types/story.ts`, `src/schemas/storySchema.ts`, or validation hooks.
