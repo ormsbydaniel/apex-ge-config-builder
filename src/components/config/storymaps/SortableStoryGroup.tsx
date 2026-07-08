@@ -299,45 +299,47 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
                     No steps yet.
                   </p>
                 ) : (
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext items={stepIds} strategy={verticalListSortingStrategy}>
-                      {steps.map((step, i) => (
-                        <SortableStepCard
-                          key={stepIds[i]}
-                          id={stepIds[i]}
-                          step={step}
-                          index={i}
-                          totalSteps={steps.length}
-                          sources={sources}
-                          warnings={warnings.get(stepKey(storyIndex, i))}
-                          expanded={expandedStep === i}
-                          onToggleExpanded={() =>
-                            setExpandedStep((v) => (v === i ? null : i))
-                          }
-                          onSave={(next) => {
-                            onUpdateStep(i, next);
-                            if (newStepIndex === i) setNewStepIndex(null);
-                          }}
-
-                          onDuplicate={() => onDuplicateStep(i)}
-                          onRemove={() => onRemoveStep(i)}
-                          onDirtyChange={(d) => onStepDirtyChange?.(i, d)}
-                          initiallyEditingContent={newStepIndex === i}
-                          onCancelNewStep={() => {
-                            if (newStepIndex === i) {
-                              setNewStepIndex(null);
-                              setExpandedStep(null);
-                              onRemoveStep(i);
+                  <div className="bg-slate-200 rounded-md p-2 space-y-2">
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <SortableContext items={stepIds} strategy={verticalListSortingStrategy}>
+                        {steps.map((step, i) => (
+                          <SortableStepCard
+                            key={stepIds[i]}
+                            id={stepIds[i]}
+                            step={step}
+                            index={i}
+                            totalSteps={steps.length}
+                            sources={sources}
+                            warnings={warnings.get(stepKey(storyIndex, i))}
+                            expanded={expandedStep === i}
+                            onToggleExpanded={() =>
+                              setExpandedStep((v) => (v === i ? null : i))
                             }
-                          }}
-                        />
-                      ))}
-                    </SortableContext>
-                  </DndContext>
+                            onSave={(next) => {
+                              onUpdateStep(i, next);
+                              if (newStepIndex === i) setNewStepIndex(null);
+                            }}
+
+                            onDuplicate={() => onDuplicateStep(i)}
+                            onRemove={() => onRemoveStep(i)}
+                            onDirtyChange={(d) => onStepDirtyChange?.(i, d)}
+                            initiallyEditingContent={newStepIndex === i}
+                            onCancelNewStep={() => {
+                              if (newStepIndex === i) {
+                                setNewStepIndex(null);
+                                setExpandedStep(null);
+                                onRemoveStep(i);
+                              }
+                            }}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  </div>
                 )}
 
               </div>
