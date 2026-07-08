@@ -129,6 +129,36 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     onOpenChange(false);
   };
 
+  // Debounced values for the OSM preview iframe, so typing doesn't hammer OSM.
+  const [previewLon, setPreviewLon] = useState(lon);
+  const [previewLat, setPreviewLat] = useState(lat);
+  const [previewZoom, setPreviewZoom] = useState(zoom);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPreviewLon(lon);
+      setPreviewLat(lat);
+      setPreviewZoom(zoom);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [lon, lat, zoom]);
+
+  const previewSrc = React.useMemo(() => {
+    if (!Number.isFinite(previewLon) || !Number.isFinite(previewLat)) return null;
+    const clampedZoom = Math.min(19, Math.max(0, Number.isFinite(previewZoom) ? previewZoom : 6));
+    const widthPx = 560;
+    const heightPx = 220;
+    const worldPx = 256 * 2 ** clampedZoom;
+    const degPerPxLon = 360 / worldPx;
+    const degPerPxLat = degPerPxLon * Math.cos((previewLat * Math.PI) / 180);
+    const halfW = (widthPx / 2) * degPerPxLon;
+    const halfH = (heightPx / 2) * degPerPxLat;
+    const minLon = previewLon - halfW;
+    const maxLon = previewLon + halfW;
+    const minLat = Math.max(-85, previewLat - halfH);
+    const maxLat = Math.min(85, previewLat + halfH);
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${minLon},${minLat},${maxLon},${maxLat}&layer=mapnik&marker=${previewLat},${previewLon}`;
+  }, [previewLon, previewLat, previewZoom]);
+
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save}>
       <RadioGroup value={kind} onValueChange={(v) => setKind(v as any)} className="flex gap-4">
@@ -141,28 +171,46 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
       </RadioGroup>
 
       {kind === 'zoom' ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div>
-            <Label className="text-xs">Zoom</Label>
-            <Input type="number" min={0} max={28} value={zoom}
-              onChange={(e) => setZoom(Number(e.target.value))} />
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div>
+              <Label className="text-xs">Zoom</Label>
+              <Input type="number" min={0} max={28} value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))} />
+            </div>
+            <div>
+              <Label className="text-xs">Longitude</Label>
+              <Input type="number" step="any" value={lon}
+                onChange={(e) => setLon(Number(e.target.value))} />
+            </div>
+            <div>
+              <Label className="text-xs">Latitude</Label>
+              <Input type="number" step="any" value={lat}
+                onChange={(e) => setLat(Number(e.target.value))} />
+            </div>
+            <div>
+              <Label className="text-xs">Duration (ms)</Label>
+              <Input type="number" min={0} value={duration}
+                onChange={(e) => setDuration(e.target.value)} />
+            </div>
           </div>
-          <div>
-            <Label className="text-xs">Longitude</Label>
-            <Input type="number" step="any" value={lon}
-              onChange={(e) => setLon(Number(e.target.value))} />
-          </div>
-          <div>
-            <Label className="text-xs">Latitude</Label>
-            <Input type="number" step="any" value={lat}
-              onChange={(e) => setLat(Number(e.target.value))} />
-          </div>
-          <div>
-            <Label className="text-xs">Duration (ms)</Label>
-            <Input type="number" min={0} value={duration}
-              onChange={(e) => setDuration(e.target.value)} />
-          </div>
-        </div>
+
+          {previewSrc && (
+            <div className="space-y-1">
+              <div className="overflow-hidden rounded-md border">
+                <iframe
+                  title="Location preview"
+                  src={previewSrc}
+                  className="w-full h-48 border-0"
+                  loading="lazy"
+                />
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Approximate preview — actual framing depends on the viewer.
+              </p>
+            </div>
+          )}
+        </>
       ) : (
         <div>
           <Label className="text-xs">Fit layer</Label>
@@ -177,6 +225,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     </ActionModal>
   );
 };
+
 
 // -----------------------------------------------------------------------------
 // Active layers editor
