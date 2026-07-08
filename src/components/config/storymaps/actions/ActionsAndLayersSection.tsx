@@ -460,7 +460,16 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       {editingControl && openEditor?.kind === 'layerControl' && (
         <LayerControlEditor
           open={true}
-          onOpenChange={(o) => !o && setOpenEditor(null)}
+          onOpenChange={(o) => {
+            if (o) return;
+            // Drop the control if the user closed without picking a layer
+            const idx = openEditor.index;
+            const current = (step.controls ?? [])[idx];
+            if (current && !current.layer) {
+              patch({ controls: (step.controls ?? []).filter((_, i) => i !== idx) });
+            }
+            setOpenEditor(null);
+          }}
           control={editingControl}
           controlIndex={openEditor.index}
           step={step}
