@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import MarkdownEditor from '@/components/common/MarkdownEditor';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
@@ -355,13 +356,13 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
                         Tell me more
                       </button>
                     </p>
-                    <Textarea
+                    <MarkdownEditor
                       id="layer-description"
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                      onChange={setDescription}
                       placeholder="Layer description..."
                       rows={8}
-                      className="min-h-[180px]"
+                      textareaClassName="min-h-[180px]"
                     />
                   </div>
                   <div className="space-y-2">

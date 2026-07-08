@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import MarkdownEditor from '@/components/common/MarkdownEditor';
 import { Story } from '@/types/config';
 
 interface StoryFormDialogProps {
@@ -90,10 +91,10 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
           </div>
           <div>
             <Label htmlFor="story-desc">Description (markdown)</Label>
-            <Textarea
+            <MarkdownEditor
               id="story-desc"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={setDescription}
               rows={4}
               placeholder="Explore **annual solar power potential** across Austria."
             />

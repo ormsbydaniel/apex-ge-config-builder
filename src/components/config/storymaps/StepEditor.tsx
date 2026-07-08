@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import MarkdownEditor from '@/components/common/MarkdownEditor';
 import {
   Dialog,
   DialogContent,
@@ -184,13 +185,13 @@ export const StepEditor: React.FC<StepEditorProps> = ({
             </div>
             <div className="space-y-2">
               <Label htmlFor="step-description">Description (markdown)</Label>
-              <Textarea
+              <MarkdownEditor
                 id="step-description"
                 rows={14}
                 value={contentDraftDescription}
-                onChange={(e) => setContentDraftDescription(e.target.value)}
+                onChange={setContentDraftDescription}
                 placeholder="Step description..."
-                className="min-h-[320px]"
+                textareaClassName="min-h-[320px]"
               />
             </div>
             <div className="space-y-2">
