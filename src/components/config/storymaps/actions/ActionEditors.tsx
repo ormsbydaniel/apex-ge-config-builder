@@ -159,8 +159,6 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     onOpenChange(false);
   };
 
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
   // Debounced values for the OSM preview iframe, so typing doesn't hammer OSM.
   const [previewLon, setPreviewLon] = useState(lon);
   const [previewLat, setPreviewLat] = useState(lat);
@@ -180,26 +178,6 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     const bbox = bboxFromCenterZoom(previewLon, previewLat, clampedZoom);
     return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}&layer=mapnik`;
   }, [previewLon, previewLat, previewZoom]);
-
-  // Read the current map view back from the iframe URL and apply it to the inputs.
-  const applyCurrentView = () => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-    try {
-      const src = iframe.contentWindow?.location?.href ?? iframe.src;
-      const url = new URL(src);
-      const bbox = url.searchParams.get('bbox');
-      if (!bbox) return;
-      const parsed = parseBbox(bbox);
-      if (!parsed) return;
-      const [nextLon, nextLat] = parsed.center;
-      setZoom(parsed.zoom);
-      setLon(nextLon);
-      setLat(nextLat);
-    } catch {
-      // Cross-origin or unreadable URL — ignore.
-    }
-  };
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save}>
