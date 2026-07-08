@@ -16,7 +16,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, X, Trash2, ChevronRight, ChevronDown } from 'lucide-react';
+import { Plus, X, Trash2, ChevronRight, ChevronDown, Crosshair } from 'lucide-react';
+import MapCentrePickerDialog from '@/components/config/MapCentrePickerDialog';
 import type {
   DataSource,
   StoryStep,
