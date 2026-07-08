@@ -134,19 +134,6 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     onOpenChange(false);
   };
 
-  const initialCenter = React.useMemo<[number, number]>(
-    () => [Number.isFinite(lat) ? lat : 0, Number.isFinite(lon) ? lon : 0],
-    // Only capture the values at mount; MapSync handles updates afterwards.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-  const initialZoom = React.useMemo(
-    () => (Number.isFinite(zoom) ? Math.min(19, Math.max(0, zoom)) : 6),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-  const clampedZoom = Math.min(19, Math.max(0, Number.isFinite(zoom) ? zoom : 6));
-  const showMap = Number.isFinite(lon) && Number.isFinite(lat);
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save}>
