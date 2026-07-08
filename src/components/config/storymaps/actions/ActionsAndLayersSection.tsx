@@ -462,6 +462,8 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
           open={true}
           onOpenChange={(o) => !o && setOpenEditor(null)}
           control={editingControl}
+          controlIndex={openEditor.index}
+          step={step}
           sources={sources}
           onSave={(next) => {
             const idx = openEditor.index;
