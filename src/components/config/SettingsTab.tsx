@@ -49,6 +49,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [newProjectionName, setNewProjectionName] = useState('');
   const [newProjectionCode, setNewProjectionCode] = useState('');
   const [newProjectionDefinition, setNewProjectionDefinition] = useState('');
+  const [mapPickerOpen, setMapPickerOpen] = useState(false);
   
   // Update local state when config changes
   useEffect(() => {
