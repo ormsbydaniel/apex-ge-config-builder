@@ -8,7 +8,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useConfig } from '@/contexts/ConfigContext';
-import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, Check, ExternalLink, Mail, Navigation, Paintbrush, Palette, Link2 } from 'lucide-react';
+import { Settings, MapPin, ZoomIn, Edit, Globe, Map, Plus, X, Check, ExternalLink, Mail, Navigation, Paintbrush, Palette, Link2, Crosshair } from 'lucide-react';
+import MapCentrePickerDialog from './MapCentrePickerDialog';
 import { Badge } from '@/components/ui/badge';
 import { AdvancedColorSchemeDialog } from './AdvancedColorSchemeDialog';
 import DesignVariantEditor from './DesignVariantEditor';
@@ -48,6 +49,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [newProjectionName, setNewProjectionName] = useState('');
   const [newProjectionCode, setNewProjectionCode] = useState('');
   const [newProjectionDefinition, setNewProjectionDefinition] = useState('');
+  const [mapPickerOpen, setMapPickerOpen] = useState(false);
   
   // Update local state when config changes
   useEffect(() => {
@@ -429,7 +431,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               </div>
               <div className="flex-1">
                 <div className="px-2">
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 items-end">
                     <div className="space-y-2">
                       <Label htmlFor="latitude" className="text-sm">Latitude</Label>
                       <TooltipProvider>
@@ -478,6 +480,25 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setMapPickerOpen(true)}
+                            className="gap-2"
+                          >
+                            <Crosshair className="h-4 w-4" />
+                            Pick on map
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Interactively set centre and zoom on a map</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
               </div>
@@ -1046,6 +1067,21 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
         footerLinks={config.layout.footer || []}
         onSave={(links) => {
           dispatch({ type: 'UPDATE_FOOTER', payload: links });
+        }}
+      />
+      <MapCentrePickerDialog
+        open={mapPickerOpen}
+        onOpenChange={setMapPickerOpen}
+        center={config.mapConstraints?.center || [0, 0]}
+        zoom={config.mapConstraints?.zoom || 2}
+        onApply={(center, zoom) => {
+          dispatch({
+            type: 'UPDATE_MAP_CONSTRAINTS',
+            payload: { center, zoom },
+          });
+          setLatitudeInput(center[1].toFixed(6));
+          setLongitudeInput(center[0].toFixed(6));
+          setSelectedLocation('custom');
         }}
       />
     </div>
