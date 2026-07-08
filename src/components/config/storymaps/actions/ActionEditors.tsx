@@ -279,14 +279,57 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
           )}
         </>
       ) : (
-        <div>
-          <Label className="text-xs">Fit layer</Label>
-          <Select value={fitLayer} onValueChange={setFitLayer}>
-            <SelectTrigger><SelectValue placeholder="Select a layer" /></SelectTrigger>
-            <SelectContent>
-              {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
-            </SelectContent>
-          </Select>
+        <div className="space-y-2">
+          <div>
+            <Label className="text-xs">Fit layer</Label>
+            <Select value={fitLayer} onValueChange={setFitLayer}>
+              <SelectTrigger><SelectValue placeholder="Select a layer" /></SelectTrigger>
+              <SelectContent>
+                {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {(() => {
+            const selected = layerOptions.find((o) => o.id === fitLayer || o.name === fitLayer);
+            const extent = selected?.extent;
+            if (!selected) return null;
+            if (!extent) {
+              return (
+                <p className="text-[11px] text-muted-foreground">
+                  No authored extent found for this layer. Add one via the layer's Zoom-to-center control to preview it here.
+                </p>
+              );
+            }
+            const [xmin, ymin, xmax, ymax] = extent;
+            const bounds: [[number, number], [number, number]] = [[ymin, xmin], [ymax, xmax]];
+            return (
+              <div className="space-y-1">
+                <div className="relative overflow-hidden rounded-md border">
+                  <MapContainer
+                    bounds={bounds}
+                    boundsOptions={{ padding: [16, 16] }}
+                    scrollWheelZoom={false}
+                    className="w-full h-48"
+                    style={{ background: 'hsl(var(--muted))' }}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <FitBoundsOnChange bbox={extent} />
+                    <Rectangle
+                      bounds={bounds}
+                      pathOptions={{ color: 'hsl(var(--primary))', weight: 2, fillOpacity: 0.1 }}
+                    />
+                  </MapContainer>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Extent: [{xmin.toFixed(4)}, {ymin.toFixed(4)}, {xmax.toFixed(4)}, {ymax.toFixed(4)}]
+                </p>
+              </div>
+            );
+          })()}
         </div>
       )}
     </ActionModal>
