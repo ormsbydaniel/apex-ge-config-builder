@@ -1069,6 +1069,21 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
           dispatch({ type: 'UPDATE_FOOTER', payload: links });
         }}
       />
+      <MapCentrePickerDialog
+        open={mapPickerOpen}
+        onOpenChange={setMapPickerOpen}
+        center={config.mapConstraints?.center || [0, 0]}
+        zoom={config.mapConstraints?.zoom || 2}
+        onApply={(center, zoom) => {
+          dispatch({
+            type: 'UPDATE_MAP_CONSTRAINTS',
+            payload: { center, zoom },
+          });
+          setLatitudeInput(center[1].toFixed(6));
+          setLongitudeInput(center[0].toFixed(6));
+          setSelectedLocation('custom');
+        }}
+      />
     </div>
   );
 };
