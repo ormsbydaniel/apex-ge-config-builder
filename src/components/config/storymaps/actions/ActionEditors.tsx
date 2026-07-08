@@ -34,8 +34,6 @@ export interface LayerOption {
   name: string;
   interfaceGroup?: string;
   subinterfaceGroup?: string;
-  /** Authored extent for fit-to-layer preview: [xmin, ymin, xmax, ymax] in lon/lat. */
-  extent?: [number, number, number, number];
 }
 
 const isZoomViewport = (v: any): v is { zoom: number; center: [number, number]; duration?: number } =>
