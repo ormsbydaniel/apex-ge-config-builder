@@ -50,6 +50,23 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
 // Render a friendly label for an option: name followed by muted id.
 const optionLabel = (opt: LayerOption) => opt.name || opt.id;
 
+// Compute an OSM embed bbox from a centre point and zoom level.
+const bboxFromCenterZoom = (lon: number, lat: number, zoom: number) => {
+  const widthPx = 560;
+  const heightPx = 220;
+  const worldPx = 256 * 2 ** zoom;
+  const degPerPxLon = 360 / worldPx;
+  const degPerPxLat = degPerPxLon * Math.cos((lat * Math.PI) / 180);
+  const halfW = (widthPx / 2) * degPerPxLon;
+  const halfH = (heightPx / 2) * degPerPxLat;
+  return {
+    minLon: lon - halfW,
+    maxLon: lon + halfW,
+    minLat: Math.max(-85, lat - halfH),
+    maxLat: Math.min(85, lat + halfH),
+  };
+};
+
 interface BaseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -145,18 +162,8 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
   const previewSrc = React.useMemo(() => {
     if (!Number.isFinite(previewLon) || !Number.isFinite(previewLat)) return null;
     const clampedZoom = Math.min(19, Math.max(0, Number.isFinite(previewZoom) ? previewZoom : 6));
-    const widthPx = 560;
-    const heightPx = 220;
-    const worldPx = 256 * 2 ** clampedZoom;
-    const degPerPxLon = 360 / worldPx;
-    const degPerPxLat = degPerPxLon * Math.cos((previewLat * Math.PI) / 180);
-    const halfW = (widthPx / 2) * degPerPxLon;
-    const halfH = (heightPx / 2) * degPerPxLat;
-    const minLon = previewLon - halfW;
-    const maxLon = previewLon + halfW;
-    const minLat = Math.max(-85, previewLat - halfH);
-    const maxLat = Math.min(85, previewLat + halfH);
-    return `https://www.openstreetmap.org/export/embed.html?bbox=${minLon},${minLat},${maxLon},${maxLat}&layer=mapnik&marker=${previewLat},${previewLon}`;
+    const bbox = bboxFromCenterZoom(previewLon, previewLat, clampedZoom);
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}&layer=mapnik`;
   }, [previewLon, previewLat, previewZoom]);
 
   return (
@@ -196,17 +203,24 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
           </div>
 
           {previewSrc && (
-            <div className="space-y-1">
-              <div className="overflow-hidden rounded-md border">
+            <div className="space-y-2">
+              <div className="relative overflow-hidden rounded-md border">
                 <iframe
                   title="Location preview"
                   src={previewSrc}
                   className="w-full h-48 border-0"
                   loading="lazy"
                 />
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                  <div className="relative w-8 h-8">
+                    <div className="absolute top-1/2 left-0 right-0 h-px bg-foreground/70" />
+                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-foreground/70" />
+                    <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground/70" />
+                  </div>
+                </div>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Approximate preview — actual framing depends on the viewer.
+                Approximate preview — the crosshair marks the centre defined by the inputs above. Pan/zoom is for browsing only; the OSM embed cannot report its new view back to the form.
               </p>
             </div>
           )}
