@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -65,6 +65,19 @@ const bboxFromCenterZoom = (lon: number, lat: number, zoom: number) => {
     minLat: Math.max(-85, lat - halfH),
     maxLat: Math.min(85, lat + halfH),
   };
+};
+
+// Reverse the bbox calculation to recover a centre point and approximate zoom.
+const parseBbox = (bbox: string): { center: [number, number]; zoom: number } | null => {
+  const parts = bbox.split(',').map(Number);
+  if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) return null;
+  const [minLon, minLat, maxLon, maxLat] = parts;
+  const centerLon = (minLon + maxLon) / 2;
+  const centerLat = (minLat + maxLat) / 2;
+  const widthPx = 560;
+  const zoom = Math.round(Math.log2((widthPx * 360) / (256 * (maxLon - minLon))));
+  if (!Number.isFinite(zoom)) return null;
+  return { center: [centerLon, centerLat], zoom: Math.min(19, Math.max(0, zoom)) };
 };
 
 // Reverse the bbox calculation to recover a centre point and approximate zoom.
