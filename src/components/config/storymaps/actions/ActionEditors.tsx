@@ -167,7 +167,6 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
                 onChange={(e) => setDuration(e.target.value)} />
             </div>
           </div>
-
         </>
       ) : (
         <div className="space-y-2">
