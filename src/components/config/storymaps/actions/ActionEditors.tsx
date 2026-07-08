@@ -1,6 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Rectangle, useMap, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
