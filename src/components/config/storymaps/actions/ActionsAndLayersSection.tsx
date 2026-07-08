@@ -245,8 +245,8 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
 
   const handlePick = (kind: ActionKind) => {
     if (kind === 'layerControl') {
-      // Append a new empty control and open its editor
-      const next = [...(step.controls ?? []), { layer: layerOptions[0]?.id ?? '' }];
+      // Append a new empty control and open its editor (layer chosen in modal)
+      const next = [...(step.controls ?? []), { layer: '' }];
       onChange({ ...step, controls: next });
       setOpenEditor({ kind: 'layerControl', index: next.length - 1 });
     } else {
@@ -460,8 +460,19 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       {editingControl && openEditor?.kind === 'layerControl' && (
         <LayerControlEditor
           open={true}
-          onOpenChange={(o) => !o && setOpenEditor(null)}
+          onOpenChange={(o) => {
+            if (o) return;
+            // Drop the control if the user closed without picking a layer
+            const idx = openEditor.index;
+            const current = (step.controls ?? [])[idx];
+            if (current && !current.layer) {
+              patch({ controls: (step.controls ?? []).filter((_, i) => i !== idx) });
+            }
+            setOpenEditor(null);
+          }}
           control={editingControl}
+          controlIndex={openEditor.index}
+          step={step}
           sources={sources}
           onSave={(next) => {
             const idx = openEditor.index;

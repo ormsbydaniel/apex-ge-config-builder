@@ -497,21 +497,39 @@ interface LayerControlEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   control: StoryStepControl;
+  /** Index of the control being edited within step.controls (for sibling-exclusion). */
+  controlIndex: number;
+  step: StoryStep;
   sources: DataSource[];
   onSave: (next: StoryStepControl) => void;
 }
 
 export const LayerControlEditor: React.FC<LayerControlEditorProps> = ({
-  open, onOpenChange, control, sources, onSave,
+  open, onOpenChange, control, controlIndex, step, sources, onSave,
 }) => {
   const [working, setWorking] = useState<StoryStepControl>(control);
   useEffect(() => { if (open) setWorking(control); }, [open, control]);
 
+  const activeIds: string[] = step.layers?.active ?? [];
+  const siblingLayerIds = new Set(
+    (step.controls ?? [])
+      .map((c, i) => (i !== controlIndex ? c.layer : ''))
+      .filter(Boolean),
+  );
+
+  // Build the layer options list, restricted to active layers of the step.
+  const activeLayerOptions = activeIds
+    .map((ref) => {
+      const src = findSource(sources, ref);
+      return {
+        id: ref,
+        name: src?.name ?? ref,
+        alreadyUsed: siblingLayerIds.has(ref),
+      };
+    });
+
   const source = findSource(sources, working.layer);
   const availableConstraints: ConstraintSourceItem[] = source?.constraints ?? [];
-  const layerOptions: LayerOption[] = sources
-    .map((s) => ({ id: s.id, name: s.name }))
-    .filter((o) => o.id);
 
   const patch = (p: Partial<StoryStepControl>) =>
     setWorking((prev) => ({ ...prev, ...p }));
@@ -520,153 +538,144 @@ export const LayerControlEditor: React.FC<LayerControlEditorProps> = ({
   const setConstraints = (next: StoryConstraintSelection[]) =>
     patch({ constraints: next });
 
-  const addConstraint = () => {
-    const first = availableConstraints[0];
-    if (!first) {
-      setConstraints([...constraints, { label: '', lower: 0, upper: 0 }]);
-      return;
-    }
-    if (first.type === 'continuous') {
-      setConstraints([...constraints, {
-        label: first.label,
-        lower: first.min ?? 0, upper: first.max ?? 0,
-      }]);
+  const selectedByLabel = new Map(constraints.map((c) => [c.label, c]));
+
+  const toggleConstraint = (def: ConstraintSourceItem, on: boolean) => {
+    if (on) {
+      if (selectedByLabel.has(def.label)) return;
+      const isContinuous = def.type === 'continuous';
+      const next: StoryConstraintSelection = isContinuous
+        ? { label: def.label, lower: def.min ?? 0, upper: def.max ?? 0 }
+        : { label: def.label, values: [] };
+      setConstraints([...constraints, next]);
     } else {
-      setConstraints([...constraints, { label: first.label, values: [] }]);
+      setConstraints(constraints.filter((c) => c.label !== def.label));
     }
   };
 
+  const updateConstraint = (label: string, next: StoryConstraintSelection) =>
+    setConstraints(constraints.map((c) => (c.label === label ? next : c)));
+
+  // When the layer changes, drop any selections whose labels no longer exist.
+  useEffect(() => {
+    if (!source) return;
+    const validLabels = new Set(availableConstraints.map((c) => c.label));
+    const filtered = constraints.filter((c) => validLabels.has(c.label));
+    if (filtered.length !== constraints.length) {
+      setConstraints(filtered);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [working.layer]);
+
   const save = () => { onSave(working); onOpenChange(false); };
+
+  const noActiveLayers = activeLayerOptions.length === 0;
 
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Apply constraints"
-      onSave={save} canSave={!!working.layer} wide>
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-        <div className="sm:col-span-2">
-          <Label className="text-xs">Layer</Label>
-          <Select value={working.layer} onValueChange={(v) => patch({ layer: v })}>
-            <SelectTrigger><SelectValue placeholder="Pick a layer" /></SelectTrigger>
-            <SelectContent>
-              {layerOptions.map((o) => <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>)}
-              {working.layer && !layerOptions.some((o) => o.id === working.layer || o.name === working.layer) && (
-                <SelectItem value={working.layer}>{working.layer} (unknown)</SelectItem>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="text-xs">Opacity</Label>
-          <Input type="number" min={0} max={1} step={0.05}
-            value={working.opacity ?? ''}
-            onChange={(e) => patch({
-              opacity: e.target.value === '' ? undefined : Number(e.target.value),
-            })} />
-        </div>
-        <div className="flex items-end gap-2">
-          <Label className="text-xs">Blend</Label>
-          <Switch checked={!!working.blend} onCheckedChange={(v) => patch({ blend: v })} />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-xs">Constraints</Label>
-          <Button type="button" size="sm" variant="ghost" onClick={addConstraint}
-            disabled={!source}>
-            <Plus className="h-3 w-3 mr-1" /> Add
-          </Button>
-        </div>
-        {constraints.length === 0 && (
-          <p className="text-xs text-muted-foreground">No constraints.</p>
-        )}
-        {constraints.map((sel, si) => (
-          <ConstraintSelectionRow
-            key={si}
-            selection={sel}
-            available={availableConstraints}
-            onChange={(next) => setConstraints(constraints.map((c, i) => i === si ? next : c))}
-            onRemove={() => setConstraints(constraints.filter((_, i) => i !== si))}
-          />
-        ))}
-      </div>
-    </ActionModal>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// Constraint selection row (used inside LayerControlEditor)
-// -----------------------------------------------------------------------------
-
-interface ConstraintSelectionRowProps {
-  selection: StoryConstraintSelection;
-  available: ConstraintSourceItem[];
-  onChange: (next: StoryConstraintSelection) => void;
-  onRemove: () => void;
-}
-
-const ConstraintSelectionRow: React.FC<ConstraintSelectionRowProps> = ({
-  selection, available, onChange, onRemove,
-}) => {
-  const def = available.find((d) => d.label === selection.label);
-  const kind = def?.type ?? (selection.values ? 'categorical' : 'continuous');
-
-  return (
-    <div className="border rounded p-2 bg-background space-y-2">
-      <div className="flex items-start gap-2">
-        <div className="flex-1">
-          <Label className="text-[11px]">Label</Label>
-          <Select
-            value={selection.label || '__pick__'}
-            onValueChange={(v) => {
-              const chosen = available.find((d) => d.label === v);
-              if (!chosen) { onChange({ ...selection, label: v }); return; }
-              if (chosen.type === 'continuous') {
-                onChange({ label: chosen.label,
-                  lower: chosen.min ?? 0, upper: chosen.max ?? 0 });
-              } else {
-                onChange({ label: chosen.label, values: [] });
-              }
-            }}
-          >
-            <SelectTrigger><SelectValue placeholder="Pick constraint" /></SelectTrigger>
-            <SelectContent>
-              {available.map((c) => <SelectItem key={c.label} value={c.label}>{c.label}</SelectItem>)}
-              {selection.label && !available.some((a) => a.label === selection.label) && (
-                <SelectItem value={selection.label}>{selection.label} (unknown)</SelectItem>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-        <Button type="button" size="icon" variant="ghost" onClick={onRemove}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {kind === 'continuous' ? (
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-[11px]">Lower</Label>
-            <Input type="number" value={selection.lower ?? ''}
-              onChange={(e) => onChange({
-                ...selection,
-                lower: e.target.value === '' ? undefined : Number(e.target.value),
-              })} />
-          </div>
-          <div>
-            <Label className="text-[11px]">Upper</Label>
-            <Input type="number" value={selection.upper ?? ''}
-              onChange={(e) => onChange({
-                ...selection,
-                upper: e.target.value === '' ? undefined : Number(e.target.value),
-              })} />
-          </div>
-        </div>
+      onSave={save} canSave={!!working.layer && !noActiveLayers} wide>
+      {noActiveLayers ? (
+        <p className="text-xs text-muted-foreground">
+          Add active layers to this step first — constraints can only be applied to an active layer.
+        </p>
       ) : (
-        <CategoricalValuesEditor def={def}
-          values={selection.values ?? []}
-          onChange={(next) => onChange({ ...selection, values: next })} />
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+            <div className="sm:col-span-2">
+              <Label className="text-xs">Layer</Label>
+              <Select value={working.layer || undefined} onValueChange={(v) => patch({ layer: v })}>
+                <SelectTrigger><SelectValue placeholder="Pick an active layer" /></SelectTrigger>
+                <SelectContent>
+                  {activeLayerOptions.map((o) => (
+                    <SelectItem key={o.id} value={o.id} disabled={o.alreadyUsed}>
+                      {o.name}{o.alreadyUsed ? ' (already configured)' : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Opacity</Label>
+              <Input type="number" min={0} max={1} step={0.05}
+                value={working.opacity ?? ''}
+                onChange={(e) => patch({
+                  opacity: e.target.value === '' ? undefined : Number(e.target.value),
+                })} />
+            </div>
+            <div className="flex items-end gap-2">
+              <Label className="text-xs">Blend</Label>
+              <Switch checked={!!working.blend} onCheckedChange={(v) => patch({ blend: v })} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs">Constraints</Label>
+            {!working.layer && (
+              <p className="text-xs text-muted-foreground">Pick a layer to see its constraints.</p>
+            )}
+            {working.layer && availableConstraints.length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                No constraints defined for this layer.
+              </p>
+            )}
+            {working.layer && availableConstraints.map((def) => {
+              const selection = selectedByLabel.get(def.label);
+              const enabled = !!selection;
+              return (
+                <div key={def.label} className="border rounded p-2 bg-background space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id={`constraint-${def.label}`}
+                      checked={enabled}
+                      onCheckedChange={(v) => toggleConstraint(def, v === true)}
+                    />
+                    <Label htmlFor={`constraint-${def.label}`} className="text-sm font-normal cursor-pointer">
+                      {def.label}
+                      <span className="text-muted-foreground ml-1">({def.type})</span>
+                    </Label>
+                  </div>
+
+                  {enabled && def.type === 'continuous' && (
+                    <div className="grid grid-cols-2 gap-2 pl-6">
+                      <div>
+                        <Label className="text-[11px]">
+                          Lower{def.min !== undefined ? ` (min ${def.min})` : ''}
+                        </Label>
+                        <Input type="number" value={selection!.lower ?? ''}
+                          onChange={(e) => updateConstraint(def.label, {
+                            ...selection!,
+                            lower: e.target.value === '' ? undefined : Number(e.target.value),
+                          })} />
+                      </div>
+                      <div>
+                        <Label className="text-[11px]">
+                          Upper{def.max !== undefined ? ` (max ${def.max})` : ''}
+                        </Label>
+                        <Input type="number" value={selection!.upper ?? ''}
+                          onChange={(e) => updateConstraint(def.label, {
+                            ...selection!,
+                            upper: e.target.value === '' ? undefined : Number(e.target.value),
+                          })} />
+                      </div>
+                    </div>
+                  )}
+
+                  {enabled && def.type !== 'continuous' && (
+                    <div className="pl-6">
+                      <CategoricalValuesEditor def={def}
+                        values={selection!.values ?? []}
+                        onChange={(next) => updateConstraint(def.label, {
+                          ...selection!, values: next,
+                        })} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
-    </div>
+    </ActionModal>
   );
 };
 
@@ -685,45 +694,24 @@ const CategoricalValuesEditor: React.FC<CategoricalValuesEditorProps> = ({
         value: o.value ?? o.label,
       }))
     : [];
-  const [draft, setDraft] = useState('');
   const toggle = (v: string | number) => {
     onChange(values.includes(v) ? values.filter((x) => x !== v) : [...values, v]);
   };
-  const addManual = () => {
-    const v = draft.trim();
-    if (!v) return;
-    const parsed = /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : v;
-    if (!values.includes(parsed)) onChange([...values, parsed]);
-    setDraft('');
-  };
+  if (options.length === 0) {
+    return (
+      <p className="text-[11px] text-muted-foreground">
+        No selectable values defined for this constraint.
+      </p>
+    );
+  }
   return (
-    <div className="space-y-1">
-      {options.length > 0 && (
-        <div className="border rounded p-2 max-h-32 overflow-y-auto space-y-1">
-          {options.map((o) => (
-            <label key={String(o.value)} className="flex items-center gap-2 text-xs">
-              <Checkbox checked={values.includes(o.value)} onCheckedChange={() => toggle(o.value)} />
-              {o.label} <span className="text-muted-foreground">({String(o.value)})</span>
-            </label>
-          ))}
-        </div>
-      )}
-      {options.length === 0 && (
-        <div className="flex gap-1">
-          <Input value={draft} onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addManual(); } }}
-            placeholder="value" className="h-8" />
-          <Button type="button" size="sm" variant="outline" onClick={addManual}>Add</Button>
-        </div>
-      )}
-      <div className="flex flex-wrap gap-1">
-        {values.map((v) => (
-          <Badge key={String(v)} variant="secondary" className="gap-1">
-            {String(v)}
-            <button type="button" onClick={() => toggle(v)}><X className="h-3 w-3" /></button>
-          </Badge>
-        ))}
-      </div>
+    <div className="border rounded p-2 max-h-40 overflow-y-auto space-y-1">
+      {options.map((o) => (
+        <label key={String(o.value)} className="flex items-center gap-2 text-xs">
+          <Checkbox checked={values.includes(o.value)} onCheckedChange={() => toggle(o.value)} />
+          {o.label} <span className="text-muted-foreground">({String(o.value)})</span>
+        </label>
+      ))}
     </div>
   );
 };
