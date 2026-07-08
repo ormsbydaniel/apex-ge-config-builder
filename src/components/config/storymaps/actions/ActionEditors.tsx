@@ -168,6 +168,29 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
                 onChange={(e) => setDuration(e.target.value)} />
             </div>
           </div>
+          <div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPickerOpen(true)}
+              className="gap-2"
+            >
+              <Crosshair className="h-4 w-4" />
+              Pick on map
+            </Button>
+          </div>
+          <MapCentrePickerDialog
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+            center={[lon, lat]}
+            zoom={zoom}
+            onApply={(c, z) => {
+              setLon(c[0]);
+              setLat(c[1]);
+              setZoom(z);
+            }}
+          />
         </>
       ) : (
         <div className="space-y-2">
