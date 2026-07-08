@@ -219,7 +219,6 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
             <div className="space-y-2">
               <div className="relative overflow-hidden rounded-md border">
                 <iframe
-                  ref={iframeRef}
                   title="Location preview"
                   src={previewSrc}
                   className="w-full h-48 border-0"
@@ -233,14 +232,9 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] text-muted-foreground">
-                  Approximate preview — pan/zoom the map, then use the button to update the values.
-                </p>
-                <Button type="button" size="sm" variant="outline" onClick={applyCurrentView}>
-                  Use current view
-                </Button>
-              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Approximate preview — the crosshair marks the centre defined by the inputs above. Pan/zoom is for browsing only; the OSM embed cannot report its new view back to the form.
+              </p>
             </div>
           )}
         </>
