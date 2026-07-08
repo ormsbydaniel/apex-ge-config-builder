@@ -179,7 +179,6 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
               </SelectContent>
             </Select>
           </div>
-
         </div>
       )}
     </ActionModal>
