@@ -54,59 +54,6 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
 // Render a friendly label for an option: name followed by muted id.
 const optionLabel = (opt: LayerOption) => opt.name || opt.id;
 
-// Small child component: keeps Leaflet in sync with external lon/lat/zoom
-// (only when they diverge meaningfully) and reports back on user pan/zoom.
-interface MapSyncProps {
-  lon: number;
-  lat: number;
-  zoom: number;
-  onChange: (lon: number, lat: number, zoom: number) => void;
-}
-const MapSync: React.FC<MapSyncProps> = ({ lon, lat, zoom, onChange }) => {
-  const map = useMap();
-  const suppressRef = useRef(false);
-
-  // External -> map
-  useEffect(() => {
-    if (!Number.isFinite(lon) || !Number.isFinite(lat) || !Number.isFinite(zoom)) return;
-    const c = map.getCenter();
-    const z = map.getZoom();
-    const dLon = Math.abs(c.lng - lon);
-    const dLat = Math.abs(c.lat - lat);
-    const dZoom = Math.abs(z - zoom);
-    if (dLon < 1e-5 && dLat < 1e-5 && dZoom < 1e-3) return;
-    suppressRef.current = true;
-    map.setView([lat, lon], zoom, { animate: false });
-    // Allow the resulting moveend to fire before re-enabling reporting.
-    setTimeout(() => { suppressRef.current = false; }, 0);
-  }, [lon, lat, zoom, map]);
-
-  // Map -> external
-  useMapEvents({
-    moveend: () => {
-      if (suppressRef.current) return;
-      const c = map.getCenter();
-      const z = map.getZoom();
-      onChange(
-        Number(c.lng.toFixed(6)),
-        Number(c.lat.toFixed(6)),
-        Number(z.toFixed(2)),
-      );
-    },
-  });
-
-  return null;
-};
-
-// Fits the map to the given bbox whenever it changes.
-const FitBoundsOnChange: React.FC<{ bbox: [number, number, number, number] }> = ({ bbox }) => {
-  const map = useMap();
-  useEffect(() => {
-    const [xmin, ymin, xmax, ymax] = bbox;
-    map.fitBounds([[ymin, xmin], [ymax, xmax]], { padding: [16, 16], animate: false });
-  }, [bbox, map]);
-  return null;
-};
 
 interface BaseModalProps {
   open: boolean;
