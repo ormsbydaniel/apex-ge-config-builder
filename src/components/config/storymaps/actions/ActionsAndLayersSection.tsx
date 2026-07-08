@@ -234,7 +234,12 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
 
 
   const layerOptions = sources
-    .map((s) => ({ id: s.id, name: s.name }))
+    .map((s) => ({
+      id: s.id,
+      name: s.name,
+      interfaceGroup: s.layout?.interfaceGroup,
+      subinterfaceGroup: s.layout?.subinterfaceGroup,
+    }))
     .filter((o) => !!o.id);
   const patch = (p: Partial<StoryStep>) => onChange({ ...step, ...p });
 
