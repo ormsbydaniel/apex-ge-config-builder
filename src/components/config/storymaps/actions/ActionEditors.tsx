@@ -52,7 +52,6 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
 // Render a friendly label for an option: name followed by muted id.
 const optionLabel = (opt: LayerOption) => opt.name || opt.id;
 
-
 interface BaseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
