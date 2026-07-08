@@ -34,6 +34,8 @@ import type {
 export interface LayerOption {
   id: string;
   name: string;
+  interfaceGroup?: string;
+  subinterfaceGroup?: string;
 }
 
 const isZoomViewport = (v: any): v is { zoom: number; center: [number, number]; duration?: number } =>
