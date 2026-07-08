@@ -234,25 +234,12 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
 
 
   const layerOptions = sources
-    .map((s) => {
-      const ztc =
-        (s.layout as any)?.layerCard?.controls?.zoomToCenter ??
-        (s.layout as any)?.infoPanel?.controls?.zoomToCenter;
-      const rawExtent = ztc && typeof ztc === 'object' && Array.isArray(ztc.extent)
-        ? ztc.extent
-        : undefined;
-      const extent =
-        rawExtent && rawExtent.length === 4 && rawExtent.every((n: any) => Number.isFinite(n))
-          ? (rawExtent as [number, number, number, number])
-          : undefined;
-      return {
-        id: s.id,
-        name: s.name,
-        interfaceGroup: s.layout?.interfaceGroup,
-        subinterfaceGroup: s.layout?.subinterfaceGroup,
-        extent,
-      };
-    })
+    .map((s) => ({
+      id: s.id,
+      name: s.name,
+      interfaceGroup: s.layout?.interfaceGroup,
+      subinterfaceGroup: s.layout?.subinterfaceGroup,
+    }))
     .filter((o) => !!o.id);
   const patch = (p: Partial<StoryStep>) => onChange({ ...step, ...p });
 

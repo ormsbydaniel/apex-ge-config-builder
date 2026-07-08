@@ -1,6 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Rectangle, useMap, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -36,8 +34,6 @@ export interface LayerOption {
   name: string;
   interfaceGroup?: string;
   subinterfaceGroup?: string;
-  /** Authored extent for fit-to-layer preview: [xmin, ymin, xmax, ymax] in lon/lat. */
-  extent?: [number, number, number, number];
 }
 
 const isZoomViewport = (v: any): v is { zoom: number; center: [number, number]; duration?: number } =>
@@ -55,60 +51,6 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
 
 // Render a friendly label for an option: name followed by muted id.
 const optionLabel = (opt: LayerOption) => opt.name || opt.id;
-
-// Small child component: keeps Leaflet in sync with external lon/lat/zoom
-// (only when they diverge meaningfully) and reports back on user pan/zoom.
-interface MapSyncProps {
-  lon: number;
-  lat: number;
-  zoom: number;
-  onChange: (lon: number, lat: number, zoom: number) => void;
-}
-const MapSync: React.FC<MapSyncProps> = ({ lon, lat, zoom, onChange }) => {
-  const map = useMap();
-  const suppressRef = useRef(false);
-
-  // External -> map
-  useEffect(() => {
-    if (!Number.isFinite(lon) || !Number.isFinite(lat) || !Number.isFinite(zoom)) return;
-    const c = map.getCenter();
-    const z = map.getZoom();
-    const dLon = Math.abs(c.lng - lon);
-    const dLat = Math.abs(c.lat - lat);
-    const dZoom = Math.abs(z - zoom);
-    if (dLon < 1e-5 && dLat < 1e-5 && dZoom < 1e-3) return;
-    suppressRef.current = true;
-    map.setView([lat, lon], zoom, { animate: false });
-    // Allow the resulting moveend to fire before re-enabling reporting.
-    setTimeout(() => { suppressRef.current = false; }, 0);
-  }, [lon, lat, zoom, map]);
-
-  // Map -> external
-  useMapEvents({
-    moveend: () => {
-      if (suppressRef.current) return;
-      const c = map.getCenter();
-      const z = map.getZoom();
-      onChange(
-        Number(c.lng.toFixed(6)),
-        Number(c.lat.toFixed(6)),
-        Number(z.toFixed(2)),
-      );
-    },
-  });
-
-  return null;
-};
-
-// Fits the map to the given bbox whenever it changes.
-const FitBoundsOnChange: React.FC<{ bbox: [number, number, number, number] }> = ({ bbox }) => {
-  const map = useMap();
-  useEffect(() => {
-    const [xmin, ymin, xmax, ymax] = bbox;
-    map.fitBounds([[ymin, xmin], [ymax, xmax]], { padding: [16, 16], animate: false });
-  }, [bbox, map]);
-  return null;
-};
 
 interface BaseModalProps {
   open: boolean;
@@ -189,20 +131,6 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
     onOpenChange(false);
   };
 
-  const initialCenter = React.useMemo<[number, number]>(
-    () => [Number.isFinite(lat) ? lat : 0, Number.isFinite(lon) ? lon : 0],
-    // Only capture the values at mount; MapSync handles updates afterwards.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-  const initialZoom = React.useMemo(
-    () => (Number.isFinite(zoom) ? Math.min(19, Math.max(0, zoom)) : 6),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-  const clampedZoom = Math.min(19, Math.max(0, Number.isFinite(zoom) ? zoom : 6));
-  const showMap = Number.isFinite(lon) && Number.isFinite(lat);
-
   return (
     <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save}>
       <RadioGroup value={kind} onValueChange={(v) => setKind(v as any)} className="flex gap-4">
@@ -238,45 +166,6 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
                 onChange={(e) => setDuration(e.target.value)} />
             </div>
           </div>
-
-          {showMap && (
-            <div className="space-y-2">
-              <div className="relative overflow-hidden rounded-md border">
-                <MapContainer
-                  center={initialCenter}
-                  zoom={initialZoom}
-                  scrollWheelZoom
-                  className="w-full h-48"
-                  style={{ background: 'hsl(var(--muted))' }}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <MapSync
-                    lon={lon}
-                    lat={lat}
-                    zoom={clampedZoom}
-                    onChange={(nLon, nLat, nZoom) => {
-                      setLon(nLon);
-                      setLat(nLat);
-                      setZoom(nZoom);
-                    }}
-                  />
-                </MapContainer>
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-[400]">
-                  <div className="relative w-8 h-8">
-                    <div className="absolute top-1/2 left-0 right-0 h-px bg-foreground/70" />
-                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-foreground/70" />
-                    <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground/70" />
-                  </div>
-                </div>
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                Pan and zoom the map to update the centre and zoom values above.
-              </p>
-            </div>
-          )}
         </>
       ) : (
         <div className="space-y-2">
@@ -289,53 +178,11 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
               </SelectContent>
             </Select>
           </div>
-
-          {(() => {
-            const selected = layerOptions.find((o) => o.id === fitLayer || o.name === fitLayer);
-            const extent = selected?.extent;
-            if (!selected) return null;
-            if (!extent) {
-              return (
-                <p className="text-[11px] text-muted-foreground">
-                  No authored extent found for this layer. Add one via the layer's Zoom-to-center control to preview it here.
-                </p>
-              );
-            }
-            const [xmin, ymin, xmax, ymax] = extent;
-            const bounds: [[number, number], [number, number]] = [[ymin, xmin], [ymax, xmax]];
-            return (
-              <div className="space-y-1">
-                <div className="relative overflow-hidden rounded-md border">
-                  <MapContainer
-                    bounds={bounds}
-                    boundsOptions={{ padding: [16, 16] }}
-                    scrollWheelZoom={false}
-                    className="w-full h-48"
-                    style={{ background: 'hsl(var(--muted))' }}
-                  >
-                    <TileLayer
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <FitBoundsOnChange bbox={extent} />
-                    <Rectangle
-                      bounds={bounds}
-                      pathOptions={{ color: 'hsl(var(--primary))', weight: 2, fillOpacity: 0.1 }}
-                    />
-                  </MapContainer>
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Extent: [{xmin.toFixed(4)}, {ymin.toFixed(4)}, {xmax.toFixed(4)}, {ymax.toFixed(4)}]
-                </p>
-              </div>
-            );
-          })()}
         </div>
       )}
     </ActionModal>
   );
 };
-
 
 // -----------------------------------------------------------------------------
 // Active layers editor
