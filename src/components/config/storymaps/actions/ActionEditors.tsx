@@ -18,7 +18,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, X, Trash2 } from 'lucide-react';
+import { Plus, X, Trash2, ChevronRight, ChevronDown } from 'lucide-react';
 import type {
   DataSource,
   StoryStep,
