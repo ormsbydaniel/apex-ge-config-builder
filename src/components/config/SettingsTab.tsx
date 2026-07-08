@@ -431,7 +431,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
               </div>
               <div className="flex-1">
                 <div className="px-2">
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 items-end">
                     <div className="space-y-2">
                       <Label htmlFor="latitude" className="text-sm">Latitude</Label>
                       <TooltipProvider>
@@ -480,6 +480,25 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setMapPickerOpen(true)}
+                            className="gap-2"
+                          >
+                            <Crosshair className="h-4 w-4" />
+                            Pick on map
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Interactively set centre and zoom on a map</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
               </div>
