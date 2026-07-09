@@ -72,7 +72,6 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   };
   const handleIdChange = (v: string) => {
     setContentDraftId(v);
-    setIdManuallyEdited(true);
   };
 
   const saveContentDialog = () => {
