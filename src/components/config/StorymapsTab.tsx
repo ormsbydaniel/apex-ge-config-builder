@@ -207,7 +207,7 @@ const StorymapsTab: React.FC = () => {
                   onStepDirtyChange={(stepIndex, dirty) =>
                     setStepDirty(`${i}:${stepIndex}`, dirty)
                   }
-                  onExpandedChange={(open) => setExpandedStoryIndex(open ? i : null)}
+                  onExpandedChange={handleExpandedChange}
                 />
               ))}
             </SortableContext>
