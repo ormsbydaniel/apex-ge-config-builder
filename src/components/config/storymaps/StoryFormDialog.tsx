@@ -139,7 +139,7 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
           <Button
             disabled={!canSave}
             onClick={() => {
-              onSave({ id: id.trim(), title: title.trim(), description: description || undefined });
+              onSave({ id: id.trim(), title: title.trim(), description: description || undefined, isActive });
               onOpenChange(false);
             }}
           >
