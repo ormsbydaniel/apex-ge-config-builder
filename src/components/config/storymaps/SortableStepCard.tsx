@@ -159,7 +159,14 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
     zIndex: isDragging ? 50 : undefined,
   };
 
-  const activeCount = step.layers?.active?.length ?? 0;
+  const activeLayers = step.layers?.active ?? [];
+  const activeCount = activeLayers.length;
+  const controls = step.controls ?? [];
+  const constraintCount = controls.reduce(
+    (n, c) => n + (c.constraints?.length ?? 0),
+    0,
+  );
+  const panels = step.expandPanels ?? [];
   const hasWarnings = (warnings?.length ?? 0) > 0;
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
