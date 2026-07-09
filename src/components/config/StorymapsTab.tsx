@@ -163,7 +163,7 @@ const StorymapsTab: React.FC = () => {
           <Plus className="h-4 w-4 mr-2" /> Add story
         </Button>
       </CardHeader>
-      {(list.length === 0 || expandedStoryIndex === null) && (
+      {(list.length === 0 || expandedCount === 0) && (
         <div className="px-6 pb-2 text-sm text-muted-foreground">
           Stories provide users with a &apos;curated&apos; walk through that can be used to
           provide an experience that guides a use through the layers and features in a GE
