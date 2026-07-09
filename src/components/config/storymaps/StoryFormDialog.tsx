@@ -49,6 +49,7 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
   const [description, setDescription] = useState('');
   const [id, setId] = useState('');
   const [idTouched, setIdTouched] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   // Initialise dialog state inside useEffect on `open` — prevents stale
   // overwrites (core memory rule).
@@ -58,6 +59,7 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
     setDescription(initial?.description ?? '');
     setId(initial?.id ?? '');
     setIdTouched(!!initial);
+    setIsActive(initial?.isActive ?? false);
   }, [open, initial]);
 
   // Auto-slug id from title while user hasn't touched id manually.
