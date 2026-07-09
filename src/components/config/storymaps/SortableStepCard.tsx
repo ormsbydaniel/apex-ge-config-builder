@@ -86,7 +86,7 @@ const viewportPill = (v: StoryStep['viewport']) => {
   }
   return (
     <Pill tint="info" icon={<Compass className="h-3 w-3" />}>
-      Zoom {v.zoom} · [{v.center[0]}, {v.center[1]}]
+      Zoom {v.zoom} · [{v.center[0].toFixed(2)}, {v.center[1].toFixed(2)}]
       {v.duration ? ` · ${v.duration}ms` : ''}
     </Pill>
   );
