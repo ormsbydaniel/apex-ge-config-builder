@@ -81,7 +81,7 @@ const MapCentrePickerDialog: React.FC<MapCentrePickerDialogProps> = ({
           <DialogTitle>Pick map centre and zoom</DialogTitle>
         </DialogHeader>
         <div className="space-y-2">
-          <div className="h-[420px] w-full rounded-md overflow-hidden border">
+          <div className="relative h-[420px] w-full rounded-md overflow-hidden border">
             {open && (
               <MapContainer
                 center={[initialRef.current.center[1], initialRef.current.center[0]]}
@@ -95,11 +95,20 @@ const MapCentrePickerDialog: React.FC<MapCentrePickerDialogProps> = ({
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={[localCenter[1], localCenter[0]]} />
                 <MapEvents onChange={(c, z) => { setLocalCenter(c); setLocalZoom(z); }} />
                 <InvalidateOnOpen open={open} />
               </MapContainer>
             )}
+            {/* Fixed crosshair overlay at map centre */}
+            <div className="pointer-events-none absolute inset-0 z-[500] flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+                <circle cx="14" cy="14" r="3" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+                <line x1="14" y1="0" x2="14" y2="9" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+                <line x1="14" y1="19" x2="14" y2="28" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+                <line x1="0" y1="14" x2="9" y2="14" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+                <line x1="19" y1="14" x2="28" y2="14" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+              </svg>
+            </div>
           </div>
           <div className="flex items-center justify-between text-sm text-muted-foreground px-1">
             <span>
