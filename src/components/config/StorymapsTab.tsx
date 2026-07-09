@@ -105,18 +105,19 @@ const StorymapsTab: React.FC = () => {
     moveStory(from, to);
   };
 
-  const handleAddStory = (patch: { id: string; title: string; description?: string }) => {
+  const handleAddStory = (patch: { id: string; title: string; description?: string; isActive?: boolean }) => {
     const existingIds = list.map((s) => s.id);
     const newStory: Story = {
       id: uniqueId(patch.id, existingIds),
       title: patch.title,
       description: patch.description,
+      isActive: patch.isActive,
       steps: [],
     };
     addStory(newStory);
   };
 
-  const handleEditStory = (index: number, patch: { id: string; title: string; description?: string }) => {
+  const handleEditStory = (index: number, patch: { id: string; title: string; description?: string; isActive?: boolean }) => {
     const original = list[index];
     if (!original) return;
     const otherIds = list.filter((_, i) => i !== index).map((s) => s.id);
@@ -125,6 +126,7 @@ const StorymapsTab: React.FC = () => {
       id: original.id === patch.id ? original.id : uniqueId(patch.id, otherIds),
       title: patch.title,
       description: patch.description,
+      isActive: patch.isActive,
     });
   };
 
