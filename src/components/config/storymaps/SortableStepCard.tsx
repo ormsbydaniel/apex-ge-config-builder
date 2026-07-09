@@ -189,7 +189,14 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
   const confirmEditTitle = () => {
     const trimmed = titleDraft.trim();
     if (trimmed && trimmed !== step.title) {
-      onSave({ ...step, title: trimmed });
+      const nextId =
+        trimmed
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '') || step.id;
+      onSave({ ...step, title: trimmed, id: nextId });
     }
     setIsEditingTitle(false);
   };

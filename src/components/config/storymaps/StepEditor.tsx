@@ -46,7 +46,6 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   const [contentDraftTitle, setContentDraftTitle] = useState(step.title);
   const [contentDraftId, setContentDraftId] = useState(step.id);
   const [contentDraftDescription, setContentDraftDescription] = useState(step.description ?? '');
-  const [idManuallyEdited, setIdManuallyEdited] = useState(false);
   const [hasSavedNewContent, setHasSavedNewContent] = useState(false);
 
   const slugify = (v: string) =>
@@ -62,7 +61,6 @@ export const StepEditor: React.FC<StepEditorProps> = ({
       setContentDraftTitle(step.title);
       setContentDraftId(step.id);
       setContentDraftDescription(step.description ?? '');
-      setIdManuallyEdited(step.id !== slugify(step.title));
     }
   }, [editingContent, step.title, step.id, step.description]);
 
@@ -70,11 +68,10 @@ export const StepEditor: React.FC<StepEditorProps> = ({
 
   const handleTitleChange = (v: string) => {
     setContentDraftTitle(v);
-    if (!idManuallyEdited) setContentDraftId(slugify(v));
+    setContentDraftId(slugify(v));
   };
   const handleIdChange = (v: string) => {
     setContentDraftId(v);
-    setIdManuallyEdited(true);
   };
 
   const saveContentDialog = () => {
