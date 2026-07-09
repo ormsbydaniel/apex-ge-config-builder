@@ -129,6 +129,7 @@ export const useLayerCardFormSubmission = (
     }
 
     const layerCard: DataSource = {
+      id: editingLayer?.id ?? '',
       name: formData.name.trim(),
       isActive: formData.isActive,
       ...(formData.exclusivitySets.length > 0 && { exclusivitySets: formData.exclusivitySets }),

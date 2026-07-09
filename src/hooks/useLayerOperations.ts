@@ -5,6 +5,7 @@ import { ChartConfig } from '@/types/chart';
 import { createLayerActionHandlers } from '@/utils/layerActions';
 import { PositionValue, getDefaultPosition, isValidPosition, requiresPosition } from '@/utils/positionUtils';
 import { cloneDonorLayer } from '@/utils/donorImport';
+import { uniqueId } from '@/utils/idHelpers';
 
 // Layer type management
 export type LayerTypeOption = 'standard' | 'swipe' | 'mirror' | 'spotlight';
@@ -92,7 +93,16 @@ export const useLayerOperations = ({
   // === LAYER MANAGEMENT ===
   
   const addLayer = useCallback((layer: DataSource) => {
-    dispatch({ type: 'ADD_SOURCE', payload: layer });
+    // Ensure new layers always get a unique id (auto-derived from name if
+    // the caller didn't provide one — e.g. legacy code paths).
+    const takenIds = new Set<string>(
+      (config.sources || []).map((s: any) => s?.id).filter((v: any): v is string => typeof v === 'string' && v.length > 0),
+    );
+    const withId: DataSource = layer.id && !takenIds.has(layer.id)
+      ? layer
+      : { ...layer, id: uniqueId(layer.id || layer.name || 'layer', takenIds) };
+
+    dispatch({ type: 'ADD_SOURCE', payload: withId });
     setState(prev => ({
       ...prev,
       showLayerForm: false,
@@ -100,7 +110,7 @@ export const useLayerOperations = ({
       defaultInterfaceGroup: undefined,
       defaultSubinterfaceGroup: undefined
     }));
-  }, [dispatch]);
+  }, [config.sources, dispatch]);
 
   const removeLayer = useCallback((index: number) => {
     dispatch({ type: 'REMOVE_SOURCE', payload: index });
@@ -229,12 +239,16 @@ export const useLayerOperations = ({
       const existingNames = new Set<string>(
         (config.sources || []).map((s: any) => s?.name).filter((n): n is string => typeof n === 'string'),
       );
+      const existingIds = new Set<string>(
+        (config.sources || []).map((s: any) => s?.id).filter((v): v is string => typeof v === 'string' && v.length > 0),
+      );
       let added = 0;
       for (const donor of layers) {
         const cloned = cloneDonorLayer(donor, {
           interfaceGroup: importTargetGroup,
           subinterfaceGroup: importTargetSubGroup,
           existingNames,
+          existingIds,
         });
         dispatch({ type: 'ADD_SOURCE', payload: cloned });
         added += 1;

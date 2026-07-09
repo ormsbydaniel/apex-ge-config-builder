@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { DataSource, SourceConfigType } from '@/types/config';
 
 const initialFormState: DataSource = {
+  id: '',
   name: '',
   isActive: false,
   meta: {

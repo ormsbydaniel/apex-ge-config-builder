@@ -9,7 +9,10 @@
  *    destination chosen by the user
  *  - guarantee a unique `name` against an existing-name set, mutating that
  *    set so consecutive clones in the same batch also stay unique
+ *  - mint a fresh unique `id` (never inherit from the donor)
  */
+
+import { uniqueId } from './idHelpers';
 
 const deepClone = <T,>(value: T): T => {
   if (typeof structuredClone === 'function') {
@@ -30,6 +33,11 @@ export interface CloneDonorLayerOptions {
    * the same caller don't collide with each other.
    */
   existingNames: Set<string>;
+  /**
+   * Mutated as new unique ids are produced. Optional — callers that don't
+   * pass this get local de-dupe against the donor's name only.
+   */
+  existingIds?: Set<string>;
 }
 
 const uniqueName = (base: string, taken: Set<string>): string => {
@@ -43,7 +51,7 @@ const uniqueName = (base: string, taken: Set<string>): string => {
 
 export const cloneDonorLayer = (
   source: any,
-  { interfaceGroup, subinterfaceGroup, existingNames }: CloneDonorLayerOptions,
+  { interfaceGroup, subinterfaceGroup, existingNames, existingIds }: CloneDonorLayerOptions,
 ): any => {
   const cloned = deepClone(source);
 
@@ -75,6 +83,12 @@ export const cloneDonorLayer = (
   const finalName = uniqueName(baseName, existingNames);
   cloned.name = finalName;
   existingNames.add(finalName);
+
+  // Always mint a fresh id — never inherit the donor's.
+  const idPool = existingIds ?? new Set<string>();
+  const finalId = uniqueId(finalName, idPool);
+  cloned.id = finalId;
+  idPool.add(finalId);
 
   return cloned;
 };

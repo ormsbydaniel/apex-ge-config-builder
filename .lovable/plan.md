@@ -1,21 +1,40 @@
 ## Goal
 
-Fix the downstream `Build and Deploy` workflow, which fails at `npm ci` because `package-lock.json` is out of sync with `package.json`. Lovable manages dependencies via Bun, so the npm lockfile drifts whenever packages are added/updated here.
+Add an optional `isActive: boolean` property to each Story so it flows through the Zod schema, TypeScript types, the story form UI, and every JSON import/export/editor path unchanged.
 
-## Change
+## Changes
 
-Regenerate `package-lock.json` against the current `package.json` and commit it. Verified locally that `npm install --package-lock-only` produces a 467-line diff and resolves cleanly — no `package.json` changes needed.
+### 1. Schema (`src/schemas/storySchema.ts`)
+Add `isActive: z.boolean().optional()` to `StorySchema`. Optional so existing configs remain valid.
 
-Steps:
+### 2. Type (`src/types/story.ts`)
+Add `isActive?: boolean;` to the `Story` interface, mirroring the schema.
 
-1. Run `npm install --package-lock-only --ignore-scripts` at the project root to refresh `package-lock.json` in place.
-2. Leave `package.json`, `bun.lock`, and `bun.lockb` untouched.
-3. Push (auto-syncs to downstream via existing mirror workflow) and re-run `Build and Deploy`.
+### 3. Story form dialog (`src/components/config/storymaps/StoryFormDialog.tsx`)
+- Add `isActive?: boolean` to the `initial` prop shape and to the `onSave` patch shape.
+- Add a local `const [isActive, setIsActive] = useState(false);` initialised in the same `useEffect` that resets `title`/`description` from `initial` (per the "initialize dialog state inside useEffect" project rule).
+- Render a shadcn `Switch` (or `Checkbox`) row labelled "Active" beneath the description field.
+- Include `isActive` in the `onSave({...})` call.
 
-## Files touched
+### 4. Story save handlers (`src/components/config/StorymapsTab.tsx`)
+- Widen `handleAddStory` and `handleEditStory` patch types to include `isActive?: boolean`.
+- Persist `isActive` on the created/updated `Story` object (a single merged `updateStory` call — no separate dispatches).
 
-- `package-lock.json` — regenerated
+### 5. Story group header (`src/components/config/storymaps/SortableStoryGroup.tsx`)
+- Pass `isActive` through when calling the edit dialog / rename path so it isn't dropped on edit.
+- Show a small subtle badge ("Active" / "Inactive") in the story card header so users can see current state at a glance. Uses existing subtle badge tokens.
 
-## Caveat (for later, not part of this change)
+### 6. JSON editor round-trip
+The full-config JSON editor (`MonacoJsonEditor` / `PreviewTab`) and the per-step editor (`StepJsonEditorDialog`) both validate against `ConfigurationSchema` / `StoryStepSchema`. No code changes required — adding `isActive` to `StorySchema` is sufficient for the full-config editor. There is no per-story JSON editor today, so nothing else needs wiring.
 
-Because Lovable uses Bun internally, `package-lock.json` will drift again the next time a dependency is added or updated here. When that happens, either regenerate again or switch `.github/workflows/build-and-deploy.yaml` to Bun (`oven-sh/setup-bun` + `bun install --frozen-lockfile` + `bun run build`) to make the drift self-healing. Not doing that now per your choice.
+### 7. Validation hook (`src/hooks/useValidatedConfig.ts`)
+Verify nothing sanitises unknown story fields. If a manual allow-list exists for story properties, add `isActive` there; otherwise no change (Zod passes it through).
+
+### 8. Tests (`src/schemas/__tests__/storySchema.test.ts`)
+- Add a test that a story with `isActive: true` parses successfully and the value survives `.parse()`.
+- Add a test that a story without `isActive` still parses (backwards compat).
+
+## Notes / Non-goals
+
+- No behaviour change in the viewer or elsewhere in the builder is triggered by `isActive` — this task only introduces the field, the UI toggle, and guarantees round-trip persistence. Any downstream use of the flag (filtering, hiding inactive stories in the viewer, etc.) is out of scope and can be a follow-up.
+- Default value on creation: `undefined` (i.e. omitted from JSON) to keep exported configs minimal; the toggle displays unchecked in that case.

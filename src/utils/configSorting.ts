@@ -87,6 +87,7 @@ export function orderSourceProperties(source: any): any {
   
   // Define the desired property order
   const propertyOrder = [
+    'id',
     'name',
     'isActive',
     'isBaseLayer',

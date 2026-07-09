@@ -1,5 +1,6 @@
 
 import { z } from 'zod';
+import { StorySchema } from './storySchema';
 
 export const CategorySchema = z.object({
   color: z.string(),
@@ -421,6 +422,7 @@ const LayoutSchema = z.object({
 // workflow entries. Any new source-level field added here automatically
 // becomes valid inside a workflow entry too.
 const SourceShape = {
+  id: z.string().min(1),
   name: z.string(),
   isActive: z.boolean(),
   data: DataFieldSchema,
@@ -628,6 +630,8 @@ export const ConfigurationSchema = z.object({
   sources: z.array(DataSourceSchema),
   // Top-level workflows array — mirrors the per-source workflows[] surface.
   workflows: z.array(WorkflowItemSchema).optional(),
+  // Top-level storymaps array (Phase 1: schema + round-trip only).
+  stories: z.array(StorySchema).optional(),
   mapConstraints: z.object({
     zoom: z.number().min(0).max(28),
     center: z.array(z.number()).length(2), // [longitude, latitude]
