@@ -100,6 +100,9 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
   const [collapsed, setCollapsed] = useState(false);
   useEffect(() => {
     onExpandedChange?.(!collapsed);
+    return () => {
+      if (!collapsed) onExpandedChange?.(false);
+    };
   }, [collapsed, onExpandedChange]);
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
   // Track the just-added new step so we auto-open its Content modal, and can
