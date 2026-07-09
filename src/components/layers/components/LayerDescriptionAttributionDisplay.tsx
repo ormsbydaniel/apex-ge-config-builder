@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Pencil, FileText, ArrowLeft, Download, Loader2 } from 'lucide-react';
 import { DataSource } from '@/types/config';
+import { safeHref } from '@/utils/urlSanitizer';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -150,10 +151,10 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
             {hasAttribution && (
               <div>
                 <span className="font-medium">Attribution:</span> {source.meta!.attribution.text}
-                {source.meta!.attribution.url && (
+                {source.meta!.attribution.url && safeHref(source.meta!.attribution.url) && (
                   <span className="ml-1">
                     (<a
-                      href={source.meta!.attribution.url}
+                      href={safeHref(source.meta!.attribution.url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:text-primary/80 underline"

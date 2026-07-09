@@ -2,6 +2,7 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { DataSource } from '@/types/config';
+import { safeHref } from '@/utils/urlSanitizer';
 
 interface LayerAttributionDisplayProps {
   source: DataSource;
@@ -17,11 +18,11 @@ const LayerAttributionDisplay = ({ source }: LayerAttributionDisplayProps) => {
         <div>
           <span className="font-medium">Source:</span> {source.meta.attribution.text}
         </div>
-        {source.meta.attribution.url && (
+        {source.meta.attribution.url && safeHref(source.meta.attribution.url) && (
           <div>
             <span className="font-medium">URL:</span>
             <a 
-              href={source.meta.attribution.url} 
+              href={safeHref(source.meta.attribution.url)} 
               target="_blank" 
               rel="noopener noreferrer"
               className="ml-2 text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1"
