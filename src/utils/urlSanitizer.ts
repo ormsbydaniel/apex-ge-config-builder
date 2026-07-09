@@ -41,3 +41,27 @@ export const isValidUrl = (url: string): boolean => {
     return false;
   }
 };
+
+/**
+ * Returns a safe href for anchor tags. Only allows http, https, and mailto
+ * schemes, plus relative paths. Returns undefined for javascript:, data:, and
+ * other potentially dangerous URIs so the link renders inert.
+ */
+export const safeHref = (url: string | undefined | null): string | undefined => {
+  if (!url || typeof url !== 'string') return undefined;
+  const trimmed = url.trim();
+  if (!trimmed) return undefined;
+  // Allow relative paths
+  if (trimmed.startsWith('/') || trimmed.startsWith('./') || trimmed.startsWith('../') || trimmed.startsWith('#')) {
+    return trimmed;
+  }
+  try {
+    const parsed = new URL(trimmed, window.location.origin);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:' || parsed.protocol === 'mailto:') {
+      return trimmed;
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+};
