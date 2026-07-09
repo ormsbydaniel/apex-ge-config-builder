@@ -164,7 +164,7 @@ const StorymapsTab: React.FC = () => {
         </Button>
       </CardHeader>
       {(list.length === 0 || expandedCount === 0) && (
-        <div className="px-6 pb-2 text-sm text-muted-foreground">
+        <div className="mx-6 mb-2 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-800">
           Stories provide users with a &apos;curated&apos; walk through that can be used to
           provide an experience that guides a use through the layers and features in a GE
           config. A story is made up of steps, with each step comprising of content, active
