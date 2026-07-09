@@ -301,7 +301,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       kind: 'navigation',
       title: isZoom ? 'Zoom to' : 'Fit to',
       summary: isZoom
-        ? <>Zoom {v.zoom} · [{v.center[0]}, {v.center[1]}]</>
+        ? <>Zoom {v.zoom} · [{v.center[0].toFixed(2)}, {v.center[1].toFixed(2)}]</>
         : <>{(v as any).fitLayer || <em>none</em>}</>,
       pills: isZoom && v.duration !== undefined ? <Pill>{v.duration}ms</Pill> : undefined,
       onEdit: () => setOpenEditor({ kind: 'navigation' }),
