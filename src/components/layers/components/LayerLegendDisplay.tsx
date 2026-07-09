@@ -2,6 +2,7 @@
 import React from 'react';
 import { ExternalLink, Image, LayoutGrid } from 'lucide-react';
 import { DataSource } from '@/types/config';
+import { safeHref } from '@/utils/urlSanitizer';
 
 interface LayerLegendDisplayProps {
   source: DataSource;
