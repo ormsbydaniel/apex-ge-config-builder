@@ -79,19 +79,50 @@ const Pill: React.FC<{
   );
 };
 
-const viewportPill = (v: StoryStep['viewport']) => {
+/** Badge with a tooltip revealing the underlying settings. */
+const TipPill: React.FC<{
+  tint?: 'neutral' | 'info' | 'amber';
+  icon?: React.ReactNode;
+  label: React.ReactNode;
+  tooltip: React.ReactNode;
+}> = ({ tint, icon, label, tooltip }) => (
+  <TooltipProvider>
+    <Tooltip delayDuration={400}>
+      <TooltipTrigger asChild>
+        <span>
+          <Pill tint={tint} icon={icon}>{label}</Pill>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs">
+        <div className="text-xs">{tooltip}</div>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
+
+const viewportBadge = (v: StoryStep['viewport']) => {
   if ('fitLayer' in v) {
     return (
-      <Pill tint="info" icon={<Crosshair className="h-3 w-3" />}>
-        Fit: {v.fitLayer}
-      </Pill>
+      <TipPill
+        tint="info"
+        icon={<Crosshair className="h-3 w-3" />}
+        label={<>Fit: {v.fitLayer}</>}
+        tooltip={<>Fit map to layer <strong>{v.fitLayer}</strong></>}
+      />
     );
   }
   return (
-    <Pill tint="info" icon={<Compass className="h-3 w-3" />}>
-      Zoom {v.zoom} · [{v.center[0].toFixed(2)}, {v.center[1].toFixed(2)}]
-      {v.duration ? ` · ${v.duration}ms` : ''}
-    </Pill>
+    <TipPill
+      tint="info"
+      icon={<Compass className="h-3 w-3" />}
+      label="Zoom"
+      tooltip={
+        <>
+          Zoom {v.zoom} · [{v.center[0].toFixed(4)}, {v.center[1].toFixed(4)}]
+          {v.duration ? ` · ${v.duration}ms` : ''}
+        </>
+      }
+    />
   );
 };
 
