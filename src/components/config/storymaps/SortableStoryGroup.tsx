@@ -219,6 +219,16 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
               <Badge variant="outline" className="text-[10px] font-normal">
                 {steps.length} step{steps.length === 1 ? '' : 's'}
               </Badge>
+              <Badge
+                variant="outline"
+                className={
+                  story.isActive
+                    ? 'text-[10px] font-normal text-emerald-700 border-emerald-400'
+                    : 'text-[10px] font-normal text-muted-foreground'
+                }
+              >
+                {story.isActive ? 'Active' : 'Inactive'}
+              </Badge>
               {totalWarnings > 0 && (
                 <Badge variant="outline" className="text-[10px] font-normal text-amber-700 border-amber-400">
                   {totalWarnings} warning{totalWarnings === 1 ? '' : 's'}

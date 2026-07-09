@@ -84,6 +84,16 @@ describe('StorySchema', () => {
     });
     expect(parsed.success).toBe(false);
   });
+
+  it('accepts and preserves isActive on a story', () => {
+    const parsed = StorySchema.parse({ ...exampleStory, isActive: true });
+    expect(parsed.isActive).toBe(true);
+  });
+
+  it('accepts a story without isActive (backwards compatible)', () => {
+    const parsed = StorySchema.safeParse(exampleStory);
+    expect(parsed.success).toBe(true);
+  });
 });
 
 describe('ConfigurationSchema stories field', () => {

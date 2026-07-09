@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import MarkdownEditor from '@/components/common/MarkdownEditor';
 import { Story } from '@/types/config';
 
@@ -19,7 +20,7 @@ interface StoryFormDialogProps {
   onOpenChange: (open: boolean) => void;
   initial?: Story | null;
   existingIds: string[];
-  onSave: (patch: { id: string; title: string; description?: string }) => void;
+  onSave: (patch: { id: string; title: string; description?: string; isActive?: boolean }) => void;
 }
 
 const slugify = (s: string): string =>
@@ -48,6 +49,7 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
   const [description, setDescription] = useState('');
   const [id, setId] = useState('');
   const [idTouched, setIdTouched] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   // Initialise dialog state inside useEffect on `open` — prevents stale
   // overwrites (core memory rule).
@@ -57,6 +59,7 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
     setDescription(initial?.description ?? '');
     setId(initial?.id ?? '');
     setIdTouched(!!initial);
+    setIsActive(initial?.isActive ?? false);
   }, [open, initial]);
 
   // Auto-slug id from title while user hasn't touched id manually.
@@ -114,6 +117,19 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
               Auto-generated from the title; edit if you need a stable identifier.
             </p>
           </div>
+          <div className="flex items-center justify-between gap-3 pt-1">
+            <div className="space-y-0.5">
+              <Label htmlFor="story-active">Active</Label>
+              <p className="text-xs text-muted-foreground">
+                Whether this story is currently active.
+              </p>
+            </div>
+            <Switch
+              id="story-active"
+              checked={isActive}
+              onCheckedChange={setIsActive}
+            />
+          </div>
         </div>
 
         <DialogFooter>
@@ -123,7 +139,7 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
           <Button
             disabled={!canSave}
             onClick={() => {
-              onSave({ id: id.trim(), title: title.trim(), description: description || undefined });
+              onSave({ id: id.trim(), title: title.trim(), description: description || undefined, isActive });
               onOpenChange(false);
             }}
           >
