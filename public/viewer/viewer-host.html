@@ -14,13 +14,36 @@
       var version = params.get('version');
       var baseUrl = params.get('baseUrl');
 
-      if (!version) {
-        console.error('[Viewer Host] No version specified. Use ?version=x.y.z');
+      // Allow-list of trusted bundle base URLs. Only these origins/prefixes are
+      // permitted to serve the viewer JS/CSS to prevent arbitrary remote script
+      // execution via the baseUrl query parameter.
+      var ALLOWED_BASE_URLS = [
+        'https://esa-apex.s3.eu-west-1.amazonaws.com/software/',
+        'https://esa-apex.s3.eu-west-1.amazonaws.com/software',
+      ];
+
+      function isAllowedBaseUrl(url) {
+        if (!url || typeof url !== 'string') return false;
+        for (var i = 0; i < ALLOWED_BASE_URLS.length; i++) {
+          if (url === ALLOWED_BASE_URLS[i] || url.indexOf(ALLOWED_BASE_URLS[i]) === 0) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // Only allow simple version identifiers (semver, dev-* branches).
+      function isValidVersion(v) {
+        return typeof v === 'string' && /^[A-Za-z0-9._-]+$/.test(v);
+      }
+
+      if (!version || !isValidVersion(version)) {
+        console.error('[Viewer Host] Invalid or missing version.');
         return;
       }
 
-      if (!baseUrl) {
-        console.error('[Viewer Host] No baseUrl specified.');
+      if (!baseUrl || !isAllowedBaseUrl(baseUrl)) {
+        console.error('[Viewer Host] baseUrl is not in the allow-list. Refusing to load bundle.');
         return;
       }
 
