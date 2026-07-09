@@ -1,43 +1,40 @@
 ## Goal
-Add a Preview toggle to every modal where markdown can be authored so users can see rendered output using `react-markdown`.
 
-## Markdown-editing locations
-1. `src/components/config/storymaps/StepEditor.tsx` — step "Description (markdown)" textarea (line ~186).
-2. `src/components/config/storymaps/StoryFormDialog.tsx` — story "Description (markdown)" textarea (line ~92).
-3. `src/components/layers/components/LayerDescriptionAttributionDisplay.tsx` — layer "Description" textarea in the edit dialog (line ~358).
+Add an optional `isActive: boolean` property to each Story so it flows through the Zod schema, TypeScript types, the story form UI, and every JSON import/export/editor path unchanged.
 
-## New dependency
-- Install `react-markdown` (add `remark-gfm` for tables/strikethrough/task-lists — the layer description dialog already advertises basic markdown support).
+## Changes
 
-## New component: `src/components/common/MarkdownEditor.tsx`
-Small controlled wrapper reused in all three places.
+### 1. Schema (`src/schemas/storySchema.ts`)
+Add `isActive: z.boolean().optional()` to `StorySchema`. Optional so existing configs remain valid.
 
-Props:
-- `value: string`
-- `onChange: (v: string) => void`
-- `id?: string`
-- `rows?: number`
-- `placeholder?: string`
-- `className?: string`
-- `textareaClassName?: string`
+### 2. Type (`src/types/story.ts`)
+Add `isActive?: boolean;` to the `Story` interface, mirroring the schema.
 
-Behavior:
-- Renders a compact segmented toggle in the top-right of the field: **Edit** | **Preview** (shadcn `Button` group, `Eye` / `Pencil` icons).
-- Edit mode: existing `Textarea` (same styling, forwarded props).
-- Preview mode: same-height bordered scroll box rendering `<ReactMarkdown remarkPlugins={[remarkGfm]}>` inside a `prose prose-sm max-w-none dark:prose-invert` container. If `value` is empty, show muted "Nothing to preview".
-- Toggle state is local; does not affect `value`.
+### 3. Story form dialog (`src/components/config/storymaps/StoryFormDialog.tsx`)
+- Add `isActive?: boolean` to the `initial` prop shape and to the `onSave` patch shape.
+- Add a local `const [isActive, setIsActive] = useState(false);` initialised in the same `useEffect` that resets `title`/`description` from `initial` (per the "initialize dialog state inside useEffect" project rule).
+- Render a shadcn `Switch` (or `Checkbox`) row labelled "Active" beneath the description field.
+- Include `isActive` in the `onSave({...})` call.
 
-## Edits
-- `StepEditor.tsx`: replace the description `<Textarea>` with `<MarkdownEditor>` (keep id, rows, placeholder, value/onChange wiring).
-- `StoryFormDialog.tsx`: same replacement for its description textarea.
-- `LayerDescriptionAttributionDisplay.tsx`: same replacement for the layer description textarea inside the edit dialog. Leave the "Markdown Reference" helper dialog unchanged.
+### 4. Story save handlers (`src/components/config/StorymapsTab.tsx`)
+- Widen `handleAddStory` and `handleEditStory` patch types to include `isActive?: boolean`.
+- Persist `isActive` on the created/updated `Story` object (a single merged `updateStory` call — no separate dispatches).
 
-## Non-goals
-- No changes to how markdown is rendered elsewhere in the app (viewer, cards) — only the authoring modals.
-- No schema/type changes; textarea value stays a plain string.
-- No changes to the catalogue-picker dialog or attribution field (attribution is plain text/URL).
-- No syntax highlighting or custom renderers beyond GFM defaults.
+### 5. Story group header (`src/components/config/storymaps/SortableStoryGroup.tsx`)
+- Pass `isActive` through when calling the edit dialog / rename path so it isn't dropped on edit.
+- Show a small subtle badge ("Active" / "Inactive") in the story card header so users can see current state at a glance. Uses existing subtle badge tokens.
 
-## Verification
-- `tsgo` typecheck after edits.
-- Manual: open each of the three modals, type markdown (headings, list, link, code, table), toggle Preview, confirm rendering.
+### 6. JSON editor round-trip
+The full-config JSON editor (`MonacoJsonEditor` / `PreviewTab`) and the per-step editor (`StepJsonEditorDialog`) both validate against `ConfigurationSchema` / `StoryStepSchema`. No code changes required — adding `isActive` to `StorySchema` is sufficient for the full-config editor. There is no per-story JSON editor today, so nothing else needs wiring.
+
+### 7. Validation hook (`src/hooks/useValidatedConfig.ts`)
+Verify nothing sanitises unknown story fields. If a manual allow-list exists for story properties, add `isActive` there; otherwise no change (Zod passes it through).
+
+### 8. Tests (`src/schemas/__tests__/storySchema.test.ts`)
+- Add a test that a story with `isActive: true` parses successfully and the value survives `.parse()`.
+- Add a test that a story without `isActive` still parses (backwards compat).
+
+## Notes / Non-goals
+
+- No behaviour change in the viewer or elsewhere in the builder is triggered by `isActive` — this task only introduces the field, the UI toggle, and guarantees round-trip persistence. Any downstream use of the flag (filtering, hiding inactive stories in the viewer, etc.) is out of scope and can be a follow-up.
+- Default value on creation: `undefined` (i.e. omitted from JSON) to keep exported configs minimal; the toggle displays unchecked in that case.
