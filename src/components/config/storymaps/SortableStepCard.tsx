@@ -11,6 +11,9 @@ import {
   Compass,
   Crosshair,
   Layers as LayersIcon,
+  Target,
+  SlidersHorizontal,
+  PanelRightOpen,
   Edit2,
   Check,
   X,
@@ -76,19 +79,50 @@ const Pill: React.FC<{
   );
 };
 
-const viewportPill = (v: StoryStep['viewport']) => {
+/** Badge with a tooltip revealing the underlying settings. */
+const TipPill: React.FC<{
+  tint?: 'neutral' | 'info' | 'amber';
+  icon?: React.ReactNode;
+  label: React.ReactNode;
+  tooltip: React.ReactNode;
+}> = ({ tint, icon, label, tooltip }) => (
+  <TooltipProvider>
+    <Tooltip delayDuration={400}>
+      <TooltipTrigger asChild>
+        <span>
+          <Pill tint={tint} icon={icon}>{label}</Pill>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs">
+        <div className="text-xs">{tooltip}</div>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
+
+const viewportBadge = (v: StoryStep['viewport']) => {
   if ('fitLayer' in v) {
     return (
-      <Pill tint="info" icon={<Crosshair className="h-3 w-3" />}>
-        Fit: {v.fitLayer}
-      </Pill>
+      <TipPill
+        tint="info"
+        icon={<Crosshair className="h-3 w-3" />}
+        label={<>Fit: {v.fitLayer}</>}
+        tooltip={<>Fit map to layer <strong>{v.fitLayer}</strong></>}
+      />
     );
   }
   return (
-    <Pill tint="info" icon={<Compass className="h-3 w-3" />}>
-      Zoom {v.zoom} · [{v.center[0].toFixed(2)}, {v.center[1].toFixed(2)}]
-      {v.duration ? ` · ${v.duration}ms` : ''}
-    </Pill>
+    <TipPill
+      tint="info"
+      icon={<Compass className="h-3 w-3" />}
+      label="Zoom"
+      tooltip={
+        <>
+          Zoom {v.zoom} · [{v.center[0].toFixed(4)}, {v.center[1].toFixed(4)}]
+          {v.duration ? ` · ${v.duration}ms` : ''}
+        </>
+      }
+    />
   );
 };
 
@@ -125,7 +159,14 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
     zIndex: isDragging ? 50 : undefined,
   };
 
-  const activeCount = step.layers?.active?.length ?? 0;
+  const activeLayers = step.layers?.active ?? [];
+  const activeCount = activeLayers.length;
+  const controls = step.controls ?? [];
+  const constraintCount = controls.reduce(
+    (n, c) => n + (c.constraints?.length ?? 0),
+    0,
+  );
+  const panels = step.expandPanels ?? [];
   const hasWarnings = (warnings?.length ?? 0) > 0;
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -250,11 +291,62 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
             )}
 
             <div className="flex items-center gap-2 flex-shrink-0">
-              {viewportPill(step.viewport)}
+              {viewportBadge(step.viewport)}
               {activeCount > 0 && (
-                <Pill icon={<LayersIcon className="h-3 w-3" />}>
-                  {activeCount} layer{activeCount === 1 ? '' : 's'}
-                </Pill>
+                <TipPill
+                  icon={<LayersIcon className="h-3 w-3" />}
+                  label={<>{activeCount} layer{activeCount === 1 ? '' : 's'}</>}
+                  tooltip={
+                    <ul className="space-y-0.5">
+                      {activeLayers.map((l) => <li key={l}>{l}</li>)}
+                    </ul>
+                  }
+                />
+              )}
+              {step.focusLayer && (
+                <TipPill
+                  icon={<Target className="h-3 w-3" />}
+                  label={<>Focus: {step.focusLayer}</>}
+                  tooltip={<>Focus layer: <strong>{step.focusLayer}</strong></>}
+                />
+              )}
+              {controls.length > 0 && (
+                <TipPill
+                  icon={<SlidersHorizontal className="h-3 w-3" />}
+                  label={
+                    constraintCount > 0
+                      ? <>{constraintCount} constraint{constraintCount === 1 ? '' : 's'}</>
+                      : <>{controls.length} control{controls.length === 1 ? '' : 's'}</>
+                  }
+                  tooltip={
+                    <ul className="space-y-1">
+                      {controls.map((c, i) => {
+                        const bits: string[] = [];
+                        if (c.opacity !== undefined) bits.push(`opacity ${c.opacity}`);
+                        if (c.blend) bits.push('blend');
+                        const cs = (c.constraints ?? []).map((k) => k.label || 'unnamed');
+                        if (cs.length) bits.push(cs.join(', '));
+                        return (
+                          <li key={i}>
+                            <strong>{c.layer || '(no layer)'}</strong>
+                            {bits.length > 0 ? ` — ${bits.join(' · ')}` : ''}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  }
+                />
+              )}
+              {panels.length > 0 && (
+                <TipPill
+                  icon={<PanelRightOpen className="h-3 w-3" />}
+                  label={<>{panels.length} panel{panels.length === 1 ? '' : 's'}</>}
+                  tooltip={
+                    <ul className="space-y-0.5">
+                      {panels.map((p) => <li key={p}>{p}</li>)}
+                    </ul>
+                  }
+                />
               )}
               {hasWarnings && (
                 <TooltipProvider>
