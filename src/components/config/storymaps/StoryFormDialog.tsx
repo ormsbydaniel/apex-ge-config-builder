@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import MarkdownEditor from '@/components/common/MarkdownEditor';
 import { Story } from '@/types/config';
 
@@ -19,7 +20,7 @@ interface StoryFormDialogProps {
   onOpenChange: (open: boolean) => void;
   initial?: Story | null;
   existingIds: string[];
-  onSave: (patch: { id: string; title: string; description?: string }) => void;
+  onSave: (patch: { id: string; title: string; description?: string; isActive?: boolean }) => void;
 }
 
 const slugify = (s: string): string =>
