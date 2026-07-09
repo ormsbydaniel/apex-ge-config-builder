@@ -54,6 +54,7 @@ const StorymapsTab: React.FC = () => {
 
   const [addOpen, setAddOpen] = useState(false);
   const [editStoryIndex, setEditStoryIndex] = useState<number | null>(null);
+  const [expandedStoryIndex, setExpandedStoryIndex] = useState<number | null>(null);
 
   // Track dirty step editors so we can gate the Preview tab.
   const [dirtySteps, setDirtySteps] = useState<Set<string>>(new Set());
@@ -158,6 +159,14 @@ const StorymapsTab: React.FC = () => {
           <Plus className="h-4 w-4 mr-2" /> Add story
         </Button>
       </CardHeader>
+      {(list.length === 0 || expandedStoryIndex === null) && (
+        <div className="px-6 pb-2 text-sm text-muted-foreground">
+          Stories provide users with a &apos;curated&apos; walk through that can be used to
+          provide an experience that guides a use through the layers and features in a GE
+          config. A story is made up of steps, with each step comprising of content, active
+          layers and actions.
+        </div>
+      )}
       <CardContent className="space-y-3">
         {list.length === 0 ? (
           <div className="border border-dashed rounded-md py-10 text-center text-sm text-muted-foreground">
@@ -194,6 +203,7 @@ const StorymapsTab: React.FC = () => {
                   onStepDirtyChange={(stepIndex, dirty) =>
                     setStepDirty(`${i}:${stepIndex}`, dirty)
                   }
+                  onExpandedChange={(open) => setExpandedStoryIndex(open ? i : null)}
                 />
               ))}
             </SortableContext>
