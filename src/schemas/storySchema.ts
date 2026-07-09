@@ -70,6 +70,7 @@ export const StorySchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
   description: z.string().optional(),
+  isActive: z.boolean().optional(),
   steps: z.array(StoryStepSchema).min(1),
 });
 
