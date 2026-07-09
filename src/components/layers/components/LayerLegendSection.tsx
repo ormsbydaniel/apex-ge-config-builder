@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { DataSourceLayout } from '@/types/layer';
 import LegendEditorDialog from '@/components/form/LegendEditorDialog';
+import { safeHref } from '@/utils/urlSanitizer';
 
 interface LayerLegendSectionProps {
   source: DataSource;
