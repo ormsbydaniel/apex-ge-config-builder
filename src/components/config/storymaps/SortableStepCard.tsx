@@ -291,11 +291,62 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
             )}
 
             <div className="flex items-center gap-2 flex-shrink-0">
-              {viewportPill(step.viewport)}
+              {viewportBadge(step.viewport)}
               {activeCount > 0 && (
-                <Pill icon={<LayersIcon className="h-3 w-3" />}>
-                  {activeCount} layer{activeCount === 1 ? '' : 's'}
-                </Pill>
+                <TipPill
+                  icon={<LayersIcon className="h-3 w-3" />}
+                  label={<>{activeCount} layer{activeCount === 1 ? '' : 's'}</>}
+                  tooltip={
+                    <ul className="space-y-0.5">
+                      {activeLayers.map((l) => <li key={l}>{l}</li>)}
+                    </ul>
+                  }
+                />
+              )}
+              {step.focusLayer && (
+                <TipPill
+                  icon={<Target className="h-3 w-3" />}
+                  label={<>Focus: {step.focusLayer}</>}
+                  tooltip={<>Focus layer: <strong>{step.focusLayer}</strong></>}
+                />
+              )}
+              {controls.length > 0 && (
+                <TipPill
+                  icon={<SlidersHorizontal className="h-3 w-3" />}
+                  label={
+                    constraintCount > 0
+                      ? <>{constraintCount} constraint{constraintCount === 1 ? '' : 's'}</>
+                      : <>{controls.length} control{controls.length === 1 ? '' : 's'}</>
+                  }
+                  tooltip={
+                    <ul className="space-y-1">
+                      {controls.map((c, i) => {
+                        const bits: string[] = [];
+                        if (c.opacity !== undefined) bits.push(`opacity ${c.opacity}`);
+                        if (c.blend) bits.push('blend');
+                        const cs = (c.constraints ?? []).map((k) => k.label || 'unnamed');
+                        if (cs.length) bits.push(cs.join(', '));
+                        return (
+                          <li key={i}>
+                            <strong>{c.layer || '(no layer)'}</strong>
+                            {bits.length > 0 ? ` — ${bits.join(' · ')}` : ''}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  }
+                />
+              )}
+              {panels.length > 0 && (
+                <TipPill
+                  icon={<PanelRightOpen className="h-3 w-3" />}
+                  label={<>{panels.length} panel{panels.length === 1 ? '' : 's'}</>}
+                  tooltip={
+                    <ul className="space-y-0.5">
+                      {panels.map((p) => <li key={p}>{p}</li>)}
+                    </ul>
+                  }
+                />
               )}
               {hasWarnings && (
                 <TooltipProvider>
