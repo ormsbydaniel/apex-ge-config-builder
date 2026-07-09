@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Pencil, FileText, ArrowLeft, Download, Loader2 } from 'lucide-react';
 import { DataSource } from '@/types/config';
+import { safeHref } from '@/utils/urlSanitizer';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
