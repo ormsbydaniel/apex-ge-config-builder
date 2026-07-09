@@ -117,6 +117,19 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
               Auto-generated from the title; edit if you need a stable identifier.
             </p>
           </div>
+          <div className="flex items-center justify-between gap-3 pt-1">
+            <div className="space-y-0.5">
+              <Label htmlFor="story-active">Active</Label>
+              <p className="text-xs text-muted-foreground">
+                Whether this story is currently active.
+              </p>
+            </div>
+            <Switch
+              id="story-active"
+              checked={isActive}
+              onCheckedChange={setIsActive}
+            />
+          </div>
         </div>
 
         <DialogFooter>
