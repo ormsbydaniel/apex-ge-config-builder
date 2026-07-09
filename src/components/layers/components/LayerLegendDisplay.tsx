@@ -2,6 +2,7 @@
 import React from 'react';
 import { ExternalLink, Image, LayoutGrid } from 'lucide-react';
 import { DataSource } from '@/types/config';
+import { safeHref } from '@/utils/urlSanitizer';
 
 interface LayerLegendDisplayProps {
   source: DataSource;
@@ -22,12 +23,12 @@ const LayerLegendDisplay = ({ source }: LayerLegendDisplayProps) => {
         </h4>
       </div>
       
-      {legend.type === 'image' && legend.url && (
+      {legend.type === 'image' && legend.url && safeHref(legend.url) && (
         <div className="space-y-2 ml-6">
           <div className="flex items-center gap-2">
             <Image className="h-4 w-4" />
             <a 
-              href={legend.url} 
+              href={safeHref(legend.url)} 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1 text-sm"

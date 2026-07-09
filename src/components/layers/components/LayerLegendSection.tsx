@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { DataSourceLayout } from '@/types/layer';
 import LegendEditorDialog from '@/components/form/LegendEditorDialog';
+import { safeHref } from '@/utils/urlSanitizer';
 
 interface LayerLegendSectionProps {
   source: DataSource;
@@ -61,11 +62,11 @@ const LayerLegendSection = ({ source, onUpdateLayout, onUpdateMeta, onUpdateLayo
           </span>
         )}
 
-        {hasLegend && legend.type === 'image' && legend.url && (
+        {hasLegend && legend.type === 'image' && legend.url && safeHref(legend.url) && (
           <div className="flex items-center gap-2">
             <Image className="h-4 w-4 text-muted-foreground" />
             <a
-              href={legend.url}
+              href={safeHref(legend.url)}
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-muted-foreground/80 underline inline-flex items-center gap-1 text-sm"
