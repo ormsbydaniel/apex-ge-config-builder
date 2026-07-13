@@ -8,6 +8,15 @@ tab for editing stories and their steps directly.
 Enable the tab from **Config Builder settings → Show Storymaps tab**.
 Viewer-side playback of storymaps is not yet implemented.
 
+!!! note "Schema v2 (phase 1)"
+    The story schema has been extended to accept the new v2 shape defined in
+    `STORY_SCHEMA_1.md` — `content`, `activeLayers`, `panelState`, `autoAdvance`,
+    the `viewport.extent` mode, per-layer `date`, and story `thumbnail`. The
+    editor UI still emits the legacy shape; both shapes validate, import,
+    export, and round-trip. A migration helper is available at
+    `src/utils/deprecated/storyLegacy/upgrade.ts` and will be wired into
+    the loader when the editor is migrated in phase 2.
+
 ## Editing storymaps in the builder
 
 Storymaps mirror the Layers tab: each **story** is a container (like an
