@@ -49,7 +49,15 @@ export interface StoryViewportExtent {
   duration?: number;
 }
 
-export type StoryViewport =
+/**
+ * The editor currently only reads the two legacy viewport modes. The v2
+ * extent mode is accepted by the schema/upgrader but not yet consumed by the
+ * UI. Keeping this union limited to the legacy modes preserves editor type
+ * safety until phase 2. Full v2 union: {@link StoryViewportV2}.
+ */
+export type StoryViewport = StoryViewportZoom | StoryViewportFit;
+
+export type StoryViewportV2 =
   | StoryViewportZoom
   | StoryViewportFit
   | StoryViewportExtent;
