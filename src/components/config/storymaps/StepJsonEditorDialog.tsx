@@ -14,7 +14,7 @@ import { useJsonEditor } from '@/hooks/useJsonEditor';
 import { useToast } from '@/hooks/use-toast';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import JsonEditorToolbar from '@/components/config/components/JsonEditorToolbar';
-import { StoryStepSchema } from '@/schemas/storySchema';
+import { StoryStepV2Schema } from '@/schemas/storySchema';
 
 interface StepJsonEditorDialogProps {
   isOpen: boolean;
