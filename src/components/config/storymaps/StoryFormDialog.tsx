@@ -48,6 +48,7 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [id, setId] = useState('');
+  const [thumbnail, setThumbnail] = useState('');
   const [idTouched, setIdTouched] = useState(false);
   const [isActive, setIsActive] = useState(false);
 
@@ -58,6 +59,7 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
     setTitle(initial?.title ?? '');
     setDescription(initial?.description ?? '');
     setId(initial?.id ?? '');
+    setThumbnail(initial?.thumbnail ?? '');
     setIdTouched(!!initial);
     setIsActive(initial?.isActive ?? false);
   }, [open, initial]);
