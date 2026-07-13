@@ -188,5 +188,17 @@ export interface Story {
   thumbnail?: string;
   description?: string;
   isActive?: boolean;
-  steps: StoryStepAny[];
+  /**
+   * Steps use the legacy shape during phase 1 so the current editor keeps
+   * compiling. The Zod schema separately accepts v2 shape via
+   * {@link StoryStepAny}; use {@link StoryV2} when consuming validated /
+   * upgraded configs.
+   */
+  steps: StoryStepLegacy[];
 }
+
+/** v2 story with upgraded step shape — produced by the legacy upgrader. */
+export interface StoryV2 extends Omit<Story, 'steps'> {
+  steps: StoryStepV2[];
+}
+
