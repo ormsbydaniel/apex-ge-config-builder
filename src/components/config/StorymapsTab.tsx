@@ -142,8 +142,8 @@ const StorymapsTab: React.FC = () => {
     const title = `Step ${(story.steps?.length ?? 0) + 1}`;
     const newStep: StoryStep = {
       id: uniqueId(slugify(title), existingIds),
-      title,
-      layers: { active: [] },
+      content: { title },
+      activeLayers: [],
       viewport: { zoom: 4, center: [0, 0] },
     };
     addStep(storyIndex, newStep);

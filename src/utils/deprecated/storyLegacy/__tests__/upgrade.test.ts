@@ -4,7 +4,8 @@ import {
   upgradeLegacyStory,
   upgradeLegacyStories,
 } from '@/utils/deprecated/storyLegacy/upgrade';
-import type { Story, StoryStepLegacy, StoryStepV2 } from '@/types/story';
+import type { LegacyStoryInput } from '@/utils/deprecated/storyLegacy/upgrade';
+import type { StoryStepLegacy, StoryStepV2 } from '@/types/story';
 
 const legacyStep: StoryStepLegacy = {
   id: 'overview',
@@ -26,7 +27,7 @@ const legacyStep: StoryStepLegacy = {
   ],
 };
 
-const legacyStory: Story = {
+const legacyStory: LegacyStoryInput = {
   id: 'austria',
   title: 'Austria',
   description: 'Intro',

@@ -111,6 +111,22 @@ const viewportBadge = (v: StoryStep['viewport']) => {
       />
     );
   }
+  if ('extent' in v) {
+    return (
+      <TipPill
+        tint="info"
+        icon={<Crosshair className="h-3 w-3" />}
+        label="Extent"
+        tooltip={
+          <>
+            [{v.extent.map((n) => n.toFixed(2)).join(', ')}]
+            {v.projection ? ` · ${v.projection}` : ''}
+            {v.duration ? ` · ${v.duration}ms` : ''}
+          </>
+        }
+      />
+    );
+  }
   return (
     <TipPill
       tint="info"
@@ -159,18 +175,18 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
     zIndex: isDragging ? 50 : undefined,
   };
 
-  const activeLayers = step.layers?.active ?? [];
+  const activeLayers = step.activeLayers ?? [];
   const activeCount = activeLayers.length;
-  const controls = step.controls ?? [];
-  const constraintCount = controls.reduce(
-    (n, c) => n + (c.constraints?.length ?? 0),
+  const constraintCount = activeLayers.reduce(
+    (n, l) => n + (l.constraints?.length ?? 0),
     0,
   );
-  const panels = step.expandPanels ?? [];
+  const stepTitle = step.content?.title ?? '';
+  const panelState = step.panelState;
   const hasWarnings = (warnings?.length ?? 0) > 0;
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [titleDraft, setTitleDraft] = useState(step.title);
+  const [titleDraft, setTitleDraft] = useState(stepTitle);
   const [jsonOpen, setJsonOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -183,12 +199,12 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
 
   const startEditTitle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setTitleDraft(step.title);
+    setTitleDraft(stepTitle);
     setIsEditingTitle(true);
   };
   const confirmEditTitle = () => {
     const trimmed = titleDraft.trim();
-    if (trimmed && trimmed !== step.title) {
+    if (trimmed && trimmed !== stepTitle) {
       const nextId =
         trimmed
           .toLowerCase()
@@ -196,14 +212,18 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
           .replace(/\s+/g, '-')
           .replace(/-+/g, '-')
           .replace(/^-|-$/g, '') || step.id;
-      onSave({ ...step, title: trimmed, id: nextId });
+      onSave({
+        ...step,
+        id: nextId,
+        content: { ...(step.content ?? {}), title: trimmed },
+      });
     }
     setIsEditingTitle(false);
   };
   const cancelEditTitle = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     setIsEditingTitle(false);
-    setTitleDraft(step.title);
+    setTitleDraft(stepTitle);
   };
 
   return (
@@ -275,7 +295,7 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                   {index + 1}
                 </span>
                 <h3 className="text-sm font-bold truncate">
-                  {step.title || '(untitled)'}
+                  {stepTitle || step.id || '(untitled)'}
                 </h3>
                 <span
                   role="button"
@@ -285,7 +305,7 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
                       e.stopPropagation();
-                      setTitleDraft(step.title);
+                      setTitleDraft(stepTitle);
                       setIsEditingTitle(true);
                     }
                   }}
@@ -305,37 +325,16 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                   label={<>{activeCount} layer{activeCount === 1 ? '' : 's'}</>}
                   tooltip={
                     <ul className="space-y-0.5">
-                      {activeLayers.map((l) => <li key={l}>{l}</li>)}
-                    </ul>
-                  }
-                />
-              )}
-              {step.focusLayer && (
-                <TipPill
-                  icon={<Target className="h-3 w-3" />}
-                  label={<>Focus: {step.focusLayer}</>}
-                  tooltip={<>Focus layer: <strong>{step.focusLayer}</strong></>}
-                />
-              )}
-              {controls.length > 0 && (
-                <TipPill
-                  icon={<SlidersHorizontal className="h-3 w-3" />}
-                  label={
-                    constraintCount > 0
-                      ? <>{constraintCount} constraint{constraintCount === 1 ? '' : 's'}</>
-                      : <>{controls.length} control{controls.length === 1 ? '' : 's'}</>
-                  }
-                  tooltip={
-                    <ul className="space-y-1">
-                      {controls.map((c, i) => {
+                      {activeLayers.map((l) => {
                         const bits: string[] = [];
-                        if (c.opacity !== undefined) bits.push(`opacity ${c.opacity}`);
-                        if (c.blend) bits.push('blend');
-                        const cs = (c.constraints ?? []).map((k) => k.label || 'unnamed');
+                        if (l.opacity !== undefined) bits.push(`opacity ${l.opacity}`);
+                        if (l.blend) bits.push('blend');
+                        if (l.date !== undefined) bits.push(`date ${l.date}`);
+                        const cs = (l.constraints ?? []).map((k) => k.label || 'unnamed');
                         if (cs.length) bits.push(cs.join(', '));
                         return (
-                          <li key={i}>
-                            <strong>{c.layer || '(no layer)'}</strong>
+                          <li key={l.id}>
+                            <strong>{l.id}</strong>
                             {bits.length > 0 ? ` — ${bits.join(' · ')}` : ''}
                           </li>
                         );
@@ -344,14 +343,29 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                   }
                 />
               )}
-              {panels.length > 0 && (
+              {constraintCount > 0 && (
+                <TipPill
+                  icon={<SlidersHorizontal className="h-3 w-3" />}
+                  label={<>{constraintCount} constraint{constraintCount === 1 ? '' : 's'}</>}
+                  tooltip={<>Constraints applied across active layers.</>}
+                />
+              )}
+              {panelState?.focusLayer && (
+                <TipPill
+                  icon={<Target className="h-3 w-3" />}
+                  label={<>Focus: {panelState.focusLayer}</>}
+                  tooltip={<>Focus layer: <strong>{panelState.focusLayer}</strong></>}
+                />
+              )}
+              {panelState?.tab?.id && (
                 <TipPill
                   icon={<PanelRightOpen className="h-3 w-3" />}
-                  label={<>{panels.length} panel{panels.length === 1 ? '' : 's'}</>}
+                  label={<>Tab: {panelState.tab.id}</>}
                   tooltip={
-                    <ul className="space-y-0.5">
-                      {panels.map((p) => <li key={p}>{p}</li>)}
-                    </ul>
+                    <>
+                      Panel tab: <strong>{panelState.tab.id}</strong>
+                      {panelState.tab.activeChart ? ` · ${panelState.tab.activeChart}` : ''}
+                    </>
                   }
                 />
               )}

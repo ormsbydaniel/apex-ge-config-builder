@@ -85,7 +85,7 @@ export const useStoryActions = ({ config, dispatch }: UseStoryActionsProps) => {
 
   const addStep = useCallback((storyIndex: number, step: StoryStep) => {
     patchStorySteps(storyIndex, (steps) => [...steps, step]);
-    toast({ title: 'Step added', description: step.title });
+    toast({ title: 'Step added', description: step.content?.title ?? step.id });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.stories, dispatch, toast]);
 
@@ -110,7 +110,9 @@ export const useStoryActions = ({ config, dispatch }: UseStoryActionsProps) => {
       const original = steps[stepIndex];
       const copy: StoryStep = JSON.parse(JSON.stringify(original));
       copy.id = `${original.id}_copy`;
-      copy.title = `${original.title} (copy)`;
+      if (copy.content?.title) {
+        copy.content = { ...copy.content, title: `${copy.content.title} (copy)` };
+      }
       return [...steps.slice(0, stepIndex + 1), copy, ...steps.slice(stepIndex + 1)];
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
