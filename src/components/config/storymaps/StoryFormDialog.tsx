@@ -20,7 +20,7 @@ interface StoryFormDialogProps {
   onOpenChange: (open: boolean) => void;
   initial?: Story | null;
   existingIds: string[];
-  onSave: (patch: { id: string; title: string; description?: string; isActive?: boolean }) => void;
+  onSave: (patch: { id: string; title: string; description?: string; isActive?: boolean; thumbnail?: string }) => void;
 }
 
 const slugify = (s: string): string =>
