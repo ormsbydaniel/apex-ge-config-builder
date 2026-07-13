@@ -527,7 +527,7 @@ const CategoricalValuesEditor: React.FC<CategoricalValuesEditorProps> = ({
   def, values, onChange,
 }) => {
   const options: Array<{ label: string; value: string | number }> = Array.isArray(def?.constrainTo)
-    ? (def!.constrainTo as any[]).map((o) => ({
+    ? (def!.constrainTo as Array<{ label?: string; value?: string | number }>).map((o) => ({
         label: o.label ?? String(o.value ?? ''),
         value: o.value ?? o.label,
       }))
