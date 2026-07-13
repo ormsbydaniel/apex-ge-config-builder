@@ -45,7 +45,7 @@ const StepJsonEditorDialog: React.FC<StepJsonEditorDialogProps> = ({
   const handleApplyChanges = () => {
     try {
       const parsed = JSON.parse(editedJson);
-      const result = StoryStepSchema.safeParse(parsed);
+      const result = StoryStepV2Schema.safeParse(parsed);
       if (!result.success) {
         const first = result.error.issues[0];
         throw new Error(
