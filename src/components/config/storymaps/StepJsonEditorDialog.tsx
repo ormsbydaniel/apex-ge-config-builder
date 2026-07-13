@@ -53,9 +53,14 @@ const StepJsonEditorDialog: React.FC<StepJsonEditorDialogProps> = ({
         );
       }
       onSave(result.data as StoryStep);
+      const stepTitle =
+        (result.data as { title?: string; content?: { title?: string } }).title ??
+        (result.data as { content?: { title?: string } }).content?.title ??
+        (result.data as { id?: string }).id ??
+        'step';
       toast({
         title: 'Step Updated',
-        description: `Step "${result.data.title}" has been updated successfully.`,
+        description: `Step "${stepTitle}" has been updated successfully.`,
       });
       onClose();
     } catch (error) {
