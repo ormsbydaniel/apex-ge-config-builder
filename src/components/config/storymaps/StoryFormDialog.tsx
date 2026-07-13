@@ -119,6 +119,18 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
               Auto-generated from the title; edit if you need a stable identifier.
             </p>
           </div>
+          <div>
+            <Label htmlFor="story-thumbnail">Thumbnail URL</Label>
+            <Input
+              id="story-thumbnail"
+              value={thumbnail}
+              onChange={(e) => setThumbnail(e.target.value)}
+              placeholder="https://.../story-thumbnail.jpg"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Optional image shown on the story card in the viewer's stories list.
+            </p>
+          </div>
           <div className="flex items-center justify-between gap-3 pt-1">
             <div className="space-y-0.5">
               <Label htmlFor="story-active">Active</Label>
@@ -141,7 +153,13 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
           <Button
             disabled={!canSave}
             onClick={() => {
-              onSave({ id: id.trim(), title: title.trim(), description: description || undefined, isActive });
+              onSave({
+                id: id.trim(),
+                title: title.trim(),
+                description: description || undefined,
+                isActive,
+                thumbnail: thumbnail.trim() || undefined,
+              });
               onOpenChange(false);
             }}
           >
