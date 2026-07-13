@@ -14,7 +14,7 @@ import { useJsonEditor } from '@/hooks/useJsonEditor';
 import { useToast } from '@/hooks/use-toast';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import JsonEditorToolbar from '@/components/config/components/JsonEditorToolbar';
-import { StoryStepSchema } from '@/schemas/storySchema';
+import { StoryStepV2Schema } from '@/schemas/storySchema';
 
 interface StepJsonEditorDialogProps {
   isOpen: boolean;
@@ -45,7 +45,7 @@ const StepJsonEditorDialog: React.FC<StepJsonEditorDialogProps> = ({
   const handleApplyChanges = () => {
     try {
       const parsed = JSON.parse(editedJson);
-      const result = StoryStepSchema.safeParse(parsed);
+      const result = StoryStepV2Schema.safeParse(parsed);
       if (!result.success) {
         const first = result.error.issues[0];
         throw new Error(
@@ -54,7 +54,6 @@ const StepJsonEditorDialog: React.FC<StepJsonEditorDialogProps> = ({
       }
       onSave(result.data as StoryStep);
       const stepTitle =
-        (result.data as { title?: string; content?: { title?: string } }).title ??
         (result.data as { content?: { title?: string } }).content?.title ??
         (result.data as { id?: string }).id ??
         'step';
@@ -91,7 +90,7 @@ const StepJsonEditorDialog: React.FC<StepJsonEditorDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileJson className="h-5 w-5" />
-            Edit Step JSON: {step.title}
+            Edit Step JSON: {step.content?.title ?? step.id}
           </DialogTitle>
           <DialogDescription>
             Edit the JSON configuration for this step. Changes are validated

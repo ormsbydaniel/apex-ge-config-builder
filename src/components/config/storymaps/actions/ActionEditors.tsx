@@ -15,16 +15,19 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Plus, X, Trash2, ChevronRight, ChevronDown, Crosshair } from 'lucide-react';
+import { Plus, X, Trash2, ChevronDown, ChevronRight, Crosshair, MoveUp, MoveDown } from 'lucide-react';
 import MapCentrePickerDialog from '@/components/config/MapCentrePickerDialog';
 import type {
   DataSource,
   StoryStep,
-  StoryStepControl,
+  StoryActiveLayer,
   StoryConstraintSelection,
+  StoryPanelState,
+  StoryPanelTabId,
+  StoryViewport,
   ConstraintSourceItem,
 } from '@/types/config';
+import { VALID_TAB_IDS } from './types';
 
 // -----------------------------------------------------------------------------
 // helpers
@@ -37,8 +40,15 @@ export interface LayerOption {
   subinterfaceGroup?: string;
 }
 
-const isZoomViewport = (v: any): v is { zoom: number; center: [number, number]; duration?: number } =>
-  v && typeof v === 'object' && 'zoom' in v;
+type ViewportMode = 'zoom' | 'fit' | 'extent';
+
+const detectViewportMode = (v: StoryViewport | undefined): ViewportMode => {
+  if (!v) return 'zoom';
+  if ('zoom' in v) return 'zoom';
+  if ('fitLayer' in v) return 'fit';
+  if ('extent' in v) return 'extent';
+  return 'zoom';
+};
 
 const findSource = (sources: DataSource[], ref: string | undefined): DataSource | undefined => {
   if (!ref) return undefined;
@@ -50,7 +60,6 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
   );
 };
 
-// Render a friendly label for an option: name followed by muted id.
 const optionLabel = (opt: LayerOption) => opt.name || opt.id;
 
 interface BaseModalProps {
@@ -67,7 +76,7 @@ const ActionModal: React.FC<BaseModalProps> = ({
   open, onOpenChange, title, onSave, canSave = true, children, wide,
 }) => (
   <Dialog open={open} onOpenChange={onOpenChange}>
-    <DialogContent className={wide ? 'sm:max-w-[720px]' : 'sm:max-w-[560px]'}>
+    <DialogContent className={wide ? 'sm:max-w-[820px]' : 'sm:max-w-[560px]'}>
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>
       </DialogHeader>
@@ -81,7 +90,7 @@ const ActionModal: React.FC<BaseModalProps> = ({
 );
 
 // -----------------------------------------------------------------------------
-// Navigation editor
+// Navigation editor — zoom / fit / extent
 // -----------------------------------------------------------------------------
 
 interface NavigationEditorProps {
@@ -89,62 +98,96 @@ interface NavigationEditorProps {
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
   layerOptions: LayerOption[];
-  onSave: (viewport: StoryStep['viewport']) => void;
+  onSave: (viewport: StoryViewport) => void;
 }
 
 export const NavigationEditor: React.FC<NavigationEditorProps> = ({
   open, onOpenChange, step, layerOptions, onSave,
 }) => {
-  const [kind, setKind] = useState<'zoom' | 'fit'>(isZoomViewport(step.viewport) ? 'zoom' : 'fit');
-  const [zoom, setZoom] = useState<number>(isZoomViewport(step.viewport) ? step.viewport.zoom : 6);
-  const [lon, setLon] = useState<number>(isZoomViewport(step.viewport) ? step.viewport.center[0] : 0);
-  const [lat, setLat] = useState<number>(isZoomViewport(step.viewport) ? step.viewport.center[1] : 0);
-  const [duration, setDuration] = useState<string>(
-    isZoomViewport(step.viewport) && step.viewport.duration !== undefined
-      ? String(step.viewport.duration) : ''
-  );
-  const [fitLayer, setFitLayer] = useState<string>(
-    !isZoomViewport(step.viewport) ? (step.viewport as any).fitLayer ?? '' : (layerOptions[0]?.id ?? '')
-  );
+  const initialMode = detectViewportMode(step.viewport);
+  const [mode, setMode] = useState<ViewportMode>(initialMode);
+
+  // Zoom fields
+  const [zoom, setZoom] = useState<number>(6);
+  const [lon, setLon] = useState<number>(0);
+  const [lat, setLat] = useState<number>(0);
+  const [duration, setDuration] = useState<string>('');
+
+  // Fit fields
+  const [fitLayer, setFitLayer] = useState<string>(layerOptions[0]?.id ?? '');
+
+  // Extent fields
+  const [minX, setMinX] = useState<string>('');
+  const [minY, setMinY] = useState<string>('');
+  const [maxX, setMaxX] = useState<string>('');
+  const [maxY, setMaxY] = useState<string>('');
+  const [projection, setProjection] = useState<string>('');
+  const [maxZoom, setMaxZoom] = useState<string>('');
+
   const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
-    setKind(isZoomViewport(step.viewport) ? 'zoom' : 'fit');
-    if (isZoomViewport(step.viewport)) {
-      setZoom(step.viewport.zoom);
-      setLon(step.viewport.center[0]);
-      setLat(step.viewport.center[1]);
-      setDuration(step.viewport.duration !== undefined ? String(step.viewport.duration) : '');
-    } else {
-      setFitLayer((step.viewport as any).fitLayer ?? layerOptions[0]?.id ?? '');
+    const v = step.viewport;
+    const m = detectViewportMode(v);
+    setMode(m);
+    if (v && 'zoom' in v) {
+      setZoom(v.zoom); setLon(v.center[0]); setLat(v.center[1]);
+      setDuration(v.duration !== undefined ? String(v.duration) : '');
+    }
+    if (v && 'fitLayer' in v) {
+      setFitLayer(v.fitLayer || layerOptions[0]?.id || '');
+      setDuration(v.duration !== undefined ? String(v.duration) : '');
+    }
+    if (v && 'extent' in v) {
+      setMinX(String(v.extent[0])); setMinY(String(v.extent[1]));
+      setMaxX(String(v.extent[2])); setMaxY(String(v.extent[3]));
+      setProjection(v.projection ?? '');
+      setMaxZoom(v.maxZoom !== undefined ? String(v.maxZoom) : '');
+      setDuration(v.duration !== undefined ? String(v.duration) : '');
     }
   }, [open, step, layerOptions]);
 
   const save = () => {
-    if (kind === 'zoom') {
+    if (mode === 'zoom') {
       onSave({
         zoom, center: [lon, lat],
-        duration: duration === '' ? undefined : Number(duration),
+        ...(duration !== '' && { duration: Number(duration) }),
+      });
+    } else if (mode === 'fit') {
+      onSave({
+        fitLayer,
+        ...(duration !== '' && { duration: Number(duration) }),
       });
     } else {
-      onSave({ fitLayer });
+      onSave({
+        extent: [Number(minX), Number(minY), Number(maxX), Number(maxY)],
+        ...(projection && { projection }),
+        ...(maxZoom !== '' && { maxZoom: Number(maxZoom) }),
+        ...(duration !== '' && { duration: Number(duration) }),
+      });
     }
     onOpenChange(false);
   };
 
+  const canSaveExtent = [minX, minY, maxX, maxY].every((s) => s !== '' && !Number.isNaN(Number(s)));
+  const canSave = mode === 'zoom' ? true : mode === 'fit' ? !!fitLayer : canSaveExtent;
+
   return (
-    <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save}>
-      <RadioGroup value={kind} onValueChange={(v) => setKind(v as any)} className="flex gap-4">
+    <ActionModal open={open} onOpenChange={onOpenChange} title="Navigation" onSave={save} canSave={canSave}>
+      <RadioGroup value={mode} onValueChange={(v) => setMode(v as ViewportMode)} className="flex gap-4 flex-wrap">
         <label className="flex items-center gap-1 text-sm">
           <RadioGroupItem value="zoom" /> Zoom + center
         </label>
         <label className="flex items-center gap-1 text-sm">
           <RadioGroupItem value="fit" /> Fit to layer
         </label>
+        <label className="flex items-center gap-1 text-sm">
+          <RadioGroupItem value="extent" /> Fit to extent
+        </label>
       </RadioGroup>
 
-      {kind === 'zoom' ? (
+      {mode === 'zoom' && (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <div>
@@ -169,13 +212,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
             </div>
           </div>
           <div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setPickerOpen(true)}
-              className="gap-2"
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)} className="gap-2">
               <Crosshair className="h-4 w-4" />
               Pick on map
             </Button>
@@ -185,14 +222,12 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
             onOpenChange={setPickerOpen}
             center={[lon, lat]}
             zoom={zoom}
-            onApply={(c, z) => {
-              setLon(c[0]);
-              setLat(c[1]);
-              setZoom(z);
-            }}
+            onApply={(c, z) => { setLon(c[0]); setLat(c[1]); setZoom(z); }}
           />
         </>
-      ) : (
+      )}
+
+      {mode === 'fit' && (
         <div className="space-y-2">
           <div>
             <Label className="text-xs">Fit layer</Label>
@@ -203,6 +238,49 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
               </SelectContent>
             </Select>
           </div>
+          <div>
+            <Label className="text-xs">Duration (ms)</Label>
+            <Input type="number" min={0} value={duration}
+              onChange={(e) => setDuration(e.target.value)} />
+          </div>
+        </div>
+      )}
+
+      {mode === 'extent' && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div>
+              <Label className="text-xs">Min X</Label>
+              <Input type="number" step="any" value={minX} onChange={(e) => setMinX(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs">Min Y</Label>
+              <Input type="number" step="any" value={minY} onChange={(e) => setMinY(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs">Max X</Label>
+              <Input type="number" step="any" value={maxX} onChange={(e) => setMaxX(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs">Max Y</Label>
+              <Input type="number" step="any" value={maxY} onChange={(e) => setMaxY(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <Label className="text-xs">Projection</Label>
+              <Input value={projection} onChange={(e) => setProjection(e.target.value)}
+                placeholder="EPSG:4326" />
+            </div>
+            <div>
+              <Label className="text-xs">Max zoom</Label>
+              <Input type="number" min={0} max={28} value={maxZoom} onChange={(e) => setMaxZoom(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs">Duration (ms)</Label>
+              <Input type="number" min={0} value={duration} onChange={(e) => setDuration(e.target.value)} />
+            </div>
+          </div>
         </div>
       )}
     </ActionModal>
@@ -210,495 +288,230 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
 };
 
 // -----------------------------------------------------------------------------
-// Active layers editor
+// Active layers editor — manages the full StoryActiveLayer[] array
 // -----------------------------------------------------------------------------
 
 interface ActiveLayersEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
+  sources: DataSource[];
   layerOptions: LayerOption[];
-  onSave: (active: string[]) => void;
+  onSave: (active: StoryActiveLayer[]) => void;
 }
 
 export const ActiveLayersEditor: React.FC<ActiveLayersEditorProps> = ({
-  open, onOpenChange, step, layerOptions, onSave,
+  open, onOpenChange, step, sources, layerOptions, onSave,
 }) => {
-  const [active, setActive] = useState<string[]>(step.layers?.active ?? []);
-  useEffect(() => { if (open) setActive(step.layers?.active ?? []); }, [open, step]);
+  const [layers, setLayers] = useState<StoryActiveLayer[]>(step.activeLayers ?? []);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
-  const toggle = (id: string) =>
-    setActive((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
-
-  const isChecked = (o: LayerOption) => active.includes(o.id) || active.includes(o.name);
-
-  const save = () => { onSave(active); onOpenChange(false); };
-  const knownIds = new Set(layerOptions.map((o) => o.id));
-  const knownNames = new Set(layerOptions.map((o) => o.name));
-  const unknown = active.filter((ref) => !knownIds.has(ref) && !knownNames.has(ref));
-
-  // Build tree: interfaceGroup -> subinterfaceGroup -> layers.
-  // Preserve source order. Empty group labels are grouped under "Ungrouped".
-  const UNGROUPED = '__ungrouped__';
-  const tree = React.useMemo(() => {
-    const groups: Array<{
-      key: string;
-      label: string;
-      subs: Array<{ key: string; label: string; layers: LayerOption[] }>;
-    }> = [];
-    const groupIdx = new Map<string, number>();
-    const subIdx = new Map<string, number>();
-
-    for (const o of layerOptions) {
-      const gLabel = o.interfaceGroup?.trim() || '';
-      const sLabel = o.subinterfaceGroup?.trim() || '';
-      const gKey = gLabel || UNGROUPED;
-      if (!groupIdx.has(gKey)) {
-        groupIdx.set(gKey, groups.length);
-        groups.push({ key: gKey, label: gLabel || 'Ungrouped', subs: [] });
-      }
-      const g = groups[groupIdx.get(gKey)!];
-      const sKey = `${gKey}::${sLabel || UNGROUPED}`;
-      if (!subIdx.has(sKey)) {
-        subIdx.set(sKey, g.subs.length);
-        g.subs.push({ key: sKey, label: sLabel, layers: [] });
-      }
-      g.subs[subIdx.get(sKey)!].layers.push(o);
+  useEffect(() => {
+    if (open) {
+      setLayers(step.activeLayers ?? []);
+      setExpanded(new Set());
     }
-    return groups;
-  }, [layerOptions]);
+  }, [open, step]);
 
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const toggleCollapsed = (key: string) => setCollapsed((prev) => {
-    const next = new Set(prev);
-    if (next.has(key)) next.delete(key); else next.add(key);
-    return next;
-  });
+  const patch = (i: number, p: Partial<StoryActiveLayer>) =>
+    setLayers((prev) => prev.map((l, idx) => (idx === i ? { ...l, ...p } : l)));
 
-  // Group-level toggle: if all checked -> uncheck all, else check all
-  const setGroupChecked = (layers: LayerOption[], checked: boolean) => {
-    setActive((prev) => {
-      const set = new Set(prev);
-      for (const o of layers) {
-        // Remove both id and name aliases to avoid duplicates
-        set.delete(o.id);
-        set.delete(o.name);
-        if (checked) set.add(o.id);
-      }
-      return Array.from(set);
+  const remove = (i: number) => setLayers((prev) => prev.filter((_, idx) => idx !== i));
+
+  const move = (i: number, delta: -1 | 1) => {
+    const j = i + delta;
+    if (j < 0 || j >= layers.length) return;
+    const next = [...layers];
+    [next[i], next[j]] = [next[j], next[i]];
+    setLayers(next);
+  };
+
+  const addLayer = (id: string) => {
+    if (!id || layers.some((l) => l.id === id)) return;
+    setLayers((prev) => [...prev, { id }]);
+    setExpanded((prev) => new Set(prev).add(layers.length));
+  };
+
+  const toggleExpanded = (i: number) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
     });
-  };
 
-  const groupState = (layers: LayerOption[]): 'all' | 'some' | 'none' => {
-    const checked = layers.filter(isChecked).length;
-    if (checked === 0) return 'none';
-    if (checked === layers.length) return 'all';
-    return 'some';
-  };
+  const usedIds = new Set(layers.map((l) => l.id));
+  const availableToAdd = layerOptions.filter((o) => !usedIds.has(o.id));
+
+  const save = () => { onSave(layers); onOpenChange(false); };
 
   return (
-    <ActionModal open={open} onOpenChange={onOpenChange} title="Active layers" onSave={save}>
-      <div className="border rounded-md p-2 max-h-80 overflow-y-auto">
-        {layerOptions.length === 0 && (
-          <p className="text-xs text-muted-foreground">No layers configured.</p>
+    <ActionModal open={open} onOpenChange={onOpenChange} title="Active layers" onSave={save} wide>
+      <div className="space-y-2">
+        {layers.length === 0 && (
+          <p className="text-xs text-muted-foreground italic">No active layers yet.</p>
         )}
-        {tree.map((group) => {
-          const groupLayers = group.subs.flatMap((s) => s.layers);
-          const gState = groupState(groupLayers);
-          const gCollapsed = collapsed.has(group.key);
+        {layers.map((layer, i) => {
+          const source = findSource(sources, layer.id);
+          const option = layerOptions.find((o) => o.id === layer.id);
+          const displayName = source?.name ?? option?.name ?? layer.id;
+          const isExpanded = expanded.has(i);
+          const availableConstraints: ConstraintSourceItem[] = source?.constraints ?? [];
+          const selectedByLabel = new Map((layer.constraints ?? []).map((c) => [c.label, c]));
+
+          const setConstraints = (next: StoryConstraintSelection[]) =>
+            patch(i, { constraints: next.length > 0 ? next : undefined });
+
+          const toggleConstraint = (def: ConstraintSourceItem, on: boolean) => {
+            const current = layer.constraints ?? [];
+            if (on) {
+              if (selectedByLabel.has(def.label)) return;
+              const next: StoryConstraintSelection = def.type === 'continuous'
+                ? { label: def.label, lower: def.min ?? 0, upper: def.max ?? 0 }
+                : { label: def.label, values: [] };
+              setConstraints([...current, next]);
+            } else {
+              setConstraints(current.filter((c) => c.label !== def.label));
+            }
+          };
+          const updateConstraint = (label: string, next: StoryConstraintSelection) =>
+            setConstraints((layer.constraints ?? []).map((c) => (c.label === label ? next : c)));
+
           return (
-            <div key={group.key} className="mb-1">
-              <div className="flex items-center gap-1 py-1 rounded hover:bg-muted/50">
+            <div key={`${layer.id}-${i}`} className="border rounded-md bg-background">
+              <div className="flex items-center gap-2 px-2 py-1.5">
                 <button
                   type="button"
-                  onClick={() => toggleCollapsed(group.key)}
+                  onClick={() => toggleExpanded(i)}
                   className="p-0.5 text-muted-foreground hover:text-foreground"
-                  aria-label={gCollapsed ? 'Expand group' : 'Collapse group'}
                 >
-                  {gCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </button>
-                <Checkbox
-                  checked={gState === 'all' ? true : gState === 'some' ? 'indeterminate' : false}
-                  onCheckedChange={(v) => setGroupChecked(groupLayers, v === true)}
-                />
-                <span className="text-sm font-medium">{group.label}</span>
-                <span className="text-[11px] text-muted-foreground ml-1">
-                  ({groupLayers.filter(isChecked).length}/{groupLayers.length})
-                </span>
+                <span className="text-sm font-medium flex-1 min-w-0 truncate">{displayName}</span>
+                {layer.opacity !== undefined && (
+                  <span className="text-[11px] text-muted-foreground">op {layer.opacity}</span>
+                )}
+                {layer.blend && (
+                  <span className="text-[11px] text-muted-foreground">blend</span>
+                )}
+                {(layer.constraints?.length ?? 0) > 0 && (
+                  <span className="text-[11px] text-muted-foreground">{layer.constraints!.length}c</span>
+                )}
+                <div className="flex items-center gap-0.5 flex-shrink-0">
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => move(i, -1)} disabled={i === 0} title="Move up">
+                    <MoveUp className="h-3 w-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => move(i, 1)} disabled={i === layers.length - 1} title="Move down">
+                    <MoveDown className="h-3 w-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10" onClick={() => remove(i)} title="Remove layer">
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
-              {!gCollapsed && (
-                <div className="ml-5 border-l pl-2">
-                  {group.subs.map((sub) => {
-                    const showSub = !!sub.label;
-                    const sState = groupState(sub.layers);
-                    const sCollapsed = collapsed.has(sub.key);
-                    return (
-                      <div key={sub.key} className="mt-0.5">
-                        {showSub && (
-                          <div className="flex items-center gap-1 py-1 rounded hover:bg-muted/50">
-                            <button
-                              type="button"
-                              onClick={() => toggleCollapsed(sub.key)}
-                              className="p-0.5 text-muted-foreground hover:text-foreground"
-                              aria-label={sCollapsed ? 'Expand sub-group' : 'Collapse sub-group'}
-                            >
-                              {sCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                            </button>
-                            <Checkbox
-                              checked={sState === 'all' ? true : sState === 'some' ? 'indeterminate' : false}
-                              onCheckedChange={(v) => setGroupChecked(sub.layers, v === true)}
-                            />
-                            <span className="text-sm">{sub.label}</span>
-                            <span className="text-[11px] text-muted-foreground ml-1">
-                              ({sub.layers.filter(isChecked).length}/{sub.layers.length})
-                            </span>
+
+              {isExpanded && (
+                <div className="border-t px-3 py-2 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div>
+                      <Label className="text-xs">Opacity (0–1)</Label>
+                      <Input type="number" min={0} max={1} step={0.05}
+                        value={layer.opacity ?? ''}
+                        onChange={(e) => patch(i, {
+                          opacity: e.target.value === '' ? undefined : Number(e.target.value),
+                        })} />
+                    </div>
+                    <div className="flex items-end gap-2">
+                      <Label className="text-xs">Blend</Label>
+                      <Switch checked={!!layer.blend}
+                        onCheckedChange={(v) => patch(i, { blend: v || undefined })} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Date</Label>
+                      <Input
+                        value={layer.date === undefined ? '' : String(layer.date)}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v === '') { patch(i, { date: undefined }); return; }
+                          const asNum = Number(v);
+                          patch(i, { date: !Number.isNaN(asNum) && v.match(/^-?\d+(\.\d+)?$/) ? asNum : v });
+                        }}
+                        placeholder="earliest / latest / ISO / index" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Constraints</Label>
+                    {availableConstraints.length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        No constraints defined for this layer.
+                      </p>
+                    )}
+                    {availableConstraints.map((def) => {
+                      const selection = selectedByLabel.get(def.label);
+                      const enabled = !!selection;
+                      return (
+                        <div key={def.label} className="border rounded p-2 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Checkbox id={`c-${i}-${def.label}`}
+                              checked={enabled}
+                              onCheckedChange={(v) => toggleConstraint(def, v === true)} />
+                            <Label htmlFor={`c-${i}-${def.label}`} className="text-sm font-normal cursor-pointer">
+                              {def.label}
+                              <span className="text-muted-foreground ml-1">({def.type})</span>
+                            </Label>
                           </div>
-                        )}
-                        {(!showSub || !sCollapsed) && (
-                          <div className={showSub ? 'ml-5 border-l pl-2' : ''}>
-                            {sub.layers.map((o) => (
-                              <label
-                                key={o.id}
-                                className="flex items-center gap-2 text-sm py-0.5 pl-1 rounded hover:bg-muted/50 cursor-pointer"
-                              >
-                                <Checkbox
-                                  checked={isChecked(o)}
-                                  onCheckedChange={() => toggle(o.id)}
-                                />
-                                {optionLabel(o)}
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          {enabled && def.type === 'continuous' && (
+                            <div className="grid grid-cols-2 gap-2 pl-6">
+                              <div>
+                                <Label className="text-[11px]">Lower{def.min !== undefined ? ` (min ${def.min})` : ''}</Label>
+                                <Input type="number" value={selection!.lower ?? ''}
+                                  onChange={(e) => updateConstraint(def.label, {
+                                    ...selection!,
+                                    lower: e.target.value === '' ? undefined : Number(e.target.value),
+                                  })} />
+                              </div>
+                              <div>
+                                <Label className="text-[11px]">Upper{def.max !== undefined ? ` (max ${def.max})` : ''}</Label>
+                                <Input type="number" value={selection!.upper ?? ''}
+                                  onChange={(e) => updateConstraint(def.label, {
+                                    ...selection!,
+                                    upper: e.target.value === '' ? undefined : Number(e.target.value),
+                                  })} />
+                              </div>
+                            </div>
+                          )}
+                          {enabled && def.type !== 'continuous' && (
+                            <div className="pl-6">
+                              <CategoricalValuesEditor def={def}
+                                values={selection!.values ?? []}
+                                onChange={(next) => updateConstraint(def.label, {
+                                  ...selection!, values: next,
+                                })} />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
           );
         })}
       </div>
-      {unknown.length > 0 && (
-        <div className="text-xs text-amber-600 space-y-1">
-          {unknown.map((n) => (
-            <div key={n} className="flex items-center gap-1">
-              Unknown active layer: {n}
-              <button type="button" className="underline ml-1" onClick={() => toggle(n)}>remove</button>
-            </div>
-          ))}
+
+      {availableToAdd.length > 0 && (
+        <div className="pt-2 border-t">
+          <Label className="text-xs">Add layer</Label>
+          <Select value="" onValueChange={(v) => addLayer(v)}>
+            <SelectTrigger><SelectValue placeholder="Pick a layer to add" /></SelectTrigger>
+            <SelectContent>
+              {availableToAdd.map((o) => (
+                <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      )}
-    </ActionModal>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// Focus layer editor
-// -----------------------------------------------------------------------------
-
-interface FocusLayerEditorProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  step: StoryStep;
-  layerOptions: LayerOption[];
-  onSave: (focusLayer: string | undefined) => void;
-}
-
-export const FocusLayerEditor: React.FC<FocusLayerEditorProps> = ({
-  open, onOpenChange, step, layerOptions, onSave,
-}) => {
-  const [focus, setFocus] = useState<string>(step.focusLayer ?? '__none__');
-  useEffect(() => { if (open) setFocus(step.focusLayer ?? '__none__'); }, [open, step]);
-
-  const save = () => {
-    onSave(focus === '__none__' ? undefined : focus);
-    onOpenChange(false);
-  };
-
-  // Restrict choices to layers currently in this step's active list.
-  const activeRefs = step.layers?.active ?? [];
-  const activeSet = new Set(activeRefs);
-  const activeOptions = layerOptions.filter(
-    (o) => activeSet.has(o.id) || activeSet.has(o.name),
-  );
-  const knownRefs = new Set<string>([
-    ...activeOptions.map((o) => o.id),
-    ...activeOptions.map((o) => o.name),
-  ]);
-
-  return (
-    <ActionModal open={open} onOpenChange={onOpenChange} title="Focus layer" onSave={save}>
-      <div>
-        <Label className="text-xs">Focus layer</Label>
-        <Select value={focus} onValueChange={setFocus} disabled={activeOptions.length === 0}>
-          <SelectTrigger>
-            <SelectValue placeholder={activeOptions.length === 0 ? 'No active layers' : 'None'} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__none__">None</SelectItem>
-            {activeOptions.map((o) => (
-              <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>
-            ))}
-            {step.focusLayer && !knownRefs.has(step.focusLayer) && (
-              <SelectItem value={step.focusLayer}>{step.focusLayer} (not in active layers)</SelectItem>
-            )}
-          </SelectContent>
-        </Select>
-        {activeOptions.length === 0 ? (
-          <p className="text-[11px] text-muted-foreground mt-1">
-            Add layers to this step's Active layers first, then pick one to focus.
-          </p>
-        ) : (
-          <p className="text-[11px] text-muted-foreground mt-1">
-            Choose from the layers activated in this step.
-          </p>
-        )}
-      </div>
-    </ActionModal>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// Expand panels editor
-// -----------------------------------------------------------------------------
-
-interface ExpandPanelsEditorProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  step: StoryStep;
-  onSave: (panels: string[]) => void;
-}
-
-export const ExpandPanelsEditor: React.FC<ExpandPanelsEditorProps> = ({
-  open, onOpenChange, step, onSave,
-}) => {
-  const [panels, setPanels] = useState<string[]>(step.expandPanels ?? []);
-  useEffect(() => { if (open) setPanels(step.expandPanels ?? []); }, [open, step]);
-
-  const AVAILABLE_PANELS: { key: string; label: string }[] = [
-    { key: 'filters', label: 'Filters' },
-    { key: 'styles', label: 'Styles' },
-    { key: 'temporal', label: 'Temporal' },
-  ];
-
-  const toggle = (key: string, checked: boolean) => {
-    setPanels((prev) =>
-      checked ? (prev.includes(key) ? prev : [...prev, key]) : prev.filter((p) => p !== key),
-    );
-  };
-
-  const save = () => { onSave(panels); onOpenChange(false); };
-
-  return (
-    <ActionModal open={open} onOpenChange={onOpenChange} title="Expand panels" onSave={save}>
-      <div className="space-y-2">
-        {AVAILABLE_PANELS.map(({ key, label }) => {
-          const id = `expand-panel-${key}`;
-          return (
-            <div key={key} className="flex items-center gap-2">
-              <Checkbox
-                id={id}
-                checked={panels.includes(key)}
-                onCheckedChange={(v) => toggle(key, v === true)}
-              />
-              <Label htmlFor={id} className="text-sm font-normal cursor-pointer">
-                {label} <span className="text-muted-foreground">({key})</span>
-              </Label>
-            </div>
-          );
-        })}
-      </div>
-    </ActionModal>
-  );
-};
-
-
-// -----------------------------------------------------------------------------
-// Layer control (opacity / blend / constraints for a single layer)
-// -----------------------------------------------------------------------------
-
-interface LayerControlEditorProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  control: StoryStepControl;
-  /** Index of the control being edited within step.controls (for sibling-exclusion). */
-  controlIndex: number;
-  step: StoryStep;
-  sources: DataSource[];
-  onSave: (next: StoryStepControl) => void;
-}
-
-export const LayerControlEditor: React.FC<LayerControlEditorProps> = ({
-  open, onOpenChange, control, controlIndex, step, sources, onSave,
-}) => {
-  const [working, setWorking] = useState<StoryStepControl>(control);
-  useEffect(() => { if (open) setWorking(control); }, [open, control]);
-
-  const activeIds: string[] = step.layers?.active ?? [];
-  const siblingLayerIds = new Set(
-    (step.controls ?? [])
-      .map((c, i) => (i !== controlIndex ? c.layer : ''))
-      .filter(Boolean),
-  );
-
-  // Build the layer options list, restricted to active layers of the step.
-  const activeLayerOptions = activeIds
-    .map((ref) => {
-      const src = findSource(sources, ref);
-      return {
-        id: ref,
-        name: src?.name ?? ref,
-        alreadyUsed: siblingLayerIds.has(ref),
-      };
-    });
-
-  const source = findSource(sources, working.layer);
-  const availableConstraints: ConstraintSourceItem[] = source?.constraints ?? [];
-
-  const patch = (p: Partial<StoryStepControl>) =>
-    setWorking((prev) => ({ ...prev, ...p }));
-
-  const constraints = working.constraints ?? [];
-  const setConstraints = (next: StoryConstraintSelection[]) =>
-    patch({ constraints: next });
-
-  const selectedByLabel = new Map(constraints.map((c) => [c.label, c]));
-
-  const toggleConstraint = (def: ConstraintSourceItem, on: boolean) => {
-    if (on) {
-      if (selectedByLabel.has(def.label)) return;
-      const isContinuous = def.type === 'continuous';
-      const next: StoryConstraintSelection = isContinuous
-        ? { label: def.label, lower: def.min ?? 0, upper: def.max ?? 0 }
-        : { label: def.label, values: [] };
-      setConstraints([...constraints, next]);
-    } else {
-      setConstraints(constraints.filter((c) => c.label !== def.label));
-    }
-  };
-
-  const updateConstraint = (label: string, next: StoryConstraintSelection) =>
-    setConstraints(constraints.map((c) => (c.label === label ? next : c)));
-
-  // When the layer changes, drop any selections whose labels no longer exist.
-  useEffect(() => {
-    if (!source) return;
-    const validLabels = new Set(availableConstraints.map((c) => c.label));
-    const filtered = constraints.filter((c) => validLabels.has(c.label));
-    if (filtered.length !== constraints.length) {
-      setConstraints(filtered);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [working.layer]);
-
-  const save = () => { onSave(working); onOpenChange(false); };
-
-  const noActiveLayers = activeLayerOptions.length === 0;
-
-  return (
-    <ActionModal open={open} onOpenChange={onOpenChange} title="Apply constraints"
-      onSave={save} canSave={!!working.layer && !noActiveLayers} wide>
-      {noActiveLayers ? (
-        <p className="text-xs text-muted-foreground">
-          Add active layers to this step first — constraints can only be applied to an active layer.
-        </p>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-            <div className="sm:col-span-2">
-              <Label className="text-xs">Layer</Label>
-              <Select value={working.layer || undefined} onValueChange={(v) => patch({ layer: v })}>
-                <SelectTrigger><SelectValue placeholder="Pick an active layer" /></SelectTrigger>
-                <SelectContent>
-                  {activeLayerOptions.map((o) => (
-                    <SelectItem key={o.id} value={o.id} disabled={o.alreadyUsed}>
-                      {o.name}{o.alreadyUsed ? ' (already configured)' : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs">Opacity</Label>
-              <Input type="number" min={0} max={1} step={0.05}
-                value={working.opacity ?? ''}
-                onChange={(e) => patch({
-                  opacity: e.target.value === '' ? undefined : Number(e.target.value),
-                })} />
-            </div>
-            <div className="flex items-end gap-2">
-              <Label className="text-xs">Blend</Label>
-              <Switch checked={!!working.blend} onCheckedChange={(v) => patch({ blend: v })} />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs">Constraints</Label>
-            {!working.layer && (
-              <p className="text-xs text-muted-foreground">Pick a layer to see its constraints.</p>
-            )}
-            {working.layer && availableConstraints.length === 0 && (
-              <p className="text-xs text-muted-foreground">
-                No constraints defined for this layer.
-              </p>
-            )}
-            {working.layer && availableConstraints.map((def) => {
-              const selection = selectedByLabel.get(def.label);
-              const enabled = !!selection;
-              return (
-                <div key={def.label} className="border rounded p-2 bg-background space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id={`constraint-${def.label}`}
-                      checked={enabled}
-                      onCheckedChange={(v) => toggleConstraint(def, v === true)}
-                    />
-                    <Label htmlFor={`constraint-${def.label}`} className="text-sm font-normal cursor-pointer">
-                      {def.label}
-                      <span className="text-muted-foreground ml-1">({def.type})</span>
-                    </Label>
-                  </div>
-
-                  {enabled && def.type === 'continuous' && (
-                    <div className="grid grid-cols-2 gap-2 pl-6">
-                      <div>
-                        <Label className="text-[11px]">
-                          Lower{def.min !== undefined ? ` (min ${def.min})` : ''}
-                        </Label>
-                        <Input type="number" value={selection!.lower ?? ''}
-                          onChange={(e) => updateConstraint(def.label, {
-                            ...selection!,
-                            lower: e.target.value === '' ? undefined : Number(e.target.value),
-                          })} />
-                      </div>
-                      <div>
-                        <Label className="text-[11px]">
-                          Upper{def.max !== undefined ? ` (max ${def.max})` : ''}
-                        </Label>
-                        <Input type="number" value={selection!.upper ?? ''}
-                          onChange={(e) => updateConstraint(def.label, {
-                            ...selection!,
-                            upper: e.target.value === '' ? undefined : Number(e.target.value),
-                          })} />
-                      </div>
-                    </div>
-                  )}
-
-                  {enabled && def.type !== 'continuous' && (
-                    <div className="pl-6">
-                      <CategoricalValuesEditor def={def}
-                        values={selection!.values ?? []}
-                        onChange={(next) => updateConstraint(def.label, {
-                          ...selection!, values: next,
-                        })} />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </>
       )}
     </ActionModal>
   );
@@ -714,7 +527,7 @@ const CategoricalValuesEditor: React.FC<CategoricalValuesEditorProps> = ({
   def, values, onChange,
 }) => {
   const options: Array<{ label: string; value: string | number }> = Array.isArray(def?.constrainTo)
-    ? (def!.constrainTo as any[]).map((o) => ({
+    ? (def!.constrainTo as Array<{ label?: string; value?: string | number }>).map((o) => ({
         label: o.label ?? String(o.value ?? ''),
         value: o.value ?? o.label,
       }))
@@ -738,5 +551,150 @@ const CategoricalValuesEditor: React.FC<CategoricalValuesEditorProps> = ({
         </label>
       ))}
     </div>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// Panel state editor — focus layer + controls + tab
+// -----------------------------------------------------------------------------
+
+interface PanelStateEditorProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  step: StoryStep;
+  layerOptions: LayerOption[];
+  onSave: (panelState: StoryPanelState | undefined) => void;
+}
+
+const CONTROL_KEYS = ['temporal', 'styles', 'filters'] as const;
+type ControlKey = typeof CONTROL_KEYS[number];
+
+export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
+  open, onOpenChange, step, layerOptions, onSave,
+}) => {
+  const [focus, setFocus] = useState<string>('__none__');
+  const [controls, setControls] = useState<Record<ControlKey, { expanded: boolean; disabled: boolean }>>({
+    temporal: { expanded: false, disabled: false },
+    styles: { expanded: false, disabled: false },
+    filters: { expanded: false, disabled: false },
+  });
+  const [tabId, setTabId] = useState<string>('__none__');
+  const [activeChart, setActiveChart] = useState<string>('');
+
+  useEffect(() => {
+    if (!open) return;
+    const ps = step.panelState;
+    setFocus(ps?.focusLayer ?? '__none__');
+    setControls({
+      temporal: {
+        expanded: !!ps?.controls?.temporal?.expanded,
+        disabled: !!ps?.controls?.temporal?.disabled,
+      },
+      styles: {
+        expanded: !!ps?.controls?.styles?.expanded,
+        disabled: !!ps?.controls?.styles?.disabled,
+      },
+      filters: {
+        expanded: !!ps?.controls?.filters?.expanded,
+        disabled: !!ps?.controls?.filters?.disabled,
+      },
+    });
+    setTabId(ps?.tab?.id ?? '__none__');
+    setActiveChart(ps?.tab?.activeChart ?? '');
+  }, [open, step]);
+
+  const activeIds = new Set((step.activeLayers ?? []).map((l) => l.id));
+  const focusOptions = layerOptions.filter((o) => activeIds.has(o.id));
+
+  const save = () => {
+    const nextControls: NonNullable<StoryPanelState['controls']> = {};
+    for (const k of CONTROL_KEYS) {
+      const c = controls[k];
+      const state: { expanded?: boolean; disabled?: boolean } = {};
+      if (c.expanded) state.expanded = true;
+      if (c.disabled) state.disabled = true;
+      if (Object.keys(state).length > 0) nextControls[k] = state;
+    }
+    const panel: StoryPanelState = {};
+    if (focus !== '__none__') panel.focusLayer = focus;
+    if (Object.keys(nextControls).length > 0) panel.controls = nextControls;
+    if (tabId !== '__none__') {
+      const tab: NonNullable<StoryPanelState['tab']> = { id: tabId as StoryPanelTabId };
+      if (tabId === 'charts' && activeChart.trim()) tab.activeChart = activeChart.trim();
+      panel.tab = tab;
+    }
+    onSave(Object.keys(panel).length > 0 ? panel : undefined);
+    onOpenChange(false);
+  };
+
+  return (
+    <ActionModal open={open} onOpenChange={onOpenChange} title="Panel state" onSave={save} wide>
+      <div className="space-y-4">
+        <div>
+          <Label className="text-xs">Focus layer</Label>
+          <Select value={focus} onValueChange={setFocus} disabled={focusOptions.length === 0}>
+            <SelectTrigger>
+              <SelectValue placeholder={focusOptions.length === 0 ? 'No active layers' : 'None'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">None</SelectItem>
+              {focusOptions.map((o) => (
+                <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Must also appear in this step's Active layers.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs">Controls</Label>
+          <div className="border rounded divide-y">
+            {CONTROL_KEYS.map((k) => (
+              <div key={k} className="flex items-center gap-4 px-2 py-1.5">
+                <span className="text-sm w-20 capitalize">{k}</span>
+                <label className="flex items-center gap-1 text-xs">
+                  <Checkbox
+                    checked={controls[k].expanded}
+                    onCheckedChange={(v) =>
+                      setControls((prev) => ({ ...prev, [k]: { ...prev[k], expanded: v === true } }))} />
+                  Expanded
+                </label>
+                <label className="flex items-center gap-1 text-xs">
+                  <Checkbox
+                    checked={controls[k].disabled}
+                    onCheckedChange={(v) =>
+                      setControls((prev) => ({ ...prev, [k]: { ...prev[k], disabled: v === true } }))} />
+                  Disabled
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label className="text-xs">Active tab</Label>
+            <Select value={tabId} onValueChange={setTabId}>
+              <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">None</SelectItem>
+                {VALID_TAB_IDS.map((t) => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {tabId === 'charts' && (
+            <div>
+              <Label className="text-xs">Chart title</Label>
+              <Input value={activeChart} onChange={(e) => setActiveChart(e.target.value)}
+                placeholder="Chart title to preselect" />
+            </div>
+          )}
+        </div>
+      </div>
+    </ActionModal>
   );
 };

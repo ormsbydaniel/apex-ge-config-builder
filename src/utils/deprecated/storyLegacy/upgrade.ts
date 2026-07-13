@@ -1,6 +1,5 @@
 import type {
   Story,
-  StoryV2,
   StoryStepLegacy,
   StoryStepV2,
   StoryStepAny,
@@ -9,6 +8,16 @@ import type {
   StoryPanelState,
   StoryPanelControls,
 } from '@/types/story';
+
+/** Permissive legacy story input — steps may be legacy or v2. */
+export interface LegacyStoryInput {
+  id: string;
+  title: string;
+  thumbnail?: string;
+  description?: string;
+  isActive?: boolean;
+  steps?: StoryStepAny[];
+}
 
 /**
  * Legacy → v2 story upgrader.
@@ -110,7 +119,7 @@ export const upgradeLegacyStep = (step: StoryStepAny): StoryStepV2 => {
 };
 
 /** Upgrade every step on a story, preserving story-level fields. */
-export const upgradeLegacyStory = (story: Story): StoryV2 => ({
+export const upgradeLegacyStory = (story: LegacyStoryInput): Story => ({
   id: story.id,
   title: story.title,
   ...(story.thumbnail && { thumbnail: story.thumbnail }),
@@ -121,5 +130,5 @@ export const upgradeLegacyStory = (story: Story): StoryV2 => ({
 
 /** Upgrade a collection of stories (e.g. `config.stories`). */
 export const upgradeLegacyStories = (
-  stories: Story[] | undefined,
-): StoryV2[] => (stories ?? []).map(upgradeLegacyStory);
+  stories: LegacyStoryInput[] | undefined,
+): Story[] => (stories ?? []).map(upgradeLegacyStory);

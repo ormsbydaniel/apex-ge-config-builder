@@ -13,9 +13,9 @@ const makeStory = (overrides: Partial<Story> = {}): Story => ({
   steps: [
     {
       id: 'step1',
-      title: 'Step 1',
-      layers: { active: [] },
+      content: { title: 'Step 1' },
       viewport: { fitLayer: 'a' },
+      activeLayers: [],
     },
   ],
   ...overrides,
@@ -64,9 +64,9 @@ describe('useStoryActions', () => {
     act(() =>
       hook.result.current.addStep(0, {
         id: 'step2',
-        title: 'Step 2',
-        layers: { active: [] },
+        content: { title: 'Step 2' },
         viewport: { fitLayer: 'a' },
+        activeLayers: [],
       }),
     );
     expect(getPayload()[0].steps).toHaveLength(2);
@@ -78,12 +78,12 @@ describe('useStoryActions', () => {
     act(() =>
       hook.result.current.updateStep(0, 0, {
         id: 'step1',
-        title: 'Renamed',
-        layers: { active: [] },
+        content: { title: 'Renamed' },
         viewport: { fitLayer: 'a' },
+        activeLayers: [],
       }),
     );
-    expect(getPayload()[0].steps[0].title).toBe('Renamed');
+    expect(getPayload()[0].steps[0].content?.title).toBe('Renamed');
 
     hook.rerender();
     act(() => hook.result.current.duplicateStep(0, 0));

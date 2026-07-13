@@ -1,10 +1,9 @@
 /**
- * Storymaps types.
+ * Storymaps types — v2 shape.
  *
- * Phase 1 (v2 schema): adds `content`, `activeLayers`, `panelState`,
- * `autoAdvance`, `viewport.extent` mode, `date`, and story `thumbnail`.
- * Legacy interfaces below are kept for the current editor UI and are marked
- * `@deprecated`. They will be removed once the editor is migrated (phase 2).
+ * Phase 2: the editor is fully migrated to v2. `StoryStep`, `StoryViewport`
+ * and `Story.steps` now default to the v2 shape. Legacy interfaces are
+ * retained for the upgrader / tests only and are marked `@deprecated`.
  */
 
 // ============================================================================
@@ -38,10 +37,9 @@ export interface StoryViewportZoom {
 
 export interface StoryViewportFit {
   fitLayer: string;
-  duration?: number; // ms — new in v2
+  duration?: number; // ms
 }
 
-/** v2 addition — fit map to an explicit bounding box. */
 export interface StoryViewportExtent {
   extent: [number, number, number, number]; // [minX, minY, maxX, maxY]
   projection?: string; // default 'EPSG:4326'
@@ -49,18 +47,14 @@ export interface StoryViewportExtent {
   duration?: number;
 }
 
-/**
- * The editor currently only reads the two legacy viewport modes. The v2
- * extent mode is accepted by the schema/upgrader but not yet consumed by the
- * UI. Keeping this union limited to the legacy modes preserves editor type
- * safety until phase 2. Full v2 union: {@link StoryViewportV2}.
- */
-export type StoryViewport = StoryViewportZoom | StoryViewportFit;
-
-export type StoryViewportV2 =
+/** All three v2 viewport modes. */
+export type StoryViewport =
   | StoryViewportZoom
   | StoryViewportFit
   | StoryViewportExtent;
+
+/** @deprecated Alias kept for legacy callers. Use {@link StoryViewport}. */
+export type StoryViewportV2 = StoryViewport;
 
 // ============================================================================
 // v2 step shape
@@ -118,7 +112,6 @@ export interface StoryPanelState {
   tab?: StoryPanelTab;
 }
 
-/** v2 step. Editor still consumes {@link StoryStepLegacy} until phase 2. */
 export interface StoryStepV2 {
   id: string;
   content?: StoryStepContent;
@@ -129,8 +122,11 @@ export interface StoryStepV2 {
   autoAdvance?: number;
 }
 
+/** The editor and all runtime code now use the v2 shape. */
+export type StoryStep = StoryStepV2;
+
 // ============================================================================
-// Legacy step shape (v1) — still used by the editor
+// Legacy step shape (v1) — retained for the upgrader and back-compat tests
 // ============================================================================
 
 /**
@@ -153,9 +149,8 @@ export interface StoryStepControl {
 }
 
 /**
- * @deprecated Legacy step shape. Use {@link StoryStepV2}. This interface
- * remains only so the current editor keeps compiling until phase 2 rewires
- * it to the v2 structure. See `src/utils/deprecated/storyLegacy/`.
+ * @deprecated Legacy step shape. Use {@link StoryStepV2}. Retained only so
+ * the upgrader and dual-shape validator continue to compile.
  */
 export interface StoryStepLegacy {
   id: string;
@@ -164,15 +159,9 @@ export interface StoryStepLegacy {
   focusLayer?: string;
   expandPanels?: StoryPanelKey[];
   layers: StoryStepLayers;
-  viewport: StoryViewport;
+  viewport: StoryViewportZoom | StoryViewportFit;
   controls?: StoryStepControl[];
 }
-
-/**
- * Backwards-compatible alias — during phase 1 the editor imports `StoryStep`
- * and receives the legacy shape. Phase 2 will flip this to `StoryStepV2`.
- */
-export type StoryStep = StoryStepLegacy;
 
 /** Union used by validators / loaders that must accept both shapes. */
 export type StoryStepAny = StoryStepLegacy | StoryStepV2;
@@ -184,21 +173,12 @@ export type StoryStepAny = StoryStepLegacy | StoryStepV2;
 export interface Story {
   id: string;
   title: string;
-  /** v2 addition — URL for the `/stories` browser card. */
+  /** URL for the `/stories` browser card. */
   thumbnail?: string;
   description?: string;
   isActive?: boolean;
-  /**
-   * Steps use the legacy shape during phase 1 so the current editor keeps
-   * compiling. The Zod schema separately accepts v2 shape via
-   * {@link StoryStepAny}; use {@link StoryV2} when consuming validated /
-   * upgraded configs.
-   */
-  steps: StoryStepLegacy[];
-}
-
-/** v2 story with upgraded step shape — produced by the legacy upgrader. */
-export interface StoryV2 extends Omit<Story, 'steps'> {
   steps: StoryStepV2[];
 }
 
+/** @deprecated Alias kept for legacy imports. Use {@link Story}. */
+export type StoryV2 = Story;
