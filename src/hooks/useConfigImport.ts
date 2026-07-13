@@ -304,6 +304,9 @@ export const useConfigImport = () => {
         if (titlesFilled > 0) {
           description += ` Populated ${titlesFilled} algorithm title${titlesFilled === 1 ? '' : 's'} from the APEx catalogue.`;
         }
+        if (legacyStoryCount > 0) {
+          description += ` Upgraded ${legacyStoryCount} legacy story${legacyStoryCount === 1 ? '' : ' entries'} to the v2 schema.`;
+        }
 
         toast({ title: 'Configuration Loaded', description });
 
