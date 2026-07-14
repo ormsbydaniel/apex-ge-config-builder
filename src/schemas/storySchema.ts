@@ -120,7 +120,8 @@ export const StoryStepV2Schema = z.object({
   id: z.string().min(1),
   content: StoryStepContentSchema.optional(),
   viewport: StoryViewportSchema,
-  activeLayers: z.array(StoryActiveLayerSchema).min(1),
+  // Empty arrays are valid — intro / text-only steps may have no active layers.
+  activeLayers: z.array(StoryActiveLayerSchema),
   panelState: StoryPanelStateSchema.optional(),
   autoAdvance: z.number().int().nonnegative().optional(),
 });
