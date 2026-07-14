@@ -649,6 +649,33 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
         </div>
 
         <div className="space-y-2">
+          <Label className="text-xs">Active tab</Label>
+          <RadioGroup value={tabId} onValueChange={setTabId} className="grid grid-cols-3 gap-2">
+            {(['__none__', ...VALID_TAB_IDS] as const).map((t) => {
+              const id = `panel-tab-${t}`;
+              const label = t === '__none__' ? 'None' : t;
+              return (
+                <label
+                  key={t}
+                  htmlFor={id}
+                  className="flex items-center gap-2 border rounded px-2 py-1.5 text-sm cursor-pointer hover:bg-accent has-[:checked]:bg-accent has-[:checked]:border-primary capitalize"
+                >
+                  <RadioGroupItem id={id} value={t} />
+                  {label}
+                </label>
+              );
+            })}
+          </RadioGroup>
+          {tabId === 'charts' && (
+            <div className="pt-2">
+              <Label className="text-xs">Chart title</Label>
+              <Input value={activeChart} onChange={(e) => setActiveChart(e.target.value)}
+                placeholder="Chart title to preselect" />
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
           <Label className="text-xs">Controls</Label>
           <div className="border rounded divide-y">
             {CONTROL_KEYS.map((k) => (
@@ -671,28 +698,6 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-xs">Active tab</Label>
-            <Select value={tabId} onValueChange={setTabId}>
-              <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">None</SelectItem>
-                {VALID_TAB_IDS.map((t) => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {tabId === 'charts' && (
-            <div>
-              <Label className="text-xs">Chart title</Label>
-              <Input value={activeChart} onChange={(e) => setActiveChart(e.target.value)}
-                placeholder="Chart title to preselect" />
-            </div>
-          )}
         </div>
       </div>
     </ActionModal>
