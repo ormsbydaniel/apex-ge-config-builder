@@ -438,8 +438,7 @@ fields above.
 
 ## `stories[]`
 
-Storymaps — guided, step-by-step tours of the map. See
-[Stories](../stories/index.md).
+Guided, step-by-step tours of the map. See [Stories](../stories/index.md).
 
 Each story:
 
