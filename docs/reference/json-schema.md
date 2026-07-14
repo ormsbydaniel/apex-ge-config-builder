@@ -334,8 +334,11 @@ Where the layer lives in the GE UI and how its legend / controls render.
 
 `controls` shape (object form; an array-of-strings legacy form is also accepted):
 
-`opacitySlider`, `zoomToCenter`, `temporalControls`, `constraintSlider`,
-`blendControls` (booleans), and `download` (string URL).
+`opacitySlider`, `temporalControls`, `constraintSlider`, `blendControls`
+(booleans), `download` (string URL), and `zoomToCenter` — either a boolean
+toggle or an object `{ extent: [xmin, ymin, xmax, ymax] }` to zoom to a
+custom bounding box instead of the layer extent.
+
 
 ```json
 "layout": {
