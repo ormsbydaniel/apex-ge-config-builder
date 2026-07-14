@@ -16,14 +16,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import MarkdownEditor from '@/components/common/MarkdownEditor';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table';
 import { loadCatalogue, resolveProviderUrl } from '@/lib/catalogue/apexCatalogue';
 import type { CatalogueEntry } from '@/lib/catalogue/types';
 
