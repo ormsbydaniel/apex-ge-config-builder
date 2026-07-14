@@ -1,0 +1,75 @@
+name: Deploy Docs Only
+
+# Builds the MkDocs guide and syncs it to the /guide/ prefix of the target
+# OBS bucket, without touching the rest of the app. Useful for previewing
+# documentation changes without running the full app build-and-deploy.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment target
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-docs-${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy-docs:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install MkDocs
+        run: pip install mkdocs-material==9.5.44 pymdown-extensions==10.11.2
+
+      - name: Build docs (MkDocs)
+        # Writes to public/guide/ per mkdocs.yml site_dir.
+        run: mkdocs build --strict
+
+      - name: Sync guide/ to OBS
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.DEPLOY_ENV == 'prod' && secrets.OTC_S3_ACCESS_KEY_ID_PROD || secrets.OTC_S3_ACCESS_KEY_ID_DEV }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.DEPLOY_ENV == 'prod' && secrets.OTC_S3_SECRET_KEY_ID_PROD || secrets.OTC_S3_SECRET_KEY_ID_DEV }}
+          AWS_DEFAULT_REGION: ${{ vars.OTC_S3_REGION }}
+          AWS_EC2_METADATA_DISABLED: true
+          # OBS does not decode AWS CLI's default aws-chunked checksum uploads.
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          S3_BUCKET: ${{ env.DEPLOY_ENV == 'prod' && vars.OTC_S3_BUCKETNAME_PROD || vars.OTC_S3_BUCKETNAME_DEV }}
+          S3_ENDPOINT: ${{ vars.OTC_S3_ENDPOINT_URL }}
+        run: |
+          # Sync non-HTML assets with long cache. --delete is scoped to the
+          # guide/ prefix so the rest of the app bucket is left untouched.
+          aws s3 sync public/guide/ "s3://${S3_BUCKET}/guide/" \
+            --delete \
+            --endpoint-url "${S3_ENDPOINT}" \
+            --exclude "*.html" \
+            --cache-control "public,max-age=31536000,immutable" \
+            --only-show-errors
+
+          find public/guide -name '*.html' -print0 | while IFS= read -r -d '' file; do
+            key="guide/${file#public/guide/}"
+            aws s3 cp "${file}" "s3://${S3_BUCKET}/${key}" \
+              --endpoint-url "${S3_ENDPOINT}" \
+              --cache-control "no-cache" \
+              --content-type "text/html" \
+              --only-show-errors
+          done
