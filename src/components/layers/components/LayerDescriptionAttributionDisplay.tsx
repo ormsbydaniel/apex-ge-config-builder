@@ -35,7 +35,7 @@ interface LayerDescriptionAttributionDisplayProps {
   catalogueLookup?: { serviceId: string; serviceProvider: string };
 }
 
-type ViewMode = 'main' | 'help' | 'catalogue';
+type ViewMode = 'main' | 'catalogue';
 
 const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLookup }: LayerDescriptionAttributionDisplayProps) => {
   const [isOpen, setIsOpen] = useState(false);
