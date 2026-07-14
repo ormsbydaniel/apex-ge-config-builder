@@ -57,10 +57,10 @@ nav:
       - Overview: getting-started/overview.md
       - Build your first config: getting-started/first-config.md
       - Loading and saving: getting-started/loading-saving.md
-  - Home tab:
+  - Home:
       - Overview: home/overview.md
       - Run Healthcheck: services/healthcheck.md
-  - Layers tab:
+  - Layers:
       - Overview: layers/overview.md
       - Interface groups: configuration/interface-groups.md
       - Adding Layers:
@@ -93,20 +93,24 @@ nav:
           - Pixel values: charts/pixel-values.md
           - Field values: charts/field-values.md
           - CSV data: charts/csv-data.md
-  - Draw order tab: configuration/draw-order.md
-  - Services tab:
+  - Draw order: configuration/draw-order.md
+  - Services:
       - Overview: services/overview.md
       - Adding services: services/adding-services.md
       - Diagnostics: services/diagnostics.md
       - Recommended services: services/recommended.md
-  - Settings tab:
+  - Algorithms:
+      - Overview: algorithms/index.md
+  - Stories:
+      - Overview: stories/index.md
+  - Settings:
       - Overview: settings/overview.md
       - Footer links: configuration/footer-links.md
       - Layout: configuration/layout.md
       - Export options: configuration/export-options.md
   - JSON config: configuration/json-config.md
   - Storymaps (experimental): storymaps/overview.md
-  - GE Preview tab: configuration/preview.md
+  - GE Preview: configuration/preview.md
   - How-to recipes:
       - Overview: recipes/overview.md
       - Data sources & services:
