@@ -284,14 +284,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
                   <div className="space-y-2">
                     <Label htmlFor="layer-description">Description</Label>
                     <p className="text-xs text-muted-foreground">
-                      Description supports basic markdown from GE v3.7 onwards.{' '}
-                      <button
-                        type="button"
-                        className="text-primary hover:text-primary/80 underline cursor-pointer"
-                        onClick={() => setView('help')}
-                      >
-                        Tell me more
-                      </button>
+                      Description supports basic markdown from GE v3.7 onwards. Use the Syntax Guide toggle above the editor for reference.
                     </p>
                     <MarkdownEditor
                       id="layer-description"
