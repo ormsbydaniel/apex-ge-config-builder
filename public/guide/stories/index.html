@@ -1078,6 +1078,77 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Concepts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-stories-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Stories tab
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-summary-badges" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step summary badges
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-story" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a story
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-a-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      Editing a step
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#urls" class="md-nav__link">
+    <span class="md-ellipsis">
+      URLs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      JSON structure
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1092,7 +1163,150 @@
 
 
 <h1 id="stories">Stories<a class="headerlink" href="#stories" title="Permanent link">&para;</a></h1>
-<p>Documentation coming soon.</p>
+<p>Stories are guided, step-by-step map experiences. A story is an ordered
+sequence of <strong>steps</strong>, and each step drives what the map shows: the camera
+position, which layers are active, sidebar copy, and (optionally) the state
+of the info panel.</p>
+<p>At runtime users navigate through the steps with the previous / next
+controls, and the URL reflects the current step (<code>/stories/{id}?step=3</code>).</p>
+<h2 id="concepts">Concepts<a class="headerlink" href="#concepts" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Story</strong> — a titled sequence of steps with an <code>id</code>, an optional
+  Markdown description, an optional thumbnail, and an <code>Active</code> flag that
+  makes the app open the story on load.</li>
+<li><strong>Step</strong> — one frame of the story. Owns its own content (title +
+  Markdown), a viewport target, a set of active layers, and optional
+  panel state.</li>
+<li><strong>Active layers</strong> — per-step list of layer sources to switch on, with
+  optional opacity, blend, date, and constraint overrides.</li>
+<li><strong>Panel state</strong> — optional info-panel configuration (focus layer,
+  which control sections are expanded / locked, and which tab is
+  active). Omit <code>panelState</code> to hide the info panel for a step.</li>
+<li><strong>Layout variant</strong> — <code>fullscreen</code> renders story content as a map
+  overlay; <code>standard</code> renders it in the sidebar. Set via
+  <code>layout.design.variant</code> or the <code>?variant=</code> URL parameter.</li>
+</ul>
+<h2 id="the-stories-tab">The Stories tab<a class="headerlink" href="#the-stories-tab" title="Permanent link">&para;</a></h2>
+<p>The <strong>Stories (beta)</strong> tab lists every story in the config as a card. Each
+card shows the title, step count, and an <strong>Active</strong> badge when the story is
+the initial one.</p>
+<p><img alt="Stories tab overview" src="../assets/screenshots/stories-tab-overview.png" /></p>
+<p>The tab is hidden by default. Turn it on from <strong>Settings → App settings →
+Show Stories (beta) tab</strong> while it is in beta.</p>
+<p>From here you can:</p>
+<ul>
+<li><strong>Add story</strong> (top right) — open the story dialog to create a new story.</li>
+<li><strong>Add step</strong> (per story) — append a step to that story.</li>
+<li><strong>Edit</strong> (pencil next to the title / description) — rename a story or
+  edit its Markdown description.</li>
+<li><strong>Drag</strong> (grip handle) — reorder stories, or reorder steps within a
+  story.</li>
+<li><strong>Duplicate</strong> / <strong>Delete</strong> (icons on the right of each step row).</li>
+</ul>
+<h2 id="step-summary-badges">Step summary badges<a class="headerlink" href="#step-summary-badges" title="Permanent link">&para;</a></h2>
+<p>Each step row summarises what the step does without expanding it:</p>
+<ul>
+<li><strong>Viewport</strong> — <code>Fit: &lt;layer id&gt;</code>, <code>Zoom</code>, or a fitted extent.</li>
+<li><strong>Active layers</strong> — count of layers switched on for the step.</li>
+<li><strong>Focus</strong> — which layer is focused in the info panel.</li>
+<li><strong>Tab</strong> — which info-panel tab opens (<code>overview</code>, <code>query</code>, <code>charts</code>, …).</li>
+</ul>
+<p>Expand a step to see its content, navigation (viewport), active layers,
+and panels sections. Each section has its own edit button.</p>
+<p><img alt="Expanded step showing content, navigation, active layers and panels" src="../assets/screenshots/stories-step-expanded.png" /></p>
+<h2 id="adding-a-story">Adding a story<a class="headerlink" href="#adding-a-story" title="Permanent link">&para;</a></h2>
+<p><strong>Add story</strong> opens a dialog with the story-level fields:</p>
+<ul>
+<li><strong>Title</strong> — display name shown in the story browser.</li>
+<li><strong>Active</strong> toggle — makes this the story the app opens on load. Only
+  one story should be active at a time.</li>
+<li><strong>Description</strong> — Markdown intro shown above the current step. Switch
+  between <strong>Edit</strong> and <strong>Preview</strong>, or open the <strong>Syntax Guide</strong> for
+  supported Markdown.</li>
+<li><strong>Thumbnail URL</strong> — optional image for the story card in the viewer.</li>
+<li><strong>ID</strong> — URL-safe slug auto-generated from the title; edit if you need
+  a stable identifier (it is used in <code>/stories/{id}</code>).</li>
+</ul>
+<p><img alt="Add story dialog" src="../assets/screenshots/stories-add-story-dialog.png" /></p>
+<h2 id="editing-a-step">Editing a step<a class="headerlink" href="#editing-a-step" title="Permanent link">&para;</a></h2>
+<p>Click the pencil in a step's <strong>Content</strong> section to edit its title,
+Markdown body, ID, and optional auto-advance timer.</p>
+<p><img alt="Edit content dialog for a step" src="../assets/screenshots/stories-step-editor.png" /></p>
+<p>Fields:</p>
+<ul>
+<li><strong>Title</strong> — heading shown in the story panel.</li>
+<li><strong>Description (markdown)</strong> — body copy for this step. Supports the
+  same Markdown as story descriptions, with <strong>Edit</strong>, <strong>Syntax Guide</strong>
+  and <strong>Preview</strong> modes.</li>
+<li><strong>ID</strong> — slug used in validation messages. Auto-derived from the
+  title, editable.</li>
+<li><strong>Auto-advance (ms)</strong> — when set, the story advances to the next step
+  automatically after this many milliseconds. Ignored on the final step;
+  cleared as soon as the user navigates manually.</li>
+</ul>
+<p>Use the other sections on the expanded step row to configure:</p>
+<ul>
+<li><strong>Navigation</strong> — the viewport target (fit a layer, fit an extent, or
+  set a zoom / centre).</li>
+<li><strong>Active layers</strong> — the layers switched on for the step, plus their
+  per-step opacity, blend, date and constraint values.</li>
+<li><strong>Panels</strong> — the info-panel state (focus layer, expanded / locked
+  control sections, active tab).</li>
+</ul>
+<h2 id="urls">URLs<a class="headerlink" href="#urls" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>URL</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/stories</code></td>
+<td>Story browser listing all configured stories.</td>
+</tr>
+<tr>
+<td><code>/stories/{id}</code></td>
+<td>Opens story <code>{id}</code> at step 1.</td>
+</tr>
+<tr>
+<td><code>/stories/{id}?step=3</code></td>
+<td>Opens story <code>{id}</code> at the third step (<code>step</code> is 1-based).</td>
+</tr>
+</tbody>
+</table>
+<p>When a story is marked <strong>Active</strong> the app redirects <code>/</code> to that story on
+load, as long as stories are enabled in <code>layout.navigation.links</code>.</p>
+<h2 id="json-structure">JSON structure<a class="headerlink" href="#json-structure" title="Permanent link">&para;</a></h2>
+<p>Stories are stored under the top-level <code>stories</code> array in <code>config.json</code>.
+The exported JSON is the source of truth — the Stories tab is a
+structured editor over the same shape.</p>
+<p><code>json
+{
+  "stories": [
+    {
+      "id": "eo-4-ports",
+      "title": "EO 4 Ports",
+      "isActive": true,
+      "description": "Explore outputs from the EO4 Ports project.",
+      "steps": [
+        {
+          "id": "welcome",
+          "content": {
+            "title": "Welcome",
+            "description": "Welcome to the **EO4 Ports demonstrator**."
+          },
+          "viewport": { "fitLayer": "open-streetmap", "duration": 500 },
+          "activeLayers": []
+        }
+      ]
+    }
+  ]
+}</code></p>
+<p>See the full field-by-field reference in
+<a href="../reference/json-schema.html">Reference → JSON schema</a>, and try the
+demo config from <strong>Load → Examples → Full screen storymap demo</strong>.</p>
 
 
 
