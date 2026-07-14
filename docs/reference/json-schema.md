@@ -403,21 +403,109 @@ Interactive COG-based constraints — see [Constraints](../constraints/index.md)
 
 ## `workflows[]`
 
-Server-side processing hooks (e.g. openEO process graphs).
+Algorithms (called **Workflows** in the JSON for historical reasons — the
+UI labels them **Algorithms**). Workflows may appear at the top level of
+the config *or* nested inside a source. Every entry mirrors the full
+source surface (all fields optional) and adds a small service block.
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
-| `zIndex` | number | yes | Stacking order of the produced layer. |
-| `service` | string | yes | Workflow identifier. |
-| `label` | string | yes | UI label. |
+| `serviceId` | string | yes | Identifier of the processing service (e.g. openEO backend id). |
+| `serviceProvider` | string | yes | Provider label (e.g. `openeo`, `terrascope`). |
+| `serviceTitle` | string | no | Human-readable title shown in the UI. |
+| `serviceDetails` | object | no | `{ endpoint, namespace?, application? }` — extra service metadata. Passthrough. |
+| `id` / `name` / `isActive` / `meta` / `layout` / `charts` / `constraints` / `exclusivitySets` / … | — | no | Any field from a normal source may appear here. |
+| `data` | object[] | no | Data items describing computed outputs. URL is optional. |
 
-Extra properties pass through unchanged.
+The schema is `passthrough`, so legacy keys (`zIndex`, `service`, `label`)
+in older configs still load unchanged, but new configs should use the
+fields above.
 
 ```json
 "workflows": [
-  { "zIndex": 50, "service": "eurac_pv_farm_detection", "label": "PV farm detection" }
+  {
+    "serviceId": "eurac_pv_farm_detection",
+    "serviceProvider": "openeo",
+    "serviceTitle": "PV farm detection",
+    "serviceDetails": {
+      "endpoint": "https://openeo.dataspace.copernicus.eu",
+      "namespace": "u:eurac",
+      "application": "pv_farm_detection"
+    }
+  }
 ]
 ```
+
+## `stories[]`
+
+Storymaps — guided, step-by-step tours of the map. See
+[Stories](../stories/index.md).
+
+Each story:
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `id` | string | yes | Stable identifier. |
+| `title` | string | yes | Story title shown in the UI. |
+| `description` | string | no | Short summary. |
+| `thumbnail` | string | no | Preview image URL. |
+| `isActive` | boolean | no | Whether the story is enabled. |
+| `steps[]` | object | yes | One or more ordered steps (see below). |
+
+Each **step** (v2 shape):
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `id` | string | yes | Stable identifier within the story. |
+| `content` | object | no | `{ title?, description? }` — narrative text for the step. |
+| `viewport` | object | yes | One of three modes (see below). |
+| `activeLayers[]` | object | yes | Layers to enable, with per-layer overrides. |
+| `panelState` | object | no | `{ focusLayer?, controls?, tab? }` — panel expansion / tab selection. |
+| `autoAdvance` | integer | no | Auto-advance delay in milliseconds. |
+
+**Viewport** is one of:
+
+- `{ zoom, center: [lon, lat], duration? }` — fly to zoom/centre.
+- `{ fitLayer: "<source id>", duration? }` — fit to a layer's extent.
+- `{ extent: [xmin, ymin, xmax, ymax], projection?, maxZoom?, duration? }` — fit to a bounding box.
+
+**activeLayers[]** entries:
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `id` | string | yes | Matches a `sources[].id`. |
+| `opacity` | number 0–1 | no | Override opacity for this step. |
+| `blend` | boolean | no | Enable per-layer blend mode. |
+| `date` | number or string | no | Override active timestamp / date. |
+| `constraints[]` | object | no | Constraint selections — `{ label, lower?, upper?, values? }`. |
+
+Legacy v1 steps (using `layers.active`, `title`, `expandPanels`, etc.)
+are still accepted for import; new configs should emit the v2 shape.
+
+```json
+"stories": [
+  {
+    "id": "soc-overview",
+    "title": "Soil Organic Carbon across Europe",
+    "thumbnail": "https://…/soc-thumb.jpg",
+    "steps": [
+      {
+        "id": "intro",
+        "content": { "title": "Introduction", "description": "…" },
+        "viewport": { "zoom": 4, "center": [10, 52], "duration": 800 },
+        "activeLayers": [
+          { "id": "soc-mean", "opacity": 0.9 }
+        ],
+        "panelState": {
+          "focusLayer": "soc-mean",
+          "tab": { "id": "overview" }
+        }
+      }
+    ]
+  }
+]
+```
+
 
 ## `charts[]`
 
