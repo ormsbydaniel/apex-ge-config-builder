@@ -22,6 +22,8 @@ interface MarkdownEditorProps {
   placeholder?: string;
   className?: string;
   textareaClassName?: string;
+  /** Optional content rendered on the left of the toolbar row (e.g. a Label). */
+  toolbarLeft?: React.ReactNode;
 }
 
 type Mode = 'edit' | 'guide' | 'preview';
