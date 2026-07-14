@@ -1,111 +1,55 @@
-## Phase 2 — Migrate the editor to v2
+## Goal
+Give every markdown editor in the app the same three-mode toggle — **Edit | Syntax Guide | Preview** — with the syntax guide built in (including image references), then refresh MkDocs screenshots that show a markdown editor.
 
-Phase 1 landed the v2 schema, types, upgrader, and validator (dual-shape). Phase 2 flips the editor to produce v2 **only**, wires the legacy upgrader into the loader, and retires the legacy interfaces.
+## Changes
 
-### Goals
-- Editor reads and writes v2 shape end-to-end.
-- Legacy configs opened in the editor are transparently upgraded on import.
-- No dual-shape branches remain in the editor UI.
-- Legacy Zod branch is retained only for import; runtime types are v2.
+### 1. `src/components/common/MarkdownEditor.tsx`
+Extend the local `mode` state to `'edit' | 'guide' | 'preview'` and add a third toggle button ("Syntax Guide", using a `BookOpen` or `HelpCircle` icon).
 
----
+When `mode === 'guide'`, render a reference panel styled like the preview container (same border/padding, scrollable) containing a compact table adapted from `LayerDescriptionAttributionDisplay`:
 
-### 1. Type / schema flip
-- `src/types/story.ts`: make `StoryStep = StoryStepV2`, `StoryViewport = StoryViewportV2`, `Story.steps: StoryStepV2[]`. Keep `StoryStepLegacy` exported under `@deprecated` for the upgrader / tests only.
-- `src/schemas/storySchema.ts`: keep `StoryStepSchema` union for **import** but export a new `StoryStepV2Schema` used by the editor's JSON dialog (already exists — switch `StepJsonEditorDialog` to it).
+| Feature | Syntax |
+|---|---|
+| Hyperlink | `[text](https://url/)` |
+| Image | `![alt text](https://url/image.png)` |
+| Italics | `*text*` |
+| Bold | `**text**` |
+| Heading 1 / 2 | `# text` / `## text` |
+| List | `- item` |
+| Quote | `> text` |
+| Code | `` `code` `` |
 
-### 2. Loader wiring (legacy → v2 on import)
-- `src/hooks/useValidatedConfig.ts` / `useConfigImport.ts`: after schema parse, run `upgradeLegacyStories(config.stories)` so anything hitting the editor state is v2.
-- Add a small toast when an upgrade actually mutated data.
+Include a short note above the table explaining that images must be referenced by absolute URL (the editor does not upload local files) and that alt text is required for accessibility.
 
-### 3. Editor UI changes
+The guide view does not mutate `value`; switching modes is free.
 
-**StepEditor** (`StepEditor.tsx`)
-- Read/write `step.content.title`, `step.content.description`, `step.id`.
-- Add an `autoAdvance` field (numeric ms, optional) in the Content dialog.
-- Replace three action sections with four:
-  - Navigation (viewport)
-  - Active layers (new merged editor)
-  - Panel state (focus layer + controls + tab)
-  - _(remove standalone Focus layer / Expand panels / Layer control sections)_
+### 2. `src/components/layers/components/LayerDescriptionAttributionDisplay.tsx`
+Now that the syntax guide lives inside the editor, simplify this dialog:
+- Remove the `'help'` branch of the `view` state and the associated Markdown Reference panel (lines ~176–239).
+- Remove the "Tell me more" button and the helper sentence around it (lines ~350–359). The `MarkdownEditor` itself now exposes the guide.
+- Keep the `'catalogue'` and `'main'` views untouched.
 
-**ActionsAndLayersSection** (`ActionsAndLayersSection.tsx`)
-- Rework `ActionKind` union to: `navigation | activeLayers | panelState`.
-- Remove: `focusLayer`, `layerControl`, `expandPanels` action cards. Their functionality moves into `activeLayers[]` items and `panelState`.
-- `hasKind`, `warningsForAction`, and category map updated accordingly.
+### 3. Other consumers
+`StepEditor.tsx` and `StoryFormDialog.tsx` already use `MarkdownEditor`; they inherit the new three-mode toggle automatically. No further changes needed.
 
-**NavigationEditor**
-- Add third viewport mode: **Fit to extent** (`extent: [minX,minY,maxX,maxY]`, optional `projection`, `maxZoom`, `duration`). UI: mode radio (Zoom / Fit layer / Extent) + four numeric inputs for extent.
-- Preserve existing `zoom` and `fitLayer` modes.
+### 4. Documentation screenshots
+Screenshots that currently show a markdown editor with only Edit/Preview need refreshing so the guide reflects the new UI. Candidates:
+- `layer-card-edit-top.png` — layer edit dialog (if the description field is visible).
+- Any storymap step/story screenshots that include the markdown editor. (None currently in `docs/assets/screenshots/`; skip if absent.)
 
-**ActiveLayersEditor** (renamed responsibilities)
-- One card per `StoryActiveLayer`: layer picker, opacity slider, blend toggle, optional `date` (number | 'earliest' | 'latest' | ISO string), constraints editor (lifted from old `LayerControlEditor`).
-- Order in array is meaningful (drag-reorder retained if present; else move up/down).
+Process for each stale shot:
+1. Drive Playwright against `http://localhost:8080`, open the relevant dialog, and capture the region showing the editor with the new three-button toggle.
+2. Save via `scripts/add-screenshot.sh <tmp-path> <existing-kebab-name>` so both `docs/assets/screenshots/` and `public/guide/assets/screenshots/` are updated (per `mem://documentation/screenshot-conventions`).
+3. Rebuild MkDocs into `public/guide/` so the in-app guide picks up the new assets.
 
-**PanelStateEditor** (new)
-- `focusLayer` picker (constrained to ids in `activeLayers`).
-- `controls`: three toggle groups (`temporal`, `styles`, `filters`) each with `expanded` + `disabled` checkboxes.
-- `tab`: dropdown of `overview | statistics | query | charts | parameters`; when `charts`, extra input for `activeChart` (title match).
+No markdown copy changes are required unless a page explicitly describes the old Edit/Preview toggle (a quick grep confirmed none do).
 
-**StoryFormDialog**
-- Add `thumbnail` (URL) input.
+### 5. Verification
+- Open a layer description dialog: confirm three buttons appear, guide renders the image row, previewing still works, "Tell me more" is gone.
+- Open a storymap step description: confirm the same three-mode toggle.
+- Typecheck/build runs automatically.
 
-**SortableStepCard / SortableStoryGroup**
-- Read titles from `step.content?.title ?? step.id`; description from `step.content?.description`.
-- Story card shows `thumbnail` when set.
-
-**StepJsonEditorDialog**
-- Validate against `StoryStepV2Schema` (strict v2), not the union.
-- Header uses `step.content?.title ?? step.id`.
-
-### 4. Actions module (`actions/`)
-- `types.ts`: rewrite `ACTION_META`, `CATEGORY_ORDER`, `ActionKind`, `hasKind`, `warningsForAction` for v2.
-- `ActionEditors.tsx`: delete `FocusLayerEditor`, `ExpandPanelsEditor`, `LayerControlEditor` (or keep constraints subeditor as a shared component consumed by `ActiveLayersEditor`). Rewrite `ActiveLayersEditor` to edit full `StoryActiveLayer[]`. Add `PanelStateEditor`. `NavigationEditor` gets the extent mode.
-
-### 5. useStoryActions
-- Default step template for `addStep`: `{ id, content: { title }, viewport: { zoom: 2, center: [0,0] }, activeLayers: [] }`.
-- No shape branching needed since types are v2 now.
-
-### 6. Validation warning keys
-- `storyValidation.ts` v2 branch already emits: `unknown-focus-layer`, `invalid-tab-id`, coverage checks. Add mapping in `warningsForAction` for the new action kinds.
-
-### 7. Deprecations
-- Move `StoryStepLegacy`, `StoryStepControl`, `StoryStepLayers` to `src/utils/deprecated/storyLegacy/legacyTypes.ts` (re-export from `types/story` for import compatibility with an `@deprecated` JSDoc).
-- README updated with removal criteria.
-
-### 8. Docs
-- `docs/storymaps/overview.md`: replace legacy examples with v2, note that the editor now writes v2 only and old configs auto-upgrade on load.
-
-### 9. Tests
-- Update editor-adjacent tests (none currently touch editor components — only schema/upgrade/validation). Extend `storySchema.test.ts` to lock in that the editor's default step passes `StoryStepV2Schema`.
-- Add a small round-trip test: legacy config → `upgradeLegacyStories` → `StorySchema.parse` succeeds and produces v2 shape.
-
----
-
-### Out of scope for phase 2
-- Viewer runtime changes (viewer consumes v2 already per schema doc).
-- Any changes to constraint editor internals beyond relocating it under `ActiveLayersEditor`.
-- Migration UI (banner, diff preview) — silent upgrade + toast only.
-
-### File touch list
-```text
-src/types/story.ts                                          (flip default to v2)
-src/schemas/storySchema.ts                                  (no shape change; ensure V2 schema exported)
-src/hooks/useValidatedConfig.ts                             (call upgradeLegacyStories on import)
-src/hooks/useConfigImport.ts                                (same, if that's the actual import site)
-src/hooks/useStoryActions.ts                                (v2 default template)
-src/components/config/storymaps/StepEditor.tsx              (content dialog + section list)
-src/components/config/storymaps/StoryFormDialog.tsx         (thumbnail field)
-src/components/config/storymaps/SortableStepCard.tsx        (read content.*)
-src/components/config/storymaps/SortableStoryGroup.tsx      (thumbnail render)
-src/components/config/storymaps/StepJsonEditorDialog.tsx    (V2 schema)
-src/components/config/storymaps/actions/types.ts            (rewrite kinds)
-src/components/config/storymaps/actions/ActionsAndLayersSection.tsx  (rewrite items/pick/remove)
-src/components/config/storymaps/actions/ActionEditors.tsx   (NavigationEditor extent, ActiveLayersEditor, PanelStateEditor; drop old editors)
-src/utils/deprecated/storyLegacy/legacyTypes.ts             (new)
-docs/storymaps/overview.md                                  (v2 examples)
-src/schemas/__tests__/storySchema.test.ts                   (extend)
-```
-
-### Risk & rollback
-- Editor rewrite is invasive but self-contained; keeping the legacy Zod branch in `StoryStepSchema` means any pre-migration config still loads. If a regression is found, revert the editor commit — schema/upgrader from phase 1 continue to work.
+## Out of scope
+- No schema, type, or persistence changes.
+- No behavioural change to preview rendering or markdown pipeline.
+- No new MkDocs pages — only refreshed screenshots.
