@@ -228,13 +228,15 @@ non-empty `images[]` array must be provided.
 | `layers` | string | no | OGC layer name (WMS/WMTS/WFS). |
 | `level` | number | no | Statistics level (NUTS, admin level, etc.). |
 | `style` | object | no | Renderer-specific style (e.g. OpenLayers style spec for COG / vectors). |
-| `position` | enum | no | `left` or `right` for swipe layers. |
+| `position` | enum | no | `left` / `right` (swipe), `background` / `spotlight` (mirror & spotlight). |
 | `minZoom` / `maxZoom` | number | no | Visibility window. |
 | `timestamps` | number[] | no | Unix epochs for temporal data items. |
 | `opacity` | number 0–1 | no | Per-item opacity. |
 | `normalize` | boolean | no | Hint for COG renderers. |
+| `parameters` | record | no | Extra URL parameters passed through to WMS `GetMap` requests. |
 | `type` | string | no | Renderer hint. |
 | `isBaseLayer` | boolean | no | Legacy migration aid only. |
+
 
 The schema is `passthrough`, so extra keys you set by hand (e.g. `env`,
 `time`, `transparent`, `styles`) survive round-trips.
