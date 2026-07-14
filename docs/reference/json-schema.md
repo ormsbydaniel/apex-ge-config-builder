@@ -33,8 +33,15 @@ Every configuration is a single JSON object with this shape:
 | `exclusivitySets` | string[] | yes | Named sets — only one layer per set can be on at a time. |
 | `services` | object[] | no | Reusable endpoint definitions referenced by layers. Defaults to `[]`. |
 | `sources` | object[] | yes | All map layers (base layers, layer cards, swipe / comparison layers). |
+| `workflows` | object[] | no | Top-level algorithms available across the config — see [`workflows[]`](#workflows). |
+| `stories` | object[] | no | Storymaps (guided tours) — see [`stories[]`](#stories). |
 | `mapConstraints` | object | no | Initial zoom, centre, and CRS. |
 | `projections` | object[] | no | Custom proj4 [Coordinate Reference System](../settings/index.md) definitions. |
+
+!!! info "Naming: workflows vs. algorithms"
+    "Workflow" in the JSON (and in code) is the same thing the UI calls
+    an **Algorithm**. The `workflows` key is preserved for backwards
+    compatibility with existing configs.
 
 Skeleton:
 
@@ -47,6 +54,8 @@ Skeleton:
   "exclusivitySets": ["basemaps", "labels"],
   "services": [ … ],
   "sources": [ … ],
+  "workflows": [ … ],
+  "stories": [ … ],
   "mapConstraints": { "zoom": 4, "center": [-0.163, 51.5], "projection": "EPSG:3857" },
   "projections": [ … ]
 }
@@ -130,31 +139,40 @@ so swapping a URL in one place updates every layer that uses it. See the
 ## `sources[]` — the layer model
 
 Every map layer lives in `sources`. The schema is a discriminated union of
-five variants, distinguished by a few flag fields:
+several variants, distinguished by a few flag fields:
 
 | Variant | Identified by | Required fields |
 |---------|---------------|-----------------|
-| **Base layer** | `isBaseLayer: true` | `meta`, `layout` optional |
+| **Base layer** | `isBaseLayer: true` | `meta`, `layout` optional; may set `preview` (image URL) |
 | **Layer card** | (none of the flags below) | `meta`, `layout` required |
 | **Swipe layer** | `meta.swipeConfig` present, or `isSwipeLayer: true` | `meta`, `layout` required |
+| **Mirror layer** | `isMirrorLayer: true` | `meta`, `layout` required |
+| **Spotlight layer** | `isSpotlightLayer: true` | `meta`, `layout` required |
 | Flexible fallback | — | accepts older configs while migrating |
+
+Only one of `isSwipeLayer`, `isMirrorLayer`, `isSpotlightLayer` may be true
+on a given source, and none of them can be combined with `isBaseLayer`.
 
 Common fields on every variant:
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
+| `id` | string | no | Stable identifier used by storymaps and cross-references. Auto-assigned when missing. |
 | `name` | string | yes | Display name in the layer panel. |
 | `isActive` | boolean | yes | Whether the layer starts toggled on. |
 | `data` | DataSourceItem[] | yes | One or more renderable items (see below). |
 | `statistics` | DataSourceItem[] | no | Companion statistics layers (e.g. NUTS-aggregated FlatGeoBuf). |
-| `constraints` | object[] | no | Interactive constraint sources — see `constraints[]`. |
-| `workflows` | object[] | no | openEO / processing-graph hooks — see `workflows[]`. |
-| `charts` | object[] | no | Inline charts — see `charts[]`. |
+| `constraints` | object[] | no | Interactive constraint sources — see [`constraints[]`](#constraints). |
+| `workflows` | object[] | no | Per-source algorithms — see [`workflows[]`](#workflows). |
+| `charts` | object[] | no | Inline charts — see [`charts[]`](#charts). |
 | `exclusivitySets` | string[] | no | Names from the top-level `exclusivitySets`. |
 | `isBaseLayer` | boolean | no | Marks the variant as a base layer. |
 | `isSwipeLayer` | boolean | no | Marks the layer as a swipe layer. |
+| `isMirrorLayer` | boolean | no | Marks the layer as a mirror-compare layer. |
+| `isSpotlightLayer` | boolean | no | Marks the layer as a spotlight-compare layer. |
 | `timeframe` / `defaultTimestamp` | enum / number | no | Temporal config — see [Time Precision](../layers/index.md). |
 | `hasFeatureStatistics` | boolean | no | Hint for vector-feature stats. |
+
 
 Base layer example:
 
@@ -210,13 +228,15 @@ non-empty `images[]` array must be provided.
 | `layers` | string | no | OGC layer name (WMS/WMTS/WFS). |
 | `level` | number | no | Statistics level (NUTS, admin level, etc.). |
 | `style` | object | no | Renderer-specific style (e.g. OpenLayers style spec for COG / vectors). |
-| `position` | enum | no | `left` or `right` for swipe layers. |
+| `position` | enum | no | `left` / `right` (swipe), `background` / `spotlight` (mirror & spotlight). |
 | `minZoom` / `maxZoom` | number | no | Visibility window. |
 | `timestamps` | number[] | no | Unix epochs for temporal data items. |
 | `opacity` | number 0–1 | no | Per-item opacity. |
 | `normalize` | boolean | no | Hint for COG renderers. |
+| `parameters` | record | no | Extra URL parameters passed through to WMS `GetMap` requests. |
 | `type` | string | no | Renderer hint. |
 | `isBaseLayer` | boolean | no | Legacy migration aid only. |
+
 
 The schema is `passthrough`, so extra keys you set by hand (e.g. `env`,
 `time`, `transparent`, `styles`) survive round-trips.
@@ -314,8 +334,11 @@ Where the layer lives in the GE UI and how its legend / controls render.
 
 `controls` shape (object form; an array-of-strings legacy form is also accepted):
 
-`opacitySlider`, `zoomToCenter`, `temporalControls`, `constraintSlider`,
-`blendControls` (booleans), and `download` (string URL).
+`opacitySlider`, `temporalControls`, `constraintSlider`, `blendControls`
+(booleans), `download` (string URL), and `zoomToCenter` — either a boolean
+toggle or an object `{ extent: [xmin, ymin, xmax, ymax] }` to zoom to a
+custom bounding box instead of the layer extent.
+
 
 ```json
 "layout": {
@@ -380,21 +403,109 @@ Interactive COG-based constraints — see [Constraints](../constraints/index.md)
 
 ## `workflows[]`
 
-Server-side processing hooks (e.g. openEO process graphs).
+Algorithms (called **Workflows** in the JSON for historical reasons — the
+UI labels them **Algorithms**). Workflows may appear at the top level of
+the config *or* nested inside a source. Every entry mirrors the full
+source surface (all fields optional) and adds a small service block.
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
-| `zIndex` | number | yes | Stacking order of the produced layer. |
-| `service` | string | yes | Workflow identifier. |
-| `label` | string | yes | UI label. |
+| `serviceId` | string | yes | Identifier of the processing service (e.g. openEO backend id). |
+| `serviceProvider` | string | yes | Provider label (e.g. `openeo`, `terrascope`). |
+| `serviceTitle` | string | no | Human-readable title shown in the UI. |
+| `serviceDetails` | object | no | `{ endpoint, namespace?, application? }` — extra service metadata. Passthrough. |
+| `id` / `name` / `isActive` / `meta` / `layout` / `charts` / `constraints` / `exclusivitySets` / … | — | no | Any field from a normal source may appear here. |
+| `data` | object[] | no | Data items describing computed outputs. URL is optional. |
 
-Extra properties pass through unchanged.
+The schema is `passthrough`, so legacy keys (`zIndex`, `service`, `label`)
+in older configs still load unchanged, but new configs should use the
+fields above.
 
 ```json
 "workflows": [
-  { "zIndex": 50, "service": "eurac_pv_farm_detection", "label": "PV farm detection" }
+  {
+    "serviceId": "eurac_pv_farm_detection",
+    "serviceProvider": "openeo",
+    "serviceTitle": "PV farm detection",
+    "serviceDetails": {
+      "endpoint": "https://openeo.dataspace.copernicus.eu",
+      "namespace": "u:eurac",
+      "application": "pv_farm_detection"
+    }
+  }
 ]
 ```
+
+## `stories[]`
+
+Storymaps — guided, step-by-step tours of the map. See
+[Stories](../stories/index.md).
+
+Each story:
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `id` | string | yes | Stable identifier. |
+| `title` | string | yes | Story title shown in the UI. |
+| `description` | string | no | Short summary. |
+| `thumbnail` | string | no | Preview image URL. |
+| `isActive` | boolean | no | Whether the story is enabled. |
+| `steps[]` | object | yes | One or more ordered steps (see below). |
+
+Each **step** (v2 shape):
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `id` | string | yes | Stable identifier within the story. |
+| `content` | object | no | `{ title?, description? }` — narrative text for the step. |
+| `viewport` | object | yes | One of three modes (see below). |
+| `activeLayers[]` | object | yes | Layers to enable, with per-layer overrides. |
+| `panelState` | object | no | `{ focusLayer?, controls?, tab? }` — panel expansion / tab selection. |
+| `autoAdvance` | integer | no | Auto-advance delay in milliseconds. |
+
+**Viewport** is one of:
+
+- `{ zoom, center: [lon, lat], duration? }` — fly to zoom/centre.
+- `{ fitLayer: "<source id>", duration? }` — fit to a layer's extent.
+- `{ extent: [xmin, ymin, xmax, ymax], projection?, maxZoom?, duration? }` — fit to a bounding box.
+
+**activeLayers[]** entries:
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `id` | string | yes | Matches a `sources[].id`. |
+| `opacity` | number 0–1 | no | Override opacity for this step. |
+| `blend` | boolean | no | Enable per-layer blend mode. |
+| `date` | number or string | no | Override active timestamp / date. |
+| `constraints[]` | object | no | Constraint selections — `{ label, lower?, upper?, values? }`. |
+
+Legacy v1 steps (using `layers.active`, `title`, `expandPanels`, etc.)
+are still accepted for import; new configs should emit the v2 shape.
+
+```json
+"stories": [
+  {
+    "id": "soc-overview",
+    "title": "Soil Organic Carbon across Europe",
+    "thumbnail": "https://…/soc-thumb.jpg",
+    "steps": [
+      {
+        "id": "intro",
+        "content": { "title": "Introduction", "description": "…" },
+        "viewport": { "zoom": 4, "center": [10, 52], "duration": 800 },
+        "activeLayers": [
+          { "id": "soc-mean", "opacity": 0.9 }
+        ],
+        "panelState": {
+          "focusLayer": "soc-mean",
+          "tab": { "id": "overview" }
+        }
+      }
+    ]
+  }
+]
+```
+
 
 ## `charts[]`
 
