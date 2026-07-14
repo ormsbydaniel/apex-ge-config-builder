@@ -22,6 +22,8 @@ interface MarkdownEditorProps {
   placeholder?: string;
   className?: string;
   textareaClassName?: string;
+  /** Optional content rendered on the left of the toolbar row (e.g. a Label). */
+  toolbarLeft?: React.ReactNode;
 }
 
 type Mode = 'edit' | 'guide' | 'preview';
@@ -59,6 +61,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   placeholder,
   className,
   textareaClassName,
+  toolbarLeft,
 }) => {
   const [mode, setMode] = useState<Mode>('edit');
 
@@ -77,7 +80,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">{toolbarLeft}</div>
         <div className="inline-flex rounded-md border border-input bg-background p-0.5">
           {toggleButton('edit', 'Edit', Pencil)}
           {toggleButton('guide', 'Syntax Guide', BookOpen)}
