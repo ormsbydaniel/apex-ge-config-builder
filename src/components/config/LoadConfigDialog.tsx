@@ -238,6 +238,12 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
       url: '/examples/test-config.json',
       fileName: 'test-config.json',
     },
+    {
+      name: 'Full screen storymap demo',
+      description: 'EO4 Ports example as a full screen story map.',
+      url: '/examples/story-config-1.json',
+      fileName: 'story-config-1.json',
+    },
   ];
 
   // ---- Loading view subcomponent ----
