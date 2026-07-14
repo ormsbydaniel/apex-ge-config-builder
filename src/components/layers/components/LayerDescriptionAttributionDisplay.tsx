@@ -16,14 +16,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import MarkdownEditor from '@/components/common/MarkdownEditor';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table';
 import { loadCatalogue, resolveProviderUrl } from '@/lib/catalogue/apexCatalogue';
 import type { CatalogueEntry } from '@/lib/catalogue/types';
 
@@ -35,7 +27,7 @@ interface LayerDescriptionAttributionDisplayProps {
   catalogueLookup?: { serviceId: string; serviceProvider: string };
 }
 
-type ViewMode = 'main' | 'help' | 'catalogue';
+type ViewMode = 'main' | 'catalogue';
 
 const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLookup }: LayerDescriptionAttributionDisplayProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -173,71 +165,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
 
       <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setView('main'); }}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
-          {view === 'help' ? (
-            <>
-              <DialogHeader>
-                <DialogTitle>Markdown Reference</DialogTitle>
-              </DialogHeader>
-              <button
-                type="button"
-                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 underline cursor-pointer"
-                onClick={() => setView('main')}
-              >
-                <ArrowLeft className="h-3 w-3" /> Back
-              </button>
-              <div className="flex-1 overflow-y-auto pr-2">
-                <p className="text-sm text-muted-foreground mb-4">
-                  {"\n"}
-                </p>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Feature</TableHead>
-                      <TableHead>Syntax</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">Hyperlink</TableCell>
-                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">[text](https://url/)</code></TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Italics</TableCell>
-                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">*text*</code></TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Bold</TableCell>
-                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">**text**</code></TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Heading 1</TableCell>
-                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded"># text</code></TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Heading 2</TableCell>
-                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">## text</code></TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">List</TableCell>
-                      <TableCell>
-                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">- item 1</code>
-                        <br />
-                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">- item 2</code>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Quote</TableCell>
-                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">&gt; text</code></TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Code</TableCell>
-                      <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">`code`</code></TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </>
-          ) : view === 'catalogue' ? (
+          {view === 'catalogue' ? (
             <>
               <DialogHeader>
                 <DialogTitle>Update from catalogue</DialogTitle>
@@ -348,14 +276,7 @@ const LayerDescriptionAttributionDisplay = ({ source, onUpdateMeta, catalogueLoo
                   <div className="space-y-2">
                     <Label htmlFor="layer-description">Description</Label>
                     <p className="text-xs text-muted-foreground">
-                      Description supports basic markdown from GE v3.7 onwards.{' '}
-                      <button
-                        type="button"
-                        className="text-primary hover:text-primary/80 underline cursor-pointer"
-                        onClick={() => setView('help')}
-                      >
-                        Tell me more
-                      </button>
+                      Description supports basic markdown from GE v3.7 onwards. Use the Syntax Guide toggle above the editor for reference.
                     </p>
                     <MarkdownEditor
                       id="layer-description"
