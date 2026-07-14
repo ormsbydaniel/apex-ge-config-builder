@@ -139,31 +139,40 @@ so swapping a URL in one place updates every layer that uses it. See the
 ## `sources[]` — the layer model
 
 Every map layer lives in `sources`. The schema is a discriminated union of
-five variants, distinguished by a few flag fields:
+several variants, distinguished by a few flag fields:
 
 | Variant | Identified by | Required fields |
 |---------|---------------|-----------------|
-| **Base layer** | `isBaseLayer: true` | `meta`, `layout` optional |
+| **Base layer** | `isBaseLayer: true` | `meta`, `layout` optional; may set `preview` (image URL) |
 | **Layer card** | (none of the flags below) | `meta`, `layout` required |
 | **Swipe layer** | `meta.swipeConfig` present, or `isSwipeLayer: true` | `meta`, `layout` required |
+| **Mirror layer** | `isMirrorLayer: true` | `meta`, `layout` required |
+| **Spotlight layer** | `isSpotlightLayer: true` | `meta`, `layout` required |
 | Flexible fallback | — | accepts older configs while migrating |
+
+Only one of `isSwipeLayer`, `isMirrorLayer`, `isSpotlightLayer` may be true
+on a given source, and none of them can be combined with `isBaseLayer`.
 
 Common fields on every variant:
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
+| `id` | string | no | Stable identifier used by storymaps and cross-references. Auto-assigned when missing. |
 | `name` | string | yes | Display name in the layer panel. |
 | `isActive` | boolean | yes | Whether the layer starts toggled on. |
 | `data` | DataSourceItem[] | yes | One or more renderable items (see below). |
 | `statistics` | DataSourceItem[] | no | Companion statistics layers (e.g. NUTS-aggregated FlatGeoBuf). |
-| `constraints` | object[] | no | Interactive constraint sources — see `constraints[]`. |
-| `workflows` | object[] | no | openEO / processing-graph hooks — see `workflows[]`. |
-| `charts` | object[] | no | Inline charts — see `charts[]`. |
+| `constraints` | object[] | no | Interactive constraint sources — see [`constraints[]`](#constraints). |
+| `workflows` | object[] | no | Per-source algorithms — see [`workflows[]`](#workflows). |
+| `charts` | object[] | no | Inline charts — see [`charts[]`](#charts). |
 | `exclusivitySets` | string[] | no | Names from the top-level `exclusivitySets`. |
 | `isBaseLayer` | boolean | no | Marks the variant as a base layer. |
 | `isSwipeLayer` | boolean | no | Marks the layer as a swipe layer. |
+| `isMirrorLayer` | boolean | no | Marks the layer as a mirror-compare layer. |
+| `isSpotlightLayer` | boolean | no | Marks the layer as a spotlight-compare layer. |
 | `timeframe` / `defaultTimestamp` | enum / number | no | Temporal config — see [Time Precision](../layers/index.md). |
 | `hasFeatureStatistics` | boolean | no | Hint for vector-feature stats. |
+
 
 Base layer example:
 
