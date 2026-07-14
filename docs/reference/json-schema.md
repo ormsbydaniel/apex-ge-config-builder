@@ -33,8 +33,15 @@ Every configuration is a single JSON object with this shape:
 | `exclusivitySets` | string[] | yes | Named sets — only one layer per set can be on at a time. |
 | `services` | object[] | no | Reusable endpoint definitions referenced by layers. Defaults to `[]`. |
 | `sources` | object[] | yes | All map layers (base layers, layer cards, swipe / comparison layers). |
+| `workflows` | object[] | no | Top-level algorithms available across the config — see [`workflows[]`](#workflows). |
+| `stories` | object[] | no | Storymaps (guided tours) — see [`stories[]`](#stories). |
 | `mapConstraints` | object | no | Initial zoom, centre, and CRS. |
 | `projections` | object[] | no | Custom proj4 [Coordinate Reference System](../settings/index.md) definitions. |
+
+!!! info "Naming: workflows vs. algorithms"
+    "Workflow" in the JSON (and in code) is the same thing the UI calls
+    an **Algorithm**. The `workflows` key is preserved for backwards
+    compatibility with existing configs.
 
 Skeleton:
 
@@ -47,6 +54,8 @@ Skeleton:
   "exclusivitySets": ["basemaps", "labels"],
   "services": [ … ],
   "sources": [ … ],
+  "workflows": [ … ],
+  "stories": [ … ],
   "mapConstraints": { "zoom": 4, "center": [-0.163, 51.5], "projection": "EPSG:3857" },
   "projections": [ … ]
 }
