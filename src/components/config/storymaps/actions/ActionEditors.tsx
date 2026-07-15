@@ -426,26 +426,6 @@ export const ActiveLayersEditor: React.FC<ActiveLayersEditorProps> = ({
           const option = layerOptions.find((o) => o.id === layer.id);
           const displayName = source?.name ?? option?.name ?? layer.id;
           const isExpanded = expanded.has(i);
-          const availableConstraints: ConstraintSourceItem[] = source?.constraints ?? [];
-          const selectedByLabel = new Map((layer.constraints ?? []).map((c) => [c.label, c]));
-
-          const setConstraints = (next: StoryConstraintSelection[]) =>
-            patch(i, { constraints: next.length > 0 ? next : undefined });
-
-          const toggleConstraint = (def: ConstraintSourceItem, on: boolean) => {
-            const current = layer.constraints ?? [];
-            if (on) {
-              if (selectedByLabel.has(def.label)) return;
-              const next: StoryConstraintSelection = def.type === 'continuous'
-                ? { label: def.label, lower: def.min ?? 0, upper: def.max ?? 0 }
-                : { label: def.label, values: [] };
-              setConstraints([...current, next]);
-            } else {
-              setConstraints(current.filter((c) => c.label !== def.label));
-            }
-          };
-          const updateConstraint = (label: string, next: StoryConstraintSelection) =>
-            setConstraints((layer.constraints ?? []).map((c) => (c.label === label ? next : c)));
 
           return (
             <div key={`${layer.id}-${i}`} className="border rounded-md bg-background">
@@ -508,61 +488,6 @@ export const ActiveLayersEditor: React.FC<ActiveLayersEditorProps> = ({
                         }}
                         placeholder="earliest / latest / ISO / index" />
                     </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-xs">Constraints</Label>
-                    {availableConstraints.length === 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        No constraints defined for this layer.
-                      </p>
-                    )}
-                    {availableConstraints.map((def) => {
-                      const selection = selectedByLabel.get(def.label);
-                      const enabled = !!selection;
-                      return (
-                        <div key={def.label} className="border rounded p-2 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Checkbox id={`c-${i}-${def.label}`}
-                              checked={enabled}
-                              onCheckedChange={(v) => toggleConstraint(def, v === true)} />
-                            <Label htmlFor={`c-${i}-${def.label}`} className="text-sm font-normal cursor-pointer">
-                              {def.label}
-                              <span className="text-muted-foreground ml-1">({def.type})</span>
-                            </Label>
-                          </div>
-                          {enabled && def.type === 'continuous' && (
-                            <div className="grid grid-cols-2 gap-2 pl-6">
-                              <div>
-                                <Label className="text-[11px]">Lower{def.min !== undefined ? ` (min ${def.min})` : ''}</Label>
-                                <Input type="number" value={selection!.lower ?? ''}
-                                  onChange={(e) => updateConstraint(def.label, {
-                                    ...selection!,
-                                    lower: e.target.value === '' ? undefined : Number(e.target.value),
-                                  })} />
-                              </div>
-                              <div>
-                                <Label className="text-[11px]">Upper{def.max !== undefined ? ` (max ${def.max})` : ''}</Label>
-                                <Input type="number" value={selection!.upper ?? ''}
-                                  onChange={(e) => updateConstraint(def.label, {
-                                    ...selection!,
-                                    upper: e.target.value === '' ? undefined : Number(e.target.value),
-                                  })} />
-                              </div>
-                            </div>
-                          )}
-                          {enabled && def.type !== 'continuous' && (
-                            <div className="pl-6">
-                              <CategoricalValuesEditor def={def}
-                                values={selection!.values ?? []}
-                                onChange={(next) => updateConstraint(def.label, {
-                                  ...selection!, values: next,
-                                })} />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
                   </div>
                 </div>
               )}
