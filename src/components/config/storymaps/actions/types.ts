@@ -98,6 +98,8 @@ export const warningsForAction = (
       return [];
     case 'activeLayers':
       return all.filter((w) => w.field?.startsWith('activeLayers'));
+    case 'baseLayer':
+      return [];
     case 'panelState':
       return all.filter((w) => w.field?.startsWith('panelState'));
   }
