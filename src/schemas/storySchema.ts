@@ -122,6 +122,12 @@ export const StoryStepV2Schema = z.object({
   viewport: StoryViewportSchema,
   // Empty arrays are valid — intro / text-only steps may have no active layers.
   activeLayers: z.array(StoryActiveLayerSchema),
+  /**
+   * Optional source `id` of an `isBaseLayer` source. When set, that basemap
+   * becomes the only visible base layer for this step. When omitted, the
+   * current basemap is left unchanged.
+   */
+  baseLayer: z.string().min(1).optional(),
   panelState: StoryPanelStateSchema.optional(),
   autoAdvance: z.number().int().nonnegative().optional(),
 });
