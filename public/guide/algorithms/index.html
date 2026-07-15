@@ -1078,6 +1078,98 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Concepts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-algorithms-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Algorithms tab
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-an-algorithm-from-the-catalogue" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding an algorithm from the catalogue
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding an algorithm from the catalogue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reviewing-catalogue-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reviewing catalogue metadata
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-algorithm-card" class="md-nav__link">
+    <span class="md-ellipsis">
+      The algorithm card
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The algorithm card">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#row-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Row actions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-a-custom-non-catalogue-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring a custom (non-catalogue) algorithm
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#technical-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Technical reference
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1092,7 +1184,147 @@
 
 
 <h1 id="algorithms">Algorithms<a class="headerlink" href="#algorithms" title="Permanent link">&para;</a></h1>
-<p>Documentation coming soon.</p>
+<p>The <strong>Algorithms</strong> tab lets you attach on-demand processing services to a
+Geospatial Explorer configuration. End users can then run these algorithms
+against the map — for example to compute a burned-area index, generate a
+best-available-pixel composite, or detect changes between two Sentinel
+acquisitions — and the resulting outputs appear as regular map layers.</p>
+<div class="admonition info">
+<p class="admonition-title">Viewer requirement</p>
+<p>Algorithm execution is supported in <strong>Geospatial Explorer version 4 and
+above</strong>. Earlier viewer bundles will ignore the <code>workflows</code> block.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Optional tab</p>
+<p>The Algorithms tab is hidden by default. Enable it from the
+<strong>cog icon → Config Builder settings → Show algorithms tab</strong>.</p>
+</div>
+<h2 id="concepts">Concepts<a class="headerlink" href="#concepts" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Algorithm</strong> — a reference to a remote processing service (an openEO
+  User-Defined Process, or an OGC API Processes job). Internally the config
+  key is <code>workflows</code>, but the UI uses "Algorithm" throughout.</li>
+<li><strong>APEx Algorithm Catalogue</strong> — a curated list of algorithms published from
+  the <a href="https://github.com/ESA-APEx/apex_algorithms"><code>ESA-APEx/apex_algorithms</code></a>
+  repository. The builder fetches it on demand so you can add algorithms
+  without hand-writing service IDs, endpoints, or descriptions.</li>
+<li><strong>Service provider</strong> — the backend that hosts the algorithm (for example
+  <code>vito</code>, <code>developmentseed</code>, <code>terradue</code>, <code>dlr</code>, <code>gisat</code>).</li>
+<li><strong>Type</strong> — either <code>openEO UDP</code> (User-Defined Process) or <code>OGC Processes</code>.</li>
+</ul>
+<h2 id="the-algorithms-tab">The Algorithms tab<a class="headerlink" href="#the-algorithms-tab" title="Permanent link">&para;</a></h2>
+<p>Open the tab from the main navigation. Each row is one algorithm attached to
+the current configuration.</p>
+<p><img alt="Algorithms tab with no algorithms yet" src="../assets/screenshots/algorithms-tab-empty.png" /></p>
+<p>Use <strong>Add Algorithm</strong> (top-right or in the empty-state card) to start.</p>
+<h2 id="adding-an-algorithm-from-the-catalogue">Adding an algorithm from the catalogue<a class="headerlink" href="#adding-an-algorithm-from-the-catalogue" title="Permanent link">&para;</a></h2>
+<p>The <strong>APEx Algorithm Catalogue</strong> dialog lists every algorithm published in the
+APEx repository. You can search by name, provider, or description, and sort by
+any column.</p>
+<p><img alt="APEx algorithm catalogue browser" src="../assets/screenshots/algorithms-catalogue.png" /></p>
+<ul>
+<li>Click a row to select it, then <strong>Use selected algorithm</strong> — or
+  double-click a row to add it directly.</li>
+<li>The <strong>document icon</strong> on the right of each row opens the raw <code>record.json</code>
+  for that algorithm, useful when you need to inspect the underlying openEO
+  or OGC definition.</li>
+<li><strong>Skip — create blank</strong> bypasses the catalogue if you want to configure a
+  private or in-house algorithm by hand.</li>
+</ul>
+<h3 id="reviewing-catalogue-metadata">Reviewing catalogue metadata<a class="headerlink" href="#reviewing-catalogue-metadata" title="Permanent link">&para;</a></h3>
+<p>After selecting a catalogue entry, a <strong>Review workflow</strong> dialog shows what
+will be copied into your config.</p>
+<p><img alt="Review dialog with catalogue metadata" src="../assets/screenshots/algorithms-review-dialog.png" /></p>
+<p>Toggle the three checkboxes to control which optional metadata is imported:</p>
+<ul>
+<li><strong>Copy description</strong> — long-form description shown in the layer card.</li>
+<li><strong>Copy attribution</strong> — provider name shown as the attribution label.</li>
+<li><strong>Copy attribution URL</strong> — link target for the attribution label.</li>
+</ul>
+<p>Service ID, provider, endpoint, namespace, and application are always copied
+because they identify the remote service. Click <strong>Add algorithm</strong> to commit.</p>
+<h2 id="the-algorithm-card">The algorithm card<a class="headerlink" href="#the-algorithm-card" title="Permanent link">&para;</a></h2>
+<p>Once added, each algorithm renders as a card. Click the chevron to expand it
+and reveal its configuration sections.</p>
+<p><img alt="Expanded algorithm card" src="../assets/screenshots/algorithms-card-expanded.png" /></p>
+<ul>
+<li><strong>Execution Details</strong> — service title, service ID, and provider. Edit with
+  the pencil icon to change endpoint, namespace, or application.</li>
+<li><strong>Description &amp; Attribution</strong> — free-form description and attribution text /
+  URL shown to end users in the layer card.</li>
+<li><strong>Data Visualisation</strong> — how the algorithm's output is styled on the map.
+  These options mirror the styling controls on regular layers:
+  <a href="../layers/categories.html">Categories</a>, <a href="../layers/colormaps.html">Colormaps</a>,
+  <a href="../layers/rgb-composite.html">RGB composites</a>, Gradient, and
+  <a href="../layers/vector-styling.html">Vector styling</a>. Only one is applied at a
+  time — see <a href="../layers/data-visualisation.html">Data visualisation</a> for the
+  mutual-exclusivity rules.</li>
+<li><strong>Units and Legend</strong> — units suffix and legend behaviour for the output
+  layer.</li>
+<li><strong>Controls</strong> — user-adjustable controls (for example opacity or thresholds)
+  exposed in the viewer.</li>
+</ul>
+<h3 id="row-actions">Row actions<a class="headerlink" href="#row-actions" title="Permanent link">&para;</a></h3>
+<p>The button cluster at the right of each row provides:</p>
+<ul>
+<li><strong>Edit</strong> — reopens the algorithm form with all fields editable.</li>
+<li><strong>Edit JSON</strong> — direct JSON editor for the workflow entry, useful for
+  advanced fields not exposed in the form.</li>
+<li><strong>Duplicate</strong> — clones the algorithm (its <code>serviceId</code> is suffixed with
+  <code>_copy</code>).</li>
+<li><strong>Delete</strong> — removes the algorithm from the configuration.</li>
+<li><strong>Up / Down arrows</strong> — reorder algorithms; drag the handle on the left for
+  free-form ordering.</li>
+</ul>
+<h2 id="configuring-a-custom-non-catalogue-algorithm">Configuring a custom (non-catalogue) algorithm<a class="headerlink" href="#configuring-a-custom-non-catalogue-algorithm" title="Permanent link">&para;</a></h2>
+<p>Choose <strong>Skip — create blank</strong> from the catalogue dialog to open the form
+directly. The required fields are:</p>
+<ul>
+<li><strong>Service title</strong> <em>(optional)</em> — human-readable label shown in the UI.</li>
+<li><strong>Service ID</strong> <em>(required)</em> — unique identifier the viewer sends to the
+  backend.</li>
+<li><strong>Service provider</strong> — pick an existing provider from your Services tab or
+  enter a custom string.</li>
+<li><strong>Additional service details — EO Application Packages</strong> — for OGC API
+  Processes / EOAP-style services, provide:<ul>
+<li><strong>Endpoint</strong> — the processing service base URL.</li>
+<li><strong>Namespace</strong> — application namespace.</li>
+<li><strong>Application</strong> — application ID.</li>
+</ul>
+</li>
+</ul>
+<p>For openEO UDP algorithms only the service ID and provider are typically
+required; the provider's registered openEO endpoint is used automatically.</p>
+<h2 id="technical-reference">Technical reference<a class="headerlink" href="#technical-reference" title="Permanent link">&para;</a></h2>
+<p>Algorithms are persisted under the top-level <code>workflows</code> array. A minimal
+entry looks like this:</p>
+<p><code>json
+{
+  "workflows": [
+    {
+      "serviceId": "urban_areas",
+      "serviceProvider": "developmentseed",
+      "serviceTitle": "Algorithm to Visualize Urban Areas and Buildings",
+      "meta": {
+        "description": "Visualizes urban areas and individual buildings …",
+        "attribution": {
+          "text": "developmentseed",
+          "url": "https://developmentseed.org"
+        }
+      },
+      "layout": { "layerCard": {} }
+    }
+  ]
+}</code></p>
+<p>For OGC Processes entries, add a <code>serviceDetails</code> block:</p>
+<p><code>json
+"serviceDetails": {
+  "endpoint": "https://ogc-api.example.org",
+  "namespace": "burned-area",
+  "application": "bas-analysis"
+}</code></p>
+<p>See the <a href="../reference/json-schema.html">JSON schema reference</a> for the full
+list of supported fields on each workflow entry.</p>
 
 
 
