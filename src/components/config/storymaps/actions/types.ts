@@ -11,6 +11,7 @@ export type ActionKind =
   | 'navigation'
   | 'activeLayers'
   | 'baseLayer'
+  | 'constraints'
   | 'panelState';
 
 export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels';
@@ -46,6 +47,13 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
     description: 'Choose which base map is visible for this step.',
     singleton: true,
   },
+  constraints: {
+    kind: 'constraints',
+    category: 'Layer display',
+    label: 'Apply constraints',
+    description: "Apply data constraints (ranges, category filters) to the step's active layers.",
+    singleton: true,
+  },
   panelState: {
     kind: 'panelState',
     category: 'Panels',
@@ -78,6 +86,8 @@ export const hasKind = (step: StoryStep, kind: ActionKind): boolean => {
       return (step.activeLayers?.length ?? 0) > 0;
     case 'baseLayer':
       return !!step.baseLayer;
+    case 'constraints':
+      return (step.activeLayers ?? []).some((l) => (l.constraints?.length ?? 0) > 0);
     case 'panelState':
       return !!step.panelState && (
         !!step.panelState.focusLayer ||
@@ -97,9 +107,11 @@ export const warningsForAction = (
     case 'navigation':
       return [];
     case 'activeLayers':
-      return all.filter((w) => w.field?.startsWith('activeLayers'));
+      return all.filter((w) => w.field?.startsWith('activeLayers') && !w.field?.includes('constraints'));
     case 'baseLayer':
       return [];
+    case 'constraints':
+      return all.filter((w) => w.field?.startsWith('activeLayers') && w.field?.includes('constraints'));
     case 'panelState':
       return all.filter((w) => w.field?.startsWith('panelState'));
   }

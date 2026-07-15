@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
-  AlertTriangle, Film, Map as MapIcon,
+  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,7 @@ import {
   ACTION_META, CATEGORY_ORDER, hasKind, warningsForAction,
   type ActionKind, type ActionCategory,
 } from './types';
-import { NavigationEditor, ActiveLayersEditor, PanelStateEditor, BaseLayerEditor } from './ActionEditors';
+import { NavigationEditor, ActiveLayersEditor, PanelStateEditor, BaseLayerEditor, ConstraintsEditor } from './ActionEditors';
 
 // -----------------------------------------------------------------------------
 // Pill helper
@@ -48,6 +48,7 @@ const ACTION_ICON: Record<ActionKind, React.ReactNode> = {
   navigation: <Compass className="h-4 w-4" />,
   activeLayers: <LayersIcon className="h-4 w-4" />,
   baseLayer: <MapIcon className="h-4 w-4" />,
+  constraints: <SlidersHorizontal className="h-4 w-4" />,
   panelState: <PanelRightOpen className="h-4 w-4" />,
 };
 
@@ -131,7 +132,7 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
     allowedKinds ? kinds.filter((k) => allowedKinds.includes(k)) : kinds;
   const byCategory: Record<ActionCategory, ActionKind[]> = {
     'Navigation': filter(['navigation']),
-    'Layer display': filter(['activeLayers', 'baseLayer']),
+    'Layer display': filter(['activeLayers', 'constraints', 'baseLayer']),
     'Panels': filter(['panelState']),
   };
 
@@ -202,6 +203,7 @@ type OpenEditor =
   | { kind: 'navigation' }
   | { kind: 'activeLayers' }
   | { kind: 'baseLayer' }
+  | { kind: 'constraints' }
   | { kind: 'panelState' }
   | null;
 
@@ -238,6 +240,14 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         break;
       case 'baseLayer':
         patch({ baseLayer: undefined });
+        break;
+      case 'constraints':
+        patch({
+          activeLayers: (step.activeLayers ?? []).map((l) => {
+            const { constraints: _c, ...rest } = l;
+            return rest;
+          }),
+        });
         break;
       case 'panelState':
         patch({ panelState: undefined });
@@ -294,6 +304,30 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'activeLayers'),
       onEdit: () => setOpenEditor({ kind: 'activeLayers' }),
       onRemove: () => removeAction('activeLayers'),
+    });
+  }
+
+  // Constraints (aggregated view over activeLayers[*].constraints)
+  if (hasKind(step, 'constraints') && isAllowed('constraints')) {
+    const active = step.activeLayers ?? [];
+    const chunks = active
+      .filter((l) => (l.constraints?.length ?? 0) > 0)
+      .map((l) => {
+        const labels = (l.constraints ?? []).map((c) => c.label || 'unnamed').join(', ');
+        return `${l.id}: ${labels}`;
+      });
+    const total = active.reduce((n, l) => n + (l.constraints?.length ?? 0), 0);
+    const shown = chunks.slice(0, 4).join(' · ');
+    const summary = chunks.length > 4 ? `${shown} · +${chunks.length - 4} more` : shown;
+    items.push({
+      key: 'constraints',
+      kind: 'constraints',
+      title: 'Constraints',
+      summary,
+      pills: <Pill icon={<SlidersHorizontal className="h-3 w-3" />}>{total} constraint{total === 1 ? '' : 's'}</Pill>,
+      warnings: warningsForAction(warnings, 'constraints'),
+      onEdit: () => setOpenEditor({ kind: 'constraints' }),
+      onRemove: () => removeAction('constraints'),
     });
   }
 
@@ -412,6 +446,13 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         step={step}
         sources={sources}
         onSave={(baseLayer: string | undefined) => patch({ baseLayer })}
+      />
+      <ConstraintsEditor
+        open={openEditor?.kind === 'constraints'}
+        onOpenChange={(o) => !o && setOpenEditor(null)}
+        step={step}
+        sources={sources}
+        onSave={(activeLayers: StoryActiveLayer[]) => patch({ activeLayers })}
       />
       <PanelStateEditor
         open={openEditor?.kind === 'panelState'}

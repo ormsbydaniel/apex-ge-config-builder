@@ -130,7 +130,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         sources={sources}
         warnings={warnings}
         onChange={onSave}
-        allowedKinds={['activeLayers', 'baseLayer']}
+        allowedKinds={['activeLayers', 'baseLayer', 'constraints']}
         title="Active layers"
         headerIcon={<LayersIcon className="h-4 w-4 text-muted-foreground" />}
         addLabel="Layer settings"
