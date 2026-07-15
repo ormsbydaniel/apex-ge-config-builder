@@ -577,9 +577,7 @@ export const ActiveLayersEditor: React.FC<ActiveLayersEditorProps> = ({
           <Select value="" onValueChange={(v) => addLayer(v)}>
             <SelectTrigger><SelectValue placeholder="Pick a layer to add" /></SelectTrigger>
             <SelectContent>
-              {availableToAdd.map((o) => (
-                <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>
-              ))}
+              <GroupedLayerItems options={availableToAdd} />
             </SelectContent>
           </Select>
         </div>
