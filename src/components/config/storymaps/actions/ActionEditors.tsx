@@ -624,6 +624,162 @@ const CategoricalValuesEditor: React.FC<CategoricalValuesEditorProps> = ({
 };
 
 // -----------------------------------------------------------------------------
+// Constraints editor — edits constraints across all active layers
+// -----------------------------------------------------------------------------
+
+interface ConstraintsEditorProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  step: StoryStep;
+  sources: DataSource[];
+  onSave: (active: StoryActiveLayer[]) => void;
+}
+
+export const ConstraintsEditor: React.FC<ConstraintsEditorProps> = ({
+  open, onOpenChange, step, sources, onSave,
+}) => {
+  const [layers, setLayers] = useState<StoryActiveLayer[]>(step.activeLayers ?? []);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (!open) return;
+    const initial = step.activeLayers ?? [];
+    setLayers(initial);
+    // Expand every layer that already has constraints; otherwise expand all so
+    // the user can immediately add some.
+    const withConstraints = initial
+      .map((l, i) => ((l.constraints?.length ?? 0) > 0 ? i : -1))
+      .filter((i) => i >= 0);
+    setExpanded(new Set(withConstraints.length > 0 ? withConstraints : initial.map((_, i) => i)));
+  }, [open, step]);
+
+  const patch = (i: number, p: Partial<StoryActiveLayer>) =>
+    setLayers((prev) => prev.map((l, idx) => (idx === i ? { ...l, ...p } : l)));
+
+  const toggleExpanded = (i: number) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
+
+  const save = () => { onSave(layers); onOpenChange(false); };
+
+  const canSave = layers.length > 0;
+
+  return (
+    <ActionModal open={open} onOpenChange={onOpenChange} title="Apply constraints" onSave={save} canSave={canSave} wide>
+      {layers.length === 0 ? (
+        <p className="text-xs text-muted-foreground italic">
+          No active layers on this step. Add layers under "Active layers" first, then return here to apply constraints.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {layers.map((layer, i) => {
+            const source = findSource(sources, layer.id);
+            const displayName = source?.name ?? layer.id;
+            const isExpanded = expanded.has(i);
+            const availableConstraints: ConstraintSourceItem[] = source?.constraints ?? [];
+            const selectedByLabel = new Map((layer.constraints ?? []).map((c) => [c.label, c]));
+
+            const setConstraints = (next: StoryConstraintSelection[]) =>
+              patch(i, { constraints: next.length > 0 ? next : undefined });
+
+            const toggleConstraint = (def: ConstraintSourceItem, on: boolean) => {
+              const current = layer.constraints ?? [];
+              if (on) {
+                if (selectedByLabel.has(def.label)) return;
+                const next: StoryConstraintSelection = def.type === 'continuous'
+                  ? { label: def.label, lower: def.min ?? 0, upper: def.max ?? 0 }
+                  : { label: def.label, values: [] };
+                setConstraints([...current, next]);
+              } else {
+                setConstraints(current.filter((c) => c.label !== def.label));
+              }
+            };
+            const updateConstraint = (label: string, next: StoryConstraintSelection) =>
+              setConstraints((layer.constraints ?? []).map((c) => (c.label === label ? next : c)));
+
+            return (
+              <div key={`${layer.id}-${i}`} className="border rounded-md bg-background">
+                <div className="flex items-center gap-2 px-2 py-1.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(i)}
+                    className="p-0.5 text-muted-foreground hover:text-foreground"
+                  >
+                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  </button>
+                  <span className="text-sm font-medium flex-1 min-w-0 truncate">{displayName}</span>
+                  {(layer.constraints?.length ?? 0) > 0 && (
+                    <span className="text-[11px] text-muted-foreground">{layer.constraints!.length}c</span>
+                  )}
+                </div>
+                {isExpanded && (
+                  <div className="border-t px-3 py-2 space-y-2">
+                    {availableConstraints.length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        No constraints defined for this layer.
+                      </p>
+                    )}
+                    {availableConstraints.map((def) => {
+                      const selection = selectedByLabel.get(def.label);
+                      const enabled = !!selection;
+                      return (
+                        <div key={def.label} className="border rounded p-2 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Checkbox id={`cc-${i}-${def.label}`}
+                              checked={enabled}
+                              onCheckedChange={(v) => toggleConstraint(def, v === true)} />
+                            <Label htmlFor={`cc-${i}-${def.label}`} className="text-sm font-normal cursor-pointer">
+                              {def.label}
+                              <span className="text-muted-foreground ml-1">({def.type})</span>
+                            </Label>
+                          </div>
+                          {enabled && def.type === 'continuous' && (
+                            <div className="grid grid-cols-2 gap-2 pl-6">
+                              <div>
+                                <Label className="text-[11px]">Lower{def.min !== undefined ? ` (min ${def.min})` : ''}</Label>
+                                <Input type="number" value={selection!.lower ?? ''}
+                                  onChange={(e) => updateConstraint(def.label, {
+                                    ...selection!,
+                                    lower: e.target.value === '' ? undefined : Number(e.target.value),
+                                  })} />
+                              </div>
+                              <div>
+                                <Label className="text-[11px]">Upper{def.max !== undefined ? ` (max ${def.max})` : ''}</Label>
+                                <Input type="number" value={selection!.upper ?? ''}
+                                  onChange={(e) => updateConstraint(def.label, {
+                                    ...selection!,
+                                    upper: e.target.value === '' ? undefined : Number(e.target.value),
+                                  })} />
+                              </div>
+                            </div>
+                          )}
+                          {enabled && def.type !== 'continuous' && (
+                            <div className="pl-6">
+                              <CategoricalValuesEditor def={def}
+                                values={selection!.values ?? []}
+                                onChange={(next) => updateConstraint(def.label, {
+                                  ...selection!, values: next,
+                                })} />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </ActionModal>
+  );
+};
+
+
 // Panel state editor — focus layer + controls + tab
 // -----------------------------------------------------------------------------
 
