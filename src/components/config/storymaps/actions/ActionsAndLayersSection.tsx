@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
-  AlertTriangle, Film,
+  AlertTriangle, Film, Map as MapIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,7 @@ import {
   ACTION_META, CATEGORY_ORDER, hasKind, warningsForAction,
   type ActionKind, type ActionCategory,
 } from './types';
-import { NavigationEditor, ActiveLayersEditor, PanelStateEditor } from './ActionEditors';
+import { NavigationEditor, ActiveLayersEditor, PanelStateEditor, BaseLayerEditor } from './ActionEditors';
 
 // -----------------------------------------------------------------------------
 // Pill helper
