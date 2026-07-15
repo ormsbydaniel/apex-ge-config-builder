@@ -106,7 +106,7 @@ const GroupedLayerItems: React.FC<{ options: LayerOption[] }> = ({ options }) =>
         const groupLabel = bucket.group || 'Ungrouped';
         return (
           <SelectGroup key={`g-${gi}-${bucket.group}`}>
-            <SelectLabel className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <SelectLabel className="pl-2 text-[11px] uppercase tracking-wide text-muted-foreground">
               {groupLabel}
             </SelectLabel>
             {bucket.directLayers.map((o) => (
