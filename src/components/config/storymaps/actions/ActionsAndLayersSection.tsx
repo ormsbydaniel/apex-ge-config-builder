@@ -47,6 +47,7 @@ const Pill: React.FC<{
 const ACTION_ICON: Record<ActionKind, React.ReactNode> = {
   navigation: <Compass className="h-4 w-4" />,
   activeLayers: <LayersIcon className="h-4 w-4" />,
+  baseLayer: <MapIcon className="h-4 w-4" />,
   panelState: <PanelRightOpen className="h-4 w-4" />,
 };
 
