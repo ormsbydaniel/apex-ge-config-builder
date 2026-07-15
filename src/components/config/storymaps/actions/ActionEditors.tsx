@@ -813,7 +813,7 @@ export const BaseLayerEditor: React.FC<BaseLayerEditorProps> = ({
             <Select value={selected} onValueChange={setSelected}>
               <SelectTrigger><SelectValue placeholder="Pick a base map" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="__none__">None (leave unchanged)</SelectItem>
+                <SelectItem value="__none__">Default</SelectItem>
                 {baseSources.map((s) => (
                   <SelectItem key={s.id} value={s.id}>{s.name || s.id}</SelectItem>
                 ))}
