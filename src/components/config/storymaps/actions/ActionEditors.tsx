@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Plus, X, Trash2, ChevronDown, ChevronRight, Crosshair, MoveUp, MoveDown } from 'lucide-react';
 import MapCentrePickerDialog from '@/components/config/MapCentrePickerDialog';
