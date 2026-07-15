@@ -10,6 +10,7 @@ import type { StoryWarning } from '@/utils/storyValidation';
 export type ActionKind =
   | 'navigation'
   | 'activeLayers'
+  | 'baseLayer'
   | 'panelState';
 
 export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels';
