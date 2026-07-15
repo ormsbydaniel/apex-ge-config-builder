@@ -307,6 +307,30 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     });
   }
 
+  // Constraints (aggregated view over activeLayers[*].constraints)
+  if (hasKind(step, 'constraints') && isAllowed('constraints')) {
+    const active = step.activeLayers ?? [];
+    const chunks = active
+      .filter((l) => (l.constraints?.length ?? 0) > 0)
+      .map((l) => {
+        const labels = (l.constraints ?? []).map((c) => c.label || 'unnamed').join(', ');
+        return `${l.id}: ${labels}`;
+      });
+    const total = active.reduce((n, l) => n + (l.constraints?.length ?? 0), 0);
+    const shown = chunks.slice(0, 4).join(' · ');
+    const summary = chunks.length > 4 ? `${shown} · +${chunks.length - 4} more` : shown;
+    items.push({
+      key: 'constraints',
+      kind: 'constraints',
+      title: 'Constraints',
+      summary,
+      pills: <Pill icon={<SlidersHorizontal className="h-3 w-3" />}>{total} constraint{total === 1 ? '' : 's'}</Pill>,
+      warnings: warningsForAction(warnings, 'constraints'),
+      onEdit: () => setOpenEditor({ kind: 'constraints' }),
+      onRemove: () => removeAction('constraints'),
+    });
+  }
+
   // Base map
   if (hasKind(step, 'baseLayer') && isAllowed('baseLayer')) {
     const bl = step.baseLayer!;
@@ -422,6 +446,13 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         step={step}
         sources={sources}
         onSave={(baseLayer: string | undefined) => patch({ baseLayer })}
+      />
+      <ConstraintsEditor
+        open={openEditor?.kind === 'constraints'}
+        onOpenChange={(o) => !o && setOpenEditor(null)}
+        step={step}
+        sources={sources}
+        onSave={(activeLayers: StoryActiveLayer[]) => patch({ activeLayers })}
       />
       <PanelStateEditor
         open={openEditor?.kind === 'panelState'}
