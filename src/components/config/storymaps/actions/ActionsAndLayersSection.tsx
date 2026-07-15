@@ -201,6 +201,7 @@ interface Props {
 type OpenEditor =
   | { kind: 'navigation' }
   | { kind: 'activeLayers' }
+  | { kind: 'baseLayer' }
   | { kind: 'panelState' }
   | null;
 
@@ -212,7 +213,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
   const isAllowed = (k: ActionKind) => !allowedKinds || allowedKinds.includes(k);
 
+  // Overlay (non-base) layer options are used for Active layers, Navigation
+  // "fit to layer" and Panel focus. Base map picker uses raw `sources`.
   const layerOptions = sources
+    .filter((s) => !s.isBaseLayer)
     .map((s) => ({
       id: s.id,
       name: s.name,
@@ -222,7 +226,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     .filter((o) => !!o.id);
   const patch = (p: Partial<StoryStep>) => onChange({ ...step, ...p });
 
-  const handlePick = (kind: ActionKind) => setOpenEditor({ kind });
+  const handlePick = (kind: ActionKind) => setOpenEditor({ kind } as OpenEditor);
 
   const removeAction = (kind: ActionKind) => {
     switch (kind) {
@@ -231,6 +235,9 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         break;
       case 'activeLayers':
         patch({ activeLayers: [] });
+        break;
+      case 'baseLayer':
+        patch({ baseLayer: undefined });
         break;
       case 'panelState':
         patch({ panelState: undefined });
