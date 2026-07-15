@@ -297,6 +297,21 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     });
   }
 
+  // Base map
+  if (hasKind(step, 'baseLayer') && isAllowed('baseLayer')) {
+    const bl = step.baseLayer!;
+    const src = sources.find((s) => s.id === bl);
+    const name = src?.name ?? bl;
+    items.push({
+      key: 'baseLayer',
+      kind: 'baseLayer',
+      title: 'Base map',
+      summary: src ? name : <><em>{bl}</em> (unknown)</>,
+      warnings: warningsForAction(warnings, 'baseLayer'),
+      onEdit: () => setOpenEditor({ kind: 'baseLayer' }),
+      onRemove: () => removeAction('baseLayer'),
+    });
+
   // Panel state
   if (hasKind(step, 'panelState') && isAllowed('panelState')) {
     const ps = step.panelState!;
