@@ -1,55 +1,44 @@
 ## Goal
-Give every markdown editor in the app the same three-mode toggle — **Edit | Syntax Guide | Preview** — with the syntax guide built in (including image references), then refresh MkDocs screenshots that show a markdown editor.
 
-## Changes
+In the storymap step editor dialogs that pick layers, group the dropdown options by interface group and sub-group so users can see each layer's placement in the app hierarchy.
 
-### 1. `src/components/common/MarkdownEditor.tsx`
-Extend the local `mode` state to `'edit' | 'guide' | 'preview'` and add a third toggle button ("Syntax Guide", using a `BookOpen` or `HelpCircle` icon).
+## Scope
 
-When `mode === 'guide'`, render a reference panel styled like the preview container (same border/padding, scrollable) containing a compact table adapted from `LayerDescriptionAttributionDisplay`:
+Three pickers in `src/components/config/storymaps/actions/ActionEditors.tsx`, all fed by the `layerOptions` array (already carries `interfaceGroup` and `subinterfaceGroup` from `ActionsAndLayersSection.tsx`):
 
-| Feature | Syntax |
-|---|---|
-| Hyperlink | `[text](https://url/)` |
-| Image | `![alt text](https://url/image.png)` |
-| Italics | `*text*` |
-| Bold | `**text**` |
-| Heading 1 / 2 | `# text` / `## text` |
-| List | `- item` |
-| Quote | `> text` |
-| Code | `` `code` `` |
+1. **NavigationEditor** — "Fit to layer" Select (~line 234)
+2. **ActiveLayersEditor** — "Add layer" Select (~line 506)
+3. **PanelStateEditor** — "Focus layer" Select (~line 635, limited to currently-active layers)
 
-Include a short note above the table explaining that images must be referenced by absolute URL (the editor does not upload local files) and that alt text is required for accessibility.
+## Approach
 
-The guide view does not mutate `value`; switching modes is free.
+- Add a small helper (co-located in `ActionEditors.tsx`) that takes `LayerOption[]` and returns a grouped structure:
+  ```
+  [{ group: 'Soils', subGroups: [
+      { name: null, layers: [...] },     // layers directly under the group
+      { name: 'Greece', layers: [...] }, // layers under a sub-group
+    ]},
+    ...,
+    { group: '__ungrouped__', subGroups: [{ name: null, layers: [...] }] } // layers with no interface group
+  ]
+  ```
+  Preserve the incoming layer order within each bucket (matches the current flat order used elsewhere).
 
-### 2. `src/components/layers/components/LayerDescriptionAttributionDisplay.tsx`
-Now that the syntax guide lives inside the editor, simplify this dialog:
-- Remove the `'help'` branch of the `view` state and the associated Markdown Reference panel (lines ~176–239).
-- Remove the "Tell me more" button and the helper sentence around it (lines ~350–359). The `MarkdownEditor` itself now exposes the guide.
-- Keep the `'catalogue'` and `'main'` views untouched.
+- Replace each of the three `<SelectContent>` bodies with a rendering that uses shadcn's `SelectGroup` + `SelectLabel` for the interface group, and a nested indented `SelectLabel` for each sub-group. Layer `SelectItem`s under a sub-group get a small left padding (e.g. `pl-6`) so the tree is visible; layers directly under a group use the normal padding. Ungrouped layers render under a muted "Ungrouped" label.
 
-### 3. Other consumers
-`StepEditor.tsx` and `StoryFormDialog.tsx` already use `MarkdownEditor`; they inherit the new three-mode toggle automatically. No further changes needed.
+- Keep the trigger unchanged — still shows just the layer name (via existing `optionLabel`). No changes to selected values, IDs, or persisted data.
 
-### 4. Documentation screenshots
-Screenshots that currently show a markdown editor with only Edit/Preview need refreshing so the guide reflects the new UI. Candidates:
-- `layer-card-edit-top.png` — layer edit dialog (if the description field is visible).
-- Any storymap step/story screenshots that include the markdown editor. (None currently in `docs/assets/screenshots/`; skip if absent.)
-
-Process for each stale shot:
-1. Drive Playwright against `http://localhost:8080`, open the relevant dialog, and capture the region showing the editor with the new three-button toggle.
-2. Save via `scripts/add-screenshot.sh <tmp-path> <existing-kebab-name>` so both `docs/assets/screenshots/` and `public/guide/assets/screenshots/` are updated (per `mem://documentation/screenshot-conventions`).
-3. Rebuild MkDocs into `public/guide/` so the in-app guide picks up the new assets.
-
-No markdown copy changes are required unless a page explicitly describes the old Edit/Preview toggle (a quick grep confirmed none do).
-
-### 5. Verification
-- Open a layer description dialog: confirm three buttons appear, guide renders the image row, previewing still works, "Tell me more" is gone.
-- Open a storymap step description: confirm the same three-mode toggle.
-- Typecheck/build runs automatically.
+- PanelStateEditor's focus dropdown keeps its `None` item at the top, then renders the grouped active layers below using the same helper (filtered list is passed in).
 
 ## Out of scope
-- No schema, type, or persistence changes.
-- No behavioural change to preview rendering or markdown pipeline.
-- No new MkDocs pages — only refreshed screenshots.
+
+- No change to what data is stored on the step.
+- No change to `ActionsAndLayersSection.tsx` beyond what it already provides (it already passes `interfaceGroup` / `subinterfaceGroup` on each option — verified).
+- No change to non-storymap layer pickers.
+
+## Technical notes
+
+- `Select` from `@/components/ui/select` supports `SelectGroup` and `SelectLabel` (shadcn/Radix). Use them for headings; they are non-selectable, matching the "tree" reading without breaking keyboard nav.
+- Indentation via Tailwind classes on `SelectItem` (`pl-6` for sub-group children, `pl-4` for group-only children). Group and sub-group labels use `text-xs uppercase text-muted-foreground` / a slightly lighter variant to distinguish levels.
+- Sub-group ordering: alphabetical within a group (matches `useGroupPlacementOptions` convention).
+- Interface-group ordering: order of first appearance in `layerOptions` (which itself reflects the config's source order), so the picker mirrors the Layers tab.
