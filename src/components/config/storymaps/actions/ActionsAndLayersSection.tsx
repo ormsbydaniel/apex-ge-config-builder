@@ -311,6 +311,8 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       onEdit: () => setOpenEditor({ kind: 'baseLayer' }),
       onRemove: () => removeAction('baseLayer'),
     });
+  }
+
 
   // Panel state
   if (hasKind(step, 'panelState') && isAllowed('panelState')) {
