@@ -39,6 +39,13 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
     description: 'Choose which layers are visible and configure opacity, blend, date and constraints per layer.',
     singleton: true,
   },
+  baseLayer: {
+    kind: 'baseLayer',
+    category: 'Layer display',
+    label: 'Base map',
+    description: 'Choose which base map is visible for this step.',
+    singleton: true,
+  },
   panelState: {
     kind: 'panelState',
     category: 'Panels',
