@@ -132,7 +132,7 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
     allowedKinds ? kinds.filter((k) => allowedKinds.includes(k)) : kinds;
   const byCategory: Record<ActionCategory, ActionKind[]> = {
     'Navigation': filter(['navigation']),
-    'Layer display': filter(['activeLayers', 'constraints', 'baseLayer']),
+    'Layer display': filter(['baseLayer', 'activeLayers', 'constraints']),
     'Panels': filter(['panelState']),
   };
 
