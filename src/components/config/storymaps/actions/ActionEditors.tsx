@@ -28,6 +28,7 @@ import type {
   ConstraintSourceItem,
 } from '@/types/config';
 import { VALID_TAB_IDS } from './types';
+import { cn } from '@/lib/utils';
 
 // -----------------------------------------------------------------------------
 // helpers
