@@ -406,6 +406,13 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         layerOptions={layerOptions}
         onSave={(activeLayers: StoryActiveLayer[]) => patch({ activeLayers })}
       />
+      <BaseLayerEditor
+        open={openEditor?.kind === 'baseLayer'}
+        onOpenChange={(o) => !o && setOpenEditor(null)}
+        step={step}
+        sources={sources}
+        onSave={(baseLayer: string | undefined) => patch({ baseLayer })}
+      />
       <PanelStateEditor
         open={openEditor?.kind === 'panelState'}
         onOpenChange={(o) => !o && setOpenEditor(null)}
@@ -413,6 +420,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         layerOptions={layerOptions}
         onSave={(panelState: StoryPanelState | undefined) => patch({ panelState })}
       />
+
     </section>
   );
 };
