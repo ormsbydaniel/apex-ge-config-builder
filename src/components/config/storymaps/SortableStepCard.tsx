@@ -18,6 +18,7 @@ import {
   Check,
   X,
   FileJson,
+  Map as MapIcon,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -319,6 +320,21 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
 
             <div className="flex items-center gap-2 flex-shrink-0">
               {viewportBadge(step.viewport)}
+              {step.baseLayer && (() => {
+                const bl = sources.find((s) => s.id === step.baseLayer);
+                const name = bl?.name ?? step.baseLayer;
+                return (
+                  <TipPill
+                    icon={<MapIcon className="h-3 w-3" />}
+                    label={<>Base: {name}</>}
+                    tooltip={
+                      bl
+                        ? <>Base map: <strong>{name}</strong></>
+                        : <>Base map <strong>{step.baseLayer}</strong> (unknown)</>
+                    }
+                  />
+                );
+              })()}
               {activeCount > 0 && (
                 <TipPill
                   icon={<LayersIcon className="h-3 w-3" />}
