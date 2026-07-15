@@ -1,27 +1,24 @@
 import React, { useState } from 'react';
 import {
-  Compass, Crosshair, Layers as LayersIcon, Target, SlidersHorizontal,
-  PanelRightOpen, Pencil, Trash2, Plus, AlertTriangle, Film,
+  Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
+  AlertTriangle, Film,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { DataSource, StoryStep, StoryStepControl } from '@/types/config';
+import type { DataSource, StoryStep, StoryActiveLayer, StoryPanelState, StoryViewport } from '@/types/config';
 import type { StoryWarning } from '@/utils/storyValidation';
 import { cn } from '@/lib/utils';
 import {
   ACTION_META, CATEGORY_ORDER, hasKind, warningsForAction,
   type ActionKind, type ActionCategory,
 } from './types';
-import {
-  NavigationEditor, ActiveLayersEditor, FocusLayerEditor,
-  ExpandPanelsEditor, LayerControlEditor,
-} from './ActionEditors';
+import { NavigationEditor, ActiveLayersEditor, PanelStateEditor } from './ActionEditors';
 
 // -----------------------------------------------------------------------------
-// Pill helper (matches layer card outline badge treatment)
+// Pill helper
 // -----------------------------------------------------------------------------
 
 const Pill: React.FC<{
@@ -50,9 +47,7 @@ const Pill: React.FC<{
 const ACTION_ICON: Record<ActionKind, React.ReactNode> = {
   navigation: <Compass className="h-4 w-4" />,
   activeLayers: <LayersIcon className="h-4 w-4" />,
-  focusLayer: <Target className="h-4 w-4" />,
-  layerControl: <SlidersHorizontal className="h-4 w-4" />,
-  expandPanels: <PanelRightOpen className="h-4 w-4" />,
+  panelState: <PanelRightOpen className="h-4 w-4" />,
 };
 
 // -----------------------------------------------------------------------------
@@ -66,7 +61,7 @@ interface ActionCardProps {
   pills?: React.ReactNode;
   warnings?: StoryWarning[];
   onEdit: () => void;
-  onRemove: () => void;
+  onRemove?: () => void;
 }
 
 const ActionCard: React.FC<ActionCardProps> = ({
@@ -77,10 +72,7 @@ const ActionCard: React.FC<ActionCardProps> = ({
     <div className="px-1 py-1">
       <div className="flex items-center gap-2 min-w-0">
         <span className="text-muted-foreground flex-shrink-0">{ACTION_ICON[kind]}</span>
-        <span className="text-xs font-semibold text-foreground flex-shrink-0">
-          {title}
-        </span>
-
+        <span className="text-xs font-semibold text-foreground flex-shrink-0">{title}</span>
         {summary && (
           <span className="text-xs text-muted-foreground truncate min-w-0">
             {summary}
@@ -109,16 +101,17 @@ const ActionCard: React.FC<ActionCardProps> = ({
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEdit} title="Edit action">
             <Pencil className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10"
-            onClick={onRemove} title="Remove action">
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+          {onRemove && (
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10"
+              onClick={onRemove} title="Remove action">
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
   );
 };
-
 
 // -----------------------------------------------------------------------------
 // Add action menu
@@ -137,11 +130,9 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
     allowedKinds ? kinds.filter((k) => allowedKinds.includes(k)) : kinds;
   const byCategory: Record<ActionCategory, ActionKind[]> = {
     'Navigation': filter(['navigation']),
-    'Layer display': filter(['activeLayers', 'focusLayer']),
-    'Apply constraints': filter(['layerControl']),
-    'UI': filter(['expandPanels']),
+    'Layer display': filter(['activeLayers']),
+    'Panels': filter(['panelState']),
   };
-
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -152,10 +143,7 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
         <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-1">
           {CATEGORY_ORDER.filter((cat) => byCategory[cat].length > 0).map((cat) => (
             <div key={cat} className="space-y-1">
-
-              <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {cat}
-              </h5>
+              <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{cat}</h5>
               <div className="space-y-1">
                 {byCategory[cat].map((kind) => {
                   const meta = ACTION_META[kind];
@@ -177,8 +165,7 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
                       <span className="flex-1 min-w-0">
                         <span className="block text-sm font-medium">{meta.label}</span>
                         <span className="block text-xs text-muted-foreground">
-                          {meta.description}
-                          {disabled && ' — already added'}
+                          {meta.description}{disabled && ' — already added'}
                         </span>
                       </span>
                     </button>
@@ -202,26 +189,18 @@ interface Props {
   sources: DataSource[];
   warnings?: StoryWarning[];
   onChange: (next: StoryStep) => void;
-  /** Optional custom header renderer. Receives count and add-action callback. */
   renderHeader?: (args: { count: number; onAdd: () => void }) => React.ReactNode;
-  /** Skip the built-in section border-top when the header is combined elsewhere. */
   bare?: boolean;
-  /** Restrict which action kinds this section manages. Defaults to all kinds. */
   allowedKinds?: ActionKind[];
-  /** Header title (default: "Actions & Layers"). */
   title?: string;
-  /** Header icon (default: Film). */
   headerIcon?: React.ReactNode;
-  /** Add-button label (default: "Add action"). */
   addLabel?: string;
 }
 
 type OpenEditor =
   | { kind: 'navigation' }
   | { kind: 'activeLayers' }
-  | { kind: 'focusLayer' }
-  | { kind: 'expandPanels' }
-  | { kind: 'layerControl'; index: number }
+  | { kind: 'panelState' }
   | null;
 
 export const ActionsAndLayersSection: React.FC<Props> = ({
@@ -231,7 +210,6 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
   const isAllowed = (k: ActionKind) => !allowedKinds || allowedKinds.includes(k);
-
 
   const layerOptions = sources
     .map((s) => ({
@@ -243,42 +221,21 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     .filter((o) => !!o.id);
   const patch = (p: Partial<StoryStep>) => onChange({ ...step, ...p });
 
-  const handlePick = (kind: ActionKind) => {
-    if (kind === 'layerControl') {
-      // Append a new empty control and open its editor (layer chosen in modal)
-      const next = [...(step.controls ?? []), { layer: '' }];
-      onChange({ ...step, controls: next });
-      setOpenEditor({ kind: 'layerControl', index: next.length - 1 });
-    } else {
-      setOpenEditor({ kind });
-    }
-  };
+  const handlePick = (kind: ActionKind) => setOpenEditor({ kind });
 
-  const removeAction = (kind: ActionKind, index?: number) => {
+  const removeAction = (kind: ActionKind) => {
     switch (kind) {
       case 'navigation':
-        // Reset to a default zoom viewport (viewport is required in schema)
-        patch({ viewport: { zoom: 6, center: [0, 0] } });
+        patch({ viewport: { zoom: 2, center: [0, 0] } });
         break;
       case 'activeLayers':
-        patch({ layers: { active: [] } });
+        patch({ activeLayers: [] });
         break;
-      case 'focusLayer':
-        patch({ focusLayer: undefined });
-        break;
-      case 'expandPanels':
-        patch({ expandPanels: [] });
-        break;
-      case 'layerControl':
-        if (index === undefined) return;
-        patch({ controls: (step.controls ?? []).filter((_, i) => i !== index) });
+      case 'panelState':
+        patch({ panelState: undefined });
         break;
     }
   };
-
-  // --------------------------------------------------------------------------
-  // Build the ordered list of action cards for the current step
-  // --------------------------------------------------------------------------
 
   type Item = {
     key: string;
@@ -288,36 +245,43 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     pills?: React.ReactNode;
     warnings?: StoryWarning[];
     onEdit: () => void;
-    onRemove: () => void;
+    onRemove?: () => void;
   };
   const items: Item[] = [];
 
-  // Navigation (always present because viewport is required)
+  // Navigation (viewport is required, so no remove — resets to default zoom).
   if (step.viewport && isAllowed('navigation')) {
     const v = step.viewport;
-    const isZoom = 'zoom' in v;
+    let mode: 'Zoom to' | 'Fit layer' | 'Fit extent';
+    let summary: React.ReactNode;
+    if ('zoom' in v) {
+      mode = 'Zoom to';
+      summary = <>Zoom {v.zoom} · [{v.center[0].toFixed(2)}, {v.center[1].toFixed(2)}]</>;
+    } else if ('fitLayer' in v) {
+      mode = 'Fit layer';
+      summary = <>{v.fitLayer || <em>none</em>}</>;
+    } else {
+      mode = 'Fit extent';
+      summary = <>[{v.extent.map((n) => n.toFixed(2)).join(', ')}]</>;
+    }
     items.push({
       key: 'navigation',
       kind: 'navigation',
-      title: isZoom ? 'Zoom to' : 'Fit to',
-      summary: isZoom
-        ? <>Zoom {v.zoom} · [{v.center[0].toFixed(2)}, {v.center[1].toFixed(2)}]</>
-        : <>{(v as any).fitLayer || <em>none</em>}</>,
-      pills: isZoom && v.duration !== undefined ? <Pill>{v.duration}ms</Pill> : undefined,
+      title: mode,
+      summary,
+      pills: v.duration !== undefined ? <Pill>{v.duration}ms</Pill> : undefined,
       onEdit: () => setOpenEditor({ kind: 'navigation' }),
-      onRemove: () => removeAction('navigation'),
     });
-
   }
 
   // Active layers
   if (hasKind(step, 'activeLayers') && isAllowed('activeLayers')) {
-    const active = step.layers?.active ?? [];
+    const active = step.activeLayers ?? [];
     items.push({
       key: 'activeLayers',
       kind: 'activeLayers',
       title: 'Active layers',
-      summary: active.slice(0, 4).join(' · ') + (active.length > 4 ? ` · +${active.length - 4}` : ''),
+      summary: active.slice(0, 4).map((l) => l.id).join(' · ') + (active.length > 4 ? ` · +${active.length - 4}` : ''),
       pills: <Pill icon={<LayersIcon className="h-3 w-3" />}>{active.length} layer{active.length === 1 ? '' : 's'}</Pill>,
       warnings: warningsForAction(warnings, 'activeLayers'),
       onEdit: () => setOpenEditor({ kind: 'activeLayers' }),
@@ -325,76 +289,29 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     });
   }
 
-  // Focus layer
-  if (hasKind(step, 'focusLayer') && isAllowed('focusLayer')) {
-    items.push({
-      key: 'focusLayer',
-      kind: 'focusLayer',
-      title: 'Focus layer',
-      summary: step.focusLayer,
-      warnings: warningsForAction(warnings, 'focusLayer'),
-      onEdit: () => setOpenEditor({ kind: 'focusLayer' }),
-      onRemove: () => removeAction('focusLayer'),
-    });
-  }
-
-  // Layer controls (one card per entry)
-  if (isAllowed('layerControl')) (step.controls ?? []).forEach((c, i) => {
-    const constraintLabels = (c.constraints ?? []).map(k => k.label || 'unnamed');
+  // Panel state
+  if (hasKind(step, 'panelState') && isAllowed('panelState')) {
+    const ps = step.panelState!;
     const bits: string[] = [];
-    if (c.opacity !== undefined) bits.push(`opacity ${c.opacity}`);
-    if (c.blend) bits.push('blend');
-    if (constraintLabels.length > 0) {
-      bits.push(constraintLabels.join(' · '));
-    }
-    const controlSummary = (
-      <>
-        {c.layer || <em>no layer</em>}
-        {bits.length > 0 ? ` · ${bits.join(' · ')}` : ''}
-      </>
-    );
-    items.push({
-      key: `layerControl-${i}`,
-      kind: 'layerControl',
-      title: 'Apply constraints',
-      summary: constraintLabels.length > 0 ? (
-        <TooltipProvider>
-          <Tooltip delayDuration={400}>
-            <TooltipTrigger asChild>
-              <span className="text-xs text-muted-foreground cursor-default">
-                {controlSummary}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-sm">
-              <p className="text-xs">{constraintLabels.join(' · ')}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      ) : controlSummary,
-      warnings: warningsForAction(warnings, 'layerControl', i),
-      onEdit: () => setOpenEditor({ kind: 'layerControl', index: i }),
-      onRemove: () => removeAction('layerControl', i),
+    if (ps.focusLayer) bits.push(`focus: ${ps.focusLayer}`);
+    if (ps.tab) bits.push(`tab: ${ps.tab.id}`);
+    const cControls = Object.entries(ps.controls ?? {}).map(([k, v]) => {
+      const flags: string[] = [];
+      if (v?.expanded) flags.push('exp');
+      if (v?.disabled) flags.push('dis');
+      return `${k}(${flags.join(',')})`;
     });
-  });
-
-  // Expand panels
-  if (hasKind(step, 'expandPanels') && isAllowed('expandPanels')) {
-    const panels = step.expandPanels ?? [];
+    if (cControls.length) bits.push(cControls.join(' '));
     items.push({
-      key: 'expandPanels',
-      kind: 'expandPanels',
-      title: 'Expand panels',
-      summary: panels.join(' · '),
-      pills: <Pill>{panels.length}</Pill>,
-      onEdit: () => setOpenEditor({ kind: 'expandPanels' }),
-      onRemove: () => removeAction('expandPanels'),
+      key: 'panelState',
+      kind: 'panelState',
+      title: 'Panel state',
+      summary: bits.join(' · '),
+      warnings: warningsForAction(warnings, 'panelState'),
+      onEdit: () => setOpenEditor({ kind: 'panelState' }),
+      onRemove: () => removeAction('panelState'),
     });
   }
-
-  const editingControl =
-    openEditor?.kind === 'layerControl'
-      ? (step.controls ?? [])[openEditor.index]
-      : undefined;
 
   return (
     <section className={cn('space-y-2', !bare && 'border-t pt-3')}>
@@ -419,13 +336,12 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
             <Plus className="h-3 w-3 mr-1" /> {addLabel}
           </Button>
         </div>
-
       )}
 
       <div className={cn('space-y-2', !bare && 'ml-6')}>
         {items.length === 0 && (
           <p className="text-xs text-muted-foreground italic">
-            No actions yet. Use “Add action” to define what this step does.
+            No actions yet. Use "Add action" to define what this step does.
           </p>
         )}
         {items.map((item) => (
@@ -450,59 +366,28 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         allowedKinds={allowedKinds}
       />
 
-
       <NavigationEditor
         open={openEditor?.kind === 'navigation'}
         onOpenChange={(o) => !o && setOpenEditor(null)}
         step={step}
         layerOptions={layerOptions}
-        onSave={(viewport) => patch({ viewport })}
+        onSave={(viewport: StoryViewport) => patch({ viewport })}
       />
       <ActiveLayersEditor
         open={openEditor?.kind === 'activeLayers'}
         onOpenChange={(o) => !o && setOpenEditor(null)}
         step={step}
+        sources={sources}
         layerOptions={layerOptions}
-        onSave={(active) => patch({ layers: { active } })}
+        onSave={(activeLayers: StoryActiveLayer[]) => patch({ activeLayers })}
       />
-      <FocusLayerEditor
-        open={openEditor?.kind === 'focusLayer'}
+      <PanelStateEditor
+        open={openEditor?.kind === 'panelState'}
         onOpenChange={(o) => !o && setOpenEditor(null)}
         step={step}
         layerOptions={layerOptions}
-        onSave={(focusLayer) => patch({ focusLayer })}
+        onSave={(panelState: StoryPanelState | undefined) => patch({ panelState })}
       />
-      <ExpandPanelsEditor
-        open={openEditor?.kind === 'expandPanels'}
-        onOpenChange={(o) => !o && setOpenEditor(null)}
-        step={step}
-        onSave={(panels) => patch({ expandPanels: panels })}
-      />
-      {editingControl && openEditor?.kind === 'layerControl' && (
-        <LayerControlEditor
-          open={true}
-          onOpenChange={(o) => {
-            if (o) return;
-            // Drop the control if the user closed without picking a layer
-            const idx = openEditor.index;
-            const current = (step.controls ?? [])[idx];
-            if (current && !current.layer) {
-              patch({ controls: (step.controls ?? []).filter((_, i) => i !== idx) });
-            }
-            setOpenEditor(null);
-          }}
-          control={editingControl}
-          controlIndex={openEditor.index}
-          step={step}
-          sources={sources}
-          onSave={(next) => {
-            const idx = openEditor.index;
-            patch({
-              controls: (step.controls ?? []).map((c, i) => i === idx ? next : c),
-            });
-          }}
-        />
-      )}
     </section>
   );
 };

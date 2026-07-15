@@ -206,6 +206,14 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
                 </div>
               ) : (
                 <>
+                  {story.thumbnail && (
+                    <img
+                      src={story.thumbnail}
+                      alt=""
+                      className="h-6 w-6 rounded object-cover border flex-shrink-0"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  )}
                   <button
                     type="button"
                     onClick={() => setCollapsed((c) => !c)}

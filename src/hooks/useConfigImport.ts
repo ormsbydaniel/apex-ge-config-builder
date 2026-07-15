@@ -9,6 +9,7 @@ import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
 import { normalizeImportedConfig, detectTransformations } from '@/utils/importTransformations';
 import { parseS3Url } from '@/utils/s3Utils';
 import { loadCatalogue } from '@/lib/catalogue/apexCatalogue';
+import { upgradeLegacyStories } from '@/utils/deprecated/storyLegacy/upgrade';
 import type { LoadedConfigSource } from '@/contexts/ConfigContext';
 
 /**
@@ -266,9 +267,19 @@ export const useConfigImport = () => {
         const { services: servicesWithCapabilities, attempted, skipped } =
           await enrichServicesWithCapabilities(configWithTitles.services || [], options);
 
+        // Upgrade any legacy v1 stories to the v2 shape. Silent — the editor
+        // now only reads/writes v2.
+        const legacyStoryCount = Array.isArray(configWithTitles.stories)
+          ? configWithTitles.stories.filter((s: any) =>
+              (s?.steps ?? []).some((step: any) => step && !Array.isArray(step.activeLayers)),
+            ).length
+          : 0;
+        const upgradedStories = upgradeLegacyStories(configWithTitles.stories as any);
+
         const configWithCapabilities = {
           ...configWithTitles,
           services: servicesWithCapabilities,
+          stories: upgradedStories,
         };
 
         dispatch({
@@ -292,6 +303,9 @@ export const useConfigImport = () => {
         }
         if (titlesFilled > 0) {
           description += ` Populated ${titlesFilled} algorithm title${titlesFilled === 1 ? '' : 's'} from the APEx catalogue.`;
+        }
+        if (legacyStoryCount > 0) {
+          description += ` Upgraded ${legacyStoryCount} legacy story${legacyStoryCount === 1 ? '' : ' entries'} to the v2 schema.`;
         }
 
         toast({ title: 'Configuration Loaded', description });

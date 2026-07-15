@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Pencil, Eye } from 'lucide-react';
+import { Pencil, Eye, BookOpen } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
 interface MarkdownEditorProps {
@@ -14,11 +22,36 @@ interface MarkdownEditorProps {
   placeholder?: string;
   className?: string;
   textareaClassName?: string;
+  /** Optional content rendered on the left of the toolbar row (e.g. a Label). */
+  toolbarLeft?: React.ReactNode;
 }
 
+type Mode = 'edit' | 'guide' | 'preview';
+
+const SYNTAX_ROWS: Array<{ feature: string; syntax: React.ReactNode }> = [
+  { feature: 'Hyperlink', syntax: <code className="text-xs bg-muted px-1.5 py-0.5 rounded">[text](https://url/)</code> },
+  { feature: 'Image', syntax: <code className="text-xs bg-muted px-1.5 py-0.5 rounded">![alt text](https://url/image.png)</code> },
+  { feature: 'Italics', syntax: <code className="text-xs bg-muted px-1.5 py-0.5 rounded">*text*</code> },
+  { feature: 'Bold', syntax: <code className="text-xs bg-muted px-1.5 py-0.5 rounded">**text**</code> },
+  { feature: 'Heading 1', syntax: <code className="text-xs bg-muted px-1.5 py-0.5 rounded"># text</code> },
+  { feature: 'Heading 2', syntax: <code className="text-xs bg-muted px-1.5 py-0.5 rounded">## text</code> },
+  {
+    feature: 'List',
+    syntax: (
+      <>
+        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">- item 1</code>
+        <br />
+        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">- item 2</code>
+      </>
+    ),
+  },
+  { feature: 'Quote', syntax: <code className="text-xs bg-muted px-1.5 py-0.5 rounded">&gt; text</code> },
+  { feature: 'Code', syntax: <code className="text-xs bg-muted px-1.5 py-0.5 rounded">`code`</code> },
+];
+
 /**
- * Textarea with an Edit/Preview toggle that renders markdown via react-markdown.
- * Preview state is local; it does not modify `value`.
+ * Textarea with an Edit / Syntax Guide / Preview toggle.
+ * Guide and Preview are local view states; they never mutate `value`.
  */
 const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   value,
@@ -28,36 +61,34 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   placeholder,
   className,
   textareaClassName,
+  toolbarLeft,
 }) => {
-  const [mode, setMode] = useState<'edit' | 'preview'>('edit');
+  const [mode, setMode] = useState<Mode>('edit');
+
+  const toggleButton = (target: Mode, label: string, Icon: React.ComponentType<{ className?: string }>) => (
+    <Button
+      type="button"
+      size="sm"
+      variant={mode === target ? 'secondary' : 'ghost'}
+      className="h-7 px-2 text-xs"
+      onClick={() => setMode(target)}
+    >
+      <Icon className="h-3.5 w-3.5 mr-1" />
+      {label}
+    </Button>
+  );
 
   return (
     <div className={cn('space-y-2', className)}>
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">{toolbarLeft}</div>
         <div className="inline-flex rounded-md border border-input bg-background p-0.5">
-          <Button
-            type="button"
-            size="sm"
-            variant={mode === 'edit' ? 'secondary' : 'ghost'}
-            className="h-7 px-2 text-xs"
-            onClick={() => setMode('edit')}
-          >
-            <Pencil className="h-3.5 w-3.5 mr-1" />
-            Edit
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={mode === 'preview' ? 'secondary' : 'ghost'}
-            className="h-7 px-2 text-xs"
-            onClick={() => setMode('preview')}
-          >
-            <Eye className="h-3.5 w-3.5 mr-1" />
-            Preview
-          </Button>
+          {toggleButton('edit', 'Edit', Pencil)}
+          {toggleButton('guide', 'Syntax Guide', BookOpen)}
+          {toggleButton('preview', 'Preview', Eye)}
         </div>
       </div>
-      {mode === 'edit' ? (
+      {mode === 'edit' && (
         <Textarea
           id={id}
           rows={rows}
@@ -66,7 +97,37 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           placeholder={placeholder}
           className={textareaClassName}
         />
-      ) : (
+      )}
+      {mode === 'guide' && (
+        <div
+          className={cn(
+            'rounded-md border border-input bg-background px-3 py-2 text-sm overflow-auto',
+            textareaClassName,
+          )}
+        >
+          <p className="text-xs text-muted-foreground mb-3">
+            Basic markdown is supported. Images must be referenced by absolute URL — the editor
+            does not upload local files — and should include descriptive alt text for accessibility.
+          </p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Feature</TableHead>
+                <TableHead>Syntax</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {SYNTAX_ROWS.map((row) => (
+                <TableRow key={row.feature}>
+                  <TableCell className="font-medium">{row.feature}</TableCell>
+                  <TableCell>{row.syntax}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+      {mode === 'preview' && (
         <div
           className={cn(
             'rounded-md border border-input bg-background px-3 py-2 text-sm overflow-auto',

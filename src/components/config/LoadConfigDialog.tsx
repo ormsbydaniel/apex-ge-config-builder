@@ -45,6 +45,13 @@ interface TreeEntry {
 
 type Stage = 'idle' | 'parse' | 'normalize' | 'validate' | 'done';
 
+interface ExampleConfig {
+  name: string;
+  description: string;
+  url: string;
+  fileName: string;
+}
+
 const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps) => {
   const { importConfig, importConfigFromUrl } = useConfigImport();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -176,18 +183,17 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     finishLoading(result, file.name);
   };
 
-  const handleLoadExample = async (exampleName?: string) => {
-    const label = exampleName || 'Comprehensive demo';
-    startLoading(label);
+  const handleLoadExample = async (example: ExampleConfig) => {
+    startLoading(example.name);
     const result = await importConfigFromUrl(
-      '/examples/test-config.json',
-      { type: 'example', label },
+      example.url,
+      { type: 'example', label: example.name },
       {
         onProgress: handleProgress,
         signal: abortRef.current?.signal,
       },
     );
-    finishLoading(result, 'test-config.json');
+    finishLoading(result, example.fileName);
   };
 
   const handleLoadFromGithub = async (path: string) => {
@@ -231,12 +237,18 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     (e) => !search.trim() || e.path.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const examples = [
+  const examples: ExampleConfig[] = [
     {
       name: 'Comprehensive demo',
       description: 'A production-ready configuration showcasing many layer types and features.',
       url: '/examples/test-config.json',
       fileName: 'test-config.json',
+    },
+    {
+      name: 'Full screen storymap demo',
+      description: 'EO4 Ports example as a full screen story map.',
+      url: '/examples/story-config-1.json',
+      fileName: 'story-config-1.json',
     },
   ];
 
@@ -373,7 +385,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                   {examples.map((ex) => (
                     <button
                       key={ex.url}
-                      onClick={() => handleLoadExample(ex.name)}
+                      onClick={() => handleLoadExample(ex)}
                       className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
                     >
                       <div className="flex items-center justify-between gap-3">

@@ -1,14 +1,18 @@
-import type { StoryStep } from '@/types/config';
+import type { StoryStep, StoryPanelTabId } from '@/types/config';
 import type { StoryWarning } from '@/utils/storyValidation';
 
+/**
+ * v2 action kinds surfaced by the editor.
+ * - `navigation`   — step.viewport
+ * - `activeLayers` — step.activeLayers[]
+ * - `panelState`   — step.panelState (focus + controls + tab)
+ */
 export type ActionKind =
-  | 'navigation'      // viewport
-  | 'activeLayers'    // layers.active[]
-  | 'focusLayer'      // focusLayer
-  | 'layerControl'    // controls[i] (one per layer)
-  | 'expandPanels';   // expandPanels[]
+  | 'navigation'
+  | 'activeLayers'
+  | 'panelState';
 
-export type ActionCategory = 'Navigation' | 'Layer display' | 'Apply constraints' | 'UI';
+export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels';
 
 export interface ActionMeta {
   kind: ActionKind;
@@ -24,35 +28,21 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
     kind: 'navigation',
     category: 'Navigation',
     label: 'Navigation',
-    description: 'Move the map to a zoom + centre or fit it to a specific layer.',
+    description: 'Move the map by zoom + centre, fitting a layer, or an explicit extent.',
     singleton: true,
   },
   activeLayers: {
     kind: 'activeLayers',
     category: 'Layer display',
     label: 'Active layers',
-    description: 'Choose which layers are visible during this step.',
+    description: 'Choose which layers are visible and configure opacity, blend, date and constraints per layer.',
     singleton: true,
   },
-  focusLayer: {
-    kind: 'focusLayer',
-    category: 'Layer display',
-    label: 'Focus layer',
-    description: 'Highlight one layer as the focus of this step.',
-    singleton: true,
-  },
-  layerControl: {
-    kind: 'layerControl',
-    category: 'Apply constraints',
-    label: 'Apply constraints',
-    description: 'Set opacity, blending, and constraint selections for one layer.',
-    singleton: false,
-  },
-  expandPanels: {
-    kind: 'expandPanels',
-    category: 'UI',
-    label: 'Expand panels',
-    description: 'Auto-open specific UI panels when this step is active.',
+  panelState: {
+    kind: 'panelState',
+    category: 'Panels',
+    label: 'Panel state',
+    description: 'Focus a layer, expand or disable controls, and open a specific panel tab.',
     singleton: true,
   },
 };
@@ -60,8 +50,15 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
 export const CATEGORY_ORDER: ActionCategory[] = [
   'Navigation',
   'Layer display',
-  'Apply constraints',
-  'UI',
+  'Panels',
+];
+
+export const VALID_TAB_IDS: StoryPanelTabId[] = [
+  'overview',
+  'statistics',
+  'query',
+  'charts',
+  'parameters',
 ];
 
 /** Which singleton actions are currently present on the step. */
@@ -70,33 +67,28 @@ export const hasKind = (step: StoryStep, kind: ActionKind): boolean => {
     case 'navigation':
       return !!step.viewport;
     case 'activeLayers':
-      return (step.layers?.active?.length ?? 0) > 0;
-    case 'focusLayer':
-      return !!step.focusLayer;
-    case 'layerControl':
-      return (step.controls?.length ?? 0) > 0;
-    case 'expandPanels':
-      return (step.expandPanels?.length ?? 0) > 0;
+      return (step.activeLayers?.length ?? 0) > 0;
+    case 'panelState':
+      return !!step.panelState && (
+        !!step.panelState.focusLayer ||
+        !!step.panelState.tab ||
+        !!step.panelState.controls
+      );
   }
 };
 
-/** Warning field-prefix that belongs to a given action / control index. */
+/** Warning field-prefix that belongs to a given action. */
 export const warningsForAction = (
   all: StoryWarning[] | undefined,
   kind: ActionKind,
-  controlIndex?: number,
 ): StoryWarning[] => {
   if (!all) return [];
   switch (kind) {
     case 'navigation':
-      return []; // viewport has no cross-ref warnings currently
-    case 'focusLayer':
-      return all.filter((w) => w.field === 'focusLayer');
-    case 'activeLayers':
-      return all.filter((w) => w.field?.startsWith('layers.active'));
-    case 'expandPanels':
       return [];
-    case 'layerControl':
-      return all.filter((w) => w.field?.startsWith(`controls[${controlIndex}]`));
+    case 'activeLayers':
+      return all.filter((w) => w.field?.startsWith('activeLayers'));
+    case 'panelState':
+      return all.filter((w) => w.field?.startsWith('panelState'));
   }
 };
