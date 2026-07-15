@@ -770,3 +770,62 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
     </ActionModal>
   );
 };
+
+// -----------------------------------------------------------------------------
+// Base layer editor — pick a single basemap source
+// -----------------------------------------------------------------------------
+
+interface BaseLayerEditorProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  step: StoryStep;
+  sources: DataSource[];
+  onSave: (baseLayer: string | undefined) => void;
+}
+
+export const BaseLayerEditor: React.FC<BaseLayerEditorProps> = ({
+  open, onOpenChange, step, sources, onSave,
+}) => {
+  const [selected, setSelected] = useState<string>('__none__');
+
+  useEffect(() => {
+    if (!open) return;
+    setSelected(step.baseLayer ?? '__none__');
+  }, [open, step]);
+
+  const baseSources = sources.filter((s) => s.isBaseLayer && s.id);
+
+  const save = () => {
+    onSave(selected === '__none__' ? undefined : selected);
+    onOpenChange(false);
+  };
+
+  return (
+    <ActionModal open={open} onOpenChange={onOpenChange} title="Base map" onSave={save}>
+      <div className="space-y-2">
+        <Label className="text-xs">Base map</Label>
+        {baseSources.length === 0 ? (
+          <p className="text-xs text-muted-foreground italic">
+            No base map sources are configured. Add a source with "Base layer" enabled to use this action.
+          </p>
+        ) : (
+          <>
+            <Select value={selected} onValueChange={setSelected}>
+              <SelectTrigger><SelectValue placeholder="Pick a base map" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">None (leave unchanged)</SelectItem>
+                {baseSources.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name || s.id}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-muted-foreground">
+              When set, this base map becomes the only visible base layer for this step. When "None" is selected, the current basemap is left unchanged.
+            </p>
+          </>
+        )}
+      </div>
+    </ActionModal>
+  );
+};
+

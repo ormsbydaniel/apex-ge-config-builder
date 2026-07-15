@@ -10,6 +10,7 @@ import type { StoryWarning } from '@/utils/storyValidation';
 export type ActionKind =
   | 'navigation'
   | 'activeLayers'
+  | 'baseLayer'
   | 'panelState';
 
 export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels';
@@ -36,6 +37,13 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
     category: 'Layer display',
     label: 'Active layers',
     description: 'Choose which layers are visible and configure opacity, blend, date and constraints per layer.',
+    singleton: true,
+  },
+  baseLayer: {
+    kind: 'baseLayer',
+    category: 'Layer display',
+    label: 'Base map',
+    description: 'Choose which base map is visible for this step.',
     singleton: true,
   },
   panelState: {
@@ -68,6 +76,8 @@ export const hasKind = (step: StoryStep, kind: ActionKind): boolean => {
       return !!step.viewport;
     case 'activeLayers':
       return (step.activeLayers?.length ?? 0) > 0;
+    case 'baseLayer':
+      return !!step.baseLayer;
     case 'panelState':
       return !!step.panelState && (
         !!step.panelState.focusLayer ||
@@ -88,6 +98,8 @@ export const warningsForAction = (
       return [];
     case 'activeLayers':
       return all.filter((w) => w.field?.startsWith('activeLayers'));
+    case 'baseLayer':
+      return [];
     case 'panelState':
       return all.filter((w) => w.field?.startsWith('panelState'));
   }

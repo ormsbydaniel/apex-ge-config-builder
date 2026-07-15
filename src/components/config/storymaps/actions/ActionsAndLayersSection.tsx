@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
-  AlertTriangle, Film,
+  AlertTriangle, Film, Map as MapIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,7 @@ import {
   ACTION_META, CATEGORY_ORDER, hasKind, warningsForAction,
   type ActionKind, type ActionCategory,
 } from './types';
-import { NavigationEditor, ActiveLayersEditor, PanelStateEditor } from './ActionEditors';
+import { NavigationEditor, ActiveLayersEditor, PanelStateEditor, BaseLayerEditor } from './ActionEditors';
 
 // -----------------------------------------------------------------------------
 // Pill helper
@@ -47,6 +47,7 @@ const Pill: React.FC<{
 const ACTION_ICON: Record<ActionKind, React.ReactNode> = {
   navigation: <Compass className="h-4 w-4" />,
   activeLayers: <LayersIcon className="h-4 w-4" />,
+  baseLayer: <MapIcon className="h-4 w-4" />,
   panelState: <PanelRightOpen className="h-4 w-4" />,
 };
 
@@ -130,7 +131,7 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
     allowedKinds ? kinds.filter((k) => allowedKinds.includes(k)) : kinds;
   const byCategory: Record<ActionCategory, ActionKind[]> = {
     'Navigation': filter(['navigation']),
-    'Layer display': filter(['activeLayers']),
+    'Layer display': filter(['activeLayers', 'baseLayer']),
     'Panels': filter(['panelState']),
   };
 
@@ -200,6 +201,7 @@ interface Props {
 type OpenEditor =
   | { kind: 'navigation' }
   | { kind: 'activeLayers' }
+  | { kind: 'baseLayer' }
   | { kind: 'panelState' }
   | null;
 
@@ -211,7 +213,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
   const isAllowed = (k: ActionKind) => !allowedKinds || allowedKinds.includes(k);
 
+  // Overlay (non-base) layer options are used for Active layers, Navigation
+  // "fit to layer" and Panel focus. Base map picker uses raw `sources`.
   const layerOptions = sources
+    .filter((s) => !s.isBaseLayer)
     .map((s) => ({
       id: s.id,
       name: s.name,
@@ -221,7 +226,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     .filter((o) => !!o.id);
   const patch = (p: Partial<StoryStep>) => onChange({ ...step, ...p });
 
-  const handlePick = (kind: ActionKind) => setOpenEditor({ kind });
+  const handlePick = (kind: ActionKind) => setOpenEditor({ kind } as OpenEditor);
 
   const removeAction = (kind: ActionKind) => {
     switch (kind) {
@@ -230,6 +235,9 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         break;
       case 'activeLayers':
         patch({ activeLayers: [] });
+        break;
+      case 'baseLayer':
+        patch({ baseLayer: undefined });
         break;
       case 'panelState':
         patch({ panelState: undefined });
@@ -288,6 +296,23 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       onRemove: () => removeAction('activeLayers'),
     });
   }
+
+  // Base map
+  if (hasKind(step, 'baseLayer') && isAllowed('baseLayer')) {
+    const bl = step.baseLayer!;
+    const src = sources.find((s) => s.id === bl);
+    const name = src?.name ?? bl;
+    items.push({
+      key: 'baseLayer',
+      kind: 'baseLayer',
+      title: 'Base map',
+      summary: src ? name : <><em>{bl}</em> (unknown)</>,
+      warnings: warningsForAction(warnings, 'baseLayer'),
+      onEdit: () => setOpenEditor({ kind: 'baseLayer' }),
+      onRemove: () => removeAction('baseLayer'),
+    });
+  }
+
 
   // Panel state
   if (hasKind(step, 'panelState') && isAllowed('panelState')) {
@@ -381,6 +406,13 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         layerOptions={layerOptions}
         onSave={(activeLayers: StoryActiveLayer[]) => patch({ activeLayers })}
       />
+      <BaseLayerEditor
+        open={openEditor?.kind === 'baseLayer'}
+        onOpenChange={(o) => !o && setOpenEditor(null)}
+        step={step}
+        sources={sources}
+        onSave={(baseLayer: string | undefined) => patch({ baseLayer })}
+      />
       <PanelStateEditor
         open={openEditor?.kind === 'panelState'}
         onOpenChange={(o) => !o && setOpenEditor(null)}
@@ -388,6 +420,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         layerOptions={layerOptions}
         onSave={(panelState: StoryPanelState | undefined) => patch({ panelState })}
       />
+
     </section>
   );
 };
