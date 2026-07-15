@@ -76,6 +76,8 @@ export const hasKind = (step: StoryStep, kind: ActionKind): boolean => {
       return !!step.viewport;
     case 'activeLayers':
       return (step.activeLayers?.length ?? 0) > 0;
+    case 'baseLayer':
+      return !!step.baseLayer;
     case 'panelState':
       return !!step.panelState && (
         !!step.panelState.focusLayer ||
