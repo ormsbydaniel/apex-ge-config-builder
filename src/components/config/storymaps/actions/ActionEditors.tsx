@@ -62,6 +62,77 @@ const findSource = (sources: DataSource[], ref: string | undefined): DataSource 
 
 const optionLabel = (opt: LayerOption) => opt.name || opt.id;
 
+// Group LayerOptions by interfaceGroup and subinterfaceGroup for hierarchical
+// rendering inside a Select dropdown. Preserves incoming order for groups
+// (first-appearance) and layers within a bucket; sub-groups are alphabetical.
+interface GroupedLayers {
+  group: string; // '' for ungrouped
+  directLayers: LayerOption[];
+  subGroups: { name: string; layers: LayerOption[] }[];
+}
+
+const groupLayerOptions = (options: LayerOption[]): GroupedLayers[] => {
+  const order: string[] = [];
+  const map = new Map<string, GroupedLayers>();
+  options.forEach((o) => {
+    const g = o.interfaceGroup ?? '';
+    if (!map.has(g)) {
+      map.set(g, { group: g, directLayers: [], subGroups: [] });
+      order.push(g);
+    }
+    const bucket = map.get(g)!;
+    if (o.subinterfaceGroup) {
+      let sub = bucket.subGroups.find((s) => s.name === o.subinterfaceGroup);
+      if (!sub) {
+        sub = { name: o.subinterfaceGroup, layers: [] };
+        bucket.subGroups.push(sub);
+      }
+      sub.layers.push(o);
+    } else {
+      bucket.directLayers.push(o);
+    }
+  });
+  return order.map((g) => {
+    const b = map.get(g)!;
+    return { ...b, subGroups: [...b.subGroups].sort((a, b2) => a.name.localeCompare(b2.name)) };
+  });
+};
+
+const GroupedLayerItems: React.FC<{ options: LayerOption[] }> = ({ options }) => {
+  const grouped = groupLayerOptions(options);
+  return (
+    <>
+      {grouped.map((bucket, gi) => {
+        const groupLabel = bucket.group || 'Ungrouped';
+        return (
+          <SelectGroup key={`g-${gi}-${bucket.group}`}>
+            <SelectLabel className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              {groupLabel}
+            </SelectLabel>
+            {bucket.directLayers.map((o) => (
+              <SelectItem key={o.id} value={o.id} className="pl-6">
+                {optionLabel(o)}
+              </SelectItem>
+            ))}
+            {bucket.subGroups.map((sub) => (
+              <React.Fragment key={`sg-${sub.name}`}>
+                <SelectLabel className="pl-6 text-[11px] font-medium text-muted-foreground/80">
+                  {sub.name}
+                </SelectLabel>
+                {sub.layers.map((o) => (
+                  <SelectItem key={o.id} value={o.id} className="pl-10">
+                    {optionLabel(o)}
+                  </SelectItem>
+                ))}
+              </React.Fragment>
+            ))}
+          </SelectGroup>
+        );
+      })}
+    </>
+  );
+};
+
 interface BaseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
