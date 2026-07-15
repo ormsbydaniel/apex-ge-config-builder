@@ -707,9 +707,7 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__none__">None</SelectItem>
-              {focusOptions.map((o) => (
-                <SelectItem key={o.id} value={o.id}>{optionLabel(o)}</SelectItem>
-              ))}
+              <GroupedLayerItems options={focusOptions} />
             </SelectContent>
           </Select>
           <p className="text-[11px] text-muted-foreground mt-1">
