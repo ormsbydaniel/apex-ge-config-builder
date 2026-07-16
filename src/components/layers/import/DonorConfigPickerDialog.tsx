@@ -17,6 +17,7 @@ import {
   X,
   CheckCircle2,
   Clock,
+  RefreshCw,
 } from 'lucide-react';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 import {
@@ -26,6 +27,12 @@ import {
   type DonorSource,
 } from '@/hooks/useDonorConfigLoader';
 import { ValidationErrorDetails } from '@/types/config';
+import {
+  fetchExampleManifest,
+  EXAMPLES_MANIFEST_URL,
+  type ExampleConfigEntry,
+} from '@/utils/exampleManifest';
+import { useQuery } from '@tanstack/react-query';
 import { DonorLayerTree } from './DonorLayerTree';
 
 const DEFAULT_REPO = 'ESA-APEx/apex_geospatial_explorer_configs';
