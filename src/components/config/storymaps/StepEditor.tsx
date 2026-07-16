@@ -190,24 +190,12 @@ export const StepEditor: React.FC<StepEditorProps> = ({
                 value={draftDescription} onChange={setDraftDescription}
                 placeholder="Step description..." textareaClassName="min-h-[320px]" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="step-id">ID</Label>
-                <Input id="step-id" value={draftId} onChange={(e) => setDraftId(e.target.value)} />
-                <p className="text-xs text-muted-foreground">
-                  Auto-derived from the title as a slug. Edit to override.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="step-auto-advance">Auto-advance (ms)</Label>
-                <Input id="step-auto-advance" type="number" min={0}
-                  value={draftAutoAdvance}
-                  onChange={(e) => setDraftAutoAdvance(e.target.value)}
-                  placeholder="Optional" />
-                <p className="text-xs text-muted-foreground">
-                  Advance to the next step after this many milliseconds.
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="step-id">ID</Label>
+              <Input id="step-id" value={draftId} onChange={(e) => setDraftId(e.target.value)} />
+              <p className="text-xs text-muted-foreground">
+                Auto-derived from the title as a slug. Edit to override.
+              </p>
             </div>
           </div>
           <DialogFooter>
@@ -218,6 +206,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
       </Dialog>
     </div>
   );
+
 };
 
 export default StepEditor;
