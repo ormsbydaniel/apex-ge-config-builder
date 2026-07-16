@@ -19,6 +19,7 @@ import {
   X,
   FileJson,
   Map as MapIcon,
+  ChevronsRight,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
