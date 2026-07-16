@@ -142,10 +142,11 @@ interface BaseModalProps {
   canSave?: boolean;
   children: React.ReactNode;
   wide?: boolean;
+  onBack?: () => void;
 }
 
 const ActionModal: React.FC<BaseModalProps> = ({
-  open, onOpenChange, title, onSave, canSave = true, children, wide,
+  open, onOpenChange, title, onSave, canSave = true, children, wide, onBack,
 }) => (
   <Dialog open={open} onOpenChange={onOpenChange}>
     <DialogContent className={wide ? 'sm:max-w-[820px]' : 'sm:max-w-[560px]'}>
@@ -153,9 +154,14 @@ const ActionModal: React.FC<BaseModalProps> = ({
         <DialogTitle>{title}</DialogTitle>
       </DialogHeader>
       <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-1">{children}</div>
-      <DialogFooter>
-        <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-        <Button onClick={onSave} disabled={!canSave}>Save</Button>
+      <DialogFooter className={onBack ? 'sm:justify-between' : undefined}>
+        {onBack && (
+          <Button variant="ghost" onClick={onBack}>← Back</Button>
+        )}
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={onSave} disabled={!canSave}>Save</Button>
+        </div>
       </DialogFooter>
     </DialogContent>
   </Dialog>
@@ -561,10 +567,11 @@ interface ConstraintsEditorProps {
   step: StoryStep;
   sources: DataSource[];
   onSave: (active: StoryActiveLayer[]) => void;
+  onBack?: () => void;
 }
 
 export const ConstraintsEditor: React.FC<ConstraintsEditorProps> = ({
-  open, onOpenChange, step, sources, onSave,
+  open, onOpenChange, step, sources, onSave, onBack,
 }) => {
   const [layers, setLayers] = useState<StoryActiveLayer[]>(step.activeLayers ?? []);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
@@ -593,13 +600,20 @@ export const ConstraintsEditor: React.FC<ConstraintsEditorProps> = ({
 
   const save = () => { onSave(layers); onOpenChange(false); };
 
-  const canSave = layers.length > 0;
+  const hasAnyAvailableConstraints = layers.some(
+    (l) => (findSource(sources, l.id)?.constraints?.length ?? 0) > 0,
+  );
+  const canSave = layers.length > 0 && hasAnyAvailableConstraints;
 
   return (
-    <ActionModal open={open} onOpenChange={onOpenChange} title="Apply constraints" onSave={save} canSave={canSave} wide>
+    <ActionModal open={open} onOpenChange={onOpenChange} title="Apply constraints" onSave={save} canSave={canSave} wide onBack={onBack}>
       {layers.length === 0 ? (
-        <p className="text-xs text-muted-foreground italic">
+        <p className="text-sm text-muted-foreground italic">
           No active layers on this step. Add layers under "Active layers" first, then return here to apply constraints.
+        </p>
+      ) : !hasAnyAvailableConstraints ? (
+        <p className="text-sm text-muted-foreground italic">
+          None of the active layers on this step have constraints defined on their data source. Add constraints to the layer's data source, or choose different active layers.
         </p>
       ) : (
         <div className="space-y-2">
