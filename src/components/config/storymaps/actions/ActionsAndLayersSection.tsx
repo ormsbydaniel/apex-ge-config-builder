@@ -206,6 +206,8 @@ interface Props {
   title?: string;
   headerIcon?: React.ReactNode;
   addLabel?: string;
+  /** Text shown when no items exist in this section. Falls back to a generic message. */
+  emptyText?: string;
   /** Open the "copy this facet to other steps" modal. */
   onCopyAction?: (facet: CopyFacet) => void;
 }
@@ -216,7 +218,9 @@ type OpenEditor =
   | { kind: 'baseLayer' }
   | { kind: 'constraints' }
   | { kind: 'panelState' }
+  | { kind: 'transition' }
   | null;
+
 
 export const ActionsAndLayersSection: React.FC<Props> = ({
   step, sources, warnings, onChange, renderHeader, bare,
