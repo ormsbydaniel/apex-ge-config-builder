@@ -36,7 +36,7 @@ const slugify = (v: string) =>
  */
 export const StepEditor: React.FC<StepEditorProps> = ({
   step, sources, warnings, onSave,
-  initiallyEditingContent, onCancelNewStep,
+  initiallyEditingContent, onCancelNewStep, onCopyAction,
 }) => {
   const [editingContent, setEditingContent] = useState<boolean>(!!initiallyEditingContent);
   const [draftTitle, setDraftTitle] = useState(step.content?.title ?? '');
