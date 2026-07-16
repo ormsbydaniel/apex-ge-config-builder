@@ -142,7 +142,7 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
         <DialogHeader>
           <DialogTitle>Add / edit action</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-1">
+        <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto px-1">
           {CATEGORY_ORDER.filter((cat) => byCategory[cat].length > 0).map((cat) => (
             <div key={cat} className="space-y-1">
               <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{cat}</h5>

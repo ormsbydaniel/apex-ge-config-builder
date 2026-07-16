@@ -153,7 +153,7 @@ const ActionModal: React.FC<BaseModalProps> = ({
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>
       </DialogHeader>
-      <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-1">{children}</div>
+      <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto px-1">{children}</div>
       <DialogFooter className={onBack ? 'sm:justify-between' : undefined}>
         {onBack && (
           <Button variant="ghost" onClick={onBack}>← Back</Button>
