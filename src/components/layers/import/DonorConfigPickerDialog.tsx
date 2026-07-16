@@ -492,23 +492,63 @@ const DonorConfigPickerDialog = ({
 
                 {/* Examples */}
                 <TabsContent value="examples" className="mt-4 flex-1 min-h-0 overflow-auto">
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => handleLoadExample()}
-                      className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <div className="font-medium text-sm">Comprehensive demo</div>
-                          <div className="text-xs text-muted-foreground mt-0.5">
-                            A production-ready configuration showcasing many layer types and
-                            features.
+                  {examplesLoading || (examplesFetching && !examples) ? (
+                    <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading examples…
+                    </div>
+                  ) : examplesError ? (
+                    <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 space-y-2">
+                      <div className="flex items-start gap-2 text-sm">
+                        <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
+                        <div className="flex-1">
+                          <div className="font-medium">Couldn't load examples manifest</div>
+                          <div className="text-xs text-muted-foreground mt-1 break-all">
+                            {(examplesError as Error).message}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-2 break-all">
+                            Manifest URL:{' '}
+                            <a
+                              href={EXAMPLES_MANIFEST_URL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline underline-offset-2"
+                            >
+                              {EXAMPLES_MANIFEST_URL}
+                            </a>
                           </div>
                         </div>
-                        <FileText className="h-4 w-4 text-muted-foreground" />
                       </div>
-                    </button>
-                  </div>
+                      <Button size="sm" variant="outline" onClick={() => refetchExamples()}>
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Retry
+                      </Button>
+                    </div>
+                  ) : !examples || examples.length === 0 ? (
+                    <div className="py-10 text-center text-sm text-muted-foreground">
+                      No examples are listed in the manifest.
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {examples.map((ex) => (
+                        <button
+                          key={ex.id}
+                          onClick={() => handleLoadExample(ex)}
+                          className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <div className="font-medium text-sm">{ex.name}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">
+                                {ex.description}
+                              </div>
+                            </div>
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </TabsContent>
 
                 {/* From GitHub */}
