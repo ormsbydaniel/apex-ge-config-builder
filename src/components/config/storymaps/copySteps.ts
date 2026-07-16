@@ -273,6 +273,16 @@ const diffFacet = (
         after: summarisePanel(after.panelState),
       };
     }
+    case 'transition': {
+      if ((before.autoAdvance ?? null) === (after.autoAdvance ?? null))
+        return { kind: 'noop' };
+      return {
+        kind: 'replace',
+        before: before.autoAdvance !== undefined ? `${before.autoAdvance}ms` : '(none)',
+        after: after.autoAdvance !== undefined ? `${after.autoAdvance}ms` : '(none)',
+      };
+    }
+
     case 'contentDescription': {
       const b = before.content?.description ?? '';
       const a = after.content?.description ?? '';
