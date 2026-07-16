@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import type { StoryStep } from '@/types/config';
 import {
-  CopyFacet, FACET_LABEL, MergeStrategy, STRATEGY_FACETS, facetPresent,
+  CopyFacet, FACET_LABEL, MergeStrategy, FACET_STRATEGIES, STRATEGY_LABEL, facetPresent,
   buildCopyPreview, StepChangePreview, FacetChange,
 } from './copySteps';
 
