@@ -271,7 +271,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     warnings?: StoryWarning[];
     onEdit: () => void;
     onRemove?: () => void;
+    onCopy?: () => void;
   };
+  const copyHandler = (facet: CopyFacet) =>
+    onCopyAction ? () => onCopyAction(facet) : undefined;
   const items: Item[] = [];
 
   // Navigation (viewport is required, so no remove — resets to default zoom).
