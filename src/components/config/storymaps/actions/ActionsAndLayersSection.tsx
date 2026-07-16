@@ -201,6 +201,8 @@ interface Props {
   title?: string;
   headerIcon?: React.ReactNode;
   addLabel?: string;
+  /** Open the "copy this facet to other steps" modal. */
+  onCopyAction?: (facet: CopyFacet) => void;
 }
 
 type OpenEditor =
@@ -214,6 +216,7 @@ type OpenEditor =
 export const ActionsAndLayersSection: React.FC<Props> = ({
   step, sources, warnings, onChange, renderHeader, bare,
   allowedKinds, title = 'Actions & Layers', headerIcon, addLabel = 'Add action',
+  onCopyAction,
 }) => {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
