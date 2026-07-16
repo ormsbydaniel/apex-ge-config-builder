@@ -155,6 +155,9 @@ export const applyFacetCopy = (
         ...target,
         panelState: source.panelState ? clone(source.panelState) : undefined,
       };
+    case 'transition':
+      return { ...target, autoAdvance: source.autoAdvance };
+
     case 'contentDescription': {
       const src = source.content?.description ?? '';
       const tgt = target.content?.description ?? '';
