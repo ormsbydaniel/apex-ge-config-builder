@@ -831,7 +831,7 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
           <div className="border rounded divide-y">
             {CONTROL_KEYS.map((k) => (
               <div key={k} className="flex items-center gap-4 px-2 py-1.5">
-                <span className={cn('text-sm', k === 'filters' ? 'w-32' : 'w-20 capitalize')}>
+                <span className={cn('text-sm w-32', k !== 'filters' && 'capitalize')}>
                   {k === 'filters' ? 'Constraint filters' : k}
                 </span>
                 <label className="flex items-center gap-1 text-xs">
