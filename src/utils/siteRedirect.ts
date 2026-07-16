@@ -25,11 +25,19 @@ const SKIP_HOSTS = [
   "127.0.0.1",
 ];
 
+function isSkippedHost(hostname: string): boolean {
+  if (SKIP_HOSTS.includes(hostname)) return true;
+  // Phase 2: Lovable preview / sandbox hosts also skip the splash.
+  if (hostname.endsWith(".lovable.app")) return true;
+  if (hostname.endsWith(".lovable.dev")) return true;
+  return false;
+}
+
 export function shouldShowRelocationNotice(): boolean {
   if (typeof window === "undefined") return false;
 
   const hostname = window.location.hostname;
-  if (SKIP_HOSTS.includes(hostname)) return false;
+  if (isSkippedHost(hostname)) return false;
 
   // Query param bypass — persist for the session.
   try {
