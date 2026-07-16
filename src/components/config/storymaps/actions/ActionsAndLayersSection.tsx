@@ -316,6 +316,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'baseLayer'),
       onEdit: () => setOpenEditor({ kind: 'baseLayer' }),
       onRemove: () => removeAction('baseLayer'),
+      onCopy: copyHandler('baseLayer'),
     });
   }
 
