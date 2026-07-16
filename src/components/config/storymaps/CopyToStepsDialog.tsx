@@ -120,6 +120,9 @@ export const CopyToStepsDialog: React.FC<Props> = ({
         const d = sourceStep.content?.description ?? '';
         return d.length > 80 ? `${d.slice(0, 77)}…` : d;
       }
+      case 'transition': {
+        return sourceStep.autoAdvance !== undefined ? `After ${sourceStep.autoAdvance}ms` : 'Next / Previous click';
+      }
     }
   };
 
