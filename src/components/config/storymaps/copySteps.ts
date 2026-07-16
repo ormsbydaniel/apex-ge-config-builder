@@ -147,6 +147,22 @@ export const applyFacetCopy = (
         ...target,
         panelState: source.panelState ? clone(source.panelState) : undefined,
       };
+    case 'contentDescription': {
+      const src = source.content?.description ?? '';
+      const tgt = target.content?.description ?? '';
+      let next: string;
+      if (strategy === 'insertStart') {
+        next = src && tgt ? `${src}\n\n${tgt}` : src || tgt;
+      } else if (strategy === 'insertEnd') {
+        next = src && tgt ? `${tgt}\n\n${src}` : src || tgt;
+      } else {
+        next = src;
+      }
+      return {
+        ...target,
+        content: { ...(target.content ?? {}), description: next },
+      };
+    }
   }
 };
 
