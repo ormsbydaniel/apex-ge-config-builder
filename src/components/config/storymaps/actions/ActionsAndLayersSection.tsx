@@ -455,6 +455,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         step={step}
         sources={sources}
         onSave={(activeLayers: StoryActiveLayer[]) => patch({ activeLayers })}
+        onBack={() => { setOpenEditor(null); setPickerOpen(true); }}
       />
       <PanelStateEditor
         open={openEditor?.kind === 'panelState'}
