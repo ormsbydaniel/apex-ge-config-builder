@@ -12,9 +12,11 @@ export type ActionKind =
   | 'activeLayers'
   | 'baseLayer'
   | 'constraints'
-  | 'panelState';
+  | 'panelState'
+  | 'transition';
 
-export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels';
+export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels' | 'Transition';
+
 
 export interface ActionMeta {
   kind: ActionKind;
