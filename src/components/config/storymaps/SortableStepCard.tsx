@@ -495,6 +495,9 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                 onSave={onSave}
                 initiallyEditingContent={initiallyEditingContent}
                 onCancelNewStep={onCancelNewStep}
+                onCopyAction={
+                  canCopy ? (facet) => setCopyState({ mode: 'single', facet }) : undefined
+                }
               />
             </CardContent>
           )}
@@ -507,6 +510,22 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
         step={step}
         onSave={onSave}
       />
+
+      {canCopy && storySteps && (
+        <CopyToStepsDialog
+          open={copyState !== null}
+          onOpenChange={(o) => !o && setCopyState(null)}
+          sourceStep={step}
+          storySteps={storySteps}
+          sourceIndex={index}
+          mode={copyState?.mode ?? 'multi'}
+          facet={copyState?.mode === 'single' ? copyState.facet : undefined}
+          onApply={(result) => {
+            onCopyToSteps?.(result);
+            setCopyState(null);
+          }}
+        />
+      )}
     </div>
   );
 };
