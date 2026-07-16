@@ -144,7 +144,9 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
     'Navigation': filter(['navigation']),
     'Layer display': filter(['baseLayer', 'activeLayers', 'constraints']),
     'Panels': filter(['panelState']),
+    'Transition': filter(['transition']),
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
