@@ -207,7 +207,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
       setZoom(v.zoom); setLon(v.center[0]); setLat(v.center[1]);
       setDuration(v.duration !== undefined ? String(v.duration) : '');
     } else {
-      setZoom(11);
+      setZoom(1);
     }
     if (v && 'fitLayer' in v) {
       setFitLayer(v.fitLayer || layerOptions[0]?.id || '');
