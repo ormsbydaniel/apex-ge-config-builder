@@ -1,52 +1,26 @@
-## Add "Content description" as a copyable facet with three merge strategies
+## Swap `ChevronsRight` → `Forward` (blue) for copy affordances
 
-Extend the copy-between-steps flow so a step's `content.description` can be copied to other steps using **Replace**, **Insert at start**, or **Insert at end**.
+Replace the double-chevron icon used for "copy to other steps" in all three places with Lucide's `Forward`, tinted blue to match the existing blue `Copy` button in the step header (`text-blue-600 hover:bg-blue-50` on a subtle blue-tinted border where a border is already in use).
 
-### Type & helper changes (`src/components/config/storymaps/copySteps.ts`)
+### Files & edits
 
-- Extend `CopyFacet` union with `'contentDescription'`.
-- Add to `FACET_LABEL`: `contentDescription: 'Description'`.
-- Extend `MergeStrategy` to `'replace' | 'append' | 'insertStart' | 'insertEnd'`.
-  - `append` stays valid for `activeLayers` / `constraints`.
-  - `insertStart` / `insertEnd` are only valid for `contentDescription`.
-- Add per-facet strategy metadata so the dialog can render the right radio options:
-  ```ts
-  export const FACET_STRATEGIES: Record<CopyFacet, MergeStrategy[]> = {
-    navigation: [],
-    baseLayer: [],
-    activeLayers: ['replace', 'append'],
-    constraints: ['replace', 'append'],
-    panelState: [],
-    contentDescription: ['replace', 'insertStart', 'insertEnd'],
-  };
-  ```
-  Replace the current `STRATEGY_FACETS` usage in `CopyToStepsDialog` with this map (facets whose array is non-empty show a strategy chooser; the labels come from a `STRATEGY_LABEL` map).
-- `facetPresent`: return `!!step.content?.description?.trim()` for `contentDescription`.
-- `applyFacetCopy` new case:
-  - `replace`: set `content.description` to source description (preserving existing `content.title`).
-  - `insertStart`: `sourceDesc + "\n\n" + targetDesc` (skip separator if either side empty).
-  - `insertEnd`: `targetDesc + "\n\n" + sourceDesc` (same rule).
-  - Always returns a new `content` object; leaves `title` untouched.
-- `diffFacet` new case: string compare; `noop` if unchanged, else a `replace`-kind change with before/after summaries truncated to ~80 chars (ellipsis) so the preview list stays compact. For insert strategies the diff naturally shows the merged result — the strategy chip already tells the user how it was produced.
+1. **`src/components/config/storymaps/actions/ActionsAndLayersSection.tsx`**
+   - Import swap: `ChevronsRight` → `Forward`.
+   - Row-level copy button (line ~107): render `<Forward className="h-3.5 w-3.5 text-blue-600" />`. Keep the button as `variant="ghost" size="icon"` (no border on inline row buttons) so only the glyph carries the blue accent — consistent with other ghost row icons.
 
-### Dialog changes (`CopyToStepsDialog.tsx`)
+2. **`src/components/config/storymaps/SortableStepCard.tsx`**
+   - Import swap: `ChevronsRight` → `Forward` (keep `Copy` import untouched).
+   - Step-header multi-facet copy button (line ~450): render `<Forward className="h-3 w-3 text-blue-600" />`. This button already sits next to the blue `Copy` step button (line 462, `border-blue-500/30 text-blue-600 hover:bg-blue-50`) — apply the same border/hover treatment so the two blue affordances read as a matched pair.
 
-- Add `Description` as a facet checkbox in `ConfigureView`, gated by `facetPresent(sourceStep, 'contentDescription')`.
-- Replace the current two-option Replace/Append toggle with a small radio/segmented control driven by `FACET_STRATEGIES[facet]`:
-  - `replace` → "Replace"
-  - `append` → "Append" (layers/constraints only)
-  - `insertStart` → "Insert at start"
-  - `insertEnd` → "Insert at end"
-- Default strategy for `contentDescription` is `replace`.
-- Preview rendering: reuse the existing `replace`-kind row, prefixed by the strategy chip so the user can see whether the merged text came from Insert at start/end vs Replace.
+3. **`src/components/config/storymaps/StepEditor.tsx`**
+   - Import swap: `ChevronsRight` → `Forward`.
+   - Description copy button (line ~103): render `<Forward className="h-3.5 w-3.5 text-blue-600" />` on the existing ghost icon button. Keep it ghost (no border) to stay consistent with the neighbouring `Pencil` edit button; the blue tint alone conveys the copy family.
+
+### Tooltip / aria text
+
+No copy changes. Existing labels ("Copy to other steps", "Copy description to other steps", per-facet "Copy … to other steps") already describe the action clearly.
 
 ### Non-goals
 
-- No changes to the copy entry points, dispatch wiring, or warning banner.
-- Title is not copied — description only, as requested.
-- No smart de-duplication when inserting (a straight text concat with a blank-line separator).
-
-### Files
-
-- Edit `src/components/config/storymaps/copySteps.ts` — add facet, strategies, apply + diff logic.
-- Edit `src/components/config/storymaps/CopyToStepsDialog.tsx` — new checkbox, three-way strategy control, preview label wiring.
+- No change to the copy dialog itself, wiring, or the header `Copy` (duplicate-step) button.
+- No change to icon sizing or button layout beyond the header-pair border alignment noted above.
