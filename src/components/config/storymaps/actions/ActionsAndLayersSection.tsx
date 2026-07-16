@@ -458,6 +458,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         open={openEditor?.kind === 'panelState'}
         onOpenChange={(o) => !o && setOpenEditor(null)}
         step={step}
+        sources={sources}
         layerOptions={layerOptions}
         onSave={(panelState: StoryPanelState | undefined) => patch({ panelState })}
       />

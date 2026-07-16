@@ -729,6 +729,7 @@ interface PanelStateEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
+  sources: DataSource[];
   layerOptions: LayerOption[];
   onSave: (panelState: StoryPanelState | undefined) => void;
 }
@@ -736,8 +737,14 @@ interface PanelStateEditorProps {
 const CONTROL_KEYS = ['temporal', 'styles', 'filters'] as const;
 type ControlKey = typeof CONTROL_KEYS[number];
 
+const CONTROL_LABEL: Record<ControlKey, string> = {
+  temporal: 'Temporal',
+  styles: 'Opacity',
+  filters: 'Constraint filters',
+};
+
 export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
-  open, onOpenChange, step, layerOptions, onSave,
+  open, onOpenChange, step, sources, layerOptions, onSave,
 }) => {
   const [focus, setFocus] = useState<string>('__none__');
   const [controls, setControls] = useState<Record<ControlKey, { expanded: boolean; disabled: boolean }>>({
@@ -772,6 +779,34 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
 
   const activeIds = new Set((step.activeLayers ?? []).map((l) => l.id));
   const focusOptions = layerOptions.filter((o) => activeIds.has(o.id));
+
+  // Context-sensitive availability based on the currently focused layer
+  const focusSource = focus === '__none__' ? undefined : findSource(sources, focus);
+  const srcAny = focusSource as any;
+  const metaControls = srcAny?.meta?.controls ?? {};
+  const infoControls = (srcAny?.infoPanel?.controls && !Array.isArray(srcAny.infoPanel.controls))
+    ? srcAny.infoPanel.controls
+    : {};
+  const controlOn = (key: 'opacitySlider' | 'temporalControls') =>
+    !!metaControls[key] || !!infoControls[key];
+
+  const hasFocus = !!focusSource;
+  const tabEnabled: Record<StoryPanelTabId, boolean> = {
+    overview: hasFocus,
+    query: hasFocus,
+    statistics: hasFocus && (focusSource?.statistics?.length ?? 0) > 0,
+    charts: hasFocus && (focusSource?.charts?.length ?? 0) > 0,
+    parameters: false,
+  };
+  const controlEnabled: Record<ControlKey, boolean> = {
+    temporal: hasFocus && (
+      controlOn('temporalControls') ||
+      (!!focusSource?.timeframe && focusSource.timeframe !== 'None')
+    ),
+    styles: hasFocus && controlOn('opacitySlider'),
+    filters: hasFocus && (focusSource?.constraints?.length ?? 0) > 0,
+  };
+
 
   const save = () => {
     const nextControls: NonNullable<StoryPanelState['controls']> = {};
@@ -819,13 +854,19 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
             {(['__none__', ...VALID_TAB_IDS] as const).map((t) => {
               const id = `panel-tab-${t}`;
               const label = t === '__none__' ? 'None' : t;
+              const isEnabled = t === '__none__' || tabEnabled[t as StoryPanelTabId];
               return (
                 <label
                   key={t}
                   htmlFor={id}
-                  className="flex items-center gap-2 border rounded px-2 py-1.5 text-sm cursor-pointer hover:bg-accent has-[:checked]:bg-accent has-[:checked]:border-primary capitalize"
+                  className={cn(
+                    'flex items-center gap-2 border rounded px-2 py-1.5 text-sm capitalize',
+                    isEnabled
+                      ? 'cursor-pointer hover:bg-accent has-[:checked]:bg-accent has-[:checked]:border-primary'
+                      : 'opacity-50 cursor-not-allowed',
+                  )}
                 >
-                  <RadioGroupItem id={id} value={t} />
+                  <RadioGroupItem id={id} value={t} disabled={!isEnabled} />
                   {label}
                 </label>
               );
@@ -843,27 +884,32 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
         <div className="space-y-2">
           <Label className="text-xs">Controls</Label>
           <div className="border rounded divide-y">
-            {CONTROL_KEYS.map((k) => (
-              <div key={k} className="flex items-center gap-4 px-2 py-1.5">
-                <span className={cn('text-sm w-32', k !== 'filters' && 'capitalize')}>
-                  {k === 'filters' ? 'Constraint filters' : k}
-                </span>
-                <label className="flex items-center gap-1 text-xs">
-                  <Checkbox
-                    checked={controls[k].expanded}
-                    onCheckedChange={(v) =>
-                      setControls((prev) => ({ ...prev, [k]: { ...prev[k], expanded: v === true } }))} />
-                  Expanded
-                </label>
-                <label className="flex items-center gap-1 text-xs">
-                  <Checkbox
-                    checked={controls[k].disabled}
-                    onCheckedChange={(v) =>
-                      setControls((prev) => ({ ...prev, [k]: { ...prev[k], disabled: v === true } }))} />
-                  Disabled
-                </label>
-              </div>
-            ))}
+            {CONTROL_KEYS.map((k) => {
+              const isEnabled = controlEnabled[k];
+              return (
+                <div key={k} className={cn('flex items-center gap-4 px-2 py-1.5', !isEnabled && 'opacity-50')}>
+                  <span className="text-sm w-32">
+                    {CONTROL_LABEL[k]}
+                  </span>
+                  <label className={cn('flex items-center gap-1 text-xs', !isEnabled && 'cursor-not-allowed')}>
+                    <Checkbox
+                      disabled={!isEnabled}
+                      checked={controls[k].expanded}
+                      onCheckedChange={(v) =>
+                        setControls((prev) => ({ ...prev, [k]: { ...prev[k], expanded: v === true } }))} />
+                    Expanded
+                  </label>
+                  <label className={cn('flex items-center gap-1 text-xs', !isEnabled && 'cursor-not-allowed')}>
+                    <Checkbox
+                      disabled={!isEnabled}
+                      checked={controls[k].disabled}
+                      onCheckedChange={(v) =>
+                        setControls((prev) => ({ ...prev, [k]: { ...prev[k], disabled: v === true } }))} />
+                    Disabled
+                  </label>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
