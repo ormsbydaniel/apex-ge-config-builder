@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
-  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal, ChevronsRight,
+  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal, Forward,
 } from 'lucide-react';
 import type { CopyFacet } from '../copySteps';
 import { Button } from '@/components/ui/button';
