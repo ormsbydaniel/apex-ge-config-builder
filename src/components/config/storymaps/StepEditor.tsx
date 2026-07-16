@@ -43,9 +43,6 @@ export const StepEditor: React.FC<StepEditorProps> = ({
   const [draftTitle, setDraftTitle] = useState(step.content?.title ?? '');
   const [draftId, setDraftId] = useState(step.id);
   const [draftDescription, setDraftDescription] = useState(step.content?.description ?? '');
-  const [draftAutoAdvance, setDraftAutoAdvance] = useState<string>(
-    step.autoAdvance !== undefined ? String(step.autoAdvance) : '',
-  );
   const [hasSavedNewContent, setHasSavedNewContent] = useState(false);
 
   useEffect(() => {
@@ -53,7 +50,6 @@ export const StepEditor: React.FC<StepEditorProps> = ({
       setDraftTitle(step.content?.title ?? '');
       setDraftId(step.id);
       setDraftDescription(step.content?.description ?? '');
-      setDraftAutoAdvance(step.autoAdvance !== undefined ? String(step.autoAdvance) : '');
     }
   }, [editingContent, step]);
 
@@ -76,12 +72,12 @@ export const StepEditor: React.FC<StepEditorProps> = ({
             ...(description && { description }),
           }
         : undefined,
-      autoAdvance: draftAutoAdvance === '' ? undefined : Number(draftAutoAdvance),
     };
     onSave(next);
     setHasSavedNewContent(true);
     setEditingContent(false);
   };
+
 
   const handleContentOpenChange = (open: boolean) => {
     if (!open && initiallyEditingContent && !hasSavedNewContent) {
