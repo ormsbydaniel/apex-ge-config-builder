@@ -42,6 +42,8 @@ import {
 import { DataSource, Story, StoryStep } from '@/types/config';
 import { StepWarningsMap, stepKey } from '@/utils/storyValidation';
 import SortableStepCard from './SortableStepCard';
+import { applyFacetCopies } from './copySteps';
+import type { CopyToStepsResult } from './CopyToStepsDialog';
 
 interface SortableStoryGroupProps {
   id: string;
@@ -58,6 +60,8 @@ interface SortableStoryGroupProps {
   onDuplicateStep: (stepIndex: number) => void;
   onRemoveStep: (stepIndex: number) => void;
   onMoveStep: (fromIndex: number, toIndex: number) => void;
+  /** Replace the whole steps array in one dispatch. Used for cross-step copy. */
+  onReplaceSteps?: (nextSteps: StoryStep[]) => void;
   onStepDirtyChange?: (stepIndex: number, dirty: boolean) => void;
   onExpandedChange?: (open: boolean) => void;
 }
