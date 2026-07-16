@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
-  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal,
+  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal, ChevronsRight,
 } from 'lucide-react';
+import type { CopyFacet } from '../copySteps';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
