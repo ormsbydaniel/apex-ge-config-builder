@@ -64,9 +64,12 @@ export const facetPresent = (step: StoryStep, facet: CopyFacet): boolean => {
       );
     case 'panelState':
       return !!step.panelState;
+    case 'transition':
+      return step.autoAdvance !== undefined;
     case 'contentDescription':
       return !!step.content?.description?.trim();
   }
+
 };
 
 const mergeActiveLayers = (
