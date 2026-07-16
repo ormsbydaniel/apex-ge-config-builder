@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-07-16",
+    title: "Release 2.2.0 - further enhancements to storymap editing",
+    category: "Feature",
+  },
+  {
     date: "2026-07-15",
     title: "Release 2.1.0 with support for storymaps",
     category: "Feature",
