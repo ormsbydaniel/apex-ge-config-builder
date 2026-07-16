@@ -96,10 +96,6 @@ export const StepEditor: React.FC<StepEditorProps> = ({
       <div className="flex items-center gap-1.5 border-b pb-2">
         <FileText className="h-4 w-4 text-muted-foreground" />
         <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">Content</h4>
-        <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
-          onClick={openContentDialog} title="Edit content">
-          <Pencil className="h-3.5 w-3.5" />
-        </Button>
         {onCopyAction && step.content?.description && (
           <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
             onClick={() => onCopyAction('contentDescription')}
@@ -107,6 +103,10 @@ export const StepEditor: React.FC<StepEditorProps> = ({
             <ChevronsRight className="h-3.5 w-3.5" />
           </Button>
         )}
+        <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
+          onClick={openContentDialog} title="Edit content">
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
       </div>
 
       <div className="space-y-1 text-xs text-muted-foreground">
