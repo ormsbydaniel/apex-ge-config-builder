@@ -52,12 +52,7 @@ interface TreeEntry {
 
 type Stage = 'idle' | 'parse' | 'normalize' | 'validate' | 'done';
 
-interface ExampleConfig {
-  name: string;
-  description: string;
-  url: string;
-  fileName: string;
-}
+type ExampleConfig = ExampleConfigEntry;
 
 const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps) => {
   const { importConfig, importConfigFromUrl } = useConfigImport();
