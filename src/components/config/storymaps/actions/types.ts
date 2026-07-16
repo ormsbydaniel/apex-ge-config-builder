@@ -63,13 +63,22 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
     description: 'Focus a layer, expand or disable controls, and open a specific panel tab.',
     singleton: true,
   },
+  transition: {
+    kind: 'transition',
+    category: 'Transition',
+    label: 'Auto-advance',
+    description: 'Automatically advance to the next step after a set duration instead of requiring a click.',
+    singleton: true,
+  },
 };
 
 export const CATEGORY_ORDER: ActionCategory[] = [
   'Navigation',
   'Layer display',
   'Panels',
+  'Transition',
 ];
+
 
 export const VALID_TAB_IDS: StoryPanelTabId[] = [
   'overview',
