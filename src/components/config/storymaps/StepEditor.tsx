@@ -7,7 +7,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
 import {
-  Compass, FileText, Layers as LayersIcon, Pencil, PanelRightOpen,
+  Compass, FileText, Layers as LayersIcon, Pencil, PanelRightOpen, ChevronsRight,
 } from 'lucide-react';
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
