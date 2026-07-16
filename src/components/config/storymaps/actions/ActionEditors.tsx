@@ -854,13 +854,19 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
             {(['__none__', ...VALID_TAB_IDS] as const).map((t) => {
               const id = `panel-tab-${t}`;
               const label = t === '__none__' ? 'None' : t;
+              const isEnabled = t === '__none__' || tabEnabled[t as StoryPanelTabId];
               return (
                 <label
                   key={t}
                   htmlFor={id}
-                  className="flex items-center gap-2 border rounded px-2 py-1.5 text-sm cursor-pointer hover:bg-accent has-[:checked]:bg-accent has-[:checked]:border-primary capitalize"
+                  className={cn(
+                    'flex items-center gap-2 border rounded px-2 py-1.5 text-sm capitalize',
+                    isEnabled
+                      ? 'cursor-pointer hover:bg-accent has-[:checked]:bg-accent has-[:checked]:border-primary'
+                      : 'opacity-50 cursor-not-allowed',
+                  )}
                 >
-                  <RadioGroupItem id={id} value={t} />
+                  <RadioGroupItem id={id} value={t} disabled={!isEnabled} />
                   {label}
                 </label>
               );
