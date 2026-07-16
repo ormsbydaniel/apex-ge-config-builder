@@ -446,9 +446,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       <div className={cn('space-y-2', !bare && 'ml-6')}>
         {items.length === 0 && (
           <p className="text-xs text-muted-foreground italic">
-            No actions yet. Use "Add action" to define what this step does.
+            {emptyText ?? 'No actions yet. Use "Add action" to define what this step does.'}
           </p>
         )}
+
         {items.map((item) => (
           <ActionCard
             key={item.key}
