@@ -332,6 +332,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'activeLayers'),
       onEdit: () => setOpenEditor({ kind: 'activeLayers' }),
       onRemove: () => removeAction('activeLayers'),
+      onCopy: copyHandler('activeLayers'),
     });
   }
 
