@@ -22,8 +22,8 @@ export const FACET_LABEL: Record<CopyFacet, string> = {
 export const STRATEGY_LABEL: Record<MergeStrategy, string> = {
   replace: 'Replace',
   append: 'Append',
-  insertStart: 'Insert at start',
-  insertEnd: 'Insert at end',
+  insertStart: 'Merge text into start',
+  insertEnd: 'Merge text into end',
 };
 
 /** Strategies offered per facet. Empty array = always overwrite (no chooser). */
