@@ -142,3 +142,160 @@ export const applyFacetCopies = (
   }
   return out;
 };
+
+// ---------- Preview / diff helpers ----------
+
+export type FacetChange =
+  | { kind: 'noop' }
+  | { kind: 'replace'; before: string; after: string }
+  | { kind: 'append'; added: string[]; keptCount: number }
+  | {
+      kind: 'constraints';
+      strategy: MergeStrategy;
+      perLayer: Array<{
+        layerId: string;
+        beforeLabels: string[];
+        afterLabels: string[];
+        addedLabels: string[];
+        removedLabels: string[];
+      }>;
+    };
+
+export interface StepFacetPreview {
+  facet: CopyFacet;
+  strategy: MergeStrategy;
+  change: FacetChange;
+}
+
+export interface StepChangePreview {
+  targetIndex: number;
+  targetTitle: string;
+  facets: StepFacetPreview[];
+  anyChange: boolean;
+}
+
+const eq = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+
+const summariseViewport = (v: StoryStep['viewport']): string => {
+  if (!v) return '(none)';
+  if ('zoom' in v)
+    return `Zoom ${v.zoom} · [${v.center.map((n) => n.toFixed(2)).join(', ')}]`;
+  if ('fitLayer' in v) return `Fit layer: ${v.fitLayer}`;
+  return `Fit extent: [${v.extent.map((n) => n.toFixed(2)).join(', ')}]`;
+};
+
+const summarisePanel = (p: StoryStep['panelState']): string => {
+  if (!p) return '(none)';
+  const bits: string[] = [];
+  if (p.focusLayer) bits.push(`focus: ${p.focusLayer}`);
+  if (p.tab?.id) bits.push(`tab: ${p.tab.id}`);
+  return bits.length ? bits.join(' · ') : '(empty)';
+};
+
+const diffFacet = (
+  facet: CopyFacet,
+  strategy: MergeStrategy,
+  before: StoryStep,
+  after: StoryStep,
+  source: StoryStep,
+): FacetChange => {
+  switch (facet) {
+    case 'navigation': {
+      if (eq(before.viewport, after.viewport)) return { kind: 'noop' };
+      return {
+        kind: 'replace',
+        before: summariseViewport(before.viewport),
+        after: summariseViewport(after.viewport),
+      };
+    }
+    case 'baseLayer': {
+      if ((before.baseLayer ?? '') === (after.baseLayer ?? ''))
+        return { kind: 'noop' };
+      return {
+        kind: 'replace',
+        before: before.baseLayer ?? '(none)',
+        after: after.baseLayer ?? '(none)',
+      };
+    }
+    case 'panelState': {
+      if (eq(before.panelState, after.panelState)) return { kind: 'noop' };
+      return {
+        kind: 'replace',
+        before: summarisePanel(before.panelState),
+        after: summarisePanel(after.panelState),
+      };
+    }
+    case 'activeLayers': {
+      const beforeIds = (before.activeLayers ?? []).map((l) => l.id);
+      const afterIds = (after.activeLayers ?? []).map((l) => l.id);
+      if (eq(beforeIds, afterIds) && eq(before.activeLayers, after.activeLayers))
+        return { kind: 'noop' };
+      if (strategy === 'append') {
+        const beforeSet = new Set(beforeIds);
+        const added = afterIds.filter((id) => !beforeSet.has(id));
+        if (added.length === 0) return { kind: 'noop' };
+        return { kind: 'append', added, keptCount: beforeIds.length };
+      }
+      return {
+        kind: 'replace',
+        before: beforeIds.length ? beforeIds.join(', ') : '(none)',
+        after: afterIds.length ? afterIds.join(', ') : '(none)',
+      };
+    }
+    case 'constraints': {
+      const beforeMap = new Map(
+        (before.activeLayers ?? []).map((l) => [l.id, l.constraints ?? []]),
+      );
+      const afterMap = new Map(
+        (after.activeLayers ?? []).map((l) => [l.id, l.constraints ?? []]),
+      );
+      const srcLayerIds = (source.activeLayers ?? [])
+        .filter((l) => (l.constraints?.length ?? 0) > 0)
+        .map((l) => l.id);
+      const perLayer: Array<{
+        layerId: string;
+        beforeLabels: string[];
+        afterLabels: string[];
+        addedLabels: string[];
+        removedLabels: string[];
+      }> = [];
+      for (const id of srcLayerIds) {
+        const b = (beforeMap.get(id) ?? []).map((c) => c.label);
+        const a = (afterMap.get(id) ?? []).map((c) => c.label);
+        if (eq(b, a)) continue;
+        const bSet = new Set(b);
+        const aSet = new Set(a);
+        perLayer.push({
+          layerId: id,
+          beforeLabels: b,
+          afterLabels: a,
+          addedLabels: a.filter((l) => !bSet.has(l)),
+          removedLabels: b.filter((l) => !aSet.has(l)),
+        });
+      }
+      if (perLayer.length === 0) return { kind: 'noop' };
+      return { kind: 'constraints', strategy, perLayer };
+    }
+  }
+};
+
+export const buildCopyPreview = (
+  source: StoryStep,
+  targets: { index: number; step: StoryStep }[],
+  facets: CopyFacet[],
+  strategies: Partial<Record<CopyFacet, MergeStrategy>>,
+): StepChangePreview[] => {
+  return targets.map(({ index, step }) => {
+    const after = applyFacetCopies(step, source, facets, strategies);
+    const facetPreviews: StepFacetPreview[] = facets.map((f) => {
+      const strat = strategies[f] ?? 'replace';
+      return { facet: f, strategy: strat, change: diffFacet(f, strat, step, after, source) };
+    });
+    return {
+      targetIndex: index,
+      targetTitle: step.content?.title ?? step.id ?? '(untitled)',
+      facets: facetPreviews,
+      anyChange: facetPreviews.some((f) => f.change.kind !== 'noop'),
+    };
+  });
+};
