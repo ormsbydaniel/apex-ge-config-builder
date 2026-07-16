@@ -162,6 +162,18 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
     onMoveStep(from, to);
   };
 
+  const handleCopyToSteps = (sourceIndex: number, result: CopyToStepsResult) => {
+    if (!onReplaceSteps) return;
+    const source = steps[sourceIndex];
+    if (!source) return;
+    const targetSet = new Set(result.targetIndices);
+    const nextSteps = steps.map((s, i) => {
+      if (!targetSet.has(i)) return s;
+      return applyFacetCopies(s, source, result.facets, result.strategies);
+    });
+    onReplaceSteps(nextSteps);
+  };
+
   const totalWarnings = steps.reduce(
     (sum, _s, i) => sum + (warnings.get(stepKey(storyIndex, i))?.length ?? 0),
     0,
