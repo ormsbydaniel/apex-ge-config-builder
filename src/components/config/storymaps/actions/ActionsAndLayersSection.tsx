@@ -17,7 +17,7 @@ import {
   ACTION_META, CATEGORY_ORDER, hasKind, warningsForAction,
   type ActionKind, type ActionCategory,
 } from './types';
-import { NavigationEditor, ActiveLayersEditor, PanelStateEditor, BaseLayerEditor, ConstraintsEditor } from './ActionEditors';
+import { NavigationEditor, ActiveLayersEditor, PanelStateEditor, BaseLayerEditor, ConstraintsEditor, TransitionEditor } from './ActionEditors';
 
 // -----------------------------------------------------------------------------
 // Pill helper
