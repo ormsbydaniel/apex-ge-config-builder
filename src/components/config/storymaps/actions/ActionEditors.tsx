@@ -180,7 +180,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
   const [mode, setMode] = useState<ViewportMode>(initialMode);
 
   // Zoom fields
-  const [zoom, setZoom] = useState<number>(11);
+  const [zoom, setZoom] = useState<number>(1);
   const [lon, setLon] = useState<number>(0);
   const [lat, setLat] = useState<number>(0);
   const [duration, setDuration] = useState<string>('');
@@ -207,7 +207,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({
       setZoom(v.zoom); setLon(v.center[0]); setLat(v.center[1]);
       setDuration(v.duration !== undefined ? String(v.duration) : '');
     } else {
-      setZoom(11);
+      setZoom(1);
     }
     if (v && 'fitLayer' in v) {
       setFitLayer(v.fitLayer || layerOptions[0]?.id || '');
