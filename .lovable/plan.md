@@ -1,86 +1,63 @@
+## Add preview + confirmation step to Copy-to-steps
 
-## Copy between steps
+Extend `CopyToStepsDialog` with a two-stage flow: **Configure → Preview → Apply**. The preview enumerates, per target step, exactly which facets will change and how (replace vs append, with a per-facet before/after summary), and surfaces a prominent "cannot be undone" warning before the user confirms.
 
-Add a way to copy configuration from one step to other steps within the same story, at two granularities:
+### UX flow
 
-1. **Per-action copy** — a small "copy to…" icon on each action row (Navigation, Base map, Active layers, Constraints, Panel state) inside a step. Copies just that one facet.
-2. **Whole-step copy** — a new icon on the step card header (next to the JSON / Duplicate / Delete cluster) that lets the user pick *which facets* to copy and *which target steps* to copy them into.
+1. User configures facets + targets as today.
+2. Primary button changes from `Copy to N steps` to `Review changes` (still disabled until `canApply`).
+3. Clicking it swaps the dialog body to a **Preview** view (same modal, no new dialog).
+4. Preview shows a scrollable list grouped by target step. Under each step, one row per selected facet with:
+   - Facet name + strategy chip (`Replace` / `Append` / `Overwrite`)
+   - Short before → after summary (counts + key identifiers, e.g. layer ids added / constraint labels added / new zoom+center / new base map id / panel focus+tab)
+   - A neutral "No change" note when the computed result is identical to the current target (so the user sees no-ops rather than being surprised).
+5. Warning banner at the top of the preview (destructive styling, `AlertTriangle` icon): "This will overwrite step contents on the selected targets. This action cannot be undone from within the copy dialog — use the app's history to revert if needed."
+6. Footer buttons in preview mode: `Back` (returns to configure, preserves all selections), `Cancel`, `Apply to N steps` (destructive variant).
 
-Both entry points open the same target-picker modal, differing only in whether the "which facets" selector is shown.
+### Diff computation
 
-### Entry points
-
-- **Row-level icon**: `ActionsAndLayersSection.tsx`, on each `ActionCard`. New ghost-icon button using `ChevronsRight` (lucide's double forward chevron), placed immediately before the existing pencil button. Tooltip: "Copy to other steps".
-- **Step-level icon**: `SortableStepCard.tsx`, added to the header button cluster (between JSON and Duplicate). Same `ChevronsRight` icon, orange styling to match Duplicate/JSON group is not required — use neutral outline. Tooltip: "Copy to other steps".
-
-### Target-picker modal
-
-New component `CopyToStepsDialog` under `src/components/config/storymaps/`. Props:
+Add a pure helper in `src/components/config/storymaps/copySteps.ts`:
 
 ```ts
-{
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  sourceStep: StoryStep;
-  storySteps: StoryStep[];        // full sibling list including source
-  sourceIndex: number;
-  // 'single' locks facet to one kind; 'multi' shows the facet checklist
-  mode: 'single' | 'multi';
-  facet?: CopyFacet;              // required when mode==='single'
-  onApply: (result: {
-    targetIndices: number[];
-    facets: CopyFacet[];
-    // for facets that support it:
-    mergeStrategy: Record<CopyFacet, 'replace' | 'append'>;
-  }) => void;
+export type FacetChange =
+  | { kind: 'noop' }
+  | { kind: 'replace'; before: string; after: string }
+  | { kind: 'append'; added: string[]; keptCount: number };
+
+export interface StepChangePreview {
+  targetIndex: number;
+  targetTitle: string;
+  facets: Array<{ facet: CopyFacet; strategy: MergeStrategy; change: FacetChange }>;
 }
+
+export const buildCopyPreview(
+  source: StoryStep,
+  targets: { index: number; step: StoryStep }[],
+  facets: CopyFacet[],
+  strategies: Partial<Record<CopyFacet, MergeStrategy>>,
+): StepChangePreview[]
 ```
 
-`CopyFacet` union: `'navigation' | 'baseLayer' | 'activeLayers' | 'constraints' | 'panelState'`.
+Implementation reuses `applyFacetCopy` to get the post-copy target, then diffs per facet:
+- `navigation` / `baseLayer` / `panelState`: compare via JSON equality → `noop` or `replace` with human summaries reusing the existing `facetSummary` shape.
+- `activeLayers`: compare by `id` sets. `replace` → summarise removed + added ids. `append` → list ids actually added (skipping collisions).
+- `constraints`: per-layer diff by constraint `label`. `replace` shows old→new label lists per touched layer; `append` lists newly added labels.
 
-Modal contents:
+### Dialog changes (`CopyToStepsDialog.tsx`)
 
-- **Facets** (multi mode only) — checkbox list of the facets that are actually present on the source step; each row shows the facet label + a short summary of what would be copied (reuse the summary strings already computed in `ActionsAndLayersSection`).
-- **Merge strategy** — for `activeLayers` and `constraints` only, show a `Replace` / `Append` radio pair:
-  - `activeLayers`: Replace = overwrite target `activeLayers` entirely; Append = concat source layers not already present in the target (dedupe by `id`, source values win on collision only in Replace).
-  - `constraints`: Replace = for each source layer, overwrite its `constraints` in the target; Append = merge constraint arrays by `label` (source additions appended).
-  - Navigation, baseLayer and panelState are single-value → no strategy, always overwrite.
-- **Target steps** — scrollable checkbox list of sibling steps. Each row shows `#<n> <title or id>`. Source step is listed but disabled with a "source" pill.
-- **Bulk selects** above the list: `Select all`, `Deselect all`, `Future steps` (indices > sourceIndex), `Previous steps` (indices < sourceIndex). These set/replace the current selection.
-- **Footer**: Cancel + `Copy to N step(s)` primary button (disabled when no targets, or in multi mode when no facets are checked).
+- Add `stage: 'configure' | 'preview'` state, reset to `'configure'` whenever `open` flips true (keeps existing dialog-state-in-useEffect memory rule).
+- Extract the current body into a `ConfigureView`; add a `PreviewView` that consumes `buildCopyPreview` memoised on `{sourceStep, targets, facets, strategies}`.
+- Replace the current `Copy to N steps` button with:
+  - Configure stage: `Review changes` (disabled unless `canApply`).
+  - Preview stage: `Back`, `Apply to N steps` (variant=`destructive`).
+- `onApply` payload and call site are unchanged, so `SortableStepCard` / `SortableStoryGroup` wiring stays put.
 
-### Applying the copy
+### Files
 
-The dialog does not mutate config directly — it calls `onApply`, and the caller composes a new `StoryStep[]` and dispatches a single update.
+- Edit `src/components/config/storymaps/copySteps.ts` — add `buildCopyPreview` + diff helpers (pure, unit-testable).
+- Edit `src/components/config/storymaps/CopyToStepsDialog.tsx` — two-stage flow, warning banner, preview list rendering.
 
-- **Row-level path** (per-action): handled inside `ActionsAndLayersSection` via a new prop `onCopyToSteps(targets, facet, strategy)` bubbled from `StepEditor` → `SortableStepCard` → `SortableStoryGroup`.
-- **Step-level path**: handled directly in `SortableStepCard` via a new prop `onCopyStep(targets, facets, strategy)` bubbled to `SortableStoryGroup`.
+### Non-goals
 
-`SortableStoryGroup` already owns the story's step array; it applies the requested facet copies to each target step and dispatches one `updateStory` (single `onSave` per Core memory rule about merging updates).
-
-Facet copy semantics:
-
-| Facet         | Copy behaviour                                                                 |
-| ------------- | ------------------------------------------------------------------------------ |
-| navigation    | overwrite `target.viewport` with a deep clone of `source.viewport`             |
-| baseLayer     | overwrite `target.baseLayer`                                                   |
-| activeLayers  | Replace: clone source array. Append: concat by unseen `id`                     |
-| constraints   | Replace: for each source layer id present in target, overwrite `.constraints`. Append: merge by `label`, source additions appended. Layers in source but not target are added with just `{ id, constraints }`. |
-| panelState    | overwrite `target.panelState` with a deep clone                                |
-
-Deep clones use `structuredClone` to avoid shared references.
-
-### Files to change / add
-
-- Add `src/components/config/storymaps/CopyToStepsDialog.tsx` — the modal.
-- Add `src/components/config/storymaps/copySteps.ts` — pure helpers: `applyFacetCopy(target, source, facet, strategy)` and the `CopyFacet` type.
-- Edit `src/components/config/storymaps/actions/ActionsAndLayersSection.tsx` — per-row copy button + wiring; new optional prop `onCopyAction`.
-- Edit `src/components/config/storymaps/StepEditor.tsx` — forward `onCopyAction` and `onCopyStep` down / up.
-- Edit `src/components/config/storymaps/SortableStepCard.tsx` — new header icon + `onCopyStep` prop; render `CopyToStepsDialog` in multi mode.
-- Edit `src/components/config/storymaps/SortableStoryGroup.tsx` — owns siblings list, wires `onCopyAction` / `onCopyStep` handlers, applies via `copySteps.ts`, dispatches one merged update per copy.
-
-### Non-goals for this pass
-
-- Cross-story copy (only within the same story).
-- Undo beyond the standard config undo already provided by the reducer.
-- Copying step `content` (title / description / auto-advance) — the whole-step copy modal is scoped to layer/navigation/panel facets only.
+- No new toast / no undo stack beyond existing app history.
+- No changes to per-action vs whole-step entry points; both feed the same dialog and get the preview for free.
