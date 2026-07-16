@@ -81,6 +81,7 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
   onDuplicateStep,
   onRemoveStep,
   onMoveStep,
+  onReplaceSteps,
   onStepDirtyChange,
   onExpandedChange,
 }) => {
