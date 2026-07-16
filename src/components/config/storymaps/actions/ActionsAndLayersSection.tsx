@@ -357,6 +357,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'constraints'),
       onEdit: () => setOpenEditor({ kind: 'constraints' }),
       onRemove: () => removeAction('constraints'),
+      onCopy: copyHandler('constraints'),
     });
   }
 
