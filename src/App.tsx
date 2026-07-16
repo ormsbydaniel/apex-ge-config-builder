@@ -8,27 +8,43 @@ import Index from "./pages/Index";
 import Preview from "./pages/Preview";
 import ConfigJson from "./pages/ConfigJson";
 import NotFound from "./pages/NotFound";
+import RelocationNotice from "./pages/RelocationNotice";
+import { shouldShowRelocationNotice } from "@/utils/siteRedirect";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ConfigProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/preview" element={<Preview />} />
-            <Route path="/config.json" element={<ConfigJson />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </ConfigProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  if (shouldShowRelocationNotice()) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <RelocationNotice />
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ConfigProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/preview" element={<Preview />} />
+              <Route path="/config.json" element={<ConfigJson />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </ConfigProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
