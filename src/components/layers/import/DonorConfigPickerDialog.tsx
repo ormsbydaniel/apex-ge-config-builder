@@ -196,16 +196,28 @@ const DonorConfigPickerDialog = ({
     handleResult(result);
   };
 
-  const handleLoadExample = async () => {
-    const label = 'Comprehensive demo';
-    startLoading(label);
+  const handleLoadExample = async (example: ExampleConfigEntry) => {
+    startLoading(example.name);
     const result = await loadFromUrl(
-      '/examples/test-config.json',
-      { type: 'example', label },
+      example.url,
+      { type: 'example', label: example.name },
       { onStage: setStage },
     );
     handleResult(result);
   };
+
+  const {
+    data: examples,
+    isLoading: examplesLoading,
+    error: examplesError,
+    refetch: refetchExamples,
+    isFetching: examplesFetching,
+  } = useQuery({
+    queryKey: ['example-configs-manifest'],
+    queryFn: () => fetchExampleManifest(),
+    enabled: open && activeTab === 'examples',
+    staleTime: 5 * 60 * 1000,
+  });
 
   const handleLoadFromGithub = async (path: string) => {
     startLoading(path);
