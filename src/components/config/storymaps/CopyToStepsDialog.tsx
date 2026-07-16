@@ -38,7 +38,7 @@ export const CopyToStepsDialog: React.FC<Props> = ({
   open, onOpenChange, sourceStep, storySteps, sourceIndex, mode, facet, onApply,
 }) => {
   const availableFacets = useMemo<CopyFacet[]>(() => {
-    const all: CopyFacet[] = ['contentDescription', 'navigation', 'baseLayer', 'activeLayers', 'constraints', 'panelState'];
+    const all: CopyFacet[] = ['contentDescription', 'navigation', 'baseLayer', 'activeLayers', 'constraints', 'panelState', 'transition'];
     return all.filter((f) => facetPresent(sourceStep, f));
   }, [sourceStep]);
 
