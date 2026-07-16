@@ -370,16 +370,12 @@ const StrategyChip: React.FC<{ change: FacetChange; strategy: MergeStrategy }> =
       </span>
     );
   }
-  const label =
-    change.kind === 'append' || (change.kind === 'constraints' && strategy === 'append')
-      ? 'Append'
-      : change.kind === 'constraints'
-      ? 'Replace'
-      : 'Replace';
+  const label = STRATEGY_LABEL[strategy] ?? 'Replace';
+  const isAppendish = strategy === 'append' || strategy === 'insertStart' || strategy === 'insertEnd';
   return (
     <span className={cn(
       'inline-flex items-center px-1.5 h-4 rounded text-[10px] uppercase tracking-wide',
-      label === 'Append'
+      isAppendish
         ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300'
         : 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
     )}>
