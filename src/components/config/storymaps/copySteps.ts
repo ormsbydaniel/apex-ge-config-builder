@@ -36,8 +36,10 @@ export const FACET_STRATEGIES: Record<CopyFacet, MergeStrategy[]> = {
   activeLayers: ['replace', 'append'],
   constraints: ['replace', 'append'],
   panelState: [],
+  transition: [],
   contentDescription: ['replace', 'insertStart', 'insertEnd'],
 };
+
 
 /** @deprecated Use FACET_STRATEGIES. Kept for back-compat. */
 export const STRATEGY_FACETS: CopyFacet[] = ['activeLayers', 'constraints'];
