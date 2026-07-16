@@ -1,7 +1,9 @@
 /**
- * Loads the manifest of remotely-hosted example configurations from the
+ * Loads the manifest of remotely-hosted example configurations and
+ * recommended-resource references from the
  * ESA-APEx/apex_geospatial_explorer_configs repository. This lets new
- * examples be added without redeploying the config builder.
+ * examples / recommended files be added without redeploying the config
+ * builder.
  */
 
 export const EXAMPLES_REPO = 'ESA-APEx/apex_geospatial_explorer_configs';
@@ -20,6 +22,19 @@ export interface ExampleConfigEntry {
   fileName: string;
 }
 
+export interface RecommendedResourceEntry {
+  /** Fully-resolved raw URL to the JSON resource file. */
+  url: string;
+}
+
+export interface ExampleManifest {
+  examples: ExampleConfigEntry[];
+  recommended: {
+    basemaps?: RecommendedResourceEntry;
+    services?: RecommendedResourceEntry;
+  };
+}
+
 interface RawManifestEntry {
   id?: unknown;
   name?: unknown;
@@ -28,9 +43,15 @@ interface RawManifestEntry {
   url?: unknown;
 }
 
+interface RawRecommendedEntry {
+  file?: unknown;
+  url?: unknown;
+}
+
 interface RawManifest {
   version?: unknown;
   examples?: unknown;
+  recommended?: unknown;
 }
 
 const baseUrl = `https://raw.githubusercontent.com/${EXAMPLES_REPO}/${EXAMPLES_BRANCH}/${EXAMPLES_DIR}/`;
@@ -38,33 +59,51 @@ const baseUrl = `https://raw.githubusercontent.com/${EXAMPLES_REPO}/${EXAMPLES_B
 const isNonEmptyString = (v: unknown): v is string =>
   typeof v === 'string' && v.trim().length > 0;
 
+/**
+ * Resolve a manifest reference (`file` relative to `config-builder/`, or
+ * absolute `url`) into a fully-qualified URL. `file` paths may traverse up
+ * (e.g. `../resources/foo.json`) — those are normalised against `baseUrl`.
+ */
+const resolveRef = (raw: { file?: unknown; url?: unknown }): string | null => {
+  if (isNonEmptyString(raw.url)) return raw.url;
+  if (isNonEmptyString(raw.file)) {
+    try {
+      return new URL(raw.file, baseUrl).toString();
+    } catch {
+      return baseUrl + raw.file.replace(/^\//, '');
+    }
+  }
+  return null;
+};
+
 const parseEntry = (raw: RawManifestEntry, index: number): ExampleConfigEntry | null => {
   if (!isNonEmptyString(raw.name) || !isNonEmptyString(raw.description)) return null;
 
-  let url: string | null = null;
-  let fileName = '';
-  if (isNonEmptyString(raw.url)) {
-    url = raw.url;
-    try {
-      fileName = new URL(raw.url).pathname.split('/').pop() || raw.url;
-    } catch {
-      fileName = raw.url;
-    }
-  } else if (isNonEmptyString(raw.file)) {
-    url = baseUrl + raw.file.replace(/^\//, '');
-    fileName = raw.file.split('/').pop() || raw.file;
-  }
+  const url = resolveRef(raw);
   if (!url) return null;
+
+  let fileName: string;
+  try {
+    fileName = new URL(url).pathname.split('/').pop() || url;
+  } catch {
+    fileName = url;
+  }
 
   const id = isNonEmptyString(raw.id) ? raw.id : `example-${index}`;
   return { id, name: raw.name, description: raw.description, url, fileName };
 };
 
-let cache: Promise<ExampleConfigEntry[]> | null = null;
+const parseRecommendedEntry = (raw: unknown): RecommendedResourceEntry | undefined => {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const url = resolveRef(raw as RawRecommendedEntry);
+  return url ? { url } : undefined;
+};
+
+let cache: Promise<ExampleManifest> | null = null;
 
 export const fetchExampleManifest = async (
   { force = false }: { force?: boolean } = {},
-): Promise<ExampleConfigEntry[]> => {
+): Promise<ExampleManifest> => {
   if (!force && cache) return cache;
 
   const run = (async () => {
@@ -81,10 +120,17 @@ export const fetchExampleManifest = async (
     if (!raw || !Array.isArray(raw.examples)) {
       throw new Error('Manifest is missing an "examples" array');
     }
-    const entries = (raw.examples as RawManifestEntry[])
+    const examples = (raw.examples as RawManifestEntry[])
       .map((e, i) => parseEntry(e, i))
       .filter((e): e is ExampleConfigEntry => e !== null);
-    return entries;
+
+    const rec = (raw.recommended ?? {}) as Record<string, unknown>;
+    const recommended = {
+      basemaps: parseRecommendedEntry(rec.basemaps),
+      services: parseRecommendedEntry(rec.services),
+    };
+
+    return { examples, recommended } satisfies ExampleManifest;
   })();
 
   cache = run.catch((e) => {
@@ -96,4 +142,13 @@ export const fetchExampleManifest = async (
 
 export const clearExampleManifestCache = () => {
   cache = null;
+};
+
+/**
+ * Convenience: fetch just the examples list (kept for the Load Configuration
+ * / Donor pickers which don't care about recommended resources).
+ */
+export const fetchExamples = async (): Promise<ExampleConfigEntry[]> => {
+  const m = await fetchExampleManifest();
+  return m.examples;
 };
