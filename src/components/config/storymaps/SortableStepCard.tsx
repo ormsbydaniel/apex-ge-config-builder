@@ -444,10 +444,10 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                           variant="outline"
                           size="sm"
                           onClick={() => setCopyState({ mode: 'multi' })}
-                          className="h-6 w-6 p-0"
+                          className="border-blue-500/30 text-blue-600 hover:bg-blue-50 h-6 w-6 p-0"
                           aria-label="Copy step to other steps"
                         >
-                          <ChevronsRight className="h-3 w-3" />
+                          <Forward className="h-3 w-3" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent><p>Copy to other steps</p></TooltipContent>
