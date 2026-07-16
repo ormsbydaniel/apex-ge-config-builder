@@ -239,20 +239,18 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     (e) => !search.trim() || e.path.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const examples: ExampleConfig[] = [
-    {
-      name: 'Comprehensive demo',
-      description: 'A production-ready configuration showcasing many layer types and features.',
-      url: '/examples/test-config.json',
-      fileName: 'test-config.json',
-    },
-    {
-      name: 'Full screen storymap demo',
-      description: 'EO4 Ports example as a full screen story map.',
-      url: '/examples/story-config-1.json',
-      fileName: 'story-config-1.json',
-    },
-  ];
+  const {
+    data: examples,
+    isLoading: examplesLoading,
+    error: examplesError,
+    refetch: refetchExamples,
+    isFetching: examplesFetching,
+  } = useQuery({
+    queryKey: ['example-configs-manifest'],
+    queryFn: () => fetchExampleManifest(),
+    enabled: open && activeTab === 'examples',
+    staleTime: 5 * 60 * 1000,
+  });
 
   // ---- Loading view subcomponent ----
   const renderLoadingView = () => {
