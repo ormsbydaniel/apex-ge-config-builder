@@ -404,8 +404,22 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     });
   }
 
+  // Transition
+  if (hasKind(step, 'transition') && isAllowed('transition')) {
+    items.push({
+      key: 'transition',
+      kind: 'transition',
+      title: 'Auto-advance',
+      summary: `After ${step.autoAdvance}ms`,
+      onEdit: () => setOpenEditor({ kind: 'transition' }),
+      onRemove: () => removeAction('transition'),
+      onCopy: copyHandler('transition'),
+    });
+  }
+
   return (
     <section className={cn('space-y-2', !bare && 'border-t pt-3')}>
+
       {renderHeader ? (
         renderHeader({ count: items.length, onAdd: () => setPickerOpen(true) })
       ) : (
