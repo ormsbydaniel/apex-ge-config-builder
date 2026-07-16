@@ -18,10 +18,17 @@ import {
   X,
   CheckCircle2,
   Clock,
+  RefreshCw,
 } from 'lucide-react';
 import { useConfigImport } from '@/hooks/useConfigIO';
 import type { ImportProgress } from '@/hooks/useConfigImport';
 import { ValidationErrorDetails } from '@/types/config';
+import {
+  fetchExampleManifest,
+  EXAMPLES_MANIFEST_URL,
+  type ExampleConfigEntry,
+} from '@/utils/exampleManifest';
+import { useQuery } from '@tanstack/react-query';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 
 const DEFAULT_REPO = 'ESA-APEx/apex_geospatial_explorer_configs';
