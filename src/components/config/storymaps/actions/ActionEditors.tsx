@@ -142,10 +142,11 @@ interface BaseModalProps {
   canSave?: boolean;
   children: React.ReactNode;
   wide?: boolean;
+  onBack?: () => void;
 }
 
 const ActionModal: React.FC<BaseModalProps> = ({
-  open, onOpenChange, title, onSave, canSave = true, children, wide,
+  open, onOpenChange, title, onSave, canSave = true, children, wide, onBack,
 }) => (
   <Dialog open={open} onOpenChange={onOpenChange}>
     <DialogContent className={wide ? 'sm:max-w-[820px]' : 'sm:max-w-[560px]'}>
@@ -153,9 +154,14 @@ const ActionModal: React.FC<BaseModalProps> = ({
         <DialogTitle>{title}</DialogTitle>
       </DialogHeader>
       <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-1">{children}</div>
-      <DialogFooter>
-        <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-        <Button onClick={onSave} disabled={!canSave}>Save</Button>
+      <DialogFooter className={onBack ? 'sm:justify-between' : undefined}>
+        {onBack && (
+          <Button variant="ghost" onClick={onBack}>← Back</Button>
+        )}
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={onSave} disabled={!canSave}>Save</Button>
+        </div>
       </DialogFooter>
     </DialogContent>
   </Dialog>
