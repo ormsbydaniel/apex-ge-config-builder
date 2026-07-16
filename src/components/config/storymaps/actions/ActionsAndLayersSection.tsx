@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
-  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal, Forward,
+  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal, Forward, Timer,
 } from 'lucide-react';
+
 import type { CopyFacet } from '../copySteps';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +17,7 @@ import {
   ACTION_META, CATEGORY_ORDER, hasKind, warningsForAction,
   type ActionKind, type ActionCategory,
 } from './types';
-import { NavigationEditor, ActiveLayersEditor, PanelStateEditor, BaseLayerEditor, ConstraintsEditor } from './ActionEditors';
+import { NavigationEditor, ActiveLayersEditor, PanelStateEditor, BaseLayerEditor, ConstraintsEditor, TransitionEditor } from './ActionEditors';
 
 // -----------------------------------------------------------------------------
 // Pill helper
@@ -51,7 +52,9 @@ const ACTION_ICON: Record<ActionKind, React.ReactNode> = {
   baseLayer: <MapIcon className="h-4 w-4" />,
   constraints: <SlidersHorizontal className="h-4 w-4" />,
   panelState: <PanelRightOpen className="h-4 w-4" />,
+  transition: <Timer className="h-4 w-4" />,
 };
+
 
 // -----------------------------------------------------------------------------
 // ActionCard — compact summary row for a single action instance
@@ -141,7 +144,9 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
     'Navigation': filter(['navigation']),
     'Layer display': filter(['baseLayer', 'activeLayers', 'constraints']),
     'Panels': filter(['panelState']),
+    'Transition': filter(['transition']),
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -201,6 +206,8 @@ interface Props {
   title?: string;
   headerIcon?: React.ReactNode;
   addLabel?: string;
+  /** Text shown when no items exist in this section. Falls back to a generic message. */
+  emptyText?: string;
   /** Open the "copy this facet to other steps" modal. */
   onCopyAction?: (facet: CopyFacet) => void;
 }
@@ -211,13 +218,17 @@ type OpenEditor =
   | { kind: 'baseLayer' }
   | { kind: 'constraints' }
   | { kind: 'panelState' }
+  | { kind: 'transition' }
   | null;
+
 
 export const ActionsAndLayersSection: React.FC<Props> = ({
   step, sources, warnings, onChange, renderHeader, bare,
   allowedKinds, title = 'Actions & Layers', headerIcon, addLabel = 'Add action',
+  emptyText,
   onCopyAction,
 }) => {
+
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
   const isAllowed = (k: ActionKind) => !allowedKinds || allowedKinds.includes(k);
@@ -259,8 +270,12 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       case 'panelState':
         patch({ panelState: undefined });
         break;
+      case 'transition':
+        patch({ autoAdvance: undefined });
+        break;
     }
   };
+
 
   type Item = {
     key: string;
@@ -389,8 +404,22 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     });
   }
 
+  // Transition
+  if (hasKind(step, 'transition') && isAllowed('transition')) {
+    items.push({
+      key: 'transition',
+      kind: 'transition',
+      title: 'Auto-advance',
+      summary: `After ${step.autoAdvance}ms`,
+      onEdit: () => setOpenEditor({ kind: 'transition' }),
+      onRemove: () => removeAction('transition'),
+      onCopy: copyHandler('transition'),
+    });
+  }
+
   return (
     <section className={cn('space-y-2', !bare && 'border-t pt-3')}>
+
       {renderHeader ? (
         renderHeader({ count: items.length, onAdd: () => setPickerOpen(true) })
       ) : (
@@ -417,9 +446,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       <div className={cn('space-y-2', !bare && 'ml-6')}>
         {items.length === 0 && (
           <p className="text-xs text-muted-foreground italic">
-            No actions yet. Use "Add action" to define what this step does.
+            {emptyText ?? 'No actions yet. Use "Add action" to define what this step does.'}
           </p>
         )}
+
         {items.map((item) => (
           <ActionCard
             key={item.key}
@@ -481,6 +511,13 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         layerOptions={layerOptions}
         onSave={(panelState: StoryPanelState | undefined) => patch({ panelState })}
       />
+      <TransitionEditor
+        open={openEditor?.kind === 'transition'}
+        onOpenChange={(o) => !o && setOpenEditor(null)}
+        step={step}
+        onSave={(autoAdvance: number | undefined) => patch({ autoAdvance })}
+      />
+
 
     </section>
   );

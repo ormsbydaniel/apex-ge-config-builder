@@ -975,3 +975,53 @@ export const BaseLayerEditor: React.FC<BaseLayerEditorProps> = ({
   );
 };
 
+
+// -----------------------------------------------------------------------------
+// Transition editor — auto-advance duration
+// -----------------------------------------------------------------------------
+
+interface TransitionEditorProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  step: StoryStep;
+  onSave: (autoAdvance: number | undefined) => void;
+}
+
+export const TransitionEditor: React.FC<TransitionEditorProps> = ({
+  open, onOpenChange, step, onSave,
+}) => {
+  const [value, setValue] = useState<string>('');
+
+  useEffect(() => {
+    if (!open) return;
+    setValue(step.autoAdvance !== undefined ? String(step.autoAdvance) : '');
+  }, [open, step]);
+
+  const parsed = value === '' ? undefined : Number(value);
+  const canSave = value === '' || (Number.isFinite(parsed) && (parsed as number) >= 0);
+
+  const save = () => {
+    onSave(value === '' ? undefined : Number(value));
+    onOpenChange(false);
+  };
+
+  return (
+    <ActionModal open={open} onOpenChange={onOpenChange} title="Transition" onSave={save} canSave={canSave}>
+      <div className="space-y-2">
+        <Label htmlFor="transition-auto-advance" className="text-xs">Auto-advance (ms)</Label>
+        <Input
+          id="transition-auto-advance"
+          type="number"
+          min={0}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="e.g. 5000"
+        />
+        <p className="text-[11px] text-muted-foreground">
+          When set, the story automatically advances to the next step after this many milliseconds.
+          Leave blank to require a Next / Previous click.
+        </p>
+      </div>
+    </ActionModal>
+  );
+};

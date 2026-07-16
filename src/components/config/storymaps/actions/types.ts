@@ -12,9 +12,11 @@ export type ActionKind =
   | 'activeLayers'
   | 'baseLayer'
   | 'constraints'
-  | 'panelState';
+  | 'panelState'
+  | 'transition';
 
-export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels';
+export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels' | 'Transition';
+
 
 export interface ActionMeta {
   kind: ActionKind;
@@ -61,13 +63,22 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
     description: 'Focus a layer, expand or disable controls, and open a specific panel tab.',
     singleton: true,
   },
+  transition: {
+    kind: 'transition',
+    category: 'Transition',
+    label: 'Auto-advance',
+    description: 'Automatically advance to the next step after a set duration instead of requiring a click.',
+    singleton: true,
+  },
 };
 
 export const CATEGORY_ORDER: ActionCategory[] = [
   'Navigation',
   'Layer display',
   'Panels',
+  'Transition',
 ];
+
 
 export const VALID_TAB_IDS: StoryPanelTabId[] = [
   'overview',
@@ -94,8 +105,11 @@ export const hasKind = (step: StoryStep, kind: ActionKind): boolean => {
         !!step.panelState.tab ||
         !!step.panelState.controls
       );
+    case 'transition':
+      return step.autoAdvance !== undefined;
   }
 };
+
 
 /** Warning field-prefix that belongs to a given action. */
 export const warningsForAction = (
@@ -114,5 +128,8 @@ export const warningsForAction = (
       return all.filter((w) => w.field?.startsWith('activeLayers') && w.field?.includes('constraints'));
     case 'panelState':
       return all.filter((w) => w.field?.startsWith('panelState'));
+    case 'transition':
+      return [];
   }
+
 };

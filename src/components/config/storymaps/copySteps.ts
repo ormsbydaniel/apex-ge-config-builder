@@ -6,6 +6,7 @@ export type CopyFacet =
   | 'activeLayers'
   | 'constraints'
   | 'panelState'
+  | 'transition'
   | 'contentDescription';
 
 export type MergeStrategy = 'replace' | 'append' | 'insertStart' | 'insertEnd';
@@ -16,8 +17,10 @@ export const FACET_LABEL: Record<CopyFacet, string> = {
   activeLayers: 'Active layers',
   constraints: 'Constraints',
   panelState: 'Panel state',
+  transition: 'Transition',
   contentDescription: 'Description',
 };
+
 
 export const STRATEGY_LABEL: Record<MergeStrategy, string> = {
   replace: 'Replace',
@@ -33,8 +36,10 @@ export const FACET_STRATEGIES: Record<CopyFacet, MergeStrategy[]> = {
   activeLayers: ['replace', 'append'],
   constraints: ['replace', 'append'],
   panelState: [],
+  transition: [],
   contentDescription: ['replace', 'insertStart', 'insertEnd'],
 };
+
 
 /** @deprecated Use FACET_STRATEGIES. Kept for back-compat. */
 export const STRATEGY_FACETS: CopyFacet[] = ['activeLayers', 'constraints'];
@@ -59,9 +64,12 @@ export const facetPresent = (step: StoryStep, facet: CopyFacet): boolean => {
       );
     case 'panelState':
       return !!step.panelState;
+    case 'transition':
+      return step.autoAdvance !== undefined;
     case 'contentDescription':
       return !!step.content?.description?.trim();
   }
+
 };
 
 const mergeActiveLayers = (
@@ -147,6 +155,9 @@ export const applyFacetCopy = (
         ...target,
         panelState: source.panelState ? clone(source.panelState) : undefined,
       };
+    case 'transition':
+      return { ...target, autoAdvance: source.autoAdvance };
+
     case 'contentDescription': {
       const src = source.content?.description ?? '';
       const tgt = target.content?.description ?? '';
@@ -262,6 +273,16 @@ const diffFacet = (
         after: summarisePanel(after.panelState),
       };
     }
+    case 'transition': {
+      if ((before.autoAdvance ?? null) === (after.autoAdvance ?? null))
+        return { kind: 'noop' };
+      return {
+        kind: 'replace',
+        before: before.autoAdvance !== undefined ? `${before.autoAdvance}ms` : '(none)',
+        after: after.autoAdvance !== undefined ? `${after.autoAdvance}ms` : '(none)',
+      };
+    }
+
     case 'contentDescription': {
       const b = before.content?.description ?? '';
       const a = after.content?.description ?? '';
