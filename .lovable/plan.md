@@ -1,60 +1,37 @@
-
 ## Goal
 
-Restore the previous UX where **constraints** appear as their own entry in Layer Settings → **Add action** and as their own row inside the Active Layers group on the step card — without touching the JSON schema (constraints stay nested inside each `activeLayers[]` entry, as they are now).
+Make the Panel state modal's tab and control options context-sensitive to the selected focus layer, greying out anything that doesn't apply.
 
-## Scope
+## Availability rules
 
-UI only. No changes to `src/schemas/storySchema.ts` or `src/types/story.ts`. The action is a pure UI façade over the existing per-layer `constraints` arrays.
+**Focus = None** → every tab option (except "None") and every control row is disabled.
 
-## Changes
+**Focus set to an active layer** → look up the corresponding `DataSource` in `sources`:
 
-### 1. `src/components/config/storymaps/actions/types.ts`
-- Add `'constraints'` to the `ActionKind` union.
-- Add `ACTION_META.constraints`:
-  - category: `'Layer display'`
-  - label: `'Apply constraints'`
-  - description: `'Apply data constraints (ranges, category filters) to the step's active layers.'`
-  - singleton: `true`
-- `hasKind(step, 'constraints')` → true when any active layer has a non-empty `constraints` array.
-- `warningsForAction(all, 'constraints')` → warnings whose `field` matches `activeLayers[*].constraints*` (reuse the existing `activeLayers` prefix filter, further filtered on `.constraints`).
+| Option | Enabled when |
+| --- | --- |
+| Tab: Overview | Always |
+| Tab: Query | Always |
+| Tab: Statistics | `source.statistics?.length > 0` |
+| Tab: Charts | `source.charts?.length > 0` |
+| Tab: Parameters | Never (disabled for now — reserved for algorithm-result layers) |
+| Control: Temporal | `source.timeframe && source.timeframe !== 'None'` OR `meta.controls.temporalControls === true` |
+| Control: Opacity (renamed from "Styles") | `meta.controls.opacitySlider === true` |
+| Control: Constraint filters | `source.constraints?.length > 0` |
 
-### 2. `src/components/config/storymaps/actions/ActionsAndLayersSection.tsx`
-- Add `SlidersHorizontal` (or existing `Filter`) icon to `ACTION_ICON.constraints`.
-- Extend `AddActionMenu.byCategory['Layer display']` to include `'constraints'` (after `activeLayers`, before `baseLayer`).
-- Extend `OpenEditor` union with `{ kind: 'constraints' }`.
-- Add a new item builder for constraints under the Active layers item:
-  - Only pushed when `hasKind(step, 'constraints')` AND `isAllowed('constraints')`.
-  - `title: 'Constraints'`
-  - `summary`: aggregated across active layers, e.g. `"layerA: label1, label2 · layerB: label3"`, truncated to 4 layer chunks with `+N more`.
-  - `pills`: total-count pill `<X constraints>`.
-  - `onEdit`: opens the new `ConstraintsEditor`.
-  - `onRemove`: patches `activeLayers` to strip `constraints` from every layer.
-- `removeAction('constraints')` clears `constraints` on every `activeLayers[]` entry.
-- Mount a new `<ConstraintsEditor …>` alongside the existing editors, wired to `patch({ activeLayers })`.
+For controls, check both `meta.controls` and `infoPanel.controls` (either enabling it counts) to match how a layer surfaces the control at runtime.
 
-### 3. `src/components/config/storymaps/actions/ActionEditors.tsx`
-- Extract the existing per-layer constraint UI (already inside `ActiveLayersEditor`, ~lines 429–520) into a shared internal component (e.g. `LayerConstraintsBlock`) so it can be reused.
-- Add a new exported `ConstraintsEditor` modal:
-  - Lists every layer currently in `step.activeLayers` (read-only — this dialog only edits constraints, not layer membership).
-  - For each layer, renders the shared `LayerConstraintsBlock` fed by that layer's source constraints.
-  - On save, emits the updated `activeLayers[]` array (unchanged layer set, updated `constraints` per layer).
-  - Empty state when there are no active layers: message pointing the user to add Active layers first, with the Save button disabled.
-- Keep the existing per-layer constraints UI inside `ActiveLayersEditor` intact (both entry points continue to work — they read/write the same underlying data).
+## UI changes in `PanelStateEditor` (`src/components/config/storymaps/actions/ActionEditors.tsx`)
 
-### 4. `src/components/config/storymaps/StepEditor.tsx`
-- Update the `ActionsAndLayersSection` invocation for the Active layers group to include `'constraints'` in `allowedKinds`:
-  ```
-  allowedKinds={['activeLayers', 'baseLayer', 'constraints']}
-  ```
-
-## Behaviour notes
-
-- The action is presented as if it were its own top-level thing, but under the hood it just mutates `step.activeLayers[i].constraints`. No schema drift.
-- Because it depends on `activeLayers`, the Add-action menu will surface it whether or not any active layer exists; if none exist, the editor opens in its empty state (rather than disabling the menu entry) so the wording matches the pre-refactor UX.
-- Existing per-layer constraints controls inside `ActiveLayersEditor` remain — power users editing an active layer still see and edit its constraints there. Both surfaces write to the same source of truth.
+1. Accept a new `sources: DataSource[]` prop; `ActionsAndLayersSection` already has `sources` and passes it to sibling editors — add it to the `<PanelStateEditor>` call too.
+2. Derive `focusSource` from `focus` + `sources`. Compute two maps: `tabEnabled: Record<StoryPanelTabId, boolean>` and `controlEnabled: Record<ControlKey, boolean>`.
+3. Tab radio grid: pass `disabled` on `<RadioGroupItem>` and apply `opacity-50 cursor-not-allowed` on the wrapping `<label>` when not enabled. The "None" option stays enabled always.
+4. Controls list: for each row where `controlEnabled[k] === false`, disable both Expanded and Disabled `<Checkbox>`es and grey the row (`opacity-50`). Rename the visible label of `styles` from "Styles" to "Opacity" (JSON key stays `styles`).
+5. Preserve any existing saved values when the focus layer changes — do not silently mutate `controls`/`tabId`. Disabled rows still render their current state so the user can see it; they just can't toggle until they pick a compatible focus. Save logic is unchanged.
+6. When `focus === '__none__'`, force everything except the "None" tab option to disabled.
 
 ## Out of scope
 
-- No changes to the JSON schema, types, migration logic, or exported config shape.
-- No changes to how constraints render at runtime.
+- No changes to the JSON schema, `StoryPanelState`, or the "styles" key name.
+- No auto-clearing of previously saved incompatible values.
+- "Parameters" wiring to algorithm-result layers — permanently disabled for this pass.
