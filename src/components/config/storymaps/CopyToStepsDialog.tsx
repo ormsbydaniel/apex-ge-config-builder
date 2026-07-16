@@ -128,7 +128,7 @@ export const CopyToStepsDialog: React.FC<Props> = ({
   const effectiveStrategies = useMemo(() => {
     const strat: Partial<Record<CopyFacet, MergeStrategy>> = { ...strategies };
     for (const f of effectiveFacets) {
-      if (STRATEGY_FACETS.includes(f) && !strat[f]) strat[f] = 'replace';
+      if (FACET_STRATEGIES[f].length > 0 && !strat[f]) strat[f] = 'replace';
     }
     return strat;
   }, [strategies, effectiveFacets]);
