@@ -59,6 +59,8 @@ export const facetPresent = (step: StoryStep, facet: CopyFacet): boolean => {
       );
     case 'panelState':
       return !!step.panelState;
+    case 'contentDescription':
+      return !!step.content?.description?.trim();
   }
 };
 
