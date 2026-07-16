@@ -116,6 +116,10 @@ export const CopyToStepsDialog: React.FC<Props> = ({
         if (ps.tab?.id) bits.push(`tab: ${ps.tab.id}`);
         return bits.join(' · ');
       }
+      case 'contentDescription': {
+        const d = sourceStep.content?.description ?? '';
+        return d.length > 80 ? `${d.slice(0, 77)}…` : d;
+      }
     }
   };
 
