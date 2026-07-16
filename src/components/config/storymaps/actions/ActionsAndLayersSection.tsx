@@ -52,7 +52,9 @@ const ACTION_ICON: Record<ActionKind, React.ReactNode> = {
   baseLayer: <MapIcon className="h-4 w-4" />,
   constraints: <SlidersHorizontal className="h-4 w-4" />,
   panelState: <PanelRightOpen className="h-4 w-4" />,
+  transition: <Timer className="h-4 w-4" />,
 };
+
 
 // -----------------------------------------------------------------------------
 // ActionCard — compact summary row for a single action instance
