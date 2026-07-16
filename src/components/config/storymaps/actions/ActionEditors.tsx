@@ -884,27 +884,32 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
         <div className="space-y-2">
           <Label className="text-xs">Controls</Label>
           <div className="border rounded divide-y">
-            {CONTROL_KEYS.map((k) => (
-              <div key={k} className="flex items-center gap-4 px-2 py-1.5">
-                <span className={cn('text-sm w-32', k !== 'filters' && 'capitalize')}>
-                  {k === 'filters' ? 'Constraint filters' : k}
-                </span>
-                <label className="flex items-center gap-1 text-xs">
-                  <Checkbox
-                    checked={controls[k].expanded}
-                    onCheckedChange={(v) =>
-                      setControls((prev) => ({ ...prev, [k]: { ...prev[k], expanded: v === true } }))} />
-                  Expanded
-                </label>
-                <label className="flex items-center gap-1 text-xs">
-                  <Checkbox
-                    checked={controls[k].disabled}
-                    onCheckedChange={(v) =>
-                      setControls((prev) => ({ ...prev, [k]: { ...prev[k], disabled: v === true } }))} />
-                  Disabled
-                </label>
-              </div>
-            ))}
+            {CONTROL_KEYS.map((k) => {
+              const isEnabled = controlEnabled[k];
+              return (
+                <div key={k} className={cn('flex items-center gap-4 px-2 py-1.5', !isEnabled && 'opacity-50')}>
+                  <span className="text-sm w-32">
+                    {CONTROL_LABEL[k]}
+                  </span>
+                  <label className={cn('flex items-center gap-1 text-xs', !isEnabled && 'cursor-not-allowed')}>
+                    <Checkbox
+                      disabled={!isEnabled}
+                      checked={controls[k].expanded}
+                      onCheckedChange={(v) =>
+                        setControls((prev) => ({ ...prev, [k]: { ...prev[k], expanded: v === true } }))} />
+                    Expanded
+                  </label>
+                  <label className={cn('flex items-center gap-1 text-xs', !isEnabled && 'cursor-not-allowed')}>
+                    <Checkbox
+                      disabled={!isEnabled}
+                      checked={controls[k].disabled}
+                      onCheckedChange={(v) =>
+                        setControls((prev) => ({ ...prev, [k]: { ...prev[k], disabled: v === true } }))} />
+                    Disabled
+                  </label>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
