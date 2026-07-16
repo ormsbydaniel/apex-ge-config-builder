@@ -128,5 +128,8 @@ export const warningsForAction = (
       return all.filter((w) => w.field?.startsWith('activeLayers') && w.field?.includes('constraints'));
     case 'panelState':
       return all.filter((w) => w.field?.startsWith('panelState'));
+    case 'transition':
+      return [];
   }
+
 };
