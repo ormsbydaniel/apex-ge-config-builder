@@ -1,69 +1,67 @@
 
-## Goal
+## Scope
 
-Stop bundling example configs inside this repo. Instead, fetch them at runtime from the `ESA-APEx/apex_geospatial_explorer_configs` repository, driven by a manifest so new examples can be added without redeploying the config builder.
+Bring `docs/stories/` up to date with the current Stories UI, which now models each step as a set of typed **actions** (Navigation, Layer display, Panels, Transition) rather than a fixed three-section layout, and adds a "copy to other steps" flow.
 
-## Manifest
+## What changed vs current docs
 
-New file to be committed by you in the external repo:
+The current `docs/stories/index.md` describes the earlier UI. Notable gaps:
 
-`https://raw.githubusercontent.com/ESA-APEx/apex_geospatial_explorer_configs/main/config-builder/manifest.json`
+| Change in UI | Doc update needed |
+| --- | --- |
+| Step is now organised by **action sections** grouped into 4 categories: Navigation, Layer display (Active layers, Base map, Constraints), Panels, Transition. | Rewrite the "Step summary badges" / "Editing a step" area to describe action sections and the `+ Add …` empty-state buttons. |
+| **Transition** is its own action section. `autoAdvance` was removed from the Content modal and lives behind its own editor. Empty state shows "Transition on Next / Previous click". | New subsection "Transitions (auto-advance)" with a screenshot of the Transition editor modal and the empty-state text. |
+| **Base map** and **Constraints** are standalone actions inside "Layer display". | Add short subsections describing each. |
+| **Copy to other steps** dialog: per-facet copy (navigation, baseLayer, activeLayers, constraints, panelState, transition, contentDescription) with merge strategies (Replace / Append for lists, Replace / Merge text into start / Merge text into end for descriptions). | New "Copying settings between steps" subsection with a screenshot. |
+| Step JSON editor (`StepJsonEditorDialog`) for power users. | Brief mention with screenshot in "Editing a step". |
+| Content modal no longer contains Auto-advance. | Remove that bullet from "Editing a step". |
 
-Proposed shape (versioned so we can evolve it safely):
+Story-level dialog (Add story), Stories-tab card list, and URL / JSON reference sections are still accurate — leave prose alone; only refresh their screenshots so styling matches the rest.
 
-```json
-{
-  "version": 1,
-  "examples": [
-    {
-      "id": "comprehensive-demo",
-      "name": "Comprehensive demo",
-      "description": "A production-ready configuration showcasing many layer types and features.",
-      "file": "demo-config-1.json"
-    },
-    {
-      "id": "storymap-demo",
-      "name": "Full screen storymap demo",
-      "description": "EO4 Ports example as a full screen story map.",
-      "file": "story-config-1.json"
-    }
-  ]
-}
-```
+## New / refreshed screenshots
 
-`file` is resolved relative to `config-builder/` in the same repo/branch. Optionally an absolute `url` field would override that for externally hosted examples.
+Captured via Playwright against `http://localhost:8080` after loading the "Full screen storymap demo" example (so real content is on screen). All saved with `scripts/add-screenshot.sh` so they land in both `docs/assets/screenshots/` and `public/guide/assets/screenshots/`.
 
-## App changes
+| Filename | What it shows | Replaces / new |
+| --- | --- | --- |
+| `stories-tab-overview.png` | Stories tab with the demo story expanded, showing Active badge and step list. | Refresh |
+| `stories-step-expanded.png` | One step expanded, showing all four action categories including Transition. | Refresh |
+| `stories-step-editor.png` | Content editor modal (now without Auto-advance). | Refresh |
+| `stories-step-transition-editor.png` | Transition (auto-advance ms) modal. | New |
+| `stories-step-base-map.png` | Base map action editor / summary badge. | New |
+| `stories-step-constraints.png` | Constraints action editor / summary badge. | New |
+| `stories-copy-to-steps.png` | Copy-to-other-steps dialog with facet checkboxes and strategy radio. | New |
+| `stories-step-json-editor.png` | Raw JSON step editor dialog. | New |
+| `stories-add-story-dialog.png` | Add story dialog. | Refresh only if styling drifted. |
 
-1. **New util `src/utils/exampleManifest.ts`**
-   - Constants: `EXAMPLES_REPO = 'ESA-APEx/apex_geospatial_explorer_configs'`, `EXAMPLES_BRANCH = 'main'`, `EXAMPLES_DIR = 'config-builder'`.
-   - `fetchExampleManifest(): Promise<ExampleConfig[]>` — fetches `manifest.json`, validates shape (light Zod schema), returns entries with fully-resolved `url` (raw.githubusercontent.com) and `fileName`.
-   - Small in-memory cache so both dialogs share one fetch per session.
+If any of the "expanded step" or action editors can't be opened cleanly on the demo, I'll fall back to a smaller crop rather than shipping a broken image. Each screenshot is inspected before being copied into `docs/`.
 
-2. **`src/components/config/LoadConfigDialog.tsx`**
-   - Remove the hardcoded `examples` array.
-   - On dialog open (or examples tab mount), call `fetchExampleManifest()` via `useQuery`.
-   - Render loading / error / empty states in the Examples tab. On error, show the manifest URL and a Retry button.
+## Doc changes (single file)
 
-3. **`src/components/layers/import/DonorConfigPickerDialog.tsx`**
-   - Replace the single hardcoded "Comprehensive demo" entry and `handleLoadExample` with a list driven by the same `fetchExampleManifest()` helper. Each entry becomes a clickable row that calls `loadFromUrl(entry.url, { type: 'example', label: entry.name }, …)`.
+Rewrite `docs/stories/index.md` in place. New outline:
 
-4. **Delete bundled example files** once the remote manifest is confirmed live:
-   - `public/examples/story-config-1.json`
-   - `public/examples/test-config.json`
-   - Remove the `public/examples/` directory if empty.
+1. Intro (unchanged concepts, minor edit to reflect action model).
+2. **Concepts** — extend with "Actions" and "Action category" definitions.
+3. **The Stories tab** — same, refreshed screenshot.
+4. **Step summary badges** — expand list to include Base map, Constraints, Transition badges.
+5. **Editing a step**
+   - Content (title / description / id).
+   - Navigation.
+   - Active layers.
+   - Base map (new).
+   - Constraints (new).
+   - Panels.
+   - Transition / auto-advance (new).
+   - Editing raw JSON (new).
+6. **Copying settings between steps** (new section, with facet + strategy table).
+7. **Adding a story** — unchanged prose.
+8. **URLs** — unchanged.
+9. **JSON structure** — unchanged (link to reference).
 
-## Failure handling
-
-- If the manifest fetch fails (offline, 404, invalid JSON), the Examples tab shows an inline error with the manifest URL and Retry — no fallback to bundled files (the point is to remove them).
-- Individual example load failures continue to surface through the existing import error flow.
+No changes to `mkdocs.yml` (no new pages), and no changes to app code.
 
 ## Out of scope
 
-- No changes to the import pipeline itself (`useConfigImport`, `useDonorConfigLoader`).
-- No schema/type changes to actual configs.
-- No auth — the manifest and configs are public raw GitHub URLs.
-
-## Action required from you
-
-Before I delete the bundled files, please add `manifest.json` (and `demo-config-1.json`, `story-config-1.json`) under `config-builder/` in the external repo. Confirm the manifest field names above work for you, or tell me what to change.
+- No changes to app source, schemas, or types.
+- No rebuild of `public/guide/` HTML — that ships via the existing `./build-docs.sh --push` workflow when you next publish docs.
+- No new pages; everything stays under `docs/stories/index.md` to keep the nav shape stable.
