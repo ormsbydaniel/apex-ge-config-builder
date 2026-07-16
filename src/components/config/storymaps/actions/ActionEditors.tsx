@@ -853,7 +853,7 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
           <RadioGroup value={tabId} onValueChange={setTabId} className="grid grid-cols-3 gap-2">
             {(['__none__', ...VALID_TAB_IDS] as const).map((t) => {
               const id = `panel-tab-${t}`;
-              const label = t === '__none__' ? 'None' : t;
+              const label = t === '__none__' ? 'None' : t === 'query' ? 'Data values' : t;
               const isEnabled = t === '__none__' || tabEnabled[t as StoryPanelTabId];
               return (
                 <label
