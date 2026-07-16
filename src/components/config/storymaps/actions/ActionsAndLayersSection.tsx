@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
-  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal,
+  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal, ChevronsRight,
 } from 'lucide-react';
+import type { CopyFacet } from '../copySteps';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -64,10 +65,11 @@ interface ActionCardProps {
   warnings?: StoryWarning[];
   onEdit: () => void;
   onRemove?: () => void;
+  onCopy?: () => void;
 }
 
 const ActionCard: React.FC<ActionCardProps> = ({
-  kind, title, summary, pills, warnings, onEdit, onRemove,
+  kind, title, summary, pills, warnings, onEdit, onRemove, onCopy,
 }) => {
   const hasWarn = (warnings?.length ?? 0) > 0;
   return (
@@ -99,6 +101,11 @@ const ActionCard: React.FC<ActionCardProps> = ({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+          )}
+          {onCopy && (
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onCopy} title="Copy to other steps">
+              <ChevronsRight className="h-3.5 w-3.5" />
+            </Button>
           )}
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEdit} title="Edit action">
             <Pencil className="h-3.5 w-3.5" />
@@ -194,6 +201,8 @@ interface Props {
   title?: string;
   headerIcon?: React.ReactNode;
   addLabel?: string;
+  /** Open the "copy this facet to other steps" modal. */
+  onCopyAction?: (facet: CopyFacet) => void;
 }
 
 type OpenEditor =
@@ -207,6 +216,7 @@ type OpenEditor =
 export const ActionsAndLayersSection: React.FC<Props> = ({
   step, sources, warnings, onChange, renderHeader, bare,
   allowedKinds, title = 'Actions & Layers', headerIcon, addLabel = 'Add action',
+  onCopyAction,
 }) => {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
@@ -261,7 +271,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     warnings?: StoryWarning[];
     onEdit: () => void;
     onRemove?: () => void;
+    onCopy?: () => void;
   };
+  const copyHandler = (facet: CopyFacet) =>
+    onCopyAction ? () => onCopyAction(facet) : undefined;
   const items: Item[] = [];
 
   // Navigation (viewport is required, so no remove — resets to default zoom).
@@ -286,6 +299,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       summary,
       pills: v.duration !== undefined ? <Pill>{v.duration}ms</Pill> : undefined,
       onEdit: () => setOpenEditor({ kind: 'navigation' }),
+      onCopy: copyHandler('navigation'),
     });
   }
 
@@ -302,6 +316,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'baseLayer'),
       onEdit: () => setOpenEditor({ kind: 'baseLayer' }),
       onRemove: () => removeAction('baseLayer'),
+      onCopy: copyHandler('baseLayer'),
     });
   }
 
@@ -317,6 +332,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'activeLayers'),
       onEdit: () => setOpenEditor({ kind: 'activeLayers' }),
       onRemove: () => removeAction('activeLayers'),
+      onCopy: copyHandler('activeLayers'),
     });
   }
 
@@ -341,6 +357,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'constraints'),
       onEdit: () => setOpenEditor({ kind: 'constraints' }),
       onRemove: () => removeAction('constraints'),
+      onCopy: copyHandler('constraints'),
     });
   }
 
@@ -368,6 +385,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'panelState'),
       onEdit: () => setOpenEditor({ kind: 'panelState' }),
       onRemove: () => removeAction('panelState'),
+      onCopy: copyHandler('panelState'),
     });
   }
 
@@ -412,6 +430,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
             warnings={item.warnings}
             onEdit={item.onEdit}
             onRemove={item.onRemove}
+            onCopy={item.onCopy}
           />
         ))}
       </div>

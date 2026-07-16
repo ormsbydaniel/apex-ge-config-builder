@@ -19,6 +19,7 @@ import {
   X,
   FileJson,
   Map as MapIcon,
+  ChevronsRight,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -33,6 +34,8 @@ import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import StepEditor from './StepEditor';
 import StepJsonEditorDialog from './StepJsonEditorDialog';
+import CopyToStepsDialog, { type CopyToStepsResult } from './CopyToStepsDialog';
+import type { CopyFacet } from './copySteps';
 import { cn } from '@/lib/utils';
 
 interface SortableStepCardProps {
@@ -53,6 +56,10 @@ interface SortableStepCardProps {
   initiallyEditingContent?: boolean;
   /** Called if the user cancels the initial Content dialog on a new step. */
   onCancelNewStep?: () => void;
+  /** Sibling steps in the same story — required for copy-to-steps. */
+  storySteps?: StoryStep[];
+  /** Apply a copy result across sibling steps. */
+  onCopyToSteps?: (result: CopyToStepsResult) => void;
 }
 
 /** Pill helper matching the layer card `<Badge variant="outline">` treatment. */
@@ -158,6 +165,8 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
   onDirtyChange,
   initiallyEditingContent,
   onCancelNewStep,
+  storySteps,
+  onCopyToSteps,
 }) => {
   const {
     attributes,
@@ -189,6 +198,10 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(stepTitle);
   const [jsonOpen, setJsonOpen] = useState(false);
+  const [copyState, setCopyState] = useState<
+    { mode: 'single'; facet: CopyFacet } | { mode: 'multi' } | null
+  >(null);
+  const canCopy = !!onCopyToSteps && (storySteps?.length ?? 0) > 1;
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -424,6 +437,22 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                     </TooltipTrigger>
                     <TooltipContent><p>Edit JSON</p></TooltipContent>
                   </Tooltip>
+                  {canCopy && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCopyState({ mode: 'multi' })}
+                          className="h-6 w-6 p-0"
+                          aria-label="Copy step to other steps"
+                        >
+                          <ChevronsRight className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Copy to other steps</p></TooltipContent>
+                    </Tooltip>
+                  )}
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -466,6 +495,9 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                 onSave={onSave}
                 initiallyEditingContent={initiallyEditingContent}
                 onCancelNewStep={onCancelNewStep}
+                onCopyAction={
+                  canCopy ? (facet) => setCopyState({ mode: 'single', facet }) : undefined
+                }
               />
             </CardContent>
           )}
@@ -478,6 +510,22 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
         step={step}
         onSave={onSave}
       />
+
+      {canCopy && storySteps && (
+        <CopyToStepsDialog
+          open={copyState !== null}
+          onOpenChange={(o) => !o && setCopyState(null)}
+          sourceStep={step}
+          storySteps={storySteps}
+          sourceIndex={index}
+          mode={copyState?.mode ?? 'multi'}
+          facet={copyState?.mode === 'single' ? copyState.facet : undefined}
+          onApply={(result) => {
+            onCopyToSteps?.(result);
+            setCopyState(null);
+          }}
+        />
+      )}
     </div>
   );
 };

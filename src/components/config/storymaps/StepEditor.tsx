@@ -12,6 +12,7 @@ import {
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import ActionsAndLayersSection from './actions/ActionsAndLayersSection';
+import type { CopyFacet } from './copySteps';
 
 interface StepEditorProps {
   step: StoryStep;
@@ -20,6 +21,7 @@ interface StepEditorProps {
   onSave: (next: StoryStep) => void;
   initiallyEditingContent?: boolean;
   onCancelNewStep?: () => void;
+  onCopyAction?: (facet: CopyFacet) => void;
 }
 
 const slugify = (v: string) =>
@@ -34,7 +36,7 @@ const slugify = (v: string) =>
  */
 export const StepEditor: React.FC<StepEditorProps> = ({
   step, sources, warnings, onSave,
-  initiallyEditingContent, onCancelNewStep,
+  initiallyEditingContent, onCancelNewStep, onCopyAction,
 }) => {
   const [editingContent, setEditingContent] = useState<boolean>(!!initiallyEditingContent);
   const [draftTitle, setDraftTitle] = useState(step.content?.title ?? '');
@@ -122,6 +124,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         title="Navigation"
         headerIcon={<Compass className="h-4 w-4 text-muted-foreground" />}
         addLabel="Navigation settings"
+        onCopyAction={onCopyAction}
       />
 
       {/* Active layers */}
@@ -134,6 +137,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         title="Layers"
         headerIcon={<LayersIcon className="h-4 w-4 text-muted-foreground" />}
         addLabel="Layer settings"
+        onCopyAction={onCopyAction}
       />
 
       {/* Panel state */}
@@ -146,6 +150,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         title="Panels"
         headerIcon={<PanelRightOpen className="h-4 w-4 text-muted-foreground" />}
         addLabel="Panel state"
+        onCopyAction={onCopyAction}
       />
 
       <Dialog open={editingContent} onOpenChange={handleContentOpenChange}>
