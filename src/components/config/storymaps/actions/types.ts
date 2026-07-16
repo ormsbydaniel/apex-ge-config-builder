@@ -105,8 +105,11 @@ export const hasKind = (step: StoryStep, kind: ActionKind): boolean => {
         !!step.panelState.tab ||
         !!step.panelState.controls
       );
+    case 'transition':
+      return step.autoAdvance !== undefined;
   }
 };
+
 
 /** Warning field-prefix that belongs to a given action. */
 export const warningsForAction = (
