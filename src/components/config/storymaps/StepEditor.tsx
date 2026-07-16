@@ -100,7 +100,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
           <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
             onClick={() => onCopyAction('contentDescription')}
             title="Copy description to other steps">
-            <ChevronsRight className="h-3.5 w-3.5" />
+            <Forward className="h-3.5 w-3.5 text-blue-600" />
           </Button>
         )}
         <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
