@@ -385,6 +385,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'panelState'),
       onEdit: () => setOpenEditor({ kind: 'panelState' }),
       onRemove: () => removeAction('panelState'),
+      onCopy: copyHandler('panelState'),
     });
   }
 
