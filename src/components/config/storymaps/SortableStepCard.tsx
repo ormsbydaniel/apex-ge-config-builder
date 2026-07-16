@@ -198,6 +198,10 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(stepTitle);
   const [jsonOpen, setJsonOpen] = useState(false);
+  const [copyState, setCopyState] = useState<
+    { mode: 'single'; facet: CopyFacet } | { mode: 'multi' } | null
+  >(null);
+  const canCopy = !!onCopyToSteps && (storySteps?.length ?? 0) > 1;
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
