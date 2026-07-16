@@ -12,6 +12,7 @@ import {
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import ActionsAndLayersSection from './actions/ActionsAndLayersSection';
+import type { CopyFacet } from './copySteps';
 
 interface StepEditorProps {
   step: StoryStep;
@@ -20,6 +21,7 @@ interface StepEditorProps {
   onSave: (next: StoryStep) => void;
   initiallyEditingContent?: boolean;
   onCancelNewStep?: () => void;
+  onCopyAction?: (facet: CopyFacet) => void;
 }
 
 const slugify = (v: string) =>
