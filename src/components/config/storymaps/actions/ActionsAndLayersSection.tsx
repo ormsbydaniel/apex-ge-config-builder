@@ -65,6 +65,7 @@ interface ActionCardProps {
   warnings?: StoryWarning[];
   onEdit: () => void;
   onRemove?: () => void;
+  onCopy?: () => void;
 }
 
 const ActionCard: React.FC<ActionCardProps> = ({
