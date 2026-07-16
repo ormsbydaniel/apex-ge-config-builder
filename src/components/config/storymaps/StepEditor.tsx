@@ -113,9 +113,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
           <p className="italic">No description configured</p>
         )}
         <div><span className="font-medium">ID:</span> {step.id}</div>
-        {step.autoAdvance !== undefined && (
-          <div><span className="font-medium">Auto-advance:</span> {step.autoAdvance}ms</div>
-        )}
+
       </div>
 
       {/* Navigation */}
