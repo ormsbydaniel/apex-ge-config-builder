@@ -430,6 +430,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
             warnings={item.warnings}
             onEdit={item.onEdit}
             onRemove={item.onRemove}
+            onCopy={item.onCopy}
           />
         ))}
       </div>
