@@ -5,9 +5,10 @@ export type CopyFacet =
   | 'baseLayer'
   | 'activeLayers'
   | 'constraints'
-  | 'panelState';
+  | 'panelState'
+  | 'contentDescription';
 
-export type MergeStrategy = 'replace' | 'append';
+export type MergeStrategy = 'replace' | 'append' | 'insertStart' | 'insertEnd';
 
 export const FACET_LABEL: Record<CopyFacet, string> = {
   navigation: 'Navigation',
@@ -15,9 +16,27 @@ export const FACET_LABEL: Record<CopyFacet, string> = {
   activeLayers: 'Active layers',
   constraints: 'Constraints',
   panelState: 'Panel state',
+  contentDescription: 'Description',
 };
 
-/** Facets that support Replace / Append. Others always overwrite. */
+export const STRATEGY_LABEL: Record<MergeStrategy, string> = {
+  replace: 'Replace',
+  append: 'Append',
+  insertStart: 'Insert at start',
+  insertEnd: 'Insert at end',
+};
+
+/** Strategies offered per facet. Empty array = always overwrite (no chooser). */
+export const FACET_STRATEGIES: Record<CopyFacet, MergeStrategy[]> = {
+  navigation: [],
+  baseLayer: [],
+  activeLayers: ['replace', 'append'],
+  constraints: ['replace', 'append'],
+  panelState: [],
+  contentDescription: ['replace', 'insertStart', 'insertEnd'],
+};
+
+/** @deprecated Use FACET_STRATEGIES. Kept for back-compat. */
 export const STRATEGY_FACETS: CopyFacet[] = ['activeLayers', 'constraints'];
 
 const clone = <T,>(v: T): T =>
