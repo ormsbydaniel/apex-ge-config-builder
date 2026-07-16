@@ -7,7 +7,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
 import {
-  Compass, FileText, Layers as LayersIcon, Pencil, PanelRightOpen,
+  Compass, FileText, Layers as LayersIcon, Pencil, PanelRightOpen, ChevronsRight,
 } from 'lucide-react';
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
@@ -100,6 +100,13 @@ export const StepEditor: React.FC<StepEditorProps> = ({
           onClick={openContentDialog} title="Edit content">
           <Pencil className="h-3.5 w-3.5" />
         </Button>
+        {onCopyAction && step.content?.description && (
+          <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
+            onClick={() => onCopyAction('contentDescription')}
+            title="Copy description to other steps">
+            <ChevronsRight className="h-3.5 w-3.5" />
+          </Button>
+        )}
       </div>
 
       <div className="space-y-1 text-xs text-muted-foreground">
