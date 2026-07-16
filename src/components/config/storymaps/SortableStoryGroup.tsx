@@ -378,6 +378,12 @@ export const SortableStoryGroup: React.FC<SortableStoryGroupProps> = ({
                                 onRemoveStep(i);
                               }
                             }}
+                            storySteps={steps}
+                            onCopyToSteps={
+                              onReplaceSteps
+                                ? (result) => handleCopyToSteps(i, result)
+                                : undefined
+                            }
                           />
                         ))}
                       </SortableContext>
