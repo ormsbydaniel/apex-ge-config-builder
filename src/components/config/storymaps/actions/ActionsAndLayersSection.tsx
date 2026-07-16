@@ -225,8 +225,10 @@ type OpenEditor =
 export const ActionsAndLayersSection: React.FC<Props> = ({
   step, sources, warnings, onChange, renderHeader, bare,
   allowedKinds, title = 'Actions & Layers', headerIcon, addLabel = 'Add action',
+  emptyText,
   onCopyAction,
 }) => {
+
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
   const isAllowed = (k: ActionKind) => !allowedKinds || allowedKinds.includes(k);
