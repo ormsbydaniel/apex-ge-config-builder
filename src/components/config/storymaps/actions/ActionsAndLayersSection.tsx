@@ -511,6 +511,13 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         layerOptions={layerOptions}
         onSave={(panelState: StoryPanelState | undefined) => patch({ panelState })}
       />
+      <TransitionEditor
+        open={openEditor?.kind === 'transition'}
+        onOpenChange={(o) => !o && setOpenEditor(null)}
+        step={step}
+        onSave={(autoAdvance: number | undefined) => patch({ autoAdvance })}
+      />
+
 
     </section>
   );
