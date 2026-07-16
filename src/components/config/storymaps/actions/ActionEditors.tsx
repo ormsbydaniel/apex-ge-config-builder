@@ -729,6 +729,7 @@ interface PanelStateEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   step: StoryStep;
+  sources: DataSource[];
   layerOptions: LayerOption[];
   onSave: (panelState: StoryPanelState | undefined) => void;
 }
@@ -736,8 +737,14 @@ interface PanelStateEditorProps {
 const CONTROL_KEYS = ['temporal', 'styles', 'filters'] as const;
 type ControlKey = typeof CONTROL_KEYS[number];
 
+const CONTROL_LABEL: Record<ControlKey, string> = {
+  temporal: 'Temporal',
+  styles: 'Opacity',
+  filters: 'Constraint filters',
+};
+
 export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
-  open, onOpenChange, step, layerOptions, onSave,
+  open, onOpenChange, step, sources, layerOptions, onSave,
 }) => {
   const [focus, setFocus] = useState<string>('__none__');
   const [controls, setControls] = useState<Record<ControlKey, { expanded: boolean; disabled: boolean }>>({
@@ -772,6 +779,34 @@ export const PanelStateEditor: React.FC<PanelStateEditorProps> = ({
 
   const activeIds = new Set((step.activeLayers ?? []).map((l) => l.id));
   const focusOptions = layerOptions.filter((o) => activeIds.has(o.id));
+
+  // Context-sensitive availability based on the currently focused layer
+  const focusSource = focus === '__none__' ? undefined : findSource(sources, focus);
+  const srcAny = focusSource as any;
+  const metaControls = srcAny?.meta?.controls ?? {};
+  const infoControls = (srcAny?.infoPanel?.controls && !Array.isArray(srcAny.infoPanel.controls))
+    ? srcAny.infoPanel.controls
+    : {};
+  const controlOn = (key: 'opacitySlider' | 'temporalControls') =>
+    !!metaControls[key] || !!infoControls[key];
+
+  const hasFocus = !!focusSource;
+  const tabEnabled: Record<StoryPanelTabId, boolean> = {
+    overview: hasFocus,
+    query: hasFocus,
+    statistics: hasFocus && (focusSource?.statistics?.length ?? 0) > 0,
+    charts: hasFocus && (focusSource?.charts?.length ?? 0) > 0,
+    parameters: false,
+  };
+  const controlEnabled: Record<ControlKey, boolean> = {
+    temporal: hasFocus && (
+      controlOn('temporalControls') ||
+      (!!focusSource?.timeframe && focusSource.timeframe !== 'None')
+    ),
+    styles: hasFocus && controlOn('opacitySlider'),
+    filters: hasFocus && (focusSource?.constraints?.length ?? 0) > 0,
+  };
+
 
   const save = () => {
     const nextControls: NonNullable<StoryPanelState['controls']> = {};
