@@ -7,7 +7,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
 import {
-  Compass, FileText, Layers as LayersIcon, Pencil, PanelRightOpen, ChevronsRight,
+  Compass, FileText, Layers as LayersIcon, Pencil, PanelRightOpen, Forward,
 } from 'lucide-react';
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
@@ -100,7 +100,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
           <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
             onClick={() => onCopyAction('contentDescription')}
             title="Copy description to other steps">
-            <ChevronsRight className="h-3.5 w-3.5" />
+            <Forward className="h-3.5 w-3.5 text-blue-600" />
           </Button>
         )}
         <Button type="button" variant="ghost" size="icon" className="h-6 w-6"

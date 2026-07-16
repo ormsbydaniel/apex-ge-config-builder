@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
-  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal, ChevronsRight,
+  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal, Forward,
 } from 'lucide-react';
 import type { CopyFacet } from '../copySteps';
 import { Button } from '@/components/ui/button';
@@ -104,7 +104,7 @@ const ActionCard: React.FC<ActionCardProps> = ({
           )}
           {onCopy && (
             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onCopy} title="Copy to other steps">
-              <ChevronsRight className="h-3.5 w-3.5" />
+              <Forward className="h-3.5 w-3.5 text-blue-600" />
             </Button>
           )}
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEdit} title="Edit action">
