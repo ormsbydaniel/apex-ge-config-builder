@@ -157,6 +157,21 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         onCopyAction={onCopyAction}
       />
 
+      {/* Transition */}
+      <ActionsAndLayersSection
+        step={step}
+        sources={sources}
+        warnings={warnings}
+        onChange={onSave}
+        allowedKinds={['transition']}
+        title="Transition"
+        headerIcon={<Timer className="h-4 w-4 text-muted-foreground" />}
+        addLabel="Add transition"
+        emptyText="Transition on Next / Previous click"
+        onCopyAction={onCopyAction}
+      />
+
+
       <Dialog open={editingContent} onOpenChange={handleContentOpenChange}>
         <DialogContent className="sm:max-w-[900px]">
           <DialogHeader>
