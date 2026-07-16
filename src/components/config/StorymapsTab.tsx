@@ -206,6 +206,7 @@ const StorymapsTab: React.FC = () => {
                   onDuplicateStep={(stepIndex) => duplicateStep(i, stepIndex)}
                   onRemoveStep={(stepIndex) => removeStep(i, stepIndex)}
                   onMoveStep={(from, to) => moveStep(i, from, to)}
+                  onReplaceSteps={(nextSteps) => updateStory(i, { ...story, steps: nextSteps })}
                   onStepDirtyChange={(stepIndex, dirty) =>
                     setStepDirty(`${i}:${stepIndex}`, dirty)
                   }

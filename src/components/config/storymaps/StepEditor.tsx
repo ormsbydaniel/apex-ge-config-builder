@@ -7,11 +7,13 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
 import {
-  Compass, FileText, Layers as LayersIcon, Pencil, PanelRightOpen,
+  Compass, FileText, Layers as LayersIcon, Pencil, PanelRightOpen, Forward, Timer,
 } from 'lucide-react';
+
 import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import ActionsAndLayersSection from './actions/ActionsAndLayersSection';
+import type { CopyFacet } from './copySteps';
 
 interface StepEditorProps {
   step: StoryStep;
@@ -20,6 +22,7 @@ interface StepEditorProps {
   onSave: (next: StoryStep) => void;
   initiallyEditingContent?: boolean;
   onCancelNewStep?: () => void;
+  onCopyAction?: (facet: CopyFacet) => void;
 }
 
 const slugify = (v: string) =>
@@ -34,15 +37,12 @@ const slugify = (v: string) =>
  */
 export const StepEditor: React.FC<StepEditorProps> = ({
   step, sources, warnings, onSave,
-  initiallyEditingContent, onCancelNewStep,
+  initiallyEditingContent, onCancelNewStep, onCopyAction,
 }) => {
   const [editingContent, setEditingContent] = useState<boolean>(!!initiallyEditingContent);
   const [draftTitle, setDraftTitle] = useState(step.content?.title ?? '');
   const [draftId, setDraftId] = useState(step.id);
   const [draftDescription, setDraftDescription] = useState(step.content?.description ?? '');
-  const [draftAutoAdvance, setDraftAutoAdvance] = useState<string>(
-    step.autoAdvance !== undefined ? String(step.autoAdvance) : '',
-  );
   const [hasSavedNewContent, setHasSavedNewContent] = useState(false);
 
   useEffect(() => {
@@ -50,7 +50,6 @@ export const StepEditor: React.FC<StepEditorProps> = ({
       setDraftTitle(step.content?.title ?? '');
       setDraftId(step.id);
       setDraftDescription(step.content?.description ?? '');
-      setDraftAutoAdvance(step.autoAdvance !== undefined ? String(step.autoAdvance) : '');
     }
   }, [editingContent, step]);
 
@@ -73,12 +72,12 @@ export const StepEditor: React.FC<StepEditorProps> = ({
             ...(description && { description }),
           }
         : undefined,
-      autoAdvance: draftAutoAdvance === '' ? undefined : Number(draftAutoAdvance),
     };
     onSave(next);
     setHasSavedNewContent(true);
     setEditingContent(false);
   };
+
 
   const handleContentOpenChange = (open: boolean) => {
     if (!open && initiallyEditingContent && !hasSavedNewContent) {
@@ -94,6 +93,13 @@ export const StepEditor: React.FC<StepEditorProps> = ({
       <div className="flex items-center gap-1.5 border-b pb-2">
         <FileText className="h-4 w-4 text-muted-foreground" />
         <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">Content</h4>
+        {onCopyAction && step.content?.description && (
+          <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
+            onClick={() => onCopyAction('contentDescription')}
+            title="Copy description to other steps">
+            <Forward className="h-3.5 w-3.5 text-blue-600" />
+          </Button>
+        )}
         <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
           onClick={openContentDialog} title="Edit content">
           <Pencil className="h-3.5 w-3.5" />
@@ -107,9 +113,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
           <p className="italic">No description configured</p>
         )}
         <div><span className="font-medium">ID:</span> {step.id}</div>
-        {step.autoAdvance !== undefined && (
-          <div><span className="font-medium">Auto-advance:</span> {step.autoAdvance}ms</div>
-        )}
+
       </div>
 
       {/* Navigation */}
@@ -122,6 +126,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         title="Navigation"
         headerIcon={<Compass className="h-4 w-4 text-muted-foreground" />}
         addLabel="Navigation settings"
+        onCopyAction={onCopyAction}
       />
 
       {/* Active layers */}
@@ -130,10 +135,11 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         sources={sources}
         warnings={warnings}
         onChange={onSave}
-        allowedKinds={['activeLayers']}
-        title="Active layers"
+        allowedKinds={['activeLayers', 'baseLayer', 'constraints']}
+        title="Layers"
         headerIcon={<LayersIcon className="h-4 w-4 text-muted-foreground" />}
         addLabel="Layer settings"
+        onCopyAction={onCopyAction}
       />
 
       {/* Panel state */}
@@ -146,7 +152,23 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         title="Panels"
         headerIcon={<PanelRightOpen className="h-4 w-4 text-muted-foreground" />}
         addLabel="Panel state"
+        onCopyAction={onCopyAction}
       />
+
+      {/* Transition */}
+      <ActionsAndLayersSection
+        step={step}
+        sources={sources}
+        warnings={warnings}
+        onChange={onSave}
+        allowedKinds={['transition']}
+        title="Transition"
+        headerIcon={<Timer className="h-4 w-4 text-muted-foreground" />}
+        addLabel="Add transition"
+        emptyText="Transition on Next / Previous click"
+        onCopyAction={onCopyAction}
+      />
+
 
       <Dialog open={editingContent} onOpenChange={handleContentOpenChange}>
         <DialogContent className="sm:max-w-[900px]">
@@ -166,24 +188,12 @@ export const StepEditor: React.FC<StepEditorProps> = ({
                 value={draftDescription} onChange={setDraftDescription}
                 placeholder="Step description..." textareaClassName="min-h-[320px]" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="step-id">ID</Label>
-                <Input id="step-id" value={draftId} onChange={(e) => setDraftId(e.target.value)} />
-                <p className="text-xs text-muted-foreground">
-                  Auto-derived from the title as a slug. Edit to override.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="step-auto-advance">Auto-advance (ms)</Label>
-                <Input id="step-auto-advance" type="number" min={0}
-                  value={draftAutoAdvance}
-                  onChange={(e) => setDraftAutoAdvance(e.target.value)}
-                  placeholder="Optional" />
-                <p className="text-xs text-muted-foreground">
-                  Advance to the next step after this many milliseconds.
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="step-id">ID</Label>
+              <Input id="step-id" value={draftId} onChange={(e) => setDraftId(e.target.value)} />
+              <p className="text-xs text-muted-foreground">
+                Auto-derived from the title as a slug. Edit to override.
+              </p>
             </div>
           </div>
           <DialogFooter>
@@ -194,6 +204,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
       </Dialog>
     </div>
   );
+
 };
 
 export default StepEditor;

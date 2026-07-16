@@ -10,9 +10,13 @@ import type { StoryWarning } from '@/utils/storyValidation';
 export type ActionKind =
   | 'navigation'
   | 'activeLayers'
-  | 'panelState';
+  | 'baseLayer'
+  | 'constraints'
+  | 'panelState'
+  | 'transition';
 
-export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels';
+export type ActionCategory = 'Navigation' | 'Layer display' | 'Panels' | 'Transition';
+
 
 export interface ActionMeta {
   kind: ActionKind;
@@ -38,11 +42,32 @@ export const ACTION_META: Record<ActionKind, ActionMeta> = {
     description: 'Choose which layers are visible and configure opacity, blend, date and constraints per layer.',
     singleton: true,
   },
+  baseLayer: {
+    kind: 'baseLayer',
+    category: 'Layer display',
+    label: 'Base map',
+    description: 'Choose which base map is visible for this step.',
+    singleton: true,
+  },
+  constraints: {
+    kind: 'constraints',
+    category: 'Layer display',
+    label: 'Apply constraints',
+    description: "Apply data constraints (ranges, category filters) to the step's active layers.",
+    singleton: true,
+  },
   panelState: {
     kind: 'panelState',
     category: 'Panels',
     label: 'Panel state',
     description: 'Focus a layer, expand or disable controls, and open a specific panel tab.',
+    singleton: true,
+  },
+  transition: {
+    kind: 'transition',
+    category: 'Transition',
+    label: 'Auto-advance',
+    description: 'Automatically advance to the next step after a set duration instead of requiring a click.',
     singleton: true,
   },
 };
@@ -51,7 +76,9 @@ export const CATEGORY_ORDER: ActionCategory[] = [
   'Navigation',
   'Layer display',
   'Panels',
+  'Transition',
 ];
+
 
 export const VALID_TAB_IDS: StoryPanelTabId[] = [
   'overview',
@@ -68,14 +95,21 @@ export const hasKind = (step: StoryStep, kind: ActionKind): boolean => {
       return !!step.viewport;
     case 'activeLayers':
       return (step.activeLayers?.length ?? 0) > 0;
+    case 'baseLayer':
+      return !!step.baseLayer;
+    case 'constraints':
+      return (step.activeLayers ?? []).some((l) => (l.constraints?.length ?? 0) > 0);
     case 'panelState':
       return !!step.panelState && (
         !!step.panelState.focusLayer ||
         !!step.panelState.tab ||
         !!step.panelState.controls
       );
+    case 'transition':
+      return step.autoAdvance !== undefined;
   }
 };
+
 
 /** Warning field-prefix that belongs to a given action. */
 export const warningsForAction = (
@@ -87,8 +121,15 @@ export const warningsForAction = (
     case 'navigation':
       return [];
     case 'activeLayers':
-      return all.filter((w) => w.field?.startsWith('activeLayers'));
+      return all.filter((w) => w.field?.startsWith('activeLayers') && !w.field?.includes('constraints'));
+    case 'baseLayer':
+      return [];
+    case 'constraints':
+      return all.filter((w) => w.field?.startsWith('activeLayers') && w.field?.includes('constraints'));
     case 'panelState':
       return all.filter((w) => w.field?.startsWith('panelState'));
+    case 'transition':
+      return [];
   }
+
 };

@@ -18,10 +18,17 @@ import {
   X,
   CheckCircle2,
   Clock,
+  RefreshCw,
 } from 'lucide-react';
 import { useConfigImport } from '@/hooks/useConfigIO';
 import type { ImportProgress } from '@/hooks/useConfigImport';
 import { ValidationErrorDetails } from '@/types/config';
+import {
+  fetchExamples,
+  EXAMPLES_MANIFEST_URL,
+  type ExampleConfigEntry,
+} from '@/utils/exampleManifest';
+import { useQuery } from '@tanstack/react-query';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 
 const DEFAULT_REPO = 'ESA-APEx/apex_geospatial_explorer_configs';
@@ -45,12 +52,7 @@ interface TreeEntry {
 
 type Stage = 'idle' | 'parse' | 'normalize' | 'validate' | 'done';
 
-interface ExampleConfig {
-  name: string;
-  description: string;
-  url: string;
-  fileName: string;
-}
+type ExampleConfig = ExampleConfigEntry;
 
 const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps) => {
   const { importConfig, importConfigFromUrl } = useConfigImport();
@@ -237,20 +239,18 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     (e) => !search.trim() || e.path.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const examples: ExampleConfig[] = [
-    {
-      name: 'Comprehensive demo',
-      description: 'A production-ready configuration showcasing many layer types and features.',
-      url: '/examples/test-config.json',
-      fileName: 'test-config.json',
-    },
-    {
-      name: 'Full screen storymap demo',
-      description: 'EO4 Ports example as a full screen story map.',
-      url: '/examples/story-config-1.json',
-      fileName: 'story-config-1.json',
-    },
-  ];
+  const {
+    data: examples,
+    isLoading: examplesLoading,
+    error: examplesError,
+    refetch: refetchExamples,
+    isFetching: examplesFetching,
+  } = useQuery({
+    queryKey: ['example-configs-manifest'],
+    queryFn: () => fetchExamples(),
+    enabled: open && activeTab === 'examples',
+    staleTime: 5 * 60 * 1000,
+  });
 
   // ---- Loading view subcomponent ----
   const renderLoadingView = () => {
@@ -381,23 +381,61 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
 
               {/* Examples */}
               <TabsContent value="examples" className="mt-4 flex-1 min-h-0 overflow-auto">
-                <div className="space-y-2">
-                  {examples.map((ex) => (
-                    <button
-                      key={ex.url}
-                      onClick={() => handleLoadExample(ex)}
-                      className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <div className="font-medium text-sm">{ex.name}</div>
-                          <div className="text-xs text-muted-foreground mt-0.5">{ex.description}</div>
+                {examplesLoading || (examplesFetching && !examples) ? (
+                  <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading examples…
+                  </div>
+                ) : examplesError ? (
+                  <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 space-y-2">
+                    <div className="flex items-start gap-2 text-sm">
+                      <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
+                      <div className="flex-1">
+                        <div className="font-medium">Couldn't load examples manifest</div>
+                        <div className="text-xs text-muted-foreground mt-1 break-all">
+                          {(examplesError as Error).message}
                         </div>
-                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <div className="text-xs text-muted-foreground mt-2 break-all">
+                          Manifest URL:{' '}
+                          <a
+                            href={EXAMPLES_MANIFEST_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline underline-offset-2"
+                          >
+                            {EXAMPLES_MANIFEST_URL}
+                          </a>
+                        </div>
                       </div>
-                    </button>
-                  ))}
-                </div>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => refetchExamples()}>
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      Retry
+                    </Button>
+                  </div>
+                ) : !examples || examples.length === 0 ? (
+                  <div className="py-10 text-center text-sm text-muted-foreground">
+                    No examples are listed in the manifest.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {examples.map((ex) => (
+                      <button
+                        key={ex.id}
+                        onClick={() => handleLoadExample(ex)}
+                        className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <div className="font-medium text-sm">{ex.name}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">{ex.description}</div>
+                          </div>
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               {/* From GitHub */}

@@ -117,6 +117,12 @@ export interface StoryStepV2 {
   content?: StoryStepContent;
   viewport: StoryViewport;
   activeLayers: StoryActiveLayer[];
+  /**
+   * Optional source `id` of a source with `isBaseLayer === true`. When set,
+   * that basemap becomes the only visible base layer for this step. When
+   * omitted, the current basemap is left unchanged.
+   */
+  baseLayer?: string;
   panelState?: StoryPanelState;
   /** When set, auto-advance to the next step after this many ms. */
   autoAdvance?: number;

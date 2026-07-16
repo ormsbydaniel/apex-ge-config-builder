@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import {
   Compass, Layers as LayersIcon, PanelRightOpen, Pencil, Trash2, Plus,
-  AlertTriangle, Film,
+  AlertTriangle, Film, Map as MapIcon, SlidersHorizontal, Forward, Timer,
 } from 'lucide-react';
+
+import type { CopyFacet } from '../copySteps';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -15,7 +17,7 @@ import {
   ACTION_META, CATEGORY_ORDER, hasKind, warningsForAction,
   type ActionKind, type ActionCategory,
 } from './types';
-import { NavigationEditor, ActiveLayersEditor, PanelStateEditor } from './ActionEditors';
+import { NavigationEditor, ActiveLayersEditor, PanelStateEditor, BaseLayerEditor, ConstraintsEditor, TransitionEditor } from './ActionEditors';
 
 // -----------------------------------------------------------------------------
 // Pill helper
@@ -47,8 +49,12 @@ const Pill: React.FC<{
 const ACTION_ICON: Record<ActionKind, React.ReactNode> = {
   navigation: <Compass className="h-4 w-4" />,
   activeLayers: <LayersIcon className="h-4 w-4" />,
+  baseLayer: <MapIcon className="h-4 w-4" />,
+  constraints: <SlidersHorizontal className="h-4 w-4" />,
   panelState: <PanelRightOpen className="h-4 w-4" />,
+  transition: <Timer className="h-4 w-4" />,
 };
+
 
 // -----------------------------------------------------------------------------
 // ActionCard — compact summary row for a single action instance
@@ -62,10 +68,11 @@ interface ActionCardProps {
   warnings?: StoryWarning[];
   onEdit: () => void;
   onRemove?: () => void;
+  onCopy?: () => void;
 }
 
 const ActionCard: React.FC<ActionCardProps> = ({
-  kind, title, summary, pills, warnings, onEdit, onRemove,
+  kind, title, summary, pills, warnings, onEdit, onRemove, onCopy,
 }) => {
   const hasWarn = (warnings?.length ?? 0) > 0;
   return (
@@ -97,6 +104,11 @@ const ActionCard: React.FC<ActionCardProps> = ({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+          )}
+          {onCopy && (
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onCopy} title="Copy to other steps">
+              <Forward className="h-3.5 w-3.5 text-blue-600" />
+            </Button>
           )}
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEdit} title="Edit action">
             <Pencil className="h-3.5 w-3.5" />
@@ -130,42 +142,41 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
     allowedKinds ? kinds.filter((k) => allowedKinds.includes(k)) : kinds;
   const byCategory: Record<ActionCategory, ActionKind[]> = {
     'Navigation': filter(['navigation']),
-    'Layer display': filter(['activeLayers']),
+    'Layer display': filter(['baseLayer', 'activeLayers', 'constraints']),
     'Panels': filter(['panelState']),
+    'Transition': filter(['transition']),
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Add action</DialogTitle>
+          <DialogTitle>Add / edit action</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-1">
+        <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto px-1">
           {CATEGORY_ORDER.filter((cat) => byCategory[cat].length > 0).map((cat) => (
             <div key={cat} className="space-y-1">
               <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{cat}</h5>
               <div className="space-y-1">
                 {byCategory[cat].map((kind) => {
                   const meta = ACTION_META[kind];
-                  const disabled = meta.singleton && hasKind(step, kind);
+                  const alreadyAdded = meta.singleton && hasKind(step, kind);
                   return (
                     <button
                       key={kind}
                       type="button"
-                      disabled={disabled}
                       onClick={() => { onPick(kind); onOpenChange(false); }}
                       className={cn(
                         'w-full text-left border rounded-md px-3 py-2 flex items-start gap-3 transition-colors',
-                        disabled
-                          ? 'opacity-50 cursor-not-allowed'
-                          : 'hover:bg-muted/60 hover:border-primary/30',
+                        'hover:bg-muted/60 hover:border-primary/30',
                       )}
                     >
                       <span className="text-muted-foreground mt-0.5">{ACTION_ICON[kind]}</span>
                       <span className="flex-1 min-w-0">
                         <span className="block text-sm font-medium">{meta.label}</span>
                         <span className="block text-xs text-muted-foreground">
-                          {meta.description}{disabled && ' — already added'}
+                          {meta.description}{alreadyAdded && ' — edit current settings'}
                         </span>
                       </span>
                     </button>
@@ -195,23 +206,37 @@ interface Props {
   title?: string;
   headerIcon?: React.ReactNode;
   addLabel?: string;
+  /** Text shown when no items exist in this section. Falls back to a generic message. */
+  emptyText?: string;
+  /** Open the "copy this facet to other steps" modal. */
+  onCopyAction?: (facet: CopyFacet) => void;
 }
 
 type OpenEditor =
   | { kind: 'navigation' }
   | { kind: 'activeLayers' }
+  | { kind: 'baseLayer' }
+  | { kind: 'constraints' }
   | { kind: 'panelState' }
+  | { kind: 'transition' }
   | null;
+
 
 export const ActionsAndLayersSection: React.FC<Props> = ({
   step, sources, warnings, onChange, renderHeader, bare,
   allowedKinds, title = 'Actions & Layers', headerIcon, addLabel = 'Add action',
+  emptyText,
+  onCopyAction,
 }) => {
+
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openEditor, setOpenEditor] = useState<OpenEditor>(null);
   const isAllowed = (k: ActionKind) => !allowedKinds || allowedKinds.includes(k);
 
+  // Overlay (non-base) layer options are used for Active layers, Navigation
+  // "fit to layer" and Panel focus. Base map picker uses raw `sources`.
   const layerOptions = sources
+    .filter((s) => !s.isBaseLayer)
     .map((s) => ({
       id: s.id,
       name: s.name,
@@ -221,7 +246,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     .filter((o) => !!o.id);
   const patch = (p: Partial<StoryStep>) => onChange({ ...step, ...p });
 
-  const handlePick = (kind: ActionKind) => setOpenEditor({ kind });
+  const handlePick = (kind: ActionKind) => setOpenEditor({ kind } as OpenEditor);
 
   const removeAction = (kind: ActionKind) => {
     switch (kind) {
@@ -231,11 +256,26 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       case 'activeLayers':
         patch({ activeLayers: [] });
         break;
+      case 'baseLayer':
+        patch({ baseLayer: undefined });
+        break;
+      case 'constraints':
+        patch({
+          activeLayers: (step.activeLayers ?? []).map((l) => {
+            const { constraints: _c, ...rest } = l;
+            return rest;
+          }),
+        });
+        break;
       case 'panelState':
         patch({ panelState: undefined });
         break;
+      case 'transition':
+        patch({ autoAdvance: undefined });
+        break;
     }
   };
+
 
   type Item = {
     key: string;
@@ -246,7 +286,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
     warnings?: StoryWarning[];
     onEdit: () => void;
     onRemove?: () => void;
+    onCopy?: () => void;
   };
+  const copyHandler = (facet: CopyFacet) =>
+    onCopyAction ? () => onCopyAction(facet) : undefined;
   const items: Item[] = [];
 
   // Navigation (viewport is required, so no remove — resets to default zoom).
@@ -271,6 +314,24 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       summary,
       pills: v.duration !== undefined ? <Pill>{v.duration}ms</Pill> : undefined,
       onEdit: () => setOpenEditor({ kind: 'navigation' }),
+      onCopy: copyHandler('navigation'),
+    });
+  }
+
+  // Base map
+  if (hasKind(step, 'baseLayer') && isAllowed('baseLayer')) {
+    const bl = step.baseLayer!;
+    const src = sources.find((s) => s.id === bl);
+    const name = src?.name ?? bl;
+    items.push({
+      key: 'baseLayer',
+      kind: 'baseLayer',
+      title: 'Base map',
+      summary: src ? name : <><em>{bl}</em> (unknown)</>,
+      warnings: warningsForAction(warnings, 'baseLayer'),
+      onEdit: () => setOpenEditor({ kind: 'baseLayer' }),
+      onRemove: () => removeAction('baseLayer'),
+      onCopy: copyHandler('baseLayer'),
     });
   }
 
@@ -286,8 +347,37 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'activeLayers'),
       onEdit: () => setOpenEditor({ kind: 'activeLayers' }),
       onRemove: () => removeAction('activeLayers'),
+      onCopy: copyHandler('activeLayers'),
     });
   }
+
+  // Constraints (aggregated view over activeLayers[*].constraints)
+  if (hasKind(step, 'constraints') && isAllowed('constraints')) {
+    const active = step.activeLayers ?? [];
+    const chunks = active
+      .filter((l) => (l.constraints?.length ?? 0) > 0)
+      .map((l) => {
+        const labels = (l.constraints ?? []).map((c) => c.label || 'unnamed').join(', ');
+        return `${l.id}: ${labels}`;
+      });
+    const total = active.reduce((n, l) => n + (l.constraints?.length ?? 0), 0);
+    const shown = chunks.slice(0, 4).join(' · ');
+    const summary = chunks.length > 4 ? `${shown} · +${chunks.length - 4} more` : shown;
+    items.push({
+      key: 'constraints',
+      kind: 'constraints',
+      title: 'Constraints',
+      summary,
+      pills: <Pill icon={<SlidersHorizontal className="h-3 w-3" />}>{total} constraint{total === 1 ? '' : 's'}</Pill>,
+      warnings: warningsForAction(warnings, 'constraints'),
+      onEdit: () => setOpenEditor({ kind: 'constraints' }),
+      onRemove: () => removeAction('constraints'),
+      onCopy: copyHandler('constraints'),
+    });
+  }
+
+
+
 
   // Panel state
   if (hasKind(step, 'panelState') && isAllowed('panelState')) {
@@ -310,11 +400,26 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       warnings: warningsForAction(warnings, 'panelState'),
       onEdit: () => setOpenEditor({ kind: 'panelState' }),
       onRemove: () => removeAction('panelState'),
+      onCopy: copyHandler('panelState'),
+    });
+  }
+
+  // Transition
+  if (hasKind(step, 'transition') && isAllowed('transition')) {
+    items.push({
+      key: 'transition',
+      kind: 'transition',
+      title: 'Auto-advance',
+      summary: `After ${step.autoAdvance}ms`,
+      onEdit: () => setOpenEditor({ kind: 'transition' }),
+      onRemove: () => removeAction('transition'),
+      onCopy: copyHandler('transition'),
     });
   }
 
   return (
     <section className={cn('space-y-2', !bare && 'border-t pt-3')}>
+
       {renderHeader ? (
         renderHeader({ count: items.length, onAdd: () => setPickerOpen(true) })
       ) : (
@@ -341,9 +446,10 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       <div className={cn('space-y-2', !bare && 'ml-6')}>
         {items.length === 0 && (
           <p className="text-xs text-muted-foreground italic">
-            No actions yet. Use "Add action" to define what this step does.
+            {emptyText ?? 'No actions yet. Use "Add action" to define what this step does.'}
           </p>
         )}
+
         {items.map((item) => (
           <ActionCard
             key={item.key}
@@ -354,6 +460,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
             warnings={item.warnings}
             onEdit={item.onEdit}
             onRemove={item.onRemove}
+            onCopy={item.onCopy}
           />
         ))}
       </div>
@@ -381,13 +488,37 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
         layerOptions={layerOptions}
         onSave={(activeLayers: StoryActiveLayer[]) => patch({ activeLayers })}
       />
+      <BaseLayerEditor
+        open={openEditor?.kind === 'baseLayer'}
+        onOpenChange={(o) => !o && setOpenEditor(null)}
+        step={step}
+        sources={sources}
+        onSave={(baseLayer: string | undefined) => patch({ baseLayer })}
+      />
+      <ConstraintsEditor
+        open={openEditor?.kind === 'constraints'}
+        onOpenChange={(o) => !o && setOpenEditor(null)}
+        step={step}
+        sources={sources}
+        onSave={(activeLayers: StoryActiveLayer[]) => patch({ activeLayers })}
+        onBack={() => { setOpenEditor(null); setPickerOpen(true); }}
+      />
       <PanelStateEditor
         open={openEditor?.kind === 'panelState'}
         onOpenChange={(o) => !o && setOpenEditor(null)}
         step={step}
+        sources={sources}
         layerOptions={layerOptions}
         onSave={(panelState: StoryPanelState | undefined) => patch({ panelState })}
       />
+      <TransitionEditor
+        open={openEditor?.kind === 'transition'}
+        onOpenChange={(o) => !o && setOpenEditor(null)}
+        step={step}
+        onSave={(autoAdvance: number | undefined) => patch({ autoAdvance })}
+      />
+
+
     </section>
   );
 };
