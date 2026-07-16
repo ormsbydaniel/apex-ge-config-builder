@@ -262,6 +262,14 @@ const diffFacet = (
         after: summarisePanel(after.panelState),
       };
     }
+    case 'contentDescription': {
+      const b = before.content?.description ?? '';
+      const a = after.content?.description ?? '';
+      if (b === a) return { kind: 'noop' };
+      const trunc = (s: string) =>
+        s.length > 80 ? `${s.slice(0, 77)}…` : s || '(empty)';
+      return { kind: 'replace', before: trunc(b), after: trunc(a) };
+    }
     case 'activeLayers': {
       const beforeIds = (before.activeLayers ?? []).map((l) => l.id);
       const afterIds = (after.activeLayers ?? []).map((l) => l.id);
