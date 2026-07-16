@@ -437,6 +437,22 @@ export const SortableStepCard: React.FC<SortableStepCardProps> = ({
                     </TooltipTrigger>
                     <TooltipContent><p>Edit JSON</p></TooltipContent>
                   </Tooltip>
+                  {canCopy && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCopyState({ mode: 'multi' })}
+                          className="h-6 w-6 p-0"
+                          aria-label="Copy step to other steps"
+                        >
+                          <ChevronsRight className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Copy to other steps</p></TooltipContent>
+                    </Tooltip>
+                  )}
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
