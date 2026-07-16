@@ -28,7 +28,7 @@ import {
 } from '@/hooks/useDonorConfigLoader';
 import { ValidationErrorDetails } from '@/types/config';
 import {
-  fetchExampleManifest,
+  fetchExamples,
   EXAMPLES_MANIFEST_URL,
   type ExampleConfigEntry,
 } from '@/utils/exampleManifest';
@@ -214,7 +214,7 @@ const DonorConfigPickerDialog = ({
     isFetching: examplesFetching,
   } = useQuery({
     queryKey: ['example-configs-manifest'],
-    queryFn: () => fetchExampleManifest(),
+    queryFn: () => fetchExamples(),
     enabled: open && activeTab === 'examples',
     staleTime: 5 * 60 * 1000,
   });
