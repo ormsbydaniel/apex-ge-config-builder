@@ -69,7 +69,7 @@ interface ActionCardProps {
 }
 
 const ActionCard: React.FC<ActionCardProps> = ({
-  kind, title, summary, pills, warnings, onEdit, onRemove,
+  kind, title, summary, pills, warnings, onEdit, onRemove, onCopy,
 }) => {
   const hasWarn = (warnings?.length ?? 0) > 0;
   return (
