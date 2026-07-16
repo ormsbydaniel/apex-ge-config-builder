@@ -124,6 +124,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         title="Navigation"
         headerIcon={<Compass className="h-4 w-4 text-muted-foreground" />}
         addLabel="Navigation settings"
+        onCopyAction={onCopyAction}
       />
 
       {/* Active layers */}
@@ -136,6 +137,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         title="Layers"
         headerIcon={<LayersIcon className="h-4 w-4 text-muted-foreground" />}
         addLabel="Layer settings"
+        onCopyAction={onCopyAction}
       />
 
       {/* Panel state */}
@@ -148,6 +150,7 @@ export const StepEditor: React.FC<StepEditorProps> = ({
         title="Panels"
         headerIcon={<PanelRightOpen className="h-4 w-4 text-muted-foreground" />}
         addLabel="Panel state"
+        onCopyAction={onCopyAction}
       />
 
       <Dialog open={editingContent} onOpenChange={handleContentOpenChange}>
