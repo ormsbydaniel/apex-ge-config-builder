@@ -34,6 +34,8 @@ import { DataSource, StoryStep } from '@/types/config';
 import { StoryWarning } from '@/utils/storyValidation';
 import StepEditor from './StepEditor';
 import StepJsonEditorDialog from './StepJsonEditorDialog';
+import CopyToStepsDialog, { type CopyToStepsResult } from './CopyToStepsDialog';
+import type { CopyFacet } from './copySteps';
 import { cn } from '@/lib/utils';
 
 interface SortableStepCardProps {
@@ -54,6 +56,10 @@ interface SortableStepCardProps {
   initiallyEditingContent?: boolean;
   /** Called if the user cancels the initial Content dialog on a new step. */
   onCancelNewStep?: () => void;
+  /** Sibling steps in the same story — required for copy-to-steps. */
+  storySteps?: StoryStep[];
+  /** Apply a copy result across sibling steps. */
+  onCopyToSteps?: (result: CopyToStepsResult) => void;
 }
 
 /** Pill helper matching the layer card `<Badge variant="outline">` treatment. */
