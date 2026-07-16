@@ -140,7 +140,7 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Add action</DialogTitle>
+          <DialogTitle>Add / edit action</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-1">
           {CATEGORY_ORDER.filter((cat) => byCategory[cat].length > 0).map((cat) => (
@@ -149,25 +149,22 @@ const AddActionMenu: React.FC<AddActionMenuProps> = ({ open, onOpenChange, step,
               <div className="space-y-1">
                 {byCategory[cat].map((kind) => {
                   const meta = ACTION_META[kind];
-                  const disabled = meta.singleton && hasKind(step, kind);
+                  const alreadyAdded = meta.singleton && hasKind(step, kind);
                   return (
                     <button
                       key={kind}
                       type="button"
-                      disabled={disabled}
                       onClick={() => { onPick(kind); onOpenChange(false); }}
                       className={cn(
                         'w-full text-left border rounded-md px-3 py-2 flex items-start gap-3 transition-colors',
-                        disabled
-                          ? 'opacity-50 cursor-not-allowed'
-                          : 'hover:bg-muted/60 hover:border-primary/30',
+                        'hover:bg-muted/60 hover:border-primary/30',
                       )}
                     >
                       <span className="text-muted-foreground mt-0.5">{ACTION_ICON[kind]}</span>
                       <span className="flex-1 min-w-0">
                         <span className="block text-sm font-medium">{meta.label}</span>
                         <span className="block text-xs text-muted-foreground">
-                          {meta.description}{disabled && ' — already added'}
+                          {meta.description}{alreadyAdded && ' — edit current settings'}
                         </span>
                       </span>
                     </button>
