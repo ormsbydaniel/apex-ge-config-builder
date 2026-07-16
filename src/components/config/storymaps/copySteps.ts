@@ -5,9 +5,10 @@ export type CopyFacet =
   | 'baseLayer'
   | 'activeLayers'
   | 'constraints'
-  | 'panelState';
+  | 'panelState'
+  | 'contentDescription';
 
-export type MergeStrategy = 'replace' | 'append';
+export type MergeStrategy = 'replace' | 'append' | 'insertStart' | 'insertEnd';
 
 export const FACET_LABEL: Record<CopyFacet, string> = {
   navigation: 'Navigation',
@@ -15,9 +16,27 @@ export const FACET_LABEL: Record<CopyFacet, string> = {
   activeLayers: 'Active layers',
   constraints: 'Constraints',
   panelState: 'Panel state',
+  contentDescription: 'Description',
 };
 
-/** Facets that support Replace / Append. Others always overwrite. */
+export const STRATEGY_LABEL: Record<MergeStrategy, string> = {
+  replace: 'Replace',
+  append: 'Append',
+  insertStart: 'Insert at start',
+  insertEnd: 'Insert at end',
+};
+
+/** Strategies offered per facet. Empty array = always overwrite (no chooser). */
+export const FACET_STRATEGIES: Record<CopyFacet, MergeStrategy[]> = {
+  navigation: [],
+  baseLayer: [],
+  activeLayers: ['replace', 'append'],
+  constraints: ['replace', 'append'],
+  panelState: [],
+  contentDescription: ['replace', 'insertStart', 'insertEnd'],
+};
+
+/** @deprecated Use FACET_STRATEGIES. Kept for back-compat. */
 export const STRATEGY_FACETS: CopyFacet[] = ['activeLayers', 'constraints'];
 
 const clone = <T,>(v: T): T =>
@@ -40,6 +59,8 @@ export const facetPresent = (step: StoryStep, facet: CopyFacet): boolean => {
       );
     case 'panelState':
       return !!step.panelState;
+    case 'contentDescription':
+      return !!step.content?.description?.trim();
   }
 };
 
@@ -126,6 +147,22 @@ export const applyFacetCopy = (
         ...target,
         panelState: source.panelState ? clone(source.panelState) : undefined,
       };
+    case 'contentDescription': {
+      const src = source.content?.description ?? '';
+      const tgt = target.content?.description ?? '';
+      let next: string;
+      if (strategy === 'insertStart') {
+        next = src && tgt ? `${src}\n\n${tgt}` : src || tgt;
+      } else if (strategy === 'insertEnd') {
+        next = src && tgt ? `${tgt}\n\n${src}` : src || tgt;
+      } else {
+        next = src;
+      }
+      return {
+        ...target,
+        content: { ...(target.content ?? {}), description: next },
+      };
+    }
   }
 };
 
@@ -224,6 +261,14 @@ const diffFacet = (
         before: summarisePanel(before.panelState),
         after: summarisePanel(after.panelState),
       };
+    }
+    case 'contentDescription': {
+      const b = before.content?.description ?? '';
+      const a = after.content?.description ?? '';
+      if (b === a) return { kind: 'noop' };
+      const trunc = (s: string) =>
+        s.length > 80 ? `${s.slice(0, 77)}…` : s || '(empty)';
+      return { kind: 'replace', before: trunc(b), after: trunc(a) };
     }
     case 'activeLayers': {
       const beforeIds = (before.activeLayers ?? []).map((l) => l.id);

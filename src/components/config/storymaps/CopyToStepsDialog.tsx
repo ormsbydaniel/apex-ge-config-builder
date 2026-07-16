@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import type { StoryStep } from '@/types/config';
 import {
-  CopyFacet, FACET_LABEL, MergeStrategy, STRATEGY_FACETS, facetPresent,
+  CopyFacet, FACET_LABEL, MergeStrategy, FACET_STRATEGIES, STRATEGY_LABEL, facetPresent,
   buildCopyPreview, StepChangePreview, FacetChange,
 } from './copySteps';
 
@@ -38,7 +38,7 @@ export const CopyToStepsDialog: React.FC<Props> = ({
   open, onOpenChange, sourceStep, storySteps, sourceIndex, mode, facet, onApply,
 }) => {
   const availableFacets = useMemo<CopyFacet[]>(() => {
-    const all: CopyFacet[] = ['navigation', 'baseLayer', 'activeLayers', 'constraints', 'panelState'];
+    const all: CopyFacet[] = ['navigation', 'baseLayer', 'activeLayers', 'constraints', 'panelState', 'contentDescription'];
     return all.filter((f) => facetPresent(sourceStep, f));
   }, [sourceStep]);
 
@@ -116,6 +116,10 @@ export const CopyToStepsDialog: React.FC<Props> = ({
         if (ps.tab?.id) bits.push(`tab: ${ps.tab.id}`);
         return bits.join(' · ');
       }
+      case 'contentDescription': {
+        const d = sourceStep.content?.description ?? '';
+        return d.length > 80 ? `${d.slice(0, 77)}…` : d;
+      }
     }
   };
 
@@ -128,7 +132,7 @@ export const CopyToStepsDialog: React.FC<Props> = ({
   const effectiveStrategies = useMemo(() => {
     const strat: Partial<Record<CopyFacet, MergeStrategy>> = { ...strategies };
     for (const f of effectiveFacets) {
-      if (STRATEGY_FACETS.includes(f) && !strat[f]) strat[f] = 'replace';
+      if (FACET_STRATEGIES[f].length > 0 && !strat[f]) strat[f] = 'replace';
     }
     return strat;
   }, [strategies, effectiveFacets]);
@@ -184,7 +188,8 @@ export const CopyToStepsDialog: React.FC<Props> = ({
               <ul className="space-y-1.5">
                 {facetsToShow.map((f) => {
                   const checked = selectedFacets.has(f);
-                  const supportsStrategy = STRATEGY_FACETS.includes(f);
+                  const strategyOptions = FACET_STRATEGIES[f];
+                  const supportsStrategy = strategyOptions.length > 0;
                   const strat = strategies[f] ?? 'replace';
                   return (
                     <li key={f} className="rounded-md border px-2 py-1.5">
@@ -207,20 +212,16 @@ export const CopyToStepsDialog: React.FC<Props> = ({
                           <RadioGroup
                             value={strat}
                             onValueChange={(v) => setStrategy(f, v as MergeStrategy)}
-                            className="flex items-center gap-3"
+                            className="flex flex-wrap items-center gap-x-3 gap-y-1"
                           >
-                            <div className="flex items-center gap-1.5">
-                              <RadioGroupItem value="replace" id={`strat-${f}-replace`} />
-                              <Label htmlFor={`strat-${f}-replace`} className="text-xs font-normal cursor-pointer">
-                                Replace
-                              </Label>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <RadioGroupItem value="append" id={`strat-${f}-append`} />
-                              <Label htmlFor={`strat-${f}-append`} className="text-xs font-normal cursor-pointer">
-                                Append
-                              </Label>
-                            </div>
+                            {strategyOptions.map((opt) => (
+                              <div key={opt} className="flex items-center gap-1.5">
+                                <RadioGroupItem value={opt} id={`strat-${f}-${opt}`} />
+                                <Label htmlFor={`strat-${f}-${opt}`} className="text-xs font-normal cursor-pointer">
+                                  {STRATEGY_LABEL[opt]}
+                                </Label>
+                              </div>
+                            ))}
                           </RadioGroup>
                         </div>
                       )}
@@ -369,16 +370,12 @@ const StrategyChip: React.FC<{ change: FacetChange; strategy: MergeStrategy }> =
       </span>
     );
   }
-  const label =
-    change.kind === 'append' || (change.kind === 'constraints' && strategy === 'append')
-      ? 'Append'
-      : change.kind === 'constraints'
-      ? 'Replace'
-      : 'Replace';
+  const label = STRATEGY_LABEL[strategy] ?? 'Replace';
+  const isAppendish = strategy === 'append' || strategy === 'insertStart' || strategy === 'insertEnd';
   return (
     <span className={cn(
       'inline-flex items-center px-1.5 h-4 rounded text-[10px] uppercase tracking-wide',
-      label === 'Append'
+      isAppendish
         ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300'
         : 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
     )}>
