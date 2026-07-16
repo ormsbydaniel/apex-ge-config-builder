@@ -102,6 +102,11 @@ const ActionCard: React.FC<ActionCardProps> = ({
               </Tooltip>
             </TooltipProvider>
           )}
+          {onCopy && (
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onCopy} title="Copy to other steps">
+              <ChevronsRight className="h-3.5 w-3.5" />
+            </Button>
+          )}
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEdit} title="Edit action">
             <Pencil className="h-3.5 w-3.5" />
           </Button>
