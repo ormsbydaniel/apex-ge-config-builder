@@ -567,10 +567,11 @@ interface ConstraintsEditorProps {
   step: StoryStep;
   sources: DataSource[];
   onSave: (active: StoryActiveLayer[]) => void;
+  onBack?: () => void;
 }
 
 export const ConstraintsEditor: React.FC<ConstraintsEditorProps> = ({
-  open, onOpenChange, step, sources, onSave,
+  open, onOpenChange, step, sources, onSave, onBack,
 }) => {
   const [layers, setLayers] = useState<StoryActiveLayer[]>(step.activeLayers ?? []);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
@@ -599,13 +600,20 @@ export const ConstraintsEditor: React.FC<ConstraintsEditorProps> = ({
 
   const save = () => { onSave(layers); onOpenChange(false); };
 
-  const canSave = layers.length > 0;
+  const hasAnyAvailableConstraints = layers.some(
+    (l) => (findSource(sources, l.id)?.constraints?.length ?? 0) > 0,
+  );
+  const canSave = layers.length > 0 && hasAnyAvailableConstraints;
 
   return (
-    <ActionModal open={open} onOpenChange={onOpenChange} title="Apply constraints" onSave={save} canSave={canSave} wide>
+    <ActionModal open={open} onOpenChange={onOpenChange} title="Apply constraints" onSave={save} canSave={canSave} wide onBack={onBack}>
       {layers.length === 0 ? (
-        <p className="text-xs text-muted-foreground italic">
+        <p className="text-sm text-muted-foreground italic">
           No active layers on this step. Add layers under "Active layers" first, then return here to apply constraints.
+        </p>
+      ) : !hasAnyAvailableConstraints ? (
+        <p className="text-sm text-muted-foreground italic">
+          None of the active layers on this step have constraints defined on their data source. Add constraints to the layer's data source, or choose different active layers.
         </p>
       ) : (
         <div className="space-y-2">
