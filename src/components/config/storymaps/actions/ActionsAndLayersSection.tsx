@@ -299,6 +299,7 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       summary,
       pills: v.duration !== undefined ? <Pill>{v.duration}ms</Pill> : undefined,
       onEdit: () => setOpenEditor({ kind: 'navigation' }),
+      onCopy: copyHandler('navigation'),
     });
   }
 
