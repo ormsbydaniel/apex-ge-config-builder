@@ -270,8 +270,12 @@ export const ActionsAndLayersSection: React.FC<Props> = ({
       case 'panelState':
         patch({ panelState: undefined });
         break;
+      case 'transition':
+        patch({ autoAdvance: undefined });
+        break;
     }
   };
+
 
   type Item = {
     key: string;
