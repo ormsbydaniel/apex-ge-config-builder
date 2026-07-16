@@ -6,6 +6,7 @@ export type CopyFacet =
   | 'activeLayers'
   | 'constraints'
   | 'panelState'
+  | 'transition'
   | 'contentDescription';
 
 export type MergeStrategy = 'replace' | 'append' | 'insertStart' | 'insertEnd';
@@ -16,8 +17,10 @@ export const FACET_LABEL: Record<CopyFacet, string> = {
   activeLayers: 'Active layers',
   constraints: 'Constraints',
   panelState: 'Panel state',
+  transition: 'Transition',
   contentDescription: 'Description',
 };
+
 
 export const STRATEGY_LABEL: Record<MergeStrategy, string> = {
   replace: 'Replace',
