@@ -14,7 +14,7 @@ can jump around if needed.
 
 ## Available exercises
 
-1. [Getting Started](01-getting-started/index.md) — Build a new configuration
+1. [My first config](01-getting-started/index.md) — Build a new configuration
    from scratch: name and branding, base maps, your first layer card, a COG
    data source, colormap styling and a direct WMS layer.
 2. [Working with Services](02-working-with-services/index.md) — Register
