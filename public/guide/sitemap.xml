@@ -357,7 +357,7 @@
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/01-getting-started/01-key-concepts.html</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/01-getting-started/01-prerequisites.html</loc>
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
@@ -397,19 +397,23 @@
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/01-recommended-services.html</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/01-prerequisites.html</loc>
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/02-data-from-prr.html</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/02-recommended-services.html</loc>
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/03-more-wms-layers.html</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/03-data-from-prr.html</loc>
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/04-wms-legends.html</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/04-more-wms-layers.html</loc>
+         <lastmod>2026-07-29</lastmod>
+    </url>
+    <url>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/05-wms-legends.html</loc>
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
@@ -417,7 +421,7 @@
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/03-categorical-data/01-categories-intro.html</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/03-categorical-data/01-prerequisites.html</loc>
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
@@ -441,7 +445,7 @@
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/04-time-series/01-time-series-intro.html</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/04-time-series/01-prerequisites.html</loc>
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
@@ -465,7 +469,7 @@
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>
-         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-constraints/01-constraints-intro.html</loc>
+         <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-constraints/01-prerequisites.html</loc>
          <lastmod>2026-07-29</lastmod>
     </url>
     <url>

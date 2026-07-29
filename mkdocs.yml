@@ -141,7 +141,7 @@ nav:
       - Overview: workshops/index.md
       - 1. Getting Started:
           - Overview: workshops/01-getting-started/index.md
-          - 1. Key concepts: workshops/01-getting-started/01-key-concepts.md
+          - 1. Pre-requisites: workshops/01-getting-started/01-prerequisites.md
           - 2. Name and branding: workshops/01-getting-started/02-name-and-branding.md
           - 3. Export and reload: workshops/01-getting-started/03-export-and-reload.md
           - 4. Add base maps: workshops/01-getting-started/04-add-base-maps.md
@@ -152,27 +152,28 @@ nav:
           - 9. Add a WMS layer directly: workshops/01-getting-started/09-wms-service.md
       - 2. Working with Services:
           - Overview: workshops/02-working-with-services/index.md
-          - 1. Add recommended services: workshops/02-working-with-services/01-recommended-services.md
-          - 2. Add data from the PRR: workshops/02-working-with-services/02-data-from-prr.md
-          - 3. Add more WMS layers: workshops/02-working-with-services/03-more-wms-layers.md
-          - 4. Add legends for a WMS: workshops/02-working-with-services/04-wms-legends.md
+          - 1. Pre-requisites: workshops/02-working-with-services/01-prerequisites.md
+          - 2. Add recommended services: workshops/02-working-with-services/02-recommended-services.md
+          - 3. Add data from the PRR: workshops/02-working-with-services/03-data-from-prr.md
+          - 4. Add more WMS layers: workshops/02-working-with-services/04-more-wms-layers.md
+          - 5. Add legends for a WMS: workshops/02-working-with-services/05-wms-legends.md
       - 3. Categorical Data:
           - Overview: workshops/03-categorical-data/index.md
-          - 1. Categories — key concepts: workshops/03-categorical-data/01-categories-intro.md
+          - 1. Pre-requisites: workshops/03-categorical-data/01-prerequisites.md
           - 2. Categories for a WMS layer: workshops/03-categorical-data/02-categories-wms.md
           - 3. Categories for a COG: workshops/03-categorical-data/03-categories-cog.md
           - 4. Use the JSON editor: workshops/03-categorical-data/04-categories-json-editor.md
           - 5. Copy categories between layers: workshops/03-categorical-data/05-copy-categories.md
       - 4. Time Series:
           - Overview: workshops/04-time-series/index.md
-          - 1. Time series — key concepts: workshops/04-time-series/01-time-series-intro.md
+          - 1. Pre-requisites: workshops/04-time-series/01-prerequisites.md
           - 2. Manual timestamps: workshops/04-time-series/02-manual-timestamps.md
           - 3. Using STAC timestamps: workshops/04-time-series/03-stac-timestamps.md
           - 4. WMS / WMTS time parameters: workshops/04-time-series/04-wms-timestamps.md
           - 5. Manual timestamps on WMS: workshops/04-time-series/05-manual-wms-timestamps.md
       - 5. Constraints:
           - Overview: workshops/05-constraints/index.md
-          - 1. Constraints — key concepts: workshops/05-constraints/01-constraints-intro.md
+          - 1. Pre-requisites: workshops/05-constraints/01-prerequisites.md
           - 2. Create a categorical constraint: workshops/05-constraints/02-categorical-constraint.md
           - 3. Add continuous constraints: workshops/05-constraints/03-continuous-constraints.md
   - Reference:

@@ -6,19 +6,17 @@ title: 2. Working with Services
 Register recommended services, browse the Project Results Repository (PRR), add
 further WMS layers and configure WMS legends.
 
-## Pre-requisites
+## Key concepts
 
-Complete [1. Getting Started](../01-getting-started/index.md) first — this
-exercise assumes you already have a configuration with an interface group, a
-base map and at least one layer card.
+!!! info "To be written"
+    Key concepts for working with services will be added here in a future
+    revision. For now, jump straight to the pre-requisites and the exercise
+    steps.
 
 ## Steps
 
-1. [Add recommended services](01-recommended-services.md)
-2. [Add data from the PRR](02-data-from-prr.md)
-3. [Add more WMS layers](03-more-wms-layers.md)
-4. [Add legends for a WMS](04-wms-legends.md)
-
-!!! tip "Export often"
-    Export your configuration after each step so you can recover if your
-    browser tab closes.
+1. [Pre-requisites](01-prerequisites.md)
+2. [Add recommended services](02-recommended-services.md)
+3. [Add data from the PRR](03-data-from-prr.md)
+4. [Add more WMS layers](04-more-wms-layers.md)
+5. [Add legends for a WMS](05-wms-legends.md)

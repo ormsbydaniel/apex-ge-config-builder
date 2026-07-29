@@ -16,7 +16,7 @@
         <link rel="prev" href="../index.html">
       
       
-        <link rel="next" href="01-key-concepts.html">
+        <link rel="next" href="01-prerequisites.html">
       
       
         
@@ -1314,14 +1314,14 @@
   
   
     <li class="md-nav__item">
-      <a href="01-key-concepts.html" class="md-nav__link">
+      <a href="01-prerequisites.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    1. Key concepts
+    1. Pre-requisites
   
 
     
@@ -1578,6 +1578,8 @@
       
         
           
+        
+      
         
       
         
@@ -1934,32 +1936,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#useful-links" class="md-nav__link">
+  <a href="#key-concepts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Useful links
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scope" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pre-requisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pre-requisites
+        Key concepts
       
     </span>
   </a>
@@ -1998,31 +1978,36 @@
 <p>Build a Geospatial Explorer configuration from scratch: name and branding, base
 maps, your first layer card, a COG data source, colormap styling and a direct
 WMS layer.</p>
-<h2 id="useful-links">Useful links<a class="headerlink" href="#useful-links" title="Permanent link">&para;</a></h2>
+<h2 id="key-concepts">Key concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h2>
+<p>Before you start clicking around, it is worth knowing a few things about the
+Config Builder and how it fits into the wider Geospatial Explorer stack.</p>
 <ul>
-<li>Config Builder: <a href="https://apex-ge-config-builder.sparkgeo.uk/">https://apex-ge-config-builder.sparkgeo.uk/</a></li>
-<li>Configuration Builder Guide (this site): <a href="https://apex-ge-config-builder.sparkgeo.uk/guide/">https://apex-ge-config-builder.sparkgeo.uk/guide/</a></li>
+<li>The <strong>Geospatial Explorer Configuration Builder</strong> ("CB") is an authoring
+  tool for the JSON files that drive the Geospatial Explorer ("GE").</li>
+<li>The JSON is complex. The CB exists to reduce the technical barrier for
+  building GE configurations by hand.</li>
+<li>The CB runs <strong>entirely in your browser</strong>. There is no backend, no login and
+  no server-side storage of your work.</li>
+<li>You "save" your configuration by <strong>exporting</strong> it to your local machine as a
+  JSON file, and reload it later by importing that file back into the CB.</li>
+<li>Configurations are shareable — email or Slack the exported JSON to a
+  collaborator and they can load it into their own browser.</li>
+<li>A run-time version of the GE is <strong>integrated into the CB</strong> on the <strong>GE Preview</strong>
+  tab. Both released versions and interim development versions of the GE are
+  available, so you can build configurations that target features not yet in a
+  stable release.</li>
+<li>The CB itself is a work in progress. Feedback and suggestions based on your
+  own experience are welcome.</li>
 </ul>
-<h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
-<p>This exercise introduces the <strong>Geospatial Explorer Configuration Builder</strong>
-("CB") that is used to create configuration files for the Geospatial Explorer
-("GE"). It covers the basics — enough to build a small but complete
-configuration.</p>
-<p>Later workshop exercises pick up from here to cover services, categorical data,
-time series and constraints.</p>
-<h2 id="pre-requisites">Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permanent link">&para;</a></h2>
-<p>There are no specific technical pre-requisites, although a second monitor is
-useful to follow along. It is assumed that delegates have a basic understanding
-of:</p>
-<ul>
-<li>Geospatial data — primarily raster (we use COGs) and vector formats</li>
-<li>Geospatial web services — WMS, WMTS and XYZ</li>
-</ul>
-<p>If you are unfamiliar with the above the exercise is still useful, but some
-areas may need extra explanation from the facilitator.</p>
+<div class="admonition info">
+<p class="admonition-title">No cloud storage</p>
+<p>Because everything is browser-side, closing your browser tab loses your
+work unless you have exported it. Get into the habit of exporting after
+every meaningful change.</p>
+</div>
 <h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="01-key-concepts.html">Key concepts</a></li>
+<li><a href="01-prerequisites.html">Pre-requisites</a></li>
 <li><a href="02-name-and-branding.html">Name, interface group and branding</a></li>
 <li><a href="03-export-and-reload.html">Exporting and reloading config</a></li>
 <li><a href="04-add-base-maps.html">Add recommended base maps</a></li>
@@ -2032,12 +2017,6 @@ areas may need extra explanation from the facilitator.</p>
 <li><a href="08-layer-controls.html">Experiment with layer controls</a></li>
 <li><a href="09-wms-service.html">Add a WMS layer directly</a></li>
 </ol>
-<div class="admonition tip">
-<p class="admonition-title">Export often</p>
-<p>There is no cloud "save" — you save by exporting your configuration to your
-local machine. Export after every couple of steps so you can recover if
-your browser tab closes.</p>
-</div>
 
 
 
@@ -2095,13 +2074,13 @@ your browser tab closes.</p>
         
         
           
-          <a href="01-key-concepts.html" class="md-footer__link md-footer__link--next" aria-label="Next: 1. Key concepts">
+          <a href="01-prerequisites.html" class="md-footer__link md-footer__link--next" aria-label="Next: 1. Pre-requisites">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                1. Key concepts
+                1. Pre-requisites
               </div>
             </div>
             <div class="md-footer__button md-icon">

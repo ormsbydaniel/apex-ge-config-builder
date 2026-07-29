@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/03-categorical-data/index.html">
       
       
-        <link rel="prev" href="../02-working-with-services/04-wms-legends.html">
+        <link rel="prev" href="../02-working-with-services/05-wms-legends.html">
       
       
-        <link rel="next" href="01-categories-intro.html">
+        <link rel="next" href="01-prerequisites.html">
       
       
         
@@ -1317,6 +1317,8 @@
       
         
       
+        
+      
     
     
     
@@ -1448,14 +1450,14 @@
   
   
     <li class="md-nav__item">
-      <a href="01-categories-intro.html" class="md-nav__link">
+      <a href="01-prerequisites.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    1. Categories — key concepts
+    1. Pre-requisites
   
 
     
@@ -1822,10 +1824,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pre-requisites" class="md-nav__link">
+  <a href="#key-concepts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pre-requisites
+        Key concepts
       
     </span>
   </a>
@@ -1863,24 +1865,27 @@
 <h1 id="3-categorical-data">3. Categorical Data<a class="headerlink" href="#3-categorical-data" title="Permanent link">&para;</a></h1>
 <p>Configure categories for WMS and COG layers, use the JSON editor for bulk
 edits and copy categories between layers.</p>
-<h2 id="pre-requisites">Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permanent link">&para;</a></h2>
-<p>Complete <a href="../01-getting-started/index.html">1. Getting Started</a> and
-<a href="../02-working-with-services/index.html">2. Working with Services</a> first — this
-exercise assumes you already have both a direct WMS layer and one or more
-layers added from recommended services.</p>
+<h2 id="key-concepts">Key concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h2>
+<ul>
+<li>We often work with <strong>categorical</strong> data such as classifications (e.g. land
+  cover).</li>
+<li>The data can arrive in several ways — as a WMS where the server has already
+  rendered the classes (like the World Cover WMS from Part 2), or as a COG
+  where the raw pixel values represent the class codes.</li>
+<li>In both cases we can set up <strong>categories</strong> in the CB.</li>
+<li>For <strong>WMS</strong> layers, categories define the legend shown in the Explorer.</li>
+<li>For <strong>COGs</strong>, categories define both how the raw pixel values are rendered
+    and the legend that is shown.</li>
+</ul>
+<p>See <a href="../../layers/categories.html">Categories</a> for the full reference.</p>
 <h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="01-categories-intro.html">Categories — key concepts</a></li>
+<li><a href="01-prerequisites.html">Pre-requisites</a></li>
 <li><a href="02-categories-wms.html">Categories for a WMS layer</a></li>
 <li><a href="03-categories-cog.html">Categories for a COG</a></li>
 <li><a href="04-categories-json-editor.html">Use the JSON editor</a></li>
 <li><a href="05-copy-categories.html">Copy categories between layers</a></li>
 </ol>
-<div class="admonition tip">
-<p class="admonition-title">Export often</p>
-<p>Export your configuration after each step so you can recover if your
-browser tab closes.</p>
-</div>
 
 
 
@@ -1921,7 +1926,7 @@ browser tab closes.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../02-working-with-services/04-wms-legends.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 4. Add legends for a WMS">
+          <a href="../02-working-with-services/05-wms-legends.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5. Add legends for a WMS">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1931,20 +1936,20 @@ browser tab closes.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                4. Add legends for a WMS
+                5. Add legends for a WMS
               </div>
             </div>
           </a>
         
         
           
-          <a href="01-categories-intro.html" class="md-footer__link md-footer__link--next" aria-label="Next: 1. Categories — key concepts">
+          <a href="01-prerequisites.html" class="md-footer__link md-footer__link--next" aria-label="Next: 1. Pre-requisites">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                1. Categories — key concepts
+                1. Pre-requisites
               </div>
             </div>
             <div class="md-footer__button md-icon">

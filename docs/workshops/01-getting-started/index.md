@@ -7,36 +7,36 @@ Build a Geospatial Explorer configuration from scratch: name and branding, base
 maps, your first layer card, a COG data source, colormap styling and a direct
 WMS layer.
 
-## Useful links
+## Key concepts
 
-- Config Builder: <https://apex-ge-config-builder.sparkgeo.uk/>
-- Configuration Builder Guide (this site): <https://apex-ge-config-builder.sparkgeo.uk/guide/>
+Before you start clicking around, it is worth knowing a few things about the
+Config Builder and how it fits into the wider Geospatial Explorer stack.
 
-## Scope
+- The **Geospatial Explorer Configuration Builder** ("CB") is an authoring
+  tool for the JSON files that drive the Geospatial Explorer ("GE").
+- The JSON is complex. The CB exists to reduce the technical barrier for
+  building GE configurations by hand.
+- The CB runs **entirely in your browser**. There is no backend, no login and
+  no server-side storage of your work.
+- You "save" your configuration by **exporting** it to your local machine as a
+  JSON file, and reload it later by importing that file back into the CB.
+- Configurations are shareable — email or Slack the exported JSON to a
+  collaborator and they can load it into their own browser.
+- A run-time version of the GE is **integrated into the CB** on the **GE Preview**
+  tab. Both released versions and interim development versions of the GE are
+  available, so you can build configurations that target features not yet in a
+  stable release.
+- The CB itself is a work in progress. Feedback and suggestions based on your
+  own experience are welcome.
 
-This exercise introduces the **Geospatial Explorer Configuration Builder**
-("CB") that is used to create configuration files for the Geospatial Explorer
-("GE"). It covers the basics — enough to build a small but complete
-configuration.
-
-Later workshop exercises pick up from here to cover services, categorical data,
-time series and constraints.
-
-## Pre-requisites
-
-There are no specific technical pre-requisites, although a second monitor is
-useful to follow along. It is assumed that delegates have a basic understanding
-of:
-
-- Geospatial data — primarily raster (we use COGs) and vector formats
-- Geospatial web services — WMS, WMTS and XYZ
-
-If you are unfamiliar with the above the exercise is still useful, but some
-areas may need extra explanation from the facilitator.
+!!! info "No cloud storage"
+    Because everything is browser-side, closing your browser tab loses your
+    work unless you have exported it. Get into the habit of exporting after
+    every meaningful change.
 
 ## Steps
 
-1. [Key concepts](01-key-concepts.md)
+1. [Pre-requisites](01-prerequisites.md)
 2. [Name, interface group and branding](02-name-and-branding.md)
 3. [Exporting and reloading config](03-export-and-reload.md)
 4. [Add recommended base maps](04-add-base-maps.md)
@@ -45,8 +45,3 @@ areas may need extra explanation from the facilitator.
 7. [Style with a colormap](07-colormaps.md)
 8. [Experiment with layer controls](08-layer-controls.md)
 9. [Add a WMS layer directly](09-wms-service.md)
-
-!!! tip "Export often"
-    There is no cloud "save" — you save by exporting your configuration to your
-    local machine. Export after every couple of steps so you can recover if
-    your browser tab closes.
