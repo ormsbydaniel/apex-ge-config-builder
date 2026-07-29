@@ -1,10 +1,21 @@
 ---
 title: 1. Pre-requisites
 ---
+
 # Pre-requisites
 
-Welcome to the workshop! Before we dive in, a few practical notes to help you
-get the most out of the sessions.
+Before we dive in, a few practical notes to help you get the most out of the sessions. Here is the best bit. The workshop requires:
+
+- **No** Earth observation experience.
+- **No** software development experience.
+- **No** pre-installed tools or environments on your machine.
+- **No** detailed technical knowledge.
+
+The only requirements are:
+
+- A **laptop and WiFi**.
+- Lots of **enthusiasm**.
+- Oh,and maybe some **coffee**.
 
 ## Workshop setup
 
@@ -19,7 +30,7 @@ get the most out of the sessions.
 
 ## Working through the exercises
 
-- Each exercise is broken into short steps (roughly 3–10 minutes each) so you
+- Each exercise is broken into short steps (most are just a few minutes long) so you
   can pause between steps for questions.
 - Use the **Previous** and **Next** arrows at the bottom of each page to move
   through the steps in order, or jump around using the left-hand navigation.
@@ -27,9 +38,13 @@ get the most out of the sessions.
   current step.
 
 !!! tip "Export often"
-    The Config Builder holds your work in the browser. Use **File → Export
-    config** frequently so you don't lose progress if the tab closes or is
-    refreshed.
+The Config Builder holds your work in the browser. Use **File → Export
+config** frequently so you don't lose progress if the tab closes or is
+refreshed.
+
+## Exercise pre-requisites
+
+Each exercise has its own **"home"** page explaining what it will cover,followed by a pre-requisites step. This tells you which other exercises we recommend you complete first and if you have done that,you can keep on using the configuration that you've been working on. If not and you want to dive in straight to this exercise, the pre-requisites page will give you a link for a configuration that is an appropriat starting point for the exercise.
 
 ## Asking questions
 
