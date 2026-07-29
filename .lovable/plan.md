@@ -1,95 +1,93 @@
-## Rename tab, split "Getting Started" into 5 workshop exercises
+## Goal
 
-Rename the top-level **Workshops** tab to **Workshop Exercises**, and split the current single "Getting Started" workshop into 5 numbered exercises. Each exercise becomes its own folder so the Prev/Next arrows flow correctly within an exercise.
+Restructure every workshop exercise so it has the same shape:
 
-### New structure
+- The **exercise home page** contains the overview *and* the Key Concepts content.
+- **Step 1** of every exercise is **"1. Pre-requisites"**, holding the setup/prereq material currently on the home page.
+- All subsequent steps shift up to fill the slot vacated by the old key-concepts intro (where present).
 
-```text
-docs/workshops/
-  index.md                        # updated landing page listing all 5 exercises
-  01-getting-started/             # was: getting-started/ (pages 01–09)
-    index.md
-    01-key-concepts.md … 09-wms-service.md
-  02-working-with-services/       # pages 10–13
-    index.md
-    01-recommended-services.md
-    02-data-from-prr.md
-    03-more-wms-layers.md
-    04-wms-legends.md
-  03-categorical-data/            # pages 14–18
-    index.md
-    01-categories-intro.md
-    02-categories-wms.md
-    03-categories-cog.md
-    04-categories-json-editor.md
-    05-copy-categories.md
-  04-time-series/                 # pages 19–23
-    index.md
-    01-time-series-intro.md
-    02-manual-timestamps.md
-    03-stac-timestamps.md
-    04-wms-timestamps.md
-    05-manual-wms-timestamps.md
-  05-constraints/                 # pages 24–26
-    index.md
-    01-constraints-intro.md
-    02-categorical-constraint.md
-    03-continuous-constraints.md
+## Per-exercise changes
+
+### 1. Getting Started
+- Move `01-key-concepts.md` content into `index.md` under a "Key concepts" section.
+- Create new `01-prerequisites.md` from the current home page's Scope + Pre-requisites + Useful links + "Export often" tip.
+- Delete `01-key-concepts.md`.
+- Renumber `02-` through `09-` → `02-` through `09-` (no shift needed — old step 1 is replaced, positions 2–9 stay).
+- Home page keeps its refreshed Steps list.
+
+### 2. Working with Services
+- No key concepts file exists yet — add a **placeholder "Key concepts"** section to `index.md` (short "TBD — to be written" note).
+- Create `01-prerequisites.md` from the current home page's Pre-requisites + tip.
+- Shift existing steps down by one: `01-recommended-services.md` → `02-`, `02-data-from-prr.md` → `03-`, `03-more-wms-layers.md` → `04-`, `04-wms-legends.md` → `05-`.
+
+### 3. Categorical Data
+- Move `01-categories-intro.md` content into `index.md` under "Key concepts".
+- Create `01-prerequisites.md` from current home page prereqs.
+- Delete `01-categories-intro.md`.
+- Steps 2–5 keep their filenames and positions.
+
+### 4. Time Series
+- Move `01-time-series-intro.md` content into `index.md` under "Key concepts".
+- Create `01-prerequisites.md` from current home page prereqs.
+- Delete `01-time-series-intro.md`.
+- Steps 2–5 keep their filenames and positions.
+
+### 5. Constraints
+- Move `01-constraints-intro.md` content into `index.md` under "Key concepts".
+- Create `01-prerequisites.md` from current home page prereqs.
+- Delete `01-constraints-intro.md`.
+- Steps 2–3 keep their filenames and positions.
+
+## Content pattern for `01-prerequisites.md`
+
+```
+---
+title: 1. Pre-requisites
+---
+# Pre-requisites
+
+<prereq paragraph from current home page>
+
+<Useful links section, where present>
+
+!!! tip "Export often"
+    <existing tip>
 ```
 
-### File moves
+## Content pattern for the refreshed `index.md`
 
-Use `git mv`-equivalent shell `mv` operations to rename files into their new folders. Files renumber to start at `01-` within each exercise (their in-page H1 titles stay the same; only the file prefixes change).
+```
+---
+title: N. <Exercise name>
+---
+# N. <Exercise name>
 
-### Content updates
+<one-paragraph scope summary>
 
-- **`docs/workshops/index.md`** — replace the single "Getting Started" bullet with a list of all 5 exercises, each with a one-line description.
-- **`docs/workshops/01-getting-started/index.md`** — trim the exercise list to items 1–9 only; drop Parts 2–5 from the outline; update the intro to reflect that later exercises live in their own workshop.
-- **New `index.md` for each of the other 4 exercises** — short overview: scope, prerequisites (points at the previous exercise), and the ordered exercise list. Style-matched to the existing Getting Started overview.
-- No changes to individual exercise page bodies.
+## Key concepts
 
-### `mkdocs.yml` nav
+<merged from old 01-*-intro.md, OR a "TBD" placeholder for exercise 2>
 
-```yaml
-- Workshop Exercises:
-    - Overview: workshops/index.md
-    - 1. Getting Started:
-        - Overview: workshops/01-getting-started/index.md
-        - 1. Key concepts: workshops/01-getting-started/01-key-concepts.md
-        - … (through 9. Add a WMS layer directly)
-    - 2. Working with Services:
-        - Overview: workshops/02-working-with-services/index.md
-        - 1. Add recommended services: …/01-recommended-services.md
-        - 2. Add data from the PRR: …/02-data-from-prr.md
-        - 3. Add more WMS layers: …/03-more-wms-layers.md
-        - 4. Add legends for a WMS: …/04-wms-legends.md
-    - 3. Categorical Data:
-        - Overview: workshops/03-categorical-data/index.md
-        - 1. Categories — key concepts: …/01-categories-intro.md
-        - 2. Categories for a WMS layer: …/02-categories-wms.md
-        - 3. Categories for a COG: …/03-categories-cog.md
-        - 4. Use the JSON editor: …/04-categories-json-editor.md
-        - 5. Copy categories between layers: …/05-copy-categories.md
-    - 4. Time Series:
-        - Overview: workshops/04-time-series/index.md
-        - 1. Time series — key concepts: …/01-time-series-intro.md
-        - 2. Manual timestamps: …/02-manual-timestamps.md
-        - 3. Using STAC timestamps: …/03-stac-timestamps.md
-        - 4. WMS / WMTS time parameters: …/04-wms-timestamps.md
-        - 5. Manual timestamps on WMS: …/05-manual-wms-timestamps.md
-    - 5. Constraints:
-        - Overview: workshops/05-constraints/index.md
-        - 1. Constraints — key concepts: …/01-constraints-intro.md
-        - 2. Create a categorical constraint: …/02-categorical-constraint.md
-        - 3. Add continuous constraints: …/03-continuous-constraints.md
+## Steps
+
+1. [Pre-requisites](01-prerequisites.md)
+2. [<next>](02-...md)
+...
 ```
 
-### Build
+## Navigation (`mkdocs.yml`)
 
-Re-run `mkdocs build --strict` to confirm no broken internal links after the moves. The Prev/Next footer arrows will now walk within each exercise and stop cleanly at the boundary between exercises.
+Update the `Workshop Exercises` block so every exercise lists:
 
-### Notes
+- `Overview: index.md`
+- `1. Pre-requisites: 01-prerequisites.md`
+- Remaining steps renumbered to match new filenames (only exercise 2 has actual filename shifts).
 
-- URLs change (files moved to new folders). This is docs-internal; no app code references them.
-- Exercise 18 ("Copy categories between layers") is retained as item 5 within **3. Categorical Data**, per your answer.
-- No app code changes, no new dependencies.
+## Verification
+
+- Run `mkdocs build --strict` and confirm no new warnings introduced by this restructure.
+
+## Notes
+
+- The "Key concepts" placeholder for exercise 2 is intentional so the shape is consistent; content can be filled in later without another restructure.
+- No screenshot recapture needed — this is purely a content reorganisation.
