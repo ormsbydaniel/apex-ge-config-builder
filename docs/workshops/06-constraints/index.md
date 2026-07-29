@@ -1,7 +1,7 @@
 ---
-title: 5. Constraints
+title: 6. Constraints
 ---
-# 5. Constraints
+# 6. Constraints
 
 Create categorical and continuous constraints to filter layers on the map.
 

@@ -14,17 +14,19 @@ can jump around if needed.
 
 ## Available exercises
 
-1. [My first config](01-getting-started/index.md) — Build a new configuration
+1. [Familiarisation](01-familiarisation/index.md) — Get comfortable with the
+   Geospatial Explorer and the Config Builder before we start authoring.
+2. [My first config](02-getting-started/index.md) — Build a new configuration
    from scratch: name and branding, base maps, your first layer card, a COG
    data source, colormap styling and a direct WMS layer.
-2. [Working with Services](02-working-with-services/index.md) — Register
+3. [Working with Services](03-working-with-services/index.md) — Register
    recommended services, browse the Project Results Repository (PRR), add
    further WMS layers and configure WMS legends.
-3. [Categorical Data](03-categorical-data/index.md) — Configure categories for
+4. [Categorical Data](04-categorical-data/index.md) — Configure categories for
    WMS and COG layers, use the JSON editor and copy categories between layers.
-4. [Time Series](04-time-series/index.md) — Configure the temporal control with
+5. [Time Series](05-time-series/index.md) — Configure the temporal control with
    manual timestamps, STAC datetimes and WMS / WMTS time parameters.
-5. [Constraints](05-constraints/index.md) — Create categorical and continuous
+6. [Constraints](06-constraints/index.md) — Create categorical and continuous
    constraints to filter layers on the map.
 
 ## Running a workshop

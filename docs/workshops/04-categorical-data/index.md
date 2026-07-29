@@ -1,7 +1,7 @@
 ---
-title: 3. Categorical Data
+title: 4. Categorical Data
 ---
-# 3. Categorical Data
+# 4. Categorical Data
 
 Configure categories for WMS and COG layers, use the JSON editor for bulk
 edits and copy categories between layers.

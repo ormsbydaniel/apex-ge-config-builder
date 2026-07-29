@@ -1,7 +1,7 @@
 ---
-title: 2. Working with Services
+title: 3. Working with Services
 ---
-# 2. Working with Services
+# 3. Working with Services
 
 Register recommended services, browse the Project Results Repository (PRR), add
 further WMS layers and configure WMS legends.

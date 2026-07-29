@@ -1,7 +1,7 @@
 ---
-title: 4. Time Series
+title: 5. Time Series
 ---
-# 4. Time Series
+# 5. Time Series
 
 Configure the temporal control with manual timestamps, STAC datetimes and
 WMS / WMTS time parameters.

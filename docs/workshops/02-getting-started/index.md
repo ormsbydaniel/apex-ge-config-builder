@@ -1,7 +1,7 @@
 ---
-title: 1. My first config
+title: 2. My first config
 ---
-# 1. My first config
+# 2. My first config
 
 Build a Geospatial Explorer configuration from scratch: name and branding, base
 maps, your first layer card, a COG data source, colormap styling and a direct
