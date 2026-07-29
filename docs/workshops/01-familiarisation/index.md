@@ -1,6 +1,7 @@
 ---
 title: 1. Familiarisation
 ---
+
 # 1. Familiarisation
 
 ## Welcome to the Geospatial Explorer workshop
@@ -30,21 +31,6 @@ workshop notes, attendees will:
 - Witness on-the-fly EO algorithm execution from the APEx algorithm
   catalogue.
 - Have fun.
-
-## Pre-requisites
-
-Here is the best bit. The workshop requires:
-
-- **No** Earth observation experience.
-- **No** software development experience.
-- **No** pre-installed tools or environments on your machine.
-- **No** detailed technical knowledge.
-
-The only requirements are:
-
-- A laptop and WiFi.
-- Enthusiasm.
-- Oh, and maybe some coffee.
 
 ## About this exercise
 
