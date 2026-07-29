@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/03-more-wms-layers.html">
+        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-working-with-services/05-wms-legends.html">
       
       
-        <link rel="prev" href="02-data-from-prr.html">
+        <link rel="prev" href="04-more-wms-layers.html">
       
       
-        <link rel="next" href="04-wms-legends.html">
+        <link rel="next" href="../03-categorical-data/index.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>12. Add more WMS layers - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>5. Add legends for a WMS - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#add-more-wms-layers" class="md-skip">
+        <a href="#add-legends-for-a-wms" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              12. Add more WMS layers
+              5. Add legends for a WMS
             
           </span>
         </div>
@@ -1319,6 +1319,8 @@
       
         
       
+        
+      
     
     
     
@@ -1380,14 +1382,14 @@
   
   
     <li class="md-nav__item">
-      <a href="01-recommended-services.html" class="md-nav__link">
+      <a href="01-prerequisites.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    1. Add recommended services
+    1. Pre-requisites
   
 
     
@@ -1408,14 +1410,70 @@
   
   
     <li class="md-nav__item">
-      <a href="02-data-from-prr.html" class="md-nav__link">
+      <a href="02-recommended-services.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2. Add data from the PRR
+    2. Add recommended services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="03-data-from-prr.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Add data from the PRR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-more-wms-layers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Add more WMS layers
   
 
     
@@ -1445,14 +1503,32 @@
         
       
       
-      <a href="03-more-wms-layers.html" class="md-nav__link md-nav__link--active">
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Add legends for a WMS
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="05-wms-legends.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    3. Add more WMS layers
+    5. Add legends for a WMS
   
 
     
@@ -1462,34 +1538,36 @@
 
       </a>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="04-wms-legends.html" class="md-nav__link">
         
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  <span class="md-ellipsis">
+  
     
   
-    4. Add legends for a WMS
   
-
-    
-  </span>
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#did-you-remember-to-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Did you remember to export?
+      
+    </span>
+  </a>
   
+</li>
+      
+    </ul>
   
-
-      </a>
+</nav>
+      
     </li>
   
 
@@ -1797,6 +1875,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#did-you-remember-to-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Did you remember to export?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1812,21 +1909,28 @@
 
 
 
-<h1 id="add-more-wms-layers">Add more WMS layers<a class="headerlink" href="#add-more-wms-layers" title="Permanent link">&para;</a></h1>
-<p>Now that recommended services are registered, adding WMS layers from them is a
-few clicks.</p>
+<h1 id="add-legends-for-a-wms">Add legends for a WMS<a class="headerlink" href="#add-legends-for-a-wms" title="Permanent link">&para;</a></h1>
+<p>Some WMS services expose a legend graphic via <code>GetLegendGraphic</code>. When they do,
+the CB can pull that legend straight into your layer card.</p>
 <ol>
-<li>Create a new <strong>layer card</strong> called <code>temp</code> — we'll rename it once we've
-   picked the data.</li>
-<li>On the card, select <strong>+ Add dataset</strong> and then <strong>From service</strong>.</li>
-<li>Browse to one of the WMS services — for example <strong>CLMS</strong>.</li>
-<li><strong>Pick a WMS layer</strong> of interest and add it to your layer card.</li>
-<li><strong>Edit</strong> the layer card and rename it from <code>temp</code> to something meaningful
-   for the data you picked. Adjust attribution and controls as needed.</li>
+<li>On the dataset row of a WMS layer, select the <strong>(i)</strong> info icon. The
+   metadata dialog shows whether the WMS reports a legend graphic.</li>
+<li>If a legend graphic is available, select <strong>Copy to config</strong>. The legend is
+   attached to the layer card.</li>
+<li>If no legend graphic is available, edit the layer card and point the
+   <strong>Legend image URL</strong> at any publicly accessible PNG — for example a legend
+   you've curated yourself.</li>
 </ol>
-<p>Any WMS layer you pick from a registered service is added to the layer card
-just like a direct-connection layer — you only need to remember to rename the
-card and set attribution afterwards.</p>
+<p>Preview the layer to check the legend renders where you expect it in the
+Explorer's info panel.</p>
+<div class="admonition tip">
+<p class="admonition-title">Curate your legends</p>
+<p>A WMS legend that comes straight from the server is often visually noisy or
+inconsistent with the rest of your configuration. Overwriting it with a
+hand-crafted PNG is often a good idea.</p>
+</div>
+<h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
+<p>If not, now is a good moment.</p>
 
 
 
@@ -1867,7 +1971,7 @@ card and set attribution afterwards.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="02-data-from-prr.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 2. Add data from the PRR">
+          <a href="04-more-wms-layers.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 4. Add more WMS layers">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1877,20 +1981,20 @@ card and set attribution afterwards.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                2. Add data from the PRR
+                4. Add more WMS layers
               </div>
             </div>
           </a>
         
         
           
-          <a href="04-wms-legends.html" class="md-footer__link md-footer__link--next" aria-label="Next: 4. Add legends for a WMS">
+          <a href="../03-categorical-data/index.html" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                4. Add legends for a WMS
+                Overview
               </div>
             </div>
             <div class="md-footer__button md-icon">
