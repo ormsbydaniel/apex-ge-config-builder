@@ -1,67 +1,100 @@
 
-## Scope
+# Workshops in the user guide — "Getting Started" workshop
 
-Bring `docs/stories/` up to date with the current Stories UI, which now models each step as a set of typed **actions** (Navigation, Layer display, Panels, Transition) rather than a fixed three-section layout, and adds a "copy to other steps" flow.
+## Goal
 
-## What changed vs current docs
+Add a new **Workshops** section to the MkDocs guide with a first workshop called **Getting Started**, ported from the existing `workshop.md` notes. Each exercise is its own short page so delegates can walk through with Previous / Next arrows, and maintainers can edit one small file at a time.
 
-The current `docs/stories/index.md` describes the earlier UI. Notable gaps:
+## Structure
 
-| Change in UI | Doc update needed |
-| --- | --- |
-| Step is now organised by **action sections** grouped into 4 categories: Navigation, Layer display (Active layers, Base map, Constraints), Panels, Transition. | Rewrite the "Step summary badges" / "Editing a step" area to describe action sections and the `+ Add …` empty-state buttons. |
-| **Transition** is its own action section. `autoAdvance` was removed from the Content modal and lives behind its own editor. Empty state shows "Transition on Next / Previous click". | New subsection "Transitions (auto-advance)" with a screenshot of the Transition editor modal and the empty-state text. |
-| **Base map** and **Constraints** are standalone actions inside "Layer display". | Add short subsections describing each. |
-| **Copy to other steps** dialog: per-facet copy (navigation, baseLayer, activeLayers, constraints, panelState, transition, contentDescription) with merge strategies (Replace / Append for lists, Replace / Merge text into start / Merge text into end for descriptions). | New "Copying settings between steps" subsection with a screenshot. |
-| Step JSON editor (`StepJsonEditorDialog`) for power users. | Brief mention with screenshot in "Editing a step". |
-| Content modal no longer contains Auto-advance. | Remove that bullet from "Editing a step". |
+New docs tree:
 
-Story-level dialog (Add story), Stories-tab card list, and URL / JSON reference sections are still accurate — leave prose alone; only refresh their screenshots so styling matches the rest.
+```text
+docs/workshops/
+  index.md                              # Landing page listing available workshops
+  getting-started/
+    index.md                            # Overview: scope, prerequisites, useful links, exercise list
+    01-key-concepts.md
+    02-name-and-branding.md
+    03-export-and-reload.md
+    04-add-base-maps.md
+    05-first-layer-card.md
+    06-add-cog-data.md
+    07-colormaps.md
+    08-layer-controls.md
+    09-wms-service.md
+    ... (one file per exercise from the source doc)
+```
 
-## New / refreshed screenshots
+One workshop = one folder; one exercise = one short markdown file. Adding a new workshop later is just a new folder plus a nav block in `mkdocs.yml`.
 
-Captured via Playwright against `http://localhost:8080` after loading the "Full screen storymap demo" example (so real content is on screen). All saved with `scripts/add-screenshot.sh` so they land in both `docs/assets/screenshots/` and `public/guide/assets/screenshots/`.
+## Navigation
 
-| Filename | What it shows | Replaces / new |
-| --- | --- | --- |
-| `stories-tab-overview.png` | Stories tab with the demo story expanded, showing Active badge and step list. | Refresh |
-| `stories-step-expanded.png` | One step expanded, showing all four action categories including Transition. | Refresh |
-| `stories-step-editor.png` | Content editor modal (now without Auto-advance). | Refresh |
-| `stories-step-transition-editor.png` | Transition (auto-advance ms) modal. | New |
-| `stories-step-base-map.png` | Base map action editor / summary badge. | New |
-| `stories-step-constraints.png` | Constraints action editor / summary badge. | New |
-| `stories-copy-to-steps.png` | Copy-to-other-steps dialog with facet checkboxes and strategy radio. | New |
-| `stories-step-json-editor.png` | Raw JSON step editor dialog. | New |
-| `stories-add-story-dialog.png` | Add story dialog. | Refresh only if styling drifted. |
+Material for MkDocs already renders Previous / Next footer links from the `nav:` order (the `navigation.footer` feature is enabled in `mkdocs.yml`). Ordering exercises under each workshop's nav block is the single source of truth for the flow — no plugin, no custom template.
 
-If any of the "expanded step" or action editors can't be opened cleanly on the demo, I'll fall back to a smaller crop rather than shipping a broken image. Each screenshot is inspected before being copied into `docs/`.
+## Page template
 
-## Doc changes (single file)
+Each exercise page follows a light, consistent shape:
 
-Rewrite `docs/stories/index.md` in place. New outline:
+- H1 title (e.g. `# Add your first COG data source`)
+- One-line "In this exercise you will…" intro
+- Numbered steps
+- Screenshot(s) inline where useful
+- Optional Tip / Remember callouts via the existing `admonition` extension
 
-1. Intro (unchanged concepts, minor edit to reflect action model).
-2. **Concepts** — extend with "Actions" and "Action category" definitions.
-3. **The Stories tab** — same, refreshed screenshot.
-4. **Step summary badges** — expand list to include Base map, Constraints, Transition badges.
-5. **Editing a step**
-   - Content (title / description / id).
-   - Navigation.
-   - Active layers.
-   - Base map (new).
-   - Constraints (new).
-   - Panels.
-   - Transition / auto-advance (new).
-   - Editing raw JSON (new).
-6. **Copying settings between steps** (new section, with facet + strategy table).
-7. **Adding a story** — unchanged prose.
-8. **URLs** — unchanged.
-9. **JSON structure** — unchanged (link to reference).
+## Refresh scope
 
-No changes to `mkdocs.yml` (no new pages), and no changes to app code.
+The source `workshop.md` predates several UI changes in this branch (stories, algorithms, transitions, recommended base maps flow, etc.). As I port each exercise I will:
 
-## Out of scope
+- Walk the current app UI for that step and rewrite the instructions to match today's labels, menu locations, and dialogs.
+- Drop or rewrite any steps that no longer make sense; add short new steps where the current UI needs one that the source doc skipped.
+- Keep the pedagogical flow of the original (basics → services → advanced) but split at natural exercise boundaries.
+- Not expand scope beyond what the source doc covers — new features like Stories / Algorithms / Storymaps stay in their own reference sections and are only referenced from workshop pages, not taught here (a follow-up workshop can cover them).
 
-- No changes to app source, schemas, or types.
-- No rebuild of `public/guide/` HTML — that ships via the existing `./build-docs.sh --push` workflow when you next publish docs.
-- No new pages; everything stays under `docs/stories/index.md` to keep the nav shape stable.
+## Screenshots
+
+Recapture every screenshot fresh from the current app rather than reusing the GitHub-hosted images in the source doc:
+
+- Drive the app via Playwright to reach each step's exact UI state, capture at a consistent viewport, and save into `docs/assets/screenshots/workshops/getting-started/` following the existing kebab-case convention (per the Screenshot Conventions memory, via `scripts/add-screenshot.sh`).
+- Reference each screenshot from the exercise page that uses it, with descriptive alt text.
+
+This makes the workshop stable against upstream GitHub attachment link rot and keeps it visually consistent with the rest of the guide.
+
+## `mkdocs.yml` changes
+
+Add a new top-level `Workshops` tab:
+
+```yaml
+- Workshops:
+    - Overview: workshops/index.md
+    - Getting Started:
+        - Overview: workshops/getting-started/index.md
+        - Key concepts: workshops/getting-started/01-key-concepts.md
+        - Name and branding: workshops/getting-started/02-name-and-branding.md
+        - Export and reload: workshops/getting-started/03-export-and-reload.md
+        - Add base maps: workshops/getting-started/04-add-base-maps.md
+        - Your first layer card: workshops/getting-started/05-first-layer-card.md
+        - Add a COG data source: workshops/getting-started/06-add-cog-data.md
+        - Style with a colormap: workshops/getting-started/07-colormaps.md
+        - Layer controls: workshops/getting-started/08-layer-controls.md
+        - Add a WMS service: workshops/getting-started/09-wms-service.md
+        # ... remaining exercises added as they're ported
+```
+
+Exact exercise list will be finalised during the port; the order above mirrors the source doc's flow.
+
+## Maintenance workflow
+
+- Edit an exercise → run the existing **Deploy Docs Only** GitHub Action (`.github/workflows/deploy-docs.yaml`) → live at `/guide/workshops/getting-started/...`. No app rebuild.
+- Add an exercise → new `.md` file + one line under the workshop's `nav:` block. Prev/Next updates automatically.
+- Add a workshop → new folder under `docs/workshops/` + new nav block.
+
+## Deliverables
+
+1. `docs/workshops/index.md` — Workshops landing page.
+2. `docs/workshops/getting-started/index.md` — Overview of the Getting Started workshop.
+3. One markdown file per exercise ported from `workshop.md`, refreshed against today's UI.
+4. Fresh screenshots captured via Playwright into `docs/assets/screenshots/workshops/getting-started/`.
+5. `mkdocs.yml` updated with the `Workshops` tab and Getting Started exercise ordering.
+
+Docs-only change — no app code changes, no new dependencies — ships through the existing `deploy-docs.yaml` workflow.
