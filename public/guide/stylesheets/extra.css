@@ -8,3 +8,15 @@
   --md-primary-fg-color--dark: #02212e;
   --md-accent-fg-color: #0a8aa8;
 }
+
+/* Shorten the top-level "Workshop Exercises" tab label to "Workshop"
+ * while keeping the full name in the sidebar and page title. */
+.md-tabs__link[href$="/workshops/"],
+.md-tabs__link[href$="/workshops/index.html"] {
+  font-size: 0;
+}
+.md-tabs__link[href$="/workshops/"]::after,
+.md-tabs__link[href$="/workshops/index.html"]::after {
+  content: "Workshop";
+  font-size: 0.7rem;
+}
