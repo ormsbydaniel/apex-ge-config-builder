@@ -1,0 +1,11 @@
+---
+title: 1. Pre-requisites
+---
+# Pre-requisites
+
+Complete the earlier exercises first — this one builds on a configuration that
+already has a mix of COG, WMS and STAC-backed layers.
+
+!!! tip "Export often"
+    Export your configuration after each step so you can recover if your
+    browser tab closes.
