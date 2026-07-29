@@ -137,7 +137,7 @@ nav:
           - Validate and publish a config: recipes/validate-and-publish.md
           - Migrate an existing config: recipes/migrate-existing-config.md
           - Edit JSON directly (safely): recipes/edit-json-directly.md
-  - Workshop Exercises:
+  - Workshop:
       - Overview: workshops/index.md
       - 1. Familiarisation:
           - Overview: workshops/01-familiarisation/index.md
