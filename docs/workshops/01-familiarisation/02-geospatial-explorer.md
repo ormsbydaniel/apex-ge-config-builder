@@ -16,7 +16,7 @@ and storymaps on offer. In later exercises you'll build one of these
 configurations yourself. For now, the goal is simply to get a feel for
 what the end-user application looks like and what it can do.
 
-![Example Geospatial Explorer deployment showing a layers panel, map of southern Italy and a pie chart of European crop types by NUTS area](../assets/screenshots/geospatial-explorer-demo.png)
+![Example Geospatial Explorer deployment showing a layers panel, map of southern Italy and a pie chart of European crop types by NUTS area](../../assets/screenshots/geospatial-explorer-demo.png)
 
 ## Tasks
 

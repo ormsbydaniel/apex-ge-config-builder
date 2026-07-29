@@ -1,7 +1,7 @@
 ---
-title: Workshop Exercises
+title: Workshop
 ---
-# Workshop Exercises
+# Workshop
 
 ## Welcome to the Geospatial Explorer workshop
 
