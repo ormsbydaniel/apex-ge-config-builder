@@ -1,5 +1,5 @@
 ---
-title: 10. Add recommended services
+title: 2. Add recommended services
 ---
 # Add recommended services
 
