@@ -6,7 +6,7 @@ title: 15. Categories for a WMS layer
 Set up categories manually for the World Cover WMS you added earlier.
 
 1. On the **Layers** tab, edit the *World Cover* layer card you created in
-   [Add a WMS layer directly](../01-getting-started/09-wms-service.md).
+   [Add a WMS layer directly](../02-getting-started/09-wms-service.md).
 2. Scroll down and select **Add categories**. The categories editor opens.
 3. Toggle **Use data values** on. An additional column appears for the raw
    pixel values.
