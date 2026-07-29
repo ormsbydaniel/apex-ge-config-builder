@@ -1,100 +1,95 @@
+## Rename tab, split "Getting Started" into 5 workshop exercises
 
-# Workshops in the user guide — "Getting Started" workshop
+Rename the top-level **Workshops** tab to **Workshop Exercises**, and split the current single "Getting Started" workshop into 5 numbered exercises. Each exercise becomes its own folder so the Prev/Next arrows flow correctly within an exercise.
 
-## Goal
-
-Add a new **Workshops** section to the MkDocs guide with a first workshop called **Getting Started**, ported from the existing `workshop.md` notes. Each exercise is its own short page so delegates can walk through with Previous / Next arrows, and maintainers can edit one small file at a time.
-
-## Structure
-
-New docs tree:
+### New structure
 
 ```text
 docs/workshops/
-  index.md                              # Landing page listing available workshops
-  getting-started/
-    index.md                            # Overview: scope, prerequisites, useful links, exercise list
-    01-key-concepts.md
-    02-name-and-branding.md
-    03-export-and-reload.md
-    04-add-base-maps.md
-    05-first-layer-card.md
-    06-add-cog-data.md
-    07-colormaps.md
-    08-layer-controls.md
-    09-wms-service.md
-    ... (one file per exercise from the source doc)
+  index.md                        # updated landing page listing all 5 exercises
+  01-getting-started/             # was: getting-started/ (pages 01–09)
+    index.md
+    01-key-concepts.md … 09-wms-service.md
+  02-working-with-services/       # pages 10–13
+    index.md
+    01-recommended-services.md
+    02-data-from-prr.md
+    03-more-wms-layers.md
+    04-wms-legends.md
+  03-categorical-data/            # pages 14–18
+    index.md
+    01-categories-intro.md
+    02-categories-wms.md
+    03-categories-cog.md
+    04-categories-json-editor.md
+    05-copy-categories.md
+  04-time-series/                 # pages 19–23
+    index.md
+    01-time-series-intro.md
+    02-manual-timestamps.md
+    03-stac-timestamps.md
+    04-wms-timestamps.md
+    05-manual-wms-timestamps.md
+  05-constraints/                 # pages 24–26
+    index.md
+    01-constraints-intro.md
+    02-categorical-constraint.md
+    03-continuous-constraints.md
 ```
 
-One workshop = one folder; one exercise = one short markdown file. Adding a new workshop later is just a new folder plus a nav block in `mkdocs.yml`.
+### File moves
 
-## Navigation
+Use `git mv`-equivalent shell `mv` operations to rename files into their new folders. Files renumber to start at `01-` within each exercise (their in-page H1 titles stay the same; only the file prefixes change).
 
-Material for MkDocs already renders Previous / Next footer links from the `nav:` order (the `navigation.footer` feature is enabled in `mkdocs.yml`). Ordering exercises under each workshop's nav block is the single source of truth for the flow — no plugin, no custom template.
+### Content updates
 
-## Page template
+- **`docs/workshops/index.md`** — replace the single "Getting Started" bullet with a list of all 5 exercises, each with a one-line description.
+- **`docs/workshops/01-getting-started/index.md`** — trim the exercise list to items 1–9 only; drop Parts 2–5 from the outline; update the intro to reflect that later exercises live in their own workshop.
+- **New `index.md` for each of the other 4 exercises** — short overview: scope, prerequisites (points at the previous exercise), and the ordered exercise list. Style-matched to the existing Getting Started overview.
+- No changes to individual exercise page bodies.
 
-Each exercise page follows a light, consistent shape:
-
-- H1 title (e.g. `# Add your first COG data source`)
-- One-line "In this exercise you will…" intro
-- Numbered steps
-- Screenshot(s) inline where useful
-- Optional Tip / Remember callouts via the existing `admonition` extension
-
-## Refresh scope
-
-The source `workshop.md` predates several UI changes in this branch (stories, algorithms, transitions, recommended base maps flow, etc.). As I port each exercise I will:
-
-- Walk the current app UI for that step and rewrite the instructions to match today's labels, menu locations, and dialogs.
-- Drop or rewrite any steps that no longer make sense; add short new steps where the current UI needs one that the source doc skipped.
-- Keep the pedagogical flow of the original (basics → services → advanced) but split at natural exercise boundaries.
-- Not expand scope beyond what the source doc covers — new features like Stories / Algorithms / Storymaps stay in their own reference sections and are only referenced from workshop pages, not taught here (a follow-up workshop can cover them).
-
-## Screenshots
-
-Recapture every screenshot fresh from the current app rather than reusing the GitHub-hosted images in the source doc:
-
-- Drive the app via Playwright to reach each step's exact UI state, capture at a consistent viewport, and save into `docs/assets/screenshots/workshops/getting-started/` following the existing kebab-case convention (per the Screenshot Conventions memory, via `scripts/add-screenshot.sh`).
-- Reference each screenshot from the exercise page that uses it, with descriptive alt text.
-
-This makes the workshop stable against upstream GitHub attachment link rot and keeps it visually consistent with the rest of the guide.
-
-## `mkdocs.yml` changes
-
-Add a new top-level `Workshops` tab:
+### `mkdocs.yml` nav
 
 ```yaml
-- Workshops:
+- Workshop Exercises:
     - Overview: workshops/index.md
-    - Getting Started:
-        - Overview: workshops/getting-started/index.md
-        - Key concepts: workshops/getting-started/01-key-concepts.md
-        - Name and branding: workshops/getting-started/02-name-and-branding.md
-        - Export and reload: workshops/getting-started/03-export-and-reload.md
-        - Add base maps: workshops/getting-started/04-add-base-maps.md
-        - Your first layer card: workshops/getting-started/05-first-layer-card.md
-        - Add a COG data source: workshops/getting-started/06-add-cog-data.md
-        - Style with a colormap: workshops/getting-started/07-colormaps.md
-        - Layer controls: workshops/getting-started/08-layer-controls.md
-        - Add a WMS service: workshops/getting-started/09-wms-service.md
-        # ... remaining exercises added as they're ported
+    - 1. Getting Started:
+        - Overview: workshops/01-getting-started/index.md
+        - 1. Key concepts: workshops/01-getting-started/01-key-concepts.md
+        - … (through 9. Add a WMS layer directly)
+    - 2. Working with Services:
+        - Overview: workshops/02-working-with-services/index.md
+        - 1. Add recommended services: …/01-recommended-services.md
+        - 2. Add data from the PRR: …/02-data-from-prr.md
+        - 3. Add more WMS layers: …/03-more-wms-layers.md
+        - 4. Add legends for a WMS: …/04-wms-legends.md
+    - 3. Categorical Data:
+        - Overview: workshops/03-categorical-data/index.md
+        - 1. Categories — key concepts: …/01-categories-intro.md
+        - 2. Categories for a WMS layer: …/02-categories-wms.md
+        - 3. Categories for a COG: …/03-categories-cog.md
+        - 4. Use the JSON editor: …/04-categories-json-editor.md
+        - 5. Copy categories between layers: …/05-copy-categories.md
+    - 4. Time Series:
+        - Overview: workshops/04-time-series/index.md
+        - 1. Time series — key concepts: …/01-time-series-intro.md
+        - 2. Manual timestamps: …/02-manual-timestamps.md
+        - 3. Using STAC timestamps: …/03-stac-timestamps.md
+        - 4. WMS / WMTS time parameters: …/04-wms-timestamps.md
+        - 5. Manual timestamps on WMS: …/05-manual-wms-timestamps.md
+    - 5. Constraints:
+        - Overview: workshops/05-constraints/index.md
+        - 1. Constraints — key concepts: …/01-constraints-intro.md
+        - 2. Create a categorical constraint: …/02-categorical-constraint.md
+        - 3. Add continuous constraints: …/03-continuous-constraints.md
 ```
 
-Exact exercise list will be finalised during the port; the order above mirrors the source doc's flow.
+### Build
 
-## Maintenance workflow
+Re-run `mkdocs build --strict` to confirm no broken internal links after the moves. The Prev/Next footer arrows will now walk within each exercise and stop cleanly at the boundary between exercises.
 
-- Edit an exercise → run the existing **Deploy Docs Only** GitHub Action (`.github/workflows/deploy-docs.yaml`) → live at `/guide/workshops/getting-started/...`. No app rebuild.
-- Add an exercise → new `.md` file + one line under the workshop's `nav:` block. Prev/Next updates automatically.
-- Add a workshop → new folder under `docs/workshops/` + new nav block.
+### Notes
 
-## Deliverables
-
-1. `docs/workshops/index.md` — Workshops landing page.
-2. `docs/workshops/getting-started/index.md` — Overview of the Getting Started workshop.
-3. One markdown file per exercise ported from `workshop.md`, refreshed against today's UI.
-4. Fresh screenshots captured via Playwright into `docs/assets/screenshots/workshops/getting-started/`.
-5. `mkdocs.yml` updated with the `Workshops` tab and Getting Started exercise ordering.
-
-Docs-only change — no app code changes, no new dependencies — ships through the existing `deploy-docs.yaml` workflow.
+- URLs change (files moved to new folders). This is docs-internal; no app code references them.
+- Exercise 18 ("Copy categories between layers") is retained as item 5 within **3. Categorical Data**, per your answer.
+- No app code changes, no new dependencies.
