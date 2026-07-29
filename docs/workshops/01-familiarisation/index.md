@@ -6,7 +6,7 @@ title: 1. Familiarisation
 
 ## Welcome to the Geospatial Explorer workshop
 
-The European Space Agency's **APEx** project provides a set of tools and
+The European Space Agency's (**APEx**)[https://apex.esa.int/] project provides a set of tools and
 services designed to help the Earth Observation (EO) community disseminate
 the outputs of EO-based research and development work. One of those tools is
 the **Geospatial Explorer** — an interactive web map dashboard that
