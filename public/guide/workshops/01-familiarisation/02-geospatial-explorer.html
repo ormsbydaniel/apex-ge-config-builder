@@ -1341,6 +1341,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Geospatial Explorer
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="02-geospatial-explorer.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1357,6 +1375,75 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-open-the-reference-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Open the reference deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-have-a-play" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Have a play
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-browse-the-solutions-gallery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Browse the Solutions Gallery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1837,6 +1924,64 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-open-the-reference-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Open the reference deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-have-a-play" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Have a play
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-browse-the-solutions-gallery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Browse the Solutions Gallery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1853,9 +1998,52 @@
 
 
 <h1 id="geospatial-explorer">Geospatial Explorer<a class="headerlink" href="#geospatial-explorer" title="Permanent link">&para;</a></h1>
-<p><em>Content coming soon.</em></p>
-<p>This step will introduce the APEx Geospatial Explorer — the end-user map
-application that consumes the configurations we'll build in later exercises.</p>
+<p>The <strong>APEx Geospatial Explorer</strong> is an interactive web map dashboard for
+exploring Earth Observation (EO) data and derived products. It brings
+together cloud-native geospatial data, SpatioTemporal Asset Catalogs
+(STAC), on-the-fly algorithm execution and rich visualisation tools —
+all in a no-code environment that end users can drive from a browser.</p>
+<p>Every Explorer deployment is shaped by a <strong>configuration</strong> — a JSON
+document that defines the layers, services, styling, charts, filters
+and storymaps on offer. In later exercises you'll build one of these
+configurations yourself. For now, the goal is simply to get a feel for
+what the end-user application looks like and what it can do.</p>
+<h2 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h2>
+<h3 id="1-open-the-reference-deployment">1. Open the reference deployment<a class="headerlink" href="#1-open-the-reference-deployment" title="Permanent link">&para;</a></h3>
+<p>Open the flagship APEx Geospatial Explorer in a new browser tab:</p>
+<p><a href="https://explorer.apex.esa.int/">https://explorer.apex.esa.int/</a></p>
+<p>This particular deployment has been organised around the <strong>core areas
+of functionality</strong> the Explorer supports — data visualisation, time
+series, charts and statistics, constraints and filters, storymaps, and
+algorithm execution. Treat it as a showcase of what a well-configured
+Explorer can do.</p>
+<h3 id="2-have-a-play">2. Have a play<a class="headerlink" href="#2-have-a-play" title="Permanent link">&para;</a></h3>
+<p>Spend some time exploring the application. There is no wrong way to do
+this — click things, toggle layers on and off, open panels, drag the
+time slider, try the charts. Some suggestions:</p>
+<ul>
+<li>Switch between different <strong>interface groups</strong> using the top-level
+  navigation.</li>
+<li>Toggle layers on and off and adjust their opacity.</li>
+<li>Open a layer's <strong>data visualisation</strong> controls and experiment with
+  colormaps or RGB composites.</li>
+<li>Try any <strong>time series</strong> layers — scrub the timeline and watch the
+  map update.</li>
+<li>Open a <strong>storymap</strong> if one is available and step through it.</li>
+<li>Apply a <strong>constraint</strong> or filter and see how the map responds.</li>
+</ul>
+<p>Don't worry about understanding every control yet — you'll meet them
+again in later exercises.</p>
+<h3 id="3-browse-the-solutions-gallery">3. Browse the Solutions Gallery<a class="headerlink" href="#3-browse-the-solutions-gallery" title="Permanent link">&para;</a></h3>
+<p>Head over to the APEx Solutions Gallery to see what other teams have
+built with the Explorer:</p>
+<p><a href="https://apex.esa.int/resources/solutions-gallery">https://apex.esa.int/resources/solutions-gallery</a></p>
+<p>Filter the gallery on <strong>"Geospatial Explorer"</strong> as a component and take
+a look at a few of the examples. Each entry links out to a live
+deployment configured for a specific scientific or operational use
+case. Pick two or three that look interesting and open them up — it's
+a great way to see the range of applications a single configurable
+tool can support.</p>
 
 
 
