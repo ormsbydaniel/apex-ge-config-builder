@@ -3,31 +3,46 @@ title: Workshop Exercises
 ---
 # Workshop Exercises
 
+## Welcome to the Geospatial Explorer workshop
+
+The European Space Agency's [**APEx**](https://apex.esa.int/) project provides a set of tools and
+services designed to help the Earth Observation (EO) community disseminate
+the outputs of EO-based research and development work. One of those tools is
+the **Geospatial Explorer** — an interactive web map dashboard that
+practitioners can use to build their own solutions in an entirely no-code
+environment.
+
+In this workshop, delegates will use the **Geospatial Explorer Configuration
+Builder** to create their own web map application. Led by Sparkgeo
+(developers of the Geospatial Explorer) and accompanied by comprehensive
+workshop notes, attendees will:
+
+- Gain a comprehensive insight into the capabilities of the Geospatial
+  Explorer.
+- Build their very own bespoke configuration, featuring data
+  visualisations, interactive charts and graphs, time-series animations,
+  data filters and constraints, interactive **storymaps** and more.
+- Work with — and learn about — cloud-native geospatial data and services,
+  including a fascinating array of Earth observation data and derived
+  products.
+- Work with — and learn about — SpatioTemporal Asset Catalogs (STAC), the
+  metadata standard for EO.
+- Witness on-the-fly EO algorithm execution from the APEx algorithm
+  catalogue.
+- Have fun.
+
+## About these exercises
+
 Workshop exercises are hands-on, follow-along sessions for use in live events.
 Each exercise is a short series of steps that builds on the previous one, so
 delegates can work through them in order and end up with a complete Geospatial
 Explorer configuration.
 
-Delegates use the **Previous** and **Next** arrows at the bottom of each page to
-step through an exercise. The left-hand navigation shows the full outline so you
-can jump around if needed.
+## Navigating the workshop
 
-## Available exercises
-
-1. [Familiarisation](01-familiarisation/index.md) — Get comfortable with the
-   Geospatial Explorer and the Config Builder before we start authoring.
-2. [My first config](02-getting-started/index.md) — Build a new configuration
-   from scratch: name and branding, base maps, your first layer card, a COG
-   data source, colormap styling and a direct WMS layer.
-3. [Working with Services](03-working-with-services/index.md) — Register
-   recommended services, browse the Project Results Repository (PRR), add
-   further WMS layers and configure WMS legends.
-4. [Categorical Data](04-categorical-data/index.md) — Configure categories for
-   WMS and COG layers, use the JSON editor and copy categories between layers.
-5. [Time Series](05-time-series/index.md) — Configure the temporal control with
-   manual timestamps, STAC datetimes and WMS / WMTS time parameters.
-6. [Constraints](06-constraints/index.md) — Create categorical and continuous
-   constraints to filter layers on the map.
+Use the **left-hand navigation** to see the full outline of exercises and
+jump to any step. At the bottom of each page, the **Previous** and **Next**
+arrows step you through the workshop in order.
 
 ## Running a workshop
 
