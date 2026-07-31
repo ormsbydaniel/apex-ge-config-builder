@@ -1,10 +1,11 @@
 ---
-title: 1. Pre-requisites
+title: Pre-requisites
 ---
 
 # Pre-requisites
 
-Before we dive in, a few practical notes to help you get the most out of the sessions. Here is the best bit. The workshop requires:
+Before we dive in, a few practical notes to help you get the most out of these
+tutorials. Here is the best bit. They require:
 
 - **No** Earth observation experience.
 - **No** software development experience.
@@ -15,9 +16,9 @@ The only requirements are:
 
 - A **laptop and WiFi**.
 - Lots of **enthusiasm**.
-- Oh,and maybe some **coffee**.
+- Oh, and maybe some **coffee**.
 
-## Workshop setup
+## Setting up
 
 - **Two monitors are ideal.** Keep the Config Builder open on one screen and
   this guide on the other so you can follow along without switching windows.
@@ -28,25 +29,31 @@ The only requirements are:
   will all work. The Config Builder is a single-page web app — nothing to
   install.
 
-## Working through the exercises
+## Working through the tutorials
 
-- Each exercise is broken into short steps (most are just a few minutes long) so you
-  can pause between steps for questions.
+- Each tutorial is broken into short steps (most are just a few minutes long),
+  so it is easy to stop and pick up again later.
 - Use the **Previous** and **Next** arrows at the bottom of each page to move
   through the steps in order, or jump around using the left-hand navigation.
-- If you fall behind, don't worry — you can catch up quickly by jumping to the
-  current step.
+- Do the **core** tutorials in order, then choose whichever **topic**
+  tutorials interest you.
 
 !!! tip "Export often"
-The Config Builder holds your work in the browser. Use **File → Export
-config** frequently so you don't lose progress if the tab closes or is
-refreshed.
+    The Config Builder holds your work in the browser. Use **File → Export
+    config** frequently so you don't lose progress if the tab closes or is
+    refreshed.
 
-## Exercise pre-requisites
+## Tutorial pre-requisites
 
-Each exercise has its own **"home"** page explaining what it will cover,followed by a pre-requisites step. This tells you which other exercises we recommend you complete first and if you have done that,you can keep on using the configuration that you've been working on. If not and you want to dive in straight to this exercise, the pre-requisites page will give you a link for a configuration that is an appropriat starting point for the exercise.
+Each tutorial has its own **home** page explaining what it will cover, followed
+by a pre-requisites step. This tells you which other tutorials we recommend you
+complete first — if you have done those, you can keep using the configuration
+you've been working on. If not, and you want to dive straight in, the
+pre-requisites page points you at a configuration that is a suitable starting
+point.
 
 ## Asking questions
 
-Interrupt the facilitator at any time — questions are welcome and usually help
-everyone. If you get stuck on a step, flag it early rather than falling behind.
+If you are following along at a live workshop, interrupt the facilitator at any
+time — questions are welcome and usually help everyone. If you get stuck on a
+step, flag it early rather than falling behind.
