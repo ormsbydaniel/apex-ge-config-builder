@@ -1,5 +1,10 @@
 ---
 title: Working with services
+tags:
+  - core
+  - services
+  - wms
+  - stac
 ---
 # Working with services
 

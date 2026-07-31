@@ -1,5 +1,10 @@
 ---
 title: My first config
+tags:
+  - core
+  - layers
+  - cog
+  - wms
 ---
 # My first config
 

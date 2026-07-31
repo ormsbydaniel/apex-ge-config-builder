@@ -1,5 +1,8 @@
 ---
 title: Familiarisation
+tags:
+  - core
+  - orientation
 ---
 
 # Familiarisation

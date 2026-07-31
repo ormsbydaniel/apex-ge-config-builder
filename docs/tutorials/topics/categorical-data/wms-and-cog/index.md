@@ -1,5 +1,10 @@
 ---
 title: Categories for WMS and COG
+tags:
+  - topic
+  - categorical
+  - wms
+  - cog
 ---
 # Categories for WMS and COG
 

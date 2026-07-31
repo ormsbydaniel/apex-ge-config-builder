@@ -1,5 +1,9 @@
 ---
 title: Timestamps for WMS services
+tags:
+  - topic
+  - time-series
+  - wms
 ---
 # Timestamps for WMS services
 
