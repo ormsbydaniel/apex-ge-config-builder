@@ -35,6 +35,6 @@ See [Constraints](../../constraints/overview.md) for the full reference.
 
 ## Steps
 
-1. [Pre-requisites](01-prerequisites.md)
-2. [Create a categorical constraint](02-categorical-constraint.md)
-3. [Add continuous constraints](03-continuous-constraints.md)
+- [6-1. Pre-requisites](01-prerequisites.md)
+- [6-2. Create a categorical constraint](02-categorical-constraint.md)
+- [6-3. Add continuous constraints](03-continuous-constraints.md)

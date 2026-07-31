@@ -1,7 +1,7 @@
 ---
 title: 2-7. Style with a colormap
 ---
-# Style with a colormap
+# 2-7. Style with a colormap
 
 Gradients are fine for a quick visualisation but a **colormap** is much more
 expressive.

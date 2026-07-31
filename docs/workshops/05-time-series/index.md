@@ -24,8 +24,8 @@ See [Time series](../../layers/time-series.md) for the full reference.
 
 ## Steps
 
-1. [Pre-requisites](01-prerequisites.md)
-2. [Manual timestamps](02-manual-timestamps.md)
-3. [Using STAC timestamps](03-stac-timestamps.md)
-4. [WMS / WMTS time parameters](04-wms-timestamps.md)
-5. [Manual timestamps on WMS](05-manual-wms-timestamps.md)
+- [5-1. Pre-requisites](01-prerequisites.md)
+- [5-2. Manual timestamps](02-manual-timestamps.md)
+- [5-3. Using STAC timestamps](03-stac-timestamps.md)
+- [5-4. WMS / WMTS time parameters](04-wms-timestamps.md)
+- [5-5. Manual timestamps on WMS](05-manual-wms-timestamps.md)

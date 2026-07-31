@@ -1,7 +1,7 @@
 ---
 title: 2-5. Your first layer card
 ---
-# Your first layer card
+# 2-5. Your first layer card
 
 A **layer card** is a UI element in the Geospatial Explorer into which we
 attach content — descriptions, data sources, statistics, constraints and so on.

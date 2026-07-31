@@ -1,7 +1,7 @@
 ---
 title: 3-4. Add more WMS layers
 ---
-# Add more WMS layers
+# 3-4. Add more WMS layers
 
 Now that recommended services are registered, adding WMS layers from them is a
 few clicks.

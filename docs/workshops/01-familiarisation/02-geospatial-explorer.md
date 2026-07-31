@@ -2,7 +2,7 @@
 title: 1-2. Geospatial Explorer
 ---
 
-# Geospatial Explorer
+# 1-2. Geospatial Explorer
 
 The **APEx Geospatial Explorer** is an interactive web map dashboard for
 exploring Earth Observation (EO) data and derived products. It brings

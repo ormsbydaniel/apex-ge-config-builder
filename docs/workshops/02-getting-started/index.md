@@ -36,12 +36,12 @@ Config Builder and how it fits into the wider Geospatial Explorer stack.
 
 ## Steps
 
-1. [Pre-requisites](01-prerequisites.md)
-2. [Name, interface group and branding](02-name-and-branding.md)
-3. [Exporting and reloading config](03-export-and-reload.md)
-4. [Add recommended base maps](04-add-base-maps.md)
-5. [Your first layer card](05-first-layer-card.md)
-6. [Add a COG data source](06-add-cog-data.md)
-7. [Style with a colormap](07-colormaps.md)
-8. [Experiment with layer controls](08-layer-controls.md)
-9. [Add a WMS layer directly](09-wms-service.md)
+- [2-1. Pre-requisites](01-prerequisites.md)
+- [2-2. Name, interface group and branding](02-name-and-branding.md)
+- [2-3. Exporting and reloading config](03-export-and-reload.md)
+- [2-4. Add recommended base maps](04-add-base-maps.md)
+- [2-5. Your first layer card](05-first-layer-card.md)
+- [2-6. Add a COG data source](06-add-cog-data.md)
+- [2-7. Style with a colormap](07-colormaps.md)
+- [2-8. Experiment with layer controls](08-layer-controls.md)
+- [2-9. Add a WMS layer directly](09-wms-service.md)

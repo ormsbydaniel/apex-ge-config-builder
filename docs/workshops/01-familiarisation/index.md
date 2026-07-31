@@ -11,6 +11,6 @@ use to shape it).
 
 ## Steps
 
-1. [Pre-requisites](01-prerequisites.md)
-2. [Geospatial Explorer](02-geospatial-explorer.md)
-3. [Configuration Builder](03-configuration-builder.md)
+- [1-1. Pre-requisites](01-prerequisites.md)
+- [1-2. Geospatial Explorer](02-geospatial-explorer.md)
+- [1-3. Configuration Builder](03-configuration-builder.md)

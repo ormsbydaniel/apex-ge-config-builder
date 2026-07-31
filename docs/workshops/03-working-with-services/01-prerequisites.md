@@ -1,7 +1,7 @@
 ---
 title: 3-1. Pre-requisites
 ---
-# Pre-requisites
+# 3-1. Pre-requisites
 
 Complete [2. My first config](../02-getting-started/index.md) first — this
 exercise assumes you already have a configuration with an interface group, a
