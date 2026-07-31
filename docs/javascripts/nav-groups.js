@@ -35,7 +35,11 @@
     var i = parts.indexOf("workshops");
     if (i === -1 || i + 1 >= parts.length) return null;
     var slug = parts[i + 1];
-    return slug.indexOf(".") === -1 ? slug : null; // workshops/index.html
+    if (slug.indexOf(".") !== -1) return null; // workshops/index.html
+    // Only the tutorial's own overview page identifies the section root;
+    // deeper exercise pages must not pick up a group label.
+    if (parts.length !== i + 3 || parts[i + 2].indexOf("index.") !== 0) return null;
+    return slug;
   }
 
   function apply() {
