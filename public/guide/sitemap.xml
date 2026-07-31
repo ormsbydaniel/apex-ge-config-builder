@@ -2,498 +2,498 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/algorithms/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/assets/screenshots/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/csv-data.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/field-values.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/pixel-values.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/charts/visual-editor.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/draw-order.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/export-options.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/footer-links.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/interface-groups.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/json-config.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/layout.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/configuration/preview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/constraints/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/constraints/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/cog.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/csv.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/geojson-flatgeobuf.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/s3-browser.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/stac-browser.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/wms-wmts-wfs.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/data-sources/xyz.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/first-config.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/loading-saving.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/getting-started/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/home/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/home/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/base-layers.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/categories.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/colormaps.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/data-visualisation.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/rgb-composite.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/standard-layers.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/swipe-layers.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/time-series.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/vector-fields.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/vector-styling.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/types/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/layers/types/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/add-cog-from-s3.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/add-geojson-overlay.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/add-wmts-service.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/build-rgb-composite.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/chart-from-csv.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/configure-vector-fields.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/customise-footer-and-layout.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/edit-json-directly.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/group-layers-into-interfaces.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/inline-pie-chart-from-vector.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/load-stac-collection.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/migrate-existing-config.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/restrict-map-extent.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/set-default-base-layer.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/spectral-signature-chart.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/style-raster-with-colormap.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/style-vector-by-attribute.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/swipe-compare-two-layers.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/recipes/validate-and-publish.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/authors-guide.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/glossary.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/json-schema.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/keyboard-and-tips.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/troubleshooting.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/reference/url-parameters.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/adding-services.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/diagnostics.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/healthcheck.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/services/recommended.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/settings/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/settings/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/statistics/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/statistics/overview.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/stories/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/01-familiarisation/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/01-familiarisation/01-prerequisites.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/01-familiarisation/02-geospatial-explorer.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/01-familiarisation/03-configuration-builder.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/01-prerequisites.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/02-name-and-branding.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/03-export-and-reload.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/04-add-base-maps.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/05-first-layer-card.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/06-add-cog-data.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/07-colormaps.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/08-layer-controls.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/09-wms-service.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/03-working-with-services/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/03-working-with-services/01-prerequisites.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/03-working-with-services/02-recommended-services.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/03-working-with-services/03-data-from-prr.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/03-working-with-services/04-more-wms-layers.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/03-working-with-services/05-wms-legends.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/04-categorical-data/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/04-categorical-data/01-prerequisites.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/04-categorical-data/02-categories-wms.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/04-categorical-data/03-categories-cog.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/04-categorical-data/04-categories-json-editor.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/04-categorical-data/05-copy-categories.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-time-series/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-time-series/01-prerequisites.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-time-series/02-manual-timestamps.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-time-series/03-stac-timestamps.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-time-series/04-wms-timestamps.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-time-series/05-manual-wms-timestamps.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/06-constraints/index.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/06-constraints/01-prerequisites.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/06-constraints/02-categorical-constraint.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
     <url>
          <loc>https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/06-constraints/03-continuous-constraints.html</loc>
-         <lastmod>2026-07-29</lastmod>
+         <lastmod>2026-07-31</lastmod>
     </url>
 </urlset>

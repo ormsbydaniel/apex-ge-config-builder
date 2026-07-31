@@ -4,7 +4,7 @@ title: 1. Pre-requisites
 
 # Pre-requisites
 
-Before we dive in, a few practical notes to help you get the most out of the sessions. Here is the best bit. The workshop requires:
+Before we dive in, a few practical notes to help you get the most out of the sessions. Here is the best bit. The tutorials require:
 
 - **No** Earth observation experience.
 - **No** software development experience.
@@ -17,7 +17,7 @@ The only requirements are:
 - Lots of **enthusiasm**.
 - Oh,and maybe some **coffee**.
 
-## Workshop setup
+## Tutorial setup
 
 - **Two monitors are ideal.** Keep the Config Builder open on one screen and
   this guide on the other so you can follow along without switching windows.
