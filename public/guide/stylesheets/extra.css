@@ -9,3 +9,51 @@
   --md-accent-fg-color: #0a8aa8;
 }
 
+/* Tutorials sidebar: visually group the exercises into "Core" (1-3) and
+ * "Topics" (4 onwards) without nesting them in mkdocs.yml.
+ *
+ * The group headings are decorative ::before labels attached to the first
+ * item of each group, matched on the tutorial's folder name so the rule
+ * survives changes in nav depth. If tutorials are reordered, renamed or a
+ * new one is inserted, update the two href selectors below.
+ *   Core   -> starts at workshops/01-familiarisation
+ *   Topics -> starts at workshops/04-categorical-data
+ */
+.md-nav__item:has(> .md-nav__link[href*="01-familiarisation/index.html"])::before,
+.md-nav__item:has(> a.md-nav__link[href*="01-familiarisation/index.html"])::before,
+.md-nav__item:has(> .md-nav__container > a[href*="01-familiarisation/index.html"])::before {
+  content: "Core";
+}
+
+.md-nav__item:has(> .md-nav__link[href*="04-categorical-data/index.html"])::before,
+.md-nav__item:has(> a.md-nav__link[href*="04-categorical-data/index.html"])::before,
+.md-nav__item:has(> .md-nav__container > a[href*="04-categorical-data/index.html"])::before {
+  content: "Topics";
+}
+
+.md-nav__item:has(> .md-nav__link[href*="01-familiarisation/index.html"])::before,
+.md-nav__item:has(> a.md-nav__link[href*="01-familiarisation/index.html"])::before,
+.md-nav__item:has(> .md-nav__container > a[href*="01-familiarisation/index.html"])::before,
+.md-nav__item:has(> .md-nav__link[href*="04-categorical-data/index.html"])::before,
+.md-nav__item:has(> a.md-nav__link[href*="04-categorical-data/index.html"])::before,
+.md-nav__item:has(> .md-nav__container > a[href*="04-categorical-data/index.html"])::before {
+  display: block;
+  margin: 0.9rem 0 0.2rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  color: var(--md-default-fg-color--light);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* No divider above the very first group when it sits directly under the
+ * "Tutorials" section heading. */
+.md-nav__list > .md-nav__item:first-child:has(> .md-nav__link[href*="01-familiarisation/index.html"])::before,
+.md-nav__list > .md-nav__item:first-child:has(> a.md-nav__link[href*="01-familiarisation/index.html"])::before {
+  margin-top: 0.2rem;
+  padding-top: 0;
+  border-top: 0;
+}
+
