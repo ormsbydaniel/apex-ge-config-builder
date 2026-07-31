@@ -1,93 +1,62 @@
 ## Goal
 
-Restructure every workshop exercise so it has the same shape:
+Reframe the workshop content as reusable **Tutorials**, split into a required **Core** track and optional **Topic** tracks. Workshops become a small section *inside* the Tutorials tab — curated agendas of the form "do the core, then pick a topic". The first and only agenda for now is **FOSS4G UK 2026**.
 
-- The **exercise home page** contains the overview *and* the Key Concepts content.
-- **Step 1** of every exercise is **"1. Pre-requisites"**, holding the setup/prereq material currently on the home page.
-- All subsequent steps shift up to fill the slot vacated by the old key-concepts intro (where present).
+## Numbering: drop it from tutorial paths, keep it on steps
 
-## Per-exercise changes
+Hierarchical numbers (`4-1`, `4-2`) break down as soon as a topic gains, loses, or reorders a tutorial — every change churns directory names, URLs, and cross-links. Instead:
 
-### 1. Getting Started
-- Move `01-key-concepts.md` content into `index.md` under a "Key concepts" section.
-- Create new `01-prerequisites.md` from the current home page's Scope + Pre-requisites + Useful links + "Export often" tip.
-- Delete `01-key-concepts.md`.
-- Renumber `02-` through `09-` → `02-` through `09-` (no shift needed — old step 1 is replaced, positions 2–9 stay).
-- Home page keeps its refreshed Steps list.
+- **Tutorial folders**: no number prefix — `tutorials/core/first-config/`, `tutorials/time-series/cog-timestamps/`
+- **Steps inside a tutorial**: keep `01-`, `02-` prefixes — genuinely sequential and stable
+- **Order and grouping**: expressed by the `mkdocs.yml` nav and the Core/Topics split, which can change freely without touching files
 
-### 2. Working with Services
-- No key concepts file exists yet — add a **placeholder "Key concepts"** section to `index.md` (short "TBD — to be written" note).
-- Create `01-prerequisites.md` from the current home page's Pre-requisites + tip.
-- Shift existing steps down by one: `01-recommended-services.md` → `02-`, `02-data-from-prr.md` → `03-`, `03-more-wms-layers.md` → `04-`, `04-wms-legends.md` → `05-`.
+## Structure
 
-### 3. Categorical Data
-- Move `01-categories-intro.md` content into `index.md` under "Key concepts".
-- Create `01-prerequisites.md` from current home page prereqs.
-- Delete `01-categories-intro.md`.
-- Steps 2–5 keep their filenames and positions.
-
-### 4. Time Series
-- Move `01-time-series-intro.md` content into `index.md` under "Key concepts".
-- Create `01-prerequisites.md` from current home page prereqs.
-- Delete `01-time-series-intro.md`.
-- Steps 2–5 keep their filenames and positions.
-
-### 5. Constraints
-- Move `01-constraints-intro.md` content into `index.md` under "Key concepts".
-- Create `01-prerequisites.md` from current home page prereqs.
-- Delete `01-constraints-intro.md`.
-- Steps 2–3 keep their filenames and positions.
-
-## Content pattern for `01-prerequisites.md`
-
-```
----
-title: 1. Pre-requisites
----
-# Pre-requisites
-
-<prereq paragraph from current home page>
-
-<Useful links section, where present>
-
-!!! tip "Export often"
-    <existing tip>
+```text
+docs/tutorials/
+  index.md                          What tutorials are; Core vs Topics; how to pick
+  core/
+    familiarisation/                (was 01-familiarisation)
+    first-config/                   (was 02-getting-started)
+    working-with-services/          (was 03-working-with-services)
+  topics/
+    categorical-data/
+      wms-and-cog/                  (was 04-categorical-data)
+    time-series/
+      cog-timestamps/               (from 05-time-series, manual + STAC steps)
+      wms-timestamps/               (from 05-time-series, WMS steps)
+    constraints/
+      categorical-and-continuous/   (was 06-constraints)
+  workshops/
+    foss4g-uk-2026.md               Agenda for the event
 ```
 
-## Content pattern for the refreshed `index.md`
+Splitting Time Series into two tutorials is the worked example of the pattern; the same shape applies as Statistics or other topics grow.
 
-```
----
-title: N. <Exercise name>
----
-# N. <Exercise name>
+## Content changes
 
-<one-paragraph scope summary>
+**`tutorials/index.md`** — explains the two tracks: Core is the assumed baseline (topic tutorials state they expect it), Topics are independent and can be taken in any order. Table per track with a one-line "what you'll learn" and indicative duration. Closes with a short pointer to the Workshops section for people attending a live event.
 
-## Key concepts
+**Each tutorial `index.md`** — retitled from "Exercise N" to the tutorial name, with a header line giving track (Core / Topic: Time Series), duration, and prerequisites. Existing "Key concepts" sections stay.
 
-<merged from old 01-*-intro.md, OR a "TBD" placeholder for exercise 2>
+**Per-tutorial `01-prerequisites.md`** — core tutorials keep full setup detail; topic tutorials shorten theirs to "complete the Core track" plus anything topic-specific, so each still stands alone.
 
-## Steps
+**Time Series split** — `cog-timestamps` takes the manual-timestamp and STAC-timestamp steps; `wms-timestamps` takes the WMS/WMTS time-parameter and manual-WMS steps. Each gets its own index and prerequisites page.
 
-1. [Pre-requisites](01-prerequisites.md)
-2. [<next>](02-...md)
-...
-```
+**`tutorials/workshops/foss4g-uk-2026.md`** — carries the welcome, project abstract, and workshop goals currently duplicated in the familiarisation index (which gets trimmed), plus running-the-day advice (two monitors, tab switching, ask questions). Then timed blocks: the three core tutorials in order, followed by a "choose your track" block listing the topic tutorials with a sentence on who each suits, then a wrap-up. Adding a future workshop is one new file plus a nav line.
 
-## Navigation (`mkdocs.yml`)
+## Navigation
 
-Update the `Workshop Exercises` block so every exercise lists:
+`mkdocs.yml` replaces the `Workshop` tab with a single **Tutorials** tab:
 
-- `Overview: index.md`
-- `1. Pre-requisites: 01-prerequisites.md`
-- Remaining steps renumbered to match new filenames (only exercise 2 has actual filename shifts).
+- Overview
+- `Core` group — the three core tutorials, each with its step list
+- `Topics` group — topic sub-groups, each containing its tutorials
+- `Workshops` group — FOSS4G UK 2026
 
-## Verification
+## Technical notes
 
-- Run `mkdocs build --strict` and confirm no new warnings introduced by this restructure.
-
-## Notes
-
-- The "Key concepts" placeholder for exercise 2 is intentional so the shape is consistent; content can be filled in later without another restructure.
-- No screenshot recapture needed — this is purely a content reorganisation.
+- Step content is unchanged apart from titles, prerequisite wording, and relative link fixes.
+- Screenshot references shift from `../../assets/...` to `../../../assets/...` where nesting depth increases; all are verified in the rebuild.
+- Old `/guide/workshops/NN-…` URLs will 404 — no redirect plugin is added, so shared links need re-sharing.
+- Rebuild with `mkdocs build --strict` so broken internal links fail the build, and confirm stale `public/guide/workshops/**` output for moved pages is cleared.
