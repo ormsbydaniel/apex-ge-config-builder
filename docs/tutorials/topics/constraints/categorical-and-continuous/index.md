@@ -1,7 +1,9 @@
 ---
-title: 6. Constraints
+title: Categorical and continuous constraints
 ---
-# 6. Constraints
+# Categorical and continuous constraints
+
+!!! info "Topic tutorial: Constraints · ~30 min · Prerequisite: [core track](../../../index.md#core-track)"
 
 Create categorical and continuous constraints to filter layers on the map.
 
@@ -10,8 +12,8 @@ Create categorical and continuous constraints to filter layers on the map.
 - **Constraints** apply to COG data.
 - A constraint is a filter applied to the data — pixels that fall outside the
   constraint are masked out at render time.
-- We already used the **Constraint** toggle on a layer to let users filter a
-  layer by its own pixel values.
+- A layer can be filtered by its own pixel values using the **Constraint**
+  toggle.
 - Constraints can also come from **secondary layers** — for example land use,
   elevation, or "distance to" derived layers.
 - Secondary constraint layers **must have the same CRS, resolution and origin**
