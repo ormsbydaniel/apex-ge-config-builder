@@ -1,10 +1,11 @@
 ---
-title: 1. Pre-requisites
+title: Pre-requisites
 ---
 # Pre-requisites
 
-Complete the earlier exercises first — this one builds on a configuration that
-already has categorical and continuous data layers.
+Complete the [core track](../../../index.md#core-track) first — this tutorial
+builds on a configuration that already has categorical and continuous data
+layers.
 
 !!! tip "Export often"
     Export your configuration after each step so you can recover if your
