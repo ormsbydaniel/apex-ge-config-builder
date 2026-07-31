@@ -1,7 +1,9 @@
 ---
-title: 2. My first config
+title: My first config
 ---
-# 2. My first config
+# My first config
+
+!!! info "Core tutorial · ~60 min · Prerequisite: [Familiarisation](../familiarisation/index.md)"
 
 Build a Geospatial Explorer configuration from scratch: name and branding, base
 maps, your first layer card, a COG data source, colormap styling and a direct
