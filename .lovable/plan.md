@@ -1,93 +1,37 @@
 ## Goal
 
-Restructure every workshop exercise so it has the same shape:
+Visually split the Tutorials sidebar into **Core** (tutorials 1-3) and **Topics** (tutorials 4-6) using CSS only — the nav stays flat, numbering unchanged, no extra indent level.
 
-- The **exercise home page** contains the overview *and* the Key Concepts content.
-- **Step 1** of every exercise is **"1. Pre-requisites"**, holding the setup/prereq material currently on the home page.
-- All subsequent steps shift up to fill the slot vacated by the old key-concepts intro (where present).
+## Resulting sidebar
 
-## Per-exercise changes
-
-### 1. Getting Started
-- Move `01-key-concepts.md` content into `index.md` under a "Key concepts" section.
-- Create new `01-prerequisites.md` from the current home page's Scope + Pre-requisites + Useful links + "Export often" tip.
-- Delete `01-key-concepts.md`.
-- Renumber `02-` through `09-` → `02-` through `09-` (no shift needed — old step 1 is replaced, positions 2–9 stay).
-- Home page keeps its refreshed Steps list.
-
-### 2. Working with Services
-- No key concepts file exists yet — add a **placeholder "Key concepts"** section to `index.md` (short "TBD — to be written" note).
-- Create `01-prerequisites.md` from the current home page's Pre-requisites + tip.
-- Shift existing steps down by one: `01-recommended-services.md` → `02-`, `02-data-from-prr.md` → `03-`, `03-more-wms-layers.md` → `04-`, `04-wms-legends.md` → `05-`.
-
-### 3. Categorical Data
-- Move `01-categories-intro.md` content into `index.md` under "Key concepts".
-- Create `01-prerequisites.md` from current home page prereqs.
-- Delete `01-categories-intro.md`.
-- Steps 2–5 keep their filenames and positions.
-
-### 4. Time Series
-- Move `01-time-series-intro.md` content into `index.md` under "Key concepts".
-- Create `01-prerequisites.md` from current home page prereqs.
-- Delete `01-time-series-intro.md`.
-- Steps 2–5 keep their filenames and positions.
-
-### 5. Constraints
-- Move `01-constraints-intro.md` content into `index.md` under "Key concepts".
-- Create `01-prerequisites.md` from current home page prereqs.
-- Delete `01-constraints-intro.md`.
-- Steps 2–3 keep their filenames and positions.
-
-## Content pattern for `01-prerequisites.md`
-
-```
----
-title: 1. Pre-requisites
----
-# Pre-requisites
-
-<prereq paragraph from current home page>
-
-<Useful links section, where present>
-
-!!! tip "Export often"
-    <existing tip>
+```text
+Tutorials
+  Overview
+  ──── CORE ────────────
+  1. Familiarisation
+  2. My first config
+  3. Working with Services
+  ──── TOPICS ──────────
+  4. Categorical Data
+  5. Time Series
+  6. Constraints
 ```
 
-## Content pattern for the refreshed `index.md`
+## Changes
 
-```
----
-title: N. <Exercise name>
----
-# N. <Exercise name>
+1. `docs/stylesheets/extra.css` — add a rule scoped to the Tutorials tab's nav list that:
+   - injects a small uppercase, muted "Core" label via `::before` on the tutorial-1 item, and "Topics" on the tutorial-4 item;
+   - adds a thin top border/spacing above each labelled item so the groups read as separated blocks;
+   - uses Material's own tokens (`--md-default-fg-color--light`, `--md-default-fg-color--lightest`) so it works in both light and slate palettes.
 
-<one-paragraph scope summary>
+   Scoping: the tutorials list is identified by its nested nav container on `workshops/*` pages, and the two group starts are selected positionally (the items following the Overview entry, and the fourth tutorial entry) since MkDocs renders group headers as `<label>` elements with no stable class per item.
 
-## Key concepts
+2. Rebuild the guide with `mkdocs build --strict` so `public/guide/` picks up the updated stylesheet.
 
-<merged from old 01-*-intro.md, OR a "TBD" placeholder for exercise 2>
+3. Manual visual check of the rendered sidebar in the Tutorials section (light and dark palette) before finishing.
 
-## Steps
+## Notes and trade-offs
 
-1. [Pre-requisites](01-prerequisites.md)
-2. [<next>](02-...md)
-...
-```
-
-## Navigation (`mkdocs.yml`)
-
-Update the `Workshop Exercises` block so every exercise lists:
-
-- `Overview: index.md`
-- `1. Pre-requisites: 01-prerequisites.md`
-- Remaining steps renumbered to match new filenames (only exercise 2 has actual filename shifts).
-
-## Verification
-
-- Run `mkdocs build --strict` and confirm no new warnings introduced by this restructure.
-
-## Notes
-
-- The "Key concepts" placeholder for exercise 2 is intentional so the shape is consistent; content can be filled in later without another restructure.
-- No screenshot recapture needed — this is purely a content reorganisation.
+- Nothing in `mkdocs.yml`, no page titles, filenames or links change — zero risk to existing content or screenshots.
+- Because the labels are positional CSS, they need adjusting if tutorials are reordered or a new tutorial is inserted. I'll add a short comment in `extra.css` stating that the rule assumes tutorials 1-3 = Core and 4+ = Topics.
+- The labels are decorative (`::before` content), so they are non-interactive and won't affect Previous/Next navigation or search.
