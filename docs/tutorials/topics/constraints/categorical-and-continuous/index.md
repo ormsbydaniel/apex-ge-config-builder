@@ -1,5 +1,9 @@
 ---
 title: Categorical and continuous constraints
+tags:
+  - topic
+  - constraints
+  - cog
 ---
 # Categorical and continuous constraints
 

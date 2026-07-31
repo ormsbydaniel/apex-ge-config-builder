@@ -1,5 +1,10 @@
 ---
 title: Timestamps for COG and STAC
+tags:
+  - topic
+  - time-series
+  - cog
+  - stac
 ---
 # Timestamps for COG and STAC
 

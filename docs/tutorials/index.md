@@ -19,6 +19,11 @@ first, in order.
 assumes you have completed the core track, but they are otherwise independent
 of one another — take them in any order, or take only the ones you care about.
 
+The sidebar lists every tutorial as a single flat list, in the recommended
+order. The tables below show which track each one belongs to, and
+[Browse by tag](tags.md) lets you find tutorials by subject — `wms`, `cog`,
+`stac`, `time-series` and so on — across both tracks.
+
 ## Core track
 
 | Tutorial | What you'll learn | Duration |
