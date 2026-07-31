@@ -22,7 +22,7 @@ controls the Explorer shows for that layer.
 
 !!! tip "Download links"
     For **Download**, you can either paste the COG URL from the previous
-    exercise (which will trigger a direct download) or a link to somewhere
+    tutorial (which will trigger a direct download) or a link to somewhere
     more useful — for example the dataset's STAC record on the PRR.
 
 ### Did you remember to export?

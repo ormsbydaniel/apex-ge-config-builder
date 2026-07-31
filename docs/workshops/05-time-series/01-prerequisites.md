@@ -3,7 +3,7 @@ title: 5-1. Pre-requisites
 ---
 # 5-1. Pre-requisites
 
-Complete the earlier exercises first — this one builds on a configuration that
+Complete the earlier tutorials first — this one builds on a configuration that
 already has a mix of COG, WMS and STAC-backed layers.
 
 !!! tip "Export often"

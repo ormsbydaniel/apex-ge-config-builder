@@ -8,7 +8,7 @@ title: 1. Familiarisation
 
 ![Familiarisation tutorial hero image](../../assets/screenshots/tutorial-01-hero.jpg)
 
-This first exercise helps you get comfortable with the two tools you will be
+This first tutorial helps you get comfortable with the two tools you will be
 using throughout the tutorials: the APEx Geospatial Explorer (the end-user map
 application) and the Configuration Builder (the authoring tool you will use to
 shape it).

@@ -63,4 +63,4 @@ of the shape of a configuration:
 
 By the end of this browse you should have a rough answer to the
 question *"what kinds of things live in a configuration?"* — which is
-exactly the foundation we'll build on in the next exercise.
+exactly the foundation we'll build on in the next tutorial.

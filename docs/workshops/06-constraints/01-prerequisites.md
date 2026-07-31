@@ -3,7 +3,7 @@ title: 6-1. Pre-requisites
 ---
 # 6-1. Pre-requisites
 
-Complete the earlier exercises first — this one builds on a configuration that
+Complete the earlier tutorials first — this one builds on a configuration that
 already has categorical and continuous data layers.
 
 !!! tip "Export often"
