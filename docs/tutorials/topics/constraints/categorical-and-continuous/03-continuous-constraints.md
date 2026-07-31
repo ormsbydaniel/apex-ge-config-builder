@@ -3,7 +3,7 @@ title: 26. Add a set of continuous constraints
 ---
 # Add a set of continuous constraints
 
-In the interests of time, this exercise skips manual entry and pastes a full
+In the interests of time, this tutorial skips manual entry and pastes a full
 layer card with a rich set of constraints already configured.
 
 1. Add a new layer card and call it `temp` for now.
@@ -140,7 +140,7 @@ layer card with a rich set of constraints already configured.
 
 ### Did you remember to export?
 
-That's the last of the workshop — but a good final export never hurts.
+That's the last step of this tutorial — but a good final export never hurts.
 
 Congratulations — you've built a complete Geospatial Explorer configuration
 from scratch!

@@ -21,4 +21,4 @@ Set up categories manually for the World Cover WMS you added earlier.
 
 
 You do not need to fill in every category now — a handful is enough to see how
-it works. You'll paste a full set in a later exercise.
+it works. You'll paste a full set in a later tutorial.

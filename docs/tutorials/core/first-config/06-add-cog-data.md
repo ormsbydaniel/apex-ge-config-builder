@@ -3,7 +3,7 @@ title: 6. Add a COG data source
 ---
 # Add a COG data source
 
-In this exercise you will attach a Cloud Optimized GeoTIFF (COG) to your
+In this tutorial you will attach a Cloud Optimized GeoTIFF (COG) to your
 *Above Ground Biomass* layer card and give it a simple gradient legend.
 
 1. On your layer card, select the **Datasets** tab and choose

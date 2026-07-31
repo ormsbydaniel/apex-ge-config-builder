@@ -39,7 +39,7 @@ expect.
 ### 3. Switch back to the Configuration Builder
 
 Close the preview (or switch tabs) to return to the Configuration
-Builder. This is where you'll spend most of the workshop.
+Builder. This is where you'll spend most of your time.
 
 ### 4. Expand the layer groups and layers
 
@@ -63,4 +63,4 @@ of the shape of a configuration:
 
 By the end of this browse you should have a rough answer to the
 question *"what kinds of things live in a configuration?"* — which is
-exactly the foundation we'll build on in the next exercise.
+exactly the foundation we'll build on in the next tutorial.
