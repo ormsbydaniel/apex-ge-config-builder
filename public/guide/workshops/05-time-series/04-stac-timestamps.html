@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/04-add-base-maps.html">
+        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-time-series/04-stac-timestamps.html">
       
       
-        <link rel="prev" href="03-export-and-reload.html">
+        <link rel="prev" href="03-manual-timestamps.html">
       
       
-        <link rel="next" href="05-first-layer-card.html">
+        <link rel="next" href="05-wms-timestamps.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>2-4. Add recommended base maps - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>5-4. Using STAC timestamps - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#2-4-add-recommended-base-maps" class="md-skip">
+        <a href="#5-4-using-stac-timestamps" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              2-4. Add recommended base maps
+              5-4. Using STAC timestamps
             
           </span>
         </div>
@@ -1290,8 +1290,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1319,6 +1317,8 @@
       
         
       
+        
+      
     
     
     
@@ -1326,18 +1326,19 @@
       
     
     
-      
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_3" checked>
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
         
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="index.html" class="md-nav__link ">
-              
+  
+  
+  
+    <a href="../02-getting-started/index.html" class="md-nav__link">
+      
   
   
   <span class="md-ellipsis">
@@ -1351,292 +1352,12 @@
   
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_13_3" id="__nav_13_3_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_13_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    2. My first config
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="01-prerequisites.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-1. Pre-requisites
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="02-name-and-branding.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-2. Name and branding
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="03-export-and-reload.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-3. Export and reload
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+        <span class="md-nav__icon md-icon"></span>
       
-      
-        
-      
-      
-      <a href="04-add-base-maps.html" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-4. Add base maps
+    </a>
   
 
-    
-  </span>
-  
-  
-
-      </a>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="05-first-layer-card.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-5. Your first layer card
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="06-add-cog-data.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-6. Add a COG data source
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="07-colormaps.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-7. Style with a colormap
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="08-layer-controls.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-8. Experiment with layer controls
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="09-wms-service.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-9. Add a WMS layer directly
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
       
     </li>
   
@@ -1654,6 +1375,8 @@
       
         
           
+        
+      
         
       
         
@@ -1734,6 +1457,8 @@
       
         
       
+        
+      
     
     
     
@@ -1783,6 +1508,8 @@
                 
   
   
+    
+  
   
   
     
@@ -1802,26 +1529,27 @@
       
         
       
-    
-    
-    
-      
-      
-    
-    
-      
-        
         
       
     
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+    
+    
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
-  
-  
-  
-    <a href="../05-time-series/index.html" class="md-nav__link">
-      
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -1835,12 +1563,208 @@
   
   
 
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_13_6" id="__nav_13_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_13_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    5. Time Series
   
 
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="01-prerequisites.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5-1. Pre-requisites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="02-key-concepts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5-2. Key concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="03-manual-timestamps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5-3. Manual timestamps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="04-stac-timestamps.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5-4. Using STAC timestamps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="05-wms-timestamps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5-5. WMS / WMTS time parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-manual-wms-timestamps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5-6. Manual timestamps on WMS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -1858,6 +1782,8 @@
       
         
           
+        
+      
         
       
         
@@ -2020,27 +1946,22 @@
 
 
 
-<h1 id="2-4-add-recommended-base-maps">2-4. Add recommended base maps<a class="headerlink" href="#2-4-add-recommended-base-maps" title="Permanent link">&para;</a></h1>
+<h1 id="5-4-using-stac-timestamps">5-4. Using STAC timestamps<a class="headerlink" href="#5-4-using-stac-timestamps" title="Permanent link">&para;</a></h1>
+<p>STAC items carry timestamps on the items themselves. When you pull assets from
+a STAC browser the CB copies those timestamps onto the resulting datasets.</p>
 <ol>
-<li>
-<p>On the <strong>Layers</strong> tab, scroll down to the <strong>Base Layers</strong> section and
-   select <strong>Add Recommended Base Layers</strong>.</p>
-<p><img alt="Layers tab showing the Base Layers section" src="../../assets/screenshots/workshops-getting-started-layers-tab.png" /></p>
-</li>
-<li>
-<p>Look at the base map cards that appear — attribution and layer metadata are
-   populated automatically.</p>
-</li>
-<li>Go to the <strong>GE Preview</strong> tab. You will now see a base map switcher in the
-   Explorer.</li>
+<li>On the <em>AGB</em> layer card, select <strong>+ Add dataset → From service → PRR</strong>.</li>
+<li>Find the AGB collection. Note that each item has a date stamp.</li>
+<li><strong>Add all five AGB assets</strong> to the layer.</li>
+<li>Back on the layer card you should now see seven datasets — the two you
+   added manually in the previous exercise plus the five from STAC. Delete
+   the two manual ones since they are now duplicates.</li>
+<li>Optionally inspect the JSON. Notice that the timestamps have been <strong>copied
+   into the config</strong>, not linked. The GE does not re-fetch the STAC catalogue
+   at runtime, so if the STAC catalogue owner corrects a timestamp later you
+   would need to re-add the asset (or edit the timestamp by hand) to pick up
+   the correction.</li>
 </ol>
-<div class="admonition tip">
-<p class="admonition-title">Where do the recommended base maps come from?</p>
-<p>The recommended base maps are loaded at runtime from the
-<a href="https://github.com/ESA-APEx/apex_geospatial_explorer_configs">ESA-APEx configs manifest</a>.
-New base maps added to the manifest become available in the CB without a
-redeploy. See <a href="../../layers/base-layers.html">Base layers</a> for details.</p>
-</div>
 
 
 
@@ -2081,7 +2002,7 @@ redeploy. See <a href="../../layers/base-layers.html">Base layers</a> for detail
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="03-export-and-reload.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 2-3. Export and reload">
+          <a href="03-manual-timestamps.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5-3. Manual timestamps">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2091,20 +2012,20 @@ redeploy. See <a href="../../layers/base-layers.html">Base layers</a> for detail
                 Previous
               </span>
               <div class="md-ellipsis">
-                2-3. Export and reload
+                5-3. Manual timestamps
               </div>
             </div>
           </a>
         
         
           
-          <a href="05-first-layer-card.html" class="md-footer__link md-footer__link--next" aria-label="Next: 2-5. Your first layer card">
+          <a href="05-wms-timestamps.html" class="md-footer__link md-footer__link--next" aria-label="Next: 5-5. WMS / WMTS time parameters">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                2-5. Your first layer card
+                5-5. WMS / WMTS time parameters
               </div>
             </div>
             <div class="md-footer__button md-icon">

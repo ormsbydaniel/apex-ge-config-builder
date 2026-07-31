@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/02-getting-started/03-export-and-reload.html">
+        <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/06-constraints/03-categorical-constraint.html">
       
       
-        <link rel="prev" href="02-name-and-branding.html">
+        <link rel="prev" href="02-key-concepts.html">
       
       
-        <link rel="next" href="04-add-base-maps.html">
+        <link rel="next" href="04-continuous-constraints.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>2-3. Exporting and reloading config - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>6-3. Create a categorical constraint - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#2-3-exporting-and-reloading-config" class="md-skip">
+        <a href="#6-3-create-a-categorical-constraint" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              2-3. Exporting and reloading config
+              6-3. Create a categorical constraint
             
           </span>
         </div>
@@ -1290,8 +1290,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1319,6 +1317,8 @@
       
         
       
+        
+      
     
     
     
@@ -1326,18 +1326,19 @@
       
     
     
-      
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_3" checked>
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
         
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="index.html" class="md-nav__link ">
-              
+  
+  
+  
+    <a href="../02-getting-started/index.html" class="md-nav__link">
+      
   
   
   <span class="md-ellipsis">
@@ -1351,292 +1352,12 @@
   
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_13_3" id="__nav_13_3_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_13_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    2. My first config
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="01-prerequisites.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-1. Pre-requisites
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="02-name-and-branding.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-2. Name and branding
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+        <span class="md-nav__icon md-icon"></span>
       
-      
-        
-      
-      
-      <a href="03-export-and-reload.html" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-3. Export and reload
+    </a>
   
 
-    
-  </span>
-  
-  
-
-      </a>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="04-add-base-maps.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-4. Add base maps
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="05-first-layer-card.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-5. Your first layer card
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="06-add-cog-data.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-6. Add a COG data source
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="07-colormaps.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-7. Style with a colormap
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="08-layer-controls.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-8. Experiment with layer controls
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="09-wms-service.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2-9. Add a WMS layer directly
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
       
     </li>
   
@@ -1654,6 +1375,8 @@
       
         
           
+        
+      
         
       
         
@@ -1734,6 +1457,8 @@
       
         
       
+        
+      
     
     
     
@@ -1802,6 +1527,8 @@
       
         
       
+        
+      
     
     
     
@@ -1851,6 +1578,8 @@
                 
   
   
+    
+  
   
   
     
@@ -1866,26 +1595,27 @@
       
         
       
-    
-    
-    
-      
-      
-    
-    
-      
-        
         
       
     
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+    
+    
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
-  
-  
-  
-    <a href="../06-constraints/index.html" class="md-nav__link">
-      
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_7" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -1899,12 +1629,152 @@
   
   
 
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_13_7" id="__nav_13_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_13_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    6. Constraints
   
 
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="01-prerequisites.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6-1. Pre-requisites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="02-key-concepts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6-2. Key concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="03-categorical-constraint.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6-3. Create a categorical constraint
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-continuous-constraints.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6-4. Add continuous constraints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -2020,28 +1890,25 @@
 
 
 
-<h1 id="2-3-exporting-and-reloading-config">2-3. Exporting and reloading config<a class="headerlink" href="#2-3-exporting-and-reloading-config" title="Permanent link">&para;</a></h1>
-<p>There is no "Save" button — you save by exporting a JSON file to your machine
-and reloading it later.</p>
+<h1 id="6-3-create-a-categorical-constraint">6-3. Create a categorical constraint<a class="headerlink" href="#6-3-create-a-categorical-constraint" title="Permanent link">&para;</a></h1>
+<p>Add a World Cover constraint to your <em>AGB</em> layer so users can filter the
+biomass values by land cover class.</p>
 <ol>
-<li>On the <strong>Home</strong> tab, select <strong>Export → Quick Export</strong>. A file called
-   <code>config.json</code> will download to your local machine.</li>
-<li>Select <strong>New Config</strong>. Your previous changes are cleared.</li>
-<li>Select <strong>Load Config</strong> and pick the <code>config.json</code> you just downloaded. Your
-   previous configuration is restored.</li>
+<li>Edit the <em>AGB</em> layer card and open the <strong>Constraints</strong> tab.</li>
+<li>
+<p>Add the following World Cover TIF, which covers the same area as the AGB
+   data:</p>
+<div class="highlight"><pre><span></span><code>https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/FCM_Europe_demo_2023_AGB-esa_worldcover_2021.tif
+</code></pre></div>
+</li>
+<li>
+<p>Select <strong>Populate categories from COG</strong>.</p>
+</li>
+<li>Edit the category labels to match the World Cover class names (Tree cover,
+   Shrubland, Grassland, …).</li>
+<li>Save the layer card and preview. The AGB layer now has a set of land-cover
+   checkboxes in its constraint panel.</li>
 </ol>
-<div class="admonition warning">
-<p class="admonition-title">Export frequently</p>
-<p>As you continue through this tutorial series, export your config after every
-couple of exercises. If your browser tab is accidentally closed you can
-reinstate it from your local machine.</p>
-</div>
-<p>Your operating system will typically rename repeated downloads —
-<code>config (1).json</code>, <code>config (2).json</code> and so on — so you naturally end up with a
-history of exports you can roll back to.</p>
-<p>See <a href="../../getting-started/loading-saving.html">Loading and saving</a> and
-<a href="../../configuration/export-options.html">Export options</a> for the full options,
-including sorting exported JSON to match the UI order.</p>
 
 
 
@@ -2082,7 +1949,7 @@ including sorting exported JSON to match the UI order.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="02-name-and-branding.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 2-2. Name and branding">
+          <a href="02-key-concepts.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 6-2. Key concepts">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2092,20 +1959,20 @@ including sorting exported JSON to match the UI order.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                2-2. Name and branding
+                6-2. Key concepts
               </div>
             </div>
           </a>
         
         
           
-          <a href="04-add-base-maps.html" class="md-footer__link md-footer__link--next" aria-label="Next: 2-4. Add base maps">
+          <a href="04-continuous-constraints.html" class="md-footer__link md-footer__link--next" aria-label="Next: 6-4. Add continuous constraints">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                2-4. Add base maps
+                6-4. Add continuous constraints
               </div>
             </div>
             <div class="md-footer__button md-icon">
