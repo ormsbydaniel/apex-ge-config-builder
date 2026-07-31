@@ -5,7 +5,7 @@ title: 2. My first config
 
 ## Tutorial Objectives
 
-![My first config tutorial hero image](../../assets/screenshots/tutorial-02-hero.jpg)
+![My first config tutorial hero image](../../assets/screenshots/tutorial-02-hero.png)
 
 Build a Geospatial Explorer configuration from scratch: name and branding, base
 maps, your first layer card, a COG data source, colormap styling and a direct

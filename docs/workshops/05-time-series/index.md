@@ -5,7 +5,7 @@ title: 5. Time Series
 
 ## Tutorial Objectives
 
-![Time Series tutorial hero image](../../assets/screenshots/tutorial-05-hero.jpg)
+![Time Series tutorial hero image](../../assets/screenshots/tutorial-05-hero.png)
 
 Configure the temporal control with manual timestamps, STAC datetimes and
 WMS / WMTS time parameters.

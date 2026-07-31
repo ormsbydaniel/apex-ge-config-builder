@@ -5,7 +5,7 @@ title: 6. Constraints
 
 ## Tutorial Objectives
 
-![Constraints tutorial hero image](../../assets/screenshots/tutorial-06-hero.jpg)
+![Constraints tutorial hero image](../../assets/screenshots/tutorial-06-hero.png)
 
 Create categorical and continuous constraints to filter layers on the map.
 
