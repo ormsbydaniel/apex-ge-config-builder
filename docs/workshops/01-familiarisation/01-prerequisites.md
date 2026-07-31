@@ -44,6 +44,11 @@ refreshed.
 
 ## Tutorial pre-requisites
 
+This is the first tutorial, so there are **no previous tutorials to complete**.
+Tutorials 2 and 3 build directly on this one, and the remaining tutorials assume
+completion of all core tutorials (1–3) or existing familiarity with the
+Configuration Builder.
+
 Each tutorial has its own **"home"** page explaining what it will cover,followed by a pre-requisites step. This tells you which other tutorials we recommend you complete first and if you have done that,you can keep on using the configuration that you've been working on. If not and you want to dive in straight to this tutorial, the pre-requisites page will give you a link for a configuration that is an appropriat starting point for the tutorial.
 
 ## Asking questions
