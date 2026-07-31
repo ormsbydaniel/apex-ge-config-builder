@@ -1,56 +1,93 @@
 ## Goal
 
-Make the Tutorials tab shallow and scannable: one flat list of tutorials (each with its steps), plus tags so people can filter by track and topic. No files move, so all current URLs keep working.
+Restructure every workshop exercise so it has the same shape:
 
-## Navigation
+- The **exercise home page** contains the overview *and* the Key Concepts content.
+- **Step 1** of every exercise is **"1. Pre-requisites"**, holding the setup/prereq material currently on the home page.
+- All subsequent steps shift up to fill the slot vacated by the old key-concepts intro (where present).
 
-`mkdocs.yml` replaces the `Core` / `Topics` / per-topic groups with a single flat list:
+## Per-exercise changes
 
-```text
-Tutorials
-  Overview
-  Browse by tag
-  Familiarisation            > 1..3 steps
-  My first config            > 1..9 steps
-  Working with services      > 1..5 steps
-  Categories for WMS and COG > 1..5 steps
-  Timestamps for COG and STAC> 1..3 steps
-  Timestamps for WMS services> 1..3 steps
-  Constraints: categorical and continuous > 1..3 steps
+### 1. Getting Started
+- Move `01-key-concepts.md` content into `index.md` under a "Key concepts" section.
+- Create new `01-prerequisites.md` from the current home page's Scope + Pre-requisites + Useful links + "Export often" tip.
+- Delete `01-key-concepts.md`.
+- Renumber `02-` through `09-` → `02-` through `09-` (no shift needed — old step 1 is replaced, positions 2–9 stay).
+- Home page keeps its refreshed Steps list.
+
+### 2. Working with Services
+- No key concepts file exists yet — add a **placeholder "Key concepts"** section to `index.md` (short "TBD — to be written" note).
+- Create `01-prerequisites.md` from the current home page's Pre-requisites + tip.
+- Shift existing steps down by one: `01-recommended-services.md` → `02-`, `02-data-from-prr.md` → `03-`, `03-more-wms-layers.md` → `04-`, `04-wms-legends.md` → `05-`.
+
+### 3. Categorical Data
+- Move `01-categories-intro.md` content into `index.md` under "Key concepts".
+- Create `01-prerequisites.md` from current home page prereqs.
+- Delete `01-categories-intro.md`.
+- Steps 2–5 keep their filenames and positions.
+
+### 4. Time Series
+- Move `01-time-series-intro.md` content into `index.md` under "Key concepts".
+- Create `01-prerequisites.md` from current home page prereqs.
+- Delete `01-time-series-intro.md`.
+- Steps 2–5 keep their filenames and positions.
+
+### 5. Constraints
+- Move `01-constraints-intro.md` content into `index.md` under "Key concepts".
+- Create `01-prerequisites.md` from current home page prereqs.
+- Delete `01-constraints-intro.md`.
+- Steps 2–3 keep their filenames and positions.
+
+## Content pattern for `01-prerequisites.md`
+
+```
+---
+title: 1. Pre-requisites
+---
+# Pre-requisites
+
+<prereq paragraph from current home page>
+
+<Useful links section, where present>
+
+!!! tip "Export often"
+    <existing tip>
 ```
 
-Depth drops from five levels to three (Tab > Tutorial > Step). Core tutorials stay first, in order; topic tutorials follow. Track membership is carried by tags and by the tables on the overview page, not by nav nesting.
+## Content pattern for the refreshed `index.md`
 
-File paths under `docs/tutorials/core/...` and `docs/tutorials/topics/...` are left exactly as they are — the flattening is nav-only.
+```
+---
+title: N. <Exercise name>
+---
+# N. <Exercise name>
 
-## Collapsed by default
+<one-paragraph scope summary>
 
-The theme already omits `navigation.expand`, so sections stay collapsed; the deep nesting was what made it feel auto-expanding. With the flat list only the current tutorial's step list opens. `navigation.indexes` stays so each tutorial's Overview is the clickable parent, and `navigation.prune` stays so the sidebar only renders the active branch.
+## Key concepts
 
-## Tags
+<merged from old 01-*-intro.md, OR a "TBD" placeholder for exercise 2>
 
-Enable Material's built-in `tags` plugin and add a `docs/tutorials/tags.md` page (`Browse by tag`) that renders the tag index. Because adding a `plugins:` block disables the implicit search plugin, `search` is listed explicitly alongside it.
+## Steps
 
-Tags go in the front matter of each tutorial's `index.md`, drawn from a small controlled set:
+1. [Pre-requisites](01-prerequisites.md)
+2. [<next>](02-...md)
+...
+```
 
-| Tutorial | Tags |
-|---|---|
-| Familiarisation | `core`, `orientation` |
-| My first config | `core`, `layers`, `cog`, `wms` |
-| Working with services | `core`, `services`, `wms`, `stac` |
-| Categories for WMS and COG | `topic`, `categorical`, `wms`, `cog` |
-| Timestamps for COG and STAC | `topic`, `time-series`, `cog`, `stac` |
-| Timestamps for WMS services | `topic`, `time-series`, `wms` |
-| Categorical and continuous constraints | `topic`, `constraints`, `cog` |
+## Navigation (`mkdocs.yml`)
 
-Tags render as clickable chips at the top of each tutorial page and are searchable, so "show me everything about WMS" works across tracks.
+Update the `Workshop Exercises` block so every exercise lists:
 
-## Overview page
+- `Overview: index.md`
+- `1. Pre-requisites: 01-prerequisites.md`
+- Remaining steps renumbered to match new filenames (only exercise 2 has actual filename shifts).
 
-`docs/tutorials/index.md` keeps its Core and Topic tables — that is where the track structure now lives — and gains a line pointing at **Browse by tag** for cross-cutting filtering. Its wording drops any implication that the sidebar groups tutorials by track.
+## Verification
 
-## Technical notes
+- Run `mkdocs build --strict` and confirm no new warnings introduced by this restructure.
 
-- Only `mkdocs.yml`, `docs/tutorials/index.md`, `docs/tutorials/tags.md` (new) and the seven tutorial `index.md` front matter blocks change; step pages are untouched.
-- The `tags` plugin ships with mkdocs-material — no new dependency, but the docs build workflow is checked to confirm the installed Material version includes it.
-- Rebuild with `mkdocs build --strict` to confirm nav, tag index and links all resolve.
+## Notes
+
+- The "Key concepts" placeholder for exercise 2 is intentional so the shape is consistent; content can be filled in later without another restructure.
+- No screenshot recapture needed — this is purely a content reorganisation.
