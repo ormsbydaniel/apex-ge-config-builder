@@ -26,6 +26,7 @@
   color: var(--md-default-fg-color--light);
   font-size: 0.6rem;
   font-weight: 700;
+  line-height: 1.4;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -33,7 +34,7 @@
 /* No divider above the first group when it sits directly under the
  * "Tutorials" section heading. */
 .md-nav__item[data-nav-group-label].nav-group-first::before {
-  margin-top: 0.2rem;
+  margin-top: 0.35rem;
   padding-top: 0;
   border-top: 0;
 }
