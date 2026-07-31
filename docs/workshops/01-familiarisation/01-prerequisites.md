@@ -4,7 +4,7 @@ title: 1. Pre-requisites
 
 # Pre-requisites
 
-Before we dive in, a few practical notes to help you get the most out of the sessions. Here is the best bit. The workshop requires:
+Before we dive in, a few practical notes to help you get the most out of the sessions. Here is the best bit. The tutorials require:
 
 - **No** Earth observation experience.
 - **No** software development experience.
