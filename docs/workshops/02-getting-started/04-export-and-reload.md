@@ -14,7 +14,7 @@ and reloading it later.
 
 !!! warning "Export frequently"
     As you continue through this tutorial series, export your config after every
-    couple of exercises. If your browser tab is accidentally closed you can
+    couple of tutorials. If your browser tab is accidentally closed you can
     reinstate it from your local machine.
 
 Your operating system will typically rename repeated downloads —

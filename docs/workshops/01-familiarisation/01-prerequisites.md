@@ -28,9 +28,9 @@ The only requirements are:
   will all work. The Config Builder is a single-page web app — nothing to
   install.
 
-## Working through the exercises
+## Working through the tutorials
 
-- Each exercise is broken into short steps (most are just a few minutes long) so you
+- Each tutorial is broken into short steps (most are just a few minutes long) so you
   can pause between steps for questions.
 - Use the **Previous** and **Next** arrows at the bottom of each page to move
   through the steps in order, or jump around using the left-hand navigation.
@@ -42,9 +42,9 @@ The Config Builder holds your work in the browser. Use **File → Export
 config** frequently so you don't lose progress if the tab closes or is
 refreshed.
 
-## Exercise pre-requisites
+## Tutorial pre-requisites
 
-Each exercise has its own **"home"** page explaining what it will cover,followed by a pre-requisites step. This tells you which other exercises we recommend you complete first and if you have done that,you can keep on using the configuration that you've been working on. If not and you want to dive in straight to this exercise, the pre-requisites page will give you a link for a configuration that is an appropriat starting point for the exercise.
+Each tutorial has its own **"home"** page explaining what it will cover,followed by a pre-requisites step. This tells you which other tutorials we recommend you complete first and if you have done that,you can keep on using the configuration that you've been working on. If not and you want to dive in straight to this tutorial, the pre-requisites page will give you a link for a configuration that is an appropriat starting point for the tutorial.
 
 ## Asking questions
 

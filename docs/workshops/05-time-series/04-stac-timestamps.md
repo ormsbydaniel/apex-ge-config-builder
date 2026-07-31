@@ -10,7 +10,7 @@ a STAC browser the CB copies those timestamps onto the resulting datasets.
 2. Find the AGB collection. Note that each item has a date stamp.
 3. **Add all five AGB assets** to the layer.
 4. Back on the layer card you should now see seven datasets — the two you
-   added manually in the previous exercise plus the five from STAC. Delete
+   added manually in the previous tutorial plus the five from STAC. Delete
    the two manual ones since they are now duplicates.
 5. Optionally inspect the JSON. Notice that the timestamps have been **copied
    into the config**, not linked. The GE does not re-fetch the STAC catalogue

@@ -5,7 +5,7 @@ title: 4-5. Use the JSON editor
 
 The CB provides two JSON editors — one for the whole configuration (on the
 Home tab) and one scoped to a single layer (a small orange **{JSON}** icon on
-the layer card). This exercise uses the per-layer editor to paste in a full
+the layer card). This tutorial uses the per-layer editor to paste in a full
 set of World Cover categories.
 
 1. Copy the following JSON to your clipboard:

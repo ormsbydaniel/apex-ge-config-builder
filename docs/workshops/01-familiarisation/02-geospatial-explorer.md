@@ -12,7 +12,7 @@ all in a no-code environment that end users can drive from a browser.
 
 Every Explorer deployment is shaped by a **configuration** — a JSON
 document that defines the layers, services, styling, charts, filters
-and storymaps on offer. In later exercises you'll build one of these
+and storymaps on offer. In later tutorials you'll build one of these
 configurations yourself. For now, the goal is simply to get a feel for
 what the end-user application looks like and what it can do.
 
@@ -49,7 +49,7 @@ time slider, try the charts. Some suggestions:
 - Apply a **constraint** or filter and see how the map responds.
 
 Don't worry about understanding every control yet — you'll meet them
-again in later exercises.
+again in later tutorials.
 
 ### 3. Browse the Solutions Gallery
 

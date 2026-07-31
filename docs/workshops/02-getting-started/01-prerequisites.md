@@ -5,12 +5,12 @@ title: 2-1. Pre-requisites
 
 ## Scope
 
-This exercise introduces the **Geospatial Explorer Configuration Builder**
+This tutorial introduces the **Geospatial Explorer Configuration Builder**
 ("CB") that is used to create configuration files for the Geospatial Explorer
 ("GE"). It covers the basics — enough to build a small but complete
 configuration.
 
-Later tutorial exercises pick up from here to cover services, categorical data,
+Later tutorial tutorials pick up from here to cover services, categorical data,
 time series and constraints.
 
 ## Assumed knowledge
@@ -22,7 +22,7 @@ of:
 - Geospatial data — primarily raster (we use COGs) and vector formats
 - Geospatial web services — WMS, WMTS and XYZ
 
-If you are unfamiliar with the above the exercise is still useful, but some
+If you are unfamiliar with the above the tutorial is still useful, but some
 areas may need extra explanation from the facilitator.
 
 ## Useful links
