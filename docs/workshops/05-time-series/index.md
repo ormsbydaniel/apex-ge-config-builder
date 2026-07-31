@@ -3,29 +3,25 @@ title: 5. Time Series
 ---
 # 5. Time Series
 
+## Tutorial Objectives
+
+![Time Series tutorial hero image](../../assets/screenshots/tutorial-05-hero.jpg)
+
 Configure the temporal control with manual timestamps, STAC datetimes and
 WMS / WMTS time parameters.
 
-## Key concepts
+By the end of this tutorial you will be able to:
 
-- The **temporal control** lets users step through data over time.
-- Temporal data may have different granularities — hours, days, months, years.
-- You configure the granularity per layer.
-- Sequences may be **continuous** (no gaps) or **discontinuous** (jumping
-  between periods).
-- Some services carry timestamps intrinsically — WMS / WMTS `TIME` parameters,
-  or STAC item datetimes — but this is not mandatory.
-- Where no timestamps are available from the service, the CB lets you attach
-  timestamps to individual datasets explicitly, using a specific calendar
-  date. The GE stores these internally as Unix timestamps (seconds since
-  1970-01-01).
-
-See [Time series](../../layers/time-series.md) for the full reference.
+- Attach manual timestamps to datasets.
+- Use STAC item datetimes to drive the temporal control.
+- Configure WMS / WMTS `TIME` parameters.
+- Choose the right granularity for continuous and discontinuous sequences.
 
 ## Steps
 
 - [5-1. Pre-requisites](01-prerequisites.md)
-- [5-2. Manual timestamps](03-manual-timestamps.md)
-- [5-3. Using STAC timestamps](04-stac-timestamps.md)
-- [5-4. WMS / WMTS time parameters](05-wms-timestamps.md)
-- [5-5. Manual timestamps on WMS](06-manual-wms-timestamps.md)
+- [5-2. Key concepts](02-key-concepts.md)
+- [5-3. Manual timestamps](03-manual-timestamps.md)
+- [5-4. Using STAC timestamps](04-stac-timestamps.md)
+- [5-5. WMS / WMTS time parameters](05-wms-timestamps.md)
+- [5-6. Manual timestamps on WMS](06-manual-wms-timestamps.md)
