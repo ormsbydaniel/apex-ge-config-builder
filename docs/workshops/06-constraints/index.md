@@ -3,38 +3,22 @@ title: 6. Constraints
 ---
 # 6. Constraints
 
+## Tutorial Objectives
+
+![Constraints tutorial hero image](../../assets/screenshots/tutorial-06-hero.jpg)
+
 Create categorical and continuous constraints to filter layers on the map.
 
-## Key concepts
+By the end of this tutorial you will be able to:
 
-- **Constraints** apply to COG data.
-- A constraint is a filter applied to the data — pixels that fall outside the
-  constraint are masked out at render time.
-- We already used the **Constraint** toggle on a layer to let users filter a
-  layer by its own pixel values.
-- Constraints can also come from **secondary layers** — for example land use,
-  elevation, or "distance to" derived layers.
-- Secondary constraint layers **must have the same CRS, resolution and origin**
-  as the primary data they constrain. This usually requires preparing
-  compatible constraint layers in advance.
-
-### Constraint types
-
-The GE defines three constraint types:
-
-- **Continuous** — a variable (e.g. elevation) covering a full range between
-  its min and max. Rendered as a slider.
-- **Categorical** — data representing specific coded values (e.g.
-  `10 = "Trees"`, `20 = "Grassland"`, …). Rendered as checkboxes.
-- **Combined** — ranges within a continuous variable are grouped into named
-  bands ("Low", "Medium", "High", "Very high") and rendered as checkboxes.
-  Useful for things like altitudinal zones, aspect, uncertainty bands, or
-  flood return periods.
-
-See [Constraints](../../constraints/overview.md) for the full reference.
+- Explain what a constraint does to the rendered data.
+- Create a categorical constraint rendered as checkboxes.
+- Add continuous constraints rendered as sliders.
+- Prepare secondary constraint layers that match your primary data.
 
 ## Steps
 
 - [6-1. Pre-requisites](01-prerequisites.md)
-- [6-2. Create a categorical constraint](02-categorical-constraint.md)
-- [6-3. Add continuous constraints](03-continuous-constraints.md)
+- [6-2. Key concepts](02-key-concepts.md)
+- [6-3. Create a categorical constraint](03-categorical-constraint.md)
+- [6-4. Add continuous constraints](04-continuous-constraints.md)

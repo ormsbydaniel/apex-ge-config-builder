@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/04-categorical-data/index.html">
       
       
-        <link rel="prev" href="../03-working-with-services/05-wms-legends.html">
+        <link rel="prev" href="../03-working-with-services/06-wms-legends.html">
       
       
         <link rel="next" href="01-prerequisites.html">
@@ -1317,6 +1317,8 @@
       
         
       
+        
+      
     
     
     
@@ -1373,6 +1375,8 @@
       
         
           
+        
+      
         
       
         
@@ -1443,6 +1447,8 @@
       
         
           
+        
+      
         
       
         
@@ -1544,14 +1550,14 @@
   
   
     <li class="md-nav__item">
-      <a href="02-categories-wms.html" class="md-nav__link">
+      <a href="02-key-concepts.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4-2. Categories for a WMS layer
+    4-2. Key concepts
   
 
     
@@ -1572,14 +1578,14 @@
   
   
     <li class="md-nav__item">
-      <a href="03-categories-cog.html" class="md-nav__link">
+      <a href="03-categories-wms.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4-3. Categories for a COG
+    4-3. Categories for a WMS layer
   
 
     
@@ -1600,14 +1606,14 @@
   
   
     <li class="md-nav__item">
-      <a href="04-categories-json-editor.html" class="md-nav__link">
+      <a href="04-categories-cog.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4-4. Use the JSON editor
+    4-4. Categories for a COG
   
 
     
@@ -1628,14 +1634,42 @@
   
   
     <li class="md-nav__item">
-      <a href="05-copy-categories.html" class="md-nav__link">
+      <a href="05-categories-json-editor.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4-5. Copy categories between layers
+    4-5. Use the JSON editor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-copy-categories.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4-6. Copy categories between layers
   
 
     
@@ -1668,6 +1702,8 @@
       
         
           
+        
+      
         
       
         
@@ -1736,6 +1772,8 @@
       
         
           
+        
+      
         
       
         
@@ -1890,10 +1928,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#key-concepts" class="md-nav__link">
+  <a href="#tutorial-objectives" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key concepts
+        Tutorial Objectives
       
     </span>
   </a>
@@ -1929,28 +1967,25 @@
 
 
 <h1 id="4-categorical-data">4. Categorical Data<a class="headerlink" href="#4-categorical-data" title="Permanent link">&para;</a></h1>
+<h2 id="tutorial-objectives">Tutorial Objectives<a class="headerlink" href="#tutorial-objectives" title="Permanent link">&para;</a></h2>
+<p><img alt="Categorical Data tutorial hero image" src="../../assets/screenshots/tutorial-04-hero.jpg" /></p>
 <p>Configure categories for WMS and COG layers, use the JSON editor for bulk
 edits and copy categories between layers.</p>
-<h2 id="key-concepts">Key concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h2>
+<p>By the end of this tutorial you will be able to:</p>
 <ul>
-<li>We often work with <strong>categorical</strong> data such as classifications (e.g. land
-  cover).</li>
-<li>The data can arrive in several ways — as a WMS where the server has already
-  rendered the classes (like the World Cover WMS from Part 2), or as a COG
-  where the raw pixel values represent the class codes.</li>
-<li>In both cases we can set up <strong>categories</strong> in the CB.</li>
-<li>For <strong>WMS</strong> layers, categories define the legend shown in the Explorer.</li>
-<li>For <strong>COGs</strong>, categories define both how the raw pixel values are rendered
-    and the legend that is shown.</li>
+<li>Define categories for a WMS layer so the Explorer renders a legend.</li>
+<li>Define categories for a COG so raw pixel values are rendered by class.</li>
+<li>Use the JSON editor to make bulk category edits.</li>
+<li>Copy categories between layers.</li>
 </ul>
-<p>See <a href="../../layers/categories.html">Categories</a> for the full reference.</p>
 <h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="01-prerequisites.html">4-1. Pre-requisites</a></li>
-<li><a href="02-categories-wms.html">4-2. Categories for a WMS layer</a></li>
-<li><a href="03-categories-cog.html">4-3. Categories for a COG</a></li>
-<li><a href="04-categories-json-editor.html">4-4. Use the JSON editor</a></li>
-<li><a href="05-copy-categories.html">4-5. Copy categories between layers</a></li>
+<li><a href="02-key-concepts.html">4-2. Key concepts</a></li>
+<li><a href="03-categories-wms.html">4-3. Categories for a WMS layer</a></li>
+<li><a href="04-categories-cog.html">4-4. Categories for a COG</a></li>
+<li><a href="05-categories-json-editor.html">4-5. Use the JSON editor</a></li>
+<li><a href="06-copy-categories.html">4-6. Copy categories between layers</a></li>
 </ul>
 
 
@@ -1992,7 +2027,7 @@ edits and copy categories between layers.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../03-working-with-services/05-wms-legends.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 3-5. Add legends for a WMS">
+          <a href="../03-working-with-services/06-wms-legends.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 3-6. Add legends for a WMS">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2002,7 +2037,7 @@ edits and copy categories between layers.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                3-5. Add legends for a WMS
+                3-6. Add legends for a WMS
               </div>
             </div>
           </a>

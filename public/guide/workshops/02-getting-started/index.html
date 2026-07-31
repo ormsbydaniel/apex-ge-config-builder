@@ -1319,6 +1319,8 @@
       
         
       
+        
+      
     
     
     
@@ -1408,14 +1410,14 @@
   
   
     <li class="md-nav__item">
-      <a href="02-name-and-branding.html" class="md-nav__link">
+      <a href="02-key-concepts.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2-2. Name and branding
+    2-2. Key concepts
   
 
     
@@ -1436,14 +1438,14 @@
   
   
     <li class="md-nav__item">
-      <a href="03-export-and-reload.html" class="md-nav__link">
+      <a href="03-name-and-branding.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2-3. Export and reload
+    2-3. Name and branding
   
 
     
@@ -1464,14 +1466,14 @@
   
   
     <li class="md-nav__item">
-      <a href="04-add-base-maps.html" class="md-nav__link">
+      <a href="04-export-and-reload.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2-4. Add base maps
+    2-4. Export and reload
   
 
     
@@ -1492,14 +1494,14 @@
   
   
     <li class="md-nav__item">
-      <a href="05-first-layer-card.html" class="md-nav__link">
+      <a href="05-add-base-maps.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2-5. Your first layer card
+    2-5. Add base maps
   
 
     
@@ -1520,14 +1522,14 @@
   
   
     <li class="md-nav__item">
-      <a href="06-add-cog-data.html" class="md-nav__link">
+      <a href="06-first-layer-card.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2-6. Add a COG data source
+    2-6. Your first layer card
   
 
     
@@ -1548,14 +1550,14 @@
   
   
     <li class="md-nav__item">
-      <a href="07-colormaps.html" class="md-nav__link">
+      <a href="07-add-cog-data.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2-7. Style with a colormap
+    2-7. Add a COG data source
   
 
     
@@ -1576,14 +1578,14 @@
   
   
     <li class="md-nav__item">
-      <a href="08-layer-controls.html" class="md-nav__link">
+      <a href="08-colormaps.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2-8. Experiment with layer controls
+    2-8. Style with a colormap
   
 
     
@@ -1604,14 +1606,42 @@
   
   
     <li class="md-nav__item">
-      <a href="09-wms-service.html" class="md-nav__link">
+      <a href="09-layer-controls.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2-9. Add a WMS layer directly
+    2-9. Experiment with layer controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="10-wms-service.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2-10. Add a WMS layer directly
   
 
     
@@ -1644,6 +1674,8 @@
       
         
           
+        
+      
         
       
         
@@ -1724,6 +1756,8 @@
       
         
       
+        
+      
     
     
     
@@ -1792,6 +1826,8 @@
       
         
       
+        
+      
     
     
     
@@ -1848,6 +1884,8 @@
       
         
           
+        
+      
         
       
         
@@ -2002,10 +2040,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#key-concepts" class="md-nav__link">
+  <a href="#tutorial-objectives" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key concepts
+        Tutorial Objectives
       
     </span>
   </a>
@@ -2041,47 +2079,31 @@
 
 
 <h1 id="2-my-first-config">2. My first config<a class="headerlink" href="#2-my-first-config" title="Permanent link">&para;</a></h1>
+<h2 id="tutorial-objectives">Tutorial Objectives<a class="headerlink" href="#tutorial-objectives" title="Permanent link">&para;</a></h2>
+<p><img alt="My first config tutorial hero image" src="../../assets/screenshots/tutorial-02-hero.jpg" /></p>
 <p>Build a Geospatial Explorer configuration from scratch: name and branding, base
 maps, your first layer card, a COG data source, colormap styling and a direct
 WMS layer.</p>
-<h2 id="key-concepts">Key concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h2>
-<p>Before you start clicking around, it is worth knowing a few things about the
-Config Builder and how it fits into the wider Geospatial Explorer stack.</p>
+<p>By the end of this tutorial you will be able to:</p>
 <ul>
-<li>The <strong>Geospatial Explorer Configuration Builder</strong> ("CB") is an authoring
-  tool for the JSON files that drive the Geospatial Explorer ("GE").</li>
-<li>The JSON is complex. The CB exists to reduce the technical barrier for
-  building GE configurations by hand.</li>
-<li>The CB runs <strong>entirely in your browser</strong>. There is no backend, no login and
-  no server-side storage of your work.</li>
-<li>You "save" your configuration by <strong>exporting</strong> it to your local machine as a
-  JSON file, and reload it later by importing that file back into the CB.</li>
-<li>Configurations are shareable — email or Slack the exported JSON to a
-  collaborator and they can load it into their own browser.</li>
-<li>A run-time version of the GE is <strong>integrated into the CB</strong> on the <strong>GE Preview</strong>
-  tab. Both released versions and interim development versions of the GE are
-  available, so you can build configurations that target features not yet in a
-  stable release.</li>
-<li>The CB itself is a work in progress. Feedback and suggestions based on your
-  own experience are welcome.</li>
+<li>Start a new configuration and set its name, interface group and branding.</li>
+<li>Export your work and reload it later.</li>
+<li>Add recommended base maps and your first layer card.</li>
+<li>Add a COG data source and style it with a colormap.</li>
+<li>Add a WMS layer using a direct connection.</li>
 </ul>
-<div class="admonition info">
-<p class="admonition-title">No cloud storage</p>
-<p>Because everything is browser-side, closing your browser tab loses your
-work unless you have exported it. Get into the habit of exporting after
-every meaningful change.</p>
-</div>
 <h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="01-prerequisites.html">2-1. Pre-requisites</a></li>
-<li><a href="02-name-and-branding.html">2-2. Name, interface group and branding</a></li>
-<li><a href="03-export-and-reload.html">2-3. Exporting and reloading config</a></li>
-<li><a href="04-add-base-maps.html">2-4. Add recommended base maps</a></li>
-<li><a href="05-first-layer-card.html">2-5. Your first layer card</a></li>
-<li><a href="06-add-cog-data.html">2-6. Add a COG data source</a></li>
-<li><a href="07-colormaps.html">2-7. Style with a colormap</a></li>
-<li><a href="08-layer-controls.html">2-8. Experiment with layer controls</a></li>
-<li><a href="09-wms-service.html">2-9. Add a WMS layer directly</a></li>
+<li><a href="02-key-concepts.html">2-2. Key concepts</a></li>
+<li><a href="03-name-and-branding.html">2-3. Name, interface group and branding</a></li>
+<li><a href="04-export-and-reload.html">2-4. Exporting and reloading config</a></li>
+<li><a href="05-add-base-maps.html">2-5. Add recommended base maps</a></li>
+<li><a href="06-first-layer-card.html">2-6. Your first layer card</a></li>
+<li><a href="07-add-cog-data.html">2-7. Add a COG data source</a></li>
+<li><a href="08-colormaps.html">2-8. Style with a colormap</a></li>
+<li><a href="09-layer-controls.html">2-9. Experiment with layer controls</a></li>
+<li><a href="10-wms-service.html">2-10. Add a WMS layer directly</a></li>
 </ul>
 
 

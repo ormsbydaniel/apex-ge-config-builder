@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://apex-ge-config-builder.sparkgeo.uk/guide/workshops/05-time-series/index.html">
       
       
-        <link rel="prev" href="../04-categorical-data/05-copy-categories.html">
+        <link rel="prev" href="../04-categorical-data/06-copy-categories.html">
       
       
         <link rel="next" href="01-prerequisites.html">
@@ -1317,6 +1317,8 @@
       
         
       
+        
+      
     
     
     
@@ -1373,6 +1375,8 @@
       
         
           
+        
+      
         
       
         
@@ -1453,6 +1457,8 @@
       
         
       
+        
+      
     
     
     
@@ -1511,6 +1517,8 @@
       
         
           
+        
+      
         
       
         
@@ -1612,14 +1620,14 @@
   
   
     <li class="md-nav__item">
-      <a href="02-manual-timestamps.html" class="md-nav__link">
+      <a href="02-key-concepts.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5-2. Manual timestamps
+    5-2. Key concepts
   
 
     
@@ -1640,14 +1648,14 @@
   
   
     <li class="md-nav__item">
-      <a href="03-stac-timestamps.html" class="md-nav__link">
+      <a href="03-manual-timestamps.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5-3. Using STAC timestamps
+    5-3. Manual timestamps
   
 
     
@@ -1668,14 +1676,14 @@
   
   
     <li class="md-nav__item">
-      <a href="04-wms-timestamps.html" class="md-nav__link">
+      <a href="04-stac-timestamps.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5-4. WMS / WMTS time parameters
+    5-4. Using STAC timestamps
   
 
     
@@ -1696,14 +1704,42 @@
   
   
     <li class="md-nav__item">
-      <a href="05-manual-wms-timestamps.html" class="md-nav__link">
+      <a href="05-wms-timestamps.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5-5. Manual timestamps on WMS
+    5-5. WMS / WMTS time parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-manual-wms-timestamps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5-6. Manual timestamps on WMS
   
 
     
@@ -1736,6 +1772,8 @@
       
         
           
+        
+      
         
       
         
@@ -1890,10 +1928,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#key-concepts" class="md-nav__link">
+  <a href="#tutorial-objectives" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key concepts
+        Tutorial Objectives
       
     </span>
   </a>
@@ -1929,30 +1967,25 @@
 
 
 <h1 id="5-time-series">5. Time Series<a class="headerlink" href="#5-time-series" title="Permanent link">&para;</a></h1>
+<h2 id="tutorial-objectives">Tutorial Objectives<a class="headerlink" href="#tutorial-objectives" title="Permanent link">&para;</a></h2>
+<p><img alt="Time Series tutorial hero image" src="../../assets/screenshots/tutorial-05-hero.jpg" /></p>
 <p>Configure the temporal control with manual timestamps, STAC datetimes and
 WMS / WMTS time parameters.</p>
-<h2 id="key-concepts">Key concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h2>
+<p>By the end of this tutorial you will be able to:</p>
 <ul>
-<li>The <strong>temporal control</strong> lets users step through data over time.</li>
-<li>Temporal data may have different granularities — hours, days, months, years.</li>
-<li>You configure the granularity per layer.</li>
-<li>Sequences may be <strong>continuous</strong> (no gaps) or <strong>discontinuous</strong> (jumping
-  between periods).</li>
-<li>Some services carry timestamps intrinsically — WMS / WMTS <code>TIME</code> parameters,
-  or STAC item datetimes — but this is not mandatory.</li>
-<li>Where no timestamps are available from the service, the CB lets you attach
-  timestamps to individual datasets explicitly, using a specific calendar
-  date. The GE stores these internally as Unix timestamps (seconds since
-  1970-01-01).</li>
+<li>Attach manual timestamps to datasets.</li>
+<li>Use STAC item datetimes to drive the temporal control.</li>
+<li>Configure WMS / WMTS <code>TIME</code> parameters.</li>
+<li>Choose the right granularity for continuous and discontinuous sequences.</li>
 </ul>
-<p>See <a href="../../layers/time-series.html">Time series</a> for the full reference.</p>
 <h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="01-prerequisites.html">5-1. Pre-requisites</a></li>
-<li><a href="02-manual-timestamps.html">5-2. Manual timestamps</a></li>
-<li><a href="03-stac-timestamps.html">5-3. Using STAC timestamps</a></li>
-<li><a href="04-wms-timestamps.html">5-4. WMS / WMTS time parameters</a></li>
-<li><a href="05-manual-wms-timestamps.html">5-5. Manual timestamps on WMS</a></li>
+<li><a href="02-key-concepts.html">5-2. Key concepts</a></li>
+<li><a href="03-manual-timestamps.html">5-3. Manual timestamps</a></li>
+<li><a href="04-stac-timestamps.html">5-4. Using STAC timestamps</a></li>
+<li><a href="05-wms-timestamps.html">5-5. WMS / WMTS time parameters</a></li>
+<li><a href="06-manual-wms-timestamps.html">5-6. Manual timestamps on WMS</a></li>
 </ul>
 
 
@@ -1994,7 +2027,7 @@ WMS / WMTS time parameters.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../04-categorical-data/05-copy-categories.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 4-5. Copy categories between layers">
+          <a href="../04-categorical-data/06-copy-categories.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 4-6. Copy categories between layers">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2004,7 +2037,7 @@ WMS / WMTS time parameters.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                4-5. Copy categories between layers
+                4-6. Copy categories between layers
               </div>
             </div>
           </a>
