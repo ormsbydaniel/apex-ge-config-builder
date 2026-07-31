@@ -3,45 +3,31 @@ title: 2. My first config
 ---
 # 2. My first config
 
+## Tutorial Objectives
+
+![My first config tutorial hero image](../../assets/screenshots/tutorial-02-hero.jpg)
+
 Build a Geospatial Explorer configuration from scratch: name and branding, base
 maps, your first layer card, a COG data source, colormap styling and a direct
 WMS layer.
 
-## Key concepts
+By the end of this tutorial you will be able to:
 
-Before you start clicking around, it is worth knowing a few things about the
-Config Builder and how it fits into the wider Geospatial Explorer stack.
-
-- The **Geospatial Explorer Configuration Builder** ("CB") is an authoring
-  tool for the JSON files that drive the Geospatial Explorer ("GE").
-- The JSON is complex. The CB exists to reduce the technical barrier for
-  building GE configurations by hand.
-- The CB runs **entirely in your browser**. There is no backend, no login and
-  no server-side storage of your work.
-- You "save" your configuration by **exporting** it to your local machine as a
-  JSON file, and reload it later by importing that file back into the CB.
-- Configurations are shareable — email or Slack the exported JSON to a
-  collaborator and they can load it into their own browser.
-- A run-time version of the GE is **integrated into the CB** on the **GE Preview**
-  tab. Both released versions and interim development versions of the GE are
-  available, so you can build configurations that target features not yet in a
-  stable release.
-- The CB itself is a work in progress. Feedback and suggestions based on your
-  own experience are welcome.
-
-!!! info "No cloud storage"
-    Because everything is browser-side, closing your browser tab loses your
-    work unless you have exported it. Get into the habit of exporting after
-    every meaningful change.
+- Start a new configuration and set its name, interface group and branding.
+- Export your work and reload it later.
+- Add recommended base maps and your first layer card.
+- Add a COG data source and style it with a colormap.
+- Add a WMS layer using a direct connection.
 
 ## Steps
 
 - [2-1. Pre-requisites](01-prerequisites.md)
-- [2-2. Name, interface group and branding](03-name-and-branding.md)
-- [2-3. Exporting and reloading config](04-export-and-reload.md)
-- [2-4. Add recommended base maps](05-add-base-maps.md)
-- [2-5. Your first layer card](06-first-layer-card.md)
-- [2-6. Add a COG data source](07-add-cog-data.md)
-- [2-7. Style with a colormap](08-colormaps.md)
-- [2-8. Experiment with layer controls](09-layer-controls.md)
-- [2-9. Add a WMS layer directly](10-wms-service.md)
+- [2-2. Key concepts](02-key-concepts.md)
+- [2-3. Name, interface group and branding](03-name-and-branding.md)
+- [2-4. Exporting and reloading config](04-export-and-reload.md)
+- [2-5. Add recommended base maps](05-add-base-maps.md)
+- [2-6. Your first layer card](06-first-layer-card.md)
+- [2-7. Add a COG data source](07-add-cog-data.md)
+- [2-8. Style with a colormap](08-colormaps.md)
+- [2-9. Experiment with layer controls](09-layer-controls.md)
+- [2-10. Add a WMS layer directly](10-wms-service.md)
