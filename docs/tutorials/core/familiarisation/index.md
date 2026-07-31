@@ -1,13 +1,14 @@
 ---
-title: 1. Familiarisation
+title: Familiarisation
 ---
 
-# 1. Familiarisation
+# Familiarisation
 
-This first exercise helps you get comfortable with the two tools you'll be
-using throughout the workshop: the APEx Geospatial Explorer (the end-user
-map application) and the Configuration Builder (the authoring tool you'll
-use to shape it).
+!!! info "Core tutorial · ~20 min · No prerequisites"
+
+This first tutorial helps you get comfortable with the two tools you'll be
+using throughout: the APEx Geospatial Explorer (the end-user map application)
+and the Configuration Builder (the authoring tool you'll use to shape it).
 
 ## Steps
 
