@@ -1,7 +1,7 @@
 ---
-title: 4-5. Copy categories between layers
+title: 4-6. Copy categories between layers
 ---
-# 4-5. Copy categories between layers
+# 4-6. Copy categories between layers
 
 Now that the COG layer has a full set of categories, copy them into the WMS
 World Cover layer without pasting JSON.

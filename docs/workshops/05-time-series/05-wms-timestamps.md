@@ -1,7 +1,7 @@
 ---
-title: 5-4. Using WMS / WMTS time parameters
+title: 5-5. Using WMS / WMTS time parameters
 ---
-# 5-4. Using WMS / WMTS time parameters
+# 5-5. Using WMS / WMTS time parameters
 
 Some WMS / WMTS services expose a `TIME` parameter directly. The CB can drive
 that parameter from the temporal control on a layer.

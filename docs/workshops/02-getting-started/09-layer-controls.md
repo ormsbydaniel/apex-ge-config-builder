@@ -1,7 +1,7 @@
 ---
-title: 2-8. Experiment with layer controls
+title: 2-9. Experiment with layer controls
 ---
-# 2-8. Experiment with layer controls
+# 2-9. Experiment with layer controls
 
 The **Layer controls** section of a layer card toggles the interactive
 controls the Explorer shows for that layer.
@@ -28,4 +28,4 @@ controls the Explorer shows for that layer.
 ### Did you remember to export?
 
 If not, now is a good moment. See [Exporting and reloading
-config](03-export-and-reload.md).
+config](04-export-and-reload.md).

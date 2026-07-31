@@ -1,7 +1,7 @@
 ---
-title: 2-3. Exporting and reloading config
+title: 2-4. Exporting and reloading config
 ---
-# 2-3. Exporting and reloading config
+# 2-4. Exporting and reloading config
 
 There is no "Save" button — you save by exporting a JSON file to your machine
 and reloading it later.
