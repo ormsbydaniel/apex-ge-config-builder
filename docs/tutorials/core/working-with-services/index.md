@@ -1,7 +1,9 @@
 ---
-title: 3. Working with Services
+title: Working with services
 ---
-# 3. Working with Services
+# Working with services
+
+!!! info "Core tutorial · ~40 min · Prerequisite: [My first config](../first-config/index.md)"
 
 Register recommended services, browse the Project Results Repository (PRR), add
 further WMS layers and configure WMS legends.
@@ -10,7 +12,7 @@ further WMS layers and configure WMS legends.
 
 !!! info "To be written"
     Key concepts for working with services will be added here in a future
-    revision. For now, jump straight to the pre-requisites and the exercise
+    revision. For now, jump straight to the pre-requisites and the tutorial
     steps.
 
 ## Steps
