@@ -1,29 +1,27 @@
 ---
-title: 1. Pre-requisites
+title: Pre-requisites
 ---
 # Pre-requisites
 
 ## Scope
 
-This exercise introduces the **Geospatial Explorer Configuration Builder**
+This tutorial introduces the **Geospatial Explorer Configuration Builder**
 ("CB") that is used to create configuration files for the Geospatial Explorer
 ("GE"). It covers the basics — enough to build a small but complete
 configuration.
 
-Later workshop exercises pick up from here to cover services, categorical data,
-time series and constraints.
+The remaining core tutorial and the topic tutorials all pick up from here.
 
 ## Assumed knowledge
 
 There are no specific technical pre-requisites, although a second monitor is
-useful to follow along. It is assumed that delegates have a basic understanding
-of:
+useful to follow along. It is assumed that you have a basic understanding of:
 
 - Geospatial data — primarily raster (we use COGs) and vector formats
 - Geospatial web services — WMS, WMTS and XYZ
 
-If you are unfamiliar with the above the exercise is still useful, but some
-areas may need extra explanation from the facilitator.
+If you are unfamiliar with the above the tutorial is still useful, but some
+areas may need extra explanation.
 
 ## Useful links
 
