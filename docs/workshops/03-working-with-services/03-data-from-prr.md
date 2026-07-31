@@ -1,7 +1,7 @@
 ---
-title: 3. Add data from the PRR
+title: 3-3. Add data from the PRR
 ---
-# Add data from the PRR
+# 3-3. Add data from the PRR
 
 The Project Results Repository (PRR) is a STAC catalogue of APEx project
 results. Once its service is registered you can browse it directly from any

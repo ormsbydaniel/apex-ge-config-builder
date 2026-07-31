@@ -1,7 +1,7 @@
 ---
-title: 17. Use the JSON editor
+title: 4-4. Use the JSON editor
 ---
-# Use the JSON editor
+# 4-4. Use the JSON editor
 
 The CB provides two JSON editors — one for the whole configuration (on the
 Home tab) and one scoped to a single layer (a small orange **{JSON}** icon on

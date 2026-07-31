@@ -1,8 +1,8 @@
 ---
-title: 3. Configuration Builder
+title: 1-3. Configuration Builder
 ---
 
-# Configuration Builder
+# 1-3. Configuration Builder
 
 The **Configuration Builder** is the companion tool to the Geospatial
 Explorer. Where the Explorer is the end-user application, the

@@ -22,8 +22,8 @@ See [Categories](../../layers/categories.md) for the full reference.
 
 ## Steps
 
-1. [Pre-requisites](01-prerequisites.md)
-2. [Categories for a WMS layer](02-categories-wms.md)
-3. [Categories for a COG](03-categories-cog.md)
-4. [Use the JSON editor](04-categories-json-editor.md)
-5. [Copy categories between layers](05-copy-categories.md)
+- [4-1. Pre-requisites](01-prerequisites.md)
+- [4-2. Categories for a WMS layer](02-categories-wms.md)
+- [4-3. Categories for a COG](03-categories-cog.md)
+- [4-4. Use the JSON editor](04-categories-json-editor.md)
+- [4-5. Copy categories between layers](05-copy-categories.md)

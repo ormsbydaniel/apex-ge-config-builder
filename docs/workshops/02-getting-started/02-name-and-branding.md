@@ -1,7 +1,7 @@
 ---
-title: 2. Name, interface group and branding
+title: 2-2. Name, interface group and branding
 ---
-# Name, interface group and branding
+# 2-2. Name, interface group and branding
 
 In this exercise you will start a fresh configuration and give it a title, an
 interface group and a colour scheme.

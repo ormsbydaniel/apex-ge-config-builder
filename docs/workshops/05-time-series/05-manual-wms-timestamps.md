@@ -1,7 +1,7 @@
 ---
-title: 23. Manual timestamps on WMS / WMTS
+title: 5-5. Manual timestamps on WMS / WMTS
 ---
-# Manual timestamps on WMS / WMTS
+# 5-5. Manual timestamps on WMS / WMTS
 
 Some WMS / WMTS services expose time as separate **layers** rather than via a
 `TIME` parameter on a single layer. The World Cover WMS from Part 2 is an

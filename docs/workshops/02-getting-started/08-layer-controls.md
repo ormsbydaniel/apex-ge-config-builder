@@ -1,7 +1,7 @@
 ---
-title: 8. Experiment with layer controls
+title: 2-8. Experiment with layer controls
 ---
-# Experiment with layer controls
+# 2-8. Experiment with layer controls
 
 The **Layer controls** section of a layer card toggles the interactive
 controls the Explorer shows for that layer.

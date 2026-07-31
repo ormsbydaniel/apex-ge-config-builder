@@ -1,7 +1,7 @@
 ---
-title: 1. Pre-requisites
+title: 5-1. Pre-requisites
 ---
-# Pre-requisites
+# 5-1. Pre-requisites
 
 Complete the earlier exercises first — this one builds on a configuration that
 already has a mix of COG, WMS and STAC-backed layers.

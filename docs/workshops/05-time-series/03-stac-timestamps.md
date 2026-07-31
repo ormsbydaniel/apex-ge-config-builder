@@ -1,7 +1,7 @@
 ---
-title: 21. Using STAC timestamps
+title: 5-3. Using STAC timestamps
 ---
-# Using STAC timestamps
+# 5-3. Using STAC timestamps
 
 STAC items carry timestamps on the items themselves. When you pull assets from
 a STAC browser the CB copies those timestamps onto the resulting datasets.

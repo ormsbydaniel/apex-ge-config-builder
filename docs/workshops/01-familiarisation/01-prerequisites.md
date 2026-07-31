@@ -1,8 +1,8 @@
 ---
-title: 1. Pre-requisites
+title: 1-1. Pre-requisites
 ---
 
-# Pre-requisites
+# 1-1. Pre-requisites
 
 Before we dive in, a few practical notes to help you get the most out of the sessions. Here is the best bit. The tutorials require:
 

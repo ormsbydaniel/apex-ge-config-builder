@@ -144,46 +144,46 @@ nav:
       - Overview: workshops/index.md
       - 1. Familiarisation:
           - Overview: workshops/01-familiarisation/index.md
-          - 1. Pre-requisites: workshops/01-familiarisation/01-prerequisites.md
-          - 2. Geospatial Explorer: workshops/01-familiarisation/02-geospatial-explorer.md
-          - 3. Configuration Builder: workshops/01-familiarisation/03-configuration-builder.md
+          - 1-1. Pre-requisites: workshops/01-familiarisation/01-prerequisites.md
+          - 1-2. Geospatial Explorer: workshops/01-familiarisation/02-geospatial-explorer.md
+          - 1-3. Configuration Builder: workshops/01-familiarisation/03-configuration-builder.md
       - 2. My first config:
           - Overview: workshops/02-getting-started/index.md
-          - 1. Pre-requisites: workshops/02-getting-started/01-prerequisites.md
-          - 2. Name and branding: workshops/02-getting-started/02-name-and-branding.md
-          - 3. Export and reload: workshops/02-getting-started/03-export-and-reload.md
-          - 4. Add base maps: workshops/02-getting-started/04-add-base-maps.md
-          - 5. Your first layer card: workshops/02-getting-started/05-first-layer-card.md
-          - 6. Add a COG data source: workshops/02-getting-started/06-add-cog-data.md
-          - 7. Style with a colormap: workshops/02-getting-started/07-colormaps.md
-          - 8. Experiment with layer controls: workshops/02-getting-started/08-layer-controls.md
-          - 9. Add a WMS layer directly: workshops/02-getting-started/09-wms-service.md
+          - 2-1. Pre-requisites: workshops/02-getting-started/01-prerequisites.md
+          - 2-2. Name and branding: workshops/02-getting-started/02-name-and-branding.md
+          - 2-3. Export and reload: workshops/02-getting-started/03-export-and-reload.md
+          - 2-4. Add base maps: workshops/02-getting-started/04-add-base-maps.md
+          - 2-5. Your first layer card: workshops/02-getting-started/05-first-layer-card.md
+          - 2-6. Add a COG data source: workshops/02-getting-started/06-add-cog-data.md
+          - 2-7. Style with a colormap: workshops/02-getting-started/07-colormaps.md
+          - 2-8. Experiment with layer controls: workshops/02-getting-started/08-layer-controls.md
+          - 2-9. Add a WMS layer directly: workshops/02-getting-started/09-wms-service.md
       - 3. Working with Services:
           - Overview: workshops/03-working-with-services/index.md
-          - 1. Pre-requisites: workshops/03-working-with-services/01-prerequisites.md
-          - 2. Add recommended services: workshops/03-working-with-services/02-recommended-services.md
-          - 3. Add data from the PRR: workshops/03-working-with-services/03-data-from-prr.md
-          - 4. Add more WMS layers: workshops/03-working-with-services/04-more-wms-layers.md
-          - 5. Add legends for a WMS: workshops/03-working-with-services/05-wms-legends.md
+          - 3-1. Pre-requisites: workshops/03-working-with-services/01-prerequisites.md
+          - 3-2. Add recommended services: workshops/03-working-with-services/02-recommended-services.md
+          - 3-3. Add data from the PRR: workshops/03-working-with-services/03-data-from-prr.md
+          - 3-4. Add more WMS layers: workshops/03-working-with-services/04-more-wms-layers.md
+          - 3-5. Add legends for a WMS: workshops/03-working-with-services/05-wms-legends.md
       - 4. Categorical Data:
           - Overview: workshops/04-categorical-data/index.md
-          - 1. Pre-requisites: workshops/04-categorical-data/01-prerequisites.md
-          - 2. Categories for a WMS layer: workshops/04-categorical-data/02-categories-wms.md
-          - 3. Categories for a COG: workshops/04-categorical-data/03-categories-cog.md
-          - 4. Use the JSON editor: workshops/04-categorical-data/04-categories-json-editor.md
-          - 5. Copy categories between layers: workshops/04-categorical-data/05-copy-categories.md
+          - 4-1. Pre-requisites: workshops/04-categorical-data/01-prerequisites.md
+          - 4-2. Categories for a WMS layer: workshops/04-categorical-data/02-categories-wms.md
+          - 4-3. Categories for a COG: workshops/04-categorical-data/03-categories-cog.md
+          - 4-4. Use the JSON editor: workshops/04-categorical-data/04-categories-json-editor.md
+          - 4-5. Copy categories between layers: workshops/04-categorical-data/05-copy-categories.md
       - 5. Time Series:
           - Overview: workshops/05-time-series/index.md
-          - 1. Pre-requisites: workshops/05-time-series/01-prerequisites.md
-          - 2. Manual timestamps: workshops/05-time-series/02-manual-timestamps.md
-          - 3. Using STAC timestamps: workshops/05-time-series/03-stac-timestamps.md
-          - 4. WMS / WMTS time parameters: workshops/05-time-series/04-wms-timestamps.md
-          - 5. Manual timestamps on WMS: workshops/05-time-series/05-manual-wms-timestamps.md
+          - 5-1. Pre-requisites: workshops/05-time-series/01-prerequisites.md
+          - 5-2. Manual timestamps: workshops/05-time-series/02-manual-timestamps.md
+          - 5-3. Using STAC timestamps: workshops/05-time-series/03-stac-timestamps.md
+          - 5-4. WMS / WMTS time parameters: workshops/05-time-series/04-wms-timestamps.md
+          - 5-5. Manual timestamps on WMS: workshops/05-time-series/05-manual-wms-timestamps.md
       - 6. Constraints:
           - Overview: workshops/06-constraints/index.md
-          - 1. Pre-requisites: workshops/06-constraints/01-prerequisites.md
-          - 2. Create a categorical constraint: workshops/06-constraints/02-categorical-constraint.md
-          - 3. Add continuous constraints: workshops/06-constraints/03-continuous-constraints.md
+          - 6-1. Pre-requisites: workshops/06-constraints/01-prerequisites.md
+          - 6-2. Create a categorical constraint: workshops/06-constraints/02-categorical-constraint.md
+          - 6-3. Add continuous constraints: workshops/06-constraints/03-continuous-constraints.md
   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md

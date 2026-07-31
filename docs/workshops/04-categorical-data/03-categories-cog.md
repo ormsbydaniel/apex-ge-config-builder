@@ -1,7 +1,7 @@
 ---
-title: 16. Categories for a COG
+title: 4-3. Categories for a COG
 ---
-# Categories for a COG
+# 4-3. Categories for a COG
 
 The same category system drives rendering for classified COGs.
 
