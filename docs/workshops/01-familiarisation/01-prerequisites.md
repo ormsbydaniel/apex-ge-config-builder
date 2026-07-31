@@ -17,7 +17,7 @@ The only requirements are:
 - Lots of **enthusiasm**.
 - Oh,and maybe some **coffee**.
 
-## Workshop setup
+## Tutorial setup
 
 - **Two monitors are ideal.** Keep the Config Builder open on one screen and
   this guide on the other so you can follow along without switching windows.

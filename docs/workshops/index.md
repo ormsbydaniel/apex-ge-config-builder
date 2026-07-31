@@ -1,9 +1,9 @@
 ---
-title: Workshop
+title: Tutorials
 ---
-# Workshop
+# Tutorials
 
-## Welcome to the Geospatial Explorer workshop
+## Welcome to the Geospatial Explorer tutorials
 
 The European Space Agency's [**APEx**](https://apex.esa.int/) project provides a set of tools and
 services designed to help the Earth Observation (EO) community disseminate
@@ -12,10 +12,10 @@ the **Geospatial Explorer** — an interactive web map dashboard that
 practitioners can use to build their own solutions in an entirely no-code
 environment.
 
-In this workshop, delegates will use the **Geospatial Explorer Configuration
+In this tutorial series, delegates will use the **Geospatial Explorer Configuration
 Builder** to create their own web map application. Led by Sparkgeo
 (developers of the Geospatial Explorer) and accompanied by comprehensive
-workshop notes, attendees will:
+tutorial notes, attendees will:
 
 - Gain a comprehensive insight into the capabilities of the Geospatial
   Explorer.
@@ -33,18 +33,18 @@ workshop notes, attendees will:
 
 ## About these exercises
 
-Workshop exercises are hands-on, follow-along sessions for use in live events.
+Tutorial exercises are hands-on, follow-along sessions for use in live events.
 Each exercise is a short series of steps that builds on the previous one, so
 delegates can work through them in order and end up with a complete Geospatial
 Explorer configuration.
 
-## Navigating the workshop
+## Navigating the tutorials
 
 Use the **left-hand navigation** to see the full outline of exercises and
 jump to any step. At the bottom of each page, the **Previous** and **Next**
-arrows step you through the workshop in order.
+arrows step you through the tutorials in order.
 
-## Running a workshop
+## Running a tutorial session
 
 Delegates will typically:
 

@@ -39,7 +39,7 @@ expect.
 ### 3. Switch back to the Configuration Builder
 
 Close the preview (or switch tabs) to return to the Configuration
-Builder. This is where you'll spend most of the workshop.
+Builder. This is where you'll spend most of the tutorials.
 
 ### 4. Expand the layer groups and layers
 

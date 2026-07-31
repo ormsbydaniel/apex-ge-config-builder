@@ -13,7 +13,7 @@ and reloading it later.
    previous configuration is restored.
 
 !!! warning "Export frequently"
-    As you continue through this workshop, export your config after every
+    As you continue through this tutorial series, export your config after every
     couple of exercises. If your browser tab is accidentally closed you can
     reinstate it from your local machine.
 
