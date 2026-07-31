@@ -3,6 +3,8 @@ import React from 'react';
 import { Check, AlertTriangle, Triangle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DataSource } from '@/types/config';
+import { hasEffectiveLegend } from '@/utils/qaUtils';
+
 
 interface LayerQAStatusProps {
   source: DataSource;
