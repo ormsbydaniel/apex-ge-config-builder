@@ -1,62 +1,56 @@
 ## Goal
 
-Reframe the workshop content as reusable **Tutorials**, split into a required **Core** track and optional **Topic** tracks. Workshops become a small section *inside* the Tutorials tab — curated agendas of the form "do the core, then pick a topic". The first and only agenda for now is **FOSS4G UK 2026**.
-
-## Numbering: drop it from tutorial paths, keep it on steps
-
-Hierarchical numbers (`4-1`, `4-2`) break down as soon as a topic gains, loses, or reorders a tutorial — every change churns directory names, URLs, and cross-links. Instead:
-
-- **Tutorial folders**: no number prefix — `tutorials/core/first-config/`, `tutorials/time-series/cog-timestamps/`
-- **Steps inside a tutorial**: keep `01-`, `02-` prefixes — genuinely sequential and stable
-- **Order and grouping**: expressed by the `mkdocs.yml` nav and the Core/Topics split, which can change freely without touching files
-
-## Structure
-
-```text
-docs/tutorials/
-  index.md                          What tutorials are; Core vs Topics; how to pick
-  core/
-    familiarisation/                (was 01-familiarisation)
-    first-config/                   (was 02-getting-started)
-    working-with-services/          (was 03-working-with-services)
-  topics/
-    categorical-data/
-      wms-and-cog/                  (was 04-categorical-data)
-    time-series/
-      cog-timestamps/               (from 05-time-series, manual + STAC steps)
-      wms-timestamps/               (from 05-time-series, WMS steps)
-    constraints/
-      categorical-and-continuous/   (was 06-constraints)
-  workshops/
-    foss4g-uk-2026.md               Agenda for the event
-```
-
-Splitting Time Series into two tutorials is the worked example of the pattern; the same shape applies as Statistics or other topics grow.
-
-## Content changes
-
-**`tutorials/index.md`** — explains the two tracks: Core is the assumed baseline (topic tutorials state they expect it), Topics are independent and can be taken in any order. Table per track with a one-line "what you'll learn" and indicative duration. Closes with a short pointer to the Workshops section for people attending a live event.
-
-**Each tutorial `index.md`** — retitled from "Exercise N" to the tutorial name, with a header line giving track (Core / Topic: Time Series), duration, and prerequisites. Existing "Key concepts" sections stay.
-
-**Per-tutorial `01-prerequisites.md`** — core tutorials keep full setup detail; topic tutorials shorten theirs to "complete the Core track" plus anything topic-specific, so each still stands alone.
-
-**Time Series split** — `cog-timestamps` takes the manual-timestamp and STAC-timestamp steps; `wms-timestamps` takes the WMS/WMTS time-parameter and manual-WMS steps. Each gets its own index and prerequisites page.
-
-**`tutorials/workshops/foss4g-uk-2026.md`** — carries the welcome, project abstract, and workshop goals currently duplicated in the familiarisation index (which gets trimmed), plus running-the-day advice (two monitors, tab switching, ask questions). Then timed blocks: the three core tutorials in order, followed by a "choose your track" block listing the topic tutorials with a sentence on who each suits, then a wrap-up. Adding a future workshop is one new file plus a nav line.
+Make the Tutorials tab shallow and scannable: one flat list of tutorials (each with its steps), plus tags so people can filter by track and topic. No files move, so all current URLs keep working.
 
 ## Navigation
 
-`mkdocs.yml` replaces the `Workshop` tab with a single **Tutorials** tab:
+`mkdocs.yml` replaces the `Core` / `Topics` / per-topic groups with a single flat list:
 
-- Overview
-- `Core` group — the three core tutorials, each with its step list
-- `Topics` group — topic sub-groups, each containing its tutorials
-- `Workshops` group — FOSS4G UK 2026
+```text
+Tutorials
+  Overview
+  Browse by tag
+  Familiarisation            > 1..3 steps
+  My first config            > 1..9 steps
+  Working with services      > 1..5 steps
+  Categories for WMS and COG > 1..5 steps
+  Timestamps for COG and STAC> 1..3 steps
+  Timestamps for WMS services> 1..3 steps
+  Constraints: categorical and continuous > 1..3 steps
+```
+
+Depth drops from five levels to three (Tab > Tutorial > Step). Core tutorials stay first, in order; topic tutorials follow. Track membership is carried by tags and by the tables on the overview page, not by nav nesting.
+
+File paths under `docs/tutorials/core/...` and `docs/tutorials/topics/...` are left exactly as they are — the flattening is nav-only.
+
+## Collapsed by default
+
+The theme already omits `navigation.expand`, so sections stay collapsed; the deep nesting was what made it feel auto-expanding. With the flat list only the current tutorial's step list opens. `navigation.indexes` stays so each tutorial's Overview is the clickable parent, and `navigation.prune` stays so the sidebar only renders the active branch.
+
+## Tags
+
+Enable Material's built-in `tags` plugin and add a `docs/tutorials/tags.md` page (`Browse by tag`) that renders the tag index. Because adding a `plugins:` block disables the implicit search plugin, `search` is listed explicitly alongside it.
+
+Tags go in the front matter of each tutorial's `index.md`, drawn from a small controlled set:
+
+| Tutorial | Tags |
+|---|---|
+| Familiarisation | `core`, `orientation` |
+| My first config | `core`, `layers`, `cog`, `wms` |
+| Working with services | `core`, `services`, `wms`, `stac` |
+| Categories for WMS and COG | `topic`, `categorical`, `wms`, `cog` |
+| Timestamps for COG and STAC | `topic`, `time-series`, `cog`, `stac` |
+| Timestamps for WMS services | `topic`, `time-series`, `wms` |
+| Categorical and continuous constraints | `topic`, `constraints`, `cog` |
+
+Tags render as clickable chips at the top of each tutorial page and are searchable, so "show me everything about WMS" works across tracks.
+
+## Overview page
+
+`docs/tutorials/index.md` keeps its Core and Topic tables — that is where the track structure now lives — and gains a line pointing at **Browse by tag** for cross-cutting filtering. Its wording drops any implication that the sidebar groups tutorials by track.
 
 ## Technical notes
 
-- Step content is unchanged apart from titles, prerequisite wording, and relative link fixes.
-- Screenshot references shift from `../../assets/...` to `../../../assets/...` where nesting depth increases; all are verified in the rebuild.
-- Old `/guide/workshops/NN-…` URLs will 404 — no redirect plugin is added, so shared links need re-sharing.
-- Rebuild with `mkdocs build --strict` so broken internal links fail the build, and confirm stale `public/guide/workshops/**` output for moved pages is cleared.
+- Only `mkdocs.yml`, `docs/tutorials/index.md`, `docs/tutorials/tags.md` (new) and the seven tutorial `index.md` front matter blocks change; step pages are untouched.
+- The `tags` plugin ships with mkdocs-material — no new dependency, but the docs build workflow is checked to confirm the installed Material version includes it.
+- Rebuild with `mkdocs build --strict` to confirm nav, tag index and links all resolve.
