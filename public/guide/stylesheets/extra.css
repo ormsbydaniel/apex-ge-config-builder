@@ -38,3 +38,19 @@
   padding-top: 0;
   border-top: 0;
 }
+
+/* Tutorial name shown as a small "eyebrow" above the step H1.
+ * Injected by docs/javascripts/nav-groups.js. */
+.md-content__inner .tutorial-eyebrow {
+  margin: 0 0 0.15rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--md-default-fg-color--light);
+}
+
+.md-content__inner .tutorial-eyebrow + h1 {
+  margin-top: 0;
+}
