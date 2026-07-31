@@ -6,7 +6,7 @@ title: 1. Familiarisation
 
 ## Tutorial Objectives
 
-![Familiarisation tutorial hero image](../../assets/screenshots/tutorial-01-hero.jpg)
+![How the Configuration Builder and the Geospatial Explorer fit together](../../assets/builder-explorer-flow.png)
 
 This first tutorial helps you get comfortable with the two tools you will be
 using throughout the tutorials: the APEx Geospatial Explorer (the end-user map
