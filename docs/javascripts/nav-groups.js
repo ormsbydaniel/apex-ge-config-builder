@@ -113,9 +113,29 @@
     h1.parentNode.insertBefore(p, h1);
   }
 
+  /* Footer prev/next links pointing at a tutorial home page read "Overview"
+   * (their nav label). Show the tutorial name instead. */
+  function applyFooterTitles() {
+    document.querySelectorAll(".md-footer__link").forEach(function (link) {
+      if (!link.pathname) return;
+      var parts = link.pathname.split("/").filter(Boolean);
+      var i = parts.indexOf("workshops");
+      if (i === -1 || i + 2 >= parts.length) return;
+      var slug = parts[i + 1];
+      var page = parts[i + 2];
+      if (!TUTORIAL_TITLES[slug] || page.indexOf("index.") !== 0) return;
+      var label =
+        link.querySelector(".md-ellipsis") ||
+        link.querySelector(".md-footer__title > .md-footer__direction + *") ||
+        link.querySelector(".md-footer__title");
+      if (label) label.textContent = TUTORIAL_TITLES[slug];
+    });
+  }
+
   function run() {
     apply();
     applyEyebrow();
+    applyFooterTitles();
   }
 
   if (window.document$ && typeof window.document$.subscribe === "function") {
