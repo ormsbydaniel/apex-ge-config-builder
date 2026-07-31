@@ -5,7 +5,7 @@ title: 4. Categorical Data
 
 ## Tutorial Objectives
 
-![Categorical Data tutorial hero image](../../assets/screenshots/tutorial-04-hero.jpg)
+![Categorical Data tutorial hero image](../../assets/screenshots/tutorial-04-hero.png)
 
 Configure categories for WMS and COG layers, use the JSON editor for bulk
 edits and copy categories between layers.

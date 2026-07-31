@@ -5,7 +5,7 @@ title: 3. Working with Services
 
 ## Tutorial Objectives
 
-![Working with Services tutorial hero image](../../assets/screenshots/tutorial-03-hero.jpg)
+![Working with Services tutorial hero image](../../assets/screenshots/tutorial-03-hero.png)
 
 Register recommended services, browse the Project Results Repository (PRR), add
 further WMS layers and configure WMS legends.
