@@ -76,11 +76,53 @@
     });
   }
 
-  if (window.document$ && typeof window.document$.subscribe === "function") {
-    window.document$.subscribe(apply);
-  } else if (document.readyState !== "loading") {
+  /* Tutorial name "eyebrow" above the step H1.
+   * Add a line here when adding a new tutorial. */
+  var TUTORIAL_TITLES = {
+    "01-familiarisation": "1. Familiarisation",
+    "02-getting-started": "2. My first config",
+    "03-working-with-services": "3. Working with Services",
+    "04-categorical-data": "4. Categorical Data",
+    "05-time-series": "5. Time Series",
+    "06-constraints": "6. Constraints",
+  };
+
+  function currentStepTutorial() {
+    var parts = window.location.pathname.split("/").filter(Boolean);
+    var i = parts.indexOf("workshops");
+    if (i === -1 || i + 2 >= parts.length) return null;
+    var slug = parts[i + 1];
+    var page = parts[i + 2];
+    if (!TUTORIAL_TITLES[slug]) return null;
+    if (page.indexOf("index.") === 0) return null; // tutorial home page
+    return TUTORIAL_TITLES[slug];
+  }
+
+  function applyEyebrow() {
+    var title = currentStepTutorial();
+    var article = document.querySelector(".md-content__inner");
+    if (!article) return;
+    var existing = article.querySelector(".tutorial-eyebrow");
+    if (existing) existing.remove();
+    if (!title) return;
+    var h1 = article.querySelector("h1");
+    if (!h1) return;
+    var p = document.createElement("p");
+    p.className = "tutorial-eyebrow";
+    p.textContent = title;
+    h1.parentNode.insertBefore(p, h1);
+  }
+
+  function run() {
     apply();
+    applyEyebrow();
+  }
+
+  if (window.document$ && typeof window.document$.subscribe === "function") {
+    window.document$.subscribe(run);
+  } else if (document.readyState !== "loading") {
+    run();
   } else {
-    document.addEventListener("DOMContentLoaded", apply);
+    document.addEventListener("DOMContentLoaded", run);
   }
 })();

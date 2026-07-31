@@ -1,37 +1,30 @@
 ## Goal
 
-Visually split the Tutorials sidebar into **Core** (tutorials 1-3) and **Topics** (tutorials 4-6) using CSS only — the nav stays flat, numbering unchanged, no extra indent level.
+On each tutorial step page, show a small "eyebrow" line with the tutorial name directly above the existing H1 step heading. Sidebar labels, front-matter titles and browser tab titles stay exactly as they are.
 
-## Resulting sidebar
+Example, on `docs/workshops/02-getting-started/05-add-base-maps.md`:
 
 ```text
-Tutorials
-  Overview
-  ──── CORE ────────────
-  1. Familiarisation
-  2. My first config
-  3. Working with Services
-  ──── TOPICS ──────────
-  4. Categorical Data
-  5. Time Series
-  6. Constraints
+2. MY FIRST CONFIG          <- new eyebrow (small, muted, uppercase)
+2-5. Add recommended base maps   <- existing H1, unchanged
 ```
 
-## Changes
+## Approach
 
-1. `docs/stylesheets/extra.css` — add a rule scoped to the Tutorials tab's nav list that:
-   - injects a small uppercase, muted "Core" label via `::before` on the tutorial-1 item, and "Topics" on the tutorial-4 item;
-   - adds a thin top border/spacing above each labelled item so the groups read as separated blocks;
-   - uses Material's own tokens (`--md-default-fg-color--light`, `--md-default-fg-color--lightest`) so it works in both light and slate palettes.
+Do it once in JavaScript rather than editing ~40 markdown files. This keeps the markdown clean and means renaming a tutorial only touches one place.
 
-   Scoping: the tutorials list is identified by its nested nav container on `workshops/*` pages, and the two group starts are selected positionally (the items following the Overview entry, and the fourth tutorial entry) since MkDocs renders group headers as `<label>` elements with no stable class per item.
+1. **`docs/javascripts/nav-groups.js`** (already loaded on every page) — add a small routine that:
+   - Reads the current path; if it matches `/workshops/<slug>/` and is **not** the tutorial `index` page, derives the tutorial slug (e.g. `02-getting-started`).
+   - Looks up the tutorial title from a slug → title map defined at the top of the file, alongside the existing Core/Topics group lists (`01-familiarisation` → "1. Familiarisation", … `06-constraints` → "6. Constraints").
+   - Inserts a `<p class="tutorial-eyebrow">` element immediately before the first `h1` inside the article content, skipping insertion if one already exists (guards against re-runs on instant-navigation page loads).
+   - Hooks into Material's `document$` observable when available so it also runs on instant navigation, falling back to `DOMContentLoaded`.
 
-2. Rebuild the guide with `mkdocs build --strict` so `public/guide/` picks up the updated stylesheet.
+2. **`docs/stylesheets/extra.css`** — add a `.tutorial-eyebrow` rule: small font size (~0.75rem), uppercase, letter-spaced, muted colour using Material's `--md-default-fg-color--light` token, tight bottom margin so it sits close to the H1, and no top margin clash with the content area.
 
-3. Manual visual check of the rendered sidebar in the Tutorials section (light and dark palette) before finishing.
+3. **Rebuild** with `mkdocs build --strict` and verify with a Playwright screenshot on a deep step page (e.g. tutorial 4 step 3) and confirm tutorial `index.md` pages are unaffected.
 
-## Notes and trade-offs
+## Notes
 
-- Nothing in `mkdocs.yml`, no page titles, filenames or links change — zero risk to existing content or screenshots.
-- Because the labels are positional CSS, they need adjusting if tutorials are reordered or a new tutorial is inserted. I'll add a short comment in `extra.css` stating that the rule assumes tutorials 1-3 = Core and 4+ = Topics.
-- The labels are decorative (`::before` content), so they are non-interactive and won't affect Previous/Next navigation or search.
+- Single-H1 and SEO structure are unchanged; the eyebrow is a paragraph, not a heading.
+- No markdown, `mkdocs.yml` nav, or front-matter changes.
+- Titles live in one map in `nav-groups.js`; adding tutorial 7 means adding one line there.
