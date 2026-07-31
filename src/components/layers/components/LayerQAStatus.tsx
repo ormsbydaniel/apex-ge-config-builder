@@ -3,6 +3,8 @@ import React from 'react';
 import { Check, AlertTriangle, Triangle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DataSource } from '@/types/config';
+import { hasEffectiveLegend } from '@/utils/qaUtils';
+
 
 interface LayerQAStatusProps {
   source: DataSource;
@@ -30,11 +32,9 @@ const LayerQAStatus = ({ source }: LayerQAStatusProps) => {
     // Check for attribution
     const hasAttribution = source.meta?.attribution?.text;
     
-    // Check for legend (in either layerCard or infoPanel)
-    const hasLegend = source.layout?.layerCard?.legend?.url || 
-                     source.layout?.infoPanel?.legend?.url ||
-                     (source.meta?.categories && source.meta.categories.length > 0) ||
-                     (source.meta?.startColor && source.meta?.endColor);
+    // Check for legend (explicit or auto-generated from visualisation settings)
+    const hasLegend = hasEffectiveLegend(source);
+
     
     // For swipe layers, check if both clipped and base sources exist
     let swipeComplete = true;

@@ -8,6 +8,31 @@ export interface QAStats {
   success: number;
 }
 
+/**
+ * A layer counts as having a legend when either:
+ *  - an explicit legend image URL is configured, or
+ *  - the Geospatial Explorer can auto-generate one from the layer's
+ *    visualisation settings (categories, colormaps, or a start/end
+ *    colour gradient with or without min/max values), or
+ *  - a swatch/gradient legend block is configured in the layout.
+ */
+export const hasEffectiveLegend = (source: DataSource): boolean => {
+  const layerCardLegend = source.layout?.layerCard?.legend;
+  const infoPanelLegend = source.layout?.infoPanel?.legend;
+
+  if (layerCardLegend?.url || infoPanelLegend?.url) return true;
+  if (layerCardLegend?.type === 'swatch' || layerCardLegend?.type === 'gradient') return true;
+  if (infoPanelLegend?.type === 'swatch' || infoPanelLegend?.type === 'gradient') return true;
+
+  const meta = source.meta;
+  if (meta?.categories && meta.categories.length > 0) return true;
+  if (meta?.colormaps && meta.colormaps.length > 0) return true;
+  if (meta?.startColor && meta?.endColor) return true;
+
+  return false;
+};
+
+
 export const calculateQAStats = (sources: DataSource[]): QAStats => {
   const stats = { error: 0, warning: 0, info: 0, success: 0 };
 
@@ -27,11 +52,9 @@ export const calculateQAStats = (sources: DataSource[]): QAStats => {
     // Check for attribution
     const hasAttribution = source.meta?.attribution?.text;
     
-    // Check for legend (in either layerCard or infoPanel)
-    const hasLegend = source.layout?.layerCard?.legend?.url || 
-                     source.layout?.infoPanel?.legend?.url ||
-                     (source.meta?.categories && source.meta.categories.length > 0) ||
-                     (source.meta?.startColor && source.meta?.endColor);
+    // Check for legend (explicit or auto-generated from visualisation settings)
+    const hasLegend = hasEffectiveLegend(source);
+
     
     // For swipe layers, check if both clipped and base sources exist
     let swipeComplete = true;
