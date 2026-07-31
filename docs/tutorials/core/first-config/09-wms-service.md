@@ -27,5 +27,5 @@ Add a WMS layer using the direct connection flow.
 
 
 
-See [WMS / WMTS / WFS](../../data-sources/wms-wmts-wfs.md) for the full
+See [WMS / WMTS / WFS](../../../data-sources/wms-wmts-wfs.md) for the full
 reference.

@@ -18,7 +18,7 @@ edits and copy categories between layers.
   - For **COGs**, categories define both how the raw pixel values are rendered
     and the legend that is shown.
 
-See [Categories](../../layers/categories.md) for the full reference.
+See [Categories](../../../../layers/categories.md) for the full reference.
 
 ## Steps
 

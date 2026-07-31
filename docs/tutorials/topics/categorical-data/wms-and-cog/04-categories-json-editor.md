@@ -36,4 +36,4 @@ set of World Cover categories.
 
 !!! tip "Full-config JSON editor"
     The full-config JSON editor lives on its own **JSON config** tab and is
-    useful for larger edits. See [JSON config](../../configuration/json-config.md).
+    useful for larger edits. See [JSON config](../../../../configuration/json-config.md).

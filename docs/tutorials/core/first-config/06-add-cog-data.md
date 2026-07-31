@@ -32,4 +32,4 @@ In this exercise you will attach a Cloud Optimized GeoTIFF (COG) to your
     From here you can add more data, restyle it, and layer in more advanced
     controls.
 
-See [COG](../../data-sources/cog.md) for the full COG source reference.
+See [COG](../../../data-sources/cog.md) for the full COG source reference.

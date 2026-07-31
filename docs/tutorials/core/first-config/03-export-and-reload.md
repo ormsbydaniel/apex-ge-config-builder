@@ -21,6 +21,6 @@ Your operating system will typically rename repeated downloads —
 `config (1).json`, `config (2).json` and so on — so you naturally end up with a
 history of exports you can roll back to.
 
-See [Loading and saving](../../getting-started/loading-saving.md) and
-[Export options](../../configuration/export-options.md) for the full options,
+See [Loading and saving](../../../getting-started/loading-saving.md) and
+[Export options](../../../configuration/export-options.md) for the full options,
 including sorting exported JSON to match the UI order.

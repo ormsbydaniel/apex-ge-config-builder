@@ -22,5 +22,5 @@ shows the name, description and attribution you entered, plus tabs for
 
 
 
-See [Standard layers](../../layers/standard-layers.md) for the full list of
+See [Standard layers](../../../layers/standard-layers.md) for the full list of
 layer options.

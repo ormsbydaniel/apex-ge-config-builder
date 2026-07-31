@@ -31,7 +31,7 @@ The GE defines three constraint types:
   Useful for things like altitudinal zones, aspect, uncertainty bands, or
   flood return periods.
 
-See [Constraints](../../constraints/overview.md) for the full reference.
+See [Constraints](../../../../constraints/overview.md) for the full reference.
 
 ## Steps
 

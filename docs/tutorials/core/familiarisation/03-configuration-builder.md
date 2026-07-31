@@ -24,7 +24,7 @@ and choose **Comprehensive Demo**. This will load a rich, pre-built
 configuration into the editor — no changes you make will affect
 anything on disk unless you explicitly export.
 
-![Load Configuration dialog with the Examples tab selected, showing the Comprehensive demo and Full screen storymap demo entries](../../assets/screenshots/configuration-load-examples.png)
+![Load Configuration dialog with the Examples tab selected, showing the Comprehensive demo and Full screen storymap demo entries](../../../assets/screenshots/configuration-load-examples.png)
 
 ### 2. Open the Preview
 

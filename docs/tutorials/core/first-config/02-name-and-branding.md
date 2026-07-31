@@ -20,9 +20,9 @@ interface group and a colour scheme.
 
 Your UI might now look something like this:
 
-![Config Builder home tab with title and Forest Carbon interface group](../../assets/screenshots/workshops-getting-started-branding.png)
+![Config Builder home tab with title and Forest Carbon interface group](../../../assets/screenshots/workshops-getting-started-branding.png)
 
 !!! tip "Interface groups"
     Interface groups organise layers into named tabs in the Geospatial
-    Explorer. See [Interface groups](../../configuration/interface-groups.md)
+    Explorer. See [Interface groups](../../../configuration/interface-groups.md)
     for the full reference.

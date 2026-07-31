@@ -23,4 +23,4 @@ expressive.
     precedence at render time. Delete the gradient if you no longer want to
     keep it as a fallback.
 
-See [Colormaps](../../layers/colormaps.md) for the full colormap reference.
+See [Colormaps](../../../layers/colormaps.md) for the full colormap reference.
