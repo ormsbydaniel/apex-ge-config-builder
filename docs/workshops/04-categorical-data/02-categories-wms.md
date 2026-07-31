@@ -1,5 +1,5 @@
 ---
-title: 15. Categories for a WMS layer
+title: 4-2. Categories for a WMS layer
 ---
 # Categories for a WMS layer
 

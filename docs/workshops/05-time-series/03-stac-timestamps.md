@@ -1,5 +1,5 @@
 ---
-title: 21. Using STAC timestamps
+title: 5-3. Using STAC timestamps
 ---
 # Using STAC timestamps
 

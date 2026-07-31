@@ -1,5 +1,5 @@
 ---
-title: 3. Exporting and reloading config
+title: 2-3. Exporting and reloading config
 ---
 # Exporting and reloading config
 

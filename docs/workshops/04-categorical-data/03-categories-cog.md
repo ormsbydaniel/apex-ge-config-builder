@@ -1,5 +1,5 @@
 ---
-title: 16. Categories for a COG
+title: 4-3. Categories for a COG
 ---
 # Categories for a COG
 

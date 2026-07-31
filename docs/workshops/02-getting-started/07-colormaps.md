@@ -1,5 +1,5 @@
 ---
-title: 7. Style with a colormap
+title: 2-7. Style with a colormap
 ---
 # Style with a colormap
 

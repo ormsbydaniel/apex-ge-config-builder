@@ -1,5 +1,5 @@
 ---
-title: 4. Add recommended base maps
+title: 2-4. Add recommended base maps
 ---
 # Add recommended base maps
 

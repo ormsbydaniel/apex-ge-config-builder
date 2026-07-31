@@ -1,5 +1,5 @@
 ---
-title: 9. Add a WMS layer directly
+title: 2-9. Add a WMS layer directly
 ---
 # Add a WMS layer directly
 

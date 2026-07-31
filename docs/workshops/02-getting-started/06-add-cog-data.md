@@ -1,5 +1,5 @@
 ---
-title: 6. Add a COG data source
+title: 2-6. Add a COG data source
 ---
 # Add a COG data source
 

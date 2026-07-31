@@ -1,5 +1,5 @@
 ---
-title: 2. Name, interface group and branding
+title: 2-2. Name, interface group and branding
 ---
 # Name, interface group and branding
 

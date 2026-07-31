@@ -1,5 +1,5 @@
 ---
-title: 4. Add more WMS layers
+title: 3-4. Add more WMS layers
 ---
 # Add more WMS layers
 

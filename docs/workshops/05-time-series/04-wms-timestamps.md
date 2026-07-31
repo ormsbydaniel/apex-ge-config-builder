@@ -1,5 +1,5 @@
 ---
-title: 22. Using WMS / WMTS time parameters
+title: 5-4. Using WMS / WMTS time parameters
 ---
 # Using WMS / WMTS time parameters
 

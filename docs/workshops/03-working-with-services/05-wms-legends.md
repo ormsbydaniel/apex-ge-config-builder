@@ -1,5 +1,5 @@
 ---
-title: 5. Add legends for a WMS
+title: 3-5. Add legends for a WMS
 ---
 # Add legends for a WMS
 

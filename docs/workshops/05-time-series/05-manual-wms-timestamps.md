@@ -1,5 +1,5 @@
 ---
-title: 23. Manual timestamps on WMS / WMTS
+title: 5-5. Manual timestamps on WMS / WMTS
 ---
 # Manual timestamps on WMS / WMTS
 

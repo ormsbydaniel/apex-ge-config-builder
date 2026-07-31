@@ -1,5 +1,5 @@
 ---
-title: 26. Add a set of continuous constraints
+title: 6-3. Add a set of continuous constraints
 ---
 # Add a set of continuous constraints
 

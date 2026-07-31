@@ -1,5 +1,5 @@
 ---
-title: 2. Geospatial Explorer
+title: 1-2. Geospatial Explorer
 ---
 
 # Geospatial Explorer

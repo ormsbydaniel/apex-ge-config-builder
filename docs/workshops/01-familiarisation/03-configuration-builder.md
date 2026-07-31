@@ -1,5 +1,5 @@
 ---
-title: 3. Configuration Builder
+title: 1-3. Configuration Builder
 ---
 
 # Configuration Builder

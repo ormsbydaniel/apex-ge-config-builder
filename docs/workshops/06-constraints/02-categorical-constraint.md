@@ -1,5 +1,5 @@
 ---
-title: 25. Create a categorical constraint
+title: 6-2. Create a categorical constraint
 ---
 # Create a categorical constraint
 
