@@ -10,7 +10,7 @@ This tutorial introduces the **Geospatial Explorer Configuration Builder**
 ("GE"). It covers the basics — enough to build a small but complete
 configuration.
 
-Later tutorial tutorials pick up from here to cover services, categorical data,
+Later tutorials pick up from here to cover services, categorical data,
 time series and constraints.
 
 ## Assumed knowledge
