@@ -3,6 +3,15 @@ title: 2-1. Pre-requisites
 ---
 # 2-1. Pre-requisites
 
+## Tutorial pre-requisites
+
+Completion of [1. Familiarisation](../01-familiarisation/index.md) — you should
+know your way around the Geospatial Explorer and the Configuration Builder
+interface before starting to build a configuration.
+
+If you are starting here, work through tutorial 1 first; it takes only a few
+minutes and requires nothing to be set up.
+
 ## Scope
 
 This tutorial introduces the **Geospatial Explorer Configuration Builder**
