@@ -31,6 +31,13 @@ Add a WMS layer using the direct connection flow.
 
     ![World Cover WMS layer previewed in the Geospatial Explorer](../../assets/screenshots/workshops-getting-started-wms-preview.png)
 
+!!! note "No legend yet"
+
+    You will notice that there is no legend for this layer, so it is hard to
+    understand what the colours mean. We will address this in **tutorial 5** -
+    working with categorical data.
+
+
 
 
 
