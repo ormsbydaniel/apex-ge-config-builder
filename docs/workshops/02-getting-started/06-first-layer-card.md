@@ -10,7 +10,8 @@ attach content — descriptions, data sources, statistics, constraints and so on
    select **+ Add layer**.
 2. Leave the **default** layer type and layout style.
 3. Type `Above Ground Biomass` into the **Layer name** field.
-4. Enter a suitable **Description** — this appears in the layer's info panel
+4. Enter a suitable **Description** (e.g. a brief explainer of what Above
+   Ground Biomass means) — this appears in the layer's info panel
    in the Explorer.
 5. Add `Forest Carbon Monitoring` as the **Attribution text**, and use
    <https://www.forestcarbonplatform.org/> as the **Attribution URL**.
