@@ -9,18 +9,19 @@ interface group and a colour scheme.
 1. **Open the Config Builder** at
    <https://ge-config-builder.apex.esa.int/>.
 2. On the **Home** tab, edit the **Title** of the configuration to something of
-   your choice — for example, `<your name>'s firstr config`.
+   your choice — for example, `<your name>'s first config`.
 3. Move to the **Layers** tab.
    - Edit *Interface group 1* and rename it to `Forest Carbon`.
    - Delete the other default interface groups so only *Forest Carbon* remains.
+![Config Builder home tab with title and Forest Carbon interface group](../../assets/screenshots/workshops-getting-started-branding.png)
 4. Move to the **Settings** tab and change some of the colours to a scheme of
    your choice.
 5. Select the **GE Preview** tab to see the changes applied to a live copy of
    the Geospatial Explorer.
 
 Your UI might now look something like this:
-
 ![Config Builder home tab with title and Forest Carbon interface group](../../assets/screenshots/workshops-getting-started-branding.png)
+
 
 !!! tip "Interface groups"
     Interface groups organise layers into named tabs in the Geospatial
