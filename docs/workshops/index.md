@@ -20,4 +20,5 @@ arrows step you through the tutorials in order.
 
 ## Workshops
 
-If at a workshop,then the format will comprise of a mixture of a faciliator led demonstrations and time to follow along with the steps in the tutoral guides.
+If attending workshop, tutorial content will be used as a combination of facilitator led demonstrations and self-paced learning exercises.
+
