@@ -7,7 +7,8 @@ Add a WMS layer using the direct connection flow.
 
 1. On the **Layers** tab, add a new **interface group** called `Land Cover`.
 2. Inside it, add a **layer card** called `World Cover` with a suitable
-   description and attribution.
+   description (e.g. "Classification of land cover from Sentinel 2 data") and
+   attribution ("ESA World Cover", <https://esa-worldcover.org/en>).
 3. On the card, select **+ Add dataset**.
 4. Choose **Direct connection → WMS/WMTS service**.
 5. Paste the following into the **Service URL**:
