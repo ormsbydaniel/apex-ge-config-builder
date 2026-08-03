@@ -14,7 +14,8 @@ attach content — descriptions, data sources, statistics, constraints and so on
    in the Explorer.
 5. Add `Forest Carbon Monitoring` as the **Attribution text**, and use
    <https://www.forestcarbonplatform.org/> as the **Attribution URL**.
-6. Select **Create layer card**.
+6. Leave all other settings as default or blank, then select
+   **Create layer card**.
 
 You now have a layer card in read-only mode, ready to receive data. The card
 shows the name, description and attribution you entered, plus tabs for
