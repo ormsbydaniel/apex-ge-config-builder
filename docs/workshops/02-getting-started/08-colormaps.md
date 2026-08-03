@@ -16,7 +16,10 @@ values render as a colour ramp on the map.
    [previous step](07-add-cog-data.md). Values outside this range are clamped.
 6. **Save** the colormap, then **Save changes** on the layer card.
 7. Go to **GE Preview**. The AGB data now renders with your colour ramp, and
-   the legend is generated automatically from the colormap.
+   the legend is generated automatically from the colormap. Your map should
+   look something like this:
+
+![AGB layer styled with a colormap in GE Preview](../../assets/screenshots/workshops-getting-started-colormap-preview.png)
 
 !!! tip "One styling tool at a time"
     Categories, Colormap, RGB Composite and Gradient are mutually exclusive for
