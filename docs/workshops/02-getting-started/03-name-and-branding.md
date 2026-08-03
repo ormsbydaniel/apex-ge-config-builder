@@ -19,11 +19,8 @@ interface group and a colour scheme.
 5. Select the **GE Preview** tab to see the changes applied to a live copy of
    the Geospatial Explorer.
 
-Your UI might now look something like this:
-![Config Builder home tab with title and Forest Carbon interface group](../../assets/screenshots/workshops-getting-started-branding.png)
+   Your preview might look something like this:
+   ![Config Builder home tab with title and Forest Carbon interface group](../../assets/screenshots/workshops-getting-started-ge-1.png)
 
-
-!!! tip "Interface groups"
-    Interface groups organise layers into named tabs in the Geospatial
-    Explorer. See [Interface groups](../../configuration/interface-groups.md)
-    for the full reference.
+!!! tip "No Forest Carbon interface group displayed?"
+    You will notice that the interface group you renamed to ***Forest Carbon** in Step 3, is not displayed.   Don't worry, this is expected behaviour.  The Geospatial Explorer only builds the parts of the interface that have data to show, and we'll do that shortly.
