@@ -22,15 +22,17 @@ what the end-user application looks like and what it can do.
 
 ### 1. Open the reference deployment
 
-Open the flagship APEx Geospatial Explorer in a new browser tab:
+Open the demonstration version of **APEx Geospatial Explorer** (*"GE"*) in a new browser tab:
 
-<https://explorer.apex.esa.int/>
+!!! info "Geospatial Explorer Demonstrator"
+    - [https://explorer.apex.esa.int/](https://explorer.apex.esa.int/)
 
 This particular deployment has been organised around the **core areas
 of functionality** the Explorer supports — data visualisation, time
 series, charts and statistics, constraints and filters, storymaps, and
-algorithm execution. Treat it as a showcase of what a well-configured
-Explorer can do.
+algorithm execution. 
+
+As you will learn through the workshops, the user interface of the *GE* is very configurable. Usually the user interface will be organised around different *"thematic areas"* according to what the deployment aims to show.
 
 ### 2. Have a play
 
@@ -53,14 +55,13 @@ again in later tutorials.
 
 ### 3. Browse the Solutions Gallery
 
-Head over to the APEx Solutions Gallery to see what other teams have
-built with the Explorer:
+The APEx project has also created a showcase of various project implementations - not just of the *GE* but other APEX tools too.
 
-<https://apex.esa.int/resources/solutions-gallery>
+Head over to the **APEx Solutions Gallery**, filter on *"Geospatial Explorer* and have a play around with two or three examples that other teams have built.  These give you an idea of the sort of configurations you will learn to produce via these workshops.
 
-Filter the gallery on **"Geospatial Explorer"** as a component and take
-a look at a few of the examples. Each entry links out to a live
-deployment configured for a specific scientific or operational use
-case. Pick two or three that look interesting and open them up — it's
-a great way to see the range of applications a single configurable
-tool can support.
+!!! info "APEx Solutions Gallery"
+    <https://apex.esa.int/resources/solutions-gallery>
+
+If you are wondering what the various acronyms are:
+- **SEF** refers to the [Stakeholder Engagement Facility](https://sef.apex.esa.int/en) - an ESA team focussed on outreach.  Their configurations tend to be broad showcases around a general thematic area, such as *energy*, or *biodivserity*.
+- **EO4** (*Earth Observation for ...*) and **EOBP** (*Earth Observation Best Practices*) are both ESA programs within the **EO 4 society** (https://eo4society.esa.int/).  These configurations have been used to showcase specific project outputs such as sample datasets and algorithms.
