@@ -24,7 +24,7 @@ picture of what a "finished" configuration contains.
 
 Save it as a bookmark in your browser as you will use this constantly throughout the tutorials.
 
-### 2. Load the Comprehensive Demo example
+### 2. Load the "Comprehensive Demo" example
 
 From the home page, open the **Examples** dialog
 and choose **Comprehensive Demo**. This will load a rich, pre-built
