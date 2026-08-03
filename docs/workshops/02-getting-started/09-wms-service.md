@@ -23,8 +23,9 @@ Add a WMS layer using the direct connection flow.
     esa-worldcover-map-10m-2021-v2_map
     ```
 
-7. Save and preview. The World Cover WMS renders on the map with your chosen
-7. Save and preview. The World Cover WMS renders on the map with your chosen
+7. **Export** your current configuration so that you have a saved copy.
+
+8. Select **Preview**. The World Cover WMS renders on the map with your chosen
    attribution and description in the info panel. Your configuration should now
    look something like this.
 
