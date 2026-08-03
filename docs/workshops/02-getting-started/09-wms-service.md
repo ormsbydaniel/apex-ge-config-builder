@@ -24,7 +24,13 @@ Add a WMS layer using the direct connection flow.
     ```
 
 7. Save and preview. The World Cover WMS renders on the map with your chosen
-   attribution and description in the info panel.
+7. Save and preview. The World Cover WMS renders on the map with your chosen
+   attribution and description in the info panel. Your configuration should now
+   look something like this.
+
+    ![World Cover WMS layer previewed in the Geospatial Explorer](../../assets/screenshots/workshops-getting-started-wms-preview.png)
+
+
 
 
 
