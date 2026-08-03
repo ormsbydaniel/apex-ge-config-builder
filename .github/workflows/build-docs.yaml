@@ -1,0 +1,36 @@
+name: Build Docs (check)
+
+# Manual-only check that the MkDocs guide builds cleanly in strict mode.
+# Does not deploy or commit anything — use "Deploy Docs Only" for that.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install MkDocs
+        run: pip install mkdocs-material==9.5.44 pymdown-extensions==10.11.2
+
+      - name: Build docs (MkDocs, strict)
+        # Writes to public/guide/ per mkdocs.yml site_dir.
+        run: mkdocs build --strict
+
+      - name: Upload built guide
+        uses: actions/upload-artifact@v4
+        with:
+          name: guide
+          path: public/guide/
+          retention-days: 7
