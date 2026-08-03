@@ -1,7 +1,7 @@
 ---
-title: 5-3. Temporal control with manual timestamps
+title: 6-3. Temporal control with manual timestamps
 ---
-# 5-3. Temporal control with manual timestamps
+# 6-3. Temporal control with manual timestamps
 
 Attach timestamps to your *AGB* datasets by hand.
 

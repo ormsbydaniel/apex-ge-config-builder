@@ -1,7 +1,7 @@
 ---
-title: 6-2. Key concepts
+title: 7-2. Key concepts
 ---
-# 6-2. Key concepts
+# 7-2. Key concepts
 
 - **Constraints** apply to COG data.
 - A constraint is a filter applied to the data — pixels that fall outside the

@@ -1,7 +1,7 @@
 ---
-title: 2-10. Add a WMS layer directly
+title: 2-9. Add a WMS layer directly
 ---
-# 2-10. Add a WMS layer directly
+# 2-9. Add a WMS layer directly
 
 Add a WMS layer using the direct connection flow.
 

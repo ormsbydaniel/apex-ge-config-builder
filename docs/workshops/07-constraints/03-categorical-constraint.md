@@ -1,7 +1,7 @@
 ---
-title: 6-3. Create a categorical constraint
+title: 7-3. Create a categorical constraint
 ---
-# 6-3. Create a categorical constraint
+# 7-3. Create a categorical constraint
 
 Add a World Cover constraint to your *AGB* layer so users can filter the
 biomass values by land cover class.

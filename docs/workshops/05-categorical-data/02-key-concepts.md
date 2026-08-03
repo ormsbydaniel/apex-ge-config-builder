@@ -1,7 +1,7 @@
 ---
-title: 4-2. Key concepts
+title: 5-2. Key concepts
 ---
-# 4-2. Key concepts
+# 5-2. Key concepts
 
 - We often work with **categorical** data such as classifications (e.g. land
   cover).

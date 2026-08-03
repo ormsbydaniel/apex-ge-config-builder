@@ -1,7 +1,7 @@
 ---
-title: 6-4. Add a set of continuous constraints
+title: 7-4. Add a set of continuous constraints
 ---
-# 6-4. Add a set of continuous constraints
+# 7-4. Add a set of continuous constraints
 
 In the interests of time, this tutorial skips manual entry and pastes a full
 layer card with a rich set of constraints already configured.

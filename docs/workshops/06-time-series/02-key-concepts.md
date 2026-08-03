@@ -1,7 +1,7 @@
 ---
-title: 5-2. Key concepts
+title: 6-2. Key concepts
 ---
-# 5-2. Key concepts
+# 6-2. Key concepts
 
 - The **temporal control** lets users step through data over time.
 - Temporal data may have different granularities — hours, days, months, years.

@@ -1,7 +1,7 @@
 ---
-title: 6-1. Pre-requisites
+title: 7-1. Pre-requisites
 ---
-# 6-1. Pre-requisites
+# 7-1. Pre-requisites
 
 ## Tutorial pre-requisites
 
