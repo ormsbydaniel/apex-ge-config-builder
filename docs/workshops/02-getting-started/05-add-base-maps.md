@@ -13,6 +13,20 @@ title: 2-5. Add recommended base maps
 3. Go to the **GE Preview** tab. You will now see a base map switcher in the
    Explorer.
 
+    ![Base map switcher showing thumbnails of each available base map](../../assets/screenshots/workshops-getting-started-basemap-switcher.png)
+
+    Note that the attribution statement at the foot of the map updates as you
+    switch base maps, so the correct credits are always shown.
+
+    ![Map attribution statement updated for the selected base map](../../assets/screenshots/workshops-getting-started-basemap-attribution.png)
+
+4. OPTIONAL: Return to the **Layers** tab and expand one of the base map cards in
+   the **Base Layers** section. Drill into the card to see how each base map is
+   defined — its service URL, thumbnail, and the attribution text that the
+   Explorer displays.
+
+
+
 
 
 
