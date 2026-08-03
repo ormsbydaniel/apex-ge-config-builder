@@ -1,7 +1,7 @@
 ---
-title: 2-9. Experiment with layer controls
+title: 4-2. Experiment with layer controls
 ---
-# 2-9. Experiment with layer controls
+# 4-2. Experiment with layer controls
 
 The **Layer controls** section of a layer card toggles the interactive
 controls the Explorer shows for that layer.
@@ -16,7 +16,7 @@ controls the Explorer shows for that layer.
    - **Constraint slider**
 
     Leave the **Temporal controls** alone for now — we'll come back to those
-    in Part 4.
+    in the Time Series tutorial.
 3. **Save** the layer card and open **GE Preview** to see the controls appear
    in the Explorer.
 
@@ -28,4 +28,4 @@ controls the Explorer shows for that layer.
 ### Did you remember to export?
 
 If not, now is a good moment. See [Exporting and reloading
-config](04-export-and-reload.md).
+config](../02-getting-started/04-export-and-reload.md).
