@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://ge-config-builder.apex.esa.int/guide/workshops/06-constraints/index.html">
+        <link rel="canonical" href="https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/05-categories-json-editor.html">
       
       
-        <link rel="prev" href="../05-time-series/06-manual-wms-timestamps.html">
+        <link rel="prev" href="04-categories-cog.html">
       
       
-        <link rel="next" href="01-prerequisites.html">
+        <link rel="next" href="06-copy-categories.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>6. Constraints - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>5-5. Use the JSON editor - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#6-constraints" class="md-skip">
+        <a href="#5-5-use-the-json-editor" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              6. Constraints
+              5-5. Use the JSON editor
             
           </span>
         </div>
@@ -1078,6 +1078,8 @@
       
         
       
+        
+      
     
     
     
@@ -1230,8 +1232,6 @@
       
         
       
-        
-      
     
     
     
@@ -1364,14 +1364,6 @@
       
         
       
-        
-      
-        
-      
-        
-      
-        
-      
     
     
     
@@ -1390,84 +1382,14 @@
   
   
   
-    <a href="../04-categorical-data/index.html" class="md-nav__link">
+    <a href="../04-fine-tuning/index.html" class="md-nav__link">
       
   
   
   <span class="md-ellipsis">
     
   
-    4. Categorical Data
-  
-
-    
-  </span>
-  
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-    
-    
-      
-        
-        
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-  
-    <a href="../05-time-series/index.html" class="md-nav__link">
-      
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    5. Time Series
+    4. Fine tuning my config
   
 
     
@@ -1500,6 +1422,10 @@
       
         
           
+        
+      
+        
+      
         
       
         
@@ -1523,18 +1449,18 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12_6" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="index.html" class="md-nav__link md-nav__link--active">
+            <a href="index.html" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    6. Constraints
+    5. Categorical Data
   
 
     
@@ -1545,18 +1471,18 @@
             </a>
             
               
-              <label class="md-nav__link md-nav__link--active" for="__nav_12_7" id="__nav_12_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_12_6" id="__nav_12_6_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_7_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_12_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12_6">
             <span class="md-nav__icon md-icon"></span>
             
   
-    6. Constraints
+    5. Categorical Data
   
 
           </label>
@@ -1578,7 +1504,7 @@
   <span class="md-ellipsis">
     
   
-    6-1. Pre-requisites
+    5-1. Pre-requisites
   
 
     
@@ -1606,7 +1532,7 @@
   <span class="md-ellipsis">
     
   
-    6-2. Key concepts
+    5-2. Key concepts
   
 
     
@@ -1627,14 +1553,14 @@
   
   
     <li class="md-nav__item">
-      <a href="03-categorical-constraint.html" class="md-nav__link">
+      <a href="03-categories-wms.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    6-3. Create a categorical constraint
+    5-3. Categories for a WMS layer
   
 
     
@@ -1655,14 +1581,80 @@
   
   
     <li class="md-nav__item">
-      <a href="04-continuous-constraints.html" class="md-nav__link">
+      <a href="04-categories-cog.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    6-4. Add continuous constraints
+    5-4. Categories for a COG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="05-categories-json-editor.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5-5. Use the JSON editor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-copy-categories.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5-6. Copy categories between layers
   
 
     
@@ -1678,6 +1670,142 @@
             
           </ul>
         </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../06-time-series/index.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Time Series
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../07-constraints/index.html" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Constraints
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
       
     </li>
   
@@ -1778,36 +1906,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#tutorial-objectives" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tutorial Objectives
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Steps
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1823,24 +1921,46 @@
 
 
 
-<h1 id="6-constraints">6. Constraints<a class="headerlink" href="#6-constraints" title="Permanent link">&para;</a></h1>
-<h2 id="tutorial-objectives">Tutorial Objectives<a class="headerlink" href="#tutorial-objectives" title="Permanent link">&para;</a></h2>
-<p><img alt="Constraints tutorial hero image" src="../../assets/screenshots/tutorial-06-hero.png" /></p>
-<p>Create categorical and continuous constraints to filter layers on the map.</p>
-<p>By the end of this tutorial you will be able to:</p>
-<ul>
-<li>Explain what a constraint does to the rendered data.</li>
-<li>Create a categorical constraint rendered as checkboxes.</li>
-<li>Add continuous constraints rendered as sliders.</li>
-<li>Prepare secondary constraint layers that match your primary data.</li>
-</ul>
-<h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="01-prerequisites.html">6-1. Pre-requisites</a></li>
-<li><a href="02-key-concepts.html">6-2. Key concepts</a></li>
-<li><a href="03-categorical-constraint.html">6-3. Create a categorical constraint</a></li>
-<li><a href="04-continuous-constraints.html">6-4. Add continuous constraints</a></li>
-</ul>
+<h1 id="5-5-use-the-json-editor">5-5. Use the JSON editor<a class="headerlink" href="#5-5-use-the-json-editor" title="Permanent link">&para;</a></h1>
+<p>The CB provides two JSON editors — one for the whole configuration (on the
+Home tab) and one scoped to a single layer (a small orange <strong>{JSON}</strong> icon on
+the layer card). This tutorial uses the per-layer editor to paste in a full
+set of World Cover categories.</p>
+<ol>
+<li>
+<p>Copy the following JSON to your clipboard:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;categories&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#006400&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tree cover&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#ffbb22&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Shrubland&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#ffff4c&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Grassland&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#f096ff&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cropland&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#ff0000&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Built-up&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#b4b4b4&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bare&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#f0f0f0&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Snow and ice&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">70</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#0064c8&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Permanent water bodies&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">80</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#0096a0&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Herbaceous wetland&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">90</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#00cf75&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mangroves&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">95</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#fae6a0&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Moss and lichen&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+</li>
+<li>
+<p>On your <em>World Cover COG</em> layer card, open the <strong>{JSON}</strong> editor.</p>
+</li>
+<li>
+<p>Scroll down to the start of the <code>categories</code> section.</p>
+</li>
+<li>
+<p>Use the collapse arrow to fold the existing <code>categories</code> array down to
+   <code>categories [ ]</code>, then delete from the opening <code>[</code> to the closing <code>]</code>.</p>
+</li>
+<li>Paste in the JSON you copied. <strong>Apply changes</strong> and preview the layer.</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Full-config JSON editor</p>
+<p>The full-config JSON editor lives on its own <strong>JSON config</strong> tab and is
+useful for larger edits. See <a href="../../configuration/json-config.html">JSON config</a>.</p>
+</div>
 
 
 
@@ -1881,7 +2001,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../05-time-series/06-manual-wms-timestamps.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5-6. Manual timestamps on WMS">
+          <a href="04-categories-cog.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5-4. Categories for a COG">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1891,20 +2011,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                5-6. Manual timestamps on WMS
+                5-4. Categories for a COG
               </div>
             </div>
           </a>
         
         
           
-          <a href="01-prerequisites.html" class="md-footer__link md-footer__link--next" aria-label="Next: 6-1. Pre-requisites">
+          <a href="06-copy-categories.html" class="md-footer__link md-footer__link--next" aria-label="Next: 5-6. Copy categories between layers">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                6-1. Pre-requisites
+                5-6. Copy categories between layers
               </div>
             </div>
             <div class="md-footer__button md-icon">

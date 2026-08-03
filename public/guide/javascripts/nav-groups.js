@@ -22,9 +22,10 @@
     {
       label: "Topics",
       slugs: [
-        "04-categorical-data",
-        "05-time-series",
-        "06-constraints",
+        "04-fine-tuning",
+        "05-categorical-data",
+        "06-time-series",
+        "07-constraints",
       ],
     },
   ];
@@ -82,9 +83,10 @@
     "01-familiarisation": "1. Familiarisation",
     "02-getting-started": "2. My first config",
     "03-working-with-services": "3. Working with Services",
-    "04-categorical-data": "4. Categorical Data",
-    "05-time-series": "5. Time Series",
-    "06-constraints": "6. Constraints",
+    "04-fine-tuning": "4. Fine tuning my config",
+    "05-categorical-data": "5. Categorical Data",
+    "06-time-series": "6. Time Series",
+    "07-constraints": "7. Constraints",
   };
 
   function currentStepTutorial() {
