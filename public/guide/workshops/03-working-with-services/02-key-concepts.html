@@ -1402,6 +1402,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3-2. Key concepts
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="02-key-concepts.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1418,6 +1436,58 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is a service?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#catalogue-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Catalogue services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1906,6 +1976,47 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is a service?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#catalogue-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Catalogue services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1922,11 +2033,47 @@
 
 
 <h1 id="3-2-key-concepts">3-2. Key concepts<a class="headerlink" href="#3-2-key-concepts" title="Permanent link">&para;</a></h1>
-<div class="admonition info">
-<p class="admonition-title">To be written</p>
-<p>Key concepts for working with services will be added here in a future
-revision. For now, continue straight to the tutorial steps.</p>
-</div>
+<p>Before adding services to a config, it helps to understand what a service is
+and the different kinds you will meet.</p>
+<h2 id="what-is-a-service">What is a service?<a class="headerlink" href="#what-is-a-service" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Services</strong>, in the context of the Geospatial Explorer, are <strong>platforms
+  that serve up data</strong> — or <strong>catalogues of data</strong>.</p>
+</li>
+<li>
+<p>In <strong>tutorial 2</strong> we added data from one service: the <strong>World Cover</strong> layer
+  from a <strong>Web Map Service (WMS)</strong>. We also added a number of background maps,
+  which came from <strong>tile mapping (XYZ) services</strong>.</p>
+</li>
+<li>
+<p>Services often declare their <strong>capabilities</strong> — that is, they can be
+  <strong>queried to find out what data layers are available</strong>. This is part of the
+  <strong>WMS</strong> and <strong>WMTS</strong> standards, and it is what lets the builder populate
+  layer lists for you.</p>
+</li>
+</ul>
+<h2 id="catalogue-services">Catalogue services<a class="headerlink" href="#catalogue-services" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Another type of service is a <strong>catalogue service</strong>. Rather than serving map
+  images directly, it <strong>describes what data exists and where to find it</strong>.</p>
+</li>
+<li>
+<p>The standard for Earth Observation data is the <strong>SpatioTemporal Asset
+  Catalog (STAC)</strong>.</p>
+</li>
+<li>
+<p>ESA's <strong>Project Results Repository (PRR)</strong> is a store of data <strong>produced by
+  ESA-funded EO projects</strong>, and it is available as a <strong>STAC catalogue</strong>.</p>
+</li>
+</ul>
+<h2 id="why-this-matters">Why this matters<a class="headerlink" href="#why-this-matters" title="Permanent link">&para;</a></h2>
+<ul>
+<li>You can <strong>add services to a Geospatial Explorer config</strong>, and then
+  <strong>search or browse</strong> those services to <strong>discover data</strong> that might be
+  useful to add in.</li>
+</ul>
 
 
 
