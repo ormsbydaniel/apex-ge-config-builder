@@ -132,10 +132,21 @@
     });
   }
 
+  /* Open external links in a new tab by default. */
+  function applyExternalLinks() {
+    document.querySelectorAll(".md-content a[href]").forEach(function (link) {
+      if (link.host && link.host !== window.location.host) {
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+      }
+    });
+  }
+
   function run() {
     apply();
     applyEyebrow();
     applyFooterTitles();
+    applyExternalLinks();
   }
 
   if (window.document$ && typeof window.document$.subscribe === "function") {
