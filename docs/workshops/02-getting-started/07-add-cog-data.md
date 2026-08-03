@@ -4,7 +4,7 @@ title: 2-7. Add a COG data source
 # 2-7. Add a COG data source
 
 In this step we will attach a Cloud Optimized GeoTIFF (COG) to your
-*Above Ground Biomass* layer card and give it a simple gradient legend.
+*Above Ground Biomass* layer card.
 
 1. On your layer card, select the **Datasets** tab and choose
    **+ Add dataset**.
@@ -20,12 +20,6 @@ In this step we will attach a Cloud Optimized GeoTIFF (COG) to your
    icon on the row to interrogate the COG's metadata.
 5. Make a mental note of the **min** and **max** pixel values, then close the
    dialog.
-6. Select the **pencil** edit icon at the top of the layer card to return to
-   edit mode.
-7. Scroll down and set **Legend type → Gradient**. Enter the **min** and
-   **max** values you noted, with a colour at each end.
-8. **Save changes**, then go to **GE Preview**. The AGB data now renders on the
-   map, styled with your gradient.
 
 
 
