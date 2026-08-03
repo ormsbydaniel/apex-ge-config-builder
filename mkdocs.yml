@@ -126,7 +126,7 @@ nav:
           - Overview: workshops/02-getting-started/index.md
           - 2-1. Pre-requisites: workshops/02-getting-started/01-prerequisites.md
           - 2-2. Key concepts: workshops/02-getting-started/02-key-concepts.md
-          - 2-3. Name and branding: workshops/02-getting-started/03-name-and-branding.md
+          - 2-3. Name and interface group: workshops/02-getting-started/03-name-and-branding.md
           - 2-4. Export and reload: workshops/02-getting-started/04-export-and-reload.md
           - 2-5. Add base maps: workshops/02-getting-started/05-add-base-maps.md
           - 2-6. Your first layer card: workshops/02-getting-started/06-first-layer-card.md
