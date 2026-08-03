@@ -13,13 +13,13 @@ Add a WMS layer using the direct connection flow.
 5. Paste the following into the **Service URL**:
 
     ```text
-    https://services.terrascope.be/wms/v2
+    https://mapproxy.terrascope.be/mapproxy/service
     ```
 
 6. Paste the following into the **Layer name**:
 
     ```text
-    WORLDCOVER_2020_MAP
+    esa-worldcover-map-10m-2021-v2_map
     ```
 
 7. Save and preview. The World Cover WMS renders on the map with your chosen
