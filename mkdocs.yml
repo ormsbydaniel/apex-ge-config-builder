@@ -141,28 +141,32 @@ nav:
           - 3-4. Add data from the PRR: workshops/03-working-with-services/04-data-from-prr.md
           - 3-5. Add more WMS layers: workshops/03-working-with-services/05-more-wms-layers.md
           - 3-6. Add legends for a WMS: workshops/03-working-with-services/06-wms-legends.md
-      - 4. Categorical Data:
-          - Overview: workshops/04-categorical-data/index.md
-          - 4-1. Pre-requisites: workshops/04-categorical-data/01-prerequisites.md
-          - 4-2. Key concepts: workshops/04-categorical-data/02-key-concepts.md
-          - 4-3. Categories for a WMS layer: workshops/04-categorical-data/03-categories-wms.md
-          - 4-4. Categories for a COG: workshops/04-categorical-data/04-categories-cog.md
-          - 4-5. Use the JSON editor: workshops/04-categorical-data/05-categories-json-editor.md
-          - 4-6. Copy categories between layers: workshops/04-categorical-data/06-copy-categories.md
-      - 5. Time Series:
-          - Overview: workshops/05-time-series/index.md
-          - 5-1. Pre-requisites: workshops/05-time-series/01-prerequisites.md
-          - 5-2. Key concepts: workshops/05-time-series/02-key-concepts.md
-          - 5-3. Manual timestamps: workshops/05-time-series/03-manual-timestamps.md
-          - 5-4. Using STAC timestamps: workshops/05-time-series/04-stac-timestamps.md
-          - 5-5. WMS / WMTS time parameters: workshops/05-time-series/05-wms-timestamps.md
-          - 5-6. Manual timestamps on WMS: workshops/05-time-series/06-manual-wms-timestamps.md
-      - 6. Constraints:
-          - Overview: workshops/06-constraints/index.md
-          - 6-1. Pre-requisites: workshops/06-constraints/01-prerequisites.md
-          - 6-2. Key concepts: workshops/06-constraints/02-key-concepts.md
-          - 6-3. Create a categorical constraint: workshops/06-constraints/03-categorical-constraint.md
-          - 6-4. Add continuous constraints: workshops/06-constraints/04-continuous-constraints.md
+      - 4. Fine tuning my config:
+          - Overview: workshops/04-fine-tuning/index.md
+          - 4-1. Pre-requisites: workshops/04-fine-tuning/01-prerequisites.md
+          - 4-2. Experiment with layer controls: workshops/04-fine-tuning/02-layer-controls.md
+      - 5. Categorical Data:
+          - Overview: workshops/05-categorical-data/index.md
+          - 5-1. Pre-requisites: workshops/05-categorical-data/01-prerequisites.md
+          - 5-2. Key concepts: workshops/05-categorical-data/02-key-concepts.md
+          - 5-3. Categories for a WMS layer: workshops/05-categorical-data/03-categories-wms.md
+          - 5-4. Categories for a COG: workshops/05-categorical-data/04-categories-cog.md
+          - 5-5. Use the JSON editor: workshops/05-categorical-data/05-categories-json-editor.md
+          - 5-6. Copy categories between layers: workshops/05-categorical-data/06-copy-categories.md
+      - 6. Time Series:
+          - Overview: workshops/06-time-series/index.md
+          - 6-1. Pre-requisites: workshops/06-time-series/01-prerequisites.md
+          - 6-2. Key concepts: workshops/06-time-series/02-key-concepts.md
+          - 6-3. Manual timestamps: workshops/06-time-series/03-manual-timestamps.md
+          - 6-4. Using STAC timestamps: workshops/06-time-series/04-stac-timestamps.md
+          - 6-5. WMS / WMTS time parameters: workshops/06-time-series/05-wms-timestamps.md
+          - 6-6. Manual timestamps on WMS: workshops/06-time-series/06-manual-wms-timestamps.md
+      - 7. Constraints:
+          - Overview: workshops/07-constraints/index.md
+          - 7-1. Pre-requisites: workshops/07-constraints/01-prerequisites.md
+          - 7-2. Key concepts: workshops/07-constraints/02-key-concepts.md
+          - 7-3. Create a categorical constraint: workshops/07-constraints/03-categorical-constraint.md
+          - 7-4. Add continuous constraints: workshops/07-constraints/04-continuous-constraints.md
   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
