@@ -18,10 +18,10 @@ title: 2-4. Exporting and reloading config
 2. Select **New Config**. Your current config will be replaced with an empty configuration.
 3. Select **Load Config** and pick the `config_XX.json` you just downloaded. Your previous configuration is restored.
 
+4. OPTIONAL: You can also set a custom name for your config files, which is really useful if you are working on several different configs. Go to **Settings** and change the *Export filename prefix* from *config* to a name of your choice.
+
 !!! tip "Export frequently"
     As you continue through this tutorial series, export your config after every couple of steps. Config files are exported with a unique date and time suffix, so your Downloads folder will build up — but the files are small, and the datestamps allow you to backtrack to previous versions if you need to.
-
-4. OPTIONAL: You can also set a custom name for your config files, which is really useful if you are working on several different configs. Go to **Settings** and change the *Export filename prefix* from *config* to a name of your choice.
 
 See [Loading and saving](../../getting-started/loading-saving.md) and
 [Export options](../../configuration/export-options.md) for the full options,
