@@ -1704,23 +1704,32 @@
 <h1 id="2-4-exporting-and-reloading-config">2-4. Exporting and reloading config<a class="headerlink" href="#2-4-exporting-and-reloading-config" title="Permanent link">&para;</a></h1>
 <div class="admonition warning">
 <p class="admonition-title">IMPORTANT</p>
-<p>There is <strong>no save button</strong> in the Configuration Builder, because the config is just held in memory in your web browser.  However the config can be <strong>exported</strong> so you can save it locally on your machine. </p>
+<p>There is <strong>no save button</strong> in the Configuration Builder, because the config is only held in memory in your web browser. However, the config can be <strong>exported</strong> so you can save it locally on your machine.</p>
 </div>
 <ol>
-<li>On the <strong>Home</strong> tab, select <strong>Export → Quick Export</strong>. A file called
-   <code>config_YYYYMMDD_HHMM.json</code> will download to your local machine in wherever your default <strong>Downloads</strong> folder lives.  </li>
-<li>Select <strong>New Config</strong>. Your current config will be replaced with an emoty configuration.</li>
-<li>Select <strong>Load Config</strong> and pick the <code>config_XX.json</code> you just downloaded. Your
-   previous configuration is restored.</li>
+<li>
+<p>Export your config using either route:</p>
+<ul>
+<li>The <strong>Export</strong> button at the top right of the builder, or</li>
+<li><strong>Home → Export → Quick Export</strong></li>
+</ul>
+<p><img alt="Export button at the top right of the Configuration Builder" src="../../assets/screenshots/home-export-button-top.png" /></p>
+<p>A file called <code>config_YYYYMMDD_HHMM.json</code> will download to your machine, into whichever folder is set as your default <strong>Downloads</strong> location.</p>
+</li>
+<li>
+<p>Select <strong>New Config</strong>. Your current config will be replaced with an empty configuration.</p>
+</li>
+<li>
+<p>Select <strong>Load Config</strong> and pick the <code>config_XX.json</code> you just downloaded. Your previous configuration is restored.</p>
+</li>
+<li>
+<p>OPTIONAL: You can also set a custom name for your config files, which is really useful if you are working on several different configs. Go to <strong>Settings</strong> and change the <em>Export filename prefix</em> from <em>config</em> to a name of your choice.</p>
+</li>
 </ol>
 <div class="admonition tip">
 <p class="admonition-title">Export frequently</p>
-<p>As you continue through this tutorial series, export your config after every
-couple of steps in a tutorial.  As config files are exported wiht a unituq date and time suffix, your Downloads folder will start to build up, but the files are only small and the datestamps allow you to backtrack to previous versions if you need to.</p>
+<p>As you continue through this tutorial series, export your config after every couple of steps. Config files are exported with a unique date and time suffix, so your Downloads folder will build up — but the files are small, and the datestamps allow you to backtrack to previous versions if you need to.</p>
 </div>
-<ol>
-<li>OPTIONAL:  You can also make a custom name for your config files, which is really useful if you are working on several different configs.  Go to <strong>Settings</strong> and change the <em>Export filename prefix</em> from <em>config</em> to a name of your choice.</li>
-</ol>
 <p>See <a href="../../getting-started/loading-saving.html">Loading and saving</a> and
 <a href="../../configuration/export-options.html">Export options</a> for the full options,
 including sorting exported JSON to match the UI order.</p>
