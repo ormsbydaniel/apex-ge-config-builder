@@ -321,11 +321,7 @@
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/02-getting-started/09-layer-controls.html</loc>
-         <lastmod>2026-08-03</lastmod>
-    </url>
-    <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/02-getting-started/10-wms-service.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/02-getting-started/09-wms-service.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
@@ -357,79 +353,91 @@
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-categorical-data/index.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-fine-tuning/index.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-categorical-data/01-prerequisites.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-fine-tuning/01-prerequisites.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-categorical-data/02-key-concepts.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-fine-tuning/02-layer-controls.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-categorical-data/03-categories-wms.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/index.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-categorical-data/04-categories-cog.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/01-prerequisites.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-categorical-data/05-categories-json-editor.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/02-key-concepts.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/04-categorical-data/06-copy-categories.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/03-categories-wms.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-time-series/index.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/04-categories-cog.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-time-series/01-prerequisites.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/05-categories-json-editor.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-time-series/02-key-concepts.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/06-copy-categories.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-time-series/03-manual-timestamps.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-time-series/index.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-time-series/04-stac-timestamps.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-time-series/01-prerequisites.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-time-series/05-wms-timestamps.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-time-series/02-key-concepts.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/05-time-series/06-manual-wms-timestamps.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-time-series/03-manual-timestamps.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-constraints/index.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-time-series/04-stac-timestamps.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-constraints/01-prerequisites.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-time-series/05-wms-timestamps.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-constraints/02-key-concepts.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-time-series/06-manual-wms-timestamps.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-constraints/03-categorical-constraint.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/index.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/06-constraints/04-continuous-constraints.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/01-prerequisites.html</loc>
+         <lastmod>2026-08-03</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/02-key-concepts.html</loc>
+         <lastmod>2026-08-03</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/03-categorical-constraint.html</loc>
+         <lastmod>2026-08-03</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/04-continuous-constraints.html</loc>
          <lastmod>2026-08-03</lastmod>
     </url>
 </urlset>

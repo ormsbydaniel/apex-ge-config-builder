@@ -1,0 +1,23 @@
+---
+title: 4. Fine tuning my config
+---
+# 4. Fine tuning my config
+
+## Tutorial Objectives
+
+![Fine tuning my config tutorial hero image](../../assets/screenshots/tutorial-04-hero.png)
+
+Refine an existing configuration so it behaves well for your users: which
+interactive controls appear on each layer, and how those choices show up in
+the Explorer.
+
+By the end of this tutorial you will be able to:
+
+- Understand what each layer control does in the Explorer.
+- Enable and disable layer controls on a layer card.
+- Preview the effect of your choices in GE Preview.
+
+## Steps
+
+- [4-1. Pre-requisites](01-prerequisites.md)
+- [4-2. Experiment with layer controls](02-layer-controls.md)
