@@ -16,10 +16,15 @@ In this step we will attach a Cloud Optimized GeoTIFF (COG) to your
     ```
 
 
-4. The data source is now listed on the *Datasets* tab. Click the **(i)** info
-   icon on the row to interrogate the COG's metadata.
-5. Make a mental note of the **min** and **max** pixel values, then close the
-   dialog.
+4. The data source is now listed on the *Datasets* tab.
+5. Click the **(i)** info icon on the row to interrogate the COG's metadata.
+   Take a general look at what is reported — whether the file is cloud
+   optimized, the file size, overviews, and the image properties.
+
+    ![COG metadata dialog for the AGB GeoTIFF](../../assets/screenshots/workshops-getting-started-cog-metadata.png)
+
+6. Make a note of the **min** and **max** pixel values — you will need them in
+   the next step — then close the dialog.
 
 
 
