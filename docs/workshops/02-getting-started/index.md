@@ -7,7 +7,7 @@ title: 2. My first config
 
 ![My first config tutorial hero image](../../assets/screenshots/tutorial-02-hero.png)
 
-Build a Geospatial Explorer configuration from scratch: name and branding, base
+in this tutorial you will **build a Geospatial Explorer configuration from scratch**: name and branding, base
 maps, your first layer card, a COG data source, colormap styling and a direct
 WMS layer.
 
