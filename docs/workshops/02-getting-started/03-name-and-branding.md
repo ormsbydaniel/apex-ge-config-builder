@@ -9,7 +9,7 @@ interface group and a colour scheme.
 1. **Open the Config Builder** at
    <https://ge-config-builder.apex.esa.int/>.
 2. On the **Home** tab, edit the **Title** of the configuration to something of
-   your choice — for example, `Forest Carbon Tutorial`.
+   your choice — for example, `<your name>'s firstr config`.
 3. Move to the **Layers** tab.
    - Edit *Interface group 1* and rename it to `Forest Carbon`.
    - Delete the other default interface groups so only *Forest Carbon* remains.
