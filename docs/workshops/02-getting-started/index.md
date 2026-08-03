@@ -29,4 +29,4 @@ By the end of this tutorial you will be able to:
 - [2-6. Your first layer card](06-first-layer-card.md)
 - [2-7. Add a COG data source](07-add-cog-data.md)
 - [2-8. Style with a colormap](08-colormaps.md)
-- [2-9. Add a WMS layer directly](09-wms-service.md)
+- [2-9. Add a WMS data source](09-wms-service.md)
