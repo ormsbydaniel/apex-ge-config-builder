@@ -7,7 +7,7 @@ In this tutorial you will start a fresh configuration and give it a title, an
 interface group and a colour scheme.
 
 1. **Open the Config Builder** at
-   <https://apex-ge-config-builder.sparkgeo.uk/>.
+   <https://ge-config-builder.apex.esa.int/>.
 2. On the **Home** tab, edit the **Title** of the configuration to something of
    your choice — for example, `Forest Carbon Tutorial`.
 3. Move to the **Layers** tab.
