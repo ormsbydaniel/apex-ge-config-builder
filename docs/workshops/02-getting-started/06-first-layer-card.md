@@ -12,8 +12,8 @@ attach content — descriptions, data sources, statistics, constraints and so on
 3. Type `Above Ground Biomass` into the **Layer name** field.
 4. Enter a suitable **Description** — this appears in the layer's info panel
    in the Explorer.
-5. Add `Forest Carbon` as the **Attribution text**. Add an **Attribution URL**
-   to a Forest Carbon website if you have one to hand.
+5. Add `Forest Carbon Monitoring` as the **Attribution text**, and use
+   <https://www.forestcarbonplatform.org/> as the **Attribution URL**.
 6. Select **Create layer card**.
 
 You now have a layer card in read-only mode, ready to receive data. The card
