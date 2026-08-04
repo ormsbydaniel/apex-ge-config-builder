@@ -1,7 +1,7 @@
 ---
-title: 3-6. Add legends for a WMS
+title: 3-7. Add legends for a WMS
 ---
-# 3-6. Add legends for a WMS
+# 3-7. Add legends for a WMS
 
 Some WMS services expose a legend graphic via `GetLegendGraphic`. When they do,
 the CB can pull that legend straight into your layer card.

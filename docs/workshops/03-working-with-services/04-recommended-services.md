@@ -1,7 +1,7 @@
 ---
-title: 3-3. Add recommended services
+title: 3-4. Add recommended services
 ---
-# 3-3. Add recommended services
+# 3-4. Add recommended services
 
 Recommended services are a curated collection of STAC catalogues and WMS /
 WMTS endpoints that are commonly useful across GE configurations.
