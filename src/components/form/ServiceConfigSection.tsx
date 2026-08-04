@@ -84,6 +84,10 @@ const ServiceConfigSection = ({
           Object.keys(remainingParameters).length > 0 ? remainingParameters : undefined,
         );
       }
+      onUpdateFormData(
+        'data.0.version',
+        service.format === 'wmts' ? service.capabilities?.version : undefined,
+      );
       // Clear layer selection when changing service
       onUpdateFormData('data.0.layers', '');
     }

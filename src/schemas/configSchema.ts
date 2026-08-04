@@ -173,6 +173,8 @@ export const DataSourceItemSchema = z.object({
   level: z.number().optional(),
   type: z.string().optional(),
   serviceId: z.string().optional(),
+  // Negotiated WMTS protocol version
+  version: z.string().optional(),
   // Additional fields for COG and styled layers
   normalize: z.boolean().optional(),
   style: z.any().optional(), // Allow any style object structure

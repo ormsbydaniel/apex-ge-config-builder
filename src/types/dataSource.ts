@@ -11,6 +11,8 @@ export interface DataSourceItem {
   level?: number;
   type?: string;
   serviceId?: string;
+  // Negotiated WMTS protocol version
+  version?: string;
   // Additional fields for enhanced data sources
   normalize?: boolean;
   style?: any;

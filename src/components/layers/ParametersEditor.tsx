@@ -50,6 +50,35 @@ export const mergeWmsParameters = (
   ...(serviceVersion ? { version: serviceVersion } : {}),
 });
 
+export const applyOgcServiceVersion = (
+  item: Record<string, unknown>,
+  format: string,
+  rows: ParameterRow[],
+  serviceVersion?: string,
+): Record<string, unknown> => {
+  const next = { ...item };
+
+  if (format === 'wms') {
+    const parameters = mergeWmsParameters(rows, serviceVersion);
+    if (Object.keys(parameters).length > 0) {
+      next.parameters = parameters;
+    } else {
+      delete next.parameters;
+    }
+    delete next.version;
+    return next;
+  }
+
+  delete next.parameters;
+  if (format === 'wmts' && serviceVersion) {
+    next.version = serviceVersion;
+  } else {
+    delete next.version;
+  }
+
+  return next;
+};
+
 const ParametersEditor: React.FC<ParametersEditorProps> = ({ rows, onChange }) => {
   const update = (index: number, patch: Partial<ParameterRow>) => {
     const next = rows.map((r, i) => (i === index ? { ...r, ...patch } : r));
