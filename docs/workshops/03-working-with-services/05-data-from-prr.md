@@ -22,6 +22,7 @@ layer card.
    listed.
 6. **Add** the most recent COG to your layer card.
 7. Finish styling the layer — colormap, min/max, attribution — as you see fit.
+   Refer back to Tutorial 2-7 for a reminder of how to do this if needed.
 
 See [STAC browser](../../data-sources/stac-browser.md) for the full reference,
 including asset filtering and bulk selection.
