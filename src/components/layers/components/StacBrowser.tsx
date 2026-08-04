@@ -20,7 +20,6 @@ import {
   inferChildKind,
   extractNextLink,
   getSelfLink,
-  getStacCollectionDataSourceUrl,
   resolveAssetUrl,
   ensureSlash,
   type StacLink,
@@ -52,17 +51,10 @@ export interface AssetSelection {
   datetime?: string;
 }
 
-export interface CollectionSelection {
-  url: string;
-  format: 'stac';
-  collectionId: string;
-}
-
 interface StacBrowserProps {
   serviceUrl: string;
   serviceName: string;
   onAssetSelect: (assets: AssetSelection | AssetSelection[]) => void;
-  onCollectionSelect?: (collection: CollectionSelection) => void;
 }
 
 type BrowserStep = 'catalog' | 'collections' | 'items' | 'assets';
@@ -81,7 +73,7 @@ interface CatalogStackEntry {
   children: CatalogChild[];
 }
 
-const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelect }: StacBrowserProps) => {
+const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
   const [detectedMode, setDetectedMode] = useState<DetectedMode>(null);
   const [loading, setLoading] = useState(false);
@@ -977,19 +969,6 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
                     ? `${items.length}+ items`
                     : `${items.length} items`}
               </Badge>
-              {onCollectionSelect && (
-                <Button
-                  size="sm"
-                  className="ml-auto"
-                  onClick={() => onCollectionSelect({
-                    url: getStacCollectionDataSourceUrl(selectedCollection, serviceUrl),
-                    format: 'stac',
-                    collectionId: selectedCollection.id,
-                  })}
-                >
-                  Add collection
-                </Button>
-              )}
             </div>
             <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
@@ -1035,19 +1014,6 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
               <Badge variant="outline" className="border-green-300 text-green-700">
                 {totalAssetCount} assets
               </Badge>
-              {onCollectionSelect && selectedCollection?.collectionUrl && (
-                <Button
-                  size="sm"
-                  className="ml-auto"
-                  onClick={() => onCollectionSelect({
-                    url: getStacCollectionDataSourceUrl(selectedCollection, serviceUrl),
-                    format: 'stac',
-                    collectionId: selectedCollection.id,
-                  })}
-                >
-                  Add collection
-                </Button>
-              )}
             </div>
             <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
@@ -1250,7 +1216,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
                 (filteredData as CatalogChild[]).map((child) => {
                   const isCollection = child.kind === 'collection';
                   return (
-                    <div key={child.href} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 min-w-0">
+                    <div key={child.href} className="flex w-full min-w-0 max-w-full items-center gap-3 overflow-hidden p-3 border rounded-lg hover:bg-muted/50">
                       <Folder className={`h-4 w-4 flex-shrink-0 ${isCollection ? 'text-green-600' : 'text-purple-600'}`} />
                       <div className="flex-1 min-w-0 pr-2">
                         <div className="font-medium text-sm truncate" title={child.title}>{child.title}</div>
@@ -1296,19 +1262,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
                   };
                   
                   return (
-                    <div key={collection.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                    <div key={collection.id} className="flex w-full min-w-0 max-w-full items-center gap-3 overflow-hidden p-3 border rounded-lg hover:bg-muted/50">
                       <Folder className="h-4 w-4 text-purple-600 flex-shrink-0" />
                       <div className="flex-1 min-w-0 pr-2">
-                        <div className="font-medium text-sm">{highlightText(collection.title || collection.id)}</div>
+                        <div className="font-medium text-sm break-words [overflow-wrap:anywhere]">{highlightText(collection.title || collection.id)}</div>
                         {collection.description && (
-                          <div className={`text-xs text-muted-foreground mt-1 ${!isExpanded ? 'line-clamp-2' : ''}`}>
+                          <div className={`text-xs text-muted-foreground mt-1 break-words [overflow-wrap:anywhere] ${!isExpanded ? 'line-clamp-2' : ''}`}>
                             {highlightText(collection.description)}
                           </div>
                         )}
                         {collection.keywords && collection.keywords.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {(isExpanded ? collection.keywords : collection.keywords.slice(0, 5)).map((keyword, idx) => (
-                              <Badge key={idx} variant="secondary" className="text-xs font-normal">
+                              <Badge key={idx} variant="secondary" className="max-w-full text-xs font-normal whitespace-normal break-words [overflow-wrap:anywhere]">
                                 {highlightText(keyword)}
                               </Badge>
                             ))}
@@ -1342,19 +1308,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
                           </button>
                         )}
                       </div>
-                      <div className="flex flex-shrink-0 gap-2">
-                        {onCollectionSelect && (
-                          <Button
-                            size="sm"
-                            onClick={() => onCollectionSelect({
-                              url: getStacCollectionDataSourceUrl(collection, serviceUrl),
-                              format: 'stac',
-                              collectionId: collection.id,
-                            })}
-                          >
-                            Add collection
-                          </Button>
-                        )}
+                      <div className="flex-shrink-0">
                         <Button 
                           size="sm" 
                           variant="outline" 

@@ -24,7 +24,6 @@ import { ServiceSelectionModal } from './components/ServiceSelectionModals';
 import { ServiceCardList } from './components/ServiceCardList';
 import { determineZLevel } from '@/utils/drawOrderUtils';
 import ParametersEditor, { ParameterRow, applyOgcServiceVersion, recordToRows } from './ParametersEditor';
-import { CollectionSelection } from './components/StacBrowser';
 
 const normalizeDataSourceFormat = (format?: string): DataSourceFormat =>
   format?.toLowerCase() === 'stac-collection' ? 'stac' : (format as DataSourceFormat) || 'cog';
@@ -336,21 +335,11 @@ const DataSourceForm = ({
   }, [services, selectedServiceForModal]);
 
   const handleServiceModalSelection = (
-    selection: string | Array<{ url: string; format: DataSourceFormat; datetime?: string }> | CollectionSelection,
+    selection: string | Array<{ url: string; format: DataSourceFormat; datetime?: string }>,
     layers: string = '',
     format?: DataSourceFormat,
     datetime?: string
   ) => {
-    if (typeof selection === 'object' && !Array.isArray(selection)) {
-      setDirectUrl(selection.url);
-      setDirectLayers('');
-      setSelectedFormat('stac');
-      setStacAssets([]);
-      setShowServiceModal(false);
-      setSelectedServiceForModal(null);
-      return;
-    }
-
     // Handle bulk selection (array of assets)
     if (Array.isArray(selection)) {
       // Determine if this should be treated as a statistics source
