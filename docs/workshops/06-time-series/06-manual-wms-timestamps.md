@@ -18,17 +18,17 @@ layers.
 
     - **Service URL**:
 
-        ```text
+        ```
         https://services.terrascope.be/wms/v2
         ```
 
     - **Layer names**:
 
-        ```text
+        ```
         WORLDCOVER_2020_MAP
         ```
 
-        ```text
+        ```
         WORLDCOVER_2021_MAP
         ```
 

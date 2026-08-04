@@ -13,13 +13,13 @@ that parameter from the temporal control on a layer.
 
     - **Service URL**:
 
-        ```text
+        ```
         https://globalland.vito.be/wmts
         ```
 
     - **Layer name**:
 
-        ```text
+        ```
         clms_global_swi_1km_v1_daily
         ```
 

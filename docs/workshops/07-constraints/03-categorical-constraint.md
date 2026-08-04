@@ -10,7 +10,7 @@ biomass values by land cover class.
 2. Add the following World Cover TIF, which covers the same area as the AGB
    data:
 
-    ```text
+    ```
     https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/FCM_Europe_demo_2023_AGB-esa_worldcover_2021.tif
     ```
 

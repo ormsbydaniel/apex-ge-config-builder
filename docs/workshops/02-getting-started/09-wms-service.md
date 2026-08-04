@@ -13,13 +13,13 @@ Add a WMS layer using the direct connection flow.
 4. Choose **Direct connection → WMS/WMTS service**.
 5. Paste the following into the **Service URL**:
 
-    ```text
+    ```
     https://mapproxy.terrascope.be/mapproxy/service
     ```
 
 6. Paste the following into the **Layer name**:
 
-    ```text
+    ```
     esa-worldcover-map-10m-2021-v2_map
     ```
 

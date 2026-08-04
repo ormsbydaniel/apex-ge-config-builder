@@ -8,7 +8,7 @@ The same category system drives rendering for classified COGs.
 1. Create a new layer card called `World Cover COG`.
 2. Add the following dataset — a World Cover COG for Austria:
 
-    ```text
+    ```
     https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif
     ```
 
