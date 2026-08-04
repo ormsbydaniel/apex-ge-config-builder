@@ -106,6 +106,11 @@ export const ServiceCardList = ({
                   <Badge variant="outline" className={getBadgeColor(service)}>
                     {getServiceTypeLabel(service)}
                   </Badge>
+                  {(service.format === 'wms' || service.format === 'wmts') && service.capabilities?.version && (
+                    <Badge variant="outline" className="border-blue-300 text-blue-700">
+                      v{service.capabilities.version}
+                    </Badge>
+                  )}
                   {service.capabilities?.layers.length && (
                     <Badge variant="outline" className="border-green-300 text-green-700">
                       {service.capabilities.layers.length} {getResourceCountLabel(service)} available

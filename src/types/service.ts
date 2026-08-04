@@ -19,6 +19,7 @@ export interface ServiceCapabilities {
   title?: string;
   abstract?: string;
   totalCount?: number; // Total count of items (for paginated APIs like STAC)
+  version?: string; // Service version reported by GetCapabilities (WMS/WMTS/WFS)
 }
 
 export interface LayerInfo {

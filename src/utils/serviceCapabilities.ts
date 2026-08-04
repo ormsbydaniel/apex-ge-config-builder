@@ -271,10 +271,15 @@ export const fetchServiceCapabilitiesWithMetrics = async (
         });
       }
 
+    // Version actually reported by the service on the capabilities root element
+    const reportedVersion =
+      xmlDoc.documentElement?.getAttribute('version')?.trim() || version;
+
     const capabilities: ServiceCapabilities = {
       layers,
       title: getServiceMetadataText(xmlDoc, 'Title'),
       abstract: getServiceMetadataText(xmlDoc, 'Abstract'),
+      version: reportedVersion || undefined,
     };
     const diagnostic: ProbeDiagnostic | undefined = layers.length === 0
       ? {
