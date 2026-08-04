@@ -191,6 +191,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
       title: data.title || data.id || 'STAC Collection',
       description: data.description,
       links: data.links,
+      collectionUrl,
     });
     setCurrentStep('assets');
     return true;
@@ -976,6 +977,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
                     ? `${items.length}+ items`
                     : `${items.length} items`}
               </Badge>
+              {onCollectionSelect && (
+                <Button
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => onCollectionSelect({
+                    url: getStacCollectionDataSourceUrl(selectedCollection, serviceUrl),
+                    format: 'stac',
+                    collectionId: selectedCollection.id,
+                  })}
+                >
+                  Add collection
+                </Button>
+              )}
             </div>
             <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
@@ -1021,6 +1035,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
               <Badge variant="outline" className="border-green-300 text-green-700">
                 {totalAssetCount} assets
               </Badge>
+              {onCollectionSelect && selectedCollection?.collectionUrl && (
+                <Button
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => onCollectionSelect({
+                    url: getStacCollectionDataSourceUrl(selectedCollection, serviceUrl),
+                    format: 'stac',
+                    collectionId: selectedCollection.id,
+                  })}
+                >
+                  Add collection
+                </Button>
+              )}
             </div>
             <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
