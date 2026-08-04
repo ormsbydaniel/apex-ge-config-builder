@@ -7,8 +7,9 @@ The Project Results Repository (PRR) is a STAC catalogue of APEx project
 results. Once its service is registered you can browse it directly from any
 layer card.
 
-1. On the **Layers** tab, create a new layer card called `Below Ground Biomass`.
-   Fill in a description and attribution.
+1. On the **Layers** tab, create a new layer card called `Below Ground Biomass`
+   in your `Forest Carbon` interface group. Fill in a description and
+   attribution.
 2. On the card, select **+ Add dataset** and then **From service**.
 3. Select **Project Results Repository**. The STAC browser opens, showing the
    collections in the PRR.
