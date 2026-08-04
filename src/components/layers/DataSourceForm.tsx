@@ -582,6 +582,73 @@ const DataSourceForm = ({
     onCancel();
   };
 
+  const renderStacOptions = (idPrefix: string) => {
+    if (selectedFormat !== 'stac') return null;
+
+    const addAsset = () => {
+      const assetName = newStacAsset.trim();
+      if (!assetName || stacAssets.includes(assetName)) return;
+      setStacAssets([...stacAssets, assetName]);
+      setNewStacAsset('');
+    };
+
+    return (
+      <div className="space-y-4 border-t pt-4">
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}StacAsset`}>Asset names</Label>
+          <div className="flex gap-2">
+            <Input
+              id={`${idPrefix}StacAsset`}
+              value={newStacAsset}
+              onChange={(event) => setNewStacAsset(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  addAsset();
+                }
+              }}
+              placeholder="e.g. low_tide_image"
+              autoComplete="off"
+            />
+            <Button type="button" variant="outline" size="icon" onClick={addAsset} aria-label="Add asset name">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          {stacAssets.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {stacAssets.map((asset) => (
+                <Badge key={asset} variant="secondary" className="gap-2">
+                  {asset}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-4 w-4"
+                    onClick={() => setStacAssets(stacAssets.filter((name) => name !== asset))}
+                    aria-label={`Remove ${asset}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">Optional asset names advertised by the collection.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}MinZoom`}>Minimum zoom</Label>
+            <Input id={`${idPrefix}MinZoom`} type="number" value={minZoom ?? ''} onChange={(event) => setMinZoom(event.target.value === '' ? undefined : Number(event.target.value))} min="0" autoComplete="off" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}MaxZoom`}>Maximum zoom</Label>
+            <Input id={`${idPrefix}MaxZoom`} type="number" value={maxZoom ?? ''} onChange={(event) => setMaxZoom(event.target.value === '' ? undefined : Number(event.target.value))} min="0" autoComplete="off" />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <ServiceSelectionModal 
@@ -807,6 +874,8 @@ const DataSourceForm = ({
                     Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
                   </p>
                 </div>
+
+                {renderStacOptions('direct')}
 
                 {/* Timestamp Configuration for Temporal Layers */}
                 {requiresTimestamp && (
@@ -1041,6 +1110,8 @@ const DataSourceForm = ({
                     Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
                   </p>
                 </div>
+
+                {renderStacOptions('service')}
 
                 {/* Timestamp Configuration for Temporal Layers */}
                 {requiresTimestamp && (

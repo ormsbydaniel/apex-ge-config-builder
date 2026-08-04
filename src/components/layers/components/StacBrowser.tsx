@@ -20,6 +20,7 @@ import {
   inferChildKind,
   extractNextLink,
   getSelfLink,
+  getStacCollectionDataSourceUrl,
   resolveAssetUrl,
   ensureSlash,
   type StacLink,
@@ -56,19 +57,6 @@ export interface CollectionSelection {
   format: 'stac';
   collectionId: string;
 }
-
-export const getCollectionDataSourceUrl = (
-  collection: StacCollectionType,
-  serviceUrl: string,
-): string => {
-  const selfLink = getSelfLink(collection.links);
-  if (selfLink) return resolveAssetUrl(selfLink, serviceUrl);
-
-  const baseUrl = new URL(serviceUrl);
-  baseUrl.search = '';
-  baseUrl.hash = '';
-  return `${ensureSlash(baseUrl.toString())}collections/${encodeURIComponent(collection.id)}`;
-};
 
 interface StacBrowserProps {
   serviceUrl: string;
@@ -298,6 +286,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
           keywords: data.keywords,
           extent: data.extent,
           links: data.links,
+          collectionUrl: serviceUrl,
         };
         await fetchItems(collection, serviceUrl);
         return;
@@ -365,6 +354,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
           keywords: data.keywords,
           extent: data.extent,
           links: data.links,
+          collectionUrl: childUrl,
         };
         setLoading(false);
         await fetchItems(collection, childUrl);
@@ -1330,7 +1320,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelec
                           <Button
                             size="sm"
                             onClick={() => onCollectionSelect({
-                              url: getCollectionDataSourceUrl(collection, serviceUrl),
+                              url: getStacCollectionDataSourceUrl(collection, serviceUrl),
                               format: 'stac',
                               collectionId: collection.id,
                             })}
