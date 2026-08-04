@@ -13,7 +13,7 @@ once and its layers can be browsed whenever you add a dataset.
 3. Leave **Service Type** set to **WMS**.
 4. Paste the following into the **Service URL**:
 
-    ```text
+    ```
     https://mapproxy.terrascope.be/mapproxy/service
     ```
 
