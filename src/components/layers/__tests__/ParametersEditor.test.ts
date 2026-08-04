@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mergeWmsParameters, recordToRows, rowsToRecord } from '../ParametersEditor';
+import { applyOgcServiceVersion, mergeWmsParameters, recordToRows, rowsToRecord } from '../ParametersEditor';
 import { DataSourceItemSchema } from '@/schemas/configSchema';
 
 describe('WMS parameter handling', () => {
@@ -37,5 +37,40 @@ describe('WMS parameter handling', () => {
     });
 
     expect(parsed.parameters).toEqual({ version: '1.3.0' });
+  });
+});
+
+describe('OGC service version placement', () => {
+  it('stores the negotiated WMTS version as a top-level property', () => {
+    expect(applyOgcServiceVersion({}, 'wmts', [], '1.0.0')).toEqual({
+      version: '1.0.0',
+    });
+  });
+
+  it('keeps WMS and WMTS version shapes separate', () => {
+    expect(applyOgcServiceVersion({ version: '1.0.0' }, 'wms', [], '1.3.0')).toEqual({
+      parameters: { version: '1.3.0' },
+    });
+    expect(applyOgcServiceVersion({ parameters: { version: '1.3.0' } }, 'wmts', [], '1.0.0')).toEqual({
+      version: '1.0.0',
+    });
+  });
+
+  it('does not add a version to direct or unrelated data sources', () => {
+    expect(applyOgcServiceVersion({}, 'wmts', [])).toEqual({});
+    expect(applyOgcServiceVersion({ version: '1.0.0' }, 'cog', [])).toEqual({});
+  });
+
+  it('preserves a top-level WMTS version through data source validation', () => {
+    const parsed = DataSourceItemSchema.parse({
+      url: 'https://example.test/wmts',
+      format: 'wmts',
+      zIndex: 50,
+      layers: 'example-layer',
+      useTimeParameter: false,
+      version: '1.0.0',
+    });
+
+    expect(parsed.version).toBe('1.0.0');
   });
 });

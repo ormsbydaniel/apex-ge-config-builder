@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { ServiceSelectionModal } from './components/ServiceSelectionModals';
 import { ServiceCardList } from './components/ServiceCardList';
 import { determineZLevel } from '@/utils/drawOrderUtils';
-import ParametersEditor, { ParameterRow, mergeWmsParameters, recordToRows } from './ParametersEditor';
+import ParametersEditor, { ParameterRow, applyOgcServiceVersion, recordToRows } from './ParametersEditor';
 
 interface DataSourceFormProps {
   services: Service[];
@@ -94,7 +94,9 @@ const DataSourceForm = ({
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
-  const existingVersion = editingDataSource?.parameters?.version;
+  const existingVersion = editingDataSource?.format === 'wmts'
+    ? editingDataSource.version
+    : editingDataSource?.parameters?.version;
   const [serviceVersion, setServiceVersion] = useState<string | undefined>(
     typeof existingVersion === 'string' ? existingVersion : undefined
   );
@@ -175,7 +177,9 @@ const DataSourceForm = ({
       setManualStatisticsLevel(editingDataSource.level ?? statisticsLevel);
       setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
       setParameterRows(recordToRows(editingDataSource.parameters));
-      const editingVersion = editingDataSource.parameters?.version;
+       const editingVersion = dataFormat === 'wmts'
+         ? editingDataSource.version
+         : editingDataSource.parameters?.version;
       setServiceVersion(typeof editingVersion === 'string' ? editingVersion : undefined);
       
       // Handle date initialization
@@ -277,9 +281,7 @@ const DataSourceForm = ({
 
   const handleFormatChange = (format: DataSourceFormat) => {
     setSelectedFormat(format);
-    if (format !== 'wms') {
-      setServiceVersion(undefined);
-    }
+    setServiceVersion(undefined);
     
     // Update zIndex to recommended value for the new format
     setZIndex(getRecommendedZIndex(format));
@@ -304,7 +306,9 @@ const DataSourceForm = ({
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
     setServiceVersion(
-      service.format === 'wms' ? service.capabilities?.version : undefined
+      service.format === 'wms' || service.format === 'wmts'
+        ? service.capabilities?.version
+        : undefined
     );
     setShowServiceModal(true);
   };
@@ -314,7 +318,7 @@ const DataSourceForm = ({
     const refreshedService = services.find(service => service.id === selectedServiceForModal.id);
     if (!refreshedService || refreshedService === selectedServiceForModal) return;
     setSelectedServiceForModal(refreshedService);
-    if (refreshedService.format === 'wms') {
+    if (refreshedService.format === 'wms' || refreshedService.format === 'wmts') {
       setServiceVersion(refreshedService.capabilities?.version);
     }
   }, [services, selectedServiceForModal]);
@@ -460,7 +464,7 @@ const DataSourceForm = ({
 
     // Build the data source item. When editing, start from the existing object so
     // passthrough/vendor fields (env, styles, time, transparent, etc.) survive.
-    const baseItem: Record<string, unknown> = editingDataSource
+    let baseItem: Record<string, unknown> = editingDataSource
       ? { ...editingDataSource }
       : {};
 
@@ -498,17 +502,9 @@ const DataSourceForm = ({
       }
     }
 
-    // WMS custom parameters — only kept for WMS format
-    if (selectedFormat === 'wms') {
-      const params = mergeWmsParameters(parameterRows, serviceVersion);
-      if (Object.keys(params).length > 0) {
-        baseItem.parameters = params;
-      } else {
-        delete baseItem.parameters;
-      }
-    } else {
-      delete baseItem.parameters;
-    }
+    // Keep negotiated versions in their protocol-specific config locations:
+    // WMS uses parameters.version; WMTS uses the top-level version property.
+    baseItem = applyOgcServiceVersion(baseItem, selectedFormat, parameterRows, serviceVersion);
 
     const dataSourceItem = baseItem as DataSourceItem;
 
