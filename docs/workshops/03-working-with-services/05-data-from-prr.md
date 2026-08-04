@@ -17,7 +17,7 @@ layer card.
 
 4. Spend a moment browsing the PRR to see how collections, items and assets
    are structured.
-5. **Search** for `BGB` to find the *Below Ground Biomass* collection. Drill
+5. **Search** for `below` to find the *Below Ground Biomass* collection. Drill
    through the collection's assets and items until you see individual COGs
    listed.
 6. **Add** the most recent COG to your layer card.
