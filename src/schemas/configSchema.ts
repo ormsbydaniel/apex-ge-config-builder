@@ -130,6 +130,7 @@ export const ServiceCapabilitiesSchema = z.object({
   })),
   title: z.string().optional(),
   abstract: z.string().optional(),
+  version: z.string().optional(),
 });
 
 // Custom URL validation that accepts both absolute URLs and relative paths
