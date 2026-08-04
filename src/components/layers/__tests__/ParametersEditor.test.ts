@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mergeWmsParameters, recordToRows, rowsToRecord } from '../ParametersEditor';
+import { DataSourceItemSchema } from '@/schemas/configSchema';
 
 describe('WMS parameter handling', () => {
   it('merges the negotiated service version with custom parameters', () => {
@@ -24,5 +25,17 @@ describe('WMS parameter handling', () => {
     expect(mergeWmsParameters([{ key: 'styles', value: 'default' }])).toEqual({
       styles: 'default',
     });
+  });
+
+  it('preserves the negotiated version through data source validation', () => {
+    const parsed = DataSourceItemSchema.parse({
+      url: 'https://example.test/wms',
+      format: 'wms',
+      zIndex: 3,
+      layers: 'example-layer',
+      parameters: { version: '1.3.0' },
+    });
+
+    expect(parsed.parameters).toEqual({ version: '1.3.0' });
   });
 });

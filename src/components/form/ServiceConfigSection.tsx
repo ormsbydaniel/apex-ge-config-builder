@@ -77,7 +77,8 @@ const ServiceConfigSection = ({
           version: service.capabilities.version,
         });
       } else {
-        const { version: _version, ...remainingParameters } = formData.data[0]?.parameters || {};
+        const remainingParameters = { ...formData.data[0]?.parameters };
+        delete remainingParameters.version;
         onUpdateFormData(
           'data.0.parameters',
           Object.keys(remainingParameters).length > 0 ? remainingParameters : undefined,
