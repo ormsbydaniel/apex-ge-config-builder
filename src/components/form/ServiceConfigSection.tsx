@@ -71,6 +71,19 @@ const ServiceConfigSection = ({
     if (service) {
       onUpdateFormData('data.0.serviceId', serviceId);
       onUpdateFormData('data.0.url', service.url);
+      if (service.format === 'wms' && service.capabilities?.version) {
+        onUpdateFormData('data.0.parameters', {
+          ...formData.data[0]?.parameters,
+          version: service.capabilities.version,
+        });
+      } else {
+        const remainingParameters = { ...formData.data[0]?.parameters };
+        delete remainingParameters.version;
+        onUpdateFormData(
+          'data.0.parameters',
+          Object.keys(remainingParameters).length > 0 ? remainingParameters : undefined,
+        );
+      }
       // Clear layer selection when changing service
       onUpdateFormData('data.0.layers', '');
     }

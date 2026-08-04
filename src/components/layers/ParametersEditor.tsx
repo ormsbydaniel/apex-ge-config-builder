@@ -15,7 +15,7 @@ interface ParametersEditorProps {
 }
 
 // Keys managed by the viewer / OGC protocol — disallow user overrides.
-const RESERVED_KEYS = ['time', 'layers', 'service', 'request'];
+const RESERVED_KEYS = ['time', 'layers', 'service', 'version', 'request'];
 
 const isReserved = (key: string): boolean =>
   RESERVED_KEYS.includes(key.trim().toLowerCase());
@@ -34,11 +34,21 @@ export const recordToRows = (
   record?: Record<string, unknown>
 ): ParameterRow[] => {
   if (!record) return [];
-  return Object.entries(record).map(([key, value]) => ({
-    key,
-    value: value == null ? '' : String(value),
-  }));
+  return Object.entries(record)
+    .filter(([key]) => !isReserved(key))
+    .map(([key, value]) => ({
+      key,
+      value: value == null ? '' : String(value),
+    }));
 };
+
+export const mergeWmsParameters = (
+  rows: ParameterRow[],
+  serviceVersion?: string,
+): Record<string, string> => ({
+  ...rowsToRecord(rows),
+  ...(serviceVersion ? { version: serviceVersion } : {}),
+});
 
 const ParametersEditor: React.FC<ParametersEditorProps> = ({ rows, onChange }) => {
   const update = (index: number, patch: Partial<ParameterRow>) => {
