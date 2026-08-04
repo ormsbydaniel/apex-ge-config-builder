@@ -186,6 +186,8 @@ export const DataSourceItemSchema = z.object({
   // Zoom level constraints
   minZoom: z.number().optional(),
   maxZoom: z.number().optional(),
+  // Optional asset names/keys for STAC collection data sources
+  assets: z.array(z.string().min(1)).optional(),
   // Temporal fields for data items
   timestamps: z.array(z.number()).optional(),
   // Opacity support (0-1 range)  

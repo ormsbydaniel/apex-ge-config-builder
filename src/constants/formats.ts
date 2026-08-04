@@ -58,6 +58,13 @@ export const FORMAT_CONFIGS: Record<DataSourceFormat, FormatConfig> = {
     layersPlaceholder: '',
     requiresLayers: false,
     supportsGetCapabilities: false,
+  },
+  stac: {
+    label: 'STAC Collection',
+    urlPlaceholder: 'https://example.com/stac/collections/collection-id',
+    layersPlaceholder: '',
+    requiresLayers: false,
+    supportsGetCapabilities: false,
   }
 };
 

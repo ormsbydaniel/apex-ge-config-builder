@@ -51,10 +51,30 @@ export interface AssetSelection {
   datetime?: string;
 }
 
+export interface CollectionSelection {
+  url: string;
+  format: 'stac';
+  collectionId: string;
+}
+
+export const getCollectionDataSourceUrl = (
+  collection: StacCollectionType,
+  serviceUrl: string,
+): string => {
+  const selfLink = getSelfLink(collection.links);
+  if (selfLink) return resolveAssetUrl(selfLink, serviceUrl);
+
+  const baseUrl = new URL(serviceUrl);
+  baseUrl.search = '';
+  baseUrl.hash = '';
+  return `${ensureSlash(baseUrl.toString())}collections/${encodeURIComponent(collection.id)}`;
+};
+
 interface StacBrowserProps {
   serviceUrl: string;
   serviceName: string;
   onAssetSelect: (assets: AssetSelection | AssetSelection[]) => void;
+  onCollectionSelect?: (collection: CollectionSelection) => void;
 }
 
 type BrowserStep = 'catalog' | 'collections' | 'items' | 'assets';
@@ -73,7 +93,7 @@ interface CatalogStackEntry {
   children: CatalogChild[];
 }
 
-const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
+const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
   const [detectedMode, setDetectedMode] = useState<DetectedMode>(null);
   const [loading, setLoading] = useState(false);
@@ -1305,14 +1325,27 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                           </button>
                         )}
                       </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="flex-shrink-0"
-                        onClick={() => fetchItems(collection)}
-                      >
-                        Browse items
-                      </Button>
+                      <div className="flex flex-shrink-0 gap-2">
+                        {onCollectionSelect && (
+                          <Button
+                            size="sm"
+                            onClick={() => onCollectionSelect({
+                              url: getCollectionDataSourceUrl(collection, serviceUrl),
+                              format: 'stac',
+                              collectionId: collection.id,
+                            })}
+                          >
+                            Add collection
+                          </Button>
+                        )}
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => fetchItems(collection)}
+                        >
+                          Browse items
+                        </Button>
+                      </div>
                     </div>
                   );
                 })

@@ -24,6 +24,10 @@ import { ServiceSelectionModal } from './components/ServiceSelectionModals';
 import { ServiceCardList } from './components/ServiceCardList';
 import { determineZLevel } from '@/utils/drawOrderUtils';
 import ParametersEditor, { ParameterRow, applyOgcServiceVersion, recordToRows } from './ParametersEditor';
+import { CollectionSelection } from './components/StacBrowser';
+
+const normalizeDataSourceFormat = (format?: string): DataSourceFormat =>
+  format?.toLowerCase() === 'stac-collection' ? 'stac' : (format as DataSourceFormat) || 'cog';
 
 interface DataSourceFormProps {
   services: Service[];
@@ -77,7 +81,7 @@ const DataSourceForm = ({
   // Determine initial format based on allowed formats or editing data source
   const getInitialFormat = (): DataSourceFormat => {
     if (editingDataSource) {
-      return editingDataSource.format as DataSourceFormat;
+      return normalizeDataSourceFormat(editingDataSource.format);
     }
     if (allowedFormats && allowedFormats.length > 0) {
       return allowedFormats[0];
@@ -90,6 +94,10 @@ const DataSourceForm = ({
   const [directUrl, setDirectUrl] = useState(editingDataSource?.url || '');
   const [directLayers, setDirectLayers] = useState(editingDataSource?.layers || '');
   const [zIndex, setZIndex] = useState(editingDataSource?.zIndex ?? getRecommendedZIndex(getInitialFormat()));
+  const [stacAssets, setStacAssets] = useState<string[]>(editingDataSource?.assets || []);
+  const [newStacAsset, setNewStacAsset] = useState('');
+  const [minZoom, setMinZoom] = useState<number | undefined>(editingDataSource?.minZoom);
+  const [maxZoom, setMaxZoom] = useState<number | undefined>(editingDataSource?.maxZoom);
   
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
@@ -168,7 +176,7 @@ const DataSourceForm = ({
   // Sync form state with editingDataSource when it changes
   useEffect(() => {
     if (editingDataSource) {
-      const dataFormat = editingDataSource.format as DataSourceFormat;
+      const dataFormat = normalizeDataSourceFormat(editingDataSource.format);
       setSelectedFormat(dataFormat);
       setDirectUrl(editingDataSource.url || '');
       setDirectLayers(editingDataSource.layers || '');
@@ -177,6 +185,10 @@ const DataSourceForm = ({
       setManualStatisticsLevel(editingDataSource.level ?? statisticsLevel);
       setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
       setParameterRows(recordToRows(editingDataSource.parameters));
+      setStacAssets(editingDataSource.assets || []);
+      setNewStacAsset('');
+      setMinZoom(editingDataSource.minZoom);
+      setMaxZoom(editingDataSource.maxZoom);
        const editingVersion = dataFormat === 'wmts'
          ? editingDataSource.version
          : editingDataSource.parameters?.version;
@@ -324,11 +336,21 @@ const DataSourceForm = ({
   }, [services, selectedServiceForModal]);
 
   const handleServiceModalSelection = (
-    selection: string | Array<{ url: string; format: DataSourceFormat; datetime?: string }>,
+    selection: string | Array<{ url: string; format: DataSourceFormat; datetime?: string }> | CollectionSelection,
     layers: string = '',
     format?: DataSourceFormat,
     datetime?: string
   ) => {
+    if (typeof selection === 'object' && !Array.isArray(selection)) {
+      setDirectUrl(selection.url);
+      setDirectLayers('');
+      setSelectedFormat('stac');
+      setStacAssets([]);
+      setShowServiceModal(false);
+      setSelectedServiceForModal(null);
+      return;
+    }
+
     // Handle bulk selection (array of assets)
     if (Array.isArray(selection)) {
       // Determine if this should be treated as a statistics source
@@ -471,6 +493,17 @@ const DataSourceForm = ({
     baseItem.url = url;
     baseItem.format = selectedFormat;
     baseItem.zIndex = zIndex;
+
+    if (selectedFormat === 'stac') {
+      if (stacAssets.length > 0) baseItem.assets = stacAssets;
+      else delete baseItem.assets;
+      if (minZoom !== undefined) baseItem.minZoom = minZoom;
+      else delete baseItem.minZoom;
+      if (maxZoom !== undefined) baseItem.maxZoom = maxZoom;
+      else delete baseItem.maxZoom;
+    } else {
+      delete baseItem.assets;
+    }
 
     // layers: only meaningful for OGC-style services
     if (layers) {
