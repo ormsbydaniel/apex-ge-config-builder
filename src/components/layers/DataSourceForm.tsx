@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { ServiceSelectionModal } from './components/ServiceSelectionModals';
 import { ServiceCardList } from './components/ServiceCardList';
 import { determineZLevel } from '@/utils/drawOrderUtils';
-import ParametersEditor, { ParameterRow, recordToRows, rowsToRecord } from './ParametersEditor';
+import ParametersEditor, { ParameterRow, mergeWmsParameters, recordToRows } from './ParametersEditor';
 
 interface DataSourceFormProps {
   services: Service[];
@@ -94,6 +94,10 @@ const DataSourceForm = ({
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
+  const existingVersion = editingDataSource?.parameters?.version;
+  const [serviceVersion, setServiceVersion] = useState<string | undefined>(
+    typeof existingVersion === 'string' ? existingVersion : undefined
+  );
   
   // Position state for comparison layers
   const [selectedPosition, setSelectedPosition] = useState<PositionValue | undefined>(
@@ -171,6 +175,8 @@ const DataSourceForm = ({
       setManualStatisticsLevel(editingDataSource.level ?? statisticsLevel);
       setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
       setParameterRows(recordToRows(editingDataSource.parameters));
+      const editingVersion = editingDataSource.parameters?.version;
+      setServiceVersion(typeof editingVersion === 'string' ? editingVersion : undefined);
       
       // Handle date initialization
       if (editingDataSource.timestamps && editingDataSource.timestamps.length > 0) {
@@ -271,6 +277,9 @@ const DataSourceForm = ({
 
   const handleFormatChange = (format: DataSourceFormat) => {
     setSelectedFormat(format);
+    if (format !== 'wms') {
+      setServiceVersion(undefined);
+    }
     
     // Update zIndex to recommended value for the new format
     setZIndex(getRecommendedZIndex(format));
@@ -294,8 +303,21 @@ const DataSourceForm = ({
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
+    setServiceVersion(
+      service.format === 'wms' ? service.capabilities?.version : undefined
+    );
     setShowServiceModal(true);
   };
+
+  useEffect(() => {
+    if (!selectedServiceForModal) return;
+    const refreshedService = services.find(service => service.id === selectedServiceForModal.id);
+    if (!refreshedService || refreshedService === selectedServiceForModal) return;
+    setSelectedServiceForModal(refreshedService);
+    if (refreshedService.format === 'wms') {
+      setServiceVersion(refreshedService.capabilities?.version);
+    }
+  }, [services, selectedServiceForModal]);
 
   const handleServiceModalSelection = (
     selection: string | Array<{ url: string; format: DataSourceFormat; datetime?: string }>,
@@ -478,7 +500,7 @@ const DataSourceForm = ({
 
     // WMS custom parameters — only kept for WMS format
     if (selectedFormat === 'wms') {
-      const params = rowsToRecord(parameterRows);
+      const params = mergeWmsParameters(parameterRows, serviceVersion);
       if (Object.keys(params).length > 0) {
         baseItem.parameters = params;
       } else {
@@ -609,7 +631,10 @@ const DataSourceForm = ({
                   className={`cursor-pointer transition-colors ${
                     sourceType === 'direct' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
                   }`}
-                  onClick={() => setSourceType('direct')}
+                  onClick={() => {
+                    setSourceType('direct');
+                    setServiceVersion(undefined);
+                  }}
                 >
                   <CardContent className="p-4 text-center">
                     <Database className="h-6 w-6 mx-auto mb-2" />
