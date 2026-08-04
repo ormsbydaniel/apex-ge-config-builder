@@ -664,6 +664,11 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                            service.sourceType === 'stac' ? 'STAC' :
                            service.format?.toUpperCase()}
                         </Badge>
+                        {(service.format === 'wms' || service.format === 'wmts') && service.capabilities?.version && (
+                          <Badge variant="outline" className="border-blue-300 text-blue-700">
+                            v{service.capabilities.version}
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-xs text-slate-500 break-all mb-2">{service.url}</p>
                       {service.capabilities?.title && (
