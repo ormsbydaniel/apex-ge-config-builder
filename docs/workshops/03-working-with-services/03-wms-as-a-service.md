@@ -27,11 +27,13 @@ once and its layers can be browsed whenever you add a dataset.
 
 ## Use the service in a layer card
 
-1. Return to the **Layers** tab and open a layer card (or create a new one).
+1. Return to the **Layers** tab and add a new layer card called `World Cover
+   2020`.
 2. Select **+ Add dataset** and choose **From service**.
 3. Pick the WMS service you just added. The builder loads the capabilities and
    presents a searchable list of layers.
-4. Search for `worldcover` and select a layer, then choose **Select**.
+4. Search for `worldcover`. Multiple years will appear in the search results;
+   select the **2020** version, then choose **Select**.
 
 !!! tip "Direct connection vs service"
 
