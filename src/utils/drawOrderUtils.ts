@@ -1,7 +1,7 @@
 import { DataSource, DataSourceItem } from '@/types/config';
 
 // Format categorization
-const RASTER_FORMATS = ['cog', 'wms', 'wmts', 'xyz'];
+const RASTER_FORMATS = ['cog', 'wms', 'wmts', 'xyz', 'stac'];
 const VECTOR_FORMATS = ['geojson', 'flatgeobuf', 'wfs'];
 
 // Z-level constants

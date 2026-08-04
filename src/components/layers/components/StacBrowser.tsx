@@ -20,6 +20,7 @@ import {
   inferChildKind,
   extractNextLink,
   getSelfLink,
+  getStacCollectionDataSourceUrl,
   resolveAssetUrl,
   ensureSlash,
   type StacLink,
@@ -51,10 +52,17 @@ export interface AssetSelection {
   datetime?: string;
 }
 
+export interface CollectionSelection {
+  url: string;
+  format: 'stac';
+  collectionId: string;
+}
+
 interface StacBrowserProps {
   serviceUrl: string;
   serviceName: string;
   onAssetSelect: (assets: AssetSelection | AssetSelection[]) => void;
+  onCollectionSelect?: (collection: CollectionSelection) => void;
 }
 
 type BrowserStep = 'catalog' | 'collections' | 'items' | 'assets';
@@ -73,7 +81,7 @@ interface CatalogStackEntry {
   children: CatalogChild[];
 }
 
-const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProps) => {
+const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect, onCollectionSelect }: StacBrowserProps) => {
   const [currentStep, setCurrentStep] = useState<BrowserStep>('collections');
   const [detectedMode, setDetectedMode] = useState<DetectedMode>(null);
   const [loading, setLoading] = useState(false);
@@ -183,6 +191,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       title: data.title || data.id || 'STAC Collection',
       description: data.description,
       links: data.links,
+      collectionUrl,
     });
     setCurrentStep('assets');
     return true;
@@ -278,6 +287,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           keywords: data.keywords,
           extent: data.extent,
           links: data.links,
+          collectionUrl: serviceUrl,
         };
         await fetchItems(collection, serviceUrl);
         return;
@@ -345,6 +355,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           keywords: data.keywords,
           extent: data.extent,
           links: data.links,
+          collectionUrl: childUrl,
         };
         setLoading(false);
         await fetchItems(collection, childUrl);
@@ -966,6 +977,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                     ? `${items.length}+ items`
                     : `${items.length} items`}
               </Badge>
+              {onCollectionSelect && (
+                <Button
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => onCollectionSelect({
+                    url: getStacCollectionDataSourceUrl(selectedCollection, serviceUrl),
+                    format: 'stac',
+                    collectionId: selectedCollection.id,
+                  })}
+                >
+                  Add collection
+                </Button>
+              )}
             </div>
             <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
@@ -1011,6 +1035,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
               <Badge variant="outline" className="border-green-300 text-green-700">
                 {totalAssetCount} assets
               </Badge>
+              {onCollectionSelect && selectedCollection?.collectionUrl && (
+                <Button
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => onCollectionSelect({
+                    url: getStacCollectionDataSourceUrl(selectedCollection, serviceUrl),
+                    format: 'stac',
+                    collectionId: selectedCollection.id,
+                  })}
+                >
+                  Add collection
+                </Button>
+              )}
             </div>
             <p className="text-sm text-muted-foreground overflow-hidden">
               {selfLink ? (
@@ -1305,14 +1342,27 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                           </button>
                         )}
                       </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="flex-shrink-0"
-                        onClick={() => fetchItems(collection)}
-                      >
-                        Browse items
-                      </Button>
+                      <div className="flex flex-shrink-0 gap-2">
+                        {onCollectionSelect && (
+                          <Button
+                            size="sm"
+                            onClick={() => onCollectionSelect({
+                              url: getStacCollectionDataSourceUrl(collection, serviceUrl),
+                              format: 'stac',
+                              collectionId: collection.id,
+                            })}
+                          >
+                            Add collection
+                          </Button>
+                        )}
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => fetchItems(collection)}
+                        >
+                          Browse items
+                        </Button>
+                      </div>
                     </div>
                   );
                 })

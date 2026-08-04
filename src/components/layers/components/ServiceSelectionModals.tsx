@@ -11,7 +11,7 @@ import StacBrowser from './StacBrowser';
 import { useLazyServiceCapabilities } from '@/hooks/useLazyServiceCapabilities';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 
-import { AssetSelection } from './StacBrowser';
+import { AssetSelection, CollectionSelection } from './StacBrowser';
 
 type SourceContext = 'data' | 'chart' | 'statistics' | 'constraint';
 
@@ -26,7 +26,7 @@ interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
+  onSelect: (selection: string | AssetSelection[] | CollectionSelection, layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
   allowedFormats?: string[];
   sourceContext?: SourceContext;
 }
@@ -141,6 +141,10 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
                 }
                 handleClose();
               }}
+              onCollectionSelect={sourceContext === 'data' ? (selection) => {
+                onSelect(selection);
+                handleClose();
+              } : undefined}
             />
           ) : (
             <div className="flex flex-col gap-2 flex-1 min-h-0">
