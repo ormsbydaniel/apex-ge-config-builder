@@ -28,6 +28,19 @@ title: 3-2. Key concepts
 - ESA's **Project Results Repository (PRR)** is a store of data **produced by
   ESA-funded EO projects**, and it is available as a **STAC catalogue**.
 
+## Data buckets
+
+- The final type of service is a **data bucket**: cloud-hosted storage provided
+  through an **S3-compatible store**, such as AWS S3 or an APEx-provided object
+  store.
+
+- Data buckets are typically used for **file-based storage**, including raster
+  files such as COGs and vector files such as GeoJSON or FlatGeoBuf.
+
+- When a bucket is publicly accessible, the Config Builder can **browse its
+  folders and files**, acting as a file picker so that you can select data to
+  add to a layer.
+
 ## Why this matters
 
 - You can **add services to a Geospatial Explorer config**, and then
