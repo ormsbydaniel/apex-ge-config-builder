@@ -34,6 +34,8 @@ once and its layers can be browsed whenever you add a dataset.
    presents a searchable list of layers.
 4. Search for `worldcover`. Multiple years will appear in the search results;
    select the **2020** version, then choose **Select**.
+5. *Preview* your config now to see the new layer, then select *Export* so you
+   don't lose your work.
 
 !!! tip "Direct connection vs service"
 
