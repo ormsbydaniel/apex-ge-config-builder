@@ -85,16 +85,11 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
   }, [title, isEdit, idTouched, existingIds, initial?.id]);
 
   const canSave = title.trim().length > 0 && id.trim().length > 0;
+  const showImport = !isEdit && !!onImportStories;
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit story' : 'Add story'}</DialogTitle>
-          <DialogDescription>
-            A story groups one or more steps. Markdown is supported in the description.
-          </DialogDescription>
-        </DialogHeader>
+  const formSection = (
+    <>
+
 
         <div className="space-y-3">
           <div className="flex items-end gap-4">
