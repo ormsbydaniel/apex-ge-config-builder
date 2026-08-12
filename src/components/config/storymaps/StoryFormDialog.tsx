@@ -52,7 +52,10 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
   initial,
   existingIds,
   onSave,
+  existingSourceIds = [],
+  onImportStories,
 }) => {
+
   const isEdit = !!initial;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
