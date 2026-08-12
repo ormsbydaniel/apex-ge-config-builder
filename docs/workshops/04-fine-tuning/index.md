@@ -24,3 +24,4 @@ By the end of this tutorial you will be able to:
 - [4-2. Specifying layer units](02-layer-controls.md)
 - [4-3. Experiment with layer controls](03-specifying-layer-units.md)
 - [4-4. Default start location](04-default-start-location.md)
+- [4-5. Alternative projections](05-alternative-projections.md)
