@@ -26,18 +26,25 @@ where it zooms to.
 land on a particular region rather than the whole dataset.
 
 1. Re-open **Edit Controls** and switch to **Custom extent**.
-2. Enter an extent as `xmin, ymin, xmax, ymax`, for example:
+2. Enter an extent as `xmin, ymin, xmax, ymax`, for example, for the UK only:
 
     ```
-    -10, 35, 30, 60
+    -8, 50, 2, 60
     ```
 
 3. **Save**, preview again, and compare the result with the layer bounds
    behaviour.
 
+!!! tip
+    Some service types, such as **XYZ tile services**, do not declare their own
+    extent — they are treated as global. For these layers, use **Custom extent**
+    if you want the zoom button to focus on a specific area rather than the
+    whole world.
+
 !!! note
     If the extent is incomplete or not four valid numbers, the control falls
     back to zooming to the layer bounds.
+
 
 ### Opacity Slider
 
