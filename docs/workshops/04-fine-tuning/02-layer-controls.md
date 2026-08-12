@@ -61,6 +61,8 @@ combines with the layers below it.
 1. Tick **Blend Controls** and **Save**.
 2. In **GE Preview**, try a couple of blend modes over your base map.
 
+![Blend Layers control on a layer card in the Explorer](../../assets/screenshots/layer-card-blend-controls.png)
+
 !!! tip
     A good way to explore this is to load the **Comprehensive Demo** example
     config, open the **Soil Water Index** layer card, and experiment with
