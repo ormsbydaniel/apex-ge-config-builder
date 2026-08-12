@@ -63,6 +63,8 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
   const [thumbnail, setThumbnail] = useState('');
   const [idTouched, setIdTouched] = useState(false);
   const [isActive, setIsActive] = useState(false);
+  const [mode, setMode] = useState<'new' | 'import'>('new');
+
 
   // Initialise dialog state inside useEffect on `open` — prevents stale
   // overwrites (core memory rule).
