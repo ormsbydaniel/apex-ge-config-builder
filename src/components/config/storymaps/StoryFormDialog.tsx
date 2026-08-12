@@ -76,6 +76,8 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
     setThumbnail(initial?.thumbnail ?? '');
     setIdTouched(!!initial);
     setIsActive(initial?.isActive ?? false);
+    setMode('new');
+
   }, [open, initial]);
 
   // Auto-slug id from title while user hasn't touched id manually.
