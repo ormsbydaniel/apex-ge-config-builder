@@ -290,6 +290,9 @@ const StorymapsTab: React.FC = () => {
         onOpenChange={setAddOpen}
         existingIds={list.map((s) => s.id)}
         onSave={handleAddStory}
+        existingSourceIds={(config.sources ?? []).map((s: any) => s?.id).filter(Boolean)}
+        onImportStories={handleImportStories}
+
       />
 
       <StoryFormDialog
