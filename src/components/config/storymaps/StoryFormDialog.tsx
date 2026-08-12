@@ -155,7 +155,6 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
           </div>
         </div>
 
-
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
@@ -176,9 +175,49 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
             {isEdit ? 'Save' : 'Add story'}
           </Button>
         </DialogFooter>
+      </>
+    );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? 'Edit story' : 'Add story'}</DialogTitle>
+          <DialogDescription>
+            {showImport
+              ? 'Create a new story, or import one from another configuration.'
+              : 'A story groups one or more steps. Markdown is supported in the description.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        {showImport ? (
+          <Tabs value={mode} onValueChange={(v) => setMode(v as 'new' | 'import')}>
+            <TabsList className="grid grid-cols-2 w-full">
+              <TabsTrigger value="new">New story</TabsTrigger>
+              <TabsTrigger value="import">Import story</TabsTrigger>
+            </TabsList>
+            <TabsContent value="new" className="mt-4">
+              {formSection}
+            </TabsContent>
+            <TabsContent value="import" className="mt-4">
+              <StoryImportPanel
+                active={open && mode === 'import'}
+                existingSourceIds={existingSourceIds}
+                onCancel={() => onOpenChange(false)}
+                onImport={(selection) => {
+                  onImportStories?.(selection);
+                  onOpenChange(false);
+                }}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          formSection
+        )}
       </DialogContent>
     </Dialog>
   );
 };
+
 
 export default StoryFormDialog;
