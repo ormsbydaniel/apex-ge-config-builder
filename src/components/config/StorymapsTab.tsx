@@ -123,6 +123,67 @@ const StorymapsTab: React.FC = () => {
     addStory(newStory);
   };
 
+  /**
+   * Import one or more stories from a donor config. Any donor layers the user
+   * ticked are cloned first (cloning mints fresh ids), then each story's layer
+   * references are remapped onto those new ids. References to layers that were
+   * not imported are dropped.
+   */
+  const handleImportStories = (selection: StoryImportSelection) => {
+    const { stories, layers } = selection;
+    if (!Array.isArray(stories) || stories.length === 0) return;
+
+    const currentSources: any[] = config.sources ?? [];
+    const existingNames = new Set<string>(
+      currentSources.map((s: any) => s?.name).filter((n: any) => typeof n === 'string'),
+    );
+    const existingSourceIds = new Set<string>(
+      currentSources.map((s: any) => s?.id).filter((v: any) => typeof v === 'string' && v),
+    );
+
+    // Donor id -> target id. Layers already present keep their id.
+    const idMap = new Map<string, string>();
+    for (const id of existingSourceIds) idMap.set(id, id);
+
+    let addedLayers = 0;
+    for (const donor of layers ?? []) {
+      if (!donor || typeof donor.id !== 'string') continue;
+      const cloned = cloneDonorLayer(donor, {
+        interfaceGroup: donor?.layout?.interfaceGroup,
+        subinterfaceGroup: donor?.layout?.subinterfaceGroup,
+        existingNames,
+        existingIds: existingSourceIds,
+      });
+      dispatch({ type: 'ADD_SOURCE', payload: cloned });
+      idMap.set(donor.id, cloned.id);
+      addedLayers += 1;
+    }
+
+    const storyIdPool = list.map((s) => s.id);
+    const storyTitlePool = list.map((s) => s.title).filter(Boolean) as string[];
+    let droppedRefs = 0;
+
+    for (const donorStory of stories) {
+      const { story: remapped, dropped } = remapStoryLayerRefs(donorStory, idMap);
+      droppedRefs += dropped;
+      const nextId = uniqueStoryId(remapped.id, storyIdPool);
+      const nextTitle = uniqueStoryTitle(remapped.title ?? 'Imported story', storyTitlePool);
+      storyIdPool.push(nextId);
+      storyTitlePool.push(nextTitle);
+      addStory({ ...remapped, id: nextId, title: nextTitle });
+    }
+
+    const bits: string[] = [];
+    if (addedLayers > 0) bits.push(`${addedLayers} layer${addedLayers === 1 ? '' : 's'} imported`);
+    if (droppedRefs > 0)
+      bits.push(`${droppedRefs} layer reference${droppedRefs === 1 ? '' : 's'} removed`);
+    toast({
+      title: `Imported ${stories.length} stor${stories.length === 1 ? 'y' : 'ies'}`,
+      description: bits.length ? bits.join(' · ') : undefined,
+    });
+  };
+
+
   const handleEditStory = (index: number, patch: { id: string; title: string; description?: string; isActive?: boolean; thumbnail?: string }) => {
     const original = list[index];
     if (!original) return;
