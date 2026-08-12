@@ -146,6 +146,7 @@ nav:
           - Overview: workshops/04-fine-tuning/index.md
           - 4-1. Pre-requisites: workshops/04-fine-tuning/01-prerequisites.md
           - 4-2. Experiment with layer controls: workshops/04-fine-tuning/02-layer-controls.md
+          - 4-3. Specifying layer units: workshops/04-fine-tuning/03-specifying-layer-units.md
       - 5. Categorical Data:
           - Overview: workshops/05-categorical-data/index.md
           - 5-1. Pre-requisites: workshops/05-categorical-data/01-prerequisites.md
