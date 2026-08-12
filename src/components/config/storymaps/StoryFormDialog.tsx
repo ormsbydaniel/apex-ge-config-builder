@@ -13,6 +13,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import MarkdownEditor from '@/components/common/MarkdownEditor';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import StoryImportPanel, {
+  type StoryImportSelection,
+} from '@/components/config/storymaps/import/StoryImportPanel';
 import { Story } from '@/types/config';
 
 interface StoryFormDialogProps {
@@ -21,7 +25,12 @@ interface StoryFormDialogProps {
   initial?: Story | null;
   existingIds: string[];
   onSave: (patch: { id: string; title: string; description?: string; isActive?: boolean; thumbnail?: string }) => void;
+  /** Source ids already present in the working configuration (import tab). */
+  existingSourceIds?: string[];
+  /** When provided, an "Import story" tab is shown in add mode. */
+  onImportStories?: (selection: StoryImportSelection) => void;
 }
+
 
 const slugify = (s: string): string =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'story';
