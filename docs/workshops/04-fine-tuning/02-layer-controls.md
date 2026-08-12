@@ -4,11 +4,26 @@ title: 4-2. Experiment with layer controls
 # 4-2. Experiment with layer controls
 
 The **Layer controls** section of a layer card decides which interactive
-controls the Explorer shows for that layer. Open your *AGB* layer card, find
-the **Controls** section, and click the pencil icon to open **Edit Controls**.
+controls the Explorer shows for that layer. Open your *Above Ground Biomass*
+layer card, find the **Controls** section, and click the pencil icon to open
+**Edit Controls**.
 
 After each change, **Save** the layer card and open **GE Preview** to see the
 effect in the Explorer.
+
+![Layer controls on a layer card in the Explorer](../../assets/screenshots/layer-card-controls-row.png)
+
+From left to right, the icons are:
+
+- **Zoom to** — centres the map on the layer.
+- **Download** — downloads the linked file or page.
+- **Opacity & Blend** — fades the layer and changes how it blends with layers
+  underneath.
+- **Constraints** — shows a slider for any constraint configured on the layer.
+- **Temporal control** — opens the time picker for layers with timestamps.
+
+You can test each of these controls on the **Above Ground Biomass** layer you
+created earlier.
 
 
 ### Zoom to Center
@@ -77,8 +92,9 @@ example only showing values above a threshold.
 1. Tick **Constraint Slider** and **Save**.
 
 !!! info "Constraints come later"
-    This control only does something once constraints are defined on the
-    layer. We cover that in [Tutorial 7 — Constraints](../07-constraints/index.md).
+    This control only shows a slider once a constraint is defined on the layer
+    itself. The separate [Tutorial 7 — Constraints](../07-constraints/index.md)
+    covers creating filters that use values from secondary layers.
 
 ### Temporal Controls
 
@@ -94,13 +110,19 @@ Leave this one alone for now — we come back to it in
 Adds a download button to the layer card. The optional URL field controls
 where that button points.
 
-1. Tick **Download** and **Save**.
-2. Preview and check the download button appears on the layer card.
+1. Tick **Download** and paste the URL for the Above Ground Biomass COG:
+
+    ```
+    https://eoresults.esa.int/d/FCM-AGB-100m/2023/01/01/FCM-AGB-100m-2023/FCM_Europe_demo_2023_AGB.tif
+    ```
+
+2. **Save**, then open **GE Preview**.
+3. Click the download button on the layer card and check the download starts.
 
 !!! tip "Download links"
-    You can either paste the COG URL from the earlier tutorial (which triggers
-    a direct download) or a link to somewhere more useful — for example the
-    dataset's STAC record on the PRR.
+    You can either paste the COG URL (which triggers a direct download) or a
+    link to somewhere more useful — for example the dataset's STAC record on the
+    PRR.
 
 ### Did you remember to export?
 
