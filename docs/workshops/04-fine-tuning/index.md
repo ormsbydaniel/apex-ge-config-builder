@@ -21,5 +21,5 @@ By the end of this tutorial you will be able to:
 ## Steps
 
 - [4-1. Pre-requisites](01-prerequisites.md)
-- [4-2. Experiment with layer controls](02-layer-controls.md)
-- [4-3. Specifying layer units](03-specifying-layer-units.md)
+- [4-2. Specifying layer units](02-layer-controls.md)
+- [4-3. Experiment with layer controls](03-specifying-layer-units.md)
