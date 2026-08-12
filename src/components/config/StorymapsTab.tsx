@@ -182,10 +182,11 @@ const StorymapsTab: React.FC = () => {
     if (addedLayers > 0) bits.push(`${addedLayers} layer${addedLayers === 1 ? '' : 's'} imported`);
     if (droppedRefs > 0)
       bits.push(`${droppedRefs} layer reference${droppedRefs === 1 ? '' : 's'} removed`);
-    toast({
-      title: `Imported ${stories.length} stor${stories.length === 1 ? 'y' : 'ies'}`,
-      description: bits.length ? bits.join(' · ') : undefined,
-    });
+    toast.success(
+      `Imported ${stories.length} stor${stories.length === 1 ? 'y' : 'ies'}`,
+      bits.length ? { description: bits.join(' · ') } : undefined,
+    );
+
   };
 
 
