@@ -15,9 +15,11 @@ By the end of this tutorial you will be able to:
 
 - Understand what each layer control does in the Explorer.
 - Enable and disable layer controls on a layer card.
+- Specify units for numeric layers so they appear in the legend and data values.
 - Preview the effect of your choices in GE Preview.
 
 ## Steps
 
 - [4-1. Pre-requisites](01-prerequisites.md)
 - [4-2. Experiment with layer controls](02-layer-controls.md)
+- [4-3. Specifying layer units](03-specifying-layer-units.md)
