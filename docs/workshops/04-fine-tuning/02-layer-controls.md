@@ -1,7 +1,7 @@
 ---
-title: 4-3. Specifying layer units
+title: 4-2. Specifying layer units
 ---
-# 4-3. Specifying layer units
+# 4-2. Specifying layer units
 
 Layers that show numeric values, such as **Above Ground Biomass (AGB)**, are
 much easier to understand when the units are displayed in the legend and in

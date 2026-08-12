@@ -1,7 +1,7 @@
 ---
-title: 4-2. Experiment with layer controls
+title: 4-3. Experiment with layer controls
 ---
-# 4-2. Experiment with layer controls
+# 4-3. Experiment with layer controls
 
 The **Layer controls** section of a layer card decides which interactive
 controls the Explorer shows for that layer. Open your *Above Ground Biomass*
