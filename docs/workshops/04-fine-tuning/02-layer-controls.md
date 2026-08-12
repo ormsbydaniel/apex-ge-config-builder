@@ -10,12 +10,6 @@ the **Controls** section, and click the pencil icon to open **Edit Controls**.
 After each change, **Save** the layer card and open **GE Preview** to see the
 effect in the Explorer.
 
-### Toggleable
-
-Lets users switch the layer on and off from its card in the Explorer.
-
-1. Tick **Toggleable** and **Save**.
-2. Open **GE Preview** and switch the layer off, then on again.
 
 ### Zoom to Center
 
@@ -32,18 +26,25 @@ where it zooms to.
 land on a particular region rather than the whole dataset.
 
 1. Re-open **Edit Controls** and switch to **Custom extent**.
-2. Enter an extent as `xmin, ymin, xmax, ymax`, for example:
+2. Enter an extent as `xmin, ymin, xmax, ymax`, for example, for the UK only:
 
     ```
-    -10, 35, 30, 60
+    -8, 50, 2, 60
     ```
 
 3. **Save**, preview again, and compare the result with the layer bounds
    behaviour.
 
+!!! tip
+    Some service types, such as **XYZ tile services**, do not declare their own
+    extent — they are treated as global. For these layers, use **Custom extent**
+    if you want the zoom button to focus on a specific area rather than the
+    whole world.
+
 !!! note
     If the extent is incomplete or not four valid numbers, the control falls
     back to zooming to the layer bounds.
+
 
 ### Opacity Slider
 
@@ -59,6 +60,12 @@ combines with the layers below it.
 
 1. Tick **Blend Controls** and **Save**.
 2. In **GE Preview**, try a couple of blend modes over your base map.
+
+!!! tip
+    A good way to explore this is to load the **Comprehensive Demo** example
+    config, open the **Soil Water Index** layer card, and experiment with
+    different blend modes against the base map and layers underneath.
+
 
 ### Constraint Slider
 
