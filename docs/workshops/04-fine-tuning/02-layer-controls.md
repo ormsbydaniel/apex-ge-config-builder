@@ -10,12 +10,6 @@ the **Controls** section, and click the pencil icon to open **Edit Controls**.
 After each change, **Save** the layer card and open **GE Preview** to see the
 effect in the Explorer.
 
-### Toggleable
-
-Lets users switch the layer on and off from its card in the Explorer.
-
-1. Tick **Toggleable** and **Save**.
-2. Open **GE Preview** and switch the layer off, then on again.
 
 ### Zoom to Center
 
