@@ -402,11 +402,39 @@ export const useLayerOperations = ({
           }
         }
 
-        // Remove the transient suggestion from the persisted data sources.
+        // Apply catalogue legend styling to the layer meta when it has none yet.
+        const existingMeta = layer.meta || {};
+        if (!existingMeta.categories?.length && !existingMeta.colormaps?.length) {
+          for (const item of dataSourcesToAdd) {
+            const style = item?.__styleSuggestion as CatalogueStyleSuggestion | undefined;
+            if (!style) continue;
+            const metaUpdate: Record<string, unknown> = {};
+            if (style.kind === 'categories' && style.categories.length > 0) {
+              metaUpdate.categories = style.categories;
+            } else if (style.kind === 'colormap') {
+              metaUpdate.colormaps = [style.colormap];
+            } else if (style.kind === 'gradient') {
+              metaUpdate.min = style.min;
+              metaUpdate.max = style.max;
+              metaUpdate.startColor = style.startColor;
+              metaUpdate.endColor = style.endColor;
+            }
+            if (style.units && !existingMeta.units) {
+              metaUpdate.units = style.units;
+            }
+            if (Object.keys(metaUpdate).length > 0) {
+              layerUpdate.meta = { ...existingMeta, ...metaUpdate } as DataSource['meta'];
+            }
+            break;
+          }
+        }
+
+        // Remove the transient suggestions from the persisted data sources.
         const sanitizedDataSources = dataSourcesToAdd.map((item) => {
-          const { __temporalSuggestion, ...rest } = item;
+          const { __temporalSuggestion, __styleSuggestion, ...rest } = item;
           return rest;
         });
+
 
         const updatedLayer = {
           ...layer,
