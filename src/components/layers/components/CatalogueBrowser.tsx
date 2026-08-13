@@ -393,21 +393,22 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
             <Map className="h-4 w-4" />
             <span className="font-medium">{selectedDataset.title}</span>
           </div>
-          {!selectedDataset.available && (
+          {!selectedDatasetSelectable && (
             <div className="p-3 border rounded bg-muted/50 text-sm text-muted-foreground flex items-start gap-2">
               <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              This dataset is currently unavailable in the catalogue. You can still view the layers, but they cannot be added to your configuration.
+              {catalogueDatasetUnavailableReason(selectedDataset)} Datasets like this are listed for
+              information only and cannot be added to your configuration.
             </div>
           )}
           <div className="grid gap-3">
             {filteredLayers.map((layer) => (
               <Card
                 key={layer.identifier}
-                className={`transition-colors ${selectedDataset.available ? 'hover:border-primary' : 'opacity-60 border-dashed'}`}
+                className={`transition-colors ${selectedDatasetSelectable ? 'hover:border-primary' : 'opacity-60 border-dashed'}`}
               >
                 <CardContent className="p-4 flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h4 className={`font-medium ${selectedDataset.available ? '' : 'text-muted-foreground'}`}>
+                    <h4 className={`font-medium ${selectedDatasetSelectable ? '' : 'text-muted-foreground'}`}>
                       {layer.title || layer.identifier}
                     </h4>
                     <p className="text-sm text-muted-foreground truncate">{layer.identifier}</p>
@@ -421,14 +422,14 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                         <span>
                           <Button
                             size="sm"
-                            disabled={!selectedDataset.available}
+                            disabled={!selectedDatasetSelectable}
                             onClick={() => handleLayerSelect(layer)}
                           >
                             Add layer
                           </Button>
                         </span>
                       </TooltipTrigger>
-                      {!selectedDataset.available && (
+                      {!selectedDatasetSelectable && (
                         <TooltipContent>
                           <p>Dataset unavailable</p>
                         </TooltipContent>
@@ -439,8 +440,13 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
               </Card>
             ))}
             {filteredLayers.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">No layers match your search.</p>
+              <p className="text-center text-muted-foreground py-8">
+                {(selectedDataset.layers?.length ?? 0) === 0
+                  ? 'This dataset has no map layers in the catalogue.'
+                  : 'No layers match your search.'}
+              </p>
             )}
+
           </div>
         </div>
       )}
