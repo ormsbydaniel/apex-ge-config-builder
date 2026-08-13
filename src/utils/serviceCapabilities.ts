@@ -5,6 +5,8 @@ import {
   classifyFetchError,
   classifyHttpResponse,
 } from '@/utils/serviceDiagnostics';
+import { parseTimeDimensionValue } from '@/utils/timeDimension';
+
 
 const getDescendantsByLocalName = (root: ParentNode, localName: string): Element[] =>
   Array.from(root.querySelectorAll('*')).filter(el => el.localName === localName);
