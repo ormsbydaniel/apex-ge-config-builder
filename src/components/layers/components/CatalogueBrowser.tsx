@@ -20,6 +20,14 @@ import {
 } from '@/utils/catalogueService';
 
 import { fetchServiceVersion } from '@/utils/serviceCapabilities';
+import {
+  CatalogueStyleSuggestion,
+  legendToStyleSuggestion,
+  primaryLayerLegend,
+  describeStyleSuggestion,
+  styleSuggestionPreviewCss,
+} from '@/utils/catalogueLegend';
+
 
 function ExpandableText({ text, className = '' }: { text: string; className?: string }) {
   const [expanded, setExpanded] = useState(false);
