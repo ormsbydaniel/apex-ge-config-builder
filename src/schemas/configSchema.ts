@@ -116,6 +116,31 @@ const ChartConfigSchema = z.object({
 
 // ============= End Chart Schemas =============
 
+const CatalogueLayerSchema = z.object({
+  identifier: z.string(),
+  title: z.string().optional(),
+  abstract: z.string().optional(),
+});
+
+const CatalogueDatasetSchema = z.object({
+  datasetIdentifier: z.string(),
+  serviceUrl: z.string(),
+  getCapabilitiesUrl: z.string(),
+  title: z.string(),
+  abstract: z.string().optional(),
+  theme: z.string(),
+  available: z.boolean(),
+  layers: z.array(CatalogueLayerSchema),
+});
+
+export const CatalogueCapabilitiesSchema = z.object({
+  catalogue: z.object({
+    datasets: z.array(CatalogueDatasetSchema),
+  }),
+  availableDatasetCount: z.number().optional(),
+  unavailableDatasetCount: z.number().optional(),
+});
+
 export const ServiceCapabilitiesSchema = z.object({
   layers: z.array(z.object({
     name: z.string(),
@@ -131,7 +156,8 @@ export const ServiceCapabilitiesSchema = z.object({
   title: z.string().optional(),
   abstract: z.string().optional(),
   version: z.string().optional(),
-}).passthrough();
+}).merge(CatalogueCapabilitiesSchema.partial());
+
 
 
 // Custom URL validation that accepts both absolute URLs and relative paths
