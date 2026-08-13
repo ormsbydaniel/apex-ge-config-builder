@@ -196,12 +196,12 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
                             <div className="text-xs text-muted-foreground">{layer.name}</div>
                           )}
                         </div>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="shrink-0 h-7 text-xs"
                           onClick={() => {
-                            onSelect(service.url, layer.name, service.format as DataSourceFormat);
+                            onSelect(service.url, layer.name, service.format as DataSourceFormat, undefined, layer as LayerInfo);
                             handleClose();
                           }}
                         >
