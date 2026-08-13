@@ -37,7 +37,7 @@ const CAPABILITIES_SLOW_MS = 3000;
 const CAPABILITIES_LARGE_BYTES = 2 * 1024 * 1024;
 
 export type ServiceValidationStatus = 'idle' | 'checking' | 'ok' | 'warning' | 'error';
-export type ServiceKind = 'stac' | 'ogc' | 's3';
+export type ServiceKind = 'stac' | 'ogc' | 's3' | 'catalogue';
 
 export interface GroupProgress {
   total: number;
@@ -59,7 +59,9 @@ const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
   stac: { total: 0, completed: 0, inFlight: 0 },
   ogc: { total: 0, completed: 0, inFlight: 0 },
   s3: { total: 0, completed: 0, inFlight: 0 },
+  catalogue: { total: 0, completed: 0, inFlight: 0 },
 };
+
 
 const formatBytes = (bytes: number): string => {
   if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
