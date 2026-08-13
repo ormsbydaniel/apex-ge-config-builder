@@ -406,7 +406,7 @@ export const useLayerOperations = ({
         }
 
         // Apply catalogue legend styling to the layer meta when it has none yet.
-        const existingMeta = layer.meta || {};
+        const existingMeta: Partial<DataSourceMeta> = (layer.meta || {}) as Partial<DataSourceMeta>;
         if (!existingMeta.categories?.length && !existingMeta.colormaps?.length) {
           for (const item of dataSourcesToAdd) {
             const style = item?.__styleSuggestion as CatalogueStyleSuggestion | undefined;
