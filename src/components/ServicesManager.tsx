@@ -560,19 +560,22 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
             </div>
           </CardTitle>
           <CardDescription>
-            Configure WMS, WMTS, S3, and STAC services that can be used across multiple data sources. Services support automatic discovery via GetCapabilities, bucket listing, or catalogue metadata.
+            Configure WMS, WMTS, S3, STAC, and catalogue services that can be used across multiple data sources. Services support automatic discovery via GetCapabilities, bucket listing, or catalogue metadata.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {(showSummaryPanel || inFlightTotal > 0) && (
             <div className="relative mb-4 space-y-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 pr-10 text-sm text-primary">
-              {(['stac', 'ogc', 's3'] as ServiceKind[]).map(kind => {
+              {(['stac', 'ogc', 's3', 'catalogue'] as ServiceKind[]).map(kind => {
                 const label =
                   kind === 'stac'
                     ? 'STAC catalogues'
                     : kind === 'ogc'
                     ? 'WMS / WMTS / WFS services'
-                    : 'S3 stores';
+                    : kind === 's3'
+                    ? 'S3 stores'
+                    : 'Catalogues';
+
                 const groupProg = progress[kind];
                 const summary = runSummary?.[kind] ?? null;
 
