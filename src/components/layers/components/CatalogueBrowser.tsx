@@ -10,10 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { CatalogueDataset, CatalogueLayer } from '@/types/config';
 import { useToast } from '@/hooks/use-toast';
+import { DataSourceFormat } from '@/types/config';
 import {
   fetchCatalogueCollection,
   groupCatalogueDatasetsByTheme,
 } from '@/utils/catalogueService';
+import { fetchServiceVersion } from '@/utils/serviceCapabilities';
 
 export interface CatalogueLayerSelection {
   datasetIdentifier: string;
@@ -24,7 +26,9 @@ export interface CatalogueLayerSelection {
   layerTitle?: string;
   abstract?: string;
   format: 'wmts' | 'wms';
+  version?: string;
 }
+
 
 interface CatalogueBrowserProps {
   serviceUrl: string;
