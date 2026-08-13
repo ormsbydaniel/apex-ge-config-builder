@@ -14,7 +14,15 @@ export interface RecommendedConfig {
   services?: Service[];
 }
 
+export interface RecommendedCatalogueEntry {
+  id: string;
+  name: string;
+  description?: string;
+  url: string;
+}
+
 type Kind = 'basemaps' | 'services';
+
 
 const resolveUrl = async (kind: Kind): Promise<string> => {
   try {
