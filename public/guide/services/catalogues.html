@@ -1033,6 +1033,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#styles-and-legends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Styles and legends
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1483,6 +1494,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#styles-and-legends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Styles and legends
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1565,6 +1587,67 @@ present only where a public service was verified. An optional per-dataset
 <p>Because the file is fetched at runtime from the configs repository,
 regenerating and committing it refreshes the dataset list without redeploying
 the builder.</p>
+<h2 id="styles-and-legends">Styles and legends<a class="headerlink" href="#styles-and-legends" title="Permanent link">&para;</a></h2>
+<p>Catalogue layers can carry a <code>styles</code> array. Each style names the source
+evalscript and may include a <code>legend</code> describing the colours the service uses.
+When present, the builder previews the legend in the catalogue browser and
+auto-populates the layer's styling when the layer is added — but only when the
+layer has no categories or colormaps of its own, so your own edits are never
+overwritten.</p>
+<p>Three outcomes are possible:</p>
+<table>
+<thead>
+<tr>
+<th>Legend</th>
+<th>Applied to the layer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type: "discrete"</code></td>
+<td><strong>Categories</strong> — one class per entry, using the entry <code>label</code> when given and the value otherwise.</td>
+</tr>
+<tr>
+<td><code>type: "continuous"</code> with a recognised <code>colormapName</code> (or colours matching a preset closely)</td>
+<td><strong>Colormap</strong> — the named ramp with <code>min</code>, <code>max</code>, <code>steps</code> and <code>reverse</code>.</td>
+</tr>
+<tr>
+<td><code>type: "continuous"</code> with a bespoke ramp</td>
+<td><strong>Gradient</strong> — <code>min</code>/<code>max</code> plus a two-stop start and end colour taken from the ramp. A bespoke ramp is never mislabelled as a preset.</td>
+</tr>
+</tbody>
+</table>
+<p>Entries listed under <code>noData</code> are excluded from both classes and the ramp, so
+sentinel values such as <code>-1</code> do not distort the range. <code>units</code> populates the
+layer's units when set.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BF&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Burned fraction&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;styles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;burned_fraction.js&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;evalscriptUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://raw.githubusercontent.com/.../burned_fraction.js&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;legend&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;continuous&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;colormapName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;magma&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;reverse&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;units&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fraction&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;noData&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FFFFFF&quot;</span><span class="w"> </span><span class="p">}],</span>
+<span class="w">        </span><span class="nt">&quot;entries&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FCFDBF&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">          </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#000004&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>A dataset-level <code>style</code> block may also carry a <code>documentationUrl</code>, which the
+browser links from the dataset card; each style's <code>evalscriptUrl</code> is linked from
+the layer card. Both open in a new tab.</p>
 
 
 
