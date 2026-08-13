@@ -237,9 +237,18 @@ export const fetchServiceCapabilitiesWithMetrics = async (
             getDirectChildText(dimension, 'Identifier')?.toUpperCase() === 'TIME'
           );
           const hasTimeDimension = !!timeDimension;
-          const defaultTime = hasTimeDimension 
+          const defaultTime = hasTimeDimension
             ? getDirectChildText(timeDimension, 'Default')
             : undefined;
+          const timeDimensionValues = timeDimension
+            ? getDescendantsByLocalName(timeDimension, 'Value')
+                .map((valueEl) => valueEl.textContent)
+                .filter((text): text is string => !!text)
+            : [];
+          const timeExtent = timeDimensionValues.length > 0
+            ? parseTimeDimensionValue(timeDimensionValues.join(','))
+            : undefined;
+
           
           // Extract TileMatrixSet (CRS info)
           const crsList = getDescendantsByLocalName(layer, 'TileMatrixSetLink')
