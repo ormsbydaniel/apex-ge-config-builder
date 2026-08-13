@@ -24,6 +24,45 @@ export interface CatalogueDatasetAccess {
   [key: string]: any;
 }
 
+export interface CatalogueDatasetStyle {
+  documentationUrl?: string;
+  evalscriptDiscovered?: boolean;
+  evalscriptDirectoryUrl?: string;
+  githubArchiveUrl?: string;
+  styleDiscoveryStatus?: string;
+  scripts?: Array<{ name?: string; url?: string; [key: string]: unknown }>;
+  [key: string]: unknown;
+}
+
+export interface CatalogueLegendEntry {
+  value: number;
+  color: string;
+  label?: string;
+}
+
+export interface CatalogueLegend {
+  /** 'discrete' for class legends, 'continuous' for ramps. */
+  type?: 'discrete' | 'continuous';
+  entries: CatalogueLegendEntry[];
+  /** Sentinel values excluded from the ramp/classes. */
+  noData?: CatalogueLegendEntry[];
+  min?: number;
+  max?: number;
+  steps?: number;
+  units?: string;
+  /** Named colour ramp hint (e.g. 'magma'). */
+  colormapName?: string;
+  reverse?: boolean;
+  sampled?: boolean;
+  sourceEntryCount?: number;
+}
+
+export interface CatalogueLayerStyle {
+  name: string;
+  evalscriptUrl?: string;
+  legend?: CatalogueLegend;
+}
+
 export interface CatalogueDataset {
   datasetIdentifier: string;
   /** Absent for datasets with no public map service. */
@@ -36,6 +75,7 @@ export interface CatalogueDataset {
   /** e.g. 'WMTS' | 'WMS'; absent when no public service was discovered. */
   serviceType?: string;
   access?: CatalogueDatasetAccess;
+  style?: CatalogueDatasetStyle;
   layers?: CatalogueLayer[];
 }
 
@@ -43,7 +83,9 @@ export interface CatalogueLayer {
   identifier: string;
   title?: string;
   abstract?: string;
+  styles?: CatalogueLayerStyle[];
 }
+
 
 
 export interface CatalogueCapabilities extends ServiceCapabilities {

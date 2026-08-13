@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Folder, Map, Search, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Folder, Map, Search, AlertCircle, Eye, EyeOff, Loader2, ExternalLink } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -20,6 +20,14 @@ import {
 } from '@/utils/catalogueService';
 
 import { fetchServiceVersion } from '@/utils/serviceCapabilities';
+import {
+  CatalogueStyleSuggestion,
+  legendToStyleSuggestion,
+  primaryLayerLegend,
+  describeStyleSuggestion,
+  styleSuggestionPreviewCss,
+} from '@/utils/catalogueLegend';
+
 
 function ExpandableText({ text, className = '' }: { text: string; className?: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -50,7 +58,10 @@ export interface CatalogueLayerSelection {
   abstract?: string;
   format: 'wmts' | 'wms';
   version?: string;
+  /** Styling derived from the catalogue legend, applied when the layer is added. */
+  styleSuggestion?: CatalogueStyleSuggestion;
 }
+
 
 
 interface CatalogueBrowserProps {
@@ -184,6 +195,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
     const version = getCapabilitiesUrl
       ? await fetchServiceVersion(getCapabilitiesUrl, format as DataSourceFormat)
       : undefined;
+    const styleSuggestion = legendToStyleSuggestion(primaryLayerLegend(layer));
     return {
       datasetIdentifier: dataset.datasetIdentifier,
       layerIdentifier: layer.identifier,
@@ -194,7 +206,9 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
       abstract: layer.abstract || dataset.abstract,
       format,
       ...(version ? { version } : {}),
+      ...(styleSuggestion ? { styleSuggestion } : {}),
     };
+
   };
 
   const handleLayerSelect = async (layer: CatalogueLayer) => {
@@ -388,11 +402,24 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                       {dataset.abstract && (
                         <ExpandableText text={dataset.abstract} className="mt-1" />
                       )}
+                      {dataset.style?.documentationUrl && (
+                        <a
+                          href={dataset.style.documentationUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Documentation
+                        </a>
+                      )}
                       {!selectable && (
                         <p className="text-sm text-muted-foreground mt-1">
                           {catalogueDatasetUnavailableReason(dataset)}
                         </p>
                       )}
+
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {layerCount > 0 && (
@@ -445,7 +472,44 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                     {layer.abstract && (
                       <ExpandableText text={layer.abstract} className="mt-1" />
                     )}
+                    {(() => {
+                      const suggestion = legendToStyleSuggestion(primaryLayerLegend(layer));
+                      if (!suggestion) return null;
+                      return (
+                        <div className="mt-2 flex items-center gap-2 flex-wrap">
+                          <span
+                            className="h-3 w-24 rounded border border-border"
+                            style={{ background: styleSuggestionPreviewCss(suggestion) }}
+                            aria-hidden="true"
+                          />
+                          <span className="text-xs text-muted-foreground">
+                            {describeStyleSuggestion(suggestion)}
+                            {suggestion.units ? ` · ${suggestion.units}` : ''}
+                          </span>
+                        </div>
+                      );
+                    })()}
+                    {(layer.styles || []).some(style => style.evalscriptUrl) && (
+                      <div className="mt-1 flex items-center gap-3 flex-wrap">
+                        {(layer.styles || [])
+                          .filter(style => style.evalscriptUrl)
+                          .map(style => (
+                            <a
+                              key={style.name}
+                              href={style.evalscriptUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              {style.name}
+                            </a>
+                          ))}
+                      </div>
+                    )}
                   </div>
+
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>

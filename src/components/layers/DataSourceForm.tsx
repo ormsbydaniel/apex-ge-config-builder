@@ -378,7 +378,13 @@ const DataSourceForm = ({
           item.level = levelToUse + index;
         }
 
+        // Transient styling suggestion derived from the catalogue legend.
+        if (entry.styleSuggestion) {
+          item.__styleSuggestion = entry.styleSuggestion;
+        }
+
         return item as DataSourceItem;
+
       });
 
       if (shouldAddAsStatistics) {
