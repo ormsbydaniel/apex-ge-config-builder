@@ -459,7 +459,44 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                     {layer.abstract && (
                       <ExpandableText text={layer.abstract} className="mt-1" />
                     )}
+                    {(() => {
+                      const suggestion = legendToStyleSuggestion(primaryLayerLegend(layer));
+                      if (!suggestion) return null;
+                      return (
+                        <div className="mt-2 flex items-center gap-2 flex-wrap">
+                          <span
+                            className="h-3 w-24 rounded border border-border"
+                            style={{ background: styleSuggestionPreviewCss(suggestion) }}
+                            aria-hidden="true"
+                          />
+                          <span className="text-xs text-muted-foreground">
+                            {describeStyleSuggestion(suggestion)}
+                            {suggestion.units ? ` · ${suggestion.units}` : ''}
+                          </span>
+                        </div>
+                      );
+                    })()}
+                    {(layer.styles || []).some(style => style.evalscriptUrl) && (
+                      <div className="mt-1 flex items-center gap-3 flex-wrap">
+                        {(layer.styles || [])
+                          .filter(style => style.evalscriptUrl)
+                          .map(style => (
+                            <a
+                              key={style.name}
+                              href={style.evalscriptUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              {style.name}
+                            </a>
+                          ))}
+                      </div>
+                    )}
                   </div>
+
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
