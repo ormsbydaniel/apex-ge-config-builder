@@ -655,6 +655,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               const sourceBorderClass =
                 service.sourceType === 's3' ? 'border-l-green-500' :
                 service.sourceType === 'stac' ? 'border-l-purple-500' :
+                service.sourceType === 'catalogue' ? 'border-l-amber-500' :
                 'border-l-blue-500';
               return (
               <Card key={service.id} className={
@@ -670,12 +671,15 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                           <Database className="h-4 w-4 text-green-600" />
                         ) : service.sourceType === 'stac' ? (
                           <Server className="h-4 w-4 text-purple-600" />
+                        ) : service.sourceType === 'catalogue' ? (
+                          <FolderOpen className="h-4 w-4 text-amber-600" />
                         ) : (
                           <Globe className="h-4 w-4 text-blue-600" />
                         )}
                         <h5 className={`font-medium ${
                           service.sourceType === 's3' ? 'text-green-700' :
                           service.sourceType === 'stac' ? 'text-purple-700' :
+                          service.sourceType === 'catalogue' ? 'text-amber-700' :
                           'text-blue-700'
                         }`}>
                           {service.name}
@@ -683,10 +687,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                         <Badge variant="outline" className={`${
                           service.sourceType === 's3' ? 'border-green-300 text-green-700' :
                           service.sourceType === 'stac' ? 'border-purple-300 text-purple-700' :
+                          service.sourceType === 'catalogue' ? 'border-amber-300 text-amber-700' :
                           'border-blue-300 text-blue-700'
                         }`}>
                           {service.sourceType === 's3' ? 'S3 Bucket' :
                            service.sourceType === 'stac' ? 'STAC' :
+                           service.sourceType === 'catalogue' ? 'Catalogue' :
                            service.format?.toUpperCase()}
                         </Badge>
                         {(service.format === 'wms' || service.format === 'wmts') && service.capabilities?.version && (
@@ -723,11 +729,13 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                               {layerCount} {
                                 service.sourceType === 's3' ? 'objects' :
                                 service.sourceType === 'stac' ? 'collections' :
+                                service.sourceType === 'catalogue' ? 'datasets' :
                                 'layers'
                               } available
                             </Badge>
                           );
                         }
+
                         if (status === 'error') {
                           const diag = validationErrors[service.id];
                           const errLabel =
