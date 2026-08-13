@@ -158,10 +158,11 @@ export const ServiceSchema = z.object({
   id: z.string(),
   name: z.string(),
   url: urlOrRelativePathSchema,
-  sourceType: z.enum(['s3', 'service', 'stac']).optional(),
-  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 'csv', 's3', 'stac']).optional(),
+  sourceType: z.enum(['s3', 'service', 'stac', 'catalogue']).optional(),
+  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 'csv', 's3', 'stac', 'catalogue']).optional(),
   capabilities: ServiceCapabilitiesSchema.optional(),
 });
+
 
 // Enhanced DataSourceItem schema with position field and zoom levels
 export const DataSourceItemSchema = z.object({
