@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Save, X, Database, Plus, Trash2, Sparkles } from 'lucide-react';
-import { Service, ConstraintSourceItem } from '@/types/config';
+import { Service, ConstraintSourceItem, LayerInfo } from '@/types/config';
 import { useServices } from '@/hooks/useServices';
 import { useToast } from '@/hooks/use-toast';
 import { useConfig } from '@/contexts/ConfigContext';
