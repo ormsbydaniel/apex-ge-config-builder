@@ -336,34 +336,85 @@ const DataSourceForm = ({
     }
   }, [services, selectedServiceForModal]);
 
-  const handleServiceModalSelection = (
-    selection: string | Array<{ url: string; format: DataSourceFormat; datetime?: string }>,
+  const handleServiceModalSelection = async (
+    selection: ServiceSelectionValue,
     layers: string = '',
     format?: DataSourceFormat,
     datetime?: string
   ) => {
+    // Handle catalogue bulk selections
+    if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {
+      const catalogueSelections = selection as CatalogueLayerSelection[];
+
+      // Determine if this should be treated as a statistics source
+      const shouldAddAsStatistics = isAddingStatistics || (isStatisticsLayer && supportsStatistics);
+      const levelToUse = isAddingStatistics ? manualStatisticsLevel : statisticsLevel;
+
+      // Convert all catalogue layers to DataSourceItems
+      const dataSourceItems: DataSourceItem[] = catalogueSelections.map((entry, index) => {
+        const item: Record<string, unknown> = {
+          url: entry.serviceUrl,
+          format: entry.format,
+          zIndex,
+          layers: entry.layerIdentifier,
+        };
+
+        // Apply negotiated version in protocol-specific locations.
+        if (entry.format === 'wms' && entry.version) {
+          item.parameters = { version: entry.version };
+        } else if (entry.format === 'wmts' && entry.version) {
+          item.version = entry.version;
+        }
+
+        if (shouldAddAsStatistics) {
+          item.level = levelToUse + index;
+        }
+
+        return item as DataSourceItem;
+      });
+
+      if (shouldAddAsStatistics) {
+        onAddStatisticsLayer(dataSourceItems);
+        toast({
+          title: "Statistics Sources Added",
+          description: `${dataSourceItems.length} statistics sources have been added starting at level ${levelToUse}.`,
+        });
+      } else {
+        onAddDataSource(dataSourceItems);
+        toast({
+          title: "Data Sources Added",
+          description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
+        });
+      }
+
+      setShowServiceModal(false);
+      setSelectedServiceForModal(null);
+      onCancel();
+      return;
+    }
+
     // Handle bulk selection (array of assets)
     if (Array.isArray(selection)) {
       // Determine if this should be treated as a statistics source
       const shouldAddAsStatistics = isAddingStatistics || (isStatisticsLayer && supportsStatistics);
       const levelToUse = isAddingStatistics ? manualStatisticsLevel : statisticsLevel;
-      
+
       // Convert all assets to DataSourceItems
       const dataSourceItems: DataSourceItem[] = selection.map((asset, index) => ({
         url: asset.url,
-        format: asset.format,
+        format: asset.format as DataSourceFormat,
         zIndex, // Use the current zIndex from form state
         ...(asset.datetime && requiresTimestamp && {
           timestamps: [Math.floor(new Date(asset.datetime).getTime() / 1000)]
         }),
         ...(shouldAddAsStatistics && { level: levelToUse + index }) // Increment level for each statistics source
       }));
-      
+
       // Add all data sources based on type
       if (shouldAddAsStatistics) {
         // Add all statistics sources in a single batch operation
         onAddStatisticsLayer(dataSourceItems);
-        
+
         toast({
           title: "Statistics Sources Added",
           description: `${dataSourceItems.length} statistics sources have been added starting at level ${levelToUse}.`,
@@ -371,19 +422,19 @@ const DataSourceForm = ({
       } else {
         // Add all data sources in a single batch operation
         onAddDataSource(dataSourceItems);
-        
+
         toast({
           title: "Data Sources Added",
           description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
         });
       }
-      
+
       setShowServiceModal(false);
       setSelectedServiceForModal(null);
       onCancel(); // Close the form after bulk add
       return;
     }
-    
+
     // Handle single selection (existing behavior)
     const url = selection;
     setDirectUrl(url);
@@ -391,7 +442,7 @@ const DataSourceForm = ({
     if (format) {
       setSelectedFormat(format);
     }
-    
+
     // If datetime is provided from STAC and temporal configuration is enabled, set the selected date
     if (datetime && requiresTimestamp) {
       try {
@@ -404,10 +455,11 @@ const DataSourceForm = ({
         console.warn('Failed to parse datetime from STAC asset:', datetime, error);
       }
     }
-    
+
     setShowServiceModal(false);
     setSelectedServiceForModal(null);
   };
+
 
   const handleServiceModalClose = () => {
     setShowServiceModal(false);
