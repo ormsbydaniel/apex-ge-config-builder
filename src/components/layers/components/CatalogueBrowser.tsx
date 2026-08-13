@@ -402,11 +402,24 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                       {dataset.abstract && (
                         <ExpandableText text={dataset.abstract} className="mt-1" />
                       )}
+                      {dataset.style?.documentationUrl && (
+                        <a
+                          href={dataset.style.documentationUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Documentation
+                        </a>
+                      )}
                       {!selectable && (
                         <p className="text-sm text-muted-foreground mt-1">
                           {catalogueDatasetUnavailableReason(dataset)}
                         </p>
                       )}
+
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {layerCount > 0 && (
