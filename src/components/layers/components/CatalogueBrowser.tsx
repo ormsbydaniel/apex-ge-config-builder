@@ -99,7 +99,9 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
   }, [selectedTheme, groupedThemes]);
 
   const filteredDatasets = useMemo(() => {
-    const list = themeDatasets;
+    const list = showUnavailable
+      ? themeDatasets
+      : themeDatasets.filter(isCatalogueDatasetSelectable);
     if (!searchTerm.trim() || step !== 'datasets') return list;
     const term = searchTerm.toLowerCase();
     return list.filter(
@@ -108,7 +110,8 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
         (d.abstract && d.abstract.toLowerCase().includes(term)) ||
         d.datasetIdentifier.toLowerCase().includes(term),
     );
-  }, [themeDatasets, searchTerm, step]);
+  }, [themeDatasets, searchTerm, step, showUnavailable]);
+
 
   const filteredLayers = useMemo(() => {
     if (!selectedDataset) return [];
