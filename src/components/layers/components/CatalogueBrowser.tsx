@@ -50,7 +50,10 @@ export interface CatalogueLayerSelection {
   abstract?: string;
   format: 'wmts' | 'wms';
   version?: string;
+  /** Styling derived from the catalogue legend, applied when the layer is added. */
+  styleSuggestion?: CatalogueStyleSuggestion;
 }
+
 
 
 interface CatalogueBrowserProps {
