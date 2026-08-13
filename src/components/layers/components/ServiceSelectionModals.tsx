@@ -53,6 +53,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
 
   const isS3Service = isS3ServiceRaw;
   const isStacService = isStacServiceRaw;
+  const isCatalogueService = isCatalogueServiceRaw;
 
   const handleS3ObjectSelect = (selection: S3Selection | S3Selection[]) => {
     if (Array.isArray(selection)) {
@@ -84,20 +85,24 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
   const getServiceIcon = () => {
     if (isS3Service) return <Database className="h-5 w-5 text-green-600" />;
     if (isStacService) return <Server className="h-5 w-5 text-purple-600" />;
+    if (isCatalogueService) return <FolderOpen className="h-5 w-5 text-amber-600" />;
     return <Globe className="h-5 w-5 text-blue-600" />;
   };
 
   const getServiceTypeLabel = () => {
     if (isS3Service) return 'S3 Bucket';
     if (isStacService) return 'STAC';
+    if (isCatalogueService) return 'Catalogue';
     return service.format?.toUpperCase();
   };
 
   const getServiceTypeColor = () => {
     if (isS3Service) return 'border-green-300 text-green-700';
     if (isStacService) return 'border-purple-300 text-purple-700';
+    if (isCatalogueService) return 'border-amber-300 text-amber-700';
     return 'border-blue-300 text-blue-700';
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
