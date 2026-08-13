@@ -7,8 +7,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle, Eye, Copy, ArrowLeft, ZoomIn, ZoomOut } from 'lucide-react';
-import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
+import { Loader2, AlertCircle, Eye, Copy, ArrowLeft, ZoomIn, ZoomOut, ExternalLink } from 'lucide-react';
+import { fetchServiceCapabilities, buildGetCapabilitiesUrl } from '@/utils/serviceCapabilities';
 import { DataSourceFormat, DataSourceLayout } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
