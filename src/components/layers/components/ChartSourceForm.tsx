@@ -266,7 +266,8 @@ export function ChartSourceForm({
     selection: string | Array<{ url: string; format: string; datetime?: string } | { datasetIdentifier: string; layerIdentifier: string; serviceUrl: string; format: string; version?: string }>,
     layers: string = '',
     format?: string,
-    datetime?: string
+    datetime?: string,
+    layerInfo?: LayerInfo
   ) => {
     // Handle catalogue selections (not supported for chart sources)
     if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {
