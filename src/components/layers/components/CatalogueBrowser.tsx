@@ -386,7 +386,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                       </div>
                       <p className="text-sm text-muted-foreground truncate">{dataset.datasetIdentifier}</p>
                       {dataset.abstract && (
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{dataset.abstract}</p>
+                        <ExpandableText text={dataset.abstract} className="mt-1" />
                       )}
                       {!selectable && (
                         <p className="text-sm text-muted-foreground mt-1">
@@ -443,7 +443,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                     </h4>
                     <p className="text-sm text-muted-foreground truncate">{layer.identifier}</p>
                     {layer.abstract && (
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{layer.abstract}</p>
+                      <ExpandableText text={layer.abstract} className="mt-1" />
                     )}
                   </div>
                   <TooltipProvider>
@@ -480,6 +480,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
