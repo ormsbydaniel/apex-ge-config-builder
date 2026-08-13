@@ -20,8 +20,10 @@ import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
 import { format as formatDate, parse, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { ServiceSelectionModal } from './components/ServiceSelectionModals';
+import { ServiceSelectionModal, ServiceSelectionValue } from './components/ServiceSelectionModals';
+import { CatalogueLayerSelection } from './components/CatalogueBrowser';
 import { ServiceCardList } from './components/ServiceCardList';
+
 import { determineZLevel } from '@/utils/drawOrderUtils';
 import ParametersEditor, { ParameterRow, applyOgcServiceVersion, recordToRows } from './ParametersEditor';
 
