@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Save, X, Database, Globe, ChevronDown, ChevronRight } from 'lucide-react';
-import { Service } from '@/types/config';
+import { Service, LayerInfo } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
 import { ChartConfig, ChartSource, ChartTrace } from '@/types/chart';
+
 import { useToast } from '@/hooks/use-toast';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ServiceSelectionModal } from './ServiceSelectionModals';
