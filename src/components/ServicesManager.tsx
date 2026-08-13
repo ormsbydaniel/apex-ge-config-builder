@@ -141,7 +141,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   }
 
   const summaryHasAny = !!runSummary &&
-    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) > 0);
+    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) + (runSummary.catalogue?.total ?? 0) > 0);
+
   const showSummaryPanel = !dismissed && summaryHasAny;
 
   // Auto-populate service name after user pauses typing URL (STAC + WMS/WMTS/WFS)
