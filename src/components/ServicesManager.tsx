@@ -398,12 +398,26 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const handleAddRecommendedServices = async () => {
     setIsLoadingRecommended(true);
     try {
-      const recommendedServices = await fetchRecommendedServices();
-      
-      if (recommendedServices.length === 0) {
+      const [recommendedServices, recommendedCatalogues] = await Promise.all([
+        fetchRecommendedServices(),
+        fetchRecommendedCatalogues(),
+      ]);
+
+      const catalogueServices: Service[] = recommendedCatalogues.map(entry => ({
+        id: entry.id,
+        name: entry.name,
+        url: entry.url,
+        format: 'catalogue',
+        sourceType: 'catalogue',
+        description: entry.description,
+      }));
+
+      const allServices = [...recommendedServices, ...catalogueServices];
+
+      if (allServices.length === 0) {
         toast({
           title: "No services found",
-          description: "The recommended config doesn't contain any services.",
+          description: "The recommended config doesn't contain any services or catalogues.",
           variant: "default"
         });
         return;
@@ -411,12 +425,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
       // Filter out services that already exist (by URL)
       const existingUrls = new Set(services.map(s => s.url));
-      const newServices = recommendedServices.filter(s => !existingUrls.has(s.url));
+      const newServices = allServices.filter(s => !existingUrls.has(s.url));
 
       if (newServices.length === 0) {
         toast({
           title: "All services already added",
-          description: "All recommended services are already configured.",
+          description: "All recommended services and catalogues are already configured.",
           variant: "default"
         });
         return;
@@ -434,6 +448,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
       setIsLoadingRecommended(false);
     }
   };
+
 
   const handleConfirmRecommendedServices = useCallback(async (selectedServices: Service[]) => {
     setIsAddingSelected(true);
