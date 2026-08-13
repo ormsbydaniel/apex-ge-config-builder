@@ -9,8 +9,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertCircle, Eye, Copy, ArrowLeft, ZoomIn, ZoomOut, ExternalLink } from 'lucide-react';
 import { fetchServiceCapabilities, buildGetCapabilitiesUrl } from '@/utils/serviceCapabilities';
-import { DataSourceFormat, DataSourceLayout } from '@/types/config';
+import { DataSourceFormat, DataSourceLayout, TimeDimensionExtent } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
+
 import { useToast } from '@/hooks/use-toast';
 
 interface WmsWmtsMetadataDialogProps {
