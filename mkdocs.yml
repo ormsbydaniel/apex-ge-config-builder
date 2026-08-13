@@ -102,6 +102,8 @@ nav:
       - Adding services: services/adding-services.md
       - Diagnostics: services/diagnostics.md
       - Recommended services: services/recommended.md
+      - Catalogue services: services/catalogues.md
+
   - Algorithms:
       - Overview: algorithms/index.md
   - Stories:
