@@ -252,7 +252,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                 Back
               </Button>
             )}
-            {step === 'layers' && selectedDataset?.available && (
+            {step === 'layers' && selectedDatasetSelectable && (
               <Button variant="outline" size="sm" onClick={handleAddAllDatasetLayers}>
                 Add all
               </Button>
