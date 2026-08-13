@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle, X, Check } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle, X, Check, FolderOpen } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
@@ -21,11 +21,13 @@ const classifyService = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
   if (svc.format === 'stac' || svc.sourceType === 'stac') return 'stac';
   if (svc.format === 's3' || svc.sourceType === 's3') return 's3';
+  if (svc.format === 'catalogue' || svc.sourceType === 'catalogue') return 'catalogue';
   if (parseS3Url(svc.url) !== null) return 's3';
   if (svc.format === 'wms' || svc.format === 'wmts' || svc.format === 'wfs') return 'ogc';
   return null;
 };
-import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
+
+import { fetchRecommendedServices, fetchRecommendedCatalogues } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
 import { detectServiceTypeFromFile, DetectionResult, DetectedServiceType } from '@/utils/serviceFileParser';
@@ -112,6 +114,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         stac: progress.stac.total > 0 ? { total: progress.stac.total } : null,
         ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : null,
         s3: progress.s3.total > 0 ? { total: progress.s3.total } : null,
+        catalogue: progress.catalogue.total > 0 ? { total: progress.catalogue.total } : null,
       });
       setDismissed(false);
     } else if (inFlightTotal > 0) {
@@ -120,14 +123,16 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         stac: progress.stac.total > 0 ? { total: progress.stac.total } : prev?.stac ?? null,
         ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : prev?.ogc ?? null,
         s3: progress.s3.total > 0 ? { total: progress.s3.total } : prev?.s3 ?? null,
+        catalogue: progress.catalogue.total > 0 ? { total: progress.catalogue.total } : prev?.catalogue ?? null,
       }));
     }
     prevInFlightRef.current = inFlightTotal;
-  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total]);
+  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total, progress.catalogue.total]);
 
   // Derive failed/warning counts at render time from validationStatuses, grouped by kind.
-  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
-  const warningByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
+  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0, catalogue: 0 };
+  const warningByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0, catalogue: 0 };
+
   for (const svc of services) {
     const kind = classifyService(svc);
     if (!kind) continue;
@@ -136,7 +141,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   }
 
   const summaryHasAny = !!runSummary &&
-    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) > 0);
+    ((runSummary.stac?.total ?? 0) + (runSummary.ogc?.total ?? 0) + (runSummary.s3?.total ?? 0) + (runSummary.catalogue?.total ?? 0) > 0);
+
   const showSummaryPanel = !dismissed && summaryHasAny;
 
   // Auto-populate service name after user pauses typing URL (STAC + WMS/WMTS/WFS)
@@ -392,12 +398,26 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
   const handleAddRecommendedServices = async () => {
     setIsLoadingRecommended(true);
     try {
-      const recommendedServices = await fetchRecommendedServices();
-      
-      if (recommendedServices.length === 0) {
+      const [recommendedServices, recommendedCatalogues] = await Promise.all([
+        fetchRecommendedServices(),
+        fetchRecommendedCatalogues(),
+      ]);
+
+      const catalogueServices: Service[] = recommendedCatalogues.map(entry => ({
+        id: entry.id,
+        name: entry.name,
+        url: entry.url,
+        format: 'catalogue',
+        sourceType: 'catalogue',
+        description: entry.description,
+      }));
+
+      const allServices = [...recommendedServices, ...catalogueServices];
+
+      if (allServices.length === 0) {
         toast({
           title: "No services found",
-          description: "The recommended config doesn't contain any services.",
+          description: "The recommended config doesn't contain any services or catalogues.",
           variant: "default"
         });
         return;
@@ -405,12 +425,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
 
       // Filter out services that already exist (by URL)
       const existingUrls = new Set(services.map(s => s.url));
-      const newServices = recommendedServices.filter(s => !existingUrls.has(s.url));
+      const newServices = allServices.filter(s => !existingUrls.has(s.url));
 
       if (newServices.length === 0) {
         toast({
           title: "All services already added",
-          description: "All recommended services are already configured.",
+          description: "All recommended services and catalogues are already configured.",
           variant: "default"
         });
         return;
@@ -429,6 +449,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
     }
   };
 
+
   const handleConfirmRecommendedServices = useCallback(async (selectedServices: Service[]) => {
     setIsAddingSelected(true);
     try {
@@ -443,7 +464,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               ? 'stac'
               : service.format === 's3'
                 ? 's3'
-                : 'service');
+                : service.format === 'catalogue'
+                  ? 'catalogue'
+                  : 'service');
 
           const newService: Service = {
             ...service,
@@ -451,9 +474,11 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
             name: service.name?.trim() || service.url,
             url: service.url.trim(),
             sourceType,
+            format: service.format,
             // Strip any pre-existing capabilities so the bulk validator re-checks
             capabilities: undefined,
           };
+
           onAddService(newService);
           addedCount++;
         } catch (error) {
@@ -507,7 +532,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                 variant="outline"
                 disabled={inFlightTotal > 0 || services.length === 0}
                 className="border-primary/30"
-                title="Re-validate all services (STAC, OGC, S3)"
+                title="Re-validate all services (STAC, OGC, S3, Catalogues)"
+
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${inFlightTotal > 0 ? 'animate-spin' : ''}`} />
                 Re-check all
@@ -534,19 +560,22 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
             </div>
           </CardTitle>
           <CardDescription>
-            Configure WMS, WMTS, S3, and STAC services that can be used across multiple data sources. Services support automatic discovery via GetCapabilities, bucket listing, or catalogue metadata.
+            Configure WMS, WMTS, S3, STAC, and catalogue services that can be used across multiple data sources. Services support automatic discovery via GetCapabilities, bucket listing, or catalogue metadata.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {(showSummaryPanel || inFlightTotal > 0) && (
             <div className="relative mb-4 space-y-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 pr-10 text-sm text-primary">
-              {(['stac', 'ogc', 's3'] as ServiceKind[]).map(kind => {
+              {(['stac', 'ogc', 's3', 'catalogue'] as ServiceKind[]).map(kind => {
                 const label =
                   kind === 'stac'
                     ? 'STAC catalogues'
                     : kind === 'ogc'
                     ? 'WMS / WMTS / WFS services'
-                    : 'S3 stores';
+                    : kind === 's3'
+                    ? 'S3 stores'
+                    : 'Catalogues';
+
                 const groupProg = progress[kind];
                 const summary = runSummary?.[kind] ?? null;
 
@@ -612,10 +641,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
           ) : (() => {
             const getPriority = (service: Service) => {
               if (service.sourceType === 'stac') return 1;
-              if (service.format === 'wms' || service.format === 'wmts') return 2;
-              if (service.sourceType === 's3') return 3;
-              return 4;
+              if (service.sourceType === 'catalogue') return 2;
+              if (service.format === 'wms' || service.format === 'wmts') return 3;
+              if (service.sourceType === 's3') return 4;
+              return 5;
             };
+
             const sorted = services.slice().sort((a, b) => {
               const priorityA = getPriority(a);
               const priorityB = getPriority(b);
@@ -630,6 +661,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               const sourceBorderClass =
                 service.sourceType === 's3' ? 'border-l-green-500' :
                 service.sourceType === 'stac' ? 'border-l-purple-500' :
+                service.sourceType === 'catalogue' ? 'border-l-amber-500' :
                 'border-l-blue-500';
               return (
               <Card key={service.id} className={
@@ -645,12 +677,15 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                           <Database className="h-4 w-4 text-green-600" />
                         ) : service.sourceType === 'stac' ? (
                           <Server className="h-4 w-4 text-purple-600" />
+                        ) : service.sourceType === 'catalogue' ? (
+                          <FolderOpen className="h-4 w-4 text-amber-600" />
                         ) : (
                           <Globe className="h-4 w-4 text-blue-600" />
                         )}
                         <h5 className={`font-medium ${
                           service.sourceType === 's3' ? 'text-green-700' :
                           service.sourceType === 'stac' ? 'text-purple-700' :
+                          service.sourceType === 'catalogue' ? 'text-amber-700' :
                           'text-blue-700'
                         }`}>
                           {service.name}
@@ -658,10 +693,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                         <Badge variant="outline" className={`${
                           service.sourceType === 's3' ? 'border-green-300 text-green-700' :
                           service.sourceType === 'stac' ? 'border-purple-300 text-purple-700' :
+                          service.sourceType === 'catalogue' ? 'border-amber-300 text-amber-700' :
                           'border-blue-300 text-blue-700'
                         }`}>
                           {service.sourceType === 's3' ? 'S3 Bucket' :
                            service.sourceType === 'stac' ? 'STAC' :
+                           service.sourceType === 'catalogue' ? 'Catalogue' :
                            service.format?.toUpperCase()}
                         </Badge>
                         {(service.format === 'wms' || service.format === 'wmts') && service.capabilities?.version && (
@@ -698,18 +735,22 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                               {layerCount} {
                                 service.sourceType === 's3' ? 'objects' :
                                 service.sourceType === 'stac' ? 'collections' :
+                                service.sourceType === 'catalogue' ? 'datasets' :
                                 'layers'
                               } available
                             </Badge>
                           );
                         }
+
                         if (status === 'error') {
                           const diag = validationErrors[service.id];
                           const errLabel =
                             diag?.title ??
                             (service.sourceType === 's3' ? "Couldn't reach endpoint" :
                              service.sourceType === 'stac' ? "Couldn't fetch catalogue" :
+                             service.sourceType === 'catalogue' ? "Couldn't fetch catalogue manifest" :
                              "Couldn't fetch capabilities");
+
                           return (
                             <div className="flex flex-col gap-1">
                               <div className="flex items-center gap-2 flex-wrap">

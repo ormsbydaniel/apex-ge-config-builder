@@ -131,9 +131,21 @@ const ConstraintSourceForm = ({
   };
 
   const handleServiceModalSelection = (
-    selection: string | Array<{ url: string; format: string }>,
+    selection: string | Array<{ url: string; format: string } | { datasetIdentifier: string; layerIdentifier: string; serviceUrl: string; format: string; version?: string }>,
     layers: string = ''
   ) => {
+    // Handle catalogue selections (not supported for constraint sources)
+    if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {
+      toast({
+        title: "Catalogue not supported",
+        description: "Catalogue layers cannot be used as constraint sources. Constraints require a COG data source.",
+        variant: "destructive",
+      });
+      setShowServiceModal(false);
+      setSelectedServiceForModal(null);
+      return;
+    }
+
     // Handle bulk selection (array of COG assets from S3/STAC)
     if (Array.isArray(selection)) {
       // For bulk add, open a simplified form to configure common properties
@@ -146,13 +158,14 @@ const ConstraintSourceForm = ({
       setSelectedServiceForModal(null);
       return;
     }
-    
+
     // Handle single selection
     const url = selection;
     setDirectUrl(url);
     setShowServiceModal(false);
     setSelectedServiceForModal(null);
   };
+
 
   const handleServiceModalClose = () => {
     setShowServiceModal(false);

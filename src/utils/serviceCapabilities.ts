@@ -315,3 +315,45 @@ export const fetchServiceCapabilities = async (
   return result.capabilities;
 };
 
+/**
+ * Lightweight version negotiator: fetches the GetCapabilities document for the
+ * given OGC service and returns the version reported by the root element. This
+ * avoids the full parse performed by fetchServiceCapabilities when only the
+ * protocol version is needed.
+ */
+export const fetchServiceVersion = async (
+  url: string,
+  format: DataSourceFormat,
+): Promise<string | null> => {
+  if (format !== 'wms' && format !== 'wmts') return null;
+
+  let capabilitiesUrl: URL;
+  try {
+    capabilitiesUrl = new URL(url);
+  } catch {
+    return null;
+  }
+
+  capabilitiesUrl.searchParams.set('service', format.toUpperCase());
+  capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
+  const defaultVersion = format === 'wms' ? '1.3.0' : '1.0.0';
+  capabilitiesUrl.searchParams.set('version', defaultVersion);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(capabilitiesUrl.toString(), { signal: controller.signal });
+    if (!response.ok) return null;
+    const xmlText = await response.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+    if (xmlDoc.querySelector('parsererror')) return null;
+    return xmlDoc.documentElement?.getAttribute('version')?.trim() || defaultVersion;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+

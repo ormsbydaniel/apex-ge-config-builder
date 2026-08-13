@@ -3,15 +3,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Database, Globe, Server, Loader2 } from 'lucide-react';
+import { Database, Globe, Server, FolderOpen, Loader2 } from 'lucide-react';
 import { Service, DataSourceFormat } from '@/types/config';
 import { validateS3Url, S3Selection } from '@/utils/s3Utils';
 import S3LayerSelector from '@/components/form/S3LayerSelector';
 import StacBrowser from './StacBrowser';
+import CatalogueBrowser, { CatalogueLayerSelection } from './CatalogueBrowser';
 import { useLazyServiceCapabilities } from '@/hooks/useLazyServiceCapabilities';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 
 import { AssetSelection } from './StacBrowser';
+
+export type ServiceSelectionValue = string | AssetSelection[] | CatalogueLayerSelection[];
+
 
 type SourceContext = 'data' | 'chart' | 'statistics' | 'constraint';
 
@@ -26,10 +30,13 @@ interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
+  onSelect: (selection: ServiceSelectionValue, layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
   allowedFormats?: string[];
   sourceContext?: SourceContext;
 }
+
+const isCatalogueSelection = (value: ServiceSelectionValue): value is CatalogueLayerSelection[] =>
+  Array.isArray(value) && value.length > 0 && 'datasetIdentifier' in value[0];
 
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats, sourceContext = 'data' }: ServiceSelectionModalProps) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,13 +44,16 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
   // Compute lazy-load eligibility from raw inputs so hooks always run in the same order.
   const isS3ServiceRaw = service?.sourceType === 's3' || (!!service?.url && validateS3Url(service.url));
   const isStacServiceRaw = service?.sourceType === 'stac';
-  const shouldLazyLoad = !!service && isOpen && !isS3ServiceRaw && !isStacServiceRaw;
+  const isCatalogueServiceRaw = service?.sourceType === 'catalogue' || service?.format === 'catalogue';
+  const shouldLazyLoad = !!service && isOpen && !isS3ServiceRaw && !isStacServiceRaw && !isCatalogueServiceRaw;
   const { isLoading: capsLoading } = useLazyServiceCapabilities(service, shouldLazyLoad);
+
 
   if (!service) return null;
 
   const isS3Service = isS3ServiceRaw;
   const isStacService = isStacServiceRaw;
+  const isCatalogueService = isCatalogueServiceRaw;
 
   const handleS3ObjectSelect = (selection: S3Selection | S3Selection[]) => {
     if (Array.isArray(selection)) {
@@ -75,20 +85,24 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
   const getServiceIcon = () => {
     if (isS3Service) return <Database className="h-5 w-5 text-green-600" />;
     if (isStacService) return <Server className="h-5 w-5 text-purple-600" />;
+    if (isCatalogueService) return <FolderOpen className="h-5 w-5 text-amber-600" />;
     return <Globe className="h-5 w-5 text-blue-600" />;
   };
 
   const getServiceTypeLabel = () => {
     if (isS3Service) return 'S3 Bucket';
     if (isStacService) return 'STAC';
+    if (isCatalogueService) return 'Catalogue';
     return service.format?.toUpperCase();
   };
 
   const getServiceTypeColor = () => {
     if (isS3Service) return 'border-green-300 text-green-700';
     if (isStacService) return 'border-purple-300 text-purple-700';
+    if (isCatalogueService) return 'border-amber-300 text-amber-700';
     return 'border-blue-300 text-blue-700';
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -142,7 +156,18 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
                 handleClose();
               }}
             />
+          ) : isCatalogueService ? (
+            <CatalogueBrowser
+              serviceUrl={service.url}
+              serviceName={service.name}
+              defaultFormat={service.format === 'catalogue' || service.sourceType === 'catalogue' ? 'wmts' : (service.format as 'wmts' | 'wms')}
+              onLayerSelect={(selection) => {
+                onSelect(Array.isArray(selection) ? selection : [selection]);
+                handleClose();
+              }}
+            />
           ) : (
+
             <div className="flex flex-col gap-2 flex-1 min-h-0">
               <div className="relative">
                 <input
@@ -199,6 +224,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
             </div>
           )}
         </div>
+
         </ModalErrorBoundary>
       </DialogContent>
     </Dialog>
