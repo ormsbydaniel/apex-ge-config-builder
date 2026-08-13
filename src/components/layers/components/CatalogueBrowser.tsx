@@ -147,7 +147,26 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
     }
   };
 
-  const handleLayerSelect = (layer: CatalogueLayer) => {
+  const buildSelection = async (
+    dataset: CatalogueDataset,
+    layer: CatalogueLayer,
+    format: 'wmts' | 'wms',
+  ): Promise<CatalogueLayerSelection> => {
+    const version = await fetchServiceVersion(dataset.getCapabilitiesUrl, format as DataSourceFormat);
+    return {
+      datasetIdentifier: dataset.datasetIdentifier,
+      layerIdentifier: layer.identifier,
+      serviceUrl: dataset.serviceUrl,
+      getCapabilitiesUrl: dataset.getCapabilitiesUrl,
+      title: dataset.title,
+      layerTitle: layer.title,
+      abstract: layer.abstract || dataset.abstract,
+      format,
+      ...(version ? { version } : {}),
+    };
+  };
+
+  const handleLayerSelect = async (layer: CatalogueLayer) => {
     if (!selectedDataset) return;
     if (!selectedDataset.available) {
       toast({
@@ -157,32 +176,18 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
       });
       return;
     }
-    onLayerSelect({
-      datasetIdentifier: selectedDataset.datasetIdentifier,
-      layerIdentifier: layer.identifier,
-      serviceUrl: selectedDataset.serviceUrl,
-      getCapabilitiesUrl: selectedDataset.getCapabilitiesUrl,
-      title: selectedDataset.title,
-      layerTitle: layer.title,
-      abstract: layer.abstract || selectedDataset.abstract,
-      format: defaultFormat,
-    });
+    const selection = await buildSelection(selectedDataset, layer, defaultFormat);
+    onLayerSelect(selection);
   };
 
-  const handleAddAllDatasetLayers = () => {
+  const handleAddAllDatasetLayers = async () => {
     if (!selectedDataset || !selectedDataset.available) return;
-    const selections = selectedDataset.layers.map(layer => ({
-      datasetIdentifier: selectedDataset.datasetIdentifier,
-      layerIdentifier: layer.identifier,
-      serviceUrl: selectedDataset.serviceUrl,
-      getCapabilitiesUrl: selectedDataset.getCapabilitiesUrl,
-      title: selectedDataset.title,
-      layerTitle: layer.title,
-      abstract: layer.abstract || selectedDataset.abstract,
-      format: defaultFormat,
-    }));
+    const selections = await Promise.all(
+      selectedDataset.layers.map(layer => buildSelection(selectedDataset, layer, defaultFormat))
+    );
     onLayerSelect(selections);
   };
+
 
   const summary = useMemo(() => {
     const available = datasets.filter(d => d.available).length;
