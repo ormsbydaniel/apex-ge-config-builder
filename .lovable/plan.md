@@ -57,11 +57,11 @@ are shown for information only when the toggle is enabled.
   `src/types/service.ts`) holding `datasetIdentifier`, `serviceUrl`, `title`,
   `abstract`, `theme`, `layers[]`.
 - **Loader**: new `src/utils/catalogueService.ts` — fetches the JSON, validates
-  the `catalogue` / `datasets` envelope, filters `available === true`, derives a
-  theme from the pipe-delimited `title`, and maps to `ServiceCapabilities` with
-  `totalCount` = layer count. Wired into `useServices.ts`,
-  `useLazyServiceCapabilities.ts` and `useBulkServiceValidation.ts` alongside
-  the existing `'stac'` branches so validation/healthcheck work unchanged.
+  the `catalogue` / `datasets` envelope, returns all datasets (available and
+  unavailable), derives a theme from the pipe-delimited `title`, and maps to
+  `ServiceCapabilities` with `totalCount` = total layer count. Wired into
+  `useServices.ts`, `useLazyServiceCapabilities.ts` and `useBulkServiceValidation.ts`
+  alongside the existing `'stac'` branches so validation/healthcheck work unchanged.
 - **Recommended manifest**: add a `catalogues` reference in
   `src/utils/exampleManifest.ts` (falling back gracefully when absent) and a
   `fetchRecommendedCatalogues()` in `src/utils/recommendedBaseLayers.ts`; merge
