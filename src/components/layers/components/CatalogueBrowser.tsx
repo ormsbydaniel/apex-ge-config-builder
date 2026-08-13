@@ -259,54 +259,58 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div>
-          <h3 className="text-lg font-medium flex items-center gap-2">
-            <Folder className="h-5 w-5 text-primary" />
-            {title}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {summary.available} available{summary.unavailable > 0 ? ` · ${summary.unavailable} unavailable` : ''}
-          </p>
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="space-y-4 shrink-0">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div>
+            <h3 className="text-lg font-medium flex items-center gap-2">
+              <Folder className="h-5 w-5 text-primary" />
+              {title}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {summary.available} available{summary.unavailable > 0 ? ` · ${summary.unavailable} unavailable` : ''}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {step !== 'themes' && (
+                <Button variant="outline" size="sm" onClick={handleBack}>
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Back
+                </Button>
+              )}
+              {step === 'layers' && selectedDatasetSelectable && (
+                <Button variant="outline" size="sm" onClick={handleAddAllDatasetLayers}>
+                  Add all
+                </Button>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="show-unavailable"
+                checked={showUnavailable}
+                onCheckedChange={setShowUnavailable}
+              />
+              <Label htmlFor="show-unavailable" className="text-sm flex items-center gap-1">
+                {showUnavailable ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                Show unavailable
+              </Label>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            {step !== 'themes' && (
-              <Button variant="outline" size="sm" onClick={handleBack}>
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Back
-              </Button>
-            )}
-            {step === 'layers' && selectedDatasetSelectable && (
-              <Button variant="outline" size="sm" onClick={handleAddAllDatasetLayers}>
-                Add all
-              </Button>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch
-              id="show-unavailable"
-              checked={showUnavailable}
-              onCheckedChange={setShowUnavailable}
-            />
-            <Label htmlFor="show-unavailable" className="text-sm flex items-center gap-1">
-              {showUnavailable ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              Show unavailable
-            </Label>
-          </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={step === 'themes' ? 'Search themes...' : step === 'datasets' ? 'Search datasets...' : 'Search layers...'}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
         </div>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder={step === 'themes' ? 'Search themes...' : step === 'datasets' ? 'Search datasets...' : 'Search layers...'}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-9"
-        />
-      </div>
+      <div className="flex-1 min-h-0 overflow-auto mt-4">
 
       {step === 'themes' && (
         <div className="grid gap-3">
