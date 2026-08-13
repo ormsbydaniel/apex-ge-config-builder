@@ -132,7 +132,10 @@ const ConstraintSourceForm = ({
 
   const handleServiceModalSelection = (
     selection: string | Array<{ url: string; format: string } | { datasetIdentifier: string; layerIdentifier: string; serviceUrl: string; format: string; version?: string }>,
-    layers: string = ''
+    layers: string = '',
+    format?: string,
+    datetime?: string,
+    layerInfo?: LayerInfo
   ) => {
     // Handle catalogue selections (not supported for constraint sources)
     if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {
