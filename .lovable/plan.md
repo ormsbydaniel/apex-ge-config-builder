@@ -26,6 +26,20 @@ in the same way the STAC browser drills into collections → items.
    resulting config contains a plain WMTS source; nothing catalogue-specific
    leaks into the exported config.
 
+## Showing unavailable datasets
+
+The JSON also carries 27 `available: false` entries. For transparency, the
+browser should surface them as informational but not selectable:
+
+- A default-on toggle, **Show unavailable datasets**, lives in the browser
+  header.
+- When on, unavailable datasets appear in their theme groups with a greyed-out
+  row, a "Service unavailable" status badge, and a tooltip explaining that the
+  WMTS endpoint is not currently reachable.
+- Search and grouping still include them so users can understand what the
+  catalogue would otherwise contain.
+- No GetCapabilities call is attempted for unavailable datasets.
+
 ## Keeping the list fresh
 
 The catalogue JSON lives in
