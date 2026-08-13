@@ -290,8 +290,12 @@ export const fetchServiceCapabilitiesWithMetrics = async (
       }
 
     // Version actually reported by the service on the capabilities root element
+    const defaultVersion =
+      format === 'wms' ? '1.3.0' :
+      format === 'wfs' ? '2.0.0' :
+      '1.0.0';
     const reportedVersion =
-      xmlDoc.documentElement?.getAttribute('version')?.trim() || version;
+      xmlDoc.documentElement?.getAttribute('version')?.trim() || defaultVersion;
 
     const capabilities: ServiceCapabilities = {
       layers,
