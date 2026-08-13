@@ -377,6 +377,44 @@ const WmsWmtsMetadataDialog = ({
                                   </td>
                                 </tr>
                               )}
+                              {layer.timeExtent && (
+                                <>
+                                  <tr className="border-b hover:bg-muted/50">
+                                    <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                      Temporal Start
+                                    </td>
+                                    <td className="py-2 px-3 text-sm font-mono">
+                                      {layer.timeExtent.start}
+                                    </td>
+                                  </tr>
+                                  <tr className="border-b hover:bg-muted/50">
+                                    <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                      Temporal End
+                                    </td>
+                                    <td className="py-2 px-3 text-sm font-mono">
+                                      {layer.timeExtent.end}
+                                    </td>
+                                  </tr>
+                                  {layer.timeExtent.period && (
+                                    <tr className="border-b hover:bg-muted/50">
+                                      <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                        Granularity
+                                      </td>
+                                      <td className="py-2 px-3 text-sm">
+                                        {formatPeriodLabel(layer.timeExtent.period)} <span className="text-xs text-muted-foreground">({layer.timeExtent.period})</span>
+                                      </td>
+                                    </tr>
+                                  )}
+                                  <tr className="border-b hover:bg-muted/50">
+                                    <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                      Suggested Timeframe
+                                    </td>
+                                    <td className="py-2 px-3 text-sm">
+                                      {layer.timeExtent.suggestedTimeframe}
+                                    </td>
+                                  </tr>
+                                </>
+                              )}
                             </>
                           )}
                           {layer.crs && layer.crs.length > 0 && (
