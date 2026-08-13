@@ -55,6 +55,9 @@ interface RawManifestEntry {
 interface RawRecommendedEntry {
   file?: unknown;
   url?: unknown;
+  id?: unknown;
+  name?: unknown;
+  description?: unknown;
 }
 
 interface RawManifest {
@@ -62,6 +65,7 @@ interface RawManifest {
   examples?: unknown;
   recommended?: unknown;
 }
+
 
 const baseUrl = `https://raw.githubusercontent.com/${EXAMPLES_REPO}/${EXAMPLES_BRANCH}/${EXAMPLES_DIR}/`;
 
