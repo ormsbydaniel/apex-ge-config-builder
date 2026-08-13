@@ -10,8 +10,9 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Save, X, Database, Globe, Plus, Server, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Service, DataSourceFormat, DataSourceItem, TimeframeType, TimeDimensionExtent } from '@/types/config';
+import { Service, DataSourceFormat, DataSourceItem, TimeframeType, TimeDimensionExtent, LayerInfo } from '@/types/config';
 import { dateStringToTimestamp } from '@/utils/timeDimension';
+
 import { FORMAT_CONFIGS } from '@/constants/formats';
 
 import { useServices } from '@/hooks/useServices';
