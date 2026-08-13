@@ -742,7 +742,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                             diag?.title ??
                             (service.sourceType === 's3' ? "Couldn't reach endpoint" :
                              service.sourceType === 'stac' ? "Couldn't fetch catalogue" :
+                             service.sourceType === 'catalogue' ? "Couldn't fetch catalogue manifest" :
                              "Couldn't fetch capabilities");
+
                           return (
                             <div className="flex flex-col gap-1">
                               <div className="flex items-center gap-2 flex-wrap">
