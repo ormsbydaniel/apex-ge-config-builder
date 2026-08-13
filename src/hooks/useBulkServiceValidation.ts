@@ -456,6 +456,7 @@ export const useBulkServiceValidation = (
           if (kind === 'stac') validateStac(svc);
           else if (kind === 'ogc') validateOgc(svc);
           else if (kind === 's3') validateS3(svc);
+          else if (kind === 'catalogue') validateCatalogue(svc);
         }
         return;
       }
@@ -465,11 +466,12 @@ export const useBulkServiceValidation = (
       lastValidatedLoad = 'manual';
       runBulk(targets);
     },
-    [services, validateStac, validateOgc, validateS3, runBulk],
+    [services, validateStac, validateOgc, validateS3, validateCatalogue, runBulk],
   );
 
   const inFlightTotal =
-    progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight;
+    progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight + progress.catalogue.inFlight;
 
   return { statuses, warnings, errors, progress, inFlightTotal, recheck };
 };
+
