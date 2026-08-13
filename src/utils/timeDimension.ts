@@ -134,17 +134,22 @@ export function parseTimeDimensionValue(value: string): TimeDimensionExtent | nu
   let suggestedTimeframe: TimeframeType | undefined;
 
   if (intervals.length > 0) {
-    const startDates = intervals
-      .map((i) => parseIso8601Date(i.start))
-      .filter((d): d is Date => d !== null);
-    const endDates = intervals
-      .map((i) => parseIso8601Date(i.end))
-      .filter((d): d is Date => d !== null);
+    const parsed = intervals
+      .map((i) => ({
+        interval: i,
+        startDate: parseIso8601Date(i.start),
+        endDate: parseIso8601Date(i.end),
+      }))
+      .filter((p) => p.startDate !== null && p.endDate !== null);
 
-    if (startDates.length === 0 || endDates.length === 0) return null;
+    if (parsed.length === 0) return null;
 
-    start = intervals[startDates.indexOf(new Date(Math.min(...startDates.map((d) => d.getTime()))))]?.start;
-    end = intervals[endDates.indexOf(new Date(Math.max(...endDates.map((d) => d.getTime()))))]?.end;
+    const earliest = parsed.reduce((a, b) => (b.startDate!.getTime() < a.startDate!.getTime() ? b : a));
+    const latest = parsed.reduce((a, b) => (b.endDate!.getTime() > a.endDate!.getTime() ? b : a));
+
+    start = earliest.interval.start;
+    end = latest.interval.end;
+
 
     const periods = intervals.map((i) => i.period).filter((p): p is string => !!p);
     if (periods.length > 0) {
