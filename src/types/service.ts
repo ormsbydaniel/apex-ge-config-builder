@@ -2,7 +2,9 @@
  * Service and capability type definitions
  */
 
-import { DataSourceFormat, TimeframeType } from './format';
+import { DataSourceFormat } from './format';
+import { TimeframeType } from './dataSource';
+
 
 
 // Service interface - simplified to avoid discriminated union issues
