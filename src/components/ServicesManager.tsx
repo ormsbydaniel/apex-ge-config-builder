@@ -532,7 +532,8 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
                 variant="outline"
                 disabled={inFlightTotal > 0 || services.length === 0}
                 className="border-primary/30"
-                title="Re-validate all services (STAC, OGC, S3)"
+                title="Re-validate all services (STAC, OGC, S3, Catalogues)"
+
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${inFlightTotal > 0 ? 'animate-spin' : ''}`} />
                 Re-check all
