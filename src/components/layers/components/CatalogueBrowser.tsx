@@ -113,10 +113,6 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
   const filteredLayers = useMemo(() => {
     if (!selectedDataset) return [];
     let layers = selectedDataset.layers || [];
-    if (!showUnavailable && !selectedDataset.available) {
-      // If the whole dataset is unavailable, grey out all layers but still show them.
-      // We still list them so users understand what's in the catalogue.
-    }
     if (searchTerm.trim() && step === 'layers') {
       const term = searchTerm.toLowerCase();
       layers = layers.filter(
@@ -127,7 +123,9 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
       );
     }
     return layers;
-  }, [selectedDataset, searchTerm, step, showUnavailable]);
+  }, [selectedDataset, searchTerm, step]);
+
+  const selectedDatasetSelectable = selectedDataset ? isCatalogueDatasetSelectable(selectedDataset) : false;
 
   const handleThemeSelect = (theme: string) => {
     setSelectedTheme(theme);
@@ -154,14 +152,17 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
   const buildSelection = async (
     dataset: CatalogueDataset,
     layer: CatalogueLayer,
-    format: 'wmts' | 'wms',
   ): Promise<CatalogueLayerSelection> => {
-    const version = await fetchServiceVersion(dataset.getCapabilitiesUrl, format as DataSourceFormat);
+    const format = catalogueDatasetFormat(dataset, defaultFormat);
+    const getCapabilitiesUrl = dataset.getCapabilitiesUrl || '';
+    const version = getCapabilitiesUrl
+      ? await fetchServiceVersion(getCapabilitiesUrl, format as DataSourceFormat)
+      : undefined;
     return {
       datasetIdentifier: dataset.datasetIdentifier,
       layerIdentifier: layer.identifier,
-      serviceUrl: dataset.serviceUrl,
-      getCapabilitiesUrl: dataset.getCapabilitiesUrl,
+      serviceUrl: dataset.serviceUrl || '',
+      getCapabilitiesUrl,
       title: dataset.title,
       layerTitle: layer.title,
       abstract: layer.abstract || dataset.abstract,
@@ -172,32 +173,33 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
 
   const handleLayerSelect = async (layer: CatalogueLayer) => {
     if (!selectedDataset) return;
-    if (!selectedDataset.available) {
+    if (!isCatalogueDatasetSelectable(selectedDataset)) {
       toast({
         title: 'Dataset unavailable',
-        description: 'This dataset is currently marked as unavailable and cannot be added.',
+        description: catalogueDatasetUnavailableReason(selectedDataset),
         variant: 'destructive',
       });
       return;
     }
-    const selection = await buildSelection(selectedDataset, layer, defaultFormat);
+    const selection = await buildSelection(selectedDataset, layer);
     onLayerSelect(selection);
   };
 
   const handleAddAllDatasetLayers = async () => {
-    if (!selectedDataset || !selectedDataset.available) return;
+    if (!selectedDataset || !isCatalogueDatasetSelectable(selectedDataset)) return;
     const selections = await Promise.all(
-      selectedDataset.layers.map(layer => buildSelection(selectedDataset, layer, defaultFormat))
+      (selectedDataset.layers || []).map(layer => buildSelection(selectedDataset, layer))
     );
     onLayerSelect(selections);
   };
 
 
   const summary = useMemo(() => {
-    const available = datasets.filter(d => d.available).length;
+    const available = datasets.filter(isCatalogueDatasetSelectable).length;
     const unavailable = datasets.length - available;
     return { available, unavailable };
   }, [datasets]);
+
 
   if (loading && datasets.length === 0) {
     return (
