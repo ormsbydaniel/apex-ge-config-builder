@@ -1,21 +1,22 @@
 # Auto-populate categories and colormaps from catalogue legends
 
-## Does the revised file address the recommendations?
+## Review of `clms-public-layers-4.json`
 
-Mostly yes. Comparing `clms-public-layers-3.json` with the previous version:
+Effectively all the schema recommendations are now in place:
 
-| Recommendation | Status in the new file |
+| Recommendation | Status |
 |---|---|
-| Named colormap hint | Added — `legend.colormapName` + `legend.reverse` on 11 legends (`magma` x7, `inferno` x3, `viridis` x1). All three names exist in our preset list. |
-| Explicit data range | Added — `legend.min` / `legend.max` on 94 legends, plus `legend.steps`. |
-| No-data separated from the ramp | Added — `legend.noData` array on 14 legends; sentinels no longer distort the ramp. |
-| Units | Added — `legend.units` on 22 legends. |
-| Unsampled entries | Improved — 67 of 90 continuous legends now `sampled: false` (was mostly sampled); all 23 discrete legends are unsampled. |
-| Labels on discrete entries | **Not addressed** — discrete entries still carry only `value` + `color` (1098 entries, no `label`). |
+| Named colormap hint | `legend.colormapName` + `legend.reverse` on 11 legends (`magma` x7, `inferno` x3, `viridis` x1) — all three exist in our preset list. |
+| Explicit data range | `legend.min` / `legend.max` / `legend.steps` on all 94 continuous legends. |
+| No-data separated | `legend.noData` on 14 legends; sentinels no longer sit in the ramp. |
+| Units | `legend.units` on 15 legends (was 22 in v3 — worth checking whether the tightened parser dropped some valid units). |
+| Legend type always present | Fixed — 94 continuous + 23 discrete, no untyped legends (v3 had 4). |
+| Unsampled entries | 90 of 117 legends `sampled: false`; 27 still sampled with `sourceEntryCount`. |
+| Labels on discrete entries | Field now supported, but only 3 of 1098 entries actually carry a `label`. |
 
-Two smaller gaps remain: 4 legends still have no `type`, and 79 of 90 continuous legends have no `colormapName` (they are bespoke evalscript ramps, so a gradient fallback is still needed).
+Remaining, and both handled by the build plan rather than the generator: 83 of 94 continuous legends have no `colormapName` (bespoke evalscript ramps → gradient fallback), and discrete classes will mostly show their value as the label until the generator can extract class names.
 
-If you can add `label` to discrete entries in the generator, land it before this work — it removes the only invented value in the whole flow.
+
 
 ## What to build
 
