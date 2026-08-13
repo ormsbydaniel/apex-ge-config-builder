@@ -1,11 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { DataSource, DataSourceItem, LayerType, isDataSourceItemArray } from '@/types/config';
+import { DataSource, DataSourceItem, LayerType, isDataSourceItemArray, TimeframeType } from '@/types/config';
 import { ChartConfig } from '@/types/chart';
 import { createLayerActionHandlers } from '@/utils/layerActions';
 import { PositionValue, getDefaultPosition, isValidPosition, requiresPosition } from '@/utils/positionUtils';
 import { cloneDonorLayer } from '@/utils/donorImport';
 import { uniqueId } from '@/utils/idHelpers';
+import { TemporalSuggestion } from '@/utils/timeDimension';
+
 
 // Layer type management
 export type LayerTypeOption = 'standard' | 'swipe' | 'mirror' | 'spotlight';
