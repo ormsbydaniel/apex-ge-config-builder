@@ -69,12 +69,22 @@ export interface ServiceCapabilities {
 }
 
 
+export interface TimeDimensionExtent {
+  start: string;
+  end: string;
+  period?: string;
+  intervals: Array<{ start: string; end: string; period?: string }>;
+  discreteValues?: string[];
+  suggestedTimeframe: TimeframeType;
+}
+
 export interface LayerInfo {
   name: string;
   title?: string;
   abstract?: string;
   hasTimeDimension?: boolean;
   defaultTime?: string;
+  timeExtent?: TimeDimensionExtent;
   crs?: string[];
   bbox?: {
     west: string;
