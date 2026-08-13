@@ -114,6 +114,7 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         stac: progress.stac.total > 0 ? { total: progress.stac.total } : null,
         ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : null,
         s3: progress.s3.total > 0 ? { total: progress.s3.total } : null,
+        catalogue: progress.catalogue.total > 0 ? { total: progress.catalogue.total } : null,
       });
       setDismissed(false);
     } else if (inFlightTotal > 0) {
@@ -122,14 +123,16 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
         stac: progress.stac.total > 0 ? { total: progress.stac.total } : prev?.stac ?? null,
         ogc: progress.ogc.total > 0 ? { total: progress.ogc.total } : prev?.ogc ?? null,
         s3: progress.s3.total > 0 ? { total: progress.s3.total } : prev?.s3 ?? null,
+        catalogue: progress.catalogue.total > 0 ? { total: progress.catalogue.total } : prev?.catalogue ?? null,
       }));
     }
     prevInFlightRef.current = inFlightTotal;
-  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total]);
+  }, [inFlightTotal, progress.stac.total, progress.ogc.total, progress.s3.total, progress.catalogue.total]);
 
   // Derive failed/warning counts at render time from validationStatuses, grouped by kind.
-  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
-  const warningByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0 };
+  const failedByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0, catalogue: 0 };
+  const warningByKind: Record<ServiceKind, number> = { stac: 0, ogc: 0, s3: 0, catalogue: 0 };
+
   for (const svc of services) {
     const kind = classifyService(svc);
     if (!kind) continue;
