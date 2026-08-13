@@ -5,6 +5,11 @@ import { fetchStacCapabilitiesWithMetrics } from '@/utils/stacCapabilities';
 import { useConfig } from '@/contexts/ConfigContext';
 import { parseS3Url, fetchS3BucketContents } from '@/utils/s3Utils';
 import {
+  fetchCatalogueCollection,
+  buildCatalogueCapabilities,
+} from '@/utils/catalogueService';
+import {
+
   ProbeDiagnostic,
   classifyFetchError,
   classifyHttpResponse,
