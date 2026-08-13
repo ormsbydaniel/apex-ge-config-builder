@@ -464,7 +464,9 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
               ? 'stac'
               : service.format === 's3'
                 ? 's3'
-                : 'service');
+                : service.format === 'catalogue'
+                  ? 'catalogue'
+                  : 'service');
 
           const newService: Service = {
             ...service,
@@ -472,9 +474,11 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
             name: service.name?.trim() || service.url,
             url: service.url.trim(),
             sourceType,
+            format: service.format,
             // Strip any pre-existing capabilities so the bulk validator re-checks
             capabilities: undefined,
           };
+
           onAddService(newService);
           addedCount++;
         } catch (error) {
