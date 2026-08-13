@@ -76,14 +76,34 @@ export const useServices = (services: Service[], onAddService: (service: Service
     }
   };
 
-  const addService = async (name: string, url: string, format: DataSourceFormat | 'stac', sourceType?: 's3' | 'service' | 'stac') => {
+  const fetchCatalogue = async (url: string): Promise<{ capabilities: ServiceCapabilities | null; title?: string }> => {
+    try {
+      setIsLoadingCapabilities(true);
+      const collection = await fetchCatalogueCollection(url);
+      const title = collection.meta.title || 'Catalogue';
+      const capabilities = buildCatalogueCapabilities(title, collection.datasets);
+      return { capabilities, title };
+    } catch (error) {
+      console.error('Error fetching catalogue:', error);
+      toast({
+        title: "Catalogue Error",
+        description: "Failed to fetch catalogue metadata. Please check the catalogue URL.",
+        variant: "destructive"
+      });
+      return { capabilities: null };
+    } finally {
+      setIsLoadingCapabilities(false);
+    }
+  };
+
+  const addService = async (name: string, url: string, format: DataSourceFormat | 'stac' | 'catalogue', sourceType?: 's3' | 'service' | 'stac' | 'catalogue') => {
     // Generate a unique service ID
-    const serviceId = `${sourceType === 's3' ? 's3' : sourceType === 'stac' ? 'stac' : format}-service-${Date.now()}`;
-    
+    const serviceId = `${sourceType === 's3' ? 's3' : sourceType === 'stac' ? 'stac' : sourceType === 'catalogue' ? 'catalogue' : format}-service-${Date.now()}`;
+
     // For different source types, fetch appropriate metadata
     let capabilities: ServiceCapabilities | undefined;
     let serviceName = name.trim();
-    
+
     if (sourceType === 's3') {
       capabilities = await fetchS3Objects(url) || undefined;
     } else if (sourceType === 'stac') {
@@ -93,7 +113,13 @@ export const useServices = (services: Service[], onAddService: (service: Service
       if (!serviceName || serviceName === '') {
         serviceName = stacResult.title || 'STAC Catalogue';
       }
-    } else if (format !== 'xyz' && format !== 'stac') {
+    } else if (sourceType === 'catalogue') {
+      const catalogueResult = await fetchCatalogue(url);
+      capabilities = catalogueResult.capabilities || undefined;
+      if (!serviceName || serviceName === '') {
+        serviceName = catalogueResult.title || 'Catalogue';
+      }
+    } else if (format !== 'xyz' && format !== 'stac' && format !== 'catalogue') {
       // For formats that support capabilities, try to fetch them
       capabilities = await parseGetCapabilities(url, format as DataSourceFormat) || undefined;
     }
@@ -102,15 +128,15 @@ export const useServices = (services: Service[], onAddService: (service: Service
       id: serviceId,
       name: serviceName,
       url: url.trim(),
-      format,
+      format: format as DataSourceFormat | 's3' | 'stac' | 'catalogue',
       sourceType,
       ...(capabilities && { capabilities })
     };
 
     onAddService(service);
-    
+
     if (capabilities?.layers.length) {
-      const itemType = sourceType === 's3' ? 'objects' : sourceType === 'stac' ? 'collections' : 'layers';
+      const itemType = sourceType === 's3' ? 'objects' : sourceType === 'stac' ? 'collections' : sourceType === 'catalogue' ? 'datasets' : 'layers';
       toast({
         title: "Service Added",
         description: `${serviceName} added with ${capabilities.layers.length} ${itemType} discovered.`,
@@ -124,6 +150,7 @@ export const useServices = (services: Service[], onAddService: (service: Service
 
     return service;
   };
+
 
   return {
     addService,
