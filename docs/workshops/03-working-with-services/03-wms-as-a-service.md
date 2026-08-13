@@ -32,8 +32,9 @@ once and its layers can be browsed whenever you add a dataset.
 2. Select **+ Add dataset** and choose **From service**.
 3. Pick the WMS service you just added. The builder loads the capabilities and
    presents a searchable list of layers.
-4. Search for `worldcover`. Multiple years will appear in the search results;
-   select the **2020** version, then choose **Select**.
+4. Search for `worldcover`. Multiple years will appear in the search results,
+    including layers named **WORLDCOVER MAP**; select the **2020** version,
+    then choose **Select**.
 5. *Preview* your config now to see the new layer, then select *Export* so you
    don't lose your work.
 
