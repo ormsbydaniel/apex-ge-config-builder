@@ -88,10 +88,14 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
   const themes = useMemo(() => Array.from(groupedThemes.keys()), [groupedThemes]);
 
   const filteredThemes = useMemo(() => {
-    if (!searchTerm.trim()) return themes;
+    const visible = showUnavailable
+      ? themes
+      : themes.filter(theme => (groupedThemes.get(theme) || []).some(isCatalogueDatasetSelectable));
+    if (!searchTerm.trim()) return visible;
     const term = searchTerm.toLowerCase();
-    return themes.filter(theme => theme.toLowerCase().includes(term));
-  }, [themes, searchTerm]);
+    return visible.filter(theme => theme.toLowerCase().includes(term));
+  }, [themes, searchTerm, showUnavailable, groupedThemes]);
+
 
   const themeDatasets = useMemo(() => {
     if (!selectedTheme) return [];
