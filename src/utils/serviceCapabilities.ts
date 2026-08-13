@@ -42,6 +42,30 @@ export interface ServiceCapabilitiesMetrics {
   bytes?: number;
 }
 
+const buildGetCapabilitiesUrlObject = (url: string, format: DataSourceFormat): URL | null => {
+  if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf') {
+    return null;
+  }
+
+  try {
+    const capabilitiesUrl = new URL(url);
+    capabilitiesUrl.searchParams.set('service', format.toUpperCase());
+    capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
+    const version =
+      format === 'wms' ? '1.3.0' :
+      format === 'wfs' ? '2.0.0' :
+      '1.0.0';
+    capabilitiesUrl.searchParams.set('version', version);
+    return capabilitiesUrl;
+  } catch {
+    return null;
+  }
+};
+
+export const buildGetCapabilitiesUrl = (url: string, format: DataSourceFormat): string | null => {
+  return buildGetCapabilitiesUrlObject(url, format)?.toString() ?? null;
+};
+
 // Function to fetch capabilities for a service (with optional timing/size metrics)
 export const fetchServiceCapabilitiesWithMetrics = async (
   url: string,
@@ -53,10 +77,8 @@ export const fetchServiceCapabilitiesWithMetrics = async (
   }
 
   // Construct GetCapabilities URL
-  let capabilitiesUrl: URL;
-  try {
-    capabilitiesUrl = new URL(url);
-  } catch {
+  const capabilitiesUrl = buildGetCapabilitiesUrlObject(url, format);
+  if (!capabilitiesUrl) {
     return {
       capabilities: null,
       diagnostic: {
@@ -66,13 +88,9 @@ export const fetchServiceCapabilitiesWithMetrics = async (
       },
     };
   }
-  capabilitiesUrl.searchParams.set('service', format.toUpperCase());
-  capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
-  const version =
-    format === 'wms' ? '1.3.0' :
-    format === 'wfs' ? '2.0.0' :
-    '1.0.0';
-  capabilitiesUrl.searchParams.set('version', version);
+
+  const capabilitiesUrlString = capabilitiesUrl.toString();
+
 
   // Use AbortController to enforce a 10-second timeout per service
   const controller = new AbortController();
@@ -272,8 +290,12 @@ export const fetchServiceCapabilitiesWithMetrics = async (
       }
 
     // Version actually reported by the service on the capabilities root element
+    const defaultVersion =
+      format === 'wms' ? '1.3.0' :
+      format === 'wfs' ? '2.0.0' :
+      '1.0.0';
     const reportedVersion =
-      xmlDoc.documentElement?.getAttribute('version')?.trim() || version;
+      xmlDoc.documentElement?.getAttribute('version')?.trim() || defaultVersion;
 
     const capabilities: ServiceCapabilities = {
       layers,

@@ -7,8 +7,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle, Eye, Copy, ArrowLeft, ZoomIn, ZoomOut } from 'lucide-react';
-import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
+import { Loader2, AlertCircle, Eye, Copy, ArrowLeft, ZoomIn, ZoomOut, ExternalLink } from 'lucide-react';
+import { fetchServiceCapabilities, buildGetCapabilitiesUrl } from '@/utils/serviceCapabilities';
 import { DataSourceFormat, DataSourceLayout } from '@/types/config';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -176,6 +176,19 @@ const WmsWmtsMetadataDialog = ({
             <DialogDescription className="break-all">
               {url}
             </DialogDescription>
+          )}
+          {viewMode === 'details' && (
+            <div className="pt-1">
+              <a
+                href={buildGetCapabilitiesUrl(url, format) ?? url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              >
+                Open full GetCapabilities
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
           )}
         </DialogHeader>
 
