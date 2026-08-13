@@ -7,6 +7,9 @@ import { PositionValue, getDefaultPosition, isValidPosition, requiresPosition } 
 import { cloneDonorLayer } from '@/utils/donorImport';
 import { uniqueId } from '@/utils/idHelpers';
 import { TemporalSuggestion } from '@/utils/timeDimension';
+import { CatalogueStyleSuggestion } from '@/utils/catalogueLegend';
+import { DataSourceMeta } from '@/types/layer';
+
 
 
 // Layer type management
