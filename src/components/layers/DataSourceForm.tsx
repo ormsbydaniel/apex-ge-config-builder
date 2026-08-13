@@ -453,11 +453,16 @@ const DataSourceForm = ({
 
     // Capture temporal suggestion from WMS/WMTS service capabilities so the layer
     // card can be auto-populated with an appropriate timeframe and default date.
-    if (layerInfo?.timeExtent) {
-      setSelectedLayerTemporalSuggestion(layerInfo.timeExtent);
+    if (layerInfo?.timeExtent || layerInfo?.defaultTime) {
+      setSelectedLayerTemporalSuggestion({
+        timeframe: layerInfo.timeExtent?.suggestedTimeframe ?? 'Time',
+        defaultTime: layerInfo.defaultTime,
+        defaultTimestamp: layerInfo.defaultTime ? dateStringToTimestamp(layerInfo.defaultTime) : undefined,
+      });
     } else {
       setSelectedLayerTemporalSuggestion(null);
     }
+
 
     // If datetime is provided from STAC and temporal configuration is enabled, set the selected date
     if (datetime && requiresTimestamp) {
