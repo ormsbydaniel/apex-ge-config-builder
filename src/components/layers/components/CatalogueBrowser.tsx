@@ -195,6 +195,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
     const version = getCapabilitiesUrl
       ? await fetchServiceVersion(getCapabilitiesUrl, format as DataSourceFormat)
       : undefined;
+    const styleSuggestion = legendToStyleSuggestion(primaryLayerLegend(layer));
     return {
       datasetIdentifier: dataset.datasetIdentifier,
       layerIdentifier: layer.identifier,
@@ -205,7 +206,9 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
       abstract: layer.abstract || dataset.abstract,
       format,
       ...(version ? { version } : {}),
+      ...(styleSuggestion ? { styleSuggestion } : {}),
     };
+
   };
 
   const handleLayerSelect = async (layer: CatalogueLayer) => {
