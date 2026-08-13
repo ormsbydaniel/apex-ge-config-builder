@@ -162,15 +162,12 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
               serviceName={service.name}
               defaultFormat={service.format === 'catalogue' || service.sourceType === 'catalogue' ? 'wmts' : (service.format as 'wmts' | 'wms')}
               onLayerSelect={(selection) => {
-                if (Array.isArray(selection)) {
-                  onSelect(selection);
-                } else {
-                  onSelect(selection);
-                }
+                onSelect(Array.isArray(selection) ? selection : [selection]);
                 handleClose();
               }}
             />
           ) : (
+
             <div className="flex flex-col gap-2 flex-1 min-h-0">
               <div className="relative">
                 <input
