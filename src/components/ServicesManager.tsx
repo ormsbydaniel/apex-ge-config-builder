@@ -25,7 +25,7 @@ const classifyService = (svc: Service): ServiceKind | null => {
   if (svc.format === 'wms' || svc.format === 'wmts' || svc.format === 'wfs') return 'ogc';
   return null;
 };
-import { fetchRecommendedServices } from '@/utils/recommendedBaseLayers';
+import { fetchRecommendedServices, fetchRecommendedCatalogues } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
 import { detectServiceTypeFromFile, DetectionResult, DetectedServiceType } from '@/utils/serviceFileParser';
