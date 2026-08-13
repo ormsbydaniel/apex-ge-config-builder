@@ -167,6 +167,9 @@ export const fetchServiceCapabilitiesWithMetrics = async (
           const timeDimension = layer.querySelector('Dimension[name="time"], Dimension[name="TIME"]');
           const hasTimeDimension = !!timeDimension;
           const defaultTime = timeDimension?.getAttribute('default') || undefined;
+          const timeDimensionValue = timeDimension?.textContent || undefined;
+          const timeExtent = timeDimensionValue ? parseTimeDimensionValue(timeDimensionValue) : undefined;
+
           
           // Extract CRS/EPSG codes
           const crsElements = layer.querySelectorAll('CRS');
