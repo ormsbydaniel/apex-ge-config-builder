@@ -641,10 +641,12 @@ const ServicesManager = ({ services, onAddService, onRemoveService, onUpdateServ
           ) : (() => {
             const getPriority = (service: Service) => {
               if (service.sourceType === 'stac') return 1;
-              if (service.format === 'wms' || service.format === 'wmts') return 2;
-              if (service.sourceType === 's3') return 3;
-              return 4;
+              if (service.sourceType === 'catalogue') return 2;
+              if (service.format === 'wms' || service.format === 'wmts') return 3;
+              if (service.sourceType === 's3') return 4;
+              return 5;
             };
+
             const sorted = services.slice().sort((a, b) => {
               const priorityA = getPriority(a);
               const priorityB = getPriority(b);
