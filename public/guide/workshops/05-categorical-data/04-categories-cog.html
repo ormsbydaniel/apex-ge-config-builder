@@ -770,6 +770,8 @@
       
         
       
+        
+      
     
     
     
@@ -1932,9 +1934,9 @@
 <h1 id="5-4-categories-for-a-cog">5-4. Categories for a COG<a class="headerlink" href="#5-4-categories-for-a-cog" title="Permanent link">&para;</a></h1>
 <p>The same category system drives rendering for classified COGs.</p>
 <ol>
-<li>Create a new layer card called <code>World Cover COG</code>.</li>
+<li>Create a new layer card called <code>World Cover - Austria</code> - see tutorial 2-6 for a recap if needed</li>
 <li>
-<p>Add the following dataset — a World Cover COG for Austria:</p>
+<p>Add the following dataset — a World Cover COG for Austria - see tutorial 2-7 for a recap if needed:</p>
 <div class="highlight"><pre><span></span><code>https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif
 </code></pre></div>
 </li>
@@ -1948,11 +1950,15 @@
 </li>
 <li>
 <p>Edit a couple of the category labels to align to the World Cover class
-   names (e.g. <code>10 → Tree cover</code>, <code>20 → Shrubland</code>).</p>
+   names (e.g. <code>10 → Tree cover</code>, <code>20 → Shrubland</code>). See https://collections.sentinel-hub.com/worldcover/readme.html for the list of namnes and categories.</p>
 </li>
 <li>Save the layer card and preview. The COG is now rendered with the labels
    and colours you defined.</li>
 </ol>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+</div>
+<p>For COG files, the categories define the legend and the styling of the COG, so you can pick whatever colours you choose.  If you ommit a category entirely, then it will not display that data.  For example, if you <em>only</em> added in the category for tree cover, this is all you would see.</p>
 <div class="admonition warning">
 <p class="admonition-title">Sampled categories</p>
 <p>The values are populated from a <strong>sample</strong> of pixels. It is possible for
