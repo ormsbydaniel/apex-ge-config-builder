@@ -382,8 +382,10 @@ export const useBulkServiceValidation = (
       const collection = await fetchCatalogueCollection(svc.url);
       const capabilities = buildCatalogueCapabilities(
         collection.meta.title || svc.name || 'Catalogue',
-        collection.datasets
+        collection.datasets,
+        collection.meta.counts
       );
+
       dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
       const unavailable = collection.datasets.filter(d => !d.available).length;
       const warns = unavailable > 0 ? [`${unavailable} dataset(s) currently unavailable`] : [];
