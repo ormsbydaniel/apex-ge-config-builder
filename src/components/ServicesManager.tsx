@@ -21,10 +21,12 @@ const classifyService = (svc: Service): ServiceKind | null => {
   if (!svc.url) return null;
   if (svc.format === 'stac' || svc.sourceType === 'stac') return 'stac';
   if (svc.format === 's3' || svc.sourceType === 's3') return 's3';
+  if (svc.format === 'catalogue' || svc.sourceType === 'catalogue') return 'catalogue';
   if (parseS3Url(svc.url) !== null) return 's3';
   if (svc.format === 'wms' || svc.format === 'wmts' || svc.format === 'wfs') return 'ogc';
   return null;
 };
+
 import { fetchRecommendedServices, fetchRecommendedCatalogues } from '@/utils/recommendedBaseLayers';
 import { toast } from '@/hooks/use-toast';
 import { ServiceUploadConfirmDialog } from '@/components/ServiceUploadConfirmDialog';
