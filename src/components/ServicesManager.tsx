@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle, X, Check } from 'lucide-react';
+import { Plus, Trash2, Loader2, Globe, Server, Database, Download, Upload, Pencil, RefreshCw, AlertTriangle, X, Check, FolderOpen } from 'lucide-react';
 import { Service, DataSourceFormat, SourceConfigType } from '@/types/config';
 import { FORMAT_CONFIGS, S3_CONFIG, STAC_CONFIG, JSON_UPLOAD_CONFIG } from '@/constants/formats';
 import { useServices } from '@/hooks/useServices';
