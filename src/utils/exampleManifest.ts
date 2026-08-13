@@ -27,13 +27,22 @@ export interface RecommendedResourceEntry {
   url: string;
 }
 
+export interface RecommendedCatalogueEntry {
+  id: string;
+  name: string;
+  description?: string;
+  url: string;
+}
+
 export interface ExampleManifest {
   examples: ExampleConfigEntry[];
   recommended: {
     basemaps?: RecommendedResourceEntry;
     services?: RecommendedResourceEntry;
+    catalogues?: RecommendedCatalogueEntry[];
   };
 }
+
 
 interface RawManifestEntry {
   id?: unknown;
