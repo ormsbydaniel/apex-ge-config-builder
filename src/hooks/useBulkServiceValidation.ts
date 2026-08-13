@@ -86,6 +86,9 @@ const classify = (svc: Service): ServiceKind | null => {
   // STAC
   if (svc.format === 'stac' || svc.sourceType === 'stac') return 'stac';
 
+  // Catalogue (multi-dataset manifest)
+  if (svc.format === 'catalogue' || svc.sourceType === 'catalogue') return 'catalogue';
+
   // S3
   if (svc.format === 's3' || svc.sourceType === 's3') return 's3';
   if (parseS3Url(svc.url) !== null) return 's3';
@@ -97,6 +100,7 @@ const classify = (svc: Service): ServiceKind | null => {
 
   return null;
 };
+
 
 async function runWithConcurrency<T>(
   items: T[],
