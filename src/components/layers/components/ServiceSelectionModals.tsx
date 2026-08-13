@@ -156,6 +156,20 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
                 handleClose();
               }}
             />
+          ) : isCatalogueService ? (
+            <CatalogueBrowser
+              serviceUrl={service.url}
+              serviceName={service.name}
+              defaultFormat={service.format === 'catalogue' || service.sourceType === 'catalogue' ? 'wmts' : (service.format as 'wmts' | 'wms')}
+              onLayerSelect={(selection) => {
+                if (Array.isArray(selection)) {
+                  onSelect(selection);
+                } else {
+                  onSelect(selection);
+                }
+                handleClose();
+              }}
+            />
           ) : (
             <div className="flex flex-col gap-2 flex-1 min-h-0">
               <div className="relative">
@@ -213,6 +227,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
             </div>
           )}
         </div>
+
         </ModalErrorBoundary>
       </DialogContent>
     </Dialog>
