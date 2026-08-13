@@ -14,7 +14,11 @@ import { DataSourceFormat } from '@/types/config';
 import {
   fetchCatalogueCollection,
   groupCatalogueDatasetsByTheme,
+  isCatalogueDatasetSelectable,
+  catalogueDatasetUnavailableReason,
+  catalogueDatasetFormat,
 } from '@/utils/catalogueService';
+
 import { fetchServiceVersion } from '@/utils/serviceCapabilities';
 
 export interface CatalogueLayerSelection {
