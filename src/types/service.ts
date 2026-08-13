@@ -9,10 +9,36 @@ export interface Service {
   id: string;
   name: string;
   url: string;
-  sourceType?: 's3' | 'service' | 'stac'; // Optional, defaults to 'service'
-  format?: DataSourceFormat | 's3' | 'stac'; // Optional for S3/STAC services, required for others
+  sourceType?: 's3' | 'service' | 'stac' | 'catalogue'; // Optional, defaults to 'service'
+  format?: DataSourceFormat | 's3' | 'stac' | 'catalogue'; // Optional for S3/STAC/Catalogue services, required for others
   capabilities?: ServiceCapabilities;
 }
+
+export interface CatalogueDataset {
+  datasetIdentifier: string;
+  serviceUrl: string;
+  getCapabilitiesUrl: string;
+  title: string;
+  abstract?: string;
+  theme: string;
+  available: boolean;
+  layers: CatalogueLayer[];
+}
+
+export interface CatalogueLayer {
+  identifier: string;
+  title?: string;
+  abstract?: string;
+}
+
+export interface CatalogueCapabilities extends ServiceCapabilities {
+  catalogue: {
+    datasets: CatalogueDataset[];
+  };
+  availableDatasetCount?: number;
+  unavailableDatasetCount?: number;
+}
+
 
 export interface ServiceCapabilities {
   layers: LayerInfo[];
