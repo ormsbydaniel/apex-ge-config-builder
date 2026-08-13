@@ -14,15 +14,26 @@ export interface Service {
   capabilities?: ServiceCapabilities;
 }
 
+export interface CatalogueDatasetAccess {
+  wmts?: { available?: boolean; getCapabilitiesUrl?: string; serviceUrl?: string };
+  wms?: { available?: boolean; getCapabilitiesUrl?: string; serviceUrl?: string };
+  cog?: { catalogueAvailable?: boolean; publicAvailable?: boolean; productCount?: number };
+  [key: string]: any;
+}
+
 export interface CatalogueDataset {
   datasetIdentifier: string;
-  serviceUrl: string;
-  getCapabilitiesUrl: string;
+  /** Absent for datasets with no public map service. */
+  serviceUrl?: string;
+  getCapabilitiesUrl?: string;
   title: string;
   abstract?: string;
   theme: string;
   available: boolean;
-  layers: CatalogueLayer[];
+  /** e.g. 'WMTS' | 'WMS'; absent when no public service was discovered. */
+  serviceType?: string;
+  access?: CatalogueDatasetAccess;
+  layers?: CatalogueLayer[];
 }
 
 export interface CatalogueLayer {
@@ -30,6 +41,7 @@ export interface CatalogueLayer {
   title?: string;
   abstract?: string;
 }
+
 
 export interface CatalogueCapabilities extends ServiceCapabilities {
   catalogue: {

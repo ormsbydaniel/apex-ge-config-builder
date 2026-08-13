@@ -14,7 +14,11 @@ import { DataSourceFormat } from '@/types/config';
 import {
   fetchCatalogueCollection,
   groupCatalogueDatasetsByTheme,
+  isCatalogueDatasetSelectable,
+  catalogueDatasetUnavailableReason,
+  catalogueDatasetFormat,
 } from '@/utils/catalogueService';
+
 import { fetchServiceVersion } from '@/utils/serviceCapabilities';
 
 export interface CatalogueLayerSelection {
@@ -84,10 +88,14 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
   const themes = useMemo(() => Array.from(groupedThemes.keys()), [groupedThemes]);
 
   const filteredThemes = useMemo(() => {
-    if (!searchTerm.trim()) return themes;
+    const visible = showUnavailable
+      ? themes
+      : themes.filter(theme => (groupedThemes.get(theme) || []).some(isCatalogueDatasetSelectable));
+    if (!searchTerm.trim()) return visible;
     const term = searchTerm.toLowerCase();
-    return themes.filter(theme => theme.toLowerCase().includes(term));
-  }, [themes, searchTerm]);
+    return visible.filter(theme => theme.toLowerCase().includes(term));
+  }, [themes, searchTerm, showUnavailable, groupedThemes]);
+
 
   const themeDatasets = useMemo(() => {
     if (!selectedTheme) return [];
@@ -95,7 +103,9 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
   }, [selectedTheme, groupedThemes]);
 
   const filteredDatasets = useMemo(() => {
-    const list = themeDatasets;
+    const list = showUnavailable
+      ? themeDatasets
+      : themeDatasets.filter(isCatalogueDatasetSelectable);
     if (!searchTerm.trim() || step !== 'datasets') return list;
     const term = searchTerm.toLowerCase();
     return list.filter(
@@ -104,15 +114,12 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
         (d.abstract && d.abstract.toLowerCase().includes(term)) ||
         d.datasetIdentifier.toLowerCase().includes(term),
     );
-  }, [themeDatasets, searchTerm, step]);
+  }, [themeDatasets, searchTerm, step, showUnavailable]);
+
 
   const filteredLayers = useMemo(() => {
     if (!selectedDataset) return [];
     let layers = selectedDataset.layers || [];
-    if (!showUnavailable && !selectedDataset.available) {
-      // If the whole dataset is unavailable, grey out all layers but still show them.
-      // We still list them so users understand what's in the catalogue.
-    }
     if (searchTerm.trim() && step === 'layers') {
       const term = searchTerm.toLowerCase();
       layers = layers.filter(
@@ -123,7 +130,9 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
       );
     }
     return layers;
-  }, [selectedDataset, searchTerm, step, showUnavailable]);
+  }, [selectedDataset, searchTerm, step]);
+
+  const selectedDatasetSelectable = selectedDataset ? isCatalogueDatasetSelectable(selectedDataset) : false;
 
   const handleThemeSelect = (theme: string) => {
     setSelectedTheme(theme);
@@ -150,14 +159,17 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
   const buildSelection = async (
     dataset: CatalogueDataset,
     layer: CatalogueLayer,
-    format: 'wmts' | 'wms',
   ): Promise<CatalogueLayerSelection> => {
-    const version = await fetchServiceVersion(dataset.getCapabilitiesUrl, format as DataSourceFormat);
+    const format = catalogueDatasetFormat(dataset, defaultFormat);
+    const getCapabilitiesUrl = dataset.getCapabilitiesUrl || '';
+    const version = getCapabilitiesUrl
+      ? await fetchServiceVersion(getCapabilitiesUrl, format as DataSourceFormat)
+      : undefined;
     return {
       datasetIdentifier: dataset.datasetIdentifier,
       layerIdentifier: layer.identifier,
-      serviceUrl: dataset.serviceUrl,
-      getCapabilitiesUrl: dataset.getCapabilitiesUrl,
+      serviceUrl: dataset.serviceUrl || '',
+      getCapabilitiesUrl,
       title: dataset.title,
       layerTitle: layer.title,
       abstract: layer.abstract || dataset.abstract,
@@ -168,32 +180,33 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
 
   const handleLayerSelect = async (layer: CatalogueLayer) => {
     if (!selectedDataset) return;
-    if (!selectedDataset.available) {
+    if (!isCatalogueDatasetSelectable(selectedDataset)) {
       toast({
         title: 'Dataset unavailable',
-        description: 'This dataset is currently marked as unavailable and cannot be added.',
+        description: catalogueDatasetUnavailableReason(selectedDataset),
         variant: 'destructive',
       });
       return;
     }
-    const selection = await buildSelection(selectedDataset, layer, defaultFormat);
+    const selection = await buildSelection(selectedDataset, layer);
     onLayerSelect(selection);
   };
 
   const handleAddAllDatasetLayers = async () => {
-    if (!selectedDataset || !selectedDataset.available) return;
+    if (!selectedDataset || !isCatalogueDatasetSelectable(selectedDataset)) return;
     const selections = await Promise.all(
-      selectedDataset.layers.map(layer => buildSelection(selectedDataset, layer, defaultFormat))
+      (selectedDataset.layers || []).map(layer => buildSelection(selectedDataset, layer))
     );
     onLayerSelect(selections);
   };
 
 
   const summary = useMemo(() => {
-    const available = datasets.filter(d => d.available).length;
+    const available = datasets.filter(isCatalogueDatasetSelectable).length;
     const unavailable = datasets.length - available;
     return { available, unavailable };
   }, [datasets]);
+
 
   if (loading && datasets.length === 0) {
     return (
@@ -246,7 +259,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                 Back
               </Button>
             )}
-            {step === 'layers' && selectedDataset?.available && (
+            {step === 'layers' && selectedDatasetSelectable && (
               <Button variant="outline" size="sm" onClick={handleAddAllDatasetLayers}>
                 Add all
               </Button>
@@ -280,7 +293,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
         <div className="grid gap-3">
           {filteredThemes.map((theme) => {
             const themeDs = groupedThemes.get(theme) || [];
-            const availableCount = themeDs.filter(d => d.available).length;
+            const availableCount = themeDs.filter(isCatalogueDatasetSelectable).length;
             const unavailableCount = themeDs.length - availableCount;
             return (
               <Card
@@ -324,38 +337,53 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
             <span className="font-medium">{selectedTheme}</span>
           </div>
           <div className="grid gap-3">
-            {filteredDatasets.map((dataset) => (
-              <Card
-                key={dataset.datasetIdentifier}
-                className={`cursor-pointer transition-colors ${dataset.available ? 'hover:border-primary' : 'opacity-60 border-dashed'}`}
-                onClick={() => handleDatasetSelect(dataset)}
-              >
-                <CardContent className="p-4 flex items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className={`font-medium ${dataset.available ? '' : 'text-muted-foreground'}`}>
-                        {dataset.title}
-                      </h4>
-                      {!dataset.available && (
-                        <Badge variant="outline" className="border-muted-foreground text-muted-foreground">
-                          Unavailable
-                        </Badge>
+            {filteredDatasets.map((dataset) => {
+              const selectable = isCatalogueDatasetSelectable(dataset);
+              const layerCount = dataset.layers?.length ?? 0;
+              return (
+                <Card
+                  key={dataset.datasetIdentifier}
+                  className={`cursor-pointer transition-colors ${selectable ? 'hover:border-primary' : 'opacity-60 border-dashed'}`}
+                  onClick={() => handleDatasetSelect(dataset)}
+                >
+                  <CardContent className="p-4 flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className={`font-medium ${selectable ? '' : 'text-muted-foreground'}`}>
+                          {dataset.title}
+                        </h4>
+                        {dataset.serviceType && selectable && (
+                          <Badge variant="outline">{dataset.serviceType}</Badge>
+                        )}
+                        {!selectable && (
+                          <Badge variant="outline" className="border-muted-foreground text-muted-foreground">
+                            Unavailable
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">{dataset.datasetIdentifier}</p>
+                      {dataset.abstract && (
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{dataset.abstract}</p>
+                      )}
+                      {!selectable && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {catalogueDatasetUnavailableReason(dataset)}
+                        </p>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">{dataset.datasetIdentifier}</p>
-                    {dataset.abstract && (
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{dataset.abstract}</p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Badge variant="outline" className="border-green-300 text-green-700">
-                      {dataset.layers.length} layer{dataset.layers.length !== 1 ? 's' : ''}
-                    </Badge>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {layerCount > 0 && (
+                        <Badge variant="outline" className="border-green-300 text-green-700">
+                          {layerCount} layer{layerCount !== 1 ? 's' : ''}
+                        </Badge>
+                      )}
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+
             {filteredDatasets.length === 0 && (
               <p className="text-center text-muted-foreground py-8">No datasets match your search.</p>
             )}
@@ -372,21 +400,22 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
             <Map className="h-4 w-4" />
             <span className="font-medium">{selectedDataset.title}</span>
           </div>
-          {!selectedDataset.available && (
+          {!selectedDatasetSelectable && (
             <div className="p-3 border rounded bg-muted/50 text-sm text-muted-foreground flex items-start gap-2">
               <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              This dataset is currently unavailable in the catalogue. You can still view the layers, but they cannot be added to your configuration.
+              {catalogueDatasetUnavailableReason(selectedDataset)} Datasets like this are listed for
+              information only and cannot be added to your configuration.
             </div>
           )}
           <div className="grid gap-3">
             {filteredLayers.map((layer) => (
               <Card
                 key={layer.identifier}
-                className={`transition-colors ${selectedDataset.available ? 'hover:border-primary' : 'opacity-60 border-dashed'}`}
+                className={`transition-colors ${selectedDatasetSelectable ? 'hover:border-primary' : 'opacity-60 border-dashed'}`}
               >
                 <CardContent className="p-4 flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h4 className={`font-medium ${selectedDataset.available ? '' : 'text-muted-foreground'}`}>
+                    <h4 className={`font-medium ${selectedDatasetSelectable ? '' : 'text-muted-foreground'}`}>
                       {layer.title || layer.identifier}
                     </h4>
                     <p className="text-sm text-muted-foreground truncate">{layer.identifier}</p>
@@ -400,14 +429,14 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                         <span>
                           <Button
                             size="sm"
-                            disabled={!selectedDataset.available}
+                            disabled={!selectedDatasetSelectable}
                             onClick={() => handleLayerSelect(layer)}
                           >
                             Add layer
                           </Button>
                         </span>
                       </TooltipTrigger>
-                      {!selectedDataset.available && (
+                      {!selectedDatasetSelectable && (
                         <TooltipContent>
                           <p>Dataset unavailable</p>
                         </TooltipContent>
@@ -418,8 +447,13 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
               </Card>
             ))}
             {filteredLayers.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">No layers match your search.</p>
+              <p className="text-center text-muted-foreground py-8">
+                {(selectedDataset.layers?.length ?? 0) === 0
+                  ? 'This dataset has no map layers in the catalogue.'
+                  : 'No layers match your search.'}
+              </p>
             )}
+
           </div>
         </div>
       )}
