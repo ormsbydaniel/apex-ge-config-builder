@@ -330,38 +330,53 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
             <span className="font-medium">{selectedTheme}</span>
           </div>
           <div className="grid gap-3">
-            {filteredDatasets.map((dataset) => (
-              <Card
-                key={dataset.datasetIdentifier}
-                className={`cursor-pointer transition-colors ${dataset.available ? 'hover:border-primary' : 'opacity-60 border-dashed'}`}
-                onClick={() => handleDatasetSelect(dataset)}
-              >
-                <CardContent className="p-4 flex items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className={`font-medium ${dataset.available ? '' : 'text-muted-foreground'}`}>
-                        {dataset.title}
-                      </h4>
-                      {!dataset.available && (
-                        <Badge variant="outline" className="border-muted-foreground text-muted-foreground">
-                          Unavailable
-                        </Badge>
+            {filteredDatasets.map((dataset) => {
+              const selectable = isCatalogueDatasetSelectable(dataset);
+              const layerCount = dataset.layers?.length ?? 0;
+              return (
+                <Card
+                  key={dataset.datasetIdentifier}
+                  className={`cursor-pointer transition-colors ${selectable ? 'hover:border-primary' : 'opacity-60 border-dashed'}`}
+                  onClick={() => handleDatasetSelect(dataset)}
+                >
+                  <CardContent className="p-4 flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className={`font-medium ${selectable ? '' : 'text-muted-foreground'}`}>
+                          {dataset.title}
+                        </h4>
+                        {dataset.serviceType && selectable && (
+                          <Badge variant="outline">{dataset.serviceType}</Badge>
+                        )}
+                        {!selectable && (
+                          <Badge variant="outline" className="border-muted-foreground text-muted-foreground">
+                            Unavailable
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">{dataset.datasetIdentifier}</p>
+                      {dataset.abstract && (
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{dataset.abstract}</p>
+                      )}
+                      {!selectable && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {catalogueDatasetUnavailableReason(dataset)}
+                        </p>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">{dataset.datasetIdentifier}</p>
-                    {dataset.abstract && (
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{dataset.abstract}</p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Badge variant="outline" className="border-green-300 text-green-700">
-                      {dataset.layers.length} layer{dataset.layers.length !== 1 ? 's' : ''}
-                    </Badge>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {layerCount > 0 && (
+                        <Badge variant="outline" className="border-green-300 text-green-700">
+                          {layerCount} layer{layerCount !== 1 ? 's' : ''}
+                        </Badge>
+                      )}
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+
             {filteredDatasets.length === 0 && (
               <p className="text-center text-muted-foreground py-8">No datasets match your search.</p>
             )}
