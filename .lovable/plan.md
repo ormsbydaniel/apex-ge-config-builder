@@ -13,7 +13,7 @@ in the same way the STAC browser drills into collections → items.
 1. **Services → Add Recommended Services** now shows a single new entry,
    `Copernicus Land Monitoring (CLMS) WMTS`, badged as a catalogue.
 2. Adding it stores one service in the config, pointing at the JSON catalogue
-   URL. The service card shows "34 datasets, 95 layers".
+   URL. The service card shows dataset counts, e.g. "34 available / 27 unavailable".
 3. In a Layer Card → **Datasets → Add Dataset → From Service**, picking the
    CLMS service opens a **catalogue browser**:
    - datasets grouped by theme parsed from the title (vegetation properties,
