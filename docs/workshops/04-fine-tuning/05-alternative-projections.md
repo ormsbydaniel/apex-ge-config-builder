@@ -45,3 +45,14 @@ polar view centred on the North Pole.
     If you want to continue with other tutorials, you may find it easier to
     switch back to the default **EPSG:3857** and a more familiar start location
     after exploring the polar view.
+
+!!! info
+    The Geospatial Explorer ships with the default projections shown in the
+    **Default Coordinate Reference System** dropdown. If you need a projection
+    that is not listed, you can add it under **Custom Projections** by entering
+    the appropriate Proj4JS string.
+
+    Data is reprojected on the fly from its source projection to the display
+    projection, so custom projections can also be useful for supporting specific
+    datasets even when the display CRS is one of the built-in options.
+
