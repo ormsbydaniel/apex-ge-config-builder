@@ -1,10 +1,20 @@
 import { TimeframeType } from '@/types/config';
 
+export interface TemporalSuggestion {
+  /** Builder timeframe inferred from the advertised time extent. */
+  timeframe: TimeframeType;
+  /** Optional default timestamp (seconds since Unix epoch) from the service. */
+  defaultTimestamp?: number;
+  /** Optional raw ISO 8601 default date from the service. */
+  defaultTime?: string;
+}
+
 export interface TimeDimensionInterval {
   start: string;
   end: string;
   period?: string;
 }
+
 
 export interface TimeDimensionExtent {
   /** ISO 8601 start date/time of the full extent. */
