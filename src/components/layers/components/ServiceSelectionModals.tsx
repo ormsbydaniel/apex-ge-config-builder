@@ -32,7 +32,7 @@ interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (selection: ServiceSelectionValue, layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
+  onSelect: (selection: ServiceSelectionValue, layers?: string, format?: DataSourceFormat | string, datetime?: string, layerInfo?: LayerInfo) => void;
   allowedFormats?: string[];
   sourceContext?: SourceContext;
 }
