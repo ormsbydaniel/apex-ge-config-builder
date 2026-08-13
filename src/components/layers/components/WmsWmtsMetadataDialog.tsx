@@ -14,6 +14,22 @@ import { Badge } from '@/components/ui/badge';
 
 import { useToast } from '@/hooks/use-toast';
 
+const formatPeriodLabel = (period?: string) => {
+  if (!period) return null;
+  const duration = parseIso8601Duration(period);
+  if (!duration) return period;
+
+  const { years, months, days, hours, minutes, seconds } = duration;
+  const parts: string[] = [];
+  if (years > 0) parts.push(`${years} year${years !== 1 ? 's' : ''}`);
+  if (months > 0) parts.push(`${months} month${months !== 1 ? 's' : ''}`);
+  if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+  if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+  if (seconds > 0) parts.push(`${seconds} second${seconds !== 1 ? 's' : ''}`);
+  return parts.join(', ') || period;
+};
+
 interface WmsWmtsMetadataDialogProps {
   url: string;
   format: DataSourceFormat;
