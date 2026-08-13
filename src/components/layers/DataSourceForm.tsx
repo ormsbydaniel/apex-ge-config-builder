@@ -450,6 +450,14 @@ const DataSourceForm = ({
       setSelectedFormat(format);
     }
 
+    // Capture temporal suggestion from WMS/WMTS service capabilities so the layer
+    // card can be auto-populated with an appropriate timeframe and default date.
+    if (layerInfo?.timeExtent) {
+      setSelectedLayerTemporalSuggestion(layerInfo.timeExtent);
+    } else {
+      setSelectedLayerTemporalSuggestion(null);
+    }
+
     // If datetime is provided from STAC and temporal configuration is enabled, set the selected date
     if (datetime && requiresTimestamp) {
       try {
