@@ -1,78 +1,311 @@
-# Getting the CLMS catalogue to appear
+# Rewrite the CLMS discovery script to emit catalogue-collection JSON
 
-You are right: nothing will show yet. The app only discovers catalogues through the remote manifest in `ESA-APEx/apex_geospatial_explorer_configs`, and there is currently no `recommended.catalogues` entry and no CLMS JSON file hosted there. There is also no way to add a catalogue by hand in the UI today.
+The script keeps its current probing logic but writes the exact shape the config builder consumes (`meta` + `datasets` with camelCase keys, a `theme` per dataset, and `available` retained for unavailable entries). No converter step.
 
-## What you need to do in the configs repo
+## Changes
 
-1. Publish the CLMS layer list produced by your bash script as a JSON file, e.g. `config-builder/catalogues/clms-wmts.json`, on the `main` branch.
-2. Add a `catalogues` array to `recommended` in `config-builder/manifest.json`:
+- Output envelope becomes `{ "meta": {...}, "datasets": [...] }` (was `{ "catalogue": ..., "datasets": ... }`).
+- Dataset keys renamed to `datasetIdentifier`, `serviceUrl`, `getCapabilitiesUrl`, `title`, `abstract`, `theme`, `available`, `layers`.
+- Falls back to a readable `title` for unavailable datasets (derived from the identifier) so the greyed-out rows still read well.
+- `theme` derived from the identifier prefix via a lookup table, falling back to "Other".
+- `failure` diagnostics kept under a non-breaking `diagnostics` key (ignored by the builder, useful for you).
+- Default output filename becomes `clms-wmts.json`.
 
-```json
-{
-  "examples": [ ... ],
-  "recommended": {
-    "basemaps": { "file": "recommended-basemaps.json" },
-    "services": { "file": "recommended-services.json" },
-    "catalogues": [
-      {
-        "id": "clms",
-        "name": "Copernicus Land Monitoring Service",
-        "description": "CLMS WMTS layers grouped by theme",
-        "file": "catalogues/clms-wmts.json"
-      }
-    ]
-  }
+## The rewritten script
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+OUTPUT="${1:-clms-wmts.json}"
+
+python3 - "$OUTPUT" <<'PY'
+import concurrent.futures
+import datetime as dt
+import json
+import ssl
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
+
+OUTPUT = sys.argv[1]
+SERVICE_ROOT = "https://land.copernicus.eu/cdse/"
+SOURCE_DOC = "https://documentation.dataspace.copernicus.eu/Data/ComplementaryData/CLMS.html"
+TIMEOUT = 25
+MAX_WORKERS = 10
+USER_AGENT = "cdse-wmts-availability/4.0"
+
+DATASETS = [
+    "lc_global_100m_yearly_v3",
+    "ssm_europe_1km_daily_v1",
+    "swi_europe_1km_daily_v1",
+    "swi_europe_1km_daily_v2",
+    "swi_global_12.5km_daily_v3",
+    "swi_global_12.5km_daily_v4",
+    "swi-timeseries_global_12.5km_daily_v3",
+    "swi-static_global_12.5km_daily_v3",
+    "swi_global_12.5km_10daily_v3",
+    "swi_global_12.5km_10daily_v4",
+    "sce_europe_500m_daily_v1",
+    "sce_northernhemisphere_1km_daily_v1",
+    "swe_northernhemisphere_5km_daily_v1",
+    "swe_northernhemisphere_5km_daily_v2",
+    "lst_global_5km_hourly_v1",
+    "lst_global_5km_hourly_v2",
+    "lst-daily-cycle_global_5km_10daily_v1",
+    "lst-daily-cycle_global_5km_10daily_v2",
+    "lst-tci_global_5km_10daily_v1",
+    "lst-tci_global_5km_10daily_v2",
+    "lswt-nrt_global_1km_10daily_v1",
+    "lswt-offline_global_1km_10daily_v1",
+    "toc_global_300m_daily_v2",
+    "ba_global_300m_daily_v3",
+    "ba_global_300m_monthly_v3",
+    "fcover_global_300m_10daily_v1",
+    "fcover_global_1km_10daily_v2",
+    "fapar_global_300m_10daily_v1",
+    "fapar_global_1km_10daily_v2",
+    "lai_global_1km_10daily_v2",
+    "lai_global_300m_10daily_v1",
+    "ndvi_global_1km_10daily_v3",
+    "ndvi_global_1km_10daily_v2",
+    "ndvi_global_300m_10daily_v2",
+    "ndvi_global_300m_10daily_v1",
+    "ndvi-sts_global_1km_10daily_v3",
+    "ndvi-lts_global_1km_10daily_v3",
+    "ndvi-lts_global_1km_10daily_v2",
+    "lsp_global_300m_yearly_v1",
+    "dmp_global_300m_10daily_v1",
+    "dmp_global_1km_10daily_v2",
+    "gdmp_global_300m_10daily_v1",
+    "gdmp_global_1km_10daily_v2",
+    "npp_global_300m_10daily_v1",
+    "gpp_global_300m_10daily_v1",
+    "wb_global_100m_monthly_v1",
+    "wb_global_1km_10daily_v2",
+    "wb_global_300m_monthly_v2",
+    "wb_global_300m_10daily_v1",
+    "wl-lakes_global_vector_daily_v2",
+    "wl-rivers_global_vector_daily_v2",
+    "lwq-nrt_global_100m_10daily_v1",
+    "lwq-reproc_global_300m_10daily_v1",
+    "lwq-nrt_global_300m_10daily_v1",
+    "lwq-nrt_global_100m_10daily_v2",
+    "lwq-nrt_global_300m_10daily_v2",
+    "lie_baltic_250m_daily_v1",
+    "lie_global_500m_daily_v2",
+    "lie_europe_250m_daily_v2",
+    "lcm_global_10m_yearly_v1",
+    "tcd_pantropical_10m_yearly_v1",
+]
+
+# Theme lookup keyed on the leading token of the dataset identifier.
+THEMES = {
+    "lc": "Land cover",
+    "lcm": "Land cover",
+    "tcd": "Land cover",
+    "ssm": "Soil moisture",
+    "swi": "Soil moisture",
+    "sce": "Snow and ice",
+    "swe": "Snow and ice",
+    "lie": "Snow and ice",
+    "lst": "Temperature",
+    "lswt": "Temperature",
+    "toc": "Surface reflectance",
+    "ba": "Burnt area",
+    "fcover": "Vegetation properties",
+    "fapar": "Vegetation properties",
+    "lai": "Vegetation properties",
+    "ndvi": "Vegetation properties",
+    "lsp": "Vegetation properties",
+    "dmp": "Vegetation productivity",
+    "gdmp": "Vegetation productivity",
+    "npp": "Vegetation productivity",
+    "gpp": "Vegetation productivity",
+    "wb": "Water bodies",
+    "wl": "Water level",
+    "lwq": "Water quality",
 }
+
+ssl_ctx = ssl.create_default_context()
+
+
+def theme_for(dataset_id):
+    prefix = dataset_id.split("_", 1)[0].split("-", 1)[0]
+    return THEMES.get(prefix, "Other")
+
+
+def fallback_title(dataset_id):
+    return dataset_id.replace("-", " ").replace("_", " ").strip()
+
+
+def fetch(url):
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": USER_AGENT, "Accept": "application/xml,text/xml,*/*"},
+    )
+    with urllib.request.urlopen(req, timeout=TIMEOUT, context=ssl_ctx) as r:
+        return r.status, dict(r.headers.items()), r.read(), r.geturl()
+
+
+def local_name(tag):
+    return tag.split("}", 1)[-1] if "}" in tag else tag
+
+
+def child(elem, name):
+    for node in list(elem):
+        if local_name(node.tag) == name:
+            return node
+    return None
+
+
+def children(elem, name):
+    return [node for node in list(elem) if local_name(node.tag) == name]
+
+
+def child_text(elem, name):
+    node = child(elem, name)
+    if node is None:
+        return None
+    value = (node.text or "").strip()
+    return value or None
+
+
+def clean(obj):
+    return {k: v for k, v in obj.items() if v not in (None, "", [], {})}
+
+
+def parse_layer(layer):
+    return clean({
+        "identifier": child_text(layer, "Identifier"),
+        "title": child_text(layer, "Title"),
+        "abstract": child_text(layer, "Abstract"),
+    })
+
+
+def parse_capabilities(body):
+    root = ET.fromstring(body)
+    if local_name(root.tag) != "Capabilities" or "wmts/1.0" not in root.tag:
+        raise ValueError("Response is not WMTS 1.0 Capabilities XML")
+    service_ident = child(root, "ServiceIdentification")
+    contents = child(root, "Contents")
+    if contents is None:
+        raise ValueError("WMTS capabilities contains no Contents element")
+    service_title = child_text(service_ident, "Title") if service_ident is not None else None
+    service_abstract = child_text(service_ident, "Abstract") if service_ident is not None else None
+    layers = [parse_layer(x) for x in children(contents, "Layer")]
+    return service_title, service_abstract, layers
+
+
+def record(dataset_id, service_url, caps_url, available, title=None,
+           abstract=None, layers=None, diagnostics=None):
+    entry = {
+        "datasetIdentifier": dataset_id,
+        "serviceUrl": service_url,
+        "getCapabilitiesUrl": caps_url,
+        "title": title or fallback_title(dataset_id),
+        "theme": theme_for(dataset_id),
+        "available": available,
+        "layers": layers or [],
+    }
+    if abstract:
+        entry["abstract"] = abstract
+    if diagnostics:
+        entry["diagnostics"] = clean(diagnostics)
+    return entry
+
+
+def probe(dataset_id):
+    service_url = f"{SERVICE_ROOT}{dataset_id}/"
+    caps_url = service_url + "?" + urllib.parse.urlencode({
+        "SERVICE": "WMTS",
+        "REQUEST": "GetCapabilities",
+    })
+    try:
+        status, _headers, body, _final = fetch(caps_url)
+        try:
+            title, abstract, layers = parse_capabilities(body)
+        except Exception as e:
+            return record(dataset_id, service_url, caps_url, False,
+                          diagnostics={"status": "not_wmts", "httpStatus": status,
+                                       "reason": str(e)})
+        return record(dataset_id, service_url, caps_url, True,
+                      title=title, abstract=abstract, layers=layers)
+    except urllib.error.HTTPError as e:
+        return record(dataset_id, service_url, caps_url, False,
+                      diagnostics={"status": "unavailable", "httpStatus": e.code,
+                                   "reason": str(e.reason)})
+    except Exception as e:
+        return record(dataset_id, service_url, caps_url, False,
+                      diagnostics={"status": "error", "reason": str(e)})
+
+
+print(f"Loaded {len(DATASETS)} CLMS/CDSE dataset identifiers.", file=sys.stderr)
+print(f"Probing {SERVICE_ROOT}<dataset>/ as WMTS...", file=sys.stderr)
+
+records = []
+with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+    futures = {pool.submit(probe, d): d for d in DATASETS}
+    completed = 0
+    for future in concurrent.futures.as_completed(futures):
+        completed += 1
+        rec = future.result()
+        records.append(rec)
+        print(
+            f"[{completed:>3}/{len(DATASETS)}] {rec['datasetIdentifier']}: "
+            f"{'available' if rec['available'] else 'unavailable'}",
+            file=sys.stderr,
+        )
+
+records.sort(key=lambda x: (x["theme"], x["datasetIdentifier"]))
+available_count = sum(1 for r in records if r["available"])
+unavailable_count = len(records) - available_count
+
+collection = {
+    "meta": {
+        "title": "Copernicus Land Monitoring Service (CDSE)",
+        "description": "CLMS datasets published as WMTS services via the Copernicus Data Space Ecosystem.",
+        "provider": "Copernicus Land Monitoring Service",
+        "source": SOURCE_DOC,
+        "servicesUrl": SERVICE_ROOT,
+        "generated": dt.datetime.now(dt.timezone.utc).isoformat(),
+    },
+    "datasets": records,
+}
+
+with open(OUTPUT, "w", encoding="utf-8") as f:
+    json.dump(collection, f, indent=2, ensure_ascii=False)
+    f.write("\n")
+
+print(f"\nWrote {OUTPUT}: {available_count} available, {unavailable_count} unavailable.",
+      file=sys.stderr)
+PY
 ```
 
-`file` is resolved relative to `config-builder/`; an absolute `url` also works.
+## After running it
 
-## Required shape of the catalogue JSON
-
-The app reads it as a *catalogue collection* (a flat `datasets` array — not a manifest-of-manifests):
+1. Commit the output as `config-builder/catalogues/clms-wmts.json` in `ESA-APEx/apex_geospatial_explorer_configs` (branch `main`).
+2. Add the entry to `config-builder/manifest.json`:
 
 ```json
-{
-  "meta": {
-    "title": "Copernicus Land Monitoring Service",
-    "description": "Generated from CLMS WMTS capabilities",
-    "generated": "2026-08-13"
-  },
-  "datasets": [
+"recommended": {
+  "catalogues": [
     {
-      "datasetIdentifier": "clms-hrl-imperviousness",
-      "title": "Imperviousness Density 2018",
-      "abstract": "Optional description",
-      "theme": "Land Cover",
-      "serviceUrl": "https://.../wmts",
-      "getCapabilitiesUrl": "https://.../wmts?service=WMTS&request=GetCapabilities",
-      "available": true,
-      "layers": [
-        { "identifier": "IMD_2018_010m", "title": "Imperviousness 2018 10m" }
-      ]
+      "id": "clms",
+      "name": "Copernicus Land Monitoring (CLMS) WMTS",
+      "description": "CLMS datasets published as WMTS services via CDSE",
+      "file": "catalogues/clms-wmts.json"
     }
   ]
 }
 ```
 
-Notes:
-- `theme` drives the grouping in the catalogue browser; missing values fall back to "Other".
-- `available: false` datasets still render, greyed out with a "Service unavailable" badge — useful for the CLMS entries your script found but could not reach.
-- `serviceUrl` + layer `identifier` become the data source URL and layer name when a layer is added; WMS/WMTS versions are negotiated at that point.
+3. In the builder: **Services → Add recommended services** — the catalogue appears and its themes/datasets become browsable.
 
-## Once published
+## Notes
 
-In the builder: **Services → Add recommended services** — the CLMS catalogue appears alongside the recommended services and can be selected. After adding, its datasets/themes are browsable from the layer data-source picker.
-
-## Optional app-side changes (say if you want these)
-
-- **Manual catalogue entry** — add "Catalogue" to the service type dropdown in the Services manager so a catalogue JSON URL can be pasted directly (useful for testing before publishing to the repo). Currently `SourceConfigType` covers only OGC formats plus S3.
-- **Cache refresh** — the manifest is cached per session (`clearExampleManifestCache`); a "Refresh" affordance would avoid a hard reload while iterating on the JSON.
-- **Script output alignment** — if it helps, I can write a small converter/spec so your bash script emits exactly the schema above.
-
-## Technical detail
-
-- Manifest parsing: `src/utils/exampleManifest.ts` (`recommended.catalogues`, `parseCatalogueEntry`).
-- Fetch/validation: `src/utils/catalogueService.ts` (`fetchCatalogueCollection`, `buildCatalogueCapabilities`), `src/hooks/useServices.ts`, `src/hooks/useBulkServiceValidation.ts`.
-- UI: `src/components/ServicesManager.tsx`, `src/components/RecommendedServicesModal.tsx`, `src/components/layers/components/CatalogueBrowser.tsx`.
-- Hosting must be CORS-readable; `raw.githubusercontent.com` is fine.
+- `theme` uses the identifier prefix lookup; add entries to `THEMES` as CLMS grows, otherwise datasets land in "Other".
+- Unavailable datasets stay in the output so the browser can show them greyed out with a "Service unavailable" badge.
+- No changes needed in this repo — the builder already reads this schema.
