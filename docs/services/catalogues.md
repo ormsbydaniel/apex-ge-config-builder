@@ -77,3 +77,55 @@ present only where a public service was verified. An optional per-dataset
 Because the file is fetched at runtime from the configs repository,
 regenerating and committing it refreshes the dataset list without redeploying
 the builder.
+
+## Styles and legends
+
+Catalogue layers can carry a `styles` array. Each style names the source
+evalscript and may include a `legend` describing the colours the service uses.
+When present, the builder previews the legend in the catalogue browser and
+auto-populates the layer's styling when the layer is added — but only when the
+layer has no categories or colormaps of its own, so your own edits are never
+overwritten.
+
+Three outcomes are possible:
+
+| Legend | Applied to the layer |
+| --- | --- |
+| `type: "discrete"` | **Categories** — one class per entry, using the entry `label` when given and the value otherwise. |
+| `type: "continuous"` with a recognised `colormapName` (or colours matching a preset closely) | **Colormap** — the named ramp with `min`, `max`, `steps` and `reverse`. |
+| `type: "continuous"` with a bespoke ramp | **Gradient** — `min`/`max` plus a two-stop start and end colour taken from the ramp. A bespoke ramp is never mislabelled as a preset. |
+
+Entries listed under `noData` are excluded from both classes and the ramp, so
+sentinel values such as `-1` do not distort the range. `units` populates the
+layer's units when set.
+
+```json
+{
+  "identifier": "BF",
+  "title": "Burned fraction",
+  "styles": [
+    {
+      "name": "burned_fraction.js",
+      "evalscriptUrl": "https://raw.githubusercontent.com/.../burned_fraction.js",
+      "legend": {
+        "type": "continuous",
+        "colormapName": "magma",
+        "reverse": true,
+        "min": 0,
+        "max": 1,
+        "steps": 20,
+        "units": "fraction",
+        "noData": [{ "value": -1, "color": "#FFFFFF" }],
+        "entries": [
+          { "value": 0, "color": "#FCFDBF" },
+          { "value": 1, "color": "#000004" }
+        ]
+      }
+    }
+  ]
+}
+```
+
+A dataset-level `style` block may also carry a `documentationUrl`, which the
+browser links from the dataset card; each style's `evalscriptUrl` is linked from
+the layer card. Both open in a new tab.
