@@ -21,6 +21,25 @@ import {
 
 import { fetchServiceVersion } from '@/utils/serviceCapabilities';
 
+function ExpandableText({ text, className = '' }: { text: string; className?: string }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className={className}>
+      <p className={`text-sm text-muted-foreground ${expanded ? '' : 'line-clamp-2'}`}>{text}</p>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setExpanded((v) => !v);
+        }}
+        className="text-xs text-primary hover:underline mt-1"
+      >
+        {expanded ? 'Show less' : 'Show more'}
+      </button>
+    </div>
+  );
+}
+
 export interface CatalogueLayerSelection {
   datasetIdentifier: string;
   layerIdentifier: string;
