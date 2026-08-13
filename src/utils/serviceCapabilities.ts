@@ -281,6 +281,7 @@ export const fetchServiceCapabilitiesWithMetrics = async (
               abstract,
               hasTimeDimension,
               defaultTime,
+              timeExtent,
               crs: crsList.length > 0 ? crsList : undefined,
               bbox,
               hasLegendGraphic
