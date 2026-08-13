@@ -30,10 +30,13 @@ interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (selection: string | AssetSelection[], layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
+  onSelect: (selection: ServiceSelectionValue, layers?: string, format?: DataSourceFormat | string, datetime?: string) => void;
   allowedFormats?: string[];
   sourceContext?: SourceContext;
 }
+
+const isCatalogueSelection = (value: ServiceSelectionValue): value is CatalogueLayerSelection[] =>
+  Array.isArray(value) && value.length > 0 && 'datasetIdentifier' in value[0];
 
 export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allowedFormats, sourceContext = 'data' }: ServiceSelectionModalProps) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,8 +44,10 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
   // Compute lazy-load eligibility from raw inputs so hooks always run in the same order.
   const isS3ServiceRaw = service?.sourceType === 's3' || (!!service?.url && validateS3Url(service.url));
   const isStacServiceRaw = service?.sourceType === 'stac';
-  const shouldLazyLoad = !!service && isOpen && !isS3ServiceRaw && !isStacServiceRaw;
+  const isCatalogueServiceRaw = service?.sourceType === 'catalogue' || service?.format === 'catalogue';
+  const shouldLazyLoad = !!service && isOpen && !isS3ServiceRaw && !isStacServiceRaw && !isCatalogueServiceRaw;
   const { isLoading: capsLoading } = useLazyServiceCapabilities(service, shouldLazyLoad);
+
 
   if (!service) return null;
 
