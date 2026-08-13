@@ -5,6 +5,8 @@ import {
   classifyFetchError,
   classifyHttpResponse,
 } from '@/utils/serviceDiagnostics';
+import { parseTimeDimensionValue } from '@/utils/timeDimension';
+
 
 const getDescendantsByLocalName = (root: ParentNode, localName: string): Element[] =>
   Array.from(root.querySelectorAll('*')).filter(el => el.localName === localName);
@@ -165,6 +167,9 @@ export const fetchServiceCapabilitiesWithMetrics = async (
           const timeDimension = layer.querySelector('Dimension[name="time"], Dimension[name="TIME"]');
           const hasTimeDimension = !!timeDimension;
           const defaultTime = timeDimension?.getAttribute('default') || undefined;
+          const timeDimensionValue = timeDimension?.textContent || undefined;
+          const timeExtent = timeDimensionValue ? parseTimeDimensionValue(timeDimensionValue) : undefined;
+
           
           // Extract CRS/EPSG codes
           const crsElements = layer.querySelectorAll('CRS');
@@ -212,6 +217,7 @@ export const fetchServiceCapabilitiesWithMetrics = async (
               abstract,
               hasTimeDimension,
               defaultTime,
+              timeExtent,
               crs: crsList.length > 0 ? crsList : undefined,
               bbox,
               hasLegendGraphic,
@@ -231,9 +237,18 @@ export const fetchServiceCapabilitiesWithMetrics = async (
             getDirectChildText(dimension, 'Identifier')?.toUpperCase() === 'TIME'
           );
           const hasTimeDimension = !!timeDimension;
-          const defaultTime = hasTimeDimension 
+          const defaultTime = hasTimeDimension
             ? getDirectChildText(timeDimension, 'Default')
             : undefined;
+          const timeDimensionValues = timeDimension
+            ? getDescendantsByLocalName(timeDimension, 'Value')
+                .map((valueEl) => valueEl.textContent)
+                .filter((text): text is string => !!text)
+            : [];
+          const timeExtent = timeDimensionValues.length > 0
+            ? parseTimeDimensionValue(timeDimensionValues.join(','))
+            : undefined;
+
           
           // Extract TileMatrixSet (CRS info)
           const crsList = getDescendantsByLocalName(layer, 'TileMatrixSetLink')
@@ -266,6 +281,7 @@ export const fetchServiceCapabilitiesWithMetrics = async (
               abstract,
               hasTimeDimension,
               defaultTime,
+              timeExtent,
               crs: crsList.length > 0 ? crsList : undefined,
               bbox,
               hasLegendGraphic

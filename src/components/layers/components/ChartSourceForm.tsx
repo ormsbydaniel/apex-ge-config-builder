@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Save, X, Database, Globe, ChevronDown, ChevronRight } from 'lucide-react';
-import { Service } from '@/types/config';
+import { Service, LayerInfo } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
 import { ChartConfig, ChartSource, ChartTrace } from '@/types/chart';
+
 import { useToast } from '@/hooks/use-toast';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ServiceSelectionModal } from './ServiceSelectionModals';
@@ -265,7 +266,8 @@ export function ChartSourceForm({
     selection: string | Array<{ url: string; format: string; datetime?: string } | { datasetIdentifier: string; layerIdentifier: string; serviceUrl: string; format: string; version?: string }>,
     layers: string = '',
     format?: string,
-    datetime?: string
+    datetime?: string,
+    layerInfo?: LayerInfo
   ) => {
     // Handle catalogue selections (not supported for chart sources)
     if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {

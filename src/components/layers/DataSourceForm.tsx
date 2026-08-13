@@ -10,8 +10,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Save, X, Database, Globe, Plus, Server, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Service, DataSourceFormat, DataSourceItem, TimeframeType } from '@/types/config';
+import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
+import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
 import { FORMAT_CONFIGS } from '@/constants/formats';
+
+
 import { useServices } from '@/hooks/useServices';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
@@ -103,9 +106,12 @@ const DataSourceForm = ({
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
+  const [selectedLayerTemporalSuggestion, setSelectedLayerTemporalSuggestion] = useState<TemporalSuggestion | null>(null);
+
   const existingVersion = editingDataSource?.format === 'wmts'
     ? editingDataSource.version
     : editingDataSource?.parameters?.version;
+
   const [serviceVersion, setServiceVersion] = useState<string | undefined>(
     typeof existingVersion === 'string' ? existingVersion : undefined
   );
@@ -340,8 +346,10 @@ const DataSourceForm = ({
     selection: ServiceSelectionValue,
     layers: string = '',
     format?: DataSourceFormat,
-    datetime?: string
+    datetime?: string,
+    layerInfo?: LayerInfo
   ) => {
+
     // Handle catalogue bulk selections
     if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {
       const catalogueSelections = selection as CatalogueLayerSelection[];
@@ -442,6 +450,19 @@ const DataSourceForm = ({
     if (format) {
       setSelectedFormat(format);
     }
+
+    // Capture temporal suggestion from WMS/WMTS service capabilities so the layer
+    // card can be auto-populated with an appropriate timeframe and default date.
+    if (layerInfo?.timeExtent || layerInfo?.defaultTime) {
+      setSelectedLayerTemporalSuggestion({
+        timeframe: layerInfo.timeExtent?.suggestedTimeframe ?? 'Time',
+        defaultTime: layerInfo.defaultTime,
+        defaultTimestamp: layerInfo.defaultTime ? dateStringToTimestamp(layerInfo.defaultTime) : undefined,
+      });
+    } else {
+      setSelectedLayerTemporalSuggestion(null);
+    }
+
 
     // If datetime is provided from STAC and temporal configuration is enabled, set the selected date
     if (datetime && requiresTimestamp) {
@@ -582,7 +603,14 @@ const DataSourceForm = ({
     // WMS uses parameters.version; WMTS uses the top-level version property.
     baseItem = applyOgcServiceVersion(baseItem, selectedFormat, parameterRows, serviceVersion);
 
+    // Attach transient temporal suggestion from service capabilities so the layer
+    // card can be auto-populated when this data source is added.
+    if (selectedLayerTemporalSuggestion) {
+      baseItem.__temporalSuggestion = selectedLayerTemporalSuggestion;
+    }
+
     const dataSourceItem = baseItem as DataSourceItem;
+
 
     // Clear unsaved changes flag
     dispatch({
