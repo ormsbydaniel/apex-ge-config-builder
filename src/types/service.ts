@@ -46,7 +46,13 @@ export interface ServiceCapabilities {
   abstract?: string;
   totalCount?: number; // Total count of items (for paginated APIs like STAC)
   version?: string; // Service version reported by GetCapabilities (WMS/WMTS/WFS)
+  catalogue?: {
+    datasets: CatalogueDataset[];
+  };
+  availableDatasetCount?: number;
+  unavailableDatasetCount?: number;
 }
+
 
 export interface LayerInfo {
   name: string;
