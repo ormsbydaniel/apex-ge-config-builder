@@ -603,7 +603,14 @@ const DataSourceForm = ({
     // WMS uses parameters.version; WMTS uses the top-level version property.
     baseItem = applyOgcServiceVersion(baseItem, selectedFormat, parameterRows, serviceVersion);
 
+    // Attach transient temporal suggestion from service capabilities so the layer
+    // card can be auto-populated when this data source is added.
+    if (selectedLayerTemporalSuggestion) {
+      baseItem.__temporalSuggestion = selectedLayerTemporalSuggestion;
+    }
+
     const dataSourceItem = baseItem as DataSourceItem;
+
 
     // Clear unsaved changes flag
     dispatch({
