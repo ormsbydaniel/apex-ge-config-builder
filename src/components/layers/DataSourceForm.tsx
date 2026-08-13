@@ -106,7 +106,8 @@ const DataSourceForm = ({
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
-  const [selectedLayerTemporalSuggestion, setSelectedLayerTemporalSuggestion] = useState<TimeDimensionExtent | null>(null);
+  const [selectedLayerTemporalSuggestion, setSelectedLayerTemporalSuggestion] = useState<TemporalSuggestion | null>(null);
+
   const existingVersion = editingDataSource?.format === 'wmts'
     ? editingDataSource.version
     : editingDataSource?.parameters?.version;
