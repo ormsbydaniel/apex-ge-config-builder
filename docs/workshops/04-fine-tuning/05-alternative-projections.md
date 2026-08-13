@@ -15,6 +15,7 @@ polar view centred on the North Pole.
    and set:
    - **Latitude:** `90`
    - **Longitude:** `0`
+   - **Zoom level:** `4`
 
 4. In the **CRS** section, set the **Default Coordinate Reference System** to
    **EPSG:3413** — *WGS 84 / NSIDC Sea Ice Polar Stereographic North*.
@@ -40,3 +41,7 @@ polar view centred on the North Pole.
     Try returning to **Settings → Navigation** later and switching the CRS back
     to EPSG:3857 or EPSG:4326 to compare how the same start location and layer
     look in a different projection.
+
+    If you want to continue with other tutorials, you may find it easier to
+    switch back to the default **EPSG:3857** and a more familiar start location
+    after exploring the polar view.
