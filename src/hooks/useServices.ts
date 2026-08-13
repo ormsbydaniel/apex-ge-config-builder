@@ -5,6 +5,8 @@ import { useToast } from '@/hooks/use-toast';
 import { fetchS3BucketContents } from '@/utils/s3Utils';
 import { fetchStacCapabilities } from '@/utils/stacCapabilities';
 import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
+import { fetchCatalogueCollection, buildCatalogueCapabilities } from '@/utils/catalogueService';
+
 
 export const useServices = (services: Service[], onAddService: (service: Service) => void) => {
   const { toast } = useToast();
