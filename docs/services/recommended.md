@@ -38,6 +38,12 @@ all** — STAC `GetCapabilities`-equivalent calls, OGC `GetCapabilities`, and
 S3 listings — so the new services pick up reachability and capability
 metadata without a page reload.
 
+Entries badged `CATALOGUE` behave differently: they add a single service that
+points at a JSON dataset catalogue you browse into later. See
+[Catalogue services](catalogues.md) for how availability and unavailable
+datasets are presented.
+
+
 If a recommended service later becomes unreachable or moves, edit it from
 the **Services** tab like any other entry; nothing about a "recommended"
 service is special after it is added.
