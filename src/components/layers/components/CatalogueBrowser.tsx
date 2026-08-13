@@ -286,7 +286,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
         <div className="grid gap-3">
           {filteredThemes.map((theme) => {
             const themeDs = groupedThemes.get(theme) || [];
-            const availableCount = themeDs.filter(d => d.available).length;
+            const availableCount = themeDs.filter(isCatalogueDatasetSelectable).length;
             const unavailableCount = themeDs.length - availableCount;
             return (
               <Card
