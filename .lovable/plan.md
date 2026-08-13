@@ -46,8 +46,8 @@ The catalogue JSON lives in
 `ESA-APEx/apex_geospatial_explorer_configs` (produced by your
 `discover_cdse_layer_availability.sh`), referenced from the existing manifest,
 so re-running the script and committing the output refreshes the list without
-redeploying the builder. Unavailable datasets (`available: false`) are ignored
-by the browser.
+redeploying the builder. Available datasets are selectable; unavailable ones
+are shown for information only when the toggle is enabled.
 
 ## Technical notes
 
