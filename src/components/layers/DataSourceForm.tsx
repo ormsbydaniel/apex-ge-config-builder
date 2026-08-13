@@ -344,8 +344,10 @@ const DataSourceForm = ({
     selection: ServiceSelectionValue,
     layers: string = '',
     format?: DataSourceFormat,
-    datetime?: string
+    datetime?: string,
+    layerInfo?: LayerInfo
   ) => {
+
     // Handle catalogue bulk selections
     if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {
       const catalogueSelections = selection as CatalogueLayerSelection[];
