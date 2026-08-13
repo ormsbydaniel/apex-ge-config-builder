@@ -81,7 +81,7 @@ export const useServices = (services: Service[], onAddService: (service: Service
       setIsLoadingCapabilities(true);
       const collection = await fetchCatalogueCollection(url);
       const title = collection.meta.title || 'Catalogue';
-      const capabilities = buildCatalogueCapabilities(title, collection.datasets);
+      const capabilities = buildCatalogueCapabilities(title, collection.datasets, collection.meta.counts);
       return { capabilities, title };
     } catch (error) {
       console.error('Error fetching catalogue:', error);
