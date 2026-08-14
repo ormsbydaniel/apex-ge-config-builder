@@ -23,5 +23,5 @@ By the end of this tutorial you will be able to:
 - [6-2. Key concepts](02-key-concepts.md)
 - [6-3. Manual timestamps](03-manual-timestamps.md)
 - [6-4. Using STAC timestamps](04-stac-timestamps.md)
-- [6-5. WMS / WMTS time parameters](05-wms-timestamps.md)
-- [6-6. Manual timestamps on WMS](06-manual-wms-timestamps.md)
+- [6-5. Manual timestamps on WMS / WMTS](05-manual-wms-timestamps.md)
+- [6-6. Using WMS / WMTS time parameters](06-wms-timestamps.md)

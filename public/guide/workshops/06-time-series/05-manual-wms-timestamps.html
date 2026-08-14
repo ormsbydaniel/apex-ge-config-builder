@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://ge-config-builder.apex.esa.int/guide/workshops/06-time-series/05-wms-timestamps.html">
+        <link rel="canonical" href="https://ge-config-builder.apex.esa.int/guide/workshops/06-time-series/05-manual-wms-timestamps.html">
       
       
         <link rel="prev" href="04-stac-timestamps.html">
       
       
-        <link rel="next" href="06-manual-wms-timestamps.html">
+        <link rel="next" href="06-wms-timestamps.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>6-5. Using WMS / WMTS time parameters - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>6-5. Manual timestamps on WMS / WMTS - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#6-5-using-wms-wmts-time-parameters" class="md-skip">
+        <a href="#6-5-manual-timestamps-on-wms-wmts" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              6-5. Using WMS / WMTS time parameters
+              6-5. Manual timestamps on WMS / WMTS
             
           </span>
         </div>
@@ -1698,14 +1698,32 @@
         
       
       
-      <a href="05-wms-timestamps.html" class="md-nav__link md-nav__link--active">
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6-5. Manual timestamps on WMS / WMTS
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="05-manual-wms-timestamps.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    6-5. WMS / WMTS time parameters
+    6-5. Manual timestamps on WMS / WMTS
   
 
     
@@ -1714,6 +1732,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#did-you-remember-to-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Did you remember to export?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1727,14 +1775,14 @@
   
   
     <li class="md-nav__item">
-      <a href="06-manual-wms-timestamps.html" class="md-nav__link">
+      <a href="06-wms-timestamps.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    6-6. Manual timestamps on WMS
+    6-6. Using WMS / WMTS time parameters
   
 
     
@@ -1916,6 +1964,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#did-you-remember-to-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Did you remember to export?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1931,37 +1998,38 @@
 
 
 
-<h1 id="6-5-using-wms-wmts-time-parameters">6-5. Using WMS / WMTS time parameters<a class="headerlink" href="#6-5-using-wms-wmts-time-parameters" title="Permanent link">&para;</a></h1>
-<p>Some WMS / WMTS services expose a <code>TIME</code> parameter directly. The CB can drive
-that parameter from the temporal control on a layer.</p>
+<h1 id="6-5-manual-timestamps-on-wms-wmts">6-5. Manual timestamps on WMS / WMTS<a class="headerlink" href="#6-5-manual-timestamps-on-wms-wmts" title="Permanent link">&para;</a></h1>
+<p>As well as COG datasets, WMS / WMTS services can be configured with manually
+set timestamps so that the temporal control on a layer switches between
+separate datasets.</p>
+<p>This is useful when a service exposes time as <strong>separate layers</strong> rather than
+via a single <code>TIME</code> parameter, or when you want to compose a time series from
+hand-picked layers.</p>
 <ol>
-<li>Add a new layer card called <code>Soil moisture index</code>, and in <strong>Controls</strong> set
-   the temporal granularity to <strong>Days</strong>.</li>
+<li>Create a new layer card called <strong>NDVI time series</strong>.</li>
+<li>In the layer <strong>Controls</strong>, add <strong>Temporal Control → Years</strong>.</li>
+<li>Select <strong>+ Add dataset → From service → Terrascope MapProxy WMS</strong> and add
+   the <strong>WORLDCOVER NDVI 2020</strong> layer.</li>
 <li>
-<p>Select <strong>+ Add dataset → Direct connection → WMS/WMTS service</strong> and add
-   the following:</p>
-<ul>
-<li>
-<p><strong>Service URL</strong>:</p>
-<div class="highlight"><pre><span></span><code>https://globalland.vito.be/wmts
+<p>After the dataset is added, open its settings and explicitly set the
+   timestamp to:</p>
+<div class="highlight"><pre><span></span><code>2020-01-01
 </code></pre></div>
 </li>
 <li>
-<p><strong>Layer name</strong>:</p>
-<div class="highlight"><pre><span></span><code>clms_global_swi_1km_v1_daily
+<p>Add a second dataset to the same layer for <strong>WORLDCOVER NDVI 2021</strong> and set
+   its timestamp to:</p>
+<div class="highlight"><pre><span></span><code>2021-01-01
 </code></pre></div>
 </li>
-</ul>
-</li>
 <li>
-<p>Note the <strong>Use TIME PARAM from service</strong> checkbox — it appears because the
-   layer has temporal controls enabled. Leave it toggled <strong>on</strong>.</p>
+<p>Save the datasets and click <strong>Preview</strong>. The layer should now display a
+   <strong>Years</strong> temporal control; use it to step between the 2020 and 2021 NDVI
+   layers.</p>
 </li>
-<li>Save and exit. For interest, click the <strong>(i)</strong> info icon on the dataset —
-   the WMS metadata shows this layer <em>does</em> expose a <code>TIME</code> parameter.</li>
-<li>Preview the layer and step through the temporal control to see the
-   available dates.</li>
 </ol>
+<h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
+<p>If not, now is a good moment.</p>
 
 
 
@@ -2019,13 +2087,13 @@ that parameter from the temporal control on a layer.</p>
         
         
           
-          <a href="06-manual-wms-timestamps.html" class="md-footer__link md-footer__link--next" aria-label="Next: 6-6. Manual timestamps on WMS">
+          <a href="06-wms-timestamps.html" class="md-footer__link md-footer__link--next" aria-label="Next: 6-6. Using WMS / WMTS time parameters">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                6-6. Manual timestamps on WMS
+                6-6. Using WMS / WMTS time parameters
               </div>
             </div>
             <div class="md-footer__button md-icon">

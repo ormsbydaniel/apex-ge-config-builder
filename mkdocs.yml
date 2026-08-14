@@ -165,8 +165,8 @@ nav:
           - 6-2. Key concepts: workshops/06-time-series/02-key-concepts.md
           - 6-3. Manual timestamps: workshops/06-time-series/03-manual-timestamps.md
           - 6-4. Using STAC timestamps: workshops/06-time-series/04-stac-timestamps.md
-          - 6-5. WMS / WMTS time parameters: workshops/06-time-series/05-wms-timestamps.md
-          - 6-6. Manual timestamps on WMS: workshops/06-time-series/06-manual-wms-timestamps.md
+          - 6-5. Manual timestamps on WMS / WMTS: workshops/06-time-series/05-manual-wms-timestamps.md
+          - 6-6. Using WMS / WMTS time parameters: workshops/06-time-series/06-wms-timestamps.md
       - 7. Constraints:
           - Overview: workshops/07-constraints/index.md
           - 7-1. Pre-requisites: workshops/07-constraints/01-prerequisites.md
