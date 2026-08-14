@@ -30,8 +30,8 @@ The category system determines how COGs are rendered when their values represent
 6. Save the layer card and preview. The COG is now rendered with the labels
    and colours you defined.
 
-!!! Tip
-   For COG files, the categories define the legend and the styling of the COG, so you can pick whatever colours you choose.  If you ommit a category entirely, then it will not display that data.  For example, if you *only* added in the category for tree cover, this is all you would see.
+!!! warning "Sampled categories"
+
 
 !!! warning "Sampled categories"
     The values are populated from a **sample** of pixels. It is possible for
