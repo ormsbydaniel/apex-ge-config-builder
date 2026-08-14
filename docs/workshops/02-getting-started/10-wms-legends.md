@@ -9,13 +9,22 @@ the CB can pull that legend straight into your layer card.
 ## Add the Copernicus Urban Atlas layer
 
 1. Create a new layer called **Copernicus Urban Atlas** and place it in an
-   interface group called **Urban** (create the group if it doesn't exist yet).
-2. Add a dataset using **Direct Connection**, with **Data Format** set to WMS:
+   interface group called **Land Cover** (create the group if it doesn't exist
+   yet).
+2. Add a dataset using **Direct Connection**, with **Data Format** set to WMS.
+   Copy the values below into the form:
 
-    | Field | Value |
-    |-------|-------|
-    | Data Source URL | `https://image.discomap.eea.europa.eu/arcgis/services/UrbanAtlas/UA_UrbanAtlas_2018/MapServer/WMSServer` |
-    | Layer Name | `Land_Use_Raster1402` |
+     - **Data Source URL**
+
+       ```text
+       https://image.discomap.eea.europa.eu/arcgis/services/UrbanAtlas/UA_UrbanAtlas_2018/MapServer/WMSServer
+       ```
+
+     - **Layer Name**
+
+       ```text
+       Land_Use_Raster1402
+       ```
 
 ## Copy the legend into your configuration
 
