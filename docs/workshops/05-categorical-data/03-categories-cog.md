@@ -32,7 +32,9 @@ The category system determines how COGs are rendered when their values represent
 5. Edit a couple of the category labels to align to the World Cover class
     names (e.g. `10 → Tree cover`, `30 → Grassland`). See the
     [WorldCover class lookup](#worldcover-class-lookup) below for the full list
-    of values, colours and names.
+    of values, colours and names. To save on manual typing you can also import
+    or export categories from CSV files. If you want to do this quickly, save
+    `world-cover-classes.csv` to your machine and then import it from there.
 6. Save the layer card and preview. The COG is now rendered with the labels
     and colours you defined.
 
