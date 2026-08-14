@@ -53,18 +53,31 @@ a standalone layer, so it can be followed on a fresh config.
    temporal and blend off.
 7. Preview — colour ramp over Austria, no constraint controls yet.
 
-**7-4. Continuous constraint — Elevation**
-- Principle: mask pixels outside a numeric range; the viewer renders a
-  two-handled slider.
+**7-4. Categorical constraint — Land cover**
+- Principle: discrete coded values; each value becomes a checkbox. Values must
+  match the pixel codes in the constraint COG. Starting here builds on the
+  categories work in tutorial 5.
 - Steps: Layer card → **Constraints** tab → **Add constraint** → Source type
-  *Direct URL* → paste `Copernicus_DSM_COG_10m_3857_fix.tif` URL → Label
-  `Elevation` → Interactive on → Type **Continuous** → use **Populate Min & Max
-  from COG**, then correct to 0 / 4000 → Units `meters` → Save.
+  *Direct URL* → paste
+  `.../constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif`
+  → Label `Land Cover (from World Cover)` → Interactive on → Type
+  **Categorical** → **Populate Categories from COG** → rename the discovered
+  values to World Cover class names (10 Tree cover … 100 Moss and lichen),
+  cross-referencing the class table from tutorial 5.
+- View: tick only *Cropland* and *Grassland* to see wind potential on
+  agricultural land.
+
+**7-5. Continuous constraint — Elevation**
+- Principle: mask pixels outside a numeric range; the viewer renders a
+  two-handled slider rather than checkboxes.
+- Steps: **Add constraint** → paste `Copernicus_DSM_COG_10m_3857_fix.tif` URL →
+  Label `Elevation` → Interactive on → Type **Continuous** → use **Populate Min
+  & Max from COG**, then correct to 0 / 4000 → Units `meters` → Save.
 - View: preview, drag the Elevation slider, observe high-altitude pixels drop
   out.
 
-**7-5. More continuous constraints**
-Repeat the 7-4 pattern for the remaining continuous layers, presented as a
+**7-6. More continuous constraints**
+Repeat the 7-5 pattern for the remaining continuous layers, presented as a
 table (URL, label, min, max, units):
 - Slope — 0–65 degrees
 - Ruggedness Index — 0–1 index values
@@ -73,28 +86,17 @@ table (URL, label, min, max, units):
 Then a short "combining constraints" note: filters are applied together (AND),
 so a site-suitability query is built by narrowing several sliders at once.
 
-**7-6. Combined constraint — Altitudinal zones**
+**7-7. Combined constraint — Altitudinal zones**
 - Principle: a continuous variable grouped into named bands, rendered as
-  checkboxes rather than a slider. Useful for zones, aspect classes,
-  uncertainty bands, return periods.
-- Steps: add a second constraint on the *same* DSM COG → Label
+  checkboxes — effectively making categories out of continuous data, which is
+  why it follows the categorical and continuous steps. Useful for zones, aspect
+  classes, uncertainty bands, return periods.
+- Steps: add a second constraint on the *same* DSM COG used in 7-5 → Label
   `Altitudinal zones` → Type **Combined** → Units `meters` → add named ranges
   0–1000, 1001–2000, 2001–3000, 3001–4000 manually, and show **Bulk Add** as
   the fast route (prefix, count, from/to with preview).
 - Note: "Populate from COG" is not available for combined constraints.
 - View: checkboxes in the viewer; untick zones to remove those altitude bands.
-
-**7-7. Categorical constraint — Land cover**
-- Principle: discrete coded values; each value becomes a checkbox. Values must
-  match the pixel codes in the constraint COG.
-- Steps: add constraint on
-  `.../constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif`
-  → Label `Land Cover (from World Cover)` → Type **Categorical** → **Populate
-  Categories from COG** → rename the discovered values to World Cover class
-  names (10 Tree cover … 100 Moss and lichen), cross-referencing the class table
-  from tutorial 5.
-- View: tick only *Cropland* and *Grassland* to see wind potential on
-  agricultural land.
 
 **7-8. Review and export**
 - Full reference JSON of the finished layer (the config supplied), for readers
