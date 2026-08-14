@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Save, X, Database, Globe, Plus, Server, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
+import { fetchServiceVersion } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 
 
@@ -115,6 +116,7 @@ const DataSourceForm = ({
   const [serviceVersion, setServiceVersion] = useState<string | undefined>(
     typeof existingVersion === 'string' ? existingVersion : undefined
   );
+  const [isNegotiatingVersion, setIsNegotiatingVersion] = useState(false);
   
   // Position state for comparison layers
   const [selectedPosition, setSelectedPosition] = useState<PositionValue | undefined>(
