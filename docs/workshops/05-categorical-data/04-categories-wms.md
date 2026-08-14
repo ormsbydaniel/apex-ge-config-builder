@@ -19,6 +19,11 @@ Set up categories manually for the World Cover WMS you added earlier.
     Add another category — colour `#ffff4c`, label `Grassland`, value `30`.
 6. Save the layer card and preview. When you fill in the full set of World
     Cover classes, the legend in the Explorer will contain a row per class.
+7. *(Optional)* Go back to **Data Visualisation → Categories → Edit** and change the
+    colour of one class — for example, make **Tree cover** a light green. Save the
+    layer card and preview again. The configured colour overrides the default
+    colour coming from the service, so the legend and map rendering reflect your
+    choice rather than the built-in palette.
 
 You do not need to fill in every category now — a handful is enough to see how
 it works. See the full WorldCover class lookup in
