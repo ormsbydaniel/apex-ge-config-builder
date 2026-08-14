@@ -14,7 +14,7 @@ Attach timestamps to your *Above Ground Biomass* layer (ABG) datasets by hand.
 3. Add another dataset via **Direct connection → COG** and paste in this URL:
 
     ```text
-    https://eoresults.esa.int/d/FCM-BGB-100m/2021/01/01/FCM-BGB-100m-2021/FCM_Europe_demo_2021_BGB.tif
+    https://eoresults.esa.int/d/FCM-AGB-100m/2021/01/01/FCM-AGB-100m-2021/FCM_Europe_demo_2021_AGB.tif
     ```
 
     Set the timestamp to `2021-01-01` and save.
