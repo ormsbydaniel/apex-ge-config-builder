@@ -1,60 +1,80 @@
-# Regression test scope for the CLMS catalogue work
+# Supporting the v6 CLMS catalogue schema
 
-The catalogue feature is mostly additive, but it touched four shared code paths that
-other features depend on. Those are the areas worth regression testing.
+## What is new in v6 (verified against the uploaded file)
 
-## Shared code paths that changed
+115 datasets, 152 layers, 119 styles, 115 legends (23 discrete, 92 continuous).
 
-| Shared area | File | Why it matters |
+**New layer-level band metadata** (not currently read by the builder):
+
+| Field | Coverage | Notes |
 |---|---|---|
-| Add-data-source pipeline | `src/hooks/useLayerOperations.ts` (`handleDataSourceAdded`) | Every data source added from any browser (WMS, WMTS, XYZ, COG, STAC, S3, catalogue) flows through here. It now also writes `layer.meta` styling and strips transient keys. |
-| Data source form | `src/components/layers/DataSourceForm.tsx` | Carries both `__temporalSuggestion` and `__styleSuggestion`, and now derives the format from `serviceType`. |
-| Service add / validate | `src/hooks/useServices.ts`, `src/hooks/useBulkServiceValidation.ts`, `src/utils/serviceProbes.ts` | A new `catalogue` service kind was added to the classifier, health check counters, and progress accounting. |
-| Config schema and types | `src/schemas/configSchema.ts`, `src/types/service.ts` | `catalogue` added to `sourceType`/`format` enums; catalogue capability shape added. |
+| `units` | 113 layers | Human-usable unit, e.g. `mm/day`, `day` |
+| `unitsRaw` | 42 | Verbose original wording |
+| `sourceFormat` | 150 | e.g. `INT16` |
+| `dataRange` / `dataRangeRaw` | 144 | Physical data range — **not** the same as the legend range (e.g. `A_ET_ENSEMBLE` has `dataRange` 0–20 mm/day but the legend visualises 0–10) |
+| `scale` / `offset` | 149 | Non-trivial on 78 layers (0.001, 0.1 …) — DN to physical conversion |
+| `bandMetadataSource` | 152 | Provenance URL for the above |
+| `categoricalValueDescription` | 3 | e.g. "23 classes:" |
 
-## Regression tests to run
+**New legend/label fields:** entry `label` (41 entries now labelled, up from 0) plus per-entry
+`labelSource`; legend-level `labelSource` and `officialLabelCount`; style-level
+`legendDiscovery` (2 styles, `status: "suppressed"` where the evalscript parser produced an
+implausible range).
 
-### 1. Adding layers from non-catalogue sources (highest risk)
-For WMS, WMTS, XYZ, COG, GeoJSON/FlatGeoBuf, CSV, STAC and S3 in turn:
+## Proposed changes
 
-- Add a data source to a **new empty layer** and confirm the layer meta is untouched
-  (no stray categories, colormaps, min/max, startColor/endColor or units appear).
-- Add a data source to a layer that **already has categories or a colormap** and confirm
-  the existing styling is preserved.
-- Export the config and confirm no `__styleSuggestion` or `__temporalSuggestion` key
-  leaks into the JSON.
+### 1. Types (`src/types/service.ts`)
+Add to `CatalogueLayer`: `units`, `unitsRaw`, `sourceFormat`, `dataRange { min, max }`,
+`dataRangeRaw`, `scale`, `offset`, `categoricalValueDescription`, `bandMetadataSource`.
+Add `CatalogueLabelSource { type?, title?, url? }` used by both `CatalogueLegend.labelSource`
+and `CatalogueLegendEntry.labelSource`; add `officialLabelCount` to the legend and
+`legendDiscovery { status, reason?, parsedMin?, parsedMax?, message? }` to `CatalogueLayerStyle`.
+All optional, so v5 files keep working.
 
-### 2. Time dimension auto-population
-- WMS/WMTS layer with a `Dimension` time extent: timeframe and default timestamp
-  still auto-populate on a layer with no timeframe, and are **not** overwritten on a
-  layer that already has one.
-- Adding several layers at once (bulk add) applies at most one suggestion.
+### 2. Category labels flow through unchanged
+`legendToCategories` already prefers `entry.label` over the stringified value, so the 41 new
+official labels populate automatically once the file is loaded. The only change needed is to
+stop *silently* claiming full coverage: where a discrete legend has `officialLabelCount` lower
+than its entry count, the browser preview says "Categories: 23 classes (12 labelled)" so the
+author knows which labels still need editing.
 
-### 3. Services manager and health check
-- Add a mix of service types (OGC, STAC, S3, catalogue) and run the bulk health check:
-  progress counters complete, no stuck in-flight counts, per-service statuses correct.
-- Remove and re-add a catalogue service; confirm the other services' statuses are unaffected.
-- Confirm the recommended services modal still adds non-catalogue services correctly.
+### 3. Units: prefer layer units over legend units
+`legendToStyleSuggestion` currently only reads `legend.units`. Add a layer-aware wrapper
+`layerStyleSuggestion(layer)` that falls back to `layer.units` (and never `unitsRaw`, which is a
+sentence rather than a unit). This raises units coverage from 80 legends to ~113 layers, and
+`meta.units` is populated on add exactly as it is today.
 
-### 4. Config load / save round trip
-- Load an existing (pre-catalogue) config and confirm it validates without warnings.
-- Save a config containing a catalogue-sourced layer, reload it, and confirm categories,
-  colormaps, gradient min/max/colours and units all survive the round trip
-  (schema, TypeScript interface and validation hook all in agreement).
-- Load one of the remote example configs to confirm the manifest path is unaffected.
+### 4. Scale, offset and data range — display only
+`meta` has no `scale`/`offset` fields, and the viewer has no concept of them, so the plan does
+**not** invent config fields. Instead:
 
-### 5. Layer styling UI
-- Open the Categories editor and the Colormap editor on a catalogue-populated layer and
-  confirm the values are editable and re-saveable as normal.
-- Confirm the QA / legend warning icons behave correctly for catalogue layers
-  (auto-generated legend should not be flagged as missing).
+- Show them in the catalogue browser layer row / metadata expander: "INT16 · scale 0.001 ·
+  range 0–20 mm/day", with the `bandMetadataSource.url` as a "Band metadata" link.
+- Where `dataRange` differs from the legend `min`/`max`, add a short note — "Legend shows
+  0–10 of a 0–20 mm/day data range" — so the author can widen the colormap deliberately.
+- Continue to take the colormap/gradient `min`/`max` from the legend, which is the intended
+  visualisation range.
 
-### 6. Automated checks
-- `bunx vitest run` — existing suites plus `catalogueLegend`, `timeDimension`, schema tests.
-- Typecheck and app build.
-- `mkdocs build --strict` for the docs changes.
+If you would rather have `scale`/`offset` written into the exported config, that needs a
+matching schema, type and viewer change, and is worth treating as separate work.
 
-## Areas confirmed **not** affected
+### 5. Suppressed legends
+When a style has `legendDiscovery.status === 'suppressed'`, show the reason in place of a
+legend preview along with a link to the `evalscriptUrl`, instead of falling back to a
+misleading gradient.
 
-- Stories / storymaps, charts, constraints, workflows, vector styling and the preview
-  viewer were not touched by the catalogue work; only run smoke checks there.
+### 6. Provenance surfacing
+Where a legend carries a `labelSource`, show a small "Labels: <title>" link in the preview so
+the author can check the class names against the official product manual.
+
+### 7. Docs and tests
+- Extend `docs/services/catalogues.md` with a band-metadata section covering units, scale,
+  offset, data range vs legend range, and label provenance; rebuild with `mkdocs build --strict`.
+- Add tests to `src/utils/__tests__/catalogueLegend.test.ts`: labelled discrete legend keeps
+  official labels, partial label counts are reported, layer units fall back correctly, and a
+  suppressed legend yields no suggestion.
+
+## Out of scope
+- Fetching or parsing the evalscript JS files.
+- Applying `scale`/`offset` numerically to layer values.
+- Any change to the exported config shape beyond the existing `meta` fields.
