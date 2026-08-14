@@ -16,7 +16,7 @@ the labels are only for display.
 
 ## Configure it
 
-1. Edit the *Austria Wind Power Density at 100m* layer card and open the
+1. On the *Austria Wind Power Density at 100m* layer card, click on the
    **Constraints** tab.
 
 2. Select **Add constraint**, keep the source type as **Direct URL** and paste
