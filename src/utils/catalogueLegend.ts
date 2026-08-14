@@ -157,8 +157,17 @@ export const legendToStyleSuggestion = (
   const units = legendUnits(legend);
 
   if (isDiscrete(legend)) {
-    return { kind: 'categories', categories: legendToCategories(legend), units };
+    const labelledCount =
+      legend.officialLabelCount ?? entries.filter(entry => !!entry.label?.trim()).length;
+    return {
+      kind: 'categories',
+      categories: legendToCategories(legend),
+      units,
+      labelledCount,
+      labelSource: legend.labelSource,
+    };
   }
+
 
   const sorted = [...entries].sort((a, b) => a.value - b.value);
   const min = legend.min ?? sorted[0].value;
