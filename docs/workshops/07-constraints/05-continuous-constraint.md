@@ -45,6 +45,8 @@ handle down, the high alpine areas drop out of the layer — useful, because the
 strongest modelled winds are often on summits where a turbine could never be
 built or connected.
 
+![Austria Wind Power Density layer with the Constraints panel open, showing the Land Cover and Elevation continuous constraint sliders](../../assets/screenshots/continuous-constraint-result.png)
+
 !!! tip "Units matter"
     The units string is shown next to the slider values in the viewer. Without
     it a user has no way to know whether `4000` means metres or feet.
