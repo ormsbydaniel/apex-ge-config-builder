@@ -9,10 +9,19 @@ title: 7-2. Key concepts
 - We already used the **Constraint** toggle on a layer to let users filter a
   layer by its own pixel values.
 - Constraints can also come from **secondary layers** — for example land use,
-  elevation, or "distance to" derived layers.
+  elevation, or "distance to" derived layers. Each constraint reads a
+  *separate* COG and masks the primary layer where the constraint is not met.
 - Secondary constraint layers **must have the same CRS, resolution and origin**
   as the primary data they constrain. This usually requires preparing
   compatible constraint layers in advance.
+- Multiple constraints are applied **together** — a pixel is only drawn where
+  every active constraint is satisfied.
+- `interactive: true` exposes the control in the viewer so the user can change
+  the filter; `interactive: false` fixes it.
+- Each constraint is assigned a **band index** automatically, in the order the
+  constraints are added.
+- Constraint controls only appear in the viewer when the layer card control
+  **Constraint slider** is enabled.
 
 ## Constraint types
 
