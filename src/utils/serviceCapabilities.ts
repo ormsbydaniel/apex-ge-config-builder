@@ -395,3 +395,37 @@ export const fetchServiceVersion = async (
 };
 
 
+
+/**
+ * Checks whether a specific layer in a WMS/WMTS service advertises a time
+ * dimension in its GetCapabilities document.
+ *
+ * Returns `null` when the answer can't be determined (network failure, parse
+ * error, layer not found) so callers can leave the user's choice untouched.
+ */
+export const layerHasTimeDimension = async (
+  url: string,
+  format: DataSourceFormat,
+  layerName: string,
+): Promise<boolean | null> => {
+  if (format !== 'wms' && format !== 'wmts') return null;
+  if (!layerName?.trim()) return null;
+
+  try {
+    const capabilities = await fetchServiceCapabilities(url, format);
+    const layers = capabilities?.layers;
+    if (!layers || layers.length === 0) return null;
+
+    const target = layerName.trim().toLowerCase();
+    const match = layers.find(
+      (layer) =>
+        layer.name?.trim().toLowerCase() === target ||
+        layer.title?.trim().toLowerCase() === target,
+    );
+    if (!match) return null;
+
+    return Boolean(match.hasTimeDimension || match.timeExtent);
+  } catch {
+    return null;
+  }
+};

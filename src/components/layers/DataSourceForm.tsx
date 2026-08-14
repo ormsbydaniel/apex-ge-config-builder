@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Save, X, Database, Globe, Plus, Server, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
-import { fetchServiceVersion } from '@/utils/serviceCapabilities';
+import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 
 
@@ -471,6 +471,15 @@ const DataSourceForm = ({
       setSelectedLayerTemporalSuggestion(null);
     }
 
+    // If the service advertises this layer without a time dimension, the WMS/WMTS
+    // TIME parameter can't be used: uncheck it so a manual timestamp is captured.
+    const selectedFmt = format ?? selectedFormat;
+    if (layerInfo && (selectedFmt === 'wms' || selectedFmt === 'wmts')) {
+      const supportsTime = Boolean(layerInfo.hasTimeDimension || layerInfo.timeExtent);
+      setUseTimeParameter(supportsTime);
+    }
+
+
 
     // If datetime is provided from STAC and temporal configuration is enabled, set the selected date
     if (datetime && requiresTimestamp) {
@@ -541,7 +550,33 @@ const DataSourceForm = ({
 
     // Validate timestamp for temporal layers
     const isWmsOrWmts = selectedFormat === 'wms' || selectedFormat === 'wmts';
-    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !useTimeParameter);
+
+    // For temporal layers using the TIME parameter, confirm with GetCapabilities
+    // that the layer actually advertises a time dimension. If it doesn't, the
+    // TIME parameter is unusable, so uncheck it and fall back to a timestamp.
+    let effectiveUseTimeParameter = useTimeParameter;
+    if (isWmsOrWmts && requiresTimestamp && useTimeParameter) {
+      setIsNegotiatingVersion(true);
+      try {
+        const supportsTime = await layerHasTimeDimension(url, selectedFormat, layers);
+        if (supportsTime === false) {
+          effectiveUseTimeParameter = false;
+          setUseTimeParameter(false);
+          toast({
+            title: "No Time Dimension",
+            description: `The service does not advertise a time dimension for "${layers}". The TIME parameter has been switched off — please select a timestamp instead.`,
+            variant: "destructive",
+          });
+        }
+      } catch {
+        // Non-fatal: keep the user's choice if capabilities can't be read.
+      } finally {
+        setIsNegotiatingVersion(false);
+      }
+    }
+
+    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !effectiveUseTimeParameter);
+
     
     if (needsManualTimestamp && !selectedDate) {
       toast({
@@ -597,7 +632,7 @@ const DataSourceForm = ({
     }
 
     // timestamps vs useTimeParameter (mutually exclusive for WMS/WMTS)
-    if (isWmsOrWmts && useTimeParameter) {
+    if (isWmsOrWmts && effectiveUseTimeParameter) {
       baseItem.useTimeParameter = true;
       delete baseItem.timestamps;
     } else {
