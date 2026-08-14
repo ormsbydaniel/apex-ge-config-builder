@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Save, X, Database, Globe, Plus, Server, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
+import { fetchServiceVersion } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 
 
@@ -115,6 +116,7 @@ const DataSourceForm = ({
   const [serviceVersion, setServiceVersion] = useState<string | undefined>(
     typeof existingVersion === 'string' ? existingVersion : undefined
   );
+  const [isNegotiatingVersion, setIsNegotiatingVersion] = useState(false);
   
   // Position state for comparison layers
   const [selectedPosition, setSelectedPosition] = useState<PositionValue | undefined>(
@@ -493,7 +495,7 @@ const DataSourceForm = ({
     setSelectedServiceForModal(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!directUrl.trim()) {
@@ -607,7 +609,28 @@ const DataSourceForm = ({
 
     // Keep negotiated versions in their protocol-specific config locations:
     // WMS uses parameters.version; WMTS uses the top-level version property.
-    baseItem = applyOgcServiceVersion(baseItem, selectedFormat, parameterRows, serviceVersion);
+    let versionToApply = serviceVersion;
+    const hasManualVersion = parameterRows.some(
+      (row) => row.key.trim().toLowerCase() === 'version' && row.value.trim() !== ''
+    );
+    if (isWmsOrWmts && !versionToApply && !hasManualVersion) {
+      // Direct connections don't carry a negotiated version: probe GetCapabilities
+      // on save so the config records the protocol version reported by the service.
+      setIsNegotiatingVersion(true);
+      try {
+        const detected = await fetchServiceVersion(url, selectedFormat);
+        if (detected) {
+          versionToApply = detected;
+          setServiceVersion(detected);
+        }
+      } catch {
+        // Non-fatal: save without a version if the service can't be reached.
+      } finally {
+        setIsNegotiatingVersion(false);
+      }
+    }
+
+    baseItem = applyOgcServiceVersion(baseItem, selectedFormat, parameterRows, versionToApply);
 
     // Attach transient temporal suggestion from service capabilities so the layer
     // card can be auto-populated when this data source is added.
@@ -1314,9 +1337,11 @@ const DataSourceForm = ({
                 Cancel
               </Button>
               {((sourceType === 'direct' && directUrl) || (sourceType === 'service' && directUrl)) && (
-                <Button type="submit" className="bg-primary hover:bg-primary/90">
+                <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={isNegotiatingVersion}>
                   <Save className="h-4 w-4 mr-2" />
-                  {editingDataSource ? 'Save Changes' : 'Add Source'}
+                  {isNegotiatingVersion
+                    ? 'Checking service…'
+                    : editingDataSource ? 'Save Changes' : 'Add Source'}
                 </Button>
               )}
             </div>
