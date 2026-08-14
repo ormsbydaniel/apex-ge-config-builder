@@ -43,6 +43,14 @@ temporal control directly from the service.
 
     ![Soil Water Index daily time series preview with legend graphic](../../assets/screenshots/wmts-swi-preview-legend.png)
 
+!!! tip
+
+    To see how the soil changes month on month throughout the year, increase the
+    **Increment steps** value to **30**. The time series will then jump forward
+    30 days at a time, making it easier to compare monthly conditions.
+
+    ![Soil Water Index time series with increment steps set to 30](../../assets/screenshots/wmts-swi-increment-steps-30.png)
+
 ### Did you remember to export?
 
 If not, now is a good moment.
