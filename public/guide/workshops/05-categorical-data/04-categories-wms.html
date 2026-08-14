@@ -10,10 +10,10 @@
       
       
       
-        <link rel="canonical" href="https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/04-categories-cog.html">
+        <link rel="canonical" href="https://ge-config-builder.apex.esa.int/guide/workshops/05-categorical-data/04-categories-wms.html">
       
       
-        <link rel="prev" href="03-categories-wms.html">
+        <link rel="prev" href="03-categories-cog.html">
       
       
         <link rel="next" href="05-categories-json-editor.html">
@@ -27,7 +27,7 @@
     
     
       
-        <title>5-4. Categories for a COG - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>5-4. Categories for a WMS layer - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#5-4-categories-for-a-cog" class="md-skip">
+        <a href="#5-4-categories-for-a-wms-layer" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              5-4. Categories for a COG
+              5-4. Categories for a WMS layer
             
           </span>
         </div>
@@ -1563,14 +1563,14 @@
   
   
     <li class="md-nav__item">
-      <a href="03-categories-wms.html" class="md-nav__link">
+      <a href="03-categories-cog.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5-3. Categories for a WMS layer
+    5-3. Categories for a COG
   
 
     
@@ -1600,14 +1600,14 @@
         
       
       
-      <a href="04-categories-cog.html" class="md-nav__link md-nav__link--active">
+      <a href="04-categories-wms.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    5-4. Categories for a COG
+    5-4. Categories for a WMS layer
   
 
     
@@ -1931,40 +1931,24 @@
 
 
 
-<h1 id="5-4-categories-for-a-cog">5-4. Categories for a COG<a class="headerlink" href="#5-4-categories-for-a-cog" title="Permanent link">&para;</a></h1>
-<p>The same category system drives rendering for classified COGs.</p>
+<h1 id="5-4-categories-for-a-wms-layer">5-4. Categories for a WMS layer<a class="headerlink" href="#5-4-categories-for-a-wms-layer" title="Permanent link">&para;</a></h1>
+<p>Set up categories manually for the World Cover WMS you added earlier.</p>
 <ol>
-<li>Create a new layer card called <code>World Cover - Austria</code> - see tutorial 2-6 for a recap if needed</li>
-<li>
-<p>Add the following dataset — a World Cover COG for Austria - see tutorial 2-7 for a recap if needed:</p>
-<div class="highlight"><pre><span></span><code>https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif
-</code></pre></div>
-</li>
-<li>
-<p>Click the <strong>(i)</strong> info icon on the dataset row to open the COG metadata
-   dialog.</p>
-</li>
-<li>
-<p>Select <strong>Populate categories</strong>. The categories editor is populated from a
-   sample of the pixel values in the COG.</p>
-</li>
-<li>
-<p>Edit a couple of the category labels to align to the World Cover class
-   names (e.g. <code>10 → Tree cover</code>, <code>20 → Shrubland</code>). See https://collections.sentinel-hub.com/worldcover/readme.html for the list of namnes and categories.</p>
-</li>
-<li>Save the layer card and preview. The COG is now rendered with the labels
-   and colours you defined.</li>
+<li>On the <strong>Layers</strong> tab, edit the <em>World Cover</em> layer card you created in
+   <a href="../02-getting-started/09-wms-service.html">Add a WMS layer directly</a>.</li>
+<li>Scroll down and select <strong>Add categories</strong>. The categories editor opens.</li>
+<li>Toggle <strong>Use data values</strong> on. An additional column appears for the raw
+   pixel values.</li>
+<li>Add your first category — for example, colour <code>green</code>, label <code>Tree cover</code>,
+   value <code>10</code>.</li>
+<li>Add another couple of categories for World Cover. Use the World Cover
+   preview from the Explorer along with your OS colour picker to grab the
+   right colours.</li>
+<li>Save the layer card and preview. When you fill in the full set of World
+   Cover classes, the legend in the Explorer will contain a row per class.</li>
 </ol>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-</div>
-<p>For COG files, the categories define the legend and the styling of the COG, so you can pick whatever colours you choose.  If you ommit a category entirely, then it will not display that data.  For example, if you <em>only</em> added in the category for tree cover, this is all you would see.</p>
-<div class="admonition warning">
-<p class="admonition-title">Sampled categories</p>
-<p>The values are populated from a <strong>sample</strong> of pixels. It is possible for
-a small number of pixels to fall into classes that were not sampled.
-Cross-check against the source data if completeness matters.</p>
-</div>
+<p>You do not need to fill in every category now — a handful is enough to see how
+it works. You'll paste a full set in a later tutorial.</p>
 
 
 
@@ -2005,7 +1989,7 @@ Cross-check against the source data if completeness matters.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="03-categories-wms.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5-3. Categories for a WMS layer">
+          <a href="03-categories-cog.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5-3. Categories for a COG">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2015,7 +1999,7 @@ Cross-check against the source data if completeness matters.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                5-3. Categories for a WMS layer
+                5-3. Categories for a COG
               </div>
             </div>
           </a>
