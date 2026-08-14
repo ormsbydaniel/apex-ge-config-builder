@@ -89,7 +89,10 @@ combines with the layers below it.
 Surfaces a slider for filtering the layer by a configured constraint — for
 example only showing values above a threshold.
 
-1. Tick **Constraint Slider** and **Save**.
+Do this on the **Above Ground Biomass** layer you have been working with.
+
+1. On the *Above Ground Biomass* layer card, tick **Constraint Slider** and
+   **Save**.
 
 !!! info "Constraints come later"
     This control only shows a slider once a constraint is defined on the layer

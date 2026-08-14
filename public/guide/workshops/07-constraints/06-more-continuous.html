@@ -2102,47 +2102,17 @@ constraint layers. Each one is a separate COG, prepared on the same grid as the
 wind power data.</p>
 <p>For each row below: <strong>Add constraint</strong> → <strong>Direct URL</strong> → paste the URL → set
 the label, type <strong>Continuous</strong>, min, max and units → <strong>Save</strong>.</p>
-<table>
-<thead>
-<tr>
-<th>Label</th>
-<th>Min</th>
-<th>Max</th>
-<th>Units</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Slope</td>
-<td>0</td>
-<td>65</td>
-<td>degrees</td>
-</tr>
-<tr>
-<td>Ruggedness Index</td>
-<td>0</td>
-<td>1</td>
-<td>index values</td>
-</tr>
-<tr>
-<td>Distance to High Power Line</td>
-<td>0</td>
-<td>30000</td>
-<td>meters</td>
-</tr>
-<tr>
-<td>Distance to settlement (WSF)</td>
-<td>0</td>
-<td>5500</td>
-<td>meters</td>
-</tr>
-</tbody>
-</table>
-<p>URLs:</p>
+<p><strong>Slope</strong> — min <code>0</code>, max <code>65</code>, units <code>degrees</code></p>
 <div class="highlight"><pre><span></span><code>https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/Copernicus_10m_DSM_COG_Slope_3857_fix.tif
-https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/RuggednessIndex_Austria_3857_COG_fix.tif
-https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerLineHigh_EucDist_Austria_3857_COG_fix.tif
-https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/WSF_EucDist_Austria_3857_COG_fix.tif
+</code></pre></div>
+<p><strong>Ruggedness Index</strong> — min <code>0</code>, max <code>1</code>, units <code>index values</code></p>
+<div class="highlight"><pre><span></span><code>https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/RuggednessIndex_Austria_3857_COG_fix.tif
+</code></pre></div>
+<p><strong>Distance to High Power Line</strong> — min <code>0</code>, max <code>30000</code>, units <code>meters</code></p>
+<div class="highlight"><pre><span></span><code>https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerLineHigh_EucDist_Austria_3857_COG_fix.tif
+</code></pre></div>
+<p><strong>Distance to settlement (WSF)</strong> — min <code>0</code>, max <code>5500</code>, units <code>meters</code></p>
+<div class="highlight"><pre><span></span><code>https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/WSF_EucDist_Austria_3857_COG_fix.tif
 </code></pre></div>
 <h2 id="combining-constraints">Combining constraints<a class="headerlink" href="#combining-constraints" title="Permanent link">&para;</a></h2>
 <p>Constraints are applied <strong>together</strong>: a pixel is only drawn where <em>every</em>
