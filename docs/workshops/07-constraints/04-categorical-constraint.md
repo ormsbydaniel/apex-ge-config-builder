@@ -16,7 +16,7 @@ the labels are only for display.
 
 ## Configure it
 
-1. Edit the *Austria Wind Power Density at 100m* layer card and open the
+1. On the *Austria Wind Power Density at 100m* layer card, click on the
    **Constraints** tab.
 
 2. Select **Add constraint**, keep the source type as **Direct URL** and paste
@@ -67,5 +67,7 @@ Open the **Preview**. The layer now has a set of land cover checkboxes. Untick
 everything except **Cropland** and **Grassland** — the wind power density is
 now only rendered over agricultural land, which is a reasonable first pass at
 where turbines could actually be sited.
+
+![Wind power density masked by land cover categories](../../assets/screenshots/constraints-land-cover-categorical-result.png)
 
 ### Did you remember to export?
