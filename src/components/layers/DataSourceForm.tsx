@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Save, X, Database, Globe, Plus, Server, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
-import { fetchServiceVersion } from '@/utils/serviceCapabilities';
+import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 
 
