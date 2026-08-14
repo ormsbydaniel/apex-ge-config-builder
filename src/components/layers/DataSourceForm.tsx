@@ -550,7 +550,33 @@ const DataSourceForm = ({
 
     // Validate timestamp for temporal layers
     const isWmsOrWmts = selectedFormat === 'wms' || selectedFormat === 'wmts';
-    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !useTimeParameter);
+
+    // For temporal layers using the TIME parameter, confirm with GetCapabilities
+    // that the layer actually advertises a time dimension. If it doesn't, the
+    // TIME parameter is unusable, so uncheck it and fall back to a timestamp.
+    let effectiveUseTimeParameter = useTimeParameter;
+    if (isWmsOrWmts && requiresTimestamp && useTimeParameter) {
+      setIsNegotiatingVersion(true);
+      try {
+        const supportsTime = await layerHasTimeDimension(url, selectedFormat, layers);
+        if (supportsTime === false) {
+          effectiveUseTimeParameter = false;
+          setUseTimeParameter(false);
+          toast({
+            title: "No Time Dimension",
+            description: `The service does not advertise a time dimension for "${layers}". The TIME parameter has been switched off — please select a timestamp instead.`,
+            variant: "destructive",
+          });
+        }
+      } catch {
+        // Non-fatal: keep the user's choice if capabilities can't be read.
+      } finally {
+        setIsNegotiatingVersion(false);
+      }
+    }
+
+    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !effectiveUseTimeParameter);
+
     
     if (needsManualTimestamp && !selectedDate) {
       toast({
