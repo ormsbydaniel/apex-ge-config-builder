@@ -13,13 +13,15 @@ Attach timestamps to your *Above Ground Biomass* layer (ABG) datasets by hand.
    simply as `2023`. Save and return to the layer.
 3. Add another dataset via **Direct connection → COG** and paste in this URL:
 
-    ```text
-    https://eoresults.esa.int/d/FCM-AGB-100m/2021/01/01/FCM-AGB-100m-2021/FCM_Europe_demo_2021_AGB.tif
-    ```
+   ```text
+   https://eoresults.esa.int/d/FCM-AGB-100m/2021/01/01/FCM-AGB-100m-2021/FCM_Europe_demo_2021_AGB.tif
+   ```
 
-    Set the timestamp to `2021-01-01` and save.
+   Set the timestamp to `2021-01-01` and save.
+
 4. Optionally, open the layer's JSON editor and confirm that each dataset now
-    has a `timestamp` field.
+   has a `timestamp` field.
+
 5. Preview and use the temporal control to step between years. The changes are subtle but visible if you look closely — the year shown in the temporal control updates and the layer values change to match the selected timestamp.
 
-    ![Preview of the Above Ground Biomass layer with the temporal control set to 2023](../../assets/screenshots/time-series-abg-preview.png)
+   ![Preview of the Above Ground Biomass layer with the temporal control set to 2023](../../assets/screenshots/time-series-abg-preview.png)
