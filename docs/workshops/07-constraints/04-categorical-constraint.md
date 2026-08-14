@@ -68,4 +68,6 @@ everything except **Cropland** and **Grassland** — the wind power density is
 now only rendered over agricultural land, which is a reasonable first pass at
 where turbines could actually be sited.
 
+![Wind power density masked by land cover categories](../../assets/screenshots/constraints-land-cover-categorical-result.png)
+
 ### Did you remember to export?
