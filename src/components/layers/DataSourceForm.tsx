@@ -1337,9 +1337,11 @@ const DataSourceForm = ({
                 Cancel
               </Button>
               {((sourceType === 'direct' && directUrl) || (sourceType === 'service' && directUrl)) && (
-                <Button type="submit" className="bg-primary hover:bg-primary/90">
+                <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={isNegotiatingVersion}>
                   <Save className="h-4 w-4 mr-2" />
-                  {editingDataSource ? 'Save Changes' : 'Add Source'}
+                  {isNegotiatingVersion
+                    ? 'Checking service…'
+                    : editingDataSource ? 'Save Changes' : 'Add Source'}
                 </Button>
               )}
             </div>
