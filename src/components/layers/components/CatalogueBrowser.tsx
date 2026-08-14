@@ -199,7 +199,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
     const version = getCapabilitiesUrl
       ? await fetchServiceVersion(getCapabilitiesUrl, format as DataSourceFormat)
       : undefined;
-    const styleSuggestion = layerStyleSuggestion(layer);
+    const styleSuggestion = layerStyleSuggestion(layer, dataset);
     return {
       datasetIdentifier: dataset.datasetIdentifier,
       layerIdentifier: layer.identifier,
