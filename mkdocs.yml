@@ -135,6 +135,7 @@ nav:
           - 2-7. Add a COG data source: workshops/02-getting-started/07-add-cog-data.md
           - 2-8. Style with a colormap: workshops/02-getting-started/08-colormaps.md
           - 2-9. Add a WMS data source: workshops/02-getting-started/09-wms-service.md
+          - 2-10. Add legends for a WMS: workshops/02-getting-started/10-wms-legends.md
       - 3. Working with Services:
           - Overview: workshops/03-working-with-services/index.md
           - 3-1. Pre-requisites: workshops/03-working-with-services/01-prerequisites.md
@@ -143,7 +144,6 @@ nav:
           - 3-4. Add recommended services: workshops/03-working-with-services/04-recommended-services.md
           - 3-5. Add data from the PRR: workshops/03-working-with-services/05-data-from-prr.md
           - 3-6. Add more WMS layers: workshops/03-working-with-services/06-more-wms-layers.md
-          - 3-7. Add legends for a WMS: workshops/03-working-with-services/07-wms-legends.md
       - 4. Fine tuning my config:
           - Overview: workshops/04-fine-tuning/index.md
           - 4-1. Pre-requisites: workshops/04-fine-tuning/01-prerequisites.md

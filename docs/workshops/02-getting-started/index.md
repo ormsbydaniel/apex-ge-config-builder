@@ -18,6 +18,7 @@ By the end of this tutorial you will be able to:
 - Add recommended base maps and your first layer card.
 - Add a COG data source and style it with a colormap.
 - Add a WMS layer using a direct connection.
+- Copy a WMS legend graphic into your layer card.
 
 ## Steps
 
@@ -30,3 +31,4 @@ By the end of this tutorial you will be able to:
 - [2-7. Add a COG data source](07-add-cog-data.md)
 - [2-8. Style with a colormap](08-colormaps.md)
 - [2-9. Add a WMS data source](09-wms-service.md)
+- [2-10. Add legends for a WMS](10-wms-legends.md)
