@@ -51,6 +51,8 @@ In the **Preview**, try narrowing several constraints at once:
 What remains is the accessible, buildable, grid-connected, non-residential land
 with the best wind resource.
 
+![Austria Wind Power Density layer with multiple continuous constraints combined in the Constraints panel](../../assets/screenshots/more-continuous-constraints-result.png)
+
 !!! note "Order matters for readability, not for logic"
     Constraints are combined regardless of their order in the list, but the
     order in the **Constraints** tab is the order they appear in the viewer.
