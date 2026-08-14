@@ -16,9 +16,9 @@ The tutorials make use of a few key technologies / data formats, in particular:
 - **Cloud Optimised GeoTiff (COG)** files
 - Mapping services, such as **WMS / WMTS** and **XYZ** tile services
 - Vector data in **GeoJSON** and **FlatGeobuf** format
-- **Spatial Temporal Asset Catalogues (STAC)**
+- **SpatioTemporal Asset Catalogs (STAC)**
 
-Some basic understanding of these concepts is useful but not essential.  Tutorials make use of them but do not aim to teach about them.
+Some basic understanding of these concepts is useful but not essential. Tutorials make use of them but do not aim to teach them.
 
 ## Tutorial setup
 
