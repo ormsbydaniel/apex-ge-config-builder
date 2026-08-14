@@ -476,4 +476,36 @@
          <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/08-review-and-export.html</loc>
          <lastmod>2026-08-14</lastmod>
     </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/08-statistics/index.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/08-statistics/01-prerequisites.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/08-statistics/02-key-concepts.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/08-statistics/03-world-cover-layer.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/08-statistics/04-first-statistics-source.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/08-statistics/05-more-statistics-levels.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/08-statistics/06-panel-and-controls.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/08-statistics/07-preview-and-review.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
 </urlset>

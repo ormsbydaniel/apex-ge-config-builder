@@ -26,6 +26,7 @@
         "05-categorical-data",
         "06-time-series",
         "07-constraints",
+        "08-statistics",
       ],
     },
   ];
@@ -87,6 +88,7 @@
     "05-categorical-data": "5. Categorical Data",
     "06-time-series": "6. Time Series",
     "07-constraints": "7. Constraints",
+    "08-statistics": "8. Statistics",
   };
 
   function currentStepTutorial() {
