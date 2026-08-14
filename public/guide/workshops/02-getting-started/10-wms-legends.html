@@ -2194,27 +2194,21 @@ the CB can pull that legend straight into your layer card.</p>
 <h2 id="add-the-copernicus-urban-atlas-layer">Add the Copernicus Urban Atlas layer<a class="headerlink" href="#add-the-copernicus-urban-atlas-layer" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Create a new layer called <strong>Copernicus Urban Atlas</strong> and place it in an
-   interface group called <strong>Urban</strong> (create the group if it doesn't exist yet).</li>
+   interface group called <strong>Land Cover</strong> (create the group if it doesn't exist
+   yet).</li>
 <li>
-<p>Add a dataset using <strong>Direct Connection</strong>, with <strong>Data Format</strong> set to WMS:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Data Source URL</td>
-<td><code>https://image.discomap.eea.europa.eu/arcgis/services/UrbanAtlas/UA_UrbanAtlas_2018/MapServer/WMSServer</code></td>
-</tr>
-<tr>
-<td>Layer Name</td>
-<td><code>Land_Use_Raster1402</code></td>
-</tr>
-</tbody>
-</table>
+<p>Add a dataset using <strong>Direct Connection</strong>, with <strong>Data Format</strong> set to WMS.
+   Copy the values below into the form:</p>
+<ul>
+<li><strong>Data Source URL</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>https://image.discomap.eea.europa.eu/arcgis/services/UrbanAtlas/UA_UrbanAtlas_2018/MapServer/WMSServer
+</code></pre></div>
+<ul>
+<li><strong>Layer Name</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>Land_Use_Raster1402
+</code></pre></div>
 </li>
 </ol>
 <h2 id="copy-the-legend-into-your-configuration">Copy the legend into your configuration<a class="headerlink" href="#copy-the-legend-into-your-configuration" title="Permanent link">&para;</a></h2>
