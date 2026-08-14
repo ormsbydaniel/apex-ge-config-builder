@@ -1,11 +1,16 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { DataSource, DataSourceItem, LayerType, isDataSourceItemArray } from '@/types/config';
+import { DataSource, DataSourceItem, LayerType, isDataSourceItemArray, TimeframeType } from '@/types/config';
 import { ChartConfig } from '@/types/chart';
 import { createLayerActionHandlers } from '@/utils/layerActions';
 import { PositionValue, getDefaultPosition, isValidPosition, requiresPosition } from '@/utils/positionUtils';
 import { cloneDonorLayer } from '@/utils/donorImport';
 import { uniqueId } from '@/utils/idHelpers';
+import { TemporalSuggestion } from '@/utils/timeDimension';
+import { CatalogueStyleSuggestion } from '@/utils/catalogueLegend';
+import { DataSourceMeta } from '@/types/layer';
+
+
 
 // Layer type management
 export type LayerTypeOption = 'standard' | 'swipe' | 'mirror' | 'spotlight';
@@ -385,12 +390,72 @@ export const useLayerOperations = ({
       if (isDataSourceItemArray(layer.data)) {
         // Handle both single data source and array of data sources
         const dataSourcesToAdd = Array.isArray(dataSource) ? dataSource : [dataSource];
+
+        // Extract transient temporal suggestion from WMS/WMTS capabilities and
+        // apply it to the layer card when it doesn't already have a timeframe.
+        let layerUpdate: Partial<DataSource> = {};
+        for (const item of dataSourcesToAdd) {
+          const suggestion = item?.__temporalSuggestion as TemporalSuggestion | undefined;
+          if (suggestion && (!layer.timeframe || layer.timeframe === 'None')) {
+            layerUpdate.timeframe = suggestion.timeframe;
+            if (suggestion.defaultTimestamp && layer.defaultTimestamp === undefined) {
+              layerUpdate.defaultTimestamp = suggestion.defaultTimestamp;
+            }
+            break;
+          }
+        }
+
+        // Apply catalogue legend styling to the layer meta when it has none yet.
+        const existingMeta: Partial<DataSourceMeta> = (layer.meta || {}) as Partial<DataSourceMeta>;
+        if (!existingMeta.categories?.length && !existingMeta.colormaps?.length) {
+          for (const item of dataSourcesToAdd) {
+            const style = item?.__styleSuggestion as CatalogueStyleSuggestion | undefined;
+            if (!style) continue;
+            const metaUpdate: Record<string, unknown> = {};
+            if (style.kind === 'categories' && style.categories.length > 0) {
+              metaUpdate.categories = style.categories;
+            } else if (style.kind === 'colormap') {
+              metaUpdate.colormaps = [style.colormap];
+            } else if (style.kind === 'gradient') {
+              metaUpdate.min = style.min;
+              metaUpdate.max = style.max;
+              metaUpdate.startColor = style.startColor;
+              metaUpdate.endColor = style.endColor;
+            } else if (style.kind === 'legendImage') {
+              // No faithful translation exists — use the official legend graphic.
+              const layout = (layer.layout || {}) as DataSource['layout'];
+              const layerCard = (layout?.layerCard || {}) as NonNullable<DataSource['layout']>['layerCard'];
+              if (!layerCard?.legend) {
+                layerUpdate.layout = {
+                  ...layout,
+                  layerCard: { ...layerCard, legend: { type: 'image', url: style.url } },
+                } as DataSource['layout'];
+              }
+            }
+            if (style.units && !existingMeta.units) {
+              metaUpdate.units = style.units;
+            }
+            if (Object.keys(metaUpdate).length > 0) {
+              layerUpdate.meta = { ...existingMeta, ...metaUpdate } as DataSource['meta'];
+            }
+            break;
+          }
+        }
+
+        // Remove the transient suggestions from the persisted data sources.
+        const sanitizedDataSources = dataSourcesToAdd.map((item) => {
+          const { __temporalSuggestion, __styleSuggestion, ...rest } = item;
+          return rest;
+        });
+
+
         const updatedLayer = {
           ...layer,
-          data: [...layer.data, ...dataSourcesToAdd]
+          ...layerUpdate,
+          data: [...layer.data, ...sanitizedDataSources]
         };
         updateLayer(selectedLayerIndex, updatedLayer);
-        
+
         const groupName = layer.layout?.interfaceGroup || 'ungrouped';
         handleLayerCreated(groupName, selectedLayerIndex);
       }

@@ -5,6 +5,11 @@ import { fetchStacCapabilitiesWithMetrics } from '@/utils/stacCapabilities';
 import { useConfig } from '@/contexts/ConfigContext';
 import { parseS3Url, fetchS3BucketContents } from '@/utils/s3Utils';
 import {
+  fetchCatalogueCollection,
+  buildCatalogueCapabilities,
+} from '@/utils/catalogueService';
+import {
+
   ProbeDiagnostic,
   classifyFetchError,
   classifyHttpResponse,
@@ -32,7 +37,7 @@ const CAPABILITIES_SLOW_MS = 3000;
 const CAPABILITIES_LARGE_BYTES = 2 * 1024 * 1024;
 
 export type ServiceValidationStatus = 'idle' | 'checking' | 'ok' | 'warning' | 'error';
-export type ServiceKind = 'stac' | 'ogc' | 's3';
+export type ServiceKind = 'stac' | 'ogc' | 's3' | 'catalogue';
 
 export interface GroupProgress {
   total: number;
@@ -54,7 +59,9 @@ const INITIAL_PROGRESS: Record<ServiceKind, GroupProgress> = {
   stac: { total: 0, completed: 0, inFlight: 0 },
   ogc: { total: 0, completed: 0, inFlight: 0 },
   s3: { total: 0, completed: 0, inFlight: 0 },
+  catalogue: { total: 0, completed: 0, inFlight: 0 },
 };
+
 
 const formatBytes = (bytes: number): string => {
   if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -79,6 +86,9 @@ const classify = (svc: Service): ServiceKind | null => {
   // STAC
   if (svc.format === 'stac' || svc.sourceType === 'stac') return 'stac';
 
+  // Catalogue (multi-dataset manifest)
+  if (svc.format === 'catalogue' || svc.sourceType === 'catalogue') return 'catalogue';
+
   // S3
   if (svc.format === 's3' || svc.sourceType === 's3') return 's3';
   if (parseS3Url(svc.url) !== null) return 's3';
@@ -90,6 +100,7 @@ const classify = (svc: Service): ServiceKind | null => {
 
   return null;
 };
+
 
 async function runWithConcurrency<T>(
   items: T[],
@@ -355,6 +366,40 @@ export const useBulkServiceValidation = (
     }
   }, [dispatch, setStatus, setWarningMessages, setError, updateProgress]);
 
+  const validateCatalogue = useCallback(async (svc: Service) => {
+    setStatus(svc.id, 'checking');
+    setWarningMessages(svc.id, []);
+    setError(svc.id, undefined);
+    const pre = preflightDiagnostic(svc.url);
+    if (pre) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, pre);
+      setStatus(svc.id, 'error');
+      return;
+    }
+    updateProgress('catalogue', { inFlight: 1 });
+    try {
+      const collection = await fetchCatalogueCollection(svc.url);
+      const capabilities = buildCatalogueCapabilities(
+        collection.meta.title || svc.name || 'Catalogue',
+        collection.datasets,
+        collection.meta.counts
+      );
+
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities } } });
+      const unavailable = collection.datasets.filter(d => !d.available).length;
+      const warns = unavailable > 0 ? [`${unavailable} dataset(s) currently unavailable`] : [];
+      setWarningMessages(svc.id, warns);
+      setStatus(svc.id, warns.length > 0 ? 'warning' : 'ok');
+    } catch (err) {
+      dispatch({ type: 'UPDATE_SERVICE', payload: { id: svc.id, patch: { capabilities: undefined } } });
+      setError(svc.id, classifyFetchError(err, { url: svc.url }));
+      setStatus(svc.id, 'error');
+    } finally {
+      updateProgress('catalogue', { inFlight: -1, completed: 1 });
+    }
+  }, [dispatch, setStatus, setWarningMessages, setError, updateProgress]);
+
   const runBulk = useCallback(
     async (svcTargets: Service[]) => {
       if (svcTargets.length === 0) return;
@@ -362,22 +407,26 @@ export const useBulkServiceValidation = (
       const stacTargets = svcTargets.filter(s => classify(s) === 'stac');
       const ogcTargets = svcTargets.filter(s => classify(s) === 'ogc');
       const s3Targets = svcTargets.filter(s => classify(s) === 's3');
+      const catalogueTargets = svcTargets.filter(s => classify(s) === 'catalogue');
 
       // Reset per-group totals/completed for this run.
       setProgress({
         stac: { total: stacTargets.length, completed: 0, inFlight: 0 },
         ogc: { total: ogcTargets.length, completed: 0, inFlight: 0 },
         s3: { total: s3Targets.length, completed: 0, inFlight: 0 },
+        catalogue: { total: catalogueTargets.length, completed: 0, inFlight: 0 },
       });
 
       await Promise.all([
         runWithConcurrency(stacTargets, validateStac, CONCURRENCY),
         runWithConcurrency(ogcTargets, validateOgc, CONCURRENCY),
         runWithConcurrency(s3Targets, validateS3, CONCURRENCY),
+        runWithConcurrency(catalogueTargets, validateCatalogue, CONCURRENCY),
       ]);
     },
-    [validateStac, validateOgc, validateS3],
+    [validateStac, validateOgc, validateS3, validateCatalogue],
   );
+
 
   // Auto-trigger when tab becomes active for a freshly-loaded config
   useEffect(() => {
@@ -409,6 +458,7 @@ export const useBulkServiceValidation = (
           if (kind === 'stac') validateStac(svc);
           else if (kind === 'ogc') validateOgc(svc);
           else if (kind === 's3') validateS3(svc);
+          else if (kind === 'catalogue') validateCatalogue(svc);
         }
         return;
       }
@@ -418,11 +468,12 @@ export const useBulkServiceValidation = (
       lastValidatedLoad = 'manual';
       runBulk(targets);
     },
-    [services, validateStac, validateOgc, validateS3, runBulk],
+    [services, validateStac, validateOgc, validateS3, validateCatalogue, runBulk],
   );
 
   const inFlightTotal =
-    progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight;
+    progress.stac.inFlight + progress.ogc.inFlight + progress.s3.inFlight + progress.catalogue.inFlight;
 
   return { statuses, warnings, errors, progress, inFlightTotal, recheck };
 };
+

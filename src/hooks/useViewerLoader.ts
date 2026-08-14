@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
-import { VIEWER_ENV } from '@/config/viewerEnv';
+import { buildViewerEnv } from '@/config/viewerEnv';
 import { compareVersions } from '@/utils/viewerVersions';
 
 // Merge the hardcoded viewer env into the delivered config without mutating
 // the source object (so export/round-trip stays clean).
-const withEnv = (config: any) =>
-  config ? { ...config, env: VIEWER_ENV } : config;
+const withEnv = (config: any, version: string) =>
+  config ? { ...config, env: buildViewerEnv(version) } : config;
 
 
 interface UseViewerLoaderProps {
@@ -53,13 +53,15 @@ export function useViewerLoader({
   const configRef = useRef<any>(config);
   const isReadyRef = useRef(false);
   configRef.current = config;
+  const versionRef = useRef(version);
+  versionRef.current = version;
 
   // For modern viewers: set window.explorerConfig on iframe
   const setExplorerConfig = useCallback(() => {
     const iframe = iframeRef.current;
     if (!iframe?.contentWindow || !configRef.current) return;
     try {
-      (iframe.contentWindow as any).explorerConfig = withEnv(configRef.current);
+      (iframe.contentWindow as any).explorerConfig = withEnv(configRef.current, versionRef.current);
     } catch (e) {
       // Cross-origin access may fail
     }
@@ -71,7 +73,7 @@ export function useViewerLoader({
     if (iframe?.contentWindow && configRef.current) {
       console.log('[Config Builder] Sending config to viewer iframe (legacy)');
       iframe.contentWindow.postMessage(
-        { type: 'apex-viewer-config', config: withEnv(configRef.current) },
+        { type: 'apex-viewer-config', config: withEnv(configRef.current, versionRef.current) },
         '*'
       );
     }
@@ -84,7 +86,7 @@ export function useViewerLoader({
     try {
       const iframeWindow = iframe.contentWindow as any;
       // Update the global config
-      iframeWindow.explorerConfig = withEnv(configRef.current);
+      iframeWindow.explorerConfig = withEnv(configRef.current, versionRef.current);
       // Invalidate the React Query cache so the viewer re-reads it
       if (iframeWindow.__queryClient) {
         iframeWindow.__queryClient.invalidateQueries({ queryKey: ['config'] });
@@ -103,7 +105,7 @@ export function useViewerLoader({
         const iframe = iframeRef.current;
         if (iframe?.contentWindow && configRef.current) {
           iframe.contentWindow.postMessage(
-            { type: 'apex-viewer-config-delivery', config: withEnv(configRef.current) },
+            { type: 'apex-viewer-config-delivery', config: withEnv(configRef.current, versionRef.current) },
             '*'
           );
         }
@@ -210,7 +212,7 @@ export function useViewerLoader({
     }
   }, [enabled, version, loadViewer]);
 
-  const deliveredConfig = useMemo(() => withEnv(config), [config]);
+  const deliveredConfig = useMemo(() => withEnv(config, version), [config, version]);
 
   return {
     isLoading,

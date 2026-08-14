@@ -14,7 +14,15 @@ export interface RecommendedConfig {
   services?: Service[];
 }
 
+export interface RecommendedCatalogueEntry {
+  id: string;
+  name: string;
+  description?: string;
+  url: string;
+}
+
 type Kind = 'basemaps' | 'services';
+
 
 const resolveUrl = async (kind: Kind): Promise<string> => {
   try {
@@ -59,3 +67,14 @@ export async function fetchRecommendedServices(): Promise<Service[]> {
     throw error;
   }
 }
+
+export async function fetchRecommendedCatalogues(): Promise<RecommendedCatalogueEntry[]> {
+  try {
+    const manifest = await fetchExampleManifest();
+    return manifest.recommended?.catalogues || [];
+  } catch (error) {
+    console.error('Error fetching recommended catalogues:', error);
+    return [];
+  }
+}
+

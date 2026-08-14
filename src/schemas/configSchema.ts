@@ -116,6 +116,31 @@ const ChartConfigSchema = z.object({
 
 // ============= End Chart Schemas =============
 
+const CatalogueLayerSchema = z.object({
+  identifier: z.string(),
+  title: z.string().optional(),
+  abstract: z.string().optional(),
+});
+
+const CatalogueDatasetSchema = z.object({
+  datasetIdentifier: z.string(),
+  serviceUrl: z.string(),
+  getCapabilitiesUrl: z.string(),
+  title: z.string(),
+  abstract: z.string().optional(),
+  theme: z.string(),
+  available: z.boolean(),
+  layers: z.array(CatalogueLayerSchema),
+});
+
+export const CatalogueCapabilitiesSchema = z.object({
+  catalogue: z.object({
+    datasets: z.array(CatalogueDatasetSchema),
+  }),
+  availableDatasetCount: z.number().optional(),
+  unavailableDatasetCount: z.number().optional(),
+});
+
 export const ServiceCapabilitiesSchema = z.object({
   layers: z.array(z.object({
     name: z.string(),
@@ -130,7 +155,10 @@ export const ServiceCapabilitiesSchema = z.object({
   })),
   title: z.string().optional(),
   abstract: z.string().optional(),
-});
+  version: z.string().optional(),
+}).merge(CatalogueCapabilitiesSchema.partial());
+
+
 
 // Custom URL validation that accepts both absolute URLs and relative paths
 const urlOrRelativePathSchema = z.string().refine(
@@ -157,10 +185,11 @@ export const ServiceSchema = z.object({
   id: z.string(),
   name: z.string(),
   url: urlOrRelativePathSchema,
-  sourceType: z.enum(['s3', 'service', 'stac']).optional(),
-  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 'csv', 's3', 'stac']).optional(),
+  sourceType: z.enum(['s3', 'service', 'stac', 'catalogue']).optional(),
+  format: z.enum(['wms', 'wmts', 'xyz', 'wfs', 'cog', 'geojson', 'flatgeobuf', 'csv', 's3', 'stac', 'catalogue']).optional(),
   capabilities: ServiceCapabilitiesSchema.optional(),
 });
+
 
 // Enhanced DataSourceItem schema with position field and zoom levels
 export const DataSourceItemSchema = z.object({
@@ -172,6 +201,8 @@ export const DataSourceItemSchema = z.object({
   level: z.number().optional(),
   type: z.string().optional(),
   serviceId: z.string().optional(),
+  // Negotiated WMTS protocol version
+  version: z.string().optional(),
   // Additional fields for COG and styled layers
   normalize: z.boolean().optional(),
   style: z.any().optional(), // Allow any style object structure
@@ -183,6 +214,8 @@ export const DataSourceItemSchema = z.object({
   // Zoom level constraints
   minZoom: z.number().optional(),
   maxZoom: z.number().optional(),
+  // Optional asset names/keys for STAC collection data sources
+  assets: z.array(z.string().min(1)).optional(),
   // Temporal fields for data items
   timestamps: z.array(z.number()).optional(),
   // Opacity support (0-1 range)  

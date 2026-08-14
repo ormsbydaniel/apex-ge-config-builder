@@ -15,7 +15,7 @@ interface ParametersEditorProps {
 }
 
 // Keys managed by the viewer / OGC protocol — disallow user overrides.
-const RESERVED_KEYS = ['time', 'layers', 'service', 'request'];
+const RESERVED_KEYS = ['time', 'layers', 'service', 'version', 'request'];
 
 const isReserved = (key: string): boolean =>
   RESERVED_KEYS.includes(key.trim().toLowerCase());
@@ -34,10 +34,49 @@ export const recordToRows = (
   record?: Record<string, unknown>
 ): ParameterRow[] => {
   if (!record) return [];
-  return Object.entries(record).map(([key, value]) => ({
-    key,
-    value: value == null ? '' : String(value),
-  }));
+  return Object.entries(record)
+    .filter(([key]) => !isReserved(key))
+    .map(([key, value]) => ({
+      key,
+      value: value == null ? '' : String(value),
+    }));
+};
+
+export const mergeWmsParameters = (
+  rows: ParameterRow[],
+  serviceVersion?: string,
+): Record<string, string> => ({
+  ...rowsToRecord(rows),
+  ...(serviceVersion ? { version: serviceVersion } : {}),
+});
+
+export const applyOgcServiceVersion = (
+  item: Record<string, unknown>,
+  format: string,
+  rows: ParameterRow[],
+  serviceVersion?: string,
+): Record<string, unknown> => {
+  const next = { ...item };
+
+  if (format === 'wms') {
+    const parameters = mergeWmsParameters(rows, serviceVersion);
+    if (Object.keys(parameters).length > 0) {
+      next.parameters = parameters;
+    } else {
+      delete next.parameters;
+    }
+    delete next.version;
+    return next;
+  }
+
+  delete next.parameters;
+  if (format === 'wmts' && serviceVersion) {
+    next.version = serviceVersion;
+  } else {
+    delete next.version;
+  }
+
+  return next;
 };
 
 const ParametersEditor: React.FC<ParametersEditorProps> = ({ rows, onChange }) => {

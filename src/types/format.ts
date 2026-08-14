@@ -3,7 +3,7 @@
  */
 
 // DataSourceFormat no longer includes 's3'
-export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf' | 'csv';
+export type DataSourceFormat = 'wms' | 'wmts' | 'xyz' | 'wfs' | 'cog' | 'geojson' | 'flatgeobuf' | 'csv' | 'stac';
 
 // Footer link configuration for layout footer
 export interface FooterLink {
@@ -18,7 +18,7 @@ export interface DesignConfig {
 }
 
 // New type for source configuration (includes S3 and STAC)
-export type SourceConfigType = DataSourceFormat | 's3' | 'stac';
+export type SourceConfigType = DataSourceFormat | 's3';
 
 export type LayerType = 'base' | 'layerCard';
 

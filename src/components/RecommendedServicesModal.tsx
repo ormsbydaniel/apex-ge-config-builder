@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Globe, Server, Database } from 'lucide-react';
+import { Globe, Server, Database, FolderOpen } from 'lucide-react';
 import { Service } from '@/types/config';
 
 interface RecommendedServicesModalProps {
@@ -20,6 +20,7 @@ const getServiceIcon = (service: Service) => {
   switch (sourceType) {
     case 's3': return <Database className="h-4 w-4 text-amber-500" />;
     case 'stac': return <Server className="h-4 w-4 text-emerald-500" />;
+    case 'catalogue': return <FolderOpen className="h-4 w-4 text-amber-600" />;
     default: return <Globe className="h-4 w-4 text-blue-500" />;
   }
 };
@@ -30,6 +31,7 @@ const getTypeBadge = (service: Service) => {
   switch (sourceType) {
     case 's3': return <Badge variant="outline" className="text-amber-600 border-amber-300">S3</Badge>;
     case 'stac': return <Badge variant="outline" className="text-emerald-600 border-emerald-300">STAC</Badge>;
+    case 'catalogue': return <Badge variant="outline" className="text-amber-600 border-amber-300">Catalogue</Badge>;
     default: return <Badge variant="outline" className="text-blue-600 border-blue-300">{String(format).toUpperCase()}</Badge>;
   }
 };

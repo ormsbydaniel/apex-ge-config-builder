@@ -7,11 +7,30 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle, Eye, Copy, ArrowLeft, ZoomIn, ZoomOut } from 'lucide-react';
-import { fetchServiceCapabilities } from '@/utils/serviceCapabilities';
-import { DataSourceFormat, DataSourceLayout } from '@/types/config';
+import { Loader2, AlertCircle, Eye, Copy, ArrowLeft, ZoomIn, ZoomOut, ExternalLink } from 'lucide-react';
+import { fetchServiceCapabilities, buildGetCapabilitiesUrl } from '@/utils/serviceCapabilities';
+import { parseIso8601Duration } from '@/utils/timeDimension';
+import { DataSourceFormat, DataSourceLayout, TimeDimensionExtent } from '@/types/config';
+
 import { Badge } from '@/components/ui/badge';
+
 import { useToast } from '@/hooks/use-toast';
+
+const formatPeriodLabel = (period?: string) => {
+  if (!period) return null;
+  const duration = parseIso8601Duration(period);
+  if (!duration) return period;
+
+  const { years, months, days, hours, minutes, seconds } = duration;
+  const parts: string[] = [];
+  if (years > 0) parts.push(`${years} year${years !== 1 ? 's' : ''}`);
+  if (months > 0) parts.push(`${months} month${months !== 1 ? 's' : ''}`);
+  if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+  if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+  if (seconds > 0) parts.push(`${seconds} second${seconds !== 1 ? 's' : ''}`);
+  return parts.join(', ') || period;
+};
 
 interface WmsWmtsMetadataDialogProps {
   url: string;
@@ -176,6 +195,19 @@ const WmsWmtsMetadataDialog = ({
             <DialogDescription className="break-all">
               {url}
             </DialogDescription>
+          )}
+          {viewMode === 'details' && (
+            <div className="pt-1">
+              <a
+                href={buildGetCapabilitiesUrl(url, format) ?? url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              >
+                Open full GetCapabilities
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
           )}
         </DialogHeader>
 
@@ -344,6 +376,44 @@ const WmsWmtsMetadataDialog = ({
                                     {layer.defaultTime}
                                   </td>
                                 </tr>
+                              )}
+                              {layer.timeExtent && (
+                                <>
+                                  <tr className="border-b hover:bg-muted/50">
+                                    <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                      Temporal Start
+                                    </td>
+                                    <td className="py-2 px-3 text-sm font-mono">
+                                      {layer.timeExtent.start}
+                                    </td>
+                                  </tr>
+                                  <tr className="border-b hover:bg-muted/50">
+                                    <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                      Temporal End
+                                    </td>
+                                    <td className="py-2 px-3 text-sm font-mono">
+                                      {layer.timeExtent.end}
+                                    </td>
+                                  </tr>
+                                  {layer.timeExtent.period && (
+                                    <tr className="border-b hover:bg-muted/50">
+                                      <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                        Granularity
+                                      </td>
+                                      <td className="py-2 px-3 text-sm">
+                                        {formatPeriodLabel(layer.timeExtent.period)} <span className="text-xs text-muted-foreground">({layer.timeExtent.period})</span>
+                                      </td>
+                                    </tr>
+                                  )}
+                                  <tr className="border-b hover:bg-muted/50">
+                                    <td className="py-2 px-3 font-medium text-sm bg-muted/30 w-1/4">
+                                      Suggested Timeframe
+                                    </td>
+                                    <td className="py-2 px-3 text-sm">
+                                      {layer.timeExtent.suggestedTimeframe}
+                                    </td>
+                                  </tr>
+                                </>
                               )}
                             </>
                           )}

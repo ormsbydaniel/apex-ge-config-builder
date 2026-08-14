@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Save, X, Database, Plus, Trash2, Sparkles } from 'lucide-react';
-import { Service, ConstraintSourceItem } from '@/types/config';
+import { Service, ConstraintSourceItem, LayerInfo } from '@/types/config';
 import { useServices } from '@/hooks/useServices';
 import { useToast } from '@/hooks/use-toast';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -131,9 +131,24 @@ const ConstraintSourceForm = ({
   };
 
   const handleServiceModalSelection = (
-    selection: string | Array<{ url: string; format: string }>,
-    layers: string = ''
+    selection: string | Array<{ url: string; format: string } | { datasetIdentifier: string; layerIdentifier: string; serviceUrl: string; format: string; version?: string }>,
+    layers: string = '',
+    format?: string,
+    datetime?: string,
+    layerInfo?: LayerInfo
   ) => {
+    // Handle catalogue selections (not supported for constraint sources)
+    if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {
+      toast({
+        title: "Catalogue not supported",
+        description: "Catalogue layers cannot be used as constraint sources. Constraints require a COG data source.",
+        variant: "destructive",
+      });
+      setShowServiceModal(false);
+      setSelectedServiceForModal(null);
+      return;
+    }
+
     // Handle bulk selection (array of COG assets from S3/STAC)
     if (Array.isArray(selection)) {
       // For bulk add, open a simplified form to configure common properties
@@ -146,13 +161,14 @@ const ConstraintSourceForm = ({
       setSelectedServiceForModal(null);
       return;
     }
-    
+
     // Handle single selection
     const url = selection;
     setDirectUrl(url);
     setShowServiceModal(false);
     setSelectedServiceForModal(null);
   };
+
 
   const handleServiceModalClose = () => {
     setShowServiceModal(false);

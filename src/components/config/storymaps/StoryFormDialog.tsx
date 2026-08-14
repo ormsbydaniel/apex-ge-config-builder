@@ -13,6 +13,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import MarkdownEditor from '@/components/common/MarkdownEditor';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import StoryImportPanel, {
+  type StoryImportSelection,
+} from '@/components/config/storymaps/import/StoryImportPanel';
 import { Story } from '@/types/config';
 
 interface StoryFormDialogProps {
@@ -21,7 +25,12 @@ interface StoryFormDialogProps {
   initial?: Story | null;
   existingIds: string[];
   onSave: (patch: { id: string; title: string; description?: string; isActive?: boolean; thumbnail?: string }) => void;
+  /** Source ids already present in the working configuration (import tab). */
+  existingSourceIds?: string[];
+  /** When provided, an "Import story" tab is shown in add mode. */
+  onImportStories?: (selection: StoryImportSelection) => void;
 }
+
 
 const slugify = (s: string): string =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'story';
@@ -43,7 +52,10 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
   initial,
   existingIds,
   onSave,
+  existingSourceIds = [],
+  onImportStories,
 }) => {
+
   const isEdit = !!initial;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -51,6 +63,8 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
   const [thumbnail, setThumbnail] = useState('');
   const [idTouched, setIdTouched] = useState(false);
   const [isActive, setIsActive] = useState(false);
+  const [mode, setMode] = useState<'new' | 'import'>('new');
+
 
   // Initialise dialog state inside useEffect on `open` — prevents stale
   // overwrites (core memory rule).
@@ -62,6 +76,8 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
     setThumbnail(initial?.thumbnail ?? '');
     setIdTouched(!!initial);
     setIsActive(initial?.isActive ?? false);
+    setMode('new');
+
   }, [open, initial]);
 
   // Auto-slug id from title while user hasn't touched id manually.
@@ -73,16 +89,11 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
   }, [title, isEdit, idTouched, existingIds, initial?.id]);
 
   const canSave = title.trim().length > 0 && id.trim().length > 0;
+  const showImport = !isEdit && !!onImportStories;
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit story' : 'Add story'}</DialogTitle>
-          <DialogDescription>
-            A story groups one or more steps. Markdown is supported in the description.
-          </DialogDescription>
-        </DialogHeader>
+  const formSection = (
+    <>
+
 
         <div className="space-y-3">
           <div className="flex items-end gap-4">
@@ -143,7 +154,6 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
           </div>
         </div>
 
-
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
@@ -164,9 +174,49 @@ export const StoryFormDialog: React.FC<StoryFormDialogProps> = ({
             {isEdit ? 'Save' : 'Add story'}
           </Button>
         </DialogFooter>
+      </>
+    );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? 'Edit story' : 'Add story'}</DialogTitle>
+          <DialogDescription>
+            {showImport
+              ? 'Create a new story, or import one from another configuration.'
+              : 'A story groups one or more steps. Markdown is supported in the description.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        {showImport ? (
+          <Tabs value={mode} onValueChange={(v) => setMode(v as 'new' | 'import')}>
+            <TabsList className="grid grid-cols-2 w-full">
+              <TabsTrigger value="new">New story</TabsTrigger>
+              <TabsTrigger value="import">Import story</TabsTrigger>
+            </TabsList>
+            <TabsContent value="new" className="mt-4">
+              {formSection}
+            </TabsContent>
+            <TabsContent value="import" className="mt-4">
+              <StoryImportPanel
+                active={open && mode === 'import'}
+                existingSourceIds={existingSourceIds}
+                onCancel={() => onOpenChange(false)}
+                onImport={(selection) => {
+                  onImportStories?.(selection);
+                  onOpenChange(false);
+                }}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          formSection
+        )}
       </DialogContent>
     </Dialog>
   );
 };
+
 
 export default StoryFormDialog;

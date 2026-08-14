@@ -183,6 +183,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       title: data.title || data.id || 'STAC Collection',
       description: data.description,
       links: data.links,
+      collectionUrl,
     });
     setCurrentStep('assets');
     return true;
@@ -278,6 +279,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           keywords: data.keywords,
           extent: data.extent,
           links: data.links,
+          collectionUrl: serviceUrl,
         };
         await fetchItems(collection, serviceUrl);
         return;
@@ -345,6 +347,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           keywords: data.keywords,
           extent: data.extent,
           links: data.links,
+          collectionUrl: childUrl,
         };
         setLoading(false);
         await fetchItems(collection, childUrl);
@@ -1213,7 +1216,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                 (filteredData as CatalogChild[]).map((child) => {
                   const isCollection = child.kind === 'collection';
                   return (
-                    <div key={child.href} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 min-w-0">
+                    <div key={child.href} className="flex w-full min-w-0 max-w-full items-center gap-3 overflow-hidden p-3 border rounded-lg hover:bg-muted/50">
                       <Folder className={`h-4 w-4 flex-shrink-0 ${isCollection ? 'text-green-600' : 'text-purple-600'}`} />
                       <div className="flex-1 min-w-0 pr-2">
                         <div className="font-medium text-sm truncate" title={child.title}>{child.title}</div>
@@ -1259,19 +1262,19 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                   };
                   
                   return (
-                    <div key={collection.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                    <div key={collection.id} className="flex w-full min-w-0 max-w-full items-center gap-3 overflow-hidden p-3 border rounded-lg hover:bg-muted/50">
                       <Folder className="h-4 w-4 text-purple-600 flex-shrink-0" />
                       <div className="flex-1 min-w-0 pr-2">
-                        <div className="font-medium text-sm">{highlightText(collection.title || collection.id)}</div>
+                        <div className="font-medium text-sm break-words [overflow-wrap:anywhere]">{highlightText(collection.title || collection.id)}</div>
                         {collection.description && (
-                          <div className={`text-xs text-muted-foreground mt-1 ${!isExpanded ? 'line-clamp-2' : ''}`}>
+                          <div className={`text-xs text-muted-foreground mt-1 break-words [overflow-wrap:anywhere] ${!isExpanded ? 'line-clamp-2' : ''}`}>
                             {highlightText(collection.description)}
                           </div>
                         )}
                         {collection.keywords && collection.keywords.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {(isExpanded ? collection.keywords : collection.keywords.slice(0, 5)).map((keyword, idx) => (
-                              <Badge key={idx} variant="secondary" className="text-xs font-normal">
+                              <Badge key={idx} variant="secondary" className="max-w-full text-xs font-normal whitespace-normal break-words [overflow-wrap:anywhere]">
                                 {highlightText(keyword)}
                               </Badge>
                             ))}
@@ -1305,14 +1308,15 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                           </button>
                         )}
                       </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="flex-shrink-0"
-                        onClick={() => fetchItems(collection)}
-                      >
-                        Browse items
-                      </Button>
+                      <div className="flex-shrink-0">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => fetchItems(collection)}
+                        >
+                          Browse items
+                        </Button>
+                      </div>
                     </div>
                   );
                 })

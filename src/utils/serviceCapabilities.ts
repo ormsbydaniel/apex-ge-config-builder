@@ -5,6 +5,8 @@ import {
   classifyFetchError,
   classifyHttpResponse,
 } from '@/utils/serviceDiagnostics';
+import { parseTimeDimensionValue } from '@/utils/timeDimension';
+
 
 const getDescendantsByLocalName = (root: ParentNode, localName: string): Element[] =>
   Array.from(root.querySelectorAll('*')).filter(el => el.localName === localName);
@@ -42,6 +44,30 @@ export interface ServiceCapabilitiesMetrics {
   bytes?: number;
 }
 
+const buildGetCapabilitiesUrlObject = (url: string, format: DataSourceFormat): URL | null => {
+  if (format === 'xyz' || format === 'cog' || format === 'geojson' || format === 'flatgeobuf') {
+    return null;
+  }
+
+  try {
+    const capabilitiesUrl = new URL(url);
+    capabilitiesUrl.searchParams.set('service', format.toUpperCase());
+    capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
+    const version =
+      format === 'wms' ? '1.3.0' :
+      format === 'wfs' ? '2.0.0' :
+      '1.0.0';
+    capabilitiesUrl.searchParams.set('version', version);
+    return capabilitiesUrl;
+  } catch {
+    return null;
+  }
+};
+
+export const buildGetCapabilitiesUrl = (url: string, format: DataSourceFormat): string | null => {
+  return buildGetCapabilitiesUrlObject(url, format)?.toString() ?? null;
+};
+
 // Function to fetch capabilities for a service (with optional timing/size metrics)
 export const fetchServiceCapabilitiesWithMetrics = async (
   url: string,
@@ -53,10 +79,8 @@ export const fetchServiceCapabilitiesWithMetrics = async (
   }
 
   // Construct GetCapabilities URL
-  let capabilitiesUrl: URL;
-  try {
-    capabilitiesUrl = new URL(url);
-  } catch {
+  const capabilitiesUrl = buildGetCapabilitiesUrlObject(url, format);
+  if (!capabilitiesUrl) {
     return {
       capabilities: null,
       diagnostic: {
@@ -66,13 +90,9 @@ export const fetchServiceCapabilitiesWithMetrics = async (
       },
     };
   }
-  capabilitiesUrl.searchParams.set('service', format.toUpperCase());
-  capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
-  const version =
-    format === 'wms' ? '1.3.0' :
-    format === 'wfs' ? '2.0.0' :
-    '1.0.0';
-  capabilitiesUrl.searchParams.set('version', version);
+
+  const capabilitiesUrlString = capabilitiesUrl.toString();
+
 
   // Use AbortController to enforce a 10-second timeout per service
   const controller = new AbortController();
@@ -147,6 +167,9 @@ export const fetchServiceCapabilitiesWithMetrics = async (
           const timeDimension = layer.querySelector('Dimension[name="time"], Dimension[name="TIME"]');
           const hasTimeDimension = !!timeDimension;
           const defaultTime = timeDimension?.getAttribute('default') || undefined;
+          const timeDimensionValue = timeDimension?.textContent || undefined;
+          const timeExtent = timeDimensionValue ? parseTimeDimensionValue(timeDimensionValue) : undefined;
+
           
           // Extract CRS/EPSG codes
           const crsElements = layer.querySelectorAll('CRS');
@@ -194,6 +217,7 @@ export const fetchServiceCapabilitiesWithMetrics = async (
               abstract,
               hasTimeDimension,
               defaultTime,
+              timeExtent,
               crs: crsList.length > 0 ? crsList : undefined,
               bbox,
               hasLegendGraphic,
@@ -213,9 +237,18 @@ export const fetchServiceCapabilitiesWithMetrics = async (
             getDirectChildText(dimension, 'Identifier')?.toUpperCase() === 'TIME'
           );
           const hasTimeDimension = !!timeDimension;
-          const defaultTime = hasTimeDimension 
+          const defaultTime = hasTimeDimension
             ? getDirectChildText(timeDimension, 'Default')
             : undefined;
+          const timeDimensionValues = timeDimension
+            ? getDescendantsByLocalName(timeDimension, 'Value')
+                .map((valueEl) => valueEl.textContent)
+                .filter((text): text is string => !!text)
+            : [];
+          const timeExtent = timeDimensionValues.length > 0
+            ? parseTimeDimensionValue(timeDimensionValues.join(','))
+            : undefined;
+
           
           // Extract TileMatrixSet (CRS info)
           const crsList = getDescendantsByLocalName(layer, 'TileMatrixSetLink')
@@ -248,6 +281,7 @@ export const fetchServiceCapabilitiesWithMetrics = async (
               abstract,
               hasTimeDimension,
               defaultTime,
+              timeExtent,
               crs: crsList.length > 0 ? crsList : undefined,
               bbox,
               hasLegendGraphic
@@ -271,10 +305,19 @@ export const fetchServiceCapabilitiesWithMetrics = async (
         });
       }
 
+    // Version actually reported by the service on the capabilities root element
+    const defaultVersion =
+      format === 'wms' ? '1.3.0' :
+      format === 'wfs' ? '2.0.0' :
+      '1.0.0';
+    const reportedVersion =
+      xmlDoc.documentElement?.getAttribute('version')?.trim() || defaultVersion;
+
     const capabilities: ServiceCapabilities = {
       layers,
       title: getServiceMetadataText(xmlDoc, 'Title'),
       abstract: getServiceMetadataText(xmlDoc, 'Abstract'),
+      version: reportedVersion || undefined,
     };
     const diagnostic: ProbeDiagnostic | undefined = layers.length === 0
       ? {
@@ -310,3 +353,79 @@ export const fetchServiceCapabilities = async (
   return result.capabilities;
 };
 
+/**
+ * Lightweight version negotiator: fetches the GetCapabilities document for the
+ * given OGC service and returns the version reported by the root element. This
+ * avoids the full parse performed by fetchServiceCapabilities when only the
+ * protocol version is needed.
+ */
+export const fetchServiceVersion = async (
+  url: string,
+  format: DataSourceFormat,
+): Promise<string | null> => {
+  if (format !== 'wms' && format !== 'wmts') return null;
+
+  let capabilitiesUrl: URL;
+  try {
+    capabilitiesUrl = new URL(url);
+  } catch {
+    return null;
+  }
+
+  capabilitiesUrl.searchParams.set('service', format.toUpperCase());
+  capabilitiesUrl.searchParams.set('request', 'GetCapabilities');
+  const defaultVersion = format === 'wms' ? '1.3.0' : '1.0.0';
+  capabilitiesUrl.searchParams.set('version', defaultVersion);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(capabilitiesUrl.toString(), { signal: controller.signal });
+    if (!response.ok) return null;
+    const xmlText = await response.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+    if (xmlDoc.querySelector('parsererror')) return null;
+    return xmlDoc.documentElement?.getAttribute('version')?.trim() || defaultVersion;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+
+
+/**
+ * Checks whether a specific layer in a WMS/WMTS service advertises a time
+ * dimension in its GetCapabilities document.
+ *
+ * Returns `null` when the answer can't be determined (network failure, parse
+ * error, layer not found) so callers can leave the user's choice untouched.
+ */
+export const layerHasTimeDimension = async (
+  url: string,
+  format: DataSourceFormat,
+  layerName: string,
+): Promise<boolean | null> => {
+  if (format !== 'wms' && format !== 'wmts') return null;
+  if (!layerName?.trim()) return null;
+
+  try {
+    const capabilities = await fetchServiceCapabilities(url, format);
+    const layers = capabilities?.layers;
+    if (!layers || layers.length === 0) return null;
+
+    const target = layerName.trim().toLowerCase();
+    const match = layers.find(
+      (layer) =>
+        layer.name?.trim().toLowerCase() === target ||
+        layer.title?.trim().toLowerCase() === target,
+    );
+    if (!match) return null;
+
+    return Boolean(match.hasTimeDimension || match.timeExtent);
+  } catch {
+    return null;
+  }
+};

@@ -11,6 +11,8 @@ export interface DataSourceItem {
   level?: number;
   type?: string;
   serviceId?: string;
+  // Negotiated WMTS protocol version
+  version?: string;
   // Additional fields for enhanced data sources
   normalize?: boolean;
   style?: any;
@@ -20,6 +22,8 @@ export interface DataSourceItem {
   // Zoom level constraints
   minZoom?: number;
   maxZoom?: number;
+  // Optional STAC collection asset names/keys
+  assets?: string[];
   // Temporal support
   timestamps?: number[]; // Array of Unix timestamps
   useTimeParameter?: boolean; // Use TIME parameter from WMS/WMTS service

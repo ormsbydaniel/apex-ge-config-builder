@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Save, X, Database, Globe, ChevronDown, ChevronRight } from 'lucide-react';
-import { Service } from '@/types/config';
+import { Service, LayerInfo } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
 import { ChartConfig, ChartSource, ChartTrace } from '@/types/chart';
+
 import { useToast } from '@/hooks/use-toast';
 import { useConfig } from '@/contexts/ConfigContext';
 import { ServiceSelectionModal } from './ServiceSelectionModals';
@@ -262,19 +263,33 @@ export function ChartSourceForm({
   };
 
   const handleServiceModalSelection = (
-    selection: string | Array<{ url: string; format: string; datetime?: string }>,
+    selection: string | Array<{ url: string; format: string; datetime?: string } | { datasetIdentifier: string; layerIdentifier: string; serviceUrl: string; format: string; version?: string }>,
     layers: string = '',
     format?: string,
-    datetime?: string
+    datetime?: string,
+    layerInfo?: LayerInfo
   ) => {
+    // Handle catalogue selections (not supported for chart sources)
+    if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {
+      toast({
+        title: "Catalogue not supported",
+        description: "Catalogue layers cannot be used directly as chart sources. Please pick a CSV / external URL service.",
+        variant: "destructive",
+      });
+      setShowServiceModal(false);
+      setSelectedServiceForModal(null);
+      return;
+    }
+
     // Handle single selection
     if (typeof selection === 'string') {
       setDirectUrl(selection);
     }
-    
+
     setShowServiceModal(false);
     setSelectedServiceForModal(null);
   };
+
 
   const handleServiceModalClose = () => {
     setShowServiceModal(false);

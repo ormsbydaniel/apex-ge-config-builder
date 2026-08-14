@@ -26,7 +26,23 @@ export interface StacCollection {
   keywords?: string[];
   extent?: any;
   links?: StacLink[];
+  collectionUrl?: string;
 }
+
+/** Returns the canonical endpoint used when a STAC collection is a data source. */
+export const getStacCollectionDataSourceUrl = (
+  collection: StacCollection,
+  serviceUrl: string,
+): string => {
+  const selfLink = collection.links?.find((link) => link.rel === 'self')?.href;
+  if (selfLink) return resolveAssetUrl(selfLink, collection.collectionUrl || serviceUrl);
+  if (collection.collectionUrl) return collection.collectionUrl;
+
+  const baseUrl = new URL(serviceUrl);
+  baseUrl.search = '';
+  baseUrl.hash = '';
+  return `${ensureSlash(baseUrl.toString())}collections/${encodeURIComponent(collection.id)}`;
+};
 
 /**
  * Ensures a URL ends with a trailing slash

@@ -10,8 +10,12 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Save, X, Database, Globe, Plus, Server, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Service, DataSourceFormat, DataSourceItem, TimeframeType } from '@/types/config';
+import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
+import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
+import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
+
+
 import { useServices } from '@/hooks/useServices';
 import { useStatisticsLayer } from '@/hooks/useStatisticsLayer';
 import { useToast } from '@/hooks/use-toast';
@@ -20,10 +24,15 @@ import { LayerTypeOption } from '@/hooks/useLayerOperations';
 import { PositionValue, getValidPositions, getPositionDisplayName, requiresPosition, getDefaultPosition } from '@/utils/positionUtils';
 import { format as formatDate, parse, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { ServiceSelectionModal } from './components/ServiceSelectionModals';
+import { ServiceSelectionModal, ServiceSelectionValue } from './components/ServiceSelectionModals';
+import { CatalogueLayerSelection } from './components/CatalogueBrowser';
 import { ServiceCardList } from './components/ServiceCardList';
+
 import { determineZLevel } from '@/utils/drawOrderUtils';
-import ParametersEditor, { ParameterRow, recordToRows, rowsToRecord } from './ParametersEditor';
+import ParametersEditor, { ParameterRow, applyOgcServiceVersion, recordToRows } from './ParametersEditor';
+
+const normalizeDataSourceFormat = (format?: string): DataSourceFormat =>
+  format?.toLowerCase() === 'stac-collection' ? 'stac' : (format as DataSourceFormat) || 'cog';
 
 interface DataSourceFormProps {
   services: Service[];
@@ -77,7 +86,7 @@ const DataSourceForm = ({
   // Determine initial format based on allowed formats or editing data source
   const getInitialFormat = (): DataSourceFormat => {
     if (editingDataSource) {
-      return editingDataSource.format as DataSourceFormat;
+      return normalizeDataSourceFormat(editingDataSource.format);
     }
     if (allowedFormats && allowedFormats.length > 0) {
       return allowedFormats[0];
@@ -90,10 +99,24 @@ const DataSourceForm = ({
   const [directUrl, setDirectUrl] = useState(editingDataSource?.url || '');
   const [directLayers, setDirectLayers] = useState(editingDataSource?.layers || '');
   const [zIndex, setZIndex] = useState(editingDataSource?.zIndex ?? getRecommendedZIndex(getInitialFormat()));
+  const [stacAssets, setStacAssets] = useState<string[]>(editingDataSource?.assets || []);
+  const [newStacAsset, setNewStacAsset] = useState('');
+  const [minZoom, setMinZoom] = useState<number | undefined>(editingDataSource?.minZoom);
+  const [maxZoom, setMaxZoom] = useState<number | undefined>(editingDataSource?.maxZoom);
   
   // Modal state for service selection
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
+  const [selectedLayerTemporalSuggestion, setSelectedLayerTemporalSuggestion] = useState<TemporalSuggestion | null>(null);
+
+  const existingVersion = editingDataSource?.format === 'wmts'
+    ? editingDataSource.version
+    : editingDataSource?.parameters?.version;
+
+  const [serviceVersion, setServiceVersion] = useState<string | undefined>(
+    typeof existingVersion === 'string' ? existingVersion : undefined
+  );
+  const [isNegotiatingVersion, setIsNegotiatingVersion] = useState(false);
   
   // Position state for comparison layers
   const [selectedPosition, setSelectedPosition] = useState<PositionValue | undefined>(
@@ -162,7 +185,7 @@ const DataSourceForm = ({
   // Sync form state with editingDataSource when it changes
   useEffect(() => {
     if (editingDataSource) {
-      const dataFormat = editingDataSource.format as DataSourceFormat;
+      const dataFormat = normalizeDataSourceFormat(editingDataSource.format);
       setSelectedFormat(dataFormat);
       setDirectUrl(editingDataSource.url || '');
       setDirectLayers(editingDataSource.layers || '');
@@ -171,6 +194,14 @@ const DataSourceForm = ({
       setManualStatisticsLevel(editingDataSource.level ?? statisticsLevel);
       setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
       setParameterRows(recordToRows(editingDataSource.parameters));
+      setStacAssets(editingDataSource.assets || []);
+      setNewStacAsset('');
+      setMinZoom(editingDataSource.minZoom);
+      setMaxZoom(editingDataSource.maxZoom);
+       const editingVersion = dataFormat === 'wmts'
+         ? editingDataSource.version
+         : editingDataSource.parameters?.version;
+      setServiceVersion(typeof editingVersion === 'string' ? editingVersion : undefined);
       
       // Handle date initialization
       if (editingDataSource.timestamps && editingDataSource.timestamps.length > 0) {
@@ -271,6 +302,7 @@ const DataSourceForm = ({
 
   const handleFormatChange = (format: DataSourceFormat) => {
     setSelectedFormat(format);
+    setServiceVersion(undefined);
     
     // Update zIndex to recommended value for the new format
     setZIndex(getRecommendedZIndex(format));
@@ -294,37 +326,111 @@ const DataSourceForm = ({
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceForModal(service);
+    setServiceVersion(
+      service.format === 'wms' || service.format === 'wmts'
+        ? service.capabilities?.version
+        : undefined
+    );
     setShowServiceModal(true);
   };
 
-  const handleServiceModalSelection = (
-    selection: string | Array<{ url: string; format: DataSourceFormat; datetime?: string }>,
+  useEffect(() => {
+    if (!selectedServiceForModal) return;
+    const refreshedService = services.find(service => service.id === selectedServiceForModal.id);
+    if (!refreshedService || refreshedService === selectedServiceForModal) return;
+    setSelectedServiceForModal(refreshedService);
+    if (refreshedService.format === 'wms' || refreshedService.format === 'wmts') {
+      setServiceVersion(refreshedService.capabilities?.version);
+    }
+  }, [services, selectedServiceForModal]);
+
+  const handleServiceModalSelection = async (
+    selection: ServiceSelectionValue,
     layers: string = '',
     format?: DataSourceFormat,
-    datetime?: string
+    datetime?: string,
+    layerInfo?: LayerInfo
   ) => {
+
+    // Handle catalogue bulk selections
+    if (Array.isArray(selection) && selection.length > 0 && 'datasetIdentifier' in selection[0]) {
+      const catalogueSelections = selection as CatalogueLayerSelection[];
+
+      // Determine if this should be treated as a statistics source
+      const shouldAddAsStatistics = isAddingStatistics || (isStatisticsLayer && supportsStatistics);
+      const levelToUse = isAddingStatistics ? manualStatisticsLevel : statisticsLevel;
+
+      // Convert all catalogue layers to DataSourceItems
+      const dataSourceItems: DataSourceItem[] = catalogueSelections.map((entry, index) => {
+        const item: Record<string, unknown> = {
+          url: entry.serviceUrl,
+          format: entry.format,
+          zIndex,
+          layers: entry.layerIdentifier,
+        };
+
+        // Apply negotiated version in protocol-specific locations.
+        if (entry.format === 'wms' && entry.version) {
+          item.parameters = { version: entry.version };
+        } else if (entry.format === 'wmts' && entry.version) {
+          item.version = entry.version;
+        }
+
+        if (shouldAddAsStatistics) {
+          item.level = levelToUse + index;
+        }
+
+        // Transient styling suggestion derived from the catalogue legend.
+        if (entry.styleSuggestion) {
+          item.__styleSuggestion = entry.styleSuggestion;
+        }
+
+        return item as DataSourceItem;
+
+      });
+
+      if (shouldAddAsStatistics) {
+        onAddStatisticsLayer(dataSourceItems);
+        toast({
+          title: "Statistics Sources Added",
+          description: `${dataSourceItems.length} statistics sources have been added starting at level ${levelToUse}.`,
+        });
+      } else {
+        onAddDataSource(dataSourceItems);
+        toast({
+          title: "Data Sources Added",
+          description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
+        });
+      }
+
+      setShowServiceModal(false);
+      setSelectedServiceForModal(null);
+      onCancel();
+      return;
+    }
+
     // Handle bulk selection (array of assets)
     if (Array.isArray(selection)) {
       // Determine if this should be treated as a statistics source
       const shouldAddAsStatistics = isAddingStatistics || (isStatisticsLayer && supportsStatistics);
       const levelToUse = isAddingStatistics ? manualStatisticsLevel : statisticsLevel;
-      
+
       // Convert all assets to DataSourceItems
       const dataSourceItems: DataSourceItem[] = selection.map((asset, index) => ({
         url: asset.url,
-        format: asset.format,
+        format: asset.format as DataSourceFormat,
         zIndex, // Use the current zIndex from form state
         ...(asset.datetime && requiresTimestamp && {
           timestamps: [Math.floor(new Date(asset.datetime).getTime() / 1000)]
         }),
         ...(shouldAddAsStatistics && { level: levelToUse + index }) // Increment level for each statistics source
       }));
-      
+
       // Add all data sources based on type
       if (shouldAddAsStatistics) {
         // Add all statistics sources in a single batch operation
         onAddStatisticsLayer(dataSourceItems);
-        
+
         toast({
           title: "Statistics Sources Added",
           description: `${dataSourceItems.length} statistics sources have been added starting at level ${levelToUse}.`,
@@ -332,19 +438,19 @@ const DataSourceForm = ({
       } else {
         // Add all data sources in a single batch operation
         onAddDataSource(dataSourceItems);
-        
+
         toast({
           title: "Data Sources Added",
           description: `${dataSourceItems.length} data sources have been added to the layer with Z-index ${zIndex}.`,
         });
       }
-      
+
       setShowServiceModal(false);
       setSelectedServiceForModal(null);
       onCancel(); // Close the form after bulk add
       return;
     }
-    
+
     // Handle single selection (existing behavior)
     const url = selection;
     setDirectUrl(url);
@@ -352,7 +458,29 @@ const DataSourceForm = ({
     if (format) {
       setSelectedFormat(format);
     }
-    
+
+    // Capture temporal suggestion from WMS/WMTS service capabilities so the layer
+    // card can be auto-populated with an appropriate timeframe and default date.
+    if (layerInfo?.timeExtent || layerInfo?.defaultTime) {
+      setSelectedLayerTemporalSuggestion({
+        timeframe: layerInfo.timeExtent?.suggestedTimeframe ?? 'Time',
+        defaultTime: layerInfo.defaultTime,
+        defaultTimestamp: layerInfo.defaultTime ? dateStringToTimestamp(layerInfo.defaultTime) : undefined,
+      });
+    } else {
+      setSelectedLayerTemporalSuggestion(null);
+    }
+
+    // If the service advertises this layer without a time dimension, the WMS/WMTS
+    // TIME parameter can't be used: uncheck it so a manual timestamp is captured.
+    const selectedFmt = format ?? selectedFormat;
+    if (layerInfo && (selectedFmt === 'wms' || selectedFmt === 'wmts')) {
+      const supportsTime = Boolean(layerInfo.hasTimeDimension || layerInfo.timeExtent);
+      setUseTimeParameter(supportsTime);
+    }
+
+
+
     // If datetime is provided from STAC and temporal configuration is enabled, set the selected date
     if (datetime && requiresTimestamp) {
       try {
@@ -365,17 +493,18 @@ const DataSourceForm = ({
         console.warn('Failed to parse datetime from STAC asset:', datetime, error);
       }
     }
-    
+
     setShowServiceModal(false);
     setSelectedServiceForModal(null);
   };
+
 
   const handleServiceModalClose = () => {
     setShowServiceModal(false);
     setSelectedServiceForModal(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!directUrl.trim()) {
@@ -421,7 +550,33 @@ const DataSourceForm = ({
 
     // Validate timestamp for temporal layers
     const isWmsOrWmts = selectedFormat === 'wms' || selectedFormat === 'wmts';
-    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !useTimeParameter);
+
+    // For temporal layers using the TIME parameter, confirm with GetCapabilities
+    // that the layer actually advertises a time dimension. If it doesn't, the
+    // TIME parameter is unusable, so uncheck it and fall back to a timestamp.
+    let effectiveUseTimeParameter = useTimeParameter;
+    if (isWmsOrWmts && requiresTimestamp && useTimeParameter) {
+      setIsNegotiatingVersion(true);
+      try {
+        const supportsTime = await layerHasTimeDimension(url, selectedFormat, layers);
+        if (supportsTime === false) {
+          effectiveUseTimeParameter = false;
+          setUseTimeParameter(false);
+          toast({
+            title: "No Time Dimension",
+            description: `The service does not advertise a time dimension for "${layers}". The TIME parameter has been switched off — please select a timestamp instead.`,
+            variant: "destructive",
+          });
+        }
+      } catch {
+        // Non-fatal: keep the user's choice if capabilities can't be read.
+      } finally {
+        setIsNegotiatingVersion(false);
+      }
+    }
+
+    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !effectiveUseTimeParameter);
+
     
     if (needsManualTimestamp && !selectedDate) {
       toast({
@@ -438,13 +593,24 @@ const DataSourceForm = ({
 
     // Build the data source item. When editing, start from the existing object so
     // passthrough/vendor fields (env, styles, time, transparent, etc.) survive.
-    const baseItem: Record<string, unknown> = editingDataSource
+    let baseItem: Record<string, unknown> = editingDataSource
       ? { ...editingDataSource }
       : {};
 
     baseItem.url = url;
     baseItem.format = selectedFormat;
     baseItem.zIndex = zIndex;
+
+    if (selectedFormat === 'stac') {
+      if (stacAssets.length > 0) baseItem.assets = stacAssets;
+      else delete baseItem.assets;
+      if (minZoom !== undefined) baseItem.minZoom = minZoom;
+      else delete baseItem.minZoom;
+      if (maxZoom !== undefined) baseItem.maxZoom = maxZoom;
+      else delete baseItem.maxZoom;
+    } else {
+      delete baseItem.assets;
+    }
 
     // layers: only meaningful for OGC-style services
     if (layers) {
@@ -466,7 +632,7 @@ const DataSourceForm = ({
     }
 
     // timestamps vs useTimeParameter (mutually exclusive for WMS/WMTS)
-    if (isWmsOrWmts && useTimeParameter) {
+    if (isWmsOrWmts && effectiveUseTimeParameter) {
       baseItem.useTimeParameter = true;
       delete baseItem.timestamps;
     } else {
@@ -476,19 +642,39 @@ const DataSourceForm = ({
       }
     }
 
-    // WMS custom parameters — only kept for WMS format
-    if (selectedFormat === 'wms') {
-      const params = rowsToRecord(parameterRows);
-      if (Object.keys(params).length > 0) {
-        baseItem.parameters = params;
-      } else {
-        delete baseItem.parameters;
+    // Keep negotiated versions in their protocol-specific config locations:
+    // WMS uses parameters.version; WMTS uses the top-level version property.
+    let versionToApply = serviceVersion;
+    const hasManualVersion = parameterRows.some(
+      (row) => row.key.trim().toLowerCase() === 'version' && row.value.trim() !== ''
+    );
+    if (isWmsOrWmts && !versionToApply && !hasManualVersion) {
+      // Direct connections don't carry a negotiated version: probe GetCapabilities
+      // on save so the config records the protocol version reported by the service.
+      setIsNegotiatingVersion(true);
+      try {
+        const detected = await fetchServiceVersion(url, selectedFormat);
+        if (detected) {
+          versionToApply = detected;
+          setServiceVersion(detected);
+        }
+      } catch {
+        // Non-fatal: save without a version if the service can't be reached.
+      } finally {
+        setIsNegotiatingVersion(false);
       }
-    } else {
-      delete baseItem.parameters;
+    }
+
+    baseItem = applyOgcServiceVersion(baseItem, selectedFormat, parameterRows, versionToApply);
+
+    // Attach transient temporal suggestion from service capabilities so the layer
+    // card can be auto-populated when this data source is added.
+    if (selectedLayerTemporalSuggestion) {
+      baseItem.__temporalSuggestion = selectedLayerTemporalSuggestion;
     }
 
     const dataSourceItem = baseItem as DataSourceItem;
+
 
     // Clear unsaved changes flag
     dispatch({
@@ -529,6 +715,73 @@ const DataSourceForm = ({
       payload: { hasChanges: false, description: null }
     });
     onCancel();
+  };
+
+  const renderStacOptions = (idPrefix: string) => {
+    if (selectedFormat !== 'stac') return null;
+
+    const addAsset = () => {
+      const assetName = newStacAsset.trim();
+      if (!assetName || stacAssets.includes(assetName)) return;
+      setStacAssets([...stacAssets, assetName]);
+      setNewStacAsset('');
+    };
+
+    return (
+      <div className="space-y-4 border-t pt-4">
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}StacAsset`}>Asset names</Label>
+          <div className="flex gap-2">
+            <Input
+              id={`${idPrefix}StacAsset`}
+              value={newStacAsset}
+              onChange={(event) => setNewStacAsset(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  addAsset();
+                }
+              }}
+              placeholder="e.g. low_tide_image"
+              autoComplete="off"
+            />
+            <Button type="button" variant="outline" size="icon" onClick={addAsset} aria-label="Add asset name">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          {stacAssets.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {stacAssets.map((asset) => (
+                <Badge key={asset} variant="secondary" className="gap-2">
+                  {asset}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-4 w-4"
+                    onClick={() => setStacAssets(stacAssets.filter((name) => name !== asset))}
+                    aria-label={`Remove ${asset}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">Optional asset names advertised by the collection.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}MinZoom`}>Minimum zoom</Label>
+            <Input id={`${idPrefix}MinZoom`} type="number" value={minZoom ?? ''} onChange={(event) => setMinZoom(event.target.value === '' ? undefined : Number(event.target.value))} min="0" autoComplete="off" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}MaxZoom`}>Maximum zoom</Label>
+            <Input id={`${idPrefix}MaxZoom`} type="number" value={maxZoom ?? ''} onChange={(event) => setMaxZoom(event.target.value === '' ? undefined : Number(event.target.value))} min="0" autoComplete="off" />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -609,7 +862,10 @@ const DataSourceForm = ({
                   className={`cursor-pointer transition-colors ${
                     sourceType === 'direct' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
                   }`}
-                  onClick={() => setSourceType('direct')}
+                  onClick={() => {
+                    setSourceType('direct');
+                    setServiceVersion(undefined);
+                  }}
                 >
                   <CardContent className="p-4 text-center">
                     <Database className="h-6 w-6 mx-auto mb-2" />
@@ -753,6 +1009,8 @@ const DataSourceForm = ({
                     Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
                   </p>
                 </div>
+
+                {renderStacOptions('direct')}
 
                 {/* Timestamp Configuration for Temporal Layers */}
                 {requiresTimestamp && (
@@ -988,6 +1246,8 @@ const DataSourceForm = ({
                   </p>
                 </div>
 
+                {renderStacOptions('service')}
+
                 {/* Timestamp Configuration for Temporal Layers */}
                 {requiresTimestamp && (
                   <div className="space-y-4">
@@ -1112,9 +1372,11 @@ const DataSourceForm = ({
                 Cancel
               </Button>
               {((sourceType === 'direct' && directUrl) || (sourceType === 'service' && directUrl)) && (
-                <Button type="submit" className="bg-primary hover:bg-primary/90">
+                <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={isNegotiatingVersion}>
                   <Save className="h-4 w-4 mr-2" />
-                  {editingDataSource ? 'Save Changes' : 'Add Source'}
+                  {isNegotiatingVersion
+                    ? 'Checking service…'
+                    : editingDataSource ? 'Save Changes' : 'Add Source'}
                 </Button>
               )}
             </div>

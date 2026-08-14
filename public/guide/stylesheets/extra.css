@@ -8,3 +8,49 @@
   --md-primary-fg-color--dark: #02212e;
   --md-accent-fg-color: #0a8aa8;
 }
+
+/* Tutorials sidebar: visually group the exercises into "Core" and "Topics"
+ * without nesting them in mkdocs.yml.
+ *
+ * The labels are injected by docs/javascripts/nav-groups.js, which keys off
+ * each tutorial's folder slug (its identity) rather than its position, so
+ * reordering tutorials keeps the labels correct. Edit the group membership
+ * in that file, not here.
+ */
+.md-nav__item[data-nav-group-label]::before {
+  content: attr(data-nav-group-label);
+  display: block;
+  margin: 0.9rem 0 0.2rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  color: var(--md-default-fg-color--light);
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* No divider above the first group when it sits directly under the
+ * "Tutorials" section heading. */
+.md-nav__item[data-nav-group-label].nav-group-first::before {
+  margin-top: 0.35rem;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Tutorial name shown as a small "eyebrow" above the step H1.
+ * Injected by docs/javascripts/nav-groups.js. */
+.md-content__inner .tutorial-eyebrow {
+  margin: 0 0 0.15rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--md-default-fg-color--light);
+}
+
+.md-content__inner .tutorial-eyebrow + h1 {
+  margin-top: 0;
+}

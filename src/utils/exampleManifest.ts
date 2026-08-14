@@ -27,13 +27,22 @@ export interface RecommendedResourceEntry {
   url: string;
 }
 
+export interface RecommendedCatalogueEntry {
+  id: string;
+  name: string;
+  description?: string;
+  url: string;
+}
+
 export interface ExampleManifest {
   examples: ExampleConfigEntry[];
   recommended: {
     basemaps?: RecommendedResourceEntry;
     services?: RecommendedResourceEntry;
+    catalogues?: RecommendedCatalogueEntry[];
   };
 }
+
 
 interface RawManifestEntry {
   id?: unknown;
@@ -46,6 +55,9 @@ interface RawManifestEntry {
 interface RawRecommendedEntry {
   file?: unknown;
   url?: unknown;
+  id?: unknown;
+  name?: unknown;
+  description?: unknown;
 }
 
 interface RawManifest {
@@ -53,6 +65,7 @@ interface RawManifest {
   examples?: unknown;
   recommended?: unknown;
 }
+
 
 const baseUrl = `https://raw.githubusercontent.com/${EXAMPLES_REPO}/${EXAMPLES_BRANCH}/${EXAMPLES_DIR}/`;
 
@@ -99,6 +112,16 @@ const parseRecommendedEntry = (raw: unknown): RecommendedResourceEntry | undefin
   return url ? { url } : undefined;
 };
 
+const parseCatalogueEntry = (raw: unknown, index: number): RecommendedCatalogueEntry | null => {
+  if (!raw || typeof raw !== 'object') return null;
+  const obj = raw as RawRecommendedEntry;
+  const url = resolveRef(obj);
+  if (!url) return null;
+  const id = isNonEmptyString(obj.id) ? obj.id : `catalogue-${index}`;
+  const name = isNonEmptyString(obj.name) ? obj.name : `Catalogue ${index + 1}`;
+  return { id, name, url, ...(isNonEmptyString(obj.description) ? { description: obj.description } : {}) };
+};
+
 let cache: Promise<ExampleManifest> | null = null;
 
 export const fetchExampleManifest = async (
@@ -125,9 +148,15 @@ export const fetchExampleManifest = async (
       .filter((e): e is ExampleConfigEntry => e !== null);
 
     const rec = (raw.recommended ?? {}) as Record<string, unknown>;
+    const catalogues = Array.isArray(rec.catalogues)
+      ? (rec.catalogues as unknown[])
+          .map((c, i) => parseCatalogueEntry(c, i))
+          .filter((c): c is RecommendedCatalogueEntry => c !== null)
+      : [];
     const recommended = {
       basemaps: parseRecommendedEntry(rec.basemaps),
       services: parseRecommendedEntry(rec.services),
+      catalogues: catalogues.length > 0 ? catalogues : undefined,
     };
 
     return { examples, recommended } satisfies ExampleManifest;
@@ -139,6 +168,7 @@ export const fetchExampleManifest = async (
   });
   return cache;
 };
+
 
 export const clearExampleManifestCache = () => {
   cache = null;

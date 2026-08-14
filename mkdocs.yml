@@ -2,7 +2,7 @@ site_name: APEx Geospatial Explorer — Config Builder Guide
 site_description: End-user guide for building, validating, and exporting APEx Geospatial Explorer configurations.
 docs_dir: docs
 site_dir: public/guide
-site_url: https://apex-ge-config-builder.sparkgeo.uk/guide/
+site_url: https://ge-config-builder.apex.esa.int/guide/
 use_directory_urls: false
 
 theme:
@@ -37,6 +37,9 @@ theme:
 
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/nav-groups.js
 
 markdown_extensions:
   - admonition
@@ -99,6 +102,8 @@ nav:
       - Adding services: services/adding-services.md
       - Diagnostics: services/diagnostics.md
       - Recommended services: services/recommended.md
+      - Catalogue services: services/catalogues.md
+
   - Algorithms:
       - Overview: algorithms/index.md
   - Stories:
@@ -111,32 +116,76 @@ nav:
   - JSON config: configuration/json-config.md
   
   - GE Preview: configuration/preview.md
-  - How-to recipes:
-      - Overview: recipes/overview.md
-      - Data sources & services:
-          - Add a WMTS service: recipes/add-wmts-service.md
-          - Add a COG from S3: recipes/add-cog-from-s3.md
-          - Load a STAC collection: recipes/load-stac-collection.md
-          - Add a GeoJSON overlay: recipes/add-geojson-overlay.md
-      - Visualisation:
-          - Style a raster with a colormap: recipes/style-raster-with-colormap.md
-          - Build an RGB composite: recipes/build-rgb-composite.md
-          - Style vectors by attribute: recipes/style-vector-by-attribute.md
-          - Configure vector fields: recipes/configure-vector-fields.md
-          - Swipe compare two layers: recipes/swipe-compare-two-layers.md
-      - Organisation & UX:
-          - Group layers into interfaces: recipes/group-layers-into-interfaces.md
-          - Set the default base layer: recipes/set-default-base-layer.md
-          - Customise footer and layout: recipes/customise-footer-and-layout.md
-          - Restrict the map extent: recipes/restrict-map-extent.md
-      - Charts:
-          - Build a chart from CSV: recipes/chart-from-csv.md
-          - Build a spectral signature chart: recipes/spectral-signature-chart.md
-          - Inline pie chart from vector data: recipes/inline-pie-chart-from-vector.md
-      - Lifecycle:
-          - Validate and publish a config: recipes/validate-and-publish.md
-          - Migrate an existing config: recipes/migrate-existing-config.md
-          - Edit JSON directly (safely): recipes/edit-json-directly.md
+  - Tutorials:
+
+      - Overview: workshops/index.md
+      - 1. Familiarisation:
+          - Overview: workshops/01-familiarisation/index.md
+          - 1-1. Pre-requisites: workshops/01-familiarisation/01-prerequisites.md
+          - 1-2. Geospatial Explorer: workshops/01-familiarisation/02-geospatial-explorer.md
+          - 1-3. Configuration Builder: workshops/01-familiarisation/03-configuration-builder.md
+      - 2. My first config:
+          - Overview: workshops/02-getting-started/index.md
+          - 2-1. Pre-requisites: workshops/02-getting-started/01-prerequisites.md
+          - 2-2. Key concepts: workshops/02-getting-started/02-key-concepts.md
+          - 2-3. Name and interface group: workshops/02-getting-started/03-name-and-branding.md
+          - 2-4. Export and reload: workshops/02-getting-started/04-export-and-reload.md
+          - 2-5. Add base maps: workshops/02-getting-started/05-add-base-maps.md
+          - 2-6. Your first layer card: workshops/02-getting-started/06-first-layer-card.md
+          - 2-7. Add a COG data source: workshops/02-getting-started/07-add-cog-data.md
+          - 2-8. Style with a colormap: workshops/02-getting-started/08-colormaps.md
+          - 2-9. Add a WMS data source: workshops/02-getting-started/09-wms-service.md
+          - 2-10. Add legends for a WMS: workshops/02-getting-started/10-wms-legends.md
+      - 3. Working with Services:
+          - Overview: workshops/03-working-with-services/index.md
+          - 3-1. Pre-requisites: workshops/03-working-with-services/01-prerequisites.md
+          - 3-2. Key concepts: workshops/03-working-with-services/02-key-concepts.md
+          - 3-3. Adding WMS as a service: workshops/03-working-with-services/03-wms-as-a-service.md
+          - 3-4. Add recommended services: workshops/03-working-with-services/04-recommended-services.md
+          - 3-5. Add data from the PRR: workshops/03-working-with-services/05-data-from-prr.md
+          - 3-6. Add more WMS layers: workshops/03-working-with-services/06-more-wms-layers.md
+      - 4. Fine tuning my config:
+          - Overview: workshops/04-fine-tuning/index.md
+          - 4-1. Pre-requisites: workshops/04-fine-tuning/01-prerequisites.md
+          - 4-2. Specifying layer units: workshops/04-fine-tuning/02-layer-controls.md
+          - 4-3. Experiment with layer controls: workshops/04-fine-tuning/03-specifying-layer-units.md
+          - 4-4. Default start location: workshops/04-fine-tuning/04-default-start-location.md
+          - 4-5. Alternative projections: workshops/04-fine-tuning/05-alternative-projections.md
+      - 5. Categorical Data:
+          - Overview: workshops/05-categorical-data/index.md
+          - 5-1. Pre-requisites: workshops/05-categorical-data/01-prerequisites.md
+          - 5-2. Key concepts: workshops/05-categorical-data/02-key-concepts.md
+          - 5-3. Categories for a COG: workshops/05-categorical-data/03-categories-cog.md
+          - 5-4. Categories for a WMS layer: workshops/05-categorical-data/04-categories-wms.md
+          - 5-5. Use the JSON editor: workshops/05-categorical-data/05-categories-json-editor.md
+          - 5-6. Copy categories between layers: workshops/05-categorical-data/06-copy-categories.md
+      - 6. Time Series:
+          - Overview: workshops/06-time-series/index.md
+          - 6-1. Pre-requisites: workshops/06-time-series/01-prerequisites.md
+          - 6-2. Key concepts: workshops/06-time-series/02-key-concepts.md
+          - 6-3. Manual timestamps: workshops/06-time-series/03-manual-timestamps.md
+          - 6-4. Using STAC timestamps: workshops/06-time-series/04-stac-timestamps.md
+          - 6-5. Manual timestamps on WMS / WMTS: workshops/06-time-series/05-manual-wms-timestamps.md
+          - 6-6. Using WMS / WMTS time parameters: workshops/06-time-series/06-wms-timestamps.md
+      - 7. Constraints:
+          - Overview: workshops/07-constraints/index.md
+          - 7-1. Pre-requisites: workshops/07-constraints/01-prerequisites.md
+          - 7-2. Key concepts: workshops/07-constraints/02-key-concepts.md
+          - 7-3. Add the wind power layer: workshops/07-constraints/03-wind-power-layer.md
+          - 7-4. Create a categorical constraint: workshops/07-constraints/04-categorical-constraint.md
+          - 7-5. Add a continuous constraint: workshops/07-constraints/05-continuous-constraint.md
+          - 7-6. Add more continuous constraints: workshops/07-constraints/06-more-continuous.md
+          - 7-7. Add a combined constraint: workshops/07-constraints/07-combined-constraint.md
+          - 7-8. Review the full configuration: workshops/07-constraints/08-review-and-export.md
+      - 8. Statistics:
+          - Overview: workshops/08-statistics/index.md
+          - 8-1. Pre-requisites: workshops/08-statistics/01-prerequisites.md
+          - 8-2. Key concepts: workshops/08-statistics/02-key-concepts.md
+          - 8-3. Reuse the World Cover layer: workshops/08-statistics/03-world-cover-layer.md
+          - 8-4. Add the first statistics source: workshops/08-statistics/04-first-statistics-source.md
+          - 8-5. Add the remaining NUTS levels: workshops/08-statistics/05-more-statistics-levels.md
+          - 8-6. Understanding the statistics files: workshops/08-statistics/06-panel-and-controls.md
+          - 8-7. Preview and review: workshops/08-statistics/07-preview-and-review.md
   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
@@ -145,6 +194,8 @@ nav:
       - Troubleshooting: reference/troubleshooting.md
       - Authors guide: reference/authors-guide.md
       - Glossary: reference/glossary.md
+
+
 
 extra:
   status:

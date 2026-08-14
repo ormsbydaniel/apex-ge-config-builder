@@ -60,7 +60,27 @@ describe('vector style serialisation', () => {
 
     const parsed = fromFlatStyleArray(json);
     expect(parsed.fallbacks).toEqual([]);
-    expect(parsed.rules).toEqual(rules);
+    // `['get', 'name']` parses back to the richer attribute form rather than a
+    // raw expression, so assert the parsed shape and that it re-serialises 1:1.
+    expect(parsed.rules[0].primitives.label?.props['text-value']).toEqual({
+      kind: 'attribute',
+      field: 'name',
+      mode: 'direct',
+    });
+    expect(parsed.rules[0].name).toBe('Big cities');
+    expect(parsed.rules[0].filter).toMatchObject({
+      kind: 'simple',
+      combinator: 'all',
+      clauses: [{ field: 'pop_max', op: '>', value: 10_000_000 }],
+    });
+    expect(parsed.rules[0].primitives.marker).toEqual({
+      subMode: 'circle',
+      props: {
+        'circle-radius': constant(6),
+        'circle-fill-color': constant('#3b82f6'),
+      },
+    });
+    expect(toFlatStyleArray(parsed.rules)).toEqual(json);
   });
 
   it('round-trips rules with else branch', () => {
