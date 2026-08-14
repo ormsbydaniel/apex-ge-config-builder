@@ -1,31 +1,38 @@
 ---
-title: 6-5. Using WMS / WMTS time parameters
+title: 6-5. Manual timestamps on WMS / WMTS
 ---
-# 6-5. Using WMS / WMTS time parameters
+# 6-5. Manual timestamps on WMS / WMTS
 
-Some WMS / WMTS services expose a `TIME` parameter directly. The CB can drive
-that parameter from the temporal control on a layer.
+As well as COG datasets, WMS / WMTS services can be configured with manually
+set timestamps so that the temporal control on a layer switches between
+separate datasets.
 
-1. Add a new layer card called `Soil moisture index`, and in **Controls** set
-   the temporal granularity to **Days**.
-2. Select **+ Add dataset → Direct connection → WMS/WMTS service** and add
-   the following:
+This is useful when a service exposes time as **separate layers** rather than
+via a single `TIME` parameter, or when you want to compose a time series from
+hand-picked layers.
 
-    - **Service URL**:
+1. Create a new layer card called **NDVI time series**.
+2. In the layer **Controls**, add **Temporal Control → Years**.
+3. Select **+ Add dataset → From service → Terrascope MapProxy WMS** and add
+   the **WORLDCOVER NDVI 2020** layer.
+4. After the dataset is added, open its settings and explicitly set the
+   timestamp to:
 
-        ```
-        https://globalland.vito.be/wmts
-        ```
+    ```
+    2020-01-01
+    ```
 
-    - **Layer name**:
+5. Add a second dataset to the same layer for **WORLDCOVER NDVI 2021** and set
+   its timestamp to:
 
-        ```
-        clms_global_swi_1km_v1_daily
-        ```
+    ```
+    2021-01-01
+    ```
 
-3. Note the **Use TIME PARAM from service** checkbox — it appears because the
-   layer has temporal controls enabled. Leave it toggled **on**.
-4. Save and exit. For interest, click the **(i)** info icon on the dataset —
-   the WMS metadata shows this layer *does* expose a `TIME` parameter.
-5. Preview the layer and step through the temporal control to see the
-   available dates.
+6. Save the datasets and click **Preview**. The layer should now display a
+   **Years** temporal control; use it to step between the 2020 and 2021 NDVI
+   layers.
+
+### Did you remember to export?
+
+If not, now is a good moment.
