@@ -12,8 +12,8 @@ edits and copy categories between layers.
 
 By the end of this tutorial you will be able to:
 
-- Define categories for a WMS layer so the Explorer renders a legend.
 - Define categories for a COG so raw pixel values are rendered by class.
+- Define categories for a WMS layer so the Explorer renders a legend.
 - Use the JSON editor to make bulk category edits.
 - Copy categories between layers.
 
