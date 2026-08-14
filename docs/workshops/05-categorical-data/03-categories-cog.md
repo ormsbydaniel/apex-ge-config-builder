@@ -40,13 +40,19 @@ The category system determines how COGs are rendered when their values represent
     files. If you want to do this quickly, download
     [`world-cover-classes.csv`](../../assets/world-cover-classes.csv) and then
     import it from there.
+
 6. Save the layer card and preview. The COG is now rendered with the labels
     and colours you defined.
-
 
     The values are populated from a **sample** of pixels. It is possible for
     a small number of pixels to fall into classes that were not sampled.
     Cross-check against the source data if completeness matters.
+
+7. *(Optional)* Go back to **Data Visualisation → Categories → Edit** and change
+    the colour of one class — for example, make **Tree cover** a light green.
+    Save the layer card and preview again. The configured colour overrides the
+    colour map embedded in the COG, so the legend and map rendering reflect your
+    choice rather than the built-in palette.
 
 ## WorldCover class lookup
 

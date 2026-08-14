@@ -1932,30 +1932,38 @@
 
 
 <h1 id="5-4-categories-for-a-wms-layer">5-4. Categories for a WMS layer<a class="headerlink" href="#5-4-categories-for-a-wms-layer" title="Permanent link">&para;</a></h1>
-<p>Set up categories manually for the World Cover WMS you added earlier.</p>
+<p>Now update the <em>World Cover</em> WMS layer you created in
+<a href="../02-getting-started/09-wms-service.html">Add a WMS layer directly</a>.</p>
+<p>Unlike a COG, a WMS or WMTS service cannot be interrogated for its pixel
+values — there is no way to sample the underlying data, so the class numbers
+are not available and, in fact, are not relevant here. What we still need are
+the <strong>colours</strong> and the <strong>labels</strong>, so the Explorer can draw a meaningful
+legend.</p>
+<p>Because we already defined a full category set on the COG layer, we can simply
+copy it across.</p>
 <ol>
-<li>On the <strong>Layers</strong> tab, edit the <em>World Cover</em> layer card you created in
-    <a href="../02-getting-started/09-wms-service.html">Add a WMS layer directly</a>.</li>
-<li>Scroll down and select <strong>Add categories</strong>. The categories editor opens.</li>
-<li>Toggle <strong>Use data values</strong> on. An additional column appears for the raw
-    pixel values.</li>
-<li>Add your first category — for example, colour <code>#006400</code>, label <code>Tree cover</code>,
-    value <code>10</code>.</li>
+<li>On the <strong>Layers</strong> tab, edit the <em>World Cover</em> layer card.</li>
+<li>Go to <strong>Data Visualisation → Categories → Edit</strong>.</li>
 <li>
-<p>Open the categories editor from the layer card by navigating to <strong>Data Visualisation → Categories → Edit</strong>.</p>
+<p>In the categories editor choose <strong>Copy from layer</strong> and select
+    <strong>Austria Land Cover</strong> (the COG layer from
+    <a href="03-categories-cog.html">5-3. Categories for a COG</a>).</p>
 <p><img alt="Edit Categories dialog for the World Cover WMS layer showing populated categories" src="../../assets/screenshots/categories-wms-editor.png" /></p>
-<p>Add another category — colour <code>#ffff4c</code>, label <code>Grassland</code>, value <code>30</code>.
-6. Save the layer card and preview. When you fill in the full set of World
-Cover classes, the legend in the Explorer will contain a row per class.
-7. <em>(Optional)</em> Go back to <strong>Data Visualisation → Categories → Edit</strong> and change the
-colour of one class — for example, make <strong>Tree cover</strong> a light green. Save the
-layer card and preview again. The configured colour overrides the default
-colour coming from the service, so the legend and map rendering reflect your
-choice rather than the built-in palette.</p>
+</li>
+<li>
+<p>Save the layer card and preview. The legend in the Explorer now contains a
+    row per class, using the colours and labels you copied.</p>
+<p>If in the last tutorial you only edited the class names that the COG
+populated, you will not have <strong>Shrubland</strong> or <strong>Mangroves</strong> here — neither
+class is present in Austria, so they were never sampled. If you imported
+the CSV, the full set will be there.</p>
+<p>An alternative for this WMS layer is therefore to import the categories
+directly from
+<a href="../../assets/world-cover-classes.csv"><code>world-cover-classes.csv</code></a>, as
+described in <a href="03-categories-cog.html">5-3 step 5</a>.</p>
 </li>
 </ol>
-<p>You do not need to fill in every category now — a handful is enough to see how
-it works. See the full WorldCover class lookup in
+<p>See the full WorldCover class lookup in
 <a href="03-categories-cog.html#worldcover-class-lookup">5-3. Categories for a COG</a>.</p>
 
 

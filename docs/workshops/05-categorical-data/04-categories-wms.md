@@ -3,29 +3,38 @@ title: 5-4. Categories for a WMS layer
 ---
 # 5-4. Categories for a WMS layer
 
-Set up categories manually for the World Cover WMS you added earlier.
+Now update the *World Cover* WMS layer you created in
+[Add a WMS layer directly](../02-getting-started/09-wms-service.md).
 
-1. On the **Layers** tab, edit the *World Cover* layer card you created in
-    [Add a WMS layer directly](../02-getting-started/09-wms-service.md).
-2. Scroll down and select **Add categories**. The categories editor opens.
-3. Toggle **Use data values** on. An additional column appears for the raw
-    pixel values.
-4. Add your first category — for example, colour `#006400`, label `Tree cover`,
-    value `10`.
-5. Open the categories editor from the layer card by navigating to **Data Visualisation → Categories → Edit**.
+Unlike a COG, a WMS or WMTS service cannot be interrogated for its pixel
+values — there is no way to sample the underlying data, so the class numbers
+are not available and, in fact, are not relevant here. What we still need are
+the **colours** and the **labels**, so the Explorer can draw a meaningful
+legend.
+
+Because we already defined a full category set on the COG layer, we can simply
+copy it across.
+
+1. On the **Layers** tab, edit the *World Cover* layer card.
+2. Go to **Data Visualisation → Categories → Edit**.
+3. In the categories editor choose **Copy from layer** and select
+    **Austria Land Cover** (the COG layer from
+    [5-3. Categories for a COG](03-categories-cog.md)).
 
     ![Edit Categories dialog for the World Cover WMS layer showing populated categories](../../assets/screenshots/categories-wms-editor.png)
 
-    Add another category — colour `#ffff4c`, label `Grassland`, value `30`.
-6. Save the layer card and preview. When you fill in the full set of World
-    Cover classes, the legend in the Explorer will contain a row per class.
-7. *(Optional)* Go back to **Data Visualisation → Categories → Edit** and change the
-    colour of one class — for example, make **Tree cover** a light green. Save the
-    layer card and preview again. The configured colour overrides the default
-    colour coming from the service, so the legend and map rendering reflect your
-    choice rather than the built-in palette.
+4. Save the layer card and preview. The legend in the Explorer now contains a
+    row per class, using the colours and labels you copied.
 
-You do not need to fill in every category now — a handful is enough to see how
-it works. See the full WorldCover class lookup in
+    If in the last tutorial you only edited the class names that the COG
+    populated, you will not have **Shrubland** or **Mangroves** here — neither
+    class is present in Austria, so they were never sampled. If you imported
+    the CSV, the full set will be there.
+
+    An alternative for this WMS layer is therefore to import the categories
+    directly from
+    [`world-cover-classes.csv`](../../assets/world-cover-classes.csv), as
+    described in [5-3 step 5](03-categories-cog.md).
+
+See the full WorldCover class lookup in
 [5-3. Categories for a COG](03-categories-cog.md#worldcover-class-lookup).
-
