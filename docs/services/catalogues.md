@@ -129,3 +129,56 @@ layer's units when set.
 A dataset-level `style` block may also carry a `documentationUrl`, which the
 browser links from the dataset card; each style's `evalscriptUrl` is linked from
 the layer card. Both open in a new tab.
+
+## Band metadata
+
+Layers may also describe the band itself. The builder shows this beneath the
+legend preview so you can judge whether the suggested styling suits your map.
+
+| Field | Meaning |
+| --- | --- |
+| `units` | Concise unit, e.g. `mm/day`. Used for the layer's units when the legend has none. |
+| `unitsRaw` | The original, verbose wording. Shown nowhere as a unit — it is a sentence, not a symbol. |
+| `sourceFormat` | Storage type of the band, e.g. `INT16`. |
+| `dataRange` | The physical range of the data. |
+| `scale` / `offset` | Digital-number to physical-value conversion. |
+| `bandMetadataSource` | Where the above came from; linked as "Band metadata". |
+| `categoricalValueDescription` | Free-text summary of the classes for categorical bands. |
+
+```json
+{
+  "identifier": "A_ET_ENSEMBLE",
+  "units": "mm/day",
+  "sourceFormat": "INT16",
+  "scale": 0.1,
+  "offset": 0,
+  "dataRange": { "min": 0, "max": 20 },
+  "bandMetadataSource": { "type": "official-cdse-bands-table", "url": "https://..." }
+}
+```
+
+`scale` and `offset` are informational only — they are shown in the browser but
+are not written into your configuration, because the explorer reads the values
+the service already renders.
+
+### Data range versus legend range
+
+The legend's `min`/`max` is the *visualisation* range chosen by the evalscript,
+which is often narrower than the band's physical `dataRange`. Where the two
+differ, the browser says so — for example "Legend shows 0–10 of a 0–20 mm/day
+data range" — so you can widen the colormap deliberately if you want to.
+
+### Class labels and their provenance
+
+Discrete legends may carry official class names, either per entry (`label`) or
+summarised with `officialLabelCount`, alongside a `labelSource` naming the
+document they came from. The browser reports partial coverage — "Categories: 23
+classes (12 labelled)" — and links the source so you can complete the remaining
+names by hand. Unlabelled classes fall back to their value and stay editable.
+
+### Suppressed legends
+
+A style may report `legendDiscovery` with `status: "suppressed"` when a legend
+was found but judged untrustworthy — for instance an implausibly narrow parsed
+range. In that case the builder shows the reason and links the evalscript
+instead of inventing a misleading gradient.

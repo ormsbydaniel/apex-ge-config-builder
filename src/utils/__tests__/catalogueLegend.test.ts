@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { legendToStyleSuggestion, legendToCategories } from '@/utils/catalogueLegend';
+import {
+  legendToStyleSuggestion,
+  legendToCategories,
+  layerStyleSuggestion,
+  describeStyleSuggestion,
+  describeBandMetadata,
+  describeRangeMismatch,
+  suppressedLegendStyle,
+} from '@/utils/catalogueLegend';
 import { generateColorRamp } from '@/utils/colormapUtils';
 import { CatalogueLegend } from '@/types/service';
 
@@ -91,5 +99,89 @@ describe('catalogueLegend', () => {
       ],
     });
     expect(suggestion).toMatchObject({ kind: 'gradient', startColor: '#123456' });
+  });
+});
+
+describe('catalogue layer band metadata', () => {
+  it('keeps official class labels and reports partial coverage', () => {
+    const suggestion = legendToStyleSuggestion({
+      type: 'discrete',
+      officialLabelCount: 2,
+      labelSource: { title: 'Product User Manual', url: 'https://example.org/pum' },
+      entries: [
+        { value: 0, color: '#282828', label: 'Unknown' },
+        { value: 20, color: '#FFBB22', label: 'Shrubs' },
+        { value: 30, color: '#FFFF4C' },
+      ],
+    });
+    expect(suggestion).toMatchObject({ kind: 'categories', labelledCount: 2 });
+    expect(describeStyleSuggestion(suggestion!)).toBe('Categories: 3 classes (2 labelled)');
+  });
+
+  it('falls back to the layer units when the legend has none', () => {
+    const suggestion = layerStyleSuggestion({
+      identifier: 'A_ET_ENSEMBLE',
+      units: 'mm/day',
+      styles: [
+        {
+          name: 'et.js',
+          legend: {
+            type: 'continuous',
+            min: 0,
+            max: 10,
+            entries: [
+              { value: 0, color: '#123456' },
+              { value: 5, color: '#654321' },
+              { value: 10, color: '#0ABC99' },
+            ],
+          },
+        },
+      ],
+    });
+    expect(suggestion?.units).toBe('mm/day');
+  });
+
+  it('summarises band metadata and flags a narrower legend range', () => {
+    const layer = {
+      identifier: 'A_ET_ENSEMBLE',
+      units: 'mm/day',
+      sourceFormat: 'INT16',
+      scale: 0.1,
+      offset: 0,
+      dataRange: { min: 0, max: 20 },
+      styles: [
+        {
+          name: 'et.js',
+          legend: {
+            type: 'continuous' as const,
+            min: 0,
+            max: 10,
+            entries: [
+              { value: 0, color: '#123456' },
+              { value: 10, color: '#0ABC99' },
+            ],
+          },
+        },
+      ],
+    };
+    expect(describeBandMetadata(layer)).toBe('INT16 · scale 0.1 · range 0–20 mm/day');
+    expect(describeRangeMismatch(layer, layerStyleSuggestion(layer))).toBe(
+      'Legend shows 0–10 of a 0–20 mm/day data range',
+    );
+  });
+
+  it('reports a suppressed legend instead of a suggestion', () => {
+    const layer = {
+      identifier: 'LST',
+      styles: [
+        {
+          name: 'lst.js',
+          evalscriptUrl: 'https://example.org/lst.js',
+          legendDiscovery: { status: 'suppressed', reason: 'parsed_evalscript_range_implausibly_narrow' },
+        },
+      ],
+    };
+    expect(layerStyleSuggestion(layer)).toBeNull();
+    expect(suppressedLegendStyle(layer)?.name).toBe('lst.js');
   });
 });

@@ -4,7 +4,13 @@
  * truthful two-stop gradient fallback.
  */
 
-import { CatalogueLegend, CatalogueLegendEntry, CatalogueLayer } from '@/types/service';
+import {
+  CatalogueLegend,
+  CatalogueLegendEntry,
+  CatalogueLayer,
+  CatalogueLayerStyle,
+  CatalogueLabelSource,
+} from '@/types/service';
 import { Category, Colormap } from '@/types/category';
 import { COLORMAP_DATA } from '@/constants/colormapData';
 import { generateColorRamp } from '@/utils/colormapUtils';
@@ -15,7 +21,12 @@ export interface CategoriesSuggestion {
   kind: 'categories';
   categories: Category[];
   units?: string;
+  /** How many classes carry an officially sourced label. */
+  labelledCount?: number;
+  /** Provenance of the class labels, when known. */
+  labelSource?: CatalogueLabelSource;
 }
+
 
 export interface ColormapSuggestion {
   kind: 'colormap';
@@ -146,8 +157,17 @@ export const legendToStyleSuggestion = (
   const units = legendUnits(legend);
 
   if (isDiscrete(legend)) {
-    return { kind: 'categories', categories: legendToCategories(legend), units };
+    const labelledCount =
+      legend.officialLabelCount ?? entries.filter(entry => !!entry.label?.trim()).length;
+    return {
+      kind: 'categories',
+      categories: legendToCategories(legend),
+      units,
+      labelledCount,
+      labelSource: legend.labelSource,
+    };
   }
+
 
   const sorted = [...entries].sort((a, b) => a.value - b.value);
   const min = legend.min ?? sorted[0].value;
@@ -198,11 +218,73 @@ export const legendToStyleSuggestion = (
 export const primaryLayerLegend = (layer: CatalogueLayer): CatalogueLegend | undefined =>
   (layer.styles || []).find(style => (style.legend?.entries?.length ?? 0) > 0)?.legend;
 
+/** A concise unit for the layer, ignoring the verbose `unitsRaw` wording. */
+export const layerUnits = (layer: CatalogueLayer): string | undefined =>
+  layer.units && layer.units.trim() ? layer.units.trim() : undefined;
+
+/**
+ * Style suggestion for a catalogue layer, preferring the layer's own band units
+ * when the legend does not carry any.
+ */
+export const layerStyleSuggestion = (
+  layer: CatalogueLayer,
+): CatalogueStyleSuggestion | null => {
+  const suggestion = legendToStyleSuggestion(primaryLayerLegend(layer));
+  if (!suggestion) return null;
+  if (suggestion.units) return suggestion;
+  const units = layerUnits(layer);
+  return units ? { ...suggestion, units } : suggestion;
+};
+
+/** A style whose legend was deliberately suppressed during discovery. */
+export const suppressedLegendStyle = (
+  layer: CatalogueLayer,
+): CatalogueLayerStyle | undefined =>
+  (layer.styles || []).find(
+    style => style.legendDiscovery?.status === 'suppressed' && !style.legend,
+  );
+
+/** Short band metadata summary, e.g. 'INT16 · scale 0.001 · range 0–20 mm/day'. */
+export const describeBandMetadata = (layer: CatalogueLayer): string | null => {
+  const parts: string[] = [];
+  if (layer.sourceFormat) parts.push(layer.sourceFormat);
+  if (layer.scale !== undefined && layer.scale !== 1) parts.push(`scale ${layer.scale}`);
+  if (layer.offset !== undefined && layer.offset !== 0) parts.push(`offset ${layer.offset}`);
+  const { min, max } = layer.dataRange || {};
+  if (min !== undefined && max !== undefined) {
+    parts.push(`range ${min}–${max}${layerUnits(layer) ? ` ${layerUnits(layer)}` : ''}`);
+  }
+  return parts.length ? parts.join(' · ') : null;
+};
+
+/**
+ * Note shown when the legend visualises a narrower window than the physical
+ * data range, so the author can widen the colormap deliberately.
+ */
+export const describeRangeMismatch = (
+  layer: CatalogueLayer,
+  suggestion: CatalogueStyleSuggestion | null,
+): string | null => {
+  if (!suggestion || suggestion.kind === 'categories') return null;
+  const { min: dMin, max: dMax } = layer.dataRange || {};
+  if (dMin === undefined || dMax === undefined) return null;
+  const sMin = suggestion.kind === 'colormap' ? suggestion.colormap.min : suggestion.min;
+  const sMax = suggestion.kind === 'colormap' ? suggestion.colormap.max : suggestion.max;
+  if (sMin === dMin && sMax === dMax) return null;
+  const units = layerUnits(layer) ? ` ${layerUnits(layer)}` : '';
+  return `Legend shows ${sMin}–${sMax} of a ${dMin}–${dMax}${units} data range`;
+};
+
 /** One-line description of what will be applied when the layer is added. */
 export const describeStyleSuggestion = (suggestion: CatalogueStyleSuggestion): string => {
   switch (suggestion.kind) {
-    case 'categories':
-      return `Categories: ${suggestion.categories.length} class${suggestion.categories.length !== 1 ? 'es' : ''}`;
+    case 'categories': {
+      const total = suggestion.categories.length;
+      const labelled = suggestion.labelledCount ?? 0;
+      const coverage = labelled > 0 && labelled < total ? ` (${labelled} labelled)` : '';
+      return `Categories: ${total} class${total !== 1 ? 'es' : ''}${coverage}`;
+    }
+
     case 'colormap': {
       const origin = suggestion.matched
         ? ' — matched by colour'
