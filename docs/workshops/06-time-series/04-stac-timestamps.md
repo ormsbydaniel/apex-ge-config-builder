@@ -19,3 +19,5 @@ a STAC browser the CB copies those timestamps onto the resulting datasets.
    should now show the timestamp taken from its STAC item.
 6. Click **Preview**. The BGB layer should now display a temporal control with
    **Years**, allowing you to step through the imported STAC timestamps.
+
+    ![Below Ground Biomass preview with yearly temporal control](../../assets/screenshots/stac-timestamps-bgb-preview.png)
