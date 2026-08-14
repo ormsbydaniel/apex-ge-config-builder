@@ -2013,11 +2013,16 @@
 <p><img alt="COG metadata dialog showing categorical statistics and the embedded colour palette" src="../../assets/screenshots/cog-categories-metadata.png" /></p>
 </li>
 <li>
-<p>Select <strong>Populate categories</strong>. The categories editor is populated from a
-   sample of the pixel values in the COG.</p>
-<p>Alternatively, if the COG has an embedded colour palette, select
-<strong>Copy embedded colormap to config categories</strong> to bring across both the
-values and their original colours.</p>
+<p>Use one of the category buttons to populate the editor:</p>
+<ul>
+<li><strong>Populate categories</strong> (or <em>Copy unique values to config categories</em>) adds the
+  classes found in the COG sample to the config, assigning arbitrary colours
+  automatically. This is the fallback when a COG does not have an embedded colour map.</li>
+<li><strong>Copy embedded colormap to config categories</strong> copies both the class values and
+  their original colours from the COG itself. Use this option when the COG has an
+  embedded colour map — this is the case for the World Cover Austria COG, so it is
+  the preferred option here.</li>
+</ul>
 </li>
 <li>
 <p>Edit a couple of the category labels to align to the World Cover class
