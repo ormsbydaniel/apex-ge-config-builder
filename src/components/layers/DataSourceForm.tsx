@@ -632,7 +632,7 @@ const DataSourceForm = ({
     }
 
     // timestamps vs useTimeParameter (mutually exclusive for WMS/WMTS)
-    if (isWmsOrWmts && useTimeParameter) {
+    if (isWmsOrWmts && effectiveUseTimeParameter) {
       baseItem.useTimeParameter = true;
       delete baseItem.timestamps;
     } else {
