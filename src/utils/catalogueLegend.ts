@@ -231,17 +231,41 @@ export const primaryLayerLegend = (layer: CatalogueLayer): CatalogueLegend | und
 export const layerUnits = (layer: CatalogueLayer): string | undefined =>
   layer.units && layer.units.trim() ? layer.units.trim() : undefined;
 
+/** The dataset's official legend graphic, when one was published. */
+export const datasetLegendImage = (
+  dataset?: CatalogueDataset | null,
+): CatalogueLegendImage | undefined => {
+  const image = dataset?.style?.legendImage;
+  return image?.imageUrl ? image : undefined;
+};
+
 /**
  * Style suggestion for a catalogue layer, preferring the layer's own band units
- * when the legend does not carry any.
+ * when the legend does not carry any. When the legend cannot be translated
+ * faithfully (no legend, suppressed, or only a two-stop gradient fallback) the
+ * dataset's official legend graphic is used instead, where one exists.
  */
 export const layerStyleSuggestion = (
   layer: CatalogueLayer,
+  dataset?: CatalogueDataset | null,
 ): CatalogueStyleSuggestion | null => {
   const suggestion = legendToStyleSuggestion(primaryLayerLegend(layer));
+  const units = layerUnits(layer);
+  const image = datasetLegendImage(dataset);
+
+  if (!suggestion || suggestion.kind === 'gradient') {
+    if (image) {
+      return {
+        kind: 'legendImage',
+        url: image.imageUrl as string,
+        ...(image.pageUrl ? { pageUrl: image.pageUrl } : {}),
+        ...(suggestion?.units || units ? { units: suggestion?.units || units } : {}),
+      };
+    }
+  }
+
   if (!suggestion) return null;
   if (suggestion.units) return suggestion;
-  const units = layerUnits(layer);
   return units ? { ...suggestion, units } : suggestion;
 };
 
