@@ -1,7 +1,7 @@
 ---
-title: 5-3. Categories for a WMS layer
+title: 5-4. Categories for a WMS layer
 ---
-# 5-3. Categories for a WMS layer
+# 5-4. Categories for a WMS layer
 
 Set up categories manually for the World Cover WMS you added earlier.
 
