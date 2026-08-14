@@ -21,6 +21,9 @@ the CB can pull that legend straight into your layer card.
 
 1. On the dataset row, select the **(i)** info icon to open the metadata
    dialog. Note that it reports **Legend Graphic Available: Yes**.
+
+    ![Dataset row for the WMS layer Land_Use_Raster1402 with the info icon, z-index, copy, edit and delete controls](../../assets/screenshots/wms-legend-dataset-row.png)
+
 2. Select **View** first to take a look at the legend graphic the server
    publishes.
 3. If you're happy with it, select **Copy to config** to attach the legend to
