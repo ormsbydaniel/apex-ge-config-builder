@@ -1610,6 +1610,8 @@
       
         
       
+        
+      
     
     
     
@@ -1809,35 +1811,38 @@
 
 
 <h1 id="statistics">Statistics<a class="headerlink" href="#statistics" title="Permanent link">&para;</a></h1>
-<p>The <strong>Statistics</strong> section of a layer card configures additional raster sources used to compute summary statistics (mean, min, max, histogram) for the layer — typically over a user-drawn area of interest or a selected vector feature.</p>
-<p>Statistics sources are separate from the layer's display sources: the user sees the styled layer on the map, but stats are computed from the underlying scientific raster (often a higher-precision COG) listed under Statistics.</p>
+<p>The <strong>Statistics</strong> section of a layer card configures vector sources holding pre-computed summary statistics for the layer — typically one file per level of administrative boundary.</p>
+<p>Statistics sources are separate from the layer's display sources: the user sees the styled layer on the map, and the statistics files supply the clickable zones and the numbers reported for each of them.</p>
 <p><img alt="Statistics tab in the Data Sources section of the layer card" src="../assets/screenshots/data-sources-statistics-tab.png" /></p>
 <h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
 <p>Add Statistics sources when you want users to:</p>
 <ul>
-<li>Draw an AOI and see numeric summaries for that region.</li>
-<li>Click a vector feature and see per-feature statistics.</li>
-<li>Compare multiple variables (e.g. temperature, NDVI) over the same AOI.</li>
+<li>Click a zone (country, region, catchment, grid cell) and see a numeric summary for it.</li>
+<li>See a class breakdown of categorical data per area.</li>
+<li>Get finer detail as they zoom in, without recomputing anything.</li>
 </ul>
 <p>If the layer is purely visual and no numeric summary is needed, leave Statistics empty.</p>
 <h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
-<p>In the <strong>layer card</strong>, expand <strong>Statistics</strong> and add one or more sources. Each entry uses the same <code>DataSourceItem</code> shape as the main <code>data</code> array:</p>
+<p>In the <strong>layer card</strong>, open <strong>Data Sources → Statistics</strong> and add one or more sources. Each entry uses the same <code>DataSourceItem</code> shape as the main <code>data</code> array:</p>
 <ul>
-<li><strong>URL</strong> — link to the statistics raster (usually a COG).</li>
-<li><strong>Format</strong> — almost always <code>cog</code>.</li>
-<li><strong>Band index</strong> / <strong>min</strong> / <strong>max</strong> / <strong>units</strong> — optional metadata used when displaying results.</li>
+<li><strong>URL</strong> — link to the statistics file.</li>
+<li><strong>Format</strong> — <code>flatgeobuf</code> (preferred) or <code>geojson</code>. Other formats are rejected.</li>
+<li><strong>Level</strong> — <code>0</code> for the coarsest boundaries, incrementing for finer ones. The builder pre-fills the next unused level; the viewer chooses a level based on map zoom.</li>
+<li><strong>zIndex</strong> — usually above the display data so the zones remain clickable.</li>
 </ul>
-<p>Set <code>layout.layerCard.showStatistics: true</code> to expose the Statistics panel in the viewer for this layer. The viewer's <strong>Feature statistics</strong> flag (<code>hasFeatureStatistics</code>) enables per-feature stats triggered by clicks on associated vector layers.</p>
+<p>The features themselves carry the pre-computed attributes (for example the area of each land cover class within the zone). Defining <strong>categories</strong> on the layer gives those values their labels and colours.</p>
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Each statistics source must have a <code>url</code> and a <code>format</code>.</li>
-<li>Bands referenced by <code>bandIndex</code> must exist in the COG.</li>
-<li>The statistics raster should cover the same area as the displayed layer; mismatches yield empty results.</li>
+<li>Each statistics source must have a <code>url</code> and a <code>format</code> of <code>flatgeobuf</code> or <code>geojson</code>.</li>
+<li><code>level</code> values should run from <code>0</code> upwards, with no gaps or duplicates.</li>
+<li>Features must be in a CRS the viewer can reproject (EPSG:4326 is the usual choice) and should cover the same area as the displayed layer.</li>
 </ul>
 <h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../layers/data-visualisation.html">Data visualisation</a></li>
-<li><a href="../data-sources/cog.html">COG data sources</a></li>
+<li><a href="../data-sources/geojson-flatgeobuf.html">GeoJSON / FlatGeoBuf data sources</a></li>
+<li><a href="../layers/categories.html">Categories</a></li>
+<li><a href="../workshops/08-statistics/index.html">Tutorial 8. Statistics</a></li>
 <li><a href="../charts/pixel-values.html">Pixel-values charts</a> — point-sampled equivalent.</li>
 </ul>
 
