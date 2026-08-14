@@ -333,6 +333,9 @@ export const describeStyleSuggestion = (suggestion: CatalogueStyleSuggestion): s
 
     case 'gradient':
       return `Gradient ${suggestion.min}–${suggestion.max} — no matching preset`;
+
+    case 'legendImage':
+      return 'Official legend graphic';
   }
 };
 
@@ -350,6 +353,8 @@ export const styleSuggestionPreviewCss = (suggestion: CatalogueStyleSuggestion):
   if (suggestion.kind === 'gradient') {
     return `linear-gradient(to right, ${suggestion.startColor}, ${suggestion.endColor})`;
   }
+  // The legend image is rendered as an <img>, not a CSS background.
+  if (suggestion.kind === 'legendImage') return 'transparent';
   const colors = generateColorRamp(suggestion.colormap.name, 20, suggestion.colormap.reverse);
   return `linear-gradient(to right, ${colors
     .map((c, i) => `rgb(${c[0]}, ${c[1]}, ${c[2]}) ${(i / 19) * 100}%`)
