@@ -167,8 +167,11 @@ export const legendToStyleSuggestion = (
         reverse: hinted.reverse !== (legend.reverse ?? false),
       },
       units,
+      sourceName: legend.colormapName,
+      alias: !hinted.exact,
     };
   }
+
 
 
   const matched = matchNamedColormap(legend);
