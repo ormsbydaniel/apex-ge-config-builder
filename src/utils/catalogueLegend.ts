@@ -4,7 +4,13 @@
  * truthful two-stop gradient fallback.
  */
 
-import { CatalogueLegend, CatalogueLegendEntry, CatalogueLayer } from '@/types/service';
+import {
+  CatalogueLegend,
+  CatalogueLegendEntry,
+  CatalogueLayer,
+  CatalogueLayerStyle,
+  CatalogueLabelSource,
+} from '@/types/service';
 import { Category, Colormap } from '@/types/category';
 import { COLORMAP_DATA } from '@/constants/colormapData';
 import { generateColorRamp } from '@/utils/colormapUtils';
@@ -15,7 +21,12 @@ export interface CategoriesSuggestion {
   kind: 'categories';
   categories: Category[];
   units?: string;
+  /** How many classes carry an officially sourced label. */
+  labelledCount?: number;
+  /** Provenance of the class labels, when known. */
+  labelSource?: CatalogueLabelSource;
 }
+
 
 export interface ColormapSuggestion {
   kind: 'colormap';
