@@ -477,24 +477,53 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                       <ExpandableText text={layer.abstract} className="mt-1" />
                     )}
                     {(() => {
-                      const suggestion = layerStyleSuggestion(layer);
+                      const suggestion = layerStyleSuggestion(layer, selectedDataset);
                       const bandSummary = describeBandMetadata(layer);
                       const rangeNote = describeRangeMismatch(layer, suggestion);
                       const suppressed = suppressedLegendStyle(layer);
                       return (
                         <>
-                          {suggestion && (
+                          {suggestion?.kind === 'legendImage' ? (
                             <div className="mt-2 flex items-center gap-2 flex-wrap">
-                              <span
-                                className="h-3 w-24 rounded border border-border"
-                                style={{ background: styleSuggestionPreviewCss(suggestion) }}
-                                aria-hidden="true"
+                              <img
+                                src={suggestion.url}
+                                alt={`Official legend graphic for ${layer.title || layer.identifier}`}
+                                loading="lazy"
+                                className="h-10 w-auto max-w-[8rem] rounded border border-border bg-background object-contain"
                               />
                               <span className="text-xs text-muted-foreground">
                                 {describeStyleSuggestion(suggestion)}
                                 {suggestion.units ? ` · ${suggestion.units}` : ''}
+                                {suggestion.pageUrl && (
+                                  <>
+                                    {' · '}
+                                    <a
+                                      href={suggestion.pageUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="text-primary hover:underline"
+                                    >
+                                      View legend
+                                    </a>
+                                  </>
+                                )}
                               </span>
                             </div>
+                          ) : (
+                            suggestion && (
+                              <div className="mt-2 flex items-center gap-2 flex-wrap">
+                                <span
+                                  className="h-3 w-24 rounded border border-border"
+                                  style={{ background: styleSuggestionPreviewCss(suggestion) }}
+                                  aria-hidden="true"
+                                />
+                                <span className="text-xs text-muted-foreground">
+                                  {describeStyleSuggestion(suggestion)}
+                                  {suggestion.units ? ` · ${suggestion.units}` : ''}
+                                </span>
+                              </div>
+                            )
                           )}
                           {suggestion?.kind === 'categories' && suggestion.labelSource?.title && (
                             <div className="mt-1 text-xs text-muted-foreground">
