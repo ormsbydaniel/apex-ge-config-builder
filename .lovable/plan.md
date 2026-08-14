@@ -118,7 +118,7 @@ follow-up pass if you want them now):
 
 ## Technical notes
 
-- Cross-links: 7-2 → `../../constraints/overview.md`; 7-7 → tutorial 5 class
+- Cross-links: 7-2 → `../../constraints/overview.md`; 7-4 → tutorial 5 class
   table and `docs/assets/world-cover-classes.csv`.
 - External links open in a new tab, matching the rest of the tutorials.
 - `mkdocs build --strict` must pass and the built HTML under `public/guide/`
