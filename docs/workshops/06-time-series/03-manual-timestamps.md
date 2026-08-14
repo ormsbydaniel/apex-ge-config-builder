@@ -3,7 +3,7 @@ title: 6-3. Temporal control with manual timestamps
 ---
 # 6-3. Temporal control with manual timestamps
 
-Attach timestamps to your *AGB* datasets by hand.
+Attach timestamps to your *Above Ground Biomass* layer (ABG) datasets by hand.
 
 1. Edit the *AGB* layer card. Scroll down to the **Controls** section, toggle
    **Temporal control** on and set the dropdown to **Years**. Save and exit.
