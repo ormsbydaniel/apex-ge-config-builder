@@ -15,10 +15,10 @@ Before we dive in, a few practical notes to help you get the most out of the ses
 The tutorials make use of a few key technologies / data formats, in particular:
 - **Cloud Optimised GeoTiff (COG)** files
 - Mapping services, such as **WMS / WMTS** and **XYZ** tile services
-- Vector data in **GeoJSON** and **FlatGeobuff** format
-- **Spatial Temporal Asset Catalogues (STAC)**
+- Vector data in **GeoJSON** and **FlatGeobuf** format
+- **SpatioTemporal Asset Catalogs (STAC)**
 
-Some basic understanding of these concepts is useful but not essential.  Tutorials make use of them but do not aim to teach about them.
+Some basic understanding of these concepts is useful but not essential. Tutorials make use of them but do not aim to teach them.
 
 ## Tutorial setup
 
@@ -54,7 +54,7 @@ Tutorials 2 and 3 build directly on this one, and the remaining tutorials assume
 completion of all core tutorials (1–3) or existing familiarity with the
 Configuration Builder.
 
-Each tutorial has its own **"home"** page explaining what it will cover,followed by a pre-requisites step. This tells you which other tutorials we recommend you complete first and if you have done that,you can keep on using the configuration that you've been working on. If not and you want to dive in straight to this tutorial, the pre-requisites page will give you a link for a configuration that is an appropriat starting point for the tutorial.
+Each tutorial has its own **"home"** page explaining what it will cover, followed by a pre-requisites step. This tells you which other tutorials we recommend you complete first, and if you have done that, you can keep on using the configuration that you've been working on. If not, and you want to dive straight in to this tutorial, the pre-requisites page will give you a link to a configuration that is an appropriate starting point for the tutorial.
 
 ## Asking questions at a workshop
 
