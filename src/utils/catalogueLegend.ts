@@ -8,6 +8,8 @@ import { CatalogueLegend, CatalogueLegendEntry, CatalogueLayer } from '@/types/s
 import { Category, Colormap } from '@/types/category';
 import { COLORMAP_DATA } from '@/constants/colormapData';
 import { generateColorRamp } from '@/utils/colormapUtils';
+import { resolveColormapName } from '@/utils/colormapNameMapping';
+
 
 export interface CategoriesSuggestion {
   kind: 'categories';
