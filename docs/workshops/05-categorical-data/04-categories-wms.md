@@ -12,7 +12,11 @@ Set up categories manually for the World Cover WMS you added earlier.
     pixel values.
 4. Add your first category — for example, colour `#006400`, label `Tree cover`,
     value `10`.
-5. Add another — colour `#ffff4c`, label `Grassland`, value `30`.
+5. Open the categories editor from the layer card by navigating to **Data Visualisation → Categories → Edit**.
+
+    ![Edit Categories dialog for the World Cover WMS layer showing populated categories](../../assets/screenshots/categories-wms-editor.png)
+
+    Add another category — colour `#ffff4c`, label `Grassland`, value `30`.
 6. Save the layer card and preview. When you fill in the full set of World
     Cover classes, the legend in the Explorer will contain a row per class.
 
