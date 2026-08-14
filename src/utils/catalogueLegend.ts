@@ -23,7 +23,12 @@ export interface ColormapSuggestion {
   units?: string;
   /** True when the ramp was matched by colour comparison rather than a name hint. */
   matched?: boolean;
+  /** The colormap name as given by the catalogue, when it came from a name hint. */
+  sourceName?: string;
+  /** True when the catalogue name differed from our preset name (alias match). */
+  alias?: boolean;
 }
+
 
 export interface GradientSuggestion {
   kind: 'gradient';
