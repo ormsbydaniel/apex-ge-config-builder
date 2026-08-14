@@ -147,14 +147,22 @@ export const legendToStyleSuggestion = (
   const max = legend.max ?? sorted[sorted.length - 1].value;
   const steps = legend.steps ?? sorted.length;
 
-  const hinted = legend.colormapName?.toLowerCase();
-  if (hinted && hinted in COLORMAP_DATA) {
+  const hinted = resolveColormapName(legend.colormapName);
+  if (hinted) {
     return {
       kind: 'colormap',
-      colormap: { name: hinted, min, max, steps, reverse: legend.reverse ?? false },
+      colormap: {
+        name: hinted.name,
+        min,
+        max,
+        steps,
+        // A '_r' style suffix and an explicit reverse flag together cancel out.
+        reverse: hinted.reverse !== (legend.reverse ?? false),
+      },
       units,
     };
   }
+
 
   const matched = matchNamedColormap(legend);
   if (matched) {
