@@ -69,5 +69,7 @@ a single COG layer showing wind power density at 100 m over Austria.
     wind power layer by its own data values, even before any additional
     constraint layers are added in the later steps.
 
+    ![Austria Wind Power Density layer preview with the layer panel open, showing the jet colour ramp legend and layer description](../../assets/screenshots/wind-power-layer-result.png)
+
 
 ### Did you remember to export?
