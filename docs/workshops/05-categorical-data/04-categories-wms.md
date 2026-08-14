@@ -36,5 +36,16 @@ copy it across.
     [`world-cover-classes.csv`](../../assets/world-cover-classes.csv), as
     described in [5-3 step 5](03-categories-cog.md).
 
+5. *(Optional)* Open the categories editor again and untoggle **Use category
+    values**. Save the layer card and preview. The legend still shows the class
+    labels and colours, but the numeric values are no longer displayed — this
+    reflects the fact that class numbers cannot be read from a WMS or WMTS
+    layer.
+
+6. *(Optional)* In the categories editor, change the colour for one of the
+    classes and save. The legend in the Explorer will now show the new colour
+    for that class. However, for WMS / WMTS layers the actual map styling is
+    determined by the service, so the rendered tiles will not change.
+
 See the full WorldCover class lookup in
 [5-3. Categories for a COG](03-categories-cog.md#worldcover-class-lookup).
