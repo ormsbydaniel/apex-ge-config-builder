@@ -33,10 +33,14 @@ data.
 6. **Save** the source. It now appears under **Statistics**, separately from the
    WMS source on the **Data** tab.
 
-Open the **Preview**, select the **Statistics** tab and click a country — you
-should see the land cover breakdown for that whole country:
+7. View the result. Open the **Preview**, turn the layer on, then:
 
-![Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0](../../assets/screenshots/statistics-nuts-level0-result.png)
+    - Select the **Statistics** tab in the info panel.
+    - Click on a **country** on the map.
+
+    You should see the land cover breakdown for that whole country:
+
+    ![Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0](../../assets/screenshots/statistics-nuts-level0-result.png)
 
 !!! warning "Coordinate reference system"
     These files are published in EPSG:4326, matching the `epsg4326` in the file
