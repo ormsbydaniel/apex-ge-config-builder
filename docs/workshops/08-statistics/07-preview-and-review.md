@@ -22,8 +22,8 @@ version below — or paste it in wholesale if you want to skip ahead.
 
 ```json
 {
-  "id": "world-cover-2021-with-nuts-statistics",
-  "name": "World Cover 2021 with NUTS statistics",
+  "id": "world-cover-2021-with-statistics",
+  "name": "World Cover 2021 with statistics",
   "isActive": false,
   "data": [
     {
