@@ -23,7 +23,12 @@ export interface ColormapSuggestion {
   units?: string;
   /** True when the ramp was matched by colour comparison rather than a name hint. */
   matched?: boolean;
+  /** The colormap name as given by the catalogue, when it came from a name hint. */
+  sourceName?: string;
+  /** True when the catalogue name differed from our preset name (alias match). */
+  alias?: boolean;
 }
+
 
 export interface GradientSuggestion {
   kind: 'gradient';
@@ -162,8 +167,11 @@ export const legendToStyleSuggestion = (
         reverse: hinted.reverse !== (legend.reverse ?? false),
       },
       units,
+      sourceName: legend.colormapName,
+      alias: !hinted.exact,
     };
   }
+
 
 
   const matched = matchNamedColormap(legend);
@@ -195,8 +203,15 @@ export const describeStyleSuggestion = (suggestion: CatalogueStyleSuggestion): s
   switch (suggestion.kind) {
     case 'categories':
       return `Categories: ${suggestion.categories.length} class${suggestion.categories.length !== 1 ? 'es' : ''}`;
-    case 'colormap':
-      return `Colormap: ${suggestion.colormap.name}${suggestion.colormap.reverse ? ' (reversed)' : ''}, ${suggestion.colormap.min}–${suggestion.colormap.max}`;
+    case 'colormap': {
+      const origin = suggestion.matched
+        ? ' — matched by colour'
+        : suggestion.alias && suggestion.sourceName
+          ? ` — from “${suggestion.sourceName}”`
+          : '';
+      return `Colormap: ${suggestion.colormap.name}${suggestion.colormap.reverse ? ' (reversed)' : ''}, ${suggestion.colormap.min}–${suggestion.colormap.max}${origin}`;
+    }
+
     case 'gradient':
       return `Gradient ${suggestion.min}–${suggestion.max} — no matching preset`;
   }
