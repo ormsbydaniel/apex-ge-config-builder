@@ -34,10 +34,19 @@ export interface CatalogueDatasetStyle {
   [key: string]: unknown;
 }
 
+/** Provenance for legend class labels (e.g. an official product manual). */
+export interface CatalogueLabelSource {
+  type?: string;
+  title?: string;
+  url?: string;
+  [key: string]: unknown;
+}
+
 export interface CatalogueLegendEntry {
   value: number;
   color: string;
   label?: string;
+  labelSource?: CatalogueLabelSource;
 }
 
 export interface CatalogueLegend {
@@ -55,12 +64,35 @@ export interface CatalogueLegend {
   reverse?: boolean;
   sampled?: boolean;
   sourceEntryCount?: number;
+  /** Provenance of the class labels, when they came from an official source. */
+  labelSource?: CatalogueLabelSource;
+  /** How many entries carry an officially sourced label. */
+  officialLabelCount?: number;
+}
+
+/** Reported when legend extraction was attempted but deliberately not published. */
+export interface CatalogueLegendDiscovery {
+  status?: string;
+  reason?: string;
+  parsedMin?: number;
+  parsedMax?: number;
+  message?: string;
+  [key: string]: unknown;
 }
 
 export interface CatalogueLayerStyle {
   name: string;
   evalscriptUrl?: string;
   legend?: CatalogueLegend;
+  legendDiscovery?: CatalogueLegendDiscovery;
+}
+
+/** Where the band metadata (units, scale, range) was sourced from. */
+export interface CatalogueBandMetadataSource {
+  type?: string;
+  url?: string;
+  band?: string;
+  [key: string]: unknown;
 }
 
 export interface CatalogueDataset {
@@ -84,7 +116,23 @@ export interface CatalogueLayer {
   title?: string;
   abstract?: string;
   styles?: CatalogueLayerStyle[];
+  /** Concise unit for the band, e.g. 'mm/day'. */
+  units?: string;
+  /** Verbose original unit wording; not suitable for display as a unit. */
+  unitsRaw?: string;
+  /** Storage type of the source band, e.g. 'INT16'. */
+  sourceFormat?: string;
+  /** Physical data range — may be wider than the legend's visualisation range. */
+  dataRange?: { min?: number; max?: number };
+  dataRangeRaw?: string;
+  /** Digital-number to physical-value conversion. */
+  scale?: number;
+  offset?: number;
+  /** Free-text summary of the classes for categorical bands. */
+  categoricalValueDescription?: string;
+  bandMetadataSource?: CatalogueBandMetadataSource;
 }
+
 
 
 
