@@ -5,7 +5,7 @@ title: 8. Statistics
 
 ## Tutorial Objectives
 
-![Statistics tab in the Data Sources section of the layer card](../../assets/screenshots/data-sources-statistics-tab.png)
+![Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0](../../assets/screenshots/statistics-nuts-level0-result.png)
 
 Add pre-computed zonal statistics to a land cover layer, so users can click an
 administrative area and see a breakdown of the data within it.
