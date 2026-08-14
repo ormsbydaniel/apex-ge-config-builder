@@ -20,4 +20,6 @@ Attach timestamps to your *Above Ground Biomass* layer (ABG) datasets by hand.
     Set the timestamp to `2021-01-01` and save.
 4. Optionally, open the layer's JSON editor and confirm that each dataset now
     has a `timestamp` field.
-5. Preview and use the temporal control to step between years.
+5. Preview and use the temporal control to step between years. The changes are subtle but visible if you look closely — the year shown in the temporal control updates and the layer values change to match the selected timestamp.
+
+    ![Preview of the Above Ground Biomass layer with the temporal control set to 2023](../../assets/screenshots/time-series-abg-preview.png)
