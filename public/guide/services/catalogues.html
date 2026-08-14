@@ -1044,6 +1044,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#band-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Band metadata
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Band metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-range-versus-legend-range" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data range versus legend range
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-labels-and-their-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class labels and their provenance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suppressed-legends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suppressed legends
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1505,6 +1555,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#band-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Band metadata
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Band metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-range-versus-legend-range" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data range versus legend range
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-labels-and-their-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class labels and their provenance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suppressed-legends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suppressed legends
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1648,6 +1748,76 @@ layer's units when set.</p>
 <p>A dataset-level <code>style</code> block may also carry a <code>documentationUrl</code>, which the
 browser links from the dataset card; each style's <code>evalscriptUrl</code> is linked from
 the layer card. Both open in a new tab.</p>
+<h2 id="band-metadata">Band metadata<a class="headerlink" href="#band-metadata" title="Permanent link">&para;</a></h2>
+<p>Layers may also describe the band itself. The builder shows this beneath the
+legend preview so you can judge whether the suggested styling suits your map.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>units</code></td>
+<td>Concise unit, e.g. <code>mm/day</code>. Used for the layer's units when the legend has none.</td>
+</tr>
+<tr>
+<td><code>unitsRaw</code></td>
+<td>The original, verbose wording. Shown nowhere as a unit — it is a sentence, not a symbol.</td>
+</tr>
+<tr>
+<td><code>sourceFormat</code></td>
+<td>Storage type of the band, e.g. <code>INT16</code>.</td>
+</tr>
+<tr>
+<td><code>dataRange</code></td>
+<td>The physical range of the data.</td>
+</tr>
+<tr>
+<td><code>scale</code> / <code>offset</code></td>
+<td>Digital-number to physical-value conversion.</td>
+</tr>
+<tr>
+<td><code>bandMetadataSource</code></td>
+<td>Where the above came from; linked as "Band metadata".</td>
+</tr>
+<tr>
+<td><code>categoricalValueDescription</code></td>
+<td>Free-text summary of the classes for categorical bands.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A_ET_ENSEMBLE&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;units&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mm/day&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sourceFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;INT16&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;scale&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;dataRange&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;bandMetadataSource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;official-cdse-bands-table&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://...&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>scale</code> and <code>offset</code> are informational only — they are shown in the browser but
+are not written into your configuration, because the explorer reads the values
+the service already renders.</p>
+<h3 id="data-range-versus-legend-range">Data range versus legend range<a class="headerlink" href="#data-range-versus-legend-range" title="Permanent link">&para;</a></h3>
+<p>The legend's <code>min</code>/<code>max</code> is the <em>visualisation</em> range chosen by the evalscript,
+which is often narrower than the band's physical <code>dataRange</code>. Where the two
+differ, the browser says so — for example "Legend shows 0–10 of a 0–20 mm/day
+data range" — so you can widen the colormap deliberately if you want to.</p>
+<h3 id="class-labels-and-their-provenance">Class labels and their provenance<a class="headerlink" href="#class-labels-and-their-provenance" title="Permanent link">&para;</a></h3>
+<p>Discrete legends may carry official class names, either per entry (<code>label</code>) or
+summarised with <code>officialLabelCount</code>, alongside a <code>labelSource</code> naming the
+document they came from. The browser reports partial coverage — "Categories: 23
+classes (12 labelled)" — and links the source so you can complete the remaining
+names by hand. Unlabelled classes fall back to their value and stay editable.</p>
+<h3 id="suppressed-legends">Suppressed legends<a class="headerlink" href="#suppressed-legends" title="Permanent link">&para;</a></h3>
+<p>A style may report <code>legendDiscovery</code> with <code>status: "suppressed"</code> when a legend
+was found but judged untrustworthy — for instance an implausibly narrow parsed
+range. In that case the builder shows the reason and links the evalscript
+instead of inventing a misleading gradient.</p>
 
 
 
