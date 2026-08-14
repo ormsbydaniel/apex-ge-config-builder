@@ -1999,36 +1999,44 @@
 
 
 <h1 id="6-6-using-wms-wmts-time-parameters">6-6. Using WMS / WMTS time parameters<a class="headerlink" href="#6-6-using-wms-wmts-time-parameters" title="Permanent link">&para;</a></h1>
-<p>Some WMS / WMTS services expose time as separate <strong>layers</strong> rather than via a
-<code>TIME</code> parameter on a single layer. The World Cover WMS from Part 2 is an
-example — there are separate <code>WORLDCOVER_2020_MAP</code> and <code>WORLDCOVER_2021_MAP</code>
-layers.</p>
+<p>Some services expose time through a <code>TIME</code> parameter on a single layer, rather
+than as separate layers. In that case the Geospatial Explorer can drive the
+temporal control directly from the service.</p>
 <ol>
-<li>Edit the <em>World Cover</em> layer card. Toggle <strong>Temporal control</strong> on with
-   <strong>Years</strong> granularity.</li>
-<li>Edit the existing World Cover dataset:</li>
-<li><strong>Uncheck</strong> the <em>Use TIME PARAM from service</em> toggle.</li>
-<li>Explicitly set the timestamp to <code>2020-01-01</code>.</li>
+<li>Create a new interface group called <strong>Soils</strong>, and inside it a layer card
+   called <strong>Soil Water Index Daily Time Series</strong>.</li>
+<li>In the layer <strong>Controls</strong>, add <strong>Temporal Control → Days</strong>.</li>
+<li>Select <strong>+ Add dataset → Direct Connection → Add WMTS</strong>. Note that this is
+   <strong>WMTS</strong>, not WMS.</li>
 <li>
-<p>Add a second dataset for the 2021 layer and set its timestamp to
-   <code>2021-01-01</code>. The URLs are:</p>
-<ul>
-<li>
-<p><strong>Service URL</strong>:</p>
-<div class="highlight"><pre><span></span><code>https://services.terrascope.be/wms/v2
+<p>Enter the source URL:</p>
+<div class="highlight"><pre><span></span><code>https://land.copernicus.eu/cdse/swi_europe_1km_daily_v2/
 </code></pre></div>
 </li>
 <li>
-<p><strong>Layer names</strong>:</p>
-<div class="highlight"><pre><span></span><code>WORLDCOVER_2020_MAP
+<p>Enter the layer name:</p>
+<div class="highlight"><pre><span></span><code>SWI010
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>WORLDCOVER_2021_MAP
-</code></pre></div>
-</li>
-</ul>
 </li>
 <li>
-<p>Save and preview. The temporal control now switches between the two years.</p>
+<p>Note that the <strong>Use TIME parameter</strong> toggle is enabled — the builder has
+   detected that the service advertises a time dimension for this layer.</p>
+</li>
+<li>
+<p>After adding the dataset, click the <strong>(i)</strong> icon on the dataset row to open
+   the metadata. This shows the temporal extent and the granularity advertised
+   by the service.</p>
+<p><img alt="WMTS metadata showing temporal dimension, extent and granularity" src="../../assets/screenshots/wmts-swi-metadata-temporal.png" /></p>
+</li>
+<li>
+<p>Open <strong>Units and Legend</strong>, set <strong>Legend type</strong> to <strong>Image</strong> and paste in:</p>
+<div class="highlight"><pre><span></span><code>https://land.copernicus.eu/en/cdse-legends/clms_global_swi_12-5km_v3_10daily.png/@@images/image-89-5435993c0267e2917be79312734cfade.png
+</code></pre></div>
+</li>
+<li>
+<p>Save and click <strong>Preview</strong>. The layer has a daily temporal control, and the
+   official CLMS legend graphic is shown alongside it.</p>
+<p><img alt="Soil Water Index daily time series preview with legend graphic" src="../../assets/screenshots/wmts-swi-preview-legend.png" /></p>
 </li>
 </ol>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
