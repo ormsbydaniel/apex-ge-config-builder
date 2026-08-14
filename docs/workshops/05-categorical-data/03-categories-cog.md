@@ -17,12 +17,16 @@ The category system determines how COGs are rendered when their values represent
 
     ![COG metadata dialog showing categorical statistics and the embedded colour palette](../../assets/screenshots/cog-categories-metadata.png)
 
-4. Select **Populate categories**. The categories editor is populated from a
-   sample of the pixel values in the COG.
+4. Use one of the category buttons to populate the editor:
 
-    Alternatively, if the COG has an embedded colour palette, select
-    **Copy embedded colormap to config categories** to bring across both the
-    values and their original colours.
+    - **Populate categories** (or *Copy unique values to config categories*) adds the
+      classes found in the COG sample to the config, assigning arbitrary colours
+      automatically. This is the fallback when a COG does not have an embedded colour map.
+    - **Copy embedded colormap to config categories** copies both the class values and
+      their original colours from the COG itself. Use this option when the COG has an
+      embedded colour map — this is the case for the World Cover Austria COG, so it is
+      the preferred option here.
+
 
 
 5. Edit a couple of the category labels to align to the World Cover class
