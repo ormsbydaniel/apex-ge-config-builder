@@ -10,6 +10,8 @@ import {
   CatalogueLayer,
   CatalogueLayerStyle,
   CatalogueLabelSource,
+  CatalogueDataset,
+  CatalogueLegendImage,
 } from '@/types/service';
 import { Category, Colormap } from '@/types/category';
 import { COLORMAP_DATA } from '@/constants/colormapData';
