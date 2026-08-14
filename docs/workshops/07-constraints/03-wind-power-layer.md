@@ -10,11 +10,8 @@ a single COG layer showing wind power density at 100 m over Austria.
    **Add layer** inside it and name the layer
    `Austria Wind Power Density at 100m`.
 
-    !!! note
-        A sub-interface group is not needed for this tutorial — a single
-        *Energy* group is enough.
-
 2. Add a **COG** data source with this URL:
+
 
     ```
     https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix.tif
