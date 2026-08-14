@@ -24,12 +24,24 @@ export interface CatalogueDatasetAccess {
   [key: string]: any;
 }
 
+/** An official legend graphic published alongside the dataset. */
+export interface CatalogueLegendImage {
+  source?: string;
+  /** Human-facing page for the graphic. */
+  pageUrl?: string;
+  /** Direct image URL, suitable for `meta.legend.url`. */
+  imageUrl?: string;
+  contentType?: string;
+  [key: string]: unknown;
+}
+
 export interface CatalogueDatasetStyle {
   documentationUrl?: string;
   evalscriptDiscovered?: boolean;
   evalscriptDirectoryUrl?: string;
   githubArchiveUrl?: string;
   styleDiscoveryStatus?: string;
+  legendImage?: CatalogueLegendImage;
   scripts?: Array<{ name?: string; url?: string; [key: string]: unknown }>;
   [key: string]: unknown;
 }
