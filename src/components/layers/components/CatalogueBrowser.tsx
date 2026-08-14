@@ -22,10 +22,14 @@ import {
 import { fetchServiceVersion } from '@/utils/serviceCapabilities';
 import {
   CatalogueStyleSuggestion,
-  legendToStyleSuggestion,
+  layerStyleSuggestion,
   primaryLayerLegend,
   describeStyleSuggestion,
   styleSuggestionPreviewCss,
+  describeBandMetadata,
+  describeRangeMismatch,
+  suppressedLegendStyle,
+
 } from '@/utils/catalogueLegend';
 
 
