@@ -23,7 +23,7 @@ import { fetchServiceVersion } from '@/utils/serviceCapabilities';
 import {
   CatalogueStyleSuggestion,
   layerStyleSuggestion,
-  primaryLayerLegend,
+  
   describeStyleSuggestion,
   styleSuggestionPreviewCss,
   describeBandMetadata,
