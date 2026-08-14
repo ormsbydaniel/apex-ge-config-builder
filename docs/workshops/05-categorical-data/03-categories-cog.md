@@ -26,13 +26,32 @@ The category system determines how COGs are rendered when their values represent
 
 
 5. Edit a couple of the category labels to align to the World Cover class
-   names (e.g. `10 → Tree cover`, `30 → Grassland`). See the
-   [WorldCover class lookup](04-categories-wms.md#worldcover-class-lookup) for
-   the full list of values, colours and names.
+    names (e.g. `10 → Tree cover`, `30 → Grassland`). See the
+    [WorldCover class lookup](#worldcover-class-lookup) below for the full list
+    of values, colours and names.
 6. Save the layer card and preview. The COG is now rendered with the labels
-   and colours you defined.
+    and colours you defined.
 
 
     The values are populated from a **sample** of pixels. It is possible for
     a small number of pixels to fall into classes that were not sampled.
     Cross-check against the source data if completeness matters.
+
+## WorldCover class lookup
+
+| Value | Colour | Colour code | Class name |
+| --- | --- | --- | --- |
+| 10 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#006400"></span> | `#006400` | Tree cover |
+| 20 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#ffbb22"></span> | `#ffbb22` | Shrubland |
+| 30 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#ffff4c"></span> | `#ffff4c` | Grassland |
+| 40 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#f096ff"></span> | `#f096ff` | Cropland |
+| 50 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#fa0000"></span> | `#fa0000` | Built up |
+| 60 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#b4b4b4"></span> | `#b4b4b4` | Bare / sparse vegetation |
+| 70 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#f0f0f0"></span> | `#f0f0f0` | Snow and ice |
+| 80 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#0032c8"></span> | `#0032c8` | Permanent water bodies |
+| 90 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#0096a0"></span> | `#0096a0` | Herbaceous wetland |
+| 95 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#00cf75"></span> | `#00cf75` | Mangroves |
+| 100 | <span style="display:inline-block;width:1.2em;height:1.2em;background:#fae6a0"></span> | `#fae6a0` | Moss and lichen |
+| 0 | | | No data |
+
+Source: [ESA WorldCover collection documentation](https://collections.sentinel-hub.com/worldcover/readme.html){target=_blank}
