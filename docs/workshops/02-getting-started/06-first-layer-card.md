@@ -10,9 +10,13 @@ attach content — descriptions, data sources, statistics, constraints and so on
    select **+ Add layer**.
 2. Leave the **default** layer type and layout style.
 3. Type `Above Ground Biomass` into the **Layer name** field.
-4. Enter a suitable **Description** (e.g. a brief explainer of what Above
-   Ground Biomass means) — this appears in the layer's info panel
-   in the Explorer.
+4. Paste the description below into the **Description** field. The description
+    supports basic Markdown, so the bold text below will render correctly in the
+    layer's info panel in the Explorer.
+
+    ```text
+    Above-ground biomass (AGB) is the **total dry mass of living vegetation** above the soil, including tree trunks, branches, bark, and leaves. It is commonly used to estimate how much carbon is stored in forests.
+    ```
 5. Add `Forest Carbon Monitoring` as the **Attribution text**, and use
    <https://www.forestcarbonplatform.org/> as the **Attribution URL**.
 6. Leave all other settings as default or blank, then select
