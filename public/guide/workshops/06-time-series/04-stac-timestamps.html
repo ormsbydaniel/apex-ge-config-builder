@@ -1937,8 +1937,11 @@ a STAC browser the CB copies those timestamps onto the resulting datasets.</p>
 <ol>
 <li>Return to your <em>Below Ground Biomass</em> layer (BGB). If you do not have one,
    create a new layer with this name first.</li>
-<li>On the <strong>Datasets</strong> tab, <strong>delete</strong> the existing dataset so the layer starts
+<li>On the <strong>Datasets</strong> tab, <strong>delete</strong> the existing COG so the layer starts
    empty.</li>
+<li>Go to the <strong>Controls</strong> section and add <strong>Temporal Control → Years</strong>. This
+   must be configured before adding the datasets, otherwise the timestamps
+   from the STAC items will not be available in the layer.</li>
 <li>Select <strong>+ Add dataset → From service → PRR</strong> and find the BGB collection.
    Note that each item carries its own date stamp.</li>
 <li><strong>Add all the BGB assets</strong> to the layer. Back on the layer card each dataset
