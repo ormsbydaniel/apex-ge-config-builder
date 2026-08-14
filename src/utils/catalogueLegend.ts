@@ -50,10 +50,19 @@ export interface GradientSuggestion {
   units?: string;
 }
 
+/** The dataset's official legend graphic, used when no faithful translation exists. */
+export interface LegendImageSuggestion {
+  kind: 'legendImage';
+  url: string;
+  pageUrl?: string;
+  units?: string;
+}
+
 export type CatalogueStyleSuggestion =
   | CategoriesSuggestion
   | ColormapSuggestion
-  | GradientSuggestion;
+  | GradientSuggestion
+  | LegendImageSuggestion;
 
 const HEX_RE = /^#?([0-9a-f]{6})$/i;
 
