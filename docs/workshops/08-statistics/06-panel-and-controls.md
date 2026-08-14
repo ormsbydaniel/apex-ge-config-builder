@@ -22,10 +22,12 @@ load one of the same files as ordinary vector data.
     ```
 
 5. **Save** the source and open the **Preview**, turning the `Temp` layer on.
-   The country boundaries are drawn as a normal vector layer.
+    The country boundaries are drawn as a normal vector layer.
 
 6. Select the **Data Values** tab in the panel and click on a country. The
-   feature's properties are listed in full.
+    feature's properties are listed in full.
+
+    ![Data Values panel for the Netherlands, showing NUTS properties and pre-computed class areas](../../assets/screenshots/statistics-temp-data-values.png)
 
 7. Look at what is there. Alongside the descriptive fields — country and region
    names, NUTS codes, level — are the pre-computed class areas for each World
