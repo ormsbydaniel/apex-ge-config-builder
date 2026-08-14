@@ -64,7 +64,10 @@ a single COG layer showing wind power density at 100 m over Austria.
     [4-4. Default start location](../04-fine-tuning/04-default-start-location.md).
 
 6. Open the **Preview** and turn the layer on. You should see a jet colour ramp
-    over Austria with a swatch legend, and no constraint controls yet.
+    over Austria with a gradient legend, and a **Filter** icon in the layer card.
+    The filter is the constraint control for this layer: it lets you mask the
+    wind power layer by its own data values, even before any additional
+    constraint layers are added in the later steps.
 
 
 ### Did you remember to export?
