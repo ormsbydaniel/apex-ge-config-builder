@@ -184,4 +184,103 @@ describe('catalogue layer band metadata', () => {
     expect(layerStyleSuggestion(layer)).toBeNull();
     expect(suppressedLegendStyle(layer)?.name).toBe('lst.js');
   });
+
+  describe('official legend graphics', () => {
+    const dataset = {
+      datasetIdentifier: 'lst_global_5km_hourly_v1',
+      title: 'LST',
+      theme: 'Energy',
+      available: true,
+      style: {
+        legendImage: {
+          source: 'official-clms-cdse-legend',
+          pageUrl: 'https://land.copernicus.eu/en/cdse-legends/lst.png',
+          imageUrl: 'https://land.copernicus.eu/en/cdse-legends/lst.png/@@images/image.png',
+        },
+      },
+    };
+
+    it('uses the graphic when the layer has no legend', () => {
+      const suggestion = layerStyleSuggestion(
+        { identifier: 'LST', units: 'K' },
+        dataset,
+      );
+      expect(suggestion).toEqual({
+        kind: 'legendImage',
+        url: dataset.style.legendImage.imageUrl,
+        pageUrl: dataset.style.legendImage.pageUrl,
+        units: 'K',
+      });
+      expect(describeStyleSuggestion(suggestion!)).toBe('Official legend graphic');
+    });
+
+    it('uses the graphic when the legend was suppressed', () => {
+      const layer = {
+        identifier: 'LST',
+        styles: [{ name: 'lst.js', legendDiscovery: { status: 'suppressed' } }],
+      };
+      expect(layerStyleSuggestion(layer, dataset)?.kind).toBe('legendImage');
+    });
+
+    it('uses the graphic in place of a two-stop gradient fallback', () => {
+      const layer = {
+        identifier: 'X',
+        styles: [
+          {
+            name: 'x.js',
+            legend: {
+              type: 'continuous' as const,
+              min: 0,
+              max: 10,
+              entries: [
+                { value: 0, color: '#123456' },
+                { value: 10, color: '#0ABC99' },
+              ],
+            },
+          },
+        ],
+      };
+      expect(layerStyleSuggestion(layer)?.kind).toBe('gradient');
+      expect(layerStyleSuggestion(layer, dataset)?.kind).toBe('legendImage');
+    });
+
+    it('keeps a resolved colormap in preference to the graphic', () => {
+      const colors = generateColorRamp('viridis', 8, false);
+      const layer = {
+        identifier: 'NDVI',
+        styles: [
+          {
+            name: 'ndvi.js',
+            legend: {
+              type: 'continuous' as const,
+              min: 0,
+              max: 1,
+              colormapName: 'viridis',
+              entries: colors.map((c, i) => ({ value: i / 7, color: toHex(c) })),
+            },
+          },
+        ],
+      };
+      expect(layerStyleSuggestion(layer, dataset)?.kind).toBe('colormap');
+    });
+
+    it('keeps categories in preference to the graphic', () => {
+      const layer = {
+        identifier: 'WB',
+        styles: [
+          {
+            name: 'wb.js',
+            legend: {
+              type: 'discrete' as const,
+              entries: [
+                { value: 0, color: '#000000' },
+                { value: 1, color: '#0000FF' },
+              ],
+            },
+          },
+        ],
+      };
+      expect(layerStyleSuggestion(layer, dataset)?.kind).toBe('categories');
+    });
+  });
 });

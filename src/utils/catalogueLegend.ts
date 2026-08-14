@@ -10,6 +10,8 @@ import {
   CatalogueLayer,
   CatalogueLayerStyle,
   CatalogueLabelSource,
+  CatalogueDataset,
+  CatalogueLegendImage,
 } from '@/types/service';
 import { Category, Colormap } from '@/types/category';
 import { COLORMAP_DATA } from '@/constants/colormapData';
@@ -50,10 +52,19 @@ export interface GradientSuggestion {
   units?: string;
 }
 
+/** The dataset's official legend graphic, used when no faithful translation exists. */
+export interface LegendImageSuggestion {
+  kind: 'legendImage';
+  url: string;
+  pageUrl?: string;
+  units?: string;
+}
+
 export type CatalogueStyleSuggestion =
   | CategoriesSuggestion
   | ColormapSuggestion
-  | GradientSuggestion;
+  | GradientSuggestion
+  | LegendImageSuggestion;
 
 const HEX_RE = /^#?([0-9a-f]{6})$/i;
 
@@ -222,17 +233,41 @@ export const primaryLayerLegend = (layer: CatalogueLayer): CatalogueLegend | und
 export const layerUnits = (layer: CatalogueLayer): string | undefined =>
   layer.units && layer.units.trim() ? layer.units.trim() : undefined;
 
+/** The dataset's official legend graphic, when one was published. */
+export const datasetLegendImage = (
+  dataset?: CatalogueDataset | null,
+): CatalogueLegendImage | undefined => {
+  const image = dataset?.style?.legendImage;
+  return image?.imageUrl ? image : undefined;
+};
+
 /**
  * Style suggestion for a catalogue layer, preferring the layer's own band units
- * when the legend does not carry any.
+ * when the legend does not carry any. When the legend cannot be translated
+ * faithfully (no legend, suppressed, or only a two-stop gradient fallback) the
+ * dataset's official legend graphic is used instead, where one exists.
  */
 export const layerStyleSuggestion = (
   layer: CatalogueLayer,
+  dataset?: CatalogueDataset | null,
 ): CatalogueStyleSuggestion | null => {
   const suggestion = legendToStyleSuggestion(primaryLayerLegend(layer));
+  const units = layerUnits(layer);
+  const image = datasetLegendImage(dataset);
+
+  if (!suggestion || suggestion.kind === 'gradient') {
+    if (image) {
+      return {
+        kind: 'legendImage',
+        url: image.imageUrl as string,
+        ...(image.pageUrl ? { pageUrl: image.pageUrl } : {}),
+        ...(suggestion?.units || units ? { units: suggestion?.units || units } : {}),
+      };
+    }
+  }
+
   if (!suggestion) return null;
   if (suggestion.units) return suggestion;
-  const units = layerUnits(layer);
   return units ? { ...suggestion, units } : suggestion;
 };
 
@@ -265,7 +300,9 @@ export const describeRangeMismatch = (
   layer: CatalogueLayer,
   suggestion: CatalogueStyleSuggestion | null,
 ): string | null => {
-  if (!suggestion || suggestion.kind === 'categories') return null;
+  if (!suggestion || suggestion.kind === 'categories' || suggestion.kind === 'legendImage') {
+    return null;
+  }
   const { min: dMin, max: dMax } = layer.dataRange || {};
   if (dMin === undefined || dMax === undefined) return null;
   const sMin = suggestion.kind === 'colormap' ? suggestion.colormap.min : suggestion.min;
@@ -296,6 +333,9 @@ export const describeStyleSuggestion = (suggestion: CatalogueStyleSuggestion): s
 
     case 'gradient':
       return `Gradient ${suggestion.min}–${suggestion.max} — no matching preset`;
+
+    case 'legendImage':
+      return 'Official legend graphic';
   }
 };
 
@@ -313,6 +353,8 @@ export const styleSuggestionPreviewCss = (suggestion: CatalogueStyleSuggestion):
   if (suggestion.kind === 'gradient') {
     return `linear-gradient(to right, ${suggestion.startColor}, ${suggestion.endColor})`;
   }
+  // The legend image is rendered as an <img>, not a CSS background.
+  if (suggestion.kind === 'legendImage') return 'transparent';
   const colors = generateColorRamp(suggestion.colormap.name, 20, suggestion.colormap.reverse);
   return `linear-gradient(to right, ${colors
     .map((c, i) => `rgb(${c[0]}, ${c[1]}, ${c[2]}) ${(i / 19) * 100}%`)

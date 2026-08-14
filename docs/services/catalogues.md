@@ -130,6 +130,31 @@ A dataset-level `style` block may also carry a `documentationUrl`, which the
 browser links from the dataset card; each style's `evalscriptUrl` is linked from
 the layer card. Both open in a new tab.
 
+### Official legend graphics
+
+Where the provider publishes an official legend image, the dataset's `style`
+block carries it:
+
+```json
+"style": {
+  "legendImage": {
+    "source": "official-clms-cdse-legend",
+    "pageUrl": "https://land.copernicus.eu/en/cdse-legends/clms_global_lst_5km_v1_hourly.png",
+    "imageUrl": "https://land.copernicus.eu/en/cdse-legends/.../image-123-....png",
+    "contentType": "image/png"
+  }
+}
+```
+
+The graphic is used only when there is no faithful translation to builder
+styling — that is, when the layer has no legend, its legend was suppressed
+during discovery, or the ramp would otherwise fall back to a two-stop gradient.
+In those cases the catalogue browser shows a thumbnail of the graphic, and
+adding the layer sets its legend to `{ "type": "image", "url": ... }` (unless the
+layer already has a legend). Where categories or a named colormap were resolved,
+those are kept and the graphic is not applied.
+
+
 ## Band metadata
 
 Layers may also describe the band itself. The builder shows this beneath the

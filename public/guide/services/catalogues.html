@@ -1042,6 +1042,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Styles and legends">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#official-legend-graphics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Official legend graphics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1553,6 +1570,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Styles and legends">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#official-legend-graphics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Official legend graphics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1748,6 +1782,25 @@ layer's units when set.</p>
 <p>A dataset-level <code>style</code> block may also carry a <code>documentationUrl</code>, which the
 browser links from the dataset card; each style's <code>evalscriptUrl</code> is linked from
 the layer card. Both open in a new tab.</p>
+<h3 id="official-legend-graphics">Official legend graphics<a class="headerlink" href="#official-legend-graphics" title="Permanent link">&para;</a></h3>
+<p>Where the provider publishes an official legend image, the dataset's <code>style</code>
+block carries it:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;style&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;legendImage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;official-clms-cdse-legend&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;pageUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://land.copernicus.eu/en/cdse-legends/clms_global_lst_5km_v1_hourly.png&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;imageUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://land.copernicus.eu/en/cdse-legends/.../image-123-....png&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;contentType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;image/png&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The graphic is used only when there is no faithful translation to builder
+styling — that is, when the layer has no legend, its legend was suppressed
+during discovery, or the ramp would otherwise fall back to a two-stop gradient.
+In those cases the catalogue browser shows a thumbnail of the graphic, and
+adding the layer sets its legend to <code>{ "type": "image", "url": ... }</code> (unless the
+layer already has a legend). Where categories or a named colormap were resolved,
+those are kept and the graphic is not applied.</p>
 <h2 id="band-metadata">Band metadata<a class="headerlink" href="#band-metadata" title="Permanent link">&para;</a></h2>
 <p>Layers may also describe the band itself. The builder shows this beneath the
 legend preview so you can judge whether the suggested styling suits your map.</p>

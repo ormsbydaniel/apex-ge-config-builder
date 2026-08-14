@@ -421,6 +421,16 @@ export const useLayerOperations = ({
               metaUpdate.max = style.max;
               metaUpdate.startColor = style.startColor;
               metaUpdate.endColor = style.endColor;
+            } else if (style.kind === 'legendImage') {
+              // No faithful translation exists — use the official legend graphic.
+              const layout = (layer.layout || {}) as DataSource['layout'];
+              const layerCard = (layout?.layerCard || {}) as NonNullable<DataSource['layout']>['layerCard'];
+              if (!layerCard?.legend) {
+                layerUpdate.layout = {
+                  ...layout,
+                  layerCard: { ...layerCard, legend: { type: 'image', url: style.url } },
+                } as DataSource['layout'];
+              }
             }
             if (style.units && !existingMeta.units) {
               metaUpdate.units = style.units;
