@@ -8,7 +8,7 @@ title: 3. Working with Services
 ![Working with Services tutorial hero image](../../assets/screenshots/tutorial-03-hero.png)
 
 Register a WMS as a service, add recommended services, browse the Project
-Results Repository (PRR), add further WMS layers and configure WMS legends.
+Results Repository (PRR) and add further WMS layers.
 
 By the end of this tutorial you will be able to:
 
@@ -16,7 +16,6 @@ By the end of this tutorial you will be able to:
 - Add services from the recommended services list.
 - Browse the Project Results Repository and pull data into your configuration.
 - Add further WMS layers from registered services.
-- Configure legends for a WMS layer.
 
 ## Steps
 
@@ -26,4 +25,3 @@ By the end of this tutorial you will be able to:
 - [3-4. Add recommended services](04-recommended-services.md)
 - [3-5. Add data from the PRR](05-data-from-prr.md)
 - [3-6. Add more WMS layers](06-more-wms-layers.md)
-- [3-7. Add legends for a WMS](07-wms-legends.md)
