@@ -3,9 +3,9 @@ title: 5-3. Categories for a COG
 ---
 # 5-3. Categories for a COG
 
-The same category system drives rendering for classified COGs.
+The category system determines how COGs are rendered when their values represent a data classification (as opposed to a continuous variable).
 
-1. Create a new layer card called `World Cover - Austria` - see tutorial 2-6 for a recap if needed
+1. Create a new layer card called `World Cover - Austria` in the **Land Cover** interface group - see tutorial 2-6 for a recap if needed
 2. Add the following dataset — a World Cover COG for Austria - see tutorial 2-7 for a recap if needed:
 
     ```
@@ -14,8 +14,16 @@ The same category system drives rendering for classified COGs.
 
 3. Click the **(i)** info icon on the dataset row to open the COG metadata
    dialog.
+
+    ![COG metadata dialog showing categorical statistics and the embedded colour palette](../../assets/screenshots/cog-categories-metadata.png)
+
 4. Select **Populate categories**. The categories editor is populated from a
    sample of the pixel values in the COG.
+
+    Alternatively, if the COG has an embedded colour palette, select
+    **Copy embedded colormap to config categories** to bring across both the
+    values and their original colours.
+
 
 5. Edit a couple of the category labels to align to the World Cover class
    names (e.g. `10 → Tree cover`, `20 → Shrubland`). See https://collections.sentinel-hub.com/worldcover/readme.html for the list of namnes and categories.
