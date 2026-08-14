@@ -11,5 +11,13 @@ export const VIEWER_ENV = {
   KEYCLOAK_REALM: 'apex',
   APEX_DISPATCHER_API_BASE_URL: 'dispatch-api.dev.apex.esa.int',
   FEATURE_FLAGS: { KEYCLOAK_ACTIVE: true },
-  VERSION: '3.0.0',
 } as const;
+
+/**
+ * Build the env delivered to the viewer, stamping in the viewer bundle
+ * version currently selected in the preview bundle dropdown.
+ */
+export const buildViewerEnv = (version: string) => ({
+  ...VIEWER_ENV,
+  VERSION: version,
+});
