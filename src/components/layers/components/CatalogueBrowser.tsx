@@ -199,7 +199,7 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
     const version = getCapabilitiesUrl
       ? await fetchServiceVersion(getCapabilitiesUrl, format as DataSourceFormat)
       : undefined;
-    const styleSuggestion = legendToStyleSuggestion(primaryLayerLegend(layer));
+    const styleSuggestion = layerStyleSuggestion(layer);
     return {
       datasetIdentifier: dataset.datasetIdentifier,
       layerIdentifier: layer.identifier,
@@ -477,22 +477,96 @@ const CatalogueBrowser = ({ serviceUrl, serviceName, defaultFormat = 'wmts', onL
                       <ExpandableText text={layer.abstract} className="mt-1" />
                     )}
                     {(() => {
-                      const suggestion = legendToStyleSuggestion(primaryLayerLegend(layer));
-                      if (!suggestion) return null;
+                      const suggestion = layerStyleSuggestion(layer);
+                      const bandSummary = describeBandMetadata(layer);
+                      const rangeNote = describeRangeMismatch(layer, suggestion);
+                      const suppressed = suppressedLegendStyle(layer);
                       return (
-                        <div className="mt-2 flex items-center gap-2 flex-wrap">
-                          <span
-                            className="h-3 w-24 rounded border border-border"
-                            style={{ background: styleSuggestionPreviewCss(suggestion) }}
-                            aria-hidden="true"
-                          />
-                          <span className="text-xs text-muted-foreground">
-                            {describeStyleSuggestion(suggestion)}
-                            {suggestion.units ? ` · ${suggestion.units}` : ''}
-                          </span>
-                        </div>
+                        <>
+                          {suggestion && (
+                            <div className="mt-2 flex items-center gap-2 flex-wrap">
+                              <span
+                                className="h-3 w-24 rounded border border-border"
+                                style={{ background: styleSuggestionPreviewCss(suggestion) }}
+                                aria-hidden="true"
+                              />
+                              <span className="text-xs text-muted-foreground">
+                                {describeStyleSuggestion(suggestion)}
+                                {suggestion.units ? ` · ${suggestion.units}` : ''}
+                              </span>
+                            </div>
+                          )}
+                          {suggestion?.kind === 'categories' && suggestion.labelSource?.title && (
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              Labels:{' '}
+                              {suggestion.labelSource.url ? (
+                                <a
+                                  href={suggestion.labelSource.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-primary hover:underline"
+                                >
+                                  {suggestion.labelSource.title}
+                                </a>
+                              ) : (
+                                suggestion.labelSource.title
+                              )}
+                            </div>
+                          )}
+                          {rangeNote && (
+                            <div className="mt-1 text-xs text-muted-foreground">{rangeNote}</div>
+                          )}
+                          {bandSummary && (
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              {bandSummary}
+                              {layer.bandMetadataSource?.url && (
+                                <>
+                                  {' · '}
+                                  <a
+                                    href={layer.bandMetadataSource.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-primary hover:underline"
+                                  >
+                                    Band metadata
+                                  </a>
+                                </>
+                              )}
+                            </div>
+                          )}
+                          {layer.categoricalValueDescription && (
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              {layer.categoricalValueDescription}
+                            </div>
+                          )}
+                          {!suggestion && suppressed && (
+                            <div className="mt-2 text-xs text-muted-foreground">
+                              No legend published
+                              {suppressed.legendDiscovery?.reason
+                                ? ` (${suppressed.legendDiscovery.reason.replace(/_/g, ' ')})`
+                                : ''}
+                              {suppressed.evalscriptUrl && (
+                                <>
+                                  {' — see '}
+                                  <a
+                                    href={suppressed.evalscriptUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-primary hover:underline"
+                                  >
+                                    {suppressed.name}
+                                  </a>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </>
                       );
                     })()}
+
                     {(layer.styles || []).some(style => style.evalscriptUrl) && (
                       <div className="mt-1 flex items-center gap-3 flex-wrap">
                         {(layer.styles || [])
