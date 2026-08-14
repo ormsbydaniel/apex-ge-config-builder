@@ -27,10 +27,8 @@ a single COG layer showing wind power density at 100 m over Austria.
     | Steps | 50 |
     | Reverse | off |
 
-4. In **Layout**, set the content location to **Info panel** and the legend
-   type to **Swatch**.
+4. In the layer card **Controls**, enable:
 
-5. In the layer card **Controls**, enable:
 
     - **Opacity slider**
     - **Zoom to centre**
@@ -43,7 +41,7 @@ a single COG layer showing wind power density at 100 m over Austria.
         the following steps will be saved to the configuration but will never
         appear in the viewer.
 
-6. **Optional — polish the layer and the start location.**
+5. **Optional — polish the layer and the start location.**
 
     In the layer **Metadata**, set:
 
@@ -59,7 +57,8 @@ a single COG layer showing wind power density at 100 m over Austria.
     location list, so the Explorer always opens on the area of interest. See
     [4-4. Default start location](../04-fine-tuning/04-default-start-location.md).
 
-7. Open the **Preview** and turn the layer on. You should see a jet colour ramp
-   over Austria with a swatch legend, and no constraint controls yet.
+6. Open the **Preview** and turn the layer on. You should see a jet colour ramp
+    over Austria with a swatch legend, and no constraint controls yet.
+
 
 ### Did you remember to export?
