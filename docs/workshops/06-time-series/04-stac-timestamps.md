@@ -17,8 +17,5 @@ a STAC browser the CB copies those timestamps onto the resulting datasets.
    Note that each item carries its own date stamp.
 5. **Add all the BGB assets** to the layer. Back on the layer card each dataset
    should now show the timestamp taken from its STAC item.
-6. Optionally inspect the JSON. Notice that the timestamps have been **copied
-   into the config**, not linked. The GE does not re-fetch the STAC catalogue
-   at runtime, so if the STAC catalogue owner corrects a timestamp later you
-   would need to re-add the asset (or edit the timestamp by hand) to pick up
-   the correction.
+6. Click **Preview**. The BGB layer should now display a temporal control with
+   **Years**, allowing you to step through the imported STAC timestamps.
