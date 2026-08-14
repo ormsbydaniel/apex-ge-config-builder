@@ -2067,25 +2067,19 @@
 a single COG layer showing wind power density at 100 m over Austria.</p>
 <ol>
 <li>
-<p>In the <strong>Layers</strong> tab select <strong>Add layer</strong> and name it
+<p>In the <strong>Layers</strong> tab, add a new <strong>Interface Group</strong> called <code>Energy</code>, then
+   <strong>Add layer</strong> inside it and name the layer
    <code>Austria Wind Power Density at 100m</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A sub-interface group is not needed for this tutorial — a single
+<em>Energy</em> group is enough.</p>
+</div>
 </li>
 <li>
 <p>Add a <strong>COG</strong> data source with this URL:</p>
 <div class="highlight"><pre><span></span><code>https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix.tif
 </code></pre></div>
-</li>
-<li>
-<p>In the layer <strong>Metadata</strong>, set:</p>
-<ul>
-<li><strong>Description</strong> — "The wind power density (w m 2) is a measure of the
-  available wind resource at 100 metres height. Higher wind power density
-  indicates greater wind power potential. Constraints allow the data to be
-  filtered by multiple criteria."</li>
-<li><strong>Units</strong> — <code>w / m 2</code></li>
-<li><strong>Attribution</strong> — text <code>ESA GTIF</code>, URL
-  <a href="https://gtif.esa.int/" target="_blank">https://gtif.esa.int/</a></li>
-</ul>
 </li>
 <li>
 <p>Open <strong>Data Visualisation → Colormaps → Edit</strong> and add a colormap:</p>
@@ -2121,9 +2115,8 @@ a single COG layer showing wind power density at 100 m over Austria.</p>
 </table>
 </li>
 <li>
-<p>In <strong>Layout</strong>, set the interface group to <code>Energy</code> and the sub-interface
-   group to <code>Austria Green Transition</code>. Set the content location to
-   <strong>Info panel</strong> and the legend type to <strong>Swatch</strong>.</p>
+<p>In <strong>Layout</strong>, set the content location to <strong>Info panel</strong> and the legend
+   type to <strong>Swatch</strong>.</p>
 </li>
 <li>
 <p>In the layer card <strong>Controls</strong>, enable:</p>
@@ -2139,6 +2132,22 @@ a single COG layer showing wind power density at 100 m over Austria.</p>
 the following steps will be saved to the configuration but will never
 appear in the viewer.</p>
 </div>
+</li>
+<li>
+<p><strong>Optional — polish the layer and the start location.</strong></p>
+<p>In the layer <strong>Metadata</strong>, set:</p>
+<ul>
+<li><strong>Description</strong> — "The wind power density (w m 2) is a measure of the
+  available wind resource at 100 metres height. Higher wind power density
+  indicates greater wind power potential. Constraints allow the data to be
+  filtered by multiple criteria."</li>
+<li><strong>Units</strong> — <code>w / m 2</code></li>
+<li><strong>Attribution</strong> — text <code>ESA GTIF</code>, URL
+  <a href="https://gtif.esa.int/" target="_blank">https://gtif.esa.int/</a></li>
+</ul>
+<p>Then open <strong>Settings → Navigation</strong> and pick <strong>Austria</strong> from the quick
+location list, so the Explorer always opens on the area of interest. See
+<a href="../04-fine-tuning/04-default-start-location.html">4-4. Default start location</a>.</p>
 </li>
 <li>
 <p>Open the <strong>Preview</strong> and turn the layer on. You should see a jet colour ramp
