@@ -39,10 +39,6 @@ land-use classes render on the map with the copied legend alongside.
 
 ![Preview of the Copernicus Urban Atlas layer over the UK with the class legend listed in the side panel](../../assets/screenshots/wms-legend-preview-urban-atlas.png)
 
-!!! tip "Curate your legends"
-    A WMS legend that comes straight from the server is often visually noisy or
-    inconsistent with the rest of your configuration. Overwriting it with a
-    hand-crafted PNG is often a good idea.
 
 ### Did you remember to export?
 
