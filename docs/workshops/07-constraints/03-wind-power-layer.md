@@ -6,8 +6,13 @@ title: 7-3. Add the wind power layer
 Before adding constraints we need something to constrain. In this step we build
 a single COG layer showing wind power density at 100 m over Austria.
 
-1. In the **Layers** tab select **Add layer** and name it
+1. In the **Layers** tab, add a new **Interface Group** called `Energy`, then
+   **Add layer** inside it and name the layer
    `Austria Wind Power Density at 100m`.
+
+    !!! note
+        A sub-interface group is not needed for this tutorial — a single
+        *Energy* group is enough.
 
 2. Add a **COG** data source with this URL:
 
@@ -15,17 +20,7 @@ a single COG layer showing wind power density at 100 m over Austria.
     https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix.tif
     ```
 
-3. In the layer **Metadata**, set:
-
-    - **Description** — "The wind power density (w m 2) is a measure of the
-      available wind resource at 100 metres height. Higher wind power density
-      indicates greater wind power potential. Constraints allow the data to be
-      filtered by multiple criteria."
-    - **Units** — `w / m 2`
-    - **Attribution** — text `ESA GTIF`, URL
-      [https://gtif.esa.int/](https://gtif.esa.int/){:target="_blank"}
-
-4. Open **Data Visualisation → Colormaps → Edit** and add a colormap:
+3. Open **Data Visualisation → Colormaps → Edit** and add a colormap:
 
     | Setting | Value |
     | --- | --- |
@@ -35,11 +30,10 @@ a single COG layer showing wind power density at 100 m over Austria.
     | Steps | 50 |
     | Reverse | off |
 
-5. In **Layout**, set the interface group to `Energy` and the sub-interface
-   group to `Austria Green Transition`. Set the content location to
-   **Info panel** and the legend type to **Swatch**.
+4. In **Layout**, set the content location to **Info panel** and the legend
+   type to **Swatch**.
 
-6. In the layer card **Controls**, enable:
+5. In the layer card **Controls**, enable:
 
     - **Opacity slider**
     - **Zoom to centre**
@@ -51,6 +45,22 @@ a single COG layer showing wind power density at 100 m over Austria.
         Without the **Constraint slider** control the constraints you add in
         the following steps will be saved to the configuration but will never
         appear in the viewer.
+
+6. **Optional — polish the layer and the start location.**
+
+    In the layer **Metadata**, set:
+
+    - **Description** — "The wind power density (w m 2) is a measure of the
+      available wind resource at 100 metres height. Higher wind power density
+      indicates greater wind power potential. Constraints allow the data to be
+      filtered by multiple criteria."
+    - **Units** — `w / m 2`
+    - **Attribution** — text `ESA GTIF`, URL
+      [https://gtif.esa.int/](https://gtif.esa.int/){:target="_blank"}
+
+    Then open **Settings → Navigation** and pick **Austria** from the quick
+    location list, so the Explorer always opens on the area of interest. See
+    [4-4. Default start location](../04-fine-tuning/04-default-start-location.md).
 
 7. Open the **Preview** and turn the layer on. You should see a jet colour ramp
    over Austria with a swatch legend, and no constraint controls yet.
