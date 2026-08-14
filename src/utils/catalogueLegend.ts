@@ -300,7 +300,9 @@ export const describeRangeMismatch = (
   layer: CatalogueLayer,
   suggestion: CatalogueStyleSuggestion | null,
 ): string | null => {
-  if (!suggestion || suggestion.kind === 'categories') return null;
+  if (!suggestion || suggestion.kind === 'categories' || suggestion.kind === 'legendImage') {
+    return null;
+  }
   const { min: dMin, max: dMax } = layer.dataRange || {};
   if (dMin === undefined || dMax === undefined) return null;
   const sMin = suggestion.kind === 'colormap' ? suggestion.colormap.min : suggestion.min;
