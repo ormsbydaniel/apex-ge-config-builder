@@ -177,6 +177,15 @@ nav:
           - 7-6. Add more continuous constraints: workshops/07-constraints/06-more-continuous.md
           - 7-7. Add a combined constraint: workshops/07-constraints/07-combined-constraint.md
           - 7-8. Review the full configuration: workshops/07-constraints/08-review-and-export.md
+      - 8. Statistics:
+          - Overview: workshops/08-statistics/index.md
+          - 8-1. Pre-requisites: workshops/08-statistics/01-prerequisites.md
+          - 8-2. Key concepts: workshops/08-statistics/02-key-concepts.md
+          - 8-3. Add the World Cover layer: workshops/08-statistics/03-world-cover-layer.md
+          - 8-4. Add the first statistics source: workshops/08-statistics/04-first-statistics-source.md
+          - 8-5. Add the remaining NUTS levels: workshops/08-statistics/05-more-statistics-levels.md
+          - 8-6. Panel and controls: workshops/08-statistics/06-panel-and-controls.md
+          - 8-7. Preview and review: workshops/08-statistics/07-preview-and-review.md
   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
