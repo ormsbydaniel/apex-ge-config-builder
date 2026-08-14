@@ -26,7 +26,7 @@ We will add a second constraint on the **same** elevation COG used in
 
     - **Label** — `Altitudinal zones`
     - **Interactive** — on
-    - **Constraint Type** — **Combined**
+    - **Constraint Type** — **Named ranges (continuous with labelled ranges)**
     - **Units** — `meters`
 
 3. Add four named ranges:
