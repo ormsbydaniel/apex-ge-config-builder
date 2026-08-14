@@ -27,10 +27,8 @@ a single COG layer showing wind power density at 100 m over Austria.
     | Steps | 50 |
     | Reverse | off |
 
-4. In **Layout**, set the content location to **Info panel** and the legend
-   type to **Swatch**.
+4. In the layer card **Controls**, enable:
 
-5. In the layer card **Controls**, enable:
 
     - **Opacity slider**
     - **Zoom to centre**
