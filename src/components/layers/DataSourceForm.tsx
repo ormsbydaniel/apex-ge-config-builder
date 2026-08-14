@@ -471,6 +471,15 @@ const DataSourceForm = ({
       setSelectedLayerTemporalSuggestion(null);
     }
 
+    // If the service advertises this layer without a time dimension, the WMS/WMTS
+    // TIME parameter can't be used: uncheck it so a manual timestamp is captured.
+    const selectedFmt = format ?? selectedFormat;
+    if (layerInfo && (selectedFmt === 'wms' || selectedFmt === 'wmts')) {
+      const supportsTime = Boolean(layerInfo.hasTimeDimension || layerInfo.timeExtent);
+      setUseTimeParameter(supportsTime);
+    }
+
+
 
     // If datetime is provided from STAC and temporal configuration is enabled, set the selected date
     if (datetime && requiresTimestamp) {
