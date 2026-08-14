@@ -45,13 +45,19 @@ a single COG layer showing wind power density at 100 m over Austria.
 
     In the layer **Metadata**, set:
 
-    - **Description** — "The wind power density (w m 2) is a measure of the
-      available wind resource at 100 metres height. Higher wind power density
-      indicates greater wind power potential. Constraints allow the data to be
-      filtered by multiple criteria."
+    - **Description** — copy in the following text:
+
+        ```
+        The wind power density (w m 2) is a measure of the available wind
+        resource at 100 metres height. Higher wind power density indicates
+        greater wind power potential. Constraints allow the data to be filtered
+        by multiple criteria.
+        ```
+
     - **Units** — `w / m 2`
     - **Attribution** — text `ESA GTIF`, URL
       [https://gtif.esa.int/](https://gtif.esa.int/){:target="_blank"}
+
 
     Then open **Settings → Navigation** and pick **Austria** from the quick
     location list, so the Explorer always opens on the area of interest. See
