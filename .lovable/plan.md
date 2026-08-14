@@ -13,10 +13,10 @@ one constraint per step so each type is explained, configured, and previewed.
   7-1. Pre-requisites          01-prerequisites.md
   7-2. Key concepts            02-key-concepts.md
   7-3. Add the wind power layer     03-wind-power-layer.md
-  7-4. Continuous constraint (elevation)   04-continuous-constraint.md
-  7-5. More continuous constraints         05-more-continuous.md
-  7-6. Combined constraint (altitudinal zones)  06-combined-constraint.md
-  7-7. Categorical constraint (land cover)      07-categorical-constraint.md
+  7-4. Categorical constraint (land cover)      04-categorical-constraint.md
+  7-5. Continuous constraint (elevation)        05-continuous-constraint.md
+  7-6. More continuous constraints              06-more-continuous.md
+  7-7. Combined constraint (altitudinal zones)  07-combined-constraint.md
   7-8. Review the full configuration            08-review-and-export.md
 ```
 
