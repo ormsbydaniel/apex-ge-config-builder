@@ -24,6 +24,11 @@ detail follows the zoom. Add the three finer NUTS levels the same way.
     https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level03.fgb
     ```
 
+4. View the result. Open the **Preview**, select the **Statistics** tab in the
+   panel and click a **country** on the map. Now zoom in and click again — as
+   the zoom increases the Explorer switches to the finer NUTS levels, so the
+   breakdown becomes that of a region rather than a country.
+
 Each new source takes the **next level number** automatically, so adding them
 in this order gives you levels `0`, `1`, `2` and `3`.
 
