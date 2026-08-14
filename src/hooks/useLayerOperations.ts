@@ -421,6 +421,9 @@ export const useLayerOperations = ({
               metaUpdate.max = style.max;
               metaUpdate.startColor = style.startColor;
               metaUpdate.endColor = style.endColor;
+            } else if (style.kind === 'legendImage' && !existingMeta.legend) {
+              // No faithful translation exists — use the official legend graphic.
+              metaUpdate.legend = { type: 'image', url: style.url };
             }
             if (style.units && !existingMeta.units) {
               metaUpdate.units = style.units;
