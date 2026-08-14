@@ -607,7 +607,28 @@ const DataSourceForm = ({
 
     // Keep negotiated versions in their protocol-specific config locations:
     // WMS uses parameters.version; WMTS uses the top-level version property.
-    baseItem = applyOgcServiceVersion(baseItem, selectedFormat, parameterRows, serviceVersion);
+    let versionToApply = serviceVersion;
+    const hasManualVersion = parameterRows.some(
+      (row) => row.key.trim().toLowerCase() === 'version' && row.value.trim() !== ''
+    );
+    if (isWmsOrWmts && !versionToApply && !hasManualVersion) {
+      // Direct connections don't carry a negotiated version: probe GetCapabilities
+      // on save so the config records the protocol version reported by the service.
+      setIsNegotiatingVersion(true);
+      try {
+        const detected = await fetchServiceVersion(url, selectedFormat);
+        if (detected) {
+          versionToApply = detected;
+          setServiceVersion(detected);
+        }
+      } catch {
+        // Non-fatal: save without a version if the service can't be reached.
+      } finally {
+        setIsNegotiatingVersion(false);
+      }
+    }
+
+    baseItem = applyOgcServiceVersion(baseItem, selectedFormat, parameterRows, versionToApply);
 
     // Attach transient temporal suggestion from service capabilities so the layer
     // card can be auto-populated when this data source is added.
