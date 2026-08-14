@@ -1935,12 +1935,14 @@
 <p>STAC items carry timestamps on the items themselves. When you pull assets from
 a STAC browser the CB copies those timestamps onto the resulting datasets.</p>
 <ol>
-<li>On the <em>AGB</em> layer card, select <strong>+ Add dataset → From service → PRR</strong>.</li>
-<li>Find the AGB collection. Note that each item has a date stamp.</li>
-<li><strong>Add all five AGB assets</strong> to the layer.</li>
-<li>Back on the layer card you should now see seven datasets — the two you
-   added manually in the previous tutorial plus the five from STAC. Delete
-   the two manual ones since they are now duplicates.</li>
+<li>Return to your <em>Below Ground Biomass</em> layer (BGB). If you do not have one,
+   create a new layer with this name first.</li>
+<li>On the <strong>Datasets</strong> tab, <strong>delete</strong> the existing dataset so the layer starts
+   empty.</li>
+<li>Select <strong>+ Add dataset → From service → PRR</strong> and find the BGB collection.
+   Note that each item carries its own date stamp.</li>
+<li><strong>Add all the BGB assets</strong> to the layer. Back on the layer card each dataset
+   should now show the timestamp taken from its STAC item.</li>
 <li>Optionally inspect the JSON. Notice that the timestamps have been <strong>copied
    into the config</strong>, not linked. The GE does not re-fetch the STAC catalogue
    at runtime, so if the STAC catalogue owner corrects a timestamp later you
