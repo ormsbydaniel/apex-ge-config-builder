@@ -453,11 +453,27 @@
          <lastmod>2026-08-14</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/03-categorical-constraint.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/03-wind-power-layer.html</loc>
          <lastmod>2026-08-14</lastmod>
     </url>
     <url>
-         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/04-continuous-constraints.html</loc>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/04-categorical-constraint.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/05-continuous-constraint.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/06-more-continuous.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/07-combined-constraint.html</loc>
+         <lastmod>2026-08-14</lastmod>
+    </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/07-constraints/08-review-and-export.html</loc>
          <lastmod>2026-08-14</lastmod>
     </url>
 </urlset>

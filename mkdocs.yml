@@ -171,8 +171,12 @@ nav:
           - Overview: workshops/07-constraints/index.md
           - 7-1. Pre-requisites: workshops/07-constraints/01-prerequisites.md
           - 7-2. Key concepts: workshops/07-constraints/02-key-concepts.md
-          - 7-3. Create a categorical constraint: workshops/07-constraints/03-categorical-constraint.md
-          - 7-4. Add continuous constraints: workshops/07-constraints/04-continuous-constraints.md
+          - 7-3. Add the wind power layer: workshops/07-constraints/03-wind-power-layer.md
+          - 7-4. Create a categorical constraint: workshops/07-constraints/04-categorical-constraint.md
+          - 7-5. Add a continuous constraint: workshops/07-constraints/05-continuous-constraint.md
+          - 7-6. Add more continuous constraints: workshops/07-constraints/06-more-continuous.md
+          - 7-7. Add a combined constraint: workshops/07-constraints/07-combined-constraint.md
+          - 7-8. Review the full configuration: workshops/07-constraints/08-review-and-export.md
   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
