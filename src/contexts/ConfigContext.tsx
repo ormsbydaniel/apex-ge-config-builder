@@ -547,17 +547,22 @@ export function configReducer(state: ConfigState, action: ConfigAction): ConfigS
       }));
 
       // Enforce a single active base layer: if the payload newly activates a
-      // base layer (active now, not active at the same index before), then
-      // deactivate every other active base layer. Pure reorders don't newly
-      // activate anything, so they pass through unchanged.
-      const newlyActivated = sanitizedSources.some((source, idx) =>
-        source.isBaseLayer && source.isActive && !state.sources[idx]?.isActive
-      );
+      // base layer (active now, but the same layer was not active before),
+      // then deactivate every other active base layer. Layers are matched to
+      // their previous selves by id (falling back to index), so pure reorders
+      // don't count as activation and pass through unchanged.
+      const wasActiveBefore = (source: any, idx: number): boolean => {
+        const prev = source.id
+          ? state.sources.find((s: any) => s.id === source.id)
+          : state.sources[idx];
+        return Boolean(prev?.isActive);
+      };
+      const isNewlyActivated = (source: any, idx: number) =>
+        source.isBaseLayer && source.isActive && !wasActiveBefore(source, idx);
+      const newlyActivated = sanitizedSources.some(isNewlyActivated);
       const finalSources = newlyActivated
         ? (() => {
-            const keepIdx = sanitizedSources.findIndex((source, idx) =>
-              source.isBaseLayer && source.isActive && !state.sources[idx]?.isActive
-            );
+            const keepIdx = sanitizedSources.findIndex(isNewlyActivated);
             return sanitizedSources.map((source, idx) =>
               idx !== keepIdx && source.isBaseLayer && source.isActive
                 ? { ...source, isActive: false }
