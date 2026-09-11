@@ -144,7 +144,7 @@ const normalizeDataToArray = (data: any): DataSourceItem[] => {
   return [];
 };
 
-function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
+export function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
   switch (action.type) {
     case 'LOAD_CONFIG': {
       // Normalize all data fields to arrays when loading and preserve statistics
@@ -545,11 +545,36 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           }))
         })
       }));
-      
+
+      // Enforce a single active base layer: if the payload newly activates a
+      // base layer (active now, but the same layer was not active before),
+      // then deactivate every other active base layer. Layers are matched to
+      // their previous selves by id (falling back to index), so pure reorders
+      // don't count as activation and pass through unchanged.
+      const wasActiveBefore = (source: any, idx: number): boolean => {
+        const prev = source.id
+          ? state.sources.find((s: any) => s.id === source.id)
+          : state.sources[idx];
+        return Boolean(prev?.isActive);
+      };
+      const isNewlyActivated = (source: any, idx: number) =>
+        source.isBaseLayer && source.isActive && !wasActiveBefore(source, idx);
+      const newlyActivated = sanitizedSources.some(isNewlyActivated);
+      const finalSources = newlyActivated
+        ? (() => {
+            const keepIdx = sanitizedSources.findIndex(isNewlyActivated);
+            return sanitizedSources.map((source, idx) =>
+              idx !== keepIdx && source.isBaseLayer && source.isActive
+                ? { ...source, isActive: false }
+                : source
+            );
+          })()
+        : sanitizedSources;
+
       return {
         ...state,
         isDirty: true,
-        sources: sanitizedSources,
+        sources: finalSources,
       };
     }
     case 'UPDATE_VALIDATION_RESULTS':
