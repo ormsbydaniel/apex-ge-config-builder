@@ -15,3 +15,4 @@ export * from './format';
 export * from './form';
 export * from './validation';
 export * from './story';
+export * from './settings';
