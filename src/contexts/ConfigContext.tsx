@@ -545,11 +545,31 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
           }))
         })
       }));
-      
+
+      // Enforce a single active base layer: if the payload newly activates a
+      // base layer (active now, not active at the same index before), then
+      // deactivate every other active base layer. Pure reorders don't newly
+      // activate anything, so they pass through unchanged.
+      const newlyActivated = sanitizedSources.some((source, idx) =>
+        source.isBaseLayer && source.isActive && !state.sources[idx]?.isActive
+      );
+      const finalSources = newlyActivated
+        ? (() => {
+            const keepIdx = sanitizedSources.findIndex((source, idx) =>
+              source.isBaseLayer && source.isActive && !state.sources[idx]?.isActive
+            );
+            return sanitizedSources.map((source, idx) =>
+              idx !== keepIdx && source.isBaseLayer && source.isActive
+                ? { ...source, isActive: false }
+                : source
+            );
+          })()
+        : sanitizedSources;
+
       return {
         ...state,
         isDirty: true,
-        sources: sanitizedSources,
+        sources: finalSources,
       };
     }
     case 'UPDATE_VALIDATION_RESULTS':
