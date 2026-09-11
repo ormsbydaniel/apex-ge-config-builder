@@ -144,7 +144,7 @@ const normalizeDataToArray = (data: any): DataSourceItem[] => {
   return [];
 };
 
-function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
+export function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
   switch (action.type) {
     case 'LOAD_CONFIG': {
       // Normalize all data fields to arrays when loading and preserve statistics
