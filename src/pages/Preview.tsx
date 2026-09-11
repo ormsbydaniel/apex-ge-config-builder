@@ -45,6 +45,7 @@ const Preview = () => {
       mapConstraints: config.mapConstraints,
       projections: config.projections,
       stories: config.stories,
+      settings: config.settings,
     };
     console.log('[Config Builder Preview] viewerConfig.layout:', vConfig.layout);
     console.log('[Config Builder Preview] viewerConfig.layout.theme:', vConfig.layout?.theme);
