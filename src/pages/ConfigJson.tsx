@@ -18,6 +18,7 @@ const ConfigJson = () => {
     layout: config.layout,
     interfaceGroups: config.interfaceGroups,
     exclusivitySets: config.exclusivitySets,
+    ...((config as any).settings && { settings: (config as any).settings }),
     ...(config.mapConstraints && { mapConstraints: config.mapConstraints }),
     ...(config.projections?.length && { projections: config.projections }),
     ...((config as any).workflows && { workflows: (config as any).workflows }),
