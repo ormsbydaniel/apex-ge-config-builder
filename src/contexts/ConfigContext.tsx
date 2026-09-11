@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Service, DataSource, DataSourceItem, DataSourceFormat, LayerValidationResult, Story } from '@/types/config';
+import { Service, DataSource, DataSourceItem, DataSourceFormat, LayerValidationResult, Story, AppSettings } from '@/types/config';
 import { WorkflowItem } from '@/types/dataSource';
 import { ValidatedConfiguration } from '@/schemas/configSchema';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
@@ -29,6 +29,7 @@ type ConfigAction =
   | { type: 'SET_LAST_EXPORTED' }
   | { type: 'UPDATE_VERSION'; payload: string }
   | { type: 'UPDATE_EXPORT_PREFIX'; payload: string }
+  | { type: 'UPDATE_SETTINGS'; payload: Partial<AppSettings> }
   | { type: 'UPDATE_LAYOUT'; payload: { field: string; value: string } }
   | { type: 'UPDATE_DESIGN'; payload: { variant: string; parameters?: Record<string, unknown> } | undefined }
   | { type: 'UPDATE_THEME'; payload: { field: string; value: string } }
@@ -244,6 +245,23 @@ function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
         isDirty: true,
         exportPrefix: action.payload,
       };
+    case 'UPDATE_SETTINGS': {
+      const nextSettings: AppSettings = { ...(state.settings || {}) };
+
+      Object.entries(action.payload).forEach(([key, value]) => {
+        if (value === undefined) {
+          delete nextSettings[key];
+        } else {
+          nextSettings[key] = value;
+        }
+      });
+
+      return {
+        ...state,
+        isDirty: true,
+        settings: Object.keys(nextSettings).length > 0 ? nextSettings : undefined,
+      };
+    }
     case 'UPDATE_LAYOUT':
       return {
         ...state,

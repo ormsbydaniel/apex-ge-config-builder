@@ -35,6 +35,9 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   const [logoUrl, setLogoUrl] = useState(config.layout.navigation.logo);
   const [isEditingPrefix, setIsEditingPrefix] = useState(false);
   const [prefixInput, setPrefixInput] = useState(config.exportPrefix || '');
+  const [layerFetchTimeoutInput, setLayerFetchTimeoutInput] = useState(
+    config.settings?.layerFetchTimeoutMs?.toString() || ''
+  );
   
   // Theme colors state
   const [primaryColor, setPrimaryColor] = useState(config.layout.theme?.['primary-color'] || '#003247');
@@ -65,6 +68,10 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   useEffect(() => {
     setPrefixInput(config.exportPrefix || '');
   }, [config.exportPrefix]);
+
+  useEffect(() => {
+    setLayerFetchTimeoutInput(config.settings?.layerFetchTimeoutMs?.toString() || '');
+  }, [config.settings?.layerFetchTimeoutMs]);
 
   useEffect(() => {
     if (config.layout.theme) {
@@ -275,6 +282,21 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
   };
 
   const currentZoom = config.mapConstraints?.zoom || 0;
+  const parsedLayerFetchTimeout = Number(layerFetchTimeoutInput);
+  const isLayerFetchTimeoutValid = layerFetchTimeoutInput === '' || (
+    Number.isInteger(parsedLayerFetchTimeout) && parsedLayerFetchTimeout > 0
+  );
+
+  const saveLayerFetchTimeout = () => {
+    if (!isLayerFetchTimeoutValid) return;
+
+    dispatch({
+      type: 'UPDATE_SETTINGS',
+      payload: {
+        layerFetchTimeoutMs: layerFetchTimeoutInput === '' ? undefined : parsedLayerFetchTimeout,
+      },
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -1048,6 +1070,52 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     https://explorer.sef-ecosystems.apex.esa.int/?&amp;layerGroups=Urban%20Ecosystems&amp;layerGroups=Coastal%20Ecosystems&amp;zoom=6&amp;lat=43.0&amp;lng=22.0
                   </a>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* More Settings */}
+          <div className="space-y-4 pt-6">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              More settings
+            </h3>
+            <div className="flex items-start gap-6">
+              <div className="flex items-center gap-2 pt-2 w-[180px]">
+                <Label htmlFor="layer-fetch-timeout" className="text-base font-medium">
+                  Layer Fetch Timeout
+                </Label>
+              </div>
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="layer-fetch-timeout"
+                    type="number"
+                    min={1}
+                    step={1}
+                    value={layerFetchTimeoutInput}
+                    onChange={(event) => setLayerFetchTimeoutInput(event.target.value)}
+                    onBlur={saveLayerFetchTimeout}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.currentTarget.blur();
+                      }
+                    }}
+                    aria-invalid={!isLayerFetchTimeoutValid}
+                    aria-describedby="layer-fetch-timeout-help"
+                    className={`max-w-xs ${!isLayerFetchTimeoutValid ? 'border-destructive' : ''}`}
+                    placeholder="e.g. 5000"
+                  />
+                  <span className="text-sm text-muted-foreground">ms</span>
+                </div>
+                <p
+                  id="layer-fetch-timeout-help"
+                  className={`text-xs ${!isLayerFetchTimeoutValid ? 'text-destructive' : 'text-muted-foreground'}`}
+                >
+                  {isLayerFetchTimeoutValid
+                    ? 'Maximum time to wait when fetching a layer. Leave blank to use the viewer default.'
+                    : 'Enter a positive whole number of milliseconds.'}
+                </p>
               </div>
             </div>
           </div>
