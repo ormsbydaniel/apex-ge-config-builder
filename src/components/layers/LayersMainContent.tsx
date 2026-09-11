@@ -3,6 +3,7 @@ import React from 'react';
 import LayersTabContent from './components/LayersTabContent';
 import ExclusivitySetsSection from './components/ExclusivitySetsSection';
 import AddInterfaceGroupDialog from './components/AddInterfaceGroupDialog';
+import RecommendedBaseLayersModal from './components/RecommendedBaseLayersModal';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
 
 interface LayersMainContentProps {
@@ -112,6 +113,13 @@ const LayersMainContent = ({
         onOpenChange={layersLogic.setShowAddGroupDialog}
         onAdd={layersLogic.handleAddInterfaceGroup}
         existingGroups={config.interfaceGroups}
+      />
+
+      <RecommendedBaseLayersModal
+        isOpen={layersLogic.showRecommendedModal}
+        onClose={layersLogic.handleCloseRecommendedModal}
+        layers={layersLogic.recommendedLayers || []}
+        onConfirm={layersLogic.handleConfirmRecommendedBaseLayers}
       />
     </div>
   );

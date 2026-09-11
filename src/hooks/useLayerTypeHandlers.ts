@@ -12,6 +12,8 @@ interface UseLayerTypeHandlersProps {
   setEditingLayerIndex: (index: number | null) => void;
   setExpandedGroupAfterAction: (groupName: string | null) => void;
   addLayer: (layer: DataSource) => void;
+  /** URLs of base layers already in the config, used to exclude duplicates. */
+  existingBaseLayerUrls?: string[];
 }
 
 export const useLayerTypeHandlers = ({
@@ -21,9 +23,12 @@ export const useLayerTypeHandlers = ({
   setShowLayerForm,
   setEditingLayerIndex,
   setExpandedGroupAfterAction,
-  addLayer
+  addLayer,
+  existingBaseLayerUrls = []
 }: UseLayerTypeHandlersProps) => {
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
+  const [showRecommendedModal, setShowRecommendedModal] = useState(false);
+  const [recommendedLayers, setRecommendedLayers] = useState<DataSource[]>([]);
 
   const handleAddLayerForGroup = useCallback((groupName: string, subGroupName?: string) => {
     setDefaultInterfaceGroup(groupName);
@@ -40,9 +45,9 @@ export const useLayerTypeHandlers = ({
   const handleAddRecommendedBaseLayers = useCallback(async () => {
     setIsLoadingRecommended(true);
     try {
-      const recommendedLayers = await fetchRecommendedBaseLayers();
-      
-      if (recommendedLayers.length === 0) {
+      const fetchedLayers = await fetchRecommendedBaseLayers();
+
+      if (fetchedLayers.length === 0) {
         toast({
           title: "No base layers found",
           description: "The recommended config doesn't contain any base layers.",
@@ -51,19 +56,24 @@ export const useLayerTypeHandlers = ({
         return;
       }
 
-      // Add each base layer
-      recommendedLayers.forEach(layer => {
-        addLayer(layer);
+      // Exclude base layers already present in the config (matched by service URL)
+      const existingUrls = new Set(existingBaseLayerUrls.filter(Boolean));
+      const newLayers = fetchedLayers.filter(layer => {
+        const url = layer.data?.[0]?.url;
+        return !url || !existingUrls.has(url);
       });
 
-      toast({
-        title: "Base layers added",
-        description: `Successfully added ${recommendedLayers.length} recommended base layer${recommendedLayers.length !== 1 ? 's' : ''}.`,
-        variant: "default"
-      });
+      if (newLayers.length === 0) {
+        toast({
+          title: "Nothing new to add",
+          description: "All recommended base layers have already been added.",
+          variant: "default"
+        });
+        return;
+      }
 
-      // Expand the base layers group
-      setExpandedGroupAfterAction('__BASE_LAYERS__');
+      setRecommendedLayers(newLayers);
+      setShowRecommendedModal(true);
     } catch (error) {
       toast({
         title: "Failed to load base layers",
@@ -73,12 +83,39 @@ export const useLayerTypeHandlers = ({
     } finally {
       setIsLoadingRecommended(false);
     }
+  }, [existingBaseLayerUrls]);
+
+  const handleConfirmRecommendedBaseLayers = useCallback((selected: DataSource[]) => {
+    selected.forEach(layer => {
+      addLayer(layer);
+    });
+
+    toast({
+      title: "Base layers added",
+      description: `Successfully added ${selected.length} recommended base layer${selected.length !== 1 ? 's' : ''}.`,
+      variant: "default"
+    });
+
+    setShowRecommendedModal(false);
+    setRecommendedLayers([]);
+
+    // Expand the base layers group
+    setExpandedGroupAfterAction('__BASE_LAYERS__');
   }, [addLayer, setExpandedGroupAfterAction]);
+
+  const handleCloseRecommendedModal = useCallback(() => {
+    setShowRecommendedModal(false);
+    setRecommendedLayers([]);
+  }, []);
 
   return {
     handleAddLayerForGroup,
     handleAddBaseLayer,
     handleAddRecommendedBaseLayers,
-    isLoadingRecommended
+    handleConfirmRecommendedBaseLayers,
+    handleCloseRecommendedModal,
+    isLoadingRecommended,
+    showRecommendedModal,
+    recommendedLayers
   };
 };

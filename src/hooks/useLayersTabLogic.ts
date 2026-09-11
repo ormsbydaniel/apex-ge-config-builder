@@ -49,7 +49,11 @@ export const useLayersTabLogic = (props: UseLayersTabLogicProps) => {
     setShowLayerForm,
     setEditingLayerIndex,
     setExpandedGroupAfterAction: composedLogic.setExpandedGroupAfterAction,
-    addLayer: props.addLayer
+    addLayer: props.addLayer,
+    existingBaseLayerUrls: props.config.sources
+      .filter(source => source.isBaseLayer)
+      .map(source => source.data?.[0]?.url)
+      .filter((url): url is string => Boolean(url))
   });
 
   const {
