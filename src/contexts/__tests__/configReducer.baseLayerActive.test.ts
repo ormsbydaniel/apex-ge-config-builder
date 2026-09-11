@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { configReducer } from '../ConfigContext';
 
 const baseLayer = (name: string, isActive: boolean) => ({
+  id: `bl-${name}`,
   name,
   isBaseLayer: true,
   isActive,
