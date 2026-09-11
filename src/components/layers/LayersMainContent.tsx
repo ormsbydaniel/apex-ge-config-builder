@@ -113,6 +113,13 @@ const LayersMainContent = ({
         onAdd={layersLogic.handleAddInterfaceGroup}
         existingGroups={config.interfaceGroups}
       />
+
+      <RecommendedBaseLayersModal
+        isOpen={layersLogic.showRecommendedModal}
+        onClose={layersLogic.handleCloseRecommendedModal}
+        layers={layersLogic.recommendedLayers || []}
+        onConfirm={layersLogic.handleConfirmRecommendedBaseLayers}
+      />
     </div>
   );
 };
