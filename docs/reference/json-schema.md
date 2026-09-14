@@ -518,7 +518,7 @@ Inline charts attached to a layer — see [Charts](../charts/index.md).
 | `traces[]` | object | no | Plotly-style trace objects (`y`, `name`, `type`, `mode`, `fill`, `line`, `marker`, …). |
 | `layout` | object | no | Plotly layout (`height`, `legend`, `barmode`, `xaxis`, `yaxis`). |
 | `pie` | object | no | Pie-only options (`labels`, `values`, `hole`, `textinfo`, `colors`). |
-| `sources[]` | object | no | Where the data comes from: `{ type: 'externalURL'\|'lookupURL'\|'pixelValues'\|'inline', url?, field?, fields?, format?, label? }`. |
+| `sources[]` | object | no | Where the data comes from: `{ type: 'externalURL'\|'lookupURL'\|'pixelValues'\|'pixelTimeSeries'\|'inline', url?, field?, fields?, format?, label?, bandIndex? }`. `bandIndex` (zero-based) applies to `pixelTimeSeries`. |
 
 Schema example (a line chart fed by a remote CSV):
 
