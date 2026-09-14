@@ -8,6 +8,7 @@ import { detectCogTransformation } from './detection/cogDetector';
 import { detectExclusivitySetsTransformation } from './detection/exclusivitySetsDetector';
 import { detectMetaCompletionNeeded } from './detection/metaCompletionDetector';
 import { detectFormatToTypeTransformation } from './detection/formatToTypeDetector';
+import { detectTopLevelDefaultsNeeded } from './detection/topLevelDefaultsDetector';
 
 import { DetectedTransformations } from './types';
 
@@ -24,6 +25,7 @@ export const detectTransformations = (config: any): DetectedTransformations => {
     exclusivitySetsTransformation: detectExclusivitySetsTransformation(config),
     metaCompletionNeeded: detectMetaCompletionNeeded(config),
     formatToTypeConversion: detectFormatToTypeTransformation(config),
+    topLevelDefaultsNeeded: detectTopLevelDefaultsNeeded(config),
   };
   
   console.log('Detected transformations:', detectedTransforms);
