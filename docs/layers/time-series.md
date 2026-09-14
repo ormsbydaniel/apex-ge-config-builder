@@ -30,6 +30,9 @@ When you set timestamps manually — for example 1 January 2025 and 1 January 20
 
 Layer Card → **Controls → Temporal control** → choose the granularity:
 
+![Edit Controls dialog with Temporal Controls enabled and the timeframe list open](../assets/screenshots/time-series-timeframe-selector.png)
+
+
 | Granularity | Use for |
 |-------------|---------|
 | **None** | No temporal control. |
