@@ -1022,6 +1022,53 @@ export function ChartSourceForm({
                         )}
                       </div>
                     </>
+                  ) : isTimeSeriesReady ? (
+                    <>
+                      <ChartTypeSelector
+                        config={chartConfig}
+                        onChange={setChartConfig}
+                      />
+
+                      {chartConfig.traces && chartConfig.traces.length > 0 && (
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium">Trace Styling</Label>
+                          {chartConfig.traces.map((trace, i) => (
+                            <div key={i} className="flex items-center gap-2 text-sm">
+                              <span className="text-muted-foreground">{trace.name || `Trace ${i + 1}`}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs ml-auto"
+                                onClick={() => setSelectedTraceIndex(i)}
+                              >
+                                Edit
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {selectedTrace && selectedTraceIndex !== null && (
+                        <TraceEditor
+                          trace={selectedTrace}
+                          traceIndex={selectedTraceIndex}
+                          columns={timeSeriesDates}
+                          hideYColumn
+                          onUpdate={(updatedTrace) => {
+                            const newTraces = [...(chartConfig.traces || [])];
+                            newTraces[selectedTraceIndex] = updatedTrace;
+                            setChartConfig({ ...chartConfig, traces: newTraces });
+                          }}
+                          onRemove={() => {
+                            const newTraces = [...(chartConfig.traces || [])];
+                            newTraces.splice(selectedTraceIndex, 1);
+                            setChartConfig({ ...chartConfig, traces: newTraces });
+                            setSelectedTraceIndex(null);
+                          }}
+                        />
+                      )}
+                    </>
                   ) : isPixelValuesReady ? (
                     <>
                       {/* Simplified chart type selector for pixelValues - no pie/histogram */}
@@ -1179,11 +1226,18 @@ export function ChartSourceForm({
                             title: chartTitle || chartConfig.title,
                             subtitle: chartSubtitle || chartConfig.subtitle,
                             ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {}),
-                            ...(sourceType === 'fieldValues' ? { sources: [{ type: 'inline' as const, fields: inlineFields }] } : {})
+                            ...(sourceType === 'fieldValues' ? { sources: [{ type: 'inline' as const, fields: inlineFields }] } : {}),
+                            ...(sourceType === 'pixelTimeSeries' ? { sources: [{ type: 'pixelTimeSeries' as const, bandIndex: timeSeriesBandIndex }] } : {})
                           }}
                           data={parsedData}
                           sampleData={samplePixelValues || undefined}
+                          sampleXLabels={isTimeSeriesReady ? timeSeriesDates : undefined}
                         />
+                        {isTimeSeriesReady && (
+                          <p className="text-xs text-muted-foreground text-center mt-1 italic">
+                            Placeholder values — the Explorer samples band {timeSeriesBandIndex + 1} at the clicked location for each date
+                          </p>
+                        )}
                         {isPixelValuesReady && samplePixelValues && (
                           <p className="text-xs text-muted-foreground text-center mt-1 italic">
                             Sample data from center pixel — actual chart will use clicked location
