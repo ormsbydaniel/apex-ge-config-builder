@@ -1709,6 +1709,7 @@
 <li><strong>STAC collections</strong> — a STAC collection whose items already carry timestamps. The Configuration Builder can either copy each item's datetime into the layer's datasets, or, from Geospatial Explorer v4.2 onwards, keep the STAC collection itself as a single data source so the Explorer dynamically builds the timestamp set on load. The dynamic approach is best for collections that are continuously updated, because newly added items appear automatically without re-exporting the configuration.</li>
 <li><strong>Services with a time parameter</strong> — WMS or WMTS layers that advertise a <code>TIME</code> dimension, either as a list of explicit dates or as a start/end/interval.</li>
 </ul>
+<p><img alt="Preview of a time series layer with the temporal control in the Geospatial Explorer" src="../assets/screenshots/time-series-abg-preview.png" /></p>
 <h2 id="setting-the-timeframe">Setting the timeframe<a class="headerlink" href="#setting-the-timeframe" title="Permanent link">&para;</a></h2>
 <p>The <strong>timeframe</strong> does two things in the Geospatial Explorer:</p>
 <ol>
@@ -1722,6 +1723,7 @@
 <p><strong>Stepping interval.</strong> The timeframe also sets the unit used when moving forwards or backwards. For example, if a WMS or WMTS layer's <code>TIME</code> dimension advertises daily increments, setting the timeframe to <strong>Days</strong> steps through every explicit day and shows the full date. Setting it to <strong>Months</strong> instead jumps to the nearest date one month ahead or behind the current position, and the UI shows only the month, not the full date.</p>
 <p>When you set timestamps manually — for example 1 January 2025 and 1 January 2026 — choosing <strong>Years</strong> as the timeframe tells the Explorer to treat those as yearly products and display only the year, even though each stored timestamp is a complete date.</p>
 <p>Layer Card → <strong>Controls → Temporal control</strong> → choose the granularity:</p>
+<p><img alt="Edit Controls dialog with Temporal Controls enabled and the timeframe list open" src="../assets/screenshots/time-series-timeframe-selector.png" /></p>
 <table>
 <thead>
 <tr>
@@ -1769,9 +1771,12 @@
 <li>Edit a dataset and set its timestamp to the matching date.</li>
 <li>When the granularity is <strong>Years</strong>, <strong>Months</strong>, or <strong>Days</strong>, only the matching part of the date is shown in the control.</li>
 </ol>
-<p>You can also manage timestamps in bulk with the timestamp management dialog (opened from the dataset list), which is useful when a layer has many dated datasets.</p>
+<p><img alt="Edit Data Source panel with the Timestamp field set for a COG dataset" src="../assets/screenshots/time-series-dataset-timestamp.png" /></p>
+<p>Each dataset in the layer then shows its own date and timestamp count in the dataset list, making it easy to check the sequence at a glance.</p>
+<p><img alt="Dataset list showing one timestamp and a year badge for each COG" src="../assets/screenshots/time-series-datasets-timestamps.png" /></p>
 <h3 id="stac-item-timestamps">STAC item timestamps<a class="headerlink" href="#stac-item-timestamps" title="Permanent link">&para;</a></h3>
 <p>When assets are added from the <a href="../data-sources/stac-browser.html">STAC browser</a>, the Configuration Builder copies each item's <code>datetime</code> onto the resulting dataset automatically.</p>
+<p><img alt="STAC browser listing collection items with their datetimes" src="../assets/screenshots/stac-browser-items.png" /></p>
 <div class="admonition warning">
 <p class="admonition-title">Configure the timeframe first</p>
 <p>The temporal control must be enabled <strong>before</strong> adding STAC assets, otherwise the item datetimes are not copied into the datasets.</p>
@@ -1787,6 +1792,7 @@
 <li>The extent and granularity are shown in the dataset metadata dialog.</li>
 <li>Set the layer's timeframe to match the advertised granularity.</li>
 </ol>
+<p><img alt="Service metadata dialog showing the advertised time dimension for a WMTS layer" src="../assets/screenshots/wmts-swi-metadata-temporal.png" /></p>
 <p>See <a href="../data-sources/wms-wmts-wfs.html">WMS / WMTS / WFS</a> for more on service-based data sources.</p>
 <h3 id="increment-steps">Increment steps<a class="headerlink" href="#increment-steps" title="Permanent link">&para;</a></h3>
 <p>The temporal control can step forward more than one unit at a time by setting the <strong>Increment steps</strong> value. For example, with daily granularity and an increment of <code>30</code>, the control jumps forward 30 days at a time, which is useful for comparing monthly conditions.</p>
