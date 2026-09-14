@@ -12,6 +12,9 @@ Time series layers can be set up in three ways:
 - **STAC collections** — a STAC collection whose items already carry timestamps. The Configuration Builder can either copy each item's datetime into the layer's datasets, or, from Geospatial Explorer v4.2 onwards, keep the STAC collection itself as a single data source so the Explorer dynamically builds the timestamp set on load. The dynamic approach is best for collections that are continuously updated, because newly added items appear automatically without re-exporting the configuration.
 - **Services with a time parameter** — WMS or WMTS layers that advertise a `TIME` dimension, either as a list of explicit dates or as a start/end/interval.
 
+![Preview of a time series layer with the temporal control in the Geospatial Explorer](../assets/screenshots/time-series-abg-preview.png)
+
+
 ## Setting the timeframe
 
 The **timeframe** does two things in the Geospatial Explorer:
