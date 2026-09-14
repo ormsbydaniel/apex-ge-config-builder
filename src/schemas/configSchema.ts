@@ -12,10 +12,11 @@ export const CategorySchema = z.object({
 
 // Chart source schema
 const ChartSourceSchema = z.object({
-  type: z.enum(['externalURL', 'lookupURL', 'pixelValues', 'inline']).optional(),  // Optional for flexibility
+  type: z.enum(['externalURL', 'lookupURL', 'pixelValues', 'pixelTimeSeries', 'inline']).optional(),  // Optional for flexibility
   url: z.string().optional(),
   field: z.string().optional(),
   fields: z.array(z.string()).optional(), // For 'inline' type — vector dataset properties to chart
+  bandIndex: z.number().int().nonnegative().optional(), // For 'pixelTimeSeries' — band sampled from each COG
   format: z.enum(['csv', 'json']).optional(),
   label: z.string().optional(),
 }).passthrough();
@@ -103,7 +104,7 @@ const ChartPieSchema = z.object({
 }).passthrough();
 
 // Main chart config schema
-const ChartConfigSchema = z.object({
+export const ChartConfigSchema = z.object({
   chartType: z.enum(['xy', 'pie']).optional(),
   title: z.string().optional(),
   subtitle: z.string().optional(),
