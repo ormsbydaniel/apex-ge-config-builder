@@ -481,6 +481,45 @@ export function ChartSourceForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (sourceType === 'pixelTimeSeries') {
+      if (!canUseTimeSeries) {
+        toast({
+          title: "No COG time series",
+          description: "This layer needs more than one COG dataset with timestamps.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const chartSource: ChartSource = {
+        type: 'pixelTimeSeries',
+        bandIndex: timeSeriesBandIndex,
+        ...(chartLabel.trim() && { label: chartLabel.trim() })
+      };
+
+      const finalConfig: ChartConfig = {
+        ...chartConfig,
+        title: chartTitle.trim() || undefined,
+        subtitle: chartSubtitle.trim() || undefined,
+        sources: [chartSource]
+      };
+      delete (finalConfig as any).x;
+
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: false, description: null }
+      });
+
+      if (editingChart && editingIndex !== undefined && onUpdateChart) {
+        onUpdateChart(finalConfig, editingIndex);
+        toast({ title: "Chart Updated", description: "Chart configuration has been updated." });
+      } else {
+        onAddChart(finalConfig);
+        toast({ title: "Chart Added", description: "Chart has been added to the layer." });
+      }
+      return;
+    }
+
     if (sourceType === 'pixelValues') {
       if (cogSources.length === 0) {
         toast({
