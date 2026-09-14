@@ -22,10 +22,13 @@ interface PlotlyChartViewerProps {
   height?: number;
   /** Optional sample Y-values for pixelValues preview (one value per x label) */
   sampleData?: number[];
+  /** Optional X labels (dates) for pixelTimeSeries preview */
+  sampleXLabels?: string[];
 }
 
-export function PlotlyChartViewer({ config, data, height = 400, sampleData }: PlotlyChartViewerProps) {
+export function PlotlyChartViewer({ config, data, height = 400, sampleData, sampleXLabels }: PlotlyChartViewerProps) {
   const isPixelValues = config.sources?.[0]?.type === 'pixelValues';
+  const isPixelTimeSeries = config.sources?.[0]?.type === 'pixelTimeSeries';
   const isInline = config.sources?.[0]?.type === 'inline';
 
   const { plotData, layout, isValid, message } = useMemo(() => {
