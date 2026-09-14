@@ -12,6 +12,9 @@ Time series layers can be set up in three ways:
 - **STAC collections** — a STAC collection whose items already carry timestamps. The Configuration Builder can either copy each item's datetime into the layer's datasets, or, from Geospatial Explorer v4.2 onwards, keep the STAC collection itself as a single data source so the Explorer dynamically builds the timestamp set on load. The dynamic approach is best for collections that are continuously updated, because newly added items appear automatically without re-exporting the configuration.
 - **Services with a time parameter** — WMS or WMTS layers that advertise a `TIME` dimension, either as a list of explicit dates or as a start/end/interval.
 
+![Preview of a time series layer with the temporal control in the Geospatial Explorer](../assets/screenshots/time-series-abg-preview.png)
+
+
 ## Setting the timeframe
 
 The **timeframe** does two things in the Geospatial Explorer:
@@ -29,6 +32,9 @@ The **timeframe** does two things in the Geospatial Explorer:
 When you set timestamps manually — for example 1 January 2025 and 1 January 2026 — choosing **Years** as the timeframe tells the Explorer to treat those as yearly products and display only the year, even though each stored timestamp is a complete date.
 
 Layer Card → **Controls → Temporal control** → choose the granularity:
+
+![Edit Controls dialog with Temporal Controls enabled and the timeframe list open](../assets/screenshots/time-series-timeframe-selector.png)
+
 
 | Granularity | Use for |
 |-------------|---------|
@@ -61,11 +67,19 @@ Each data source in the layer can carry one or more timestamps:
 2. Edit a dataset and set its timestamp to the matching date.
 3. When the granularity is **Years**, **Months**, or **Days**, only the matching part of the date is shown in the control.
 
-You can also manage timestamps in bulk with the timestamp management dialog (opened from the dataset list), which is useful when a layer has many dated datasets.
+![Edit Data Source panel with the Timestamp field set for a COG dataset](../assets/screenshots/time-series-dataset-timestamp.png)
+
+Each dataset in the layer then shows its own date and timestamp count in the dataset list, making it easy to check the sequence at a glance.
+
+![Dataset list showing one timestamp and a year badge for each COG](../assets/screenshots/time-series-datasets-timestamps.png)
+
 
 ### STAC item timestamps
 
 When assets are added from the [STAC browser](../data-sources/stac-browser.md), the Configuration Builder copies each item's `datetime` onto the resulting dataset automatically.
+
+![STAC browser listing collection items with their datetimes](../assets/screenshots/stac-browser-items.png)
+
 
 !!! warning "Configure the timeframe first"
     The temporal control must be enabled **before** adding STAC assets, otherwise the item datetimes are not copied into the datasets.
@@ -84,6 +98,9 @@ Some WMS or WMTS layers advertise a time dimension in their `GetCapabilities` re
 2. The builder probes `GetCapabilities` and, if a time dimension is advertised, enables **Use TIME parameter** automatically.
 3. The extent and granularity are shown in the dataset metadata dialog.
 4. Set the layer's timeframe to match the advertised granularity.
+
+![Service metadata dialog showing the advertised time dimension for a WMTS layer](../assets/screenshots/wmts-swi-metadata-temporal.png)
+
 
 See [WMS / WMTS / WFS](../data-sources/wms-wmts-wfs.md) for more on service-based data sources.
 
