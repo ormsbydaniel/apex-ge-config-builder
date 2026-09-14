@@ -4,10 +4,13 @@
 
 ## Content outline for `docs/layers/time-series.md`
 
-1. **What a time series layer is** — a standard layer whose datasets carry timestamps; the Explorer shows a temporal control that steps between them. Two ways time is attached: timestamps on datasets, or a `TIME` parameter driven by the service.
+1. **What a time series layer is** — a layer whose data changes over time, displayed through a temporal control that steps through different time periods (a day, a month, a year, etc.). Time series layers can be set up in three ways:
+   - **Individual timestamped datasets** — COGs, GeoJSON, FlatGeoBuf, CSV, etc. where each dataset is given a manual timestamp in the config.
+   - **STAC collections** — a collection whose items already carry timestamps (for example COG assets); the builder copies each item's datetime into the dataset.
+   - **Services with a time parameter** — WMS or WMTS layers that advertise a `TIME` dimension, either as explicit dates or as a start/end/interval.
 2. **Setting the timeframe (granularity)** — Layer Card → **Controls → Temporal control**, with options **None / Time / Days / Months / Years** (from `TimeframeType` in `src/types/dataSource.ts`). Table of when to use each granularity, plus the sub-day `timePrecision` option (Hours / Minutes) for finer granularity. Explain continuous vs discontinuous sequences (concepts already covered in workshop 6-2).
 3. **Default time period** — the date picker that appears once a timeframe is set; sets the period new datasets inherit and the Explorer's initial step. Values are stored internally as Unix timestamps.
-4. **Attaching timestamps to datasets** — three sources of truth, mirroring the workshop:
+4. **Configuring each setup** — expand the three approaches from the introduction, mirroring the workshop:
    - **Manual** — per-dataset timestamp field (full date required; display follows the granularity). Timestamps can also be managed in bulk via the timestamp management dialog.
    - **STAC** — item datetimes are copied automatically when assets are added from the STAC browser; note the temporal control must be configured on the layer *before* adding datasets or the timestamps are not picked up.
    - **WMS / WMTS `TIME` parameter** — the **Use TIME parameter** toggle; the builder probes GetCapabilities and auto-detects/advertises the time dimension (extent + granularity shown in the dataset metadata dialog). Link to the WMS/WMTS data-source page.
