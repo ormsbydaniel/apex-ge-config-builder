@@ -646,8 +646,10 @@ export function ChartSourceForm({
   const hasColumns = availableColumns.length > 0;
   const isPixelValuesReady = sourceType === 'pixelValues' && bandLabels.length > 0 && !bandLoading;
   const isFieldValuesMode = sourceType === 'fieldValues';
-  const showConfig = hasUrl || isPixelValuesReady || isFieldValuesMode;
-  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady || isFieldValuesMode;
+  const isTimeSeriesMode = sourceType === 'pixelTimeSeries';
+  const isTimeSeriesReady = isTimeSeriesMode && canUseTimeSeries;
+  const showConfig = hasUrl || isPixelValuesReady || isFieldValuesMode || isTimeSeriesReady;
+  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady || isFieldValuesMode || isTimeSeriesReady;
   const selectedTrace = chartConfig.traces?.[selectedTraceIndex];
 
   return (
