@@ -85,6 +85,9 @@ Some WMS or WMTS layers advertise a time dimension in their `GetCapabilities` re
 3. The extent and granularity are shown in the dataset metadata dialog.
 4. Set the layer's timeframe to match the advertised granularity.
 
+![Service metadata dialog showing the advertised time dimension for a WMTS layer](../assets/screenshots/wmts-swi-metadata-temporal.png)
+
+
 See [WMS / WMTS / WFS](../data-sources/wms-wmts-wfs.md) for more on service-based data sources.
 
 ### Increment steps
