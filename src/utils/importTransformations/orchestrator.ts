@@ -11,6 +11,7 @@ import { reverseFormatToTypeTransformation } from './transformers/formatToTypeTr
 import { preserveTemporalFields } from './transformers/temporalTransformer';
 import { normalizeServices } from './transformers/serviceNormalizer';
 import { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
+import { reverseTopLevelDefaultsTransformation } from './transformers/topLevelDefaultsTransformer';
 import { ensureSourceIds } from '@/utils/idHelpers';
 
 /**
@@ -28,7 +29,12 @@ export const reverseTransformations = (config: any, detectedTransforms: Detected
   }
   
   // Apply transformations in the correct order
-  
+
+  // 0. Fill required top-level defaults (logo, exclusivitySets, interfaceGroups)
+  if (detectedTransforms.topLevelDefaultsNeeded) {
+    normalizedConfig = reverseTopLevelDefaultsTransformation(normalizedConfig, true);
+  }
+
   // 1. Move exclusivitySets from data items to source level FIRST
   if (detectedTransforms.exclusivitySetsTransformation) {
     normalizedConfig = reverseExclusivitySetsTransformation(normalizedConfig, true);
