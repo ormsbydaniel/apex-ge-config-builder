@@ -5,10 +5,11 @@
 
 // Chart data source - can be external URL, field lookup, COG pixel values, or inline (vector fields)
 export interface ChartSource {
-  type?: 'externalURL' | 'lookupURL' | 'pixelValues' | 'inline';
+  type?: 'externalURL' | 'lookupURL' | 'pixelValues' | 'pixelTimeSeries' | 'inline';
   url?: string;      // For externalURL type
   field?: string;    // For lookupURL type
   fields?: string[]; // For inline type — vector dataset properties to chart
+  bandIndex?: number; // For pixelTimeSeries type — zero-based band sampled from each COG
   format?: 'csv' | 'json';
   label?: string;
   [key: string]: unknown;
