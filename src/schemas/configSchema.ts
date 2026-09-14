@@ -104,7 +104,7 @@ const ChartPieSchema = z.object({
 }).passthrough();
 
 // Main chart config schema
-const ChartConfigSchema = z.object({
+export const ChartConfigSchema = z.object({
   chartType: z.enum(['xy', 'pie']).optional(),
   title: z.string().optional(),
   subtitle: z.string().optional(),
