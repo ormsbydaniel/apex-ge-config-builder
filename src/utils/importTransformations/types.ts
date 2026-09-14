@@ -9,4 +9,5 @@ export interface DetectedTransformations {
   exclusivitySetsTransformation: boolean;
   metaCompletionNeeded: boolean;
   formatToTypeConversion: boolean;
+  topLevelDefaultsNeeded: boolean;
 }

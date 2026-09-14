@@ -628,9 +628,16 @@ export const FooterLinkSchema = z.object({
   url: z.string().min(1, 'Footer link URL is required'),
 });
 
+// Top-level application settings. Passthrough so future upstream settings are
+// preserved on a round trip rather than silently dropped.
+export const SettingsSchema = z.object({
+  layerFetchTimeoutMs: z.number().int().positive().optional(),
+}).passthrough();
+
 export const ConfigurationSchema = z.object({
   version: z.string().optional(),
   exportPrefix: z.string().optional(),
+  settings: SettingsSchema.optional(),
   layout: z.object({
     design: DesignSchema.optional(),
     navigation: z.object({

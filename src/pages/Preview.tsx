@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
 import { useNavigate } from 'react-router-dom';
 import { useViewerLoader } from '@/hooks/useViewerLoader';
@@ -10,7 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Loader2, AlertCircle, RefreshCw, FileJson, Copy } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle, RefreshCw, FileJson, Copy, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { 
@@ -45,11 +45,12 @@ const Preview = () => {
       mapConstraints: config.mapConstraints,
       projections: config.projections,
       stories: config.stories,
+      settings: config.settings,
     };
     console.log('[Config Builder Preview] viewerConfig.layout:', vConfig.layout);
     console.log('[Config Builder Preview] viewerConfig.layout.theme:', vConfig.layout?.theme);
     return vConfig;
-  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints, config.projections, config.stories]);
+  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints, config.projections, config.stories, config.settings]);
   
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
@@ -148,6 +149,98 @@ const Preview = () => {
   };
 
 
+  // ---- Draggable floating toolbar ----
+  const toolbarRef = useRef<HTMLElement | null>(null);
+  const [toolbarPos, setToolbarPos] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const clampPos = (x: number, y: number) => {
+    const el = toolbarRef.current;
+    const margin = 4;
+    const w = el?.offsetWidth ?? 0;
+    const h = el?.offsetHeight ?? 0;
+    const maxX = Math.max(margin, window.innerWidth - w - margin);
+    const maxY = Math.max(margin, window.innerHeight - h - margin);
+    return {
+      x: Math.min(Math.max(x, margin), maxX),
+      y: Math.min(Math.max(y, margin), maxY),
+    };
+  };
+
+  // Restore saved position, or fall back to the original default placement
+  useEffect(() => {
+    if (isLoadingVersions || versions.length === 0) return;
+    const el = toolbarRef.current;
+    if (!el) return;
+
+    let restored: { x: number; y: number } | null = null;
+    try {
+      const raw = localStorage.getItem('preview-toolbar-position');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed?.x === 'number' && typeof parsed?.y === 'number') {
+          restored = parsed;
+        }
+      }
+    } catch {
+      restored = null;
+    }
+
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const fallback = {
+      x: window.innerWidth / 2 - w / 2 + w * 0.05,
+      y: 3 + h * 1.5,
+    };
+    const initial = restored ?? fallback;
+    setToolbarPos(clampPos(initial.x, initial.y));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoadingVersions, versions.length]);
+
+  const handleDragPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = toolbarRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    setToolbarPos(clampPos(rect.left, rect.top));
+    setIsDragging(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  };
+
+  const handleDragPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setToolbarPos(clampPos(e.clientX - dragOffset.current.x, e.clientY - dragOffset.current.y));
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // pointer already released
+    }
+    if (toolbarPos) {
+      try {
+        localStorage.setItem('preview-toolbar-position', JSON.stringify(toolbarPos));
+      } catch {
+        // storage unavailable
+      }
+    }
+  };
+
+  // Keep the toolbar on-screen when the window is resized
+  useEffect(() => {
+    const onResize = () => {
+      setToolbarPos((prev) => (prev ? clampPos(prev.x, prev.y) : prev));
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (isLoadingVersions) {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
@@ -216,8 +309,28 @@ const Preview = () => {
       </AlertDialog>
 
       <div className="h-screen relative bg-background">
-      <header className="absolute top-[3px] left-1/2 -translate-x-1/2 translate-x-[5%] translate-y-[150%] z-50 border rounded-lg bg-card/95 backdrop-blur-sm shadow-lg px-3 py-1">
+      <header
+        ref={toolbarRef}
+        className="absolute z-50 border rounded-lg bg-card/95 backdrop-blur-sm shadow-lg px-3 py-1"
+        style={
+          toolbarPos
+            ? { left: toolbarPos.x, top: toolbarPos.y }
+            : { left: '50%', top: 3, transform: 'translateX(calc(-50% + 5%)) translateY(150%)' }
+        }
+      >
         <div className="flex items-center gap-2">
+          <div
+            className={`flex items-center justify-center -ml-1 mr-1 text-muted-foreground touch-none select-none ${
+              isDragging ? 'cursor-grabbing' : 'cursor-grab'
+            }`}
+            title="Drag to reposition toolbar"
+            onPointerDown={handleDragPointerDown}
+            onPointerMove={handleDragPointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+          >
+            <GripVertical className="h-4 w-4" />
+          </div>
           <Button onClick={() => navigate('/')} variant="outline" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Config Builder

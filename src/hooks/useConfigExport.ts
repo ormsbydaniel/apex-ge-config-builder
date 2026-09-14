@@ -39,6 +39,7 @@ export const useConfigExport = () => {
         layout: config.layout,
         interfaceGroups: config.interfaceGroups,
         exclusivitySets: config.exclusivitySets,
+        ...((config as any).settings && { settings: (config as any).settings }),
         ...(config.mapConstraints && { mapConstraints: config.mapConstraints }),
         ...(config.projections?.length && { projections: config.projections }),
         // Top-level workflows array — sanitise URLs inside any nested data/statistics

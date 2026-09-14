@@ -8,6 +8,7 @@ export const useConfigSanitization = (config: any) => {
     layout: config.layout,
     interfaceGroups: config.interfaceGroups,
     exclusivitySets: config.exclusivitySets,
+    ...(config.settings && { settings: config.settings }),
     ...(config.mapConstraints && { mapConstraints: config.mapConstraints }),
     ...(config.projections?.length && { projections: config.projections }),
     ...(config.workflows && { workflows: config.workflows }),

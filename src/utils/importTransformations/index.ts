@@ -46,4 +46,5 @@ export { reverseSingleItemTransformation } from './transformers/singleItemTransf
 export { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 export { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
 export { reverseFormatToTypeTransformation } from './transformers/formatToTypeTransformer';
+export { reverseTopLevelDefaultsTransformation, DEFAULT_LOGO_URL } from './transformers/topLevelDefaultsTransformer';
 export { preserveTemporalFields } from './transformers/temporalTransformer';
