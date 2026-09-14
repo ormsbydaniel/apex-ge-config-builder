@@ -37,6 +37,7 @@ interface ChartSourceFormProps {
   editingIndex?: number;
   onUpdateChart?: (chart: ChartConfig, chartIndex: number) => void;
   cogSources?: DataSourceItem[];
+  timeSeriesCogSources?: DataSourceItem[];
   vectorSources?: DataSourceItem[];
 }
 
@@ -48,18 +49,29 @@ export function ChartSourceForm({
   editingIndex,
   onUpdateChart,
   cogSources = [],
+  timeSeriesCogSources = [],
   vectorSources = []
 }: ChartSourceFormProps) {
   const { toast } = useToast();
   const { dispatch } = useConfig();
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues' | 'fieldValues'>(
+  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues' | 'pixelTimeSeries' | 'fieldValues'>(
     editingChart?.sources?.[0]?.type === 'pixelValues'
       ? 'pixelValues'
-      : editingChart?.sources?.[0]?.type === 'inline'
-        ? 'fieldValues'
-        : 'direct'
+      : editingChart?.sources?.[0]?.type === 'pixelTimeSeries'
+        ? 'pixelTimeSeries'
+        : editingChart?.sources?.[0]?.type === 'inline'
+          ? 'fieldValues'
+          : 'direct'
   );
+  const [timeSeriesBandIndex, setTimeSeriesBandIndex] = useState<number>(
+    typeof editingChart?.sources?.[0]?.bandIndex === 'number'
+      ? (editingChart.sources[0].bandIndex as number)
+      : 0
+  );
+  const [tsBandCount, setTsBandCount] = useState<number>(0);
+  const [tsBandLoading, setTsBandLoading] = useState(false);
+  const tsBandFetchRef = useRef(0);
   const [selectedCogIndex, setSelectedCogIndex] = useState<number>(0);
   const [bandLabels, setBandLabels] = useState<string[]>([]);
   const [bandLabelDialogOpen, setBandLabelDialogOpen] = useState(false);
