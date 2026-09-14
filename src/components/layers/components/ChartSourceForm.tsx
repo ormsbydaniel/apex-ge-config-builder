@@ -243,6 +243,75 @@ export function ChartSourceForm({
       });
   }, [sourceType, selectedCogIndex, stableCogSources, bandCount]);
 
+  // ---- Pixel Time Series -------------------------------------------------
+  // A layer qualifies when it has more than one COG dataset carrying timestamps.
+  const timeSeriesKey = timeSeriesCogSources
+    .map(s => `${s.url || ''}:${(s.timestamps || []).join(',')}`)
+    .join('|');
+  const stableTimeSeriesSources = useMemo(() => timeSeriesCogSources, [timeSeriesKey]);
+
+  const timeSeriesDates = useMemo(() => {
+    const stamps = stableTimeSeriesSources
+      .flatMap(s => (Array.isArray(s.timestamps) ? s.timestamps : []))
+      .filter(t => typeof t === 'number' && !Number.isNaN(t))
+      .sort((a, b) => a - b);
+    return stamps.map(t => new Date(t * (t > 1e11 ? 1 : 1000)).toISOString().slice(0, 10));
+  }, [stableTimeSeriesSources]);
+
+  const canUseTimeSeries = stableTimeSeriesSources.length > 1 && timeSeriesDates.length > 1;
+
+  // Detect band count from the first timestamped COG
+  useEffect(() => {
+    if (sourceType !== 'pixelTimeSeries' || stableTimeSeriesSources.length === 0) return;
+    const url = stableTimeSeriesSources[0]?.url;
+    if (!url) return;
+
+    const requestId = ++tsBandFetchRef.current;
+    setTsBandLoading(true);
+    fetchCogHeaderMetadata(url)
+      .then((meta) => {
+        if (requestId !== tsBandFetchRef.current) return;
+        setTsBandCount(meta.samplesPerPixel || 1);
+      })
+      .catch(() => {
+        if (requestId !== tsBandFetchRef.current) return;
+        setTsBandCount(1);
+      })
+      .finally(() => {
+        if (requestId === tsBandFetchRef.current) setTsBandLoading(false);
+      });
+  }, [sourceType, stableTimeSeriesSources]);
+
+  // Seed sensible defaults when entering Pixel Time Series mode
+  useEffect(() => {
+    if (sourceType !== 'pixelTimeSeries') return;
+    setChartConfig(prev => {
+      const next: ChartConfig = { ...prev, chartType: 'xy' };
+      delete (next as any).x;
+      delete (next as any).pie;
+      if (!prev.traces || prev.traces.length === 0) {
+        next.traces = [{ name: 'Value', type: 'scatter', mode: 'lines+markers' }];
+        setSelectedTraceIndex(0);
+      }
+      next.layout = {
+        height: 360,
+        showlegend: true,
+        ...(prev.layout || {}),
+        xaxis: {
+          type: 'category',
+          title: { text: 'Date' },
+          ...(prev.layout?.xaxis || {}),
+        },
+        yaxis: {
+          title: { text: 'Value' },
+          ...(prev.layout?.yaxis || {}),
+        },
+      };
+      return next;
+    });
+  }, [sourceType, setChartConfig, setSelectedTraceIndex]);
+
+
 
   useEffect(() => {
     const trimmedUrl = directUrl.trim();
