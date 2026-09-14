@@ -320,7 +320,7 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData, samp
     chartLayout.yaxis = buildAxis(config.layout?.yaxis, isHistogram ? 'Count' : undefined);
 
     return { plotData: plotTraces, layout: chartLayout, isValid: true, message: '' };
-  }, [config, data, height, sampleData, isPixelValues, isInline]);
+  }, [config, data, height, sampleData, sampleXLabels, isPixelValues, isPixelTimeSeries, isInline]);
 
   if (!isValid) {
     return (
