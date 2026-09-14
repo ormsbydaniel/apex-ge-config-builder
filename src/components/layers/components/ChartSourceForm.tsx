@@ -767,7 +767,7 @@ export function ChartSourceForm({
             )}
 
             {/* URL Input - only for CSV-based sources */}
-            {sourceType !== 'pixelValues' && sourceType !== 'fieldValues' && (
+            {sourceType !== 'pixelValues' && sourceType !== 'fieldValues' && sourceType !== 'pixelTimeSeries' && (
               <div className="space-y-2">
                 <Label htmlFor="url">CSV URL</Label>
                 <Input
@@ -779,6 +779,60 @@ export function ChartSourceForm({
                 <p className="text-xs text-muted-foreground">
                   Enter the URL to your CSV data file
                 </p>
+              </div>
+            )}
+
+            {/* Pixel Time Series: band selector + summary */}
+            {sourceType === 'pixelTimeSeries' && (
+              <div className="space-y-4">
+                {!canUseTimeSeries ? (
+                  <div className="flex items-center gap-2 p-4 border border-dashed rounded-lg text-sm text-muted-foreground">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    This layer needs more than one COG dataset with timestamps before a pixel time series can be charted.
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-muted-foreground" />
+                        <Label>Band</Label>
+                        {tsBandLoading && (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            Detecting bands...
+                          </span>
+                        )}
+                      </div>
+                      <Select
+                        value={String(timeSeriesBandIndex)}
+                        onValueChange={(v) => setTimeSeriesBandIndex(Number(v))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a band" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: Math.max(tsBandCount, 1) }, (_, i) => (
+                            <SelectItem key={i} value={String(i)}>
+                              Band {i + 1}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">
+                        The Explorer samples this band from every dataset in the time series.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-md border bg-muted/30 text-sm">
+                      <p className="font-medium">
+                        {timeSeriesDates.length} dated dataset{timeSeriesDates.length !== 1 ? 's' : ''}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {timeSeriesDates[0]} to {timeSeriesDates[timeSeriesDates.length - 1]}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
