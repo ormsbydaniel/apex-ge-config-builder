@@ -25,7 +25,7 @@ import { fetchAndParseCSV } from '@/utils/csvParser';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
 import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, Activity, Loader2, Tag, Settings2, ListTree } from 'lucide-react';
+import { AlertTriangle, Activity, Loader2, Tag, Settings2, ListTree, TrendingUp } from 'lucide-react';
 import { BandLabelEditorDialog } from './BandLabelEditorDialog';
 import { FieldSelectorDialog } from '@/components/charts/FieldSelectorDialog';
 
