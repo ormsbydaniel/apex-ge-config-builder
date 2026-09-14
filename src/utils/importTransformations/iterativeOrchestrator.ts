@@ -47,6 +47,10 @@ export const normalizeImportedConfig = (config: any): any => {
     const previousConfig = JSON.stringify(currentConfig);
     
     // Apply transformations in order
+    if (detected.topLevelDefaultsNeeded) {
+      currentConfig = reverseTopLevelDefaultsTransformation(currentConfig, true);
+    }
+
     if (detected.typeToFormatConversion) {
       currentConfig = reverseTypeToFormatTransformation(currentConfig, true);
     }
