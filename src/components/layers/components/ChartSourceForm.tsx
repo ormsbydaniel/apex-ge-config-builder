@@ -25,7 +25,7 @@ import { fetchAndParseCSV } from '@/utils/csvParser';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
 import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, Activity, Loader2, Tag, Settings2, ListTree } from 'lucide-react';
+import { AlertTriangle, Activity, Loader2, Tag, Settings2, ListTree, TrendingUp } from 'lucide-react';
 import { BandLabelEditorDialog } from './BandLabelEditorDialog';
 import { FieldSelectorDialog } from '@/components/charts/FieldSelectorDialog';
 
@@ -37,6 +37,7 @@ interface ChartSourceFormProps {
   editingIndex?: number;
   onUpdateChart?: (chart: ChartConfig, chartIndex: number) => void;
   cogSources?: DataSourceItem[];
+  timeSeriesCogSources?: DataSourceItem[];
   vectorSources?: DataSourceItem[];
 }
 
@@ -48,18 +49,29 @@ export function ChartSourceForm({
   editingIndex,
   onUpdateChart,
   cogSources = [],
+  timeSeriesCogSources = [],
   vectorSources = []
 }: ChartSourceFormProps) {
   const { toast } = useToast();
   const { dispatch } = useConfig();
   
-  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues' | 'fieldValues'>(
+  const [sourceType, setSourceType] = useState<'service' | 'direct' | 'pixelValues' | 'pixelTimeSeries' | 'fieldValues'>(
     editingChart?.sources?.[0]?.type === 'pixelValues'
       ? 'pixelValues'
-      : editingChart?.sources?.[0]?.type === 'inline'
-        ? 'fieldValues'
-        : 'direct'
+      : editingChart?.sources?.[0]?.type === 'pixelTimeSeries'
+        ? 'pixelTimeSeries'
+        : editingChart?.sources?.[0]?.type === 'inline'
+          ? 'fieldValues'
+          : 'direct'
   );
+  const [timeSeriesBandIndex, setTimeSeriesBandIndex] = useState<number>(
+    typeof editingChart?.sources?.[0]?.bandIndex === 'number'
+      ? (editingChart.sources[0].bandIndex as number)
+      : 0
+  );
+  const [tsBandCount, setTsBandCount] = useState<number>(0);
+  const [tsBandLoading, setTsBandLoading] = useState(false);
+  const tsBandFetchRef = useRef(0);
   const [selectedCogIndex, setSelectedCogIndex] = useState<number>(0);
   const [bandLabels, setBandLabels] = useState<string[]>([]);
   const [bandLabelDialogOpen, setBandLabelDialogOpen] = useState(false);
@@ -231,6 +243,75 @@ export function ChartSourceForm({
       });
   }, [sourceType, selectedCogIndex, stableCogSources, bandCount]);
 
+  // ---- Pixel Time Series -------------------------------------------------
+  // A layer qualifies when it has more than one COG dataset carrying timestamps.
+  const timeSeriesKey = timeSeriesCogSources
+    .map(s => `${s.url || ''}:${(s.timestamps || []).join(',')}`)
+    .join('|');
+  const stableTimeSeriesSources = useMemo(() => timeSeriesCogSources, [timeSeriesKey]);
+
+  const timeSeriesDates = useMemo(() => {
+    const stamps = stableTimeSeriesSources
+      .flatMap(s => (Array.isArray(s.timestamps) ? s.timestamps : []))
+      .filter(t => typeof t === 'number' && !Number.isNaN(t))
+      .sort((a, b) => a - b);
+    return stamps.map(t => new Date(t * (t > 1e11 ? 1 : 1000)).toISOString().slice(0, 10));
+  }, [stableTimeSeriesSources]);
+
+  const canUseTimeSeries = stableTimeSeriesSources.length > 1 && timeSeriesDates.length > 1;
+
+  // Detect band count from the first timestamped COG
+  useEffect(() => {
+    if (sourceType !== 'pixelTimeSeries' || stableTimeSeriesSources.length === 0) return;
+    const url = stableTimeSeriesSources[0]?.url;
+    if (!url) return;
+
+    const requestId = ++tsBandFetchRef.current;
+    setTsBandLoading(true);
+    fetchCogHeaderMetadata(url)
+      .then((meta) => {
+        if (requestId !== tsBandFetchRef.current) return;
+        setTsBandCount(meta.samplesPerPixel || 1);
+      })
+      .catch(() => {
+        if (requestId !== tsBandFetchRef.current) return;
+        setTsBandCount(1);
+      })
+      .finally(() => {
+        if (requestId === tsBandFetchRef.current) setTsBandLoading(false);
+      });
+  }, [sourceType, stableTimeSeriesSources]);
+
+  // Seed sensible defaults when entering Pixel Time Series mode
+  useEffect(() => {
+    if (sourceType !== 'pixelTimeSeries') return;
+    setChartConfig(prev => {
+      const next: ChartConfig = { ...prev, chartType: 'xy' };
+      delete (next as any).x;
+      delete (next as any).pie;
+      if (!prev.traces || prev.traces.length === 0) {
+        next.traces = [{ name: 'Value', type: 'scatter', mode: 'lines+markers' }];
+        setSelectedTraceIndex(0);
+      }
+      next.layout = {
+        height: 360,
+        showlegend: true,
+        ...(prev.layout || {}),
+        xaxis: {
+          type: 'category',
+          title: { text: 'Date' },
+          ...(prev.layout?.xaxis || {}),
+        },
+        yaxis: {
+          title: { text: 'Value' },
+          ...(prev.layout?.yaxis || {}),
+        },
+      };
+      return next;
+    });
+  }, [sourceType, setChartConfig, setSelectedTraceIndex]);
+
+
 
   useEffect(() => {
     const trimmedUrl = directUrl.trim();
@@ -400,6 +481,45 @@ export function ChartSourceForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (sourceType === 'pixelTimeSeries') {
+      if (!canUseTimeSeries) {
+        toast({
+          title: "No COG time series",
+          description: "This layer needs more than one COG dataset with timestamps.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const chartSource: ChartSource = {
+        type: 'pixelTimeSeries',
+        bandIndex: timeSeriesBandIndex,
+        ...(chartLabel.trim() && { label: chartLabel.trim() })
+      };
+
+      const finalConfig: ChartConfig = {
+        ...chartConfig,
+        title: chartTitle.trim() || undefined,
+        subtitle: chartSubtitle.trim() || undefined,
+        sources: [chartSource]
+      };
+      delete (finalConfig as any).x;
+
+      dispatch({
+        type: 'SET_UNSAVED_FORM_CHANGES',
+        payload: { hasChanges: false, description: null }
+      });
+
+      if (editingChart && editingIndex !== undefined && onUpdateChart) {
+        onUpdateChart(finalConfig, editingIndex);
+        toast({ title: "Chart Updated", description: "Chart configuration has been updated." });
+      } else {
+        onAddChart(finalConfig);
+        toast({ title: "Chart Added", description: "Chart has been added to the layer." });
+      }
+      return;
+    }
+
     if (sourceType === 'pixelValues') {
       if (cogSources.length === 0) {
         toast({
@@ -526,8 +646,10 @@ export function ChartSourceForm({
   const hasColumns = availableColumns.length > 0;
   const isPixelValuesReady = sourceType === 'pixelValues' && bandLabels.length > 0 && !bandLoading;
   const isFieldValuesMode = sourceType === 'fieldValues';
-  const showConfig = hasUrl || isPixelValuesReady || isFieldValuesMode;
-  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady || isFieldValuesMode;
+  const isTimeSeriesMode = sourceType === 'pixelTimeSeries';
+  const isTimeSeriesReady = isTimeSeriesMode && canUseTimeSeries;
+  const showConfig = hasUrl || isPixelValuesReady || isFieldValuesMode || isTimeSeriesReady;
+  const showPreview = (hasUrl && hasColumns) || isPixelValuesReady || isFieldValuesMode || isTimeSeriesReady;
   const selectedTrace = chartConfig.traces?.[selectedTraceIndex];
 
   return (
@@ -544,7 +666,7 @@ export function ChartSourceForm({
             {/* Source Type Selection */}
             <div className="space-y-4">
               <Label className="text-base font-medium">Data Source</Label>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-5 gap-4">
                 <button
                   type="button"
                   onClick={() => setSourceType('direct')}
@@ -592,6 +714,25 @@ export function ChartSourceForm({
                 </button>
                 <button
                   type="button"
+                  disabled={!canUseTimeSeries}
+                  title={canUseTimeSeries ? undefined : 'Requires more than one COG dataset with timestamps on this layer'}
+                  onClick={() => setSourceType('pixelTimeSeries')}
+                  className={`p-4 border rounded-lg text-center flex flex-col items-center transition-colors ${
+                    !canUseTimeSeries
+                      ? 'border-border opacity-50 cursor-not-allowed'
+                      : sourceType === 'pixelTimeSeries'
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <TrendingUp className="h-5 w-5 mb-2 text-primary" />
+                  <div className="font-medium">Pixel Time Series</div>
+                  <div className="text-sm text-muted-foreground">
+                    One band over time from a COG time series
+                  </div>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setSourceType('fieldValues')}
                   className={`p-4 border rounded-lg text-center flex flex-col items-center transition-colors ${
                     sourceType === 'fieldValues'
@@ -626,7 +767,7 @@ export function ChartSourceForm({
             )}
 
             {/* URL Input - only for CSV-based sources */}
-            {sourceType !== 'pixelValues' && sourceType !== 'fieldValues' && (
+            {sourceType !== 'pixelValues' && sourceType !== 'fieldValues' && sourceType !== 'pixelTimeSeries' && (
               <div className="space-y-2">
                 <Label htmlFor="url">CSV URL</Label>
                 <Input
@@ -638,6 +779,60 @@ export function ChartSourceForm({
                 <p className="text-xs text-muted-foreground">
                   Enter the URL to your CSV data file
                 </p>
+              </div>
+            )}
+
+            {/* Pixel Time Series: band selector + summary */}
+            {sourceType === 'pixelTimeSeries' && (
+              <div className="space-y-4">
+                {!canUseTimeSeries ? (
+                  <div className="flex items-center gap-2 p-4 border border-dashed rounded-lg text-sm text-muted-foreground">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    This layer needs more than one COG dataset with timestamps before a pixel time series can be charted.
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-muted-foreground" />
+                        <Label>Band</Label>
+                        {tsBandLoading && (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            Detecting bands...
+                          </span>
+                        )}
+                      </div>
+                      <Select
+                        value={String(timeSeriesBandIndex)}
+                        onValueChange={(v) => setTimeSeriesBandIndex(Number(v))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a band" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: Math.max(tsBandCount, 1) }, (_, i) => (
+                            <SelectItem key={i} value={String(i)}>
+                              Band {i + 1}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">
+                        The Explorer samples this band from every dataset in the time series.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-md border bg-muted/30 text-sm">
+                      <p className="font-medium">
+                        {timeSeriesDates.length} dated dataset{timeSeriesDates.length !== 1 ? 's' : ''}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {timeSeriesDates[0]} to {timeSeriesDates[timeSeriesDates.length - 1]}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
@@ -827,6 +1022,53 @@ export function ChartSourceForm({
                         )}
                       </div>
                     </>
+                  ) : isTimeSeriesReady ? (
+                    <>
+                      <ChartTypeSelector
+                        config={chartConfig}
+                        onChange={setChartConfig}
+                      />
+
+                      {chartConfig.traces && chartConfig.traces.length > 0 && (
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium">Trace Styling</Label>
+                          {chartConfig.traces.map((trace, i) => (
+                            <div key={i} className="flex items-center gap-2 text-sm">
+                              <span className="text-muted-foreground">{trace.name || `Trace ${i + 1}`}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs ml-auto"
+                                onClick={() => setSelectedTraceIndex(i)}
+                              >
+                                Edit
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {selectedTrace && selectedTraceIndex !== null && (
+                        <TraceEditor
+                          trace={selectedTrace}
+                          traceIndex={selectedTraceIndex}
+                          columns={timeSeriesDates}
+                          hideYColumn
+                          onUpdate={(updatedTrace) => {
+                            const newTraces = [...(chartConfig.traces || [])];
+                            newTraces[selectedTraceIndex] = updatedTrace;
+                            setChartConfig({ ...chartConfig, traces: newTraces });
+                          }}
+                          onRemove={() => {
+                            const newTraces = [...(chartConfig.traces || [])];
+                            newTraces.splice(selectedTraceIndex, 1);
+                            setChartConfig({ ...chartConfig, traces: newTraces });
+                            setSelectedTraceIndex(null);
+                          }}
+                        />
+                      )}
+                    </>
                   ) : isPixelValuesReady ? (
                     <>
                       {/* Simplified chart type selector for pixelValues - no pie/histogram */}
@@ -984,11 +1226,18 @@ export function ChartSourceForm({
                             title: chartTitle || chartConfig.title,
                             subtitle: chartSubtitle || chartConfig.subtitle,
                             ...(sourceType === 'pixelValues' ? { sources: [{ type: 'pixelValues' as const }] } : {}),
-                            ...(sourceType === 'fieldValues' ? { sources: [{ type: 'inline' as const, fields: inlineFields }] } : {})
+                            ...(sourceType === 'fieldValues' ? { sources: [{ type: 'inline' as const, fields: inlineFields }] } : {}),
+                            ...(sourceType === 'pixelTimeSeries' ? { sources: [{ type: 'pixelTimeSeries' as const, bandIndex: timeSeriesBandIndex }] } : {})
                           }}
                           data={parsedData}
                           sampleData={samplePixelValues || undefined}
+                          sampleXLabels={isTimeSeriesReady ? timeSeriesDates : undefined}
                         />
+                        {isTimeSeriesReady && (
+                          <p className="text-xs text-muted-foreground text-center mt-1 italic">
+                            Placeholder values — the Explorer samples band {timeSeriesBandIndex + 1} at the clicked location for each date
+                          </p>
+                        )}
                         {isPixelValuesReady && samplePixelValues && (
                           <p className="text-xs text-muted-foreground text-center mt-1 italic">
                             Sample data from center pixel — actual chart will use clicked location

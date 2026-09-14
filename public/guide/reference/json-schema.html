@@ -2765,7 +2765,7 @@ are still accepted for import; new configs should emit the v2 shape.</p>
 <td><code>sources[]</code></td>
 <td>object</td>
 <td>no</td>
-<td>Where the data comes from: <code>{ type: 'externalURL'\|'lookupURL'\|'pixelValues'\|'inline', url?, field?, fields?, format?, label? }</code>.</td>
+<td>Where the data comes from: <code>{ type: 'externalURL'\|'lookupURL'\|'pixelValues'\|'pixelTimeSeries'\|'inline', url?, field?, fields?, format?, label?, bandIndex? }</code>. <code>bandIndex</code> (zero-based) applies to <code>pixelTimeSeries</code>.</td>
 </tr>
 </tbody>
 </table>

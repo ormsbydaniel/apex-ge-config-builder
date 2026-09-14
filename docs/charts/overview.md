@@ -10,13 +10,14 @@ Charts are added per-layer from the **Charts** tab in the Data Sources section o
 
 ## Source types
 
-A chart pulls data from one of four sources:
+A chart pulls data from one of five sources:
 
 | Type | Use for | Notes |
 |---|---|---|
 | **Direct Connection** | A CSV at a known URL | Simplest case; the URL is fetched at runtime. |
 | **From Service** | A configured backend service that returns CSV/JSON | Pick a service registered in the Services tab. |
 | **Pixel Values** | Spectral signature from a multi-band COG | Requires at least one COG data source on the layer. See [Pixel values](pixel-values.md). |
+| **Pixel Time Series** | One band's value over time from a COG time series | Requires several timestamped COGs on the layer. See [Pixel time series](pixel-time-series.md). |
 | **Field Values** | Counts/sums from GeoJSON or FlatGeoBuf properties | Used for inline pie charts. See [Field values](field-values.md). |
 
 ## Supported chart types

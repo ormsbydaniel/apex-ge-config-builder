@@ -94,6 +94,7 @@ nav:
           - Overview: charts/overview.md
           - Visual editor: charts/visual-editor.md
           - Pixel values: charts/pixel-values.md
+          - Pixel time series: charts/pixel-time-series.md
           - Field values: charts/field-values.md
           - CSV data: charts/csv-data.md
   - Draw order: configuration/draw-order.md

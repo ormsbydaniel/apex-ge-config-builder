@@ -231,6 +231,11 @@ const LayerFormHandler = ({
       (d: any) => d.format === 'cog'
     );
 
+    // COG sources that carry timestamps — used for pixelTimeSeries chart support
+    const timeSeriesCogSources = cogSources.filter(
+      (d: any) => Array.isArray(d.timestamps) && d.timestamps.length > 0
+    );
+
     // Filter vector sources for fieldValues chart support
     const vectorSources = (currentLayer.data || []).filter(
       (d: any) => d.format === 'geojson' || d.format === 'flatgeobuf'
@@ -254,6 +259,7 @@ const LayerFormHandler = ({
         editingIndex={editingChartIndex ?? undefined}
         onUpdateChart={onUpdateChart ? (chart, idx) => onUpdateChart(chart, editingChartLayerIndex!, idx) : undefined}
         cogSources={cogSources}
+        timeSeriesCogSources={timeSeriesCogSources}
         vectorSources={vectorSources}
       />
     );
