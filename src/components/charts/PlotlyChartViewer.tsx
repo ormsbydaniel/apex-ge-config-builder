@@ -76,6 +76,53 @@ export function PlotlyChartViewer({ config, data, height = 400, sampleData, samp
     }
 
 
+    // Handle pixelTimeSeries preview — X labels are the layer's dates
+    if (isPixelTimeSeries) {
+      const xLabels = sampleXLabels && sampleXLabels.length > 0 ? sampleXLabels : [];
+      if (xLabels.length === 0) {
+        return { plotData: [], layout: {}, isValid: false, message: 'No dated datasets available for this layer' };
+      }
+      const yValues = xLabels.map((_, i) => i + 1);
+
+      const plotTraces = (config.traces || []).map((trace, index) => {
+        const plotTrace: any = {
+          name: trace.name || `Trace ${index + 1}`,
+          type: trace.type || 'scatter',
+          x: xLabels,
+          y: yValues,
+          showlegend: trace.showlegend !== false,
+        };
+        if (trace.mode) plotTrace.mode = trace.mode;
+        if (trace.fill && trace.fill !== 'none') {
+          plotTrace.fill = trace.fill;
+          if (trace.fillcolor) plotTrace.fillcolor = trace.fillcolor;
+        }
+        if (trace.line) {
+          plotTrace.line = { color: trace.line.color, width: trace.line.width, dash: trace.line.dash, shape: trace.line.shape };
+        }
+        if (trace.marker) {
+          plotTrace.marker = { size: trace.marker.size, color: trace.marker.color, symbol: trace.marker.symbol };
+        }
+        return plotTrace;
+      });
+
+      const chartLayout: any = {
+        height: config.layout?.height || height,
+        showlegend: config.layout?.showlegend !== false,
+        margin: { t: 20, r: 30, b: 50, l: 60 },
+        xaxis: buildAxis(config.layout?.xaxis, 'Date'),
+        yaxis: buildAxis(config.layout?.yaxis, 'Value'),
+      };
+      if (config.layout?.legend) chartLayout.legend = config.layout.legend;
+
+      return {
+        plotData: plotTraces,
+        layout: chartLayout,
+        isValid: plotTraces.length > 0,
+        message: plotTraces.length === 0 ? 'Add at least one trace' : '',
+      };
+    }
+
     // Handle pixelValues preview with sampleData
     if (isPixelValues && Array.isArray(config.x) && config.x.length > 0) {
       const xLabels = config.x as string[];
