@@ -666,7 +666,7 @@ export function ChartSourceForm({
             {/* Source Type Selection */}
             <div className="space-y-4">
               <Label className="text-base font-medium">Data Source</Label>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-5 gap-4">
                 <button
                   type="button"
                   onClick={() => setSourceType('direct')}
@@ -710,6 +710,25 @@ export function ChartSourceForm({
                   <div className="font-medium">Pixel Values</div>
                   <div className="text-sm text-muted-foreground">
                     Spectral signature from COG bands
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  disabled={!canUseTimeSeries}
+                  title={canUseTimeSeries ? undefined : 'Requires more than one COG dataset with timestamps on this layer'}
+                  onClick={() => setSourceType('pixelTimeSeries')}
+                  className={`p-4 border rounded-lg text-center flex flex-col items-center transition-colors ${
+                    !canUseTimeSeries
+                      ? 'border-border opacity-50 cursor-not-allowed'
+                      : sourceType === 'pixelTimeSeries'
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <TrendingUp className="h-5 w-5 mb-2 text-primary" />
+                  <div className="font-medium">Pixel Time Series</div>
+                  <div className="text-sm text-muted-foreground">
+                    One band over time from a COG time series
                   </div>
                 </button>
                 <button
