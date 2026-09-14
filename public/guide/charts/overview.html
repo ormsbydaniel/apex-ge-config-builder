@@ -977,6 +977,8 @@
       
         
       
+        
+      
     
     
       
@@ -1155,6 +1157,35 @@
   
   <span class="md-ellipsis">
     Pixel values
+  </span>
+  
+    
+  
+  
+    <span class="md-status md-status--draft" title="Not yet reviewed">
+    </span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pixel-time-series.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pixel time series
   </span>
   
     
@@ -1709,7 +1740,7 @@
 <p>Charts are added per-layer from the <strong>Charts</strong> tab in the Data Sources section of the layer card. They render with Plotly and appear next to the layer in the APEx Geospatial Explorer when a user opens the info panel or selects a feature.</p>
 <p><img alt="Add Chart Source dialog with the four data source types" src="../assets/screenshots/chart-add-source-types.png" /></p>
 <h2 id="source-types">Source types<a class="headerlink" href="#source-types" title="Permanent link">&para;</a></h2>
-<p>A chart pulls data from one of four sources:</p>
+<p>A chart pulls data from one of five sources:</p>
 <table>
 <thead>
 <tr>
@@ -1733,6 +1764,11 @@
 <td><strong>Pixel Values</strong></td>
 <td>Spectral signature from a multi-band COG</td>
 <td>Requires at least one COG data source on the layer. See <a href="pixel-values.html">Pixel values</a>.</td>
+</tr>
+<tr>
+<td><strong>Pixel Time Series</strong></td>
+<td>One band's value over time from a COG time series</td>
+<td>Requires several timestamped COGs on the layer. See <a href="pixel-time-series.html">Pixel time series</a>.</td>
 </tr>
 <tr>
 <td><strong>Field Values</strong></td>
