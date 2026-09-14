@@ -6,6 +6,21 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-09-14",
+    title: "Release 2.5.0 - Addition of pixel time series chart config",
+    category: "Feature",
+  },
+  {
+    date: "2026-09-14",
+    title: "Release 2.4.0 - Update of docs for time series, inclusion of layer timeout settings, and addition of 4.2.0-rc GE release candidate in preview",
+    category: "Feature",
+  },
+  {
+    date: "2026-08-14",
+    title: "Release 2.3.0 - Addition of tutorials, beta catalogue for CLMS, and other minor fixes and enhancements. Deployment to dev build only",
+    category: "Feature",
+  },
+  {
     date: "2026-07-16",
     title: "Release 2.2.0 - further enhancements to storymap editing",
     category: "Feature",
