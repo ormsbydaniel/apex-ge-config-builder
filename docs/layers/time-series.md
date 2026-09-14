@@ -61,7 +61,12 @@ Each data source in the layer can carry one or more timestamps:
 2. Edit a dataset and set its timestamp to the matching date.
 3. When the granularity is **Years**, **Months**, or **Days**, only the matching part of the date is shown in the control.
 
-You can also manage timestamps in bulk with the timestamp management dialog (opened from the dataset list), which is useful when a layer has many dated datasets.
+![Edit Data Source panel with the Timestamp field set for a COG dataset](../assets/screenshots/time-series-dataset-timestamp.png)
+
+Each dataset in the layer then shows its own date and timestamp count in the dataset list, making it easy to check the sequence at a glance.
+
+![Dataset list showing one timestamp and a year badge for each COG](../assets/screenshots/time-series-datasets-timestamps.png)
+
 
 ### STAC item timestamps
 
