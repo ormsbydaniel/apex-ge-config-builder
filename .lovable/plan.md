@@ -4,7 +4,7 @@
 
 ## Content outline for `docs/layers/time-series.md`
 
-1. **What a time series layer is** — a standard layer whose datasets carry timestamps; the Explorer shows a temporal control that steps between them. Two ways time is attached: timestamps on datasets, or a `TIME` parameter driven by the service.
+1. **What a time series layer is** — a layer whose data changes over time, displayed through a temporal control that steps through different time periods (a day, a month, a year, etc.). Time series layers can be set up in three ways:
 2. **Setting the timeframe (granularity)** — Layer Card → **Controls → Temporal control**, with options **None / Time / Days / Months / Years** (from `TimeframeType` in `src/types/dataSource.ts`). Table of when to use each granularity, plus the sub-day `timePrecision` option (Hours / Minutes) for finer granularity. Explain continuous vs discontinuous sequences (concepts already covered in workshop 6-2).
 3. **Default time period** — the date picker that appears once a timeframe is set; sets the period new datasets inherit and the Explorer's initial step. Values are stored internally as Unix timestamps.
 4. **Attaching timestamps to datasets** — three sources of truth, mirroring the workshop:
