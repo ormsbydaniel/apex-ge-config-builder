@@ -11,6 +11,7 @@ import { reverseCogTransformation } from './transformers/cogTransformer';
 import { reverseExclusivitySetsTransformation } from './transformers/exclusivitySetsTransformer';
 import { reverseMetaCompletionTransformation } from './transformers/metaCompletionTransformer';
 import { preserveTemporalFields } from './transformers/temporalTransformer';
+import { reverseTopLevelDefaultsTransformation } from './transformers/topLevelDefaultsTransformer';
 import { normalizeServices } from './transformers/serviceNormalizer';
 import { ensureSourceIds } from '@/utils/idHelpers';
 
