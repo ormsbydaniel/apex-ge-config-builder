@@ -12,7 +12,8 @@
 3. **Default time period** — the date picker that appears once a timeframe is set; sets the period new datasets inherit and the Explorer's initial step. Values are stored internally as Unix timestamps.
 4. **Configuring each setup** — expand the three approaches from the introduction, mirroring the workshop:
    - **Manual** — per-dataset timestamp field (full date required; display follows the granularity). Timestamps can also be managed in bulk via the timestamp management dialog.
-   - **STAC** — item datetimes are copied automatically when assets are added from the STAC browser; note the temporal control must be configured on the layer *before* adding datasets or the timestamps are not picked up.
+   - **STAC (copied item timestamps)** — item datetimes are copied automatically when assets are added from the STAC browser; note the temporal control must be configured on the layer *before* adding datasets or the timestamps are not picked up.
+   - **STAC (dynamic collection data source)** — add the STAC collection itself as a single data source, so the Geospatial Explorer (v4.2+) resolves the available timestamps at load time. This avoids re-exporting the config when new items are published.
    - **WMS / WMTS `TIME` parameter** — the **Use TIME parameter** toggle; the builder probes GetCapabilities and auto-detects/advertises the time dimension (extent + granularity shown in the dataset metadata dialog). Link to the WMS/WMTS data-source page.
    - **Increment steps** — stepping forward N units at a time (e.g. 30 for monthly jumps over daily data).
 5. **JSON reference** — the persisted fields: layer-level `timeframe` / `defaultTimestamp`, dataset-level `timestamps[]` (Unix seconds) and `useTimeParameter`, and the optional `timePrecision`. Small example JSON snippet.
