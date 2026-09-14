@@ -14,7 +14,19 @@ Time series layers can be set up in three ways:
 
 ## Setting the timeframe
 
-The **timeframe** controls the granularity shown in the temporal control and how timestamps are interpreted.
+The **timeframe** does two things in the Geospatial Explorer:
+
+1. It controls how the temporal control formats the current date in the user interface.
+2. It determines the interval the control uses when stepping through the data.
+
+**Display format.** Depending on the timeframe, the Explorer shows the date as:
+- a year, for example **2026**;
+- a year and month, for example **2026-06**;
+- a full date, for example **2026-06-01**.
+
+**Stepping interval.** The timeframe also sets the unit used when moving forwards or backwards. For example, if a WMS or WMTS layer's `TIME` dimension advertises daily increments, setting the timeframe to **Days** steps through every explicit day and shows the full date. Setting it to **Months** instead jumps to the nearest date one month ahead or behind the current position, and the UI shows only the month, not the full date.
+
+When you set timestamps manually — for example 1 January 2025 and 1 January 2026 — choosing **Years** as the timeframe tells the Explorer to treat those as yearly products and display only the year, even though each stored timestamp is a complete date.
 
 Layer Card → **Controls → Temporal control** → choose the granularity:
 

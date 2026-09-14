@@ -1710,7 +1710,17 @@
 <li><strong>Services with a time parameter</strong> — WMS or WMTS layers that advertise a <code>TIME</code> dimension, either as a list of explicit dates or as a start/end/interval.</li>
 </ul>
 <h2 id="setting-the-timeframe">Setting the timeframe<a class="headerlink" href="#setting-the-timeframe" title="Permanent link">&para;</a></h2>
-<p>The <strong>timeframe</strong> controls the granularity shown in the temporal control and how timestamps are interpreted.</p>
+<p>The <strong>timeframe</strong> does two things in the Geospatial Explorer:</p>
+<ol>
+<li>It controls how the temporal control formats the current date in the user interface.</li>
+<li>It determines the interval the control uses when stepping through the data.</li>
+</ol>
+<p><strong>Display format.</strong> Depending on the timeframe, the Explorer shows the date as:
+- a year, for example <strong>2026</strong>;
+- a year and month, for example <strong>2026-06</strong>;
+- a full date, for example <strong>2026-06-01</strong>.</p>
+<p><strong>Stepping interval.</strong> The timeframe also sets the unit used when moving forwards or backwards. For example, if a WMS or WMTS layer's <code>TIME</code> dimension advertises daily increments, setting the timeframe to <strong>Days</strong> steps through every explicit day and shows the full date. Setting it to <strong>Months</strong> instead jumps to the nearest date one month ahead or behind the current position, and the UI shows only the month, not the full date.</p>
+<p>When you set timestamps manually — for example 1 January 2025 and 1 January 2026 — choosing <strong>Years</strong> as the timeframe tells the Explorer to treat those as yearly products and display only the year, even though each stored timestamp is a complete date.</p>
 <p>Layer Card → <strong>Controls → Temporal control</strong> → choose the granularity:</p>
 <table>
 <thead>
