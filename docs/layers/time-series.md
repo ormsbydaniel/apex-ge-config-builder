@@ -67,6 +67,9 @@ You can also manage timestamps in bulk with the timestamp management dialog (ope
 
 When assets are added from the [STAC browser](../data-sources/stac-browser.md), the Configuration Builder copies each item's `datetime` onto the resulting dataset automatically.
 
+![STAC browser listing collection items with their datetimes](../assets/screenshots/stac-browser-items.png)
+
+
 !!! warning "Configure the timeframe first"
     The temporal control must be enabled **before** adding STAC assets, otherwise the item datetimes are not copied into the datasets.
 
