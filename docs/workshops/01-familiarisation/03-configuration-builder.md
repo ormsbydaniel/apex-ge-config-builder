@@ -6,7 +6,7 @@ title: 1-3. Configuration Builder
 
 The **Configuration Builder** is the companion tool to the Geospatial
 Explorer. Where the Explorer is the end-user application, the
-Configuration Builder is the no-code editor used to *shape* what an
+Configuration Builder is the no-code editor used to _shape_ what an
 Explorer deployment looks like — which layers appear, how they are
 grouped, what styling and charts are attached, which storymaps are on
 offer, and so on.
@@ -19,14 +19,13 @@ picture of what a "finished" configuration contains.
 
 ### 1. Open the Configuration Builder
 
-!!! info "Geospatial Explorer Configuration Builder"
-    - <https://ge-config-builder.apex.esa.int/>
+!!! info "Geospatial Explorer Configuration Builder" - <https://ge-config-builder.apex.esa.int/>
 
 Save it as a bookmark in your browser as you will use this constantly throughout the tutorials.
 
 ### 2. Load the "Comprehensive Demo" example
 
-From the home page, open the **Examples** dialog
+From the _Home_ tab select **Load** then **Examples** dialog
 and choose **Comprehensive Demo**. This will load a rich, pre-built
 configuration into the editor.
 ![Load Configuration dialog with the Examples tab selected, showing the Comprehensive demo and Full screen storymap demo entries](../../assets/screenshots/configuration-load-examples.png)
@@ -69,5 +68,5 @@ of the shape of a configuration:
   defined elsewhere in the sidebar.
 
 By the end of this browse you should have a rough answer to the
-question *"what kinds of things live in a configuration?"* — which is
+question _"what kinds of things live in a configuration?"_ — which is
 exactly the foundation we'll build on in the next tutorial.
