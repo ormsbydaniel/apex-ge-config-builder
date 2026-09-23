@@ -24,14 +24,20 @@ Some basic understanding of these concepts is useful but not essential. Tutorial
 
 For the majority of tutorials you will be consulting this guide, whilst working with the **Geospatial Explorer Configuration Builder**.
 
+- **Modern browser required.** Chrome, Firefox, Edge or Safari (latest version)
+  will all work. The Config Builder is a single-page web app — nothing to
+  install.
 - **Two monitors are ideal.** Keep the Config Builder open on one screen and
   this guide on the other so you can follow along without switching windows.
 - **One monitor is fine too.** If you only have one screen, open the Config
   Builder and this guide in two separate browser tabs and switch between them
   as you work through each step.
-- **Modern browser required.** Chrome, Firefox, Edge or Safari (latest version)
-  will all work. The Config Builder is a single-page web app — nothing to
-  install.
+- **One monitor and phone.** If you want to avoid too much tab switching, you
+  might find it easier to read the tutorial instructions on your phone and
+  follow them on your monitor — then just switch tabs for URL copies. Scan this
+  QR code to open this page on your phone:
+
+  ![QR code linking to the Tutorial setup instructions](../../assets/screenshots/tutorial-setup-qr-code.png)
 
 ## Working through the tutorials
 
