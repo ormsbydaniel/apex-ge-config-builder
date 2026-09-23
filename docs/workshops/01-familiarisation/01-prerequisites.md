@@ -34,10 +34,10 @@ For the majority of tutorials you will be consulting this guide, whilst working 
   as you work through each step.
 - **One monitor and phone.** If you want to avoid too much tab switching, you
   might find it easier to read the tutorial instructions on your phone and
-  follow them on your monitor — then just switch tabs for URL copies. Scan this
-  QR code to open this page on your phone:
+  follow them on your monitor — then just switch tabs for things like copying
+  URLs to clipboard. Scan this QR code to open this page on your phone:
 
-  ![QR code linking to the Tutorial setup instructions](../../assets/screenshots/tutorial-setup-qr-code.png)
+  ![QR code linking to the Tutorial setup instructions](../../assets/screenshots/tutorial-setup-qr-code.png){ width=245 }
 
 ## Working through the tutorials
 
