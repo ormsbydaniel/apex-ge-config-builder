@@ -127,7 +127,8 @@ const FieldsEditorTabs = ({
   onAddField,
   onUpdateField,
   onRemoveField,
-  onImportDetectedFields
+  onImportDetectedFields,
+  onSetLocalFields
 }: FieldsEditorTabsProps) => {
   const { toast } = useToast();
   const [expandedField, setExpandedField] = useState<string | null>(null);
