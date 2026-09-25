@@ -56,17 +56,13 @@ with the **Geospatial Explorer Configuration Builder**.
 ## Navigating the tutorials
 
 Each tutorial is broken into short steps, most of which take 5 to 10 minutes.
-Use the **left-hand navigation** to see the full outline of tutorials and
-jump to any step. At the bottom of each page, the **Previous** and **Next**
-arrows step you through the tutorials in order.
+Use the **tutorial menu** to see the full outline of tutorials and jump to any
+step. The tutorial menu is to the left of the page, or in the **top-left
+dropdown menu if accessed on a phone**. At the bottom of each page, the
+**Previous** and **Next** arrows step you through the tutorials in order.
 
 If you fall behind, don't worry — you can catch up quickly by jumping to the
 current step.
-
-!!! tip "Export often"
-    The Config Builder holds your work in the browser. Use **File → Export
-    config** frequently so you don't lose progress if the tab closes or is
-    refreshed.
 
 ## Tutorial pre-requisites
 
