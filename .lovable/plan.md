@@ -15,6 +15,11 @@ Replace the collapsible per-field cards in the "Manage Fields" dialog with the a
 - Keeps the existing "N visible, M hidden" summary line, the "Enter field name…" + **Add Field** row, and the Cancel / Save Changes footer.
 - Keeps the three tabs (Define fields / Auto-detect / Copy from layer) unchanged.
 
+### Field ordering
+- Each row gets a **drag handle** (grip icon) on the far left and **up/down chevron buttons**, consistent with the layer list ordering controls elsewhere in the UI (`@dnd-kit` sortable + `GripVertical`, and the existing move-controls pattern).
+- Dragging or clicking the chevrons reorders the field in the table; the order is saved to the config (fields object key order / `order` values) so the Explorer displays fields in that sequence.
+- Chevron buttons disable at the top/bottom of the list.
+
 ### Advanced settings per row
 The current card also edits **type**, **format** (date/datetime) and **order**. These move to a small expandable section per row (chevron at the end of the row) so the table stays compact while no functionality is lost.
 
