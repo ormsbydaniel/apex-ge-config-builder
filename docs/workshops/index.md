@@ -56,17 +56,13 @@ with the **Geospatial Explorer Configuration Builder**.
 ## Navigating the tutorials
 
 Each tutorial is broken into short steps, most of which take 5 to 10 minutes.
-Use the **left-hand navigation** to see the full outline of tutorials and
-jump to any step. At the bottom of each page, the **Previous** and **Next**
-arrows step you through the tutorials in order.
+Use the **tutorial menu** to see the full outline of tutorials and jump to any
+step. The tutorial menu is to the left of the page, or in the **top-left
+dropdown menu if accessed on a phone**. At the bottom of each page, the
+**Previous** and **Next** arrows step you through the tutorials in order.
 
 If you fall behind, don't worry — you can catch up quickly by jumping to the
 current step.
-
-!!! tip "Export often"
-    The Config Builder holds your work in the browser. Use **File → Export
-    config** frequently so you don't lose progress if the tab closes or is
-    refreshed.
 
 ## Tutorial pre-requisites
 
@@ -88,4 +84,16 @@ facilitator-led demonstrations and self-paced learning exercises.
 
 Interrupt the facilitator at any time — questions are welcome and usually help
 everyone. If you get stuck on a step, flag it early rather than falling behind.
+
+## BYO data
+
+The tutorials use **cloud hosted data sources** — such as **Cloud Optimised
+GeoTiff (COG)** files, **WMS / WMTS** services and more — so you can follow
+along without preparing anything in advance.
+
+If you have your **own data at a publicly accessible URL**, you are welcome to
+try substituting it in the tutorials. If you are doing this in a workshop
+environment, whilst your facilitator may be more than happy to help if
+possible, we can't use workshop sessions to troubleshoot any issues with your
+own data, as this is likely to impact attention for the other delegates.
 
