@@ -9,7 +9,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Search, Loader2 } from 'lucide-react';
-import { FieldsConfig } from '@/types/category';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { FieldsConfig, FieldConfig } from '@/types/category';
 import FieldItem from './FieldItem';
 import FieldsCopyFromLayer from './FieldsCopyFromLayer';
 import { detectFieldsFromSource, DetectedField } from '@/utils/fieldDetection';
@@ -38,6 +54,63 @@ interface FieldsEditorTabsProps {
   onRemoveField: (fieldName: string) => void;
   onImportDetectedFields: (fieldNames: string[], mode: 'append' | 'replace') => void;
 }
+
+/** Sortable wrapper around a field table row. */
+const SortableFieldRow = ({
+  fieldName,
+  config,
+  onUpdate,
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
+  isExpanded,
+  onToggleExpand,
+}: {
+  fieldName: string;
+  config: FieldConfig | null;
+  onUpdate: (config: FieldConfig | null) => void;
+  onRemove: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: fieldName,
+  });
+
+  return (
+    <tbody
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.6 : undefined,
+        position: 'relative',
+        zIndex: isDragging ? 10 : undefined,
+      }}
+    >
+      <FieldItem
+        fieldName={fieldName}
+        config={config}
+        onUpdate={onUpdate}
+        onRemove={onRemove}
+        onMoveUp={onMoveUp}
+        onMoveDown={onMoveDown}
+        canMoveUp={canMoveUp}
+        canMoveDown={canMoveDown}
+        isExpanded={isExpanded}
+        onToggleExpand={onToggleExpand}
+        dragAttributes={attributes}
+        dragListeners={listeners}
+      />
+    </tbody>
+  );
+};
 
 const FieldsEditorTabs = ({
   activeTab,
@@ -128,6 +201,35 @@ const FieldsEditorTabs = ({
 
   const canDetect = sourceUrl && sourceFormat;
 
+  // Field ordering: rebuild the fields object in a new key order.
+  const fieldNames = Object.keys(localFields);
+  const reorderFields = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= fieldNames.length || fromIndex === toIndex) return;
+    const next = [...fieldNames];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+    const reordered: FieldsConfig = {};
+    next.forEach((name) => {
+      reordered[name] = localFields[name];
+    });
+    onSetLocalFields(reordered);
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const fromIndex = fieldNames.indexOf(String(active.id));
+    const toIndex = fieldNames.indexOf(String(over.id));
+    if (fromIndex !== -1 && toIndex !== -1) {
+      reorderFields(fromIndex, toIndex);
+    }
+  };
+
   return (
     <Tabs value={activeTab} onValueChange={onActiveTabChange} className="w-full">
       <TabsList className="grid w-full grid-cols-3">
@@ -161,20 +263,51 @@ const FieldsEditorTabs = ({
           </div>
         )}
 
-        {/* Field list */}
-        <div className="space-y-2 max-h-[300px] overflow-y-auto">
-          {Object.entries(localFields).map(([fieldName, config]) => (
-            <FieldItem
-              key={fieldName}
-              fieldName={fieldName}
-              config={config}
-              onUpdate={(newConfig) => onUpdateField(fieldName, newConfig)}
-              onRemove={() => onRemoveField(fieldName)}
-              isExpanded={expandedField === fieldName}
-              onToggleExpand={() => setExpandedField(expandedField === fieldName ? null : fieldName)}
-            />
-          ))}
-        </div>
+        {/* Field table */}
+        {fieldCount > 0 && (
+          <div className="max-h-[320px] overflow-y-auto border border-border rounded-lg">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-muted/60 sticky top-0 z-10 border-b border-border">
+                  <tr className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <th className="pl-2 pr-1 py-2 w-[72px]" aria-label="Reorder" />
+                    <th className="px-2 py-2">Field name</th>
+                    <th className="px-1 py-2">Display label</th>
+                    <th className="px-1 py-2 w-24">Prefix</th>
+                    <th className="px-1 py-2 w-24">Suffix</th>
+                    <th className="px-1 py-2 w-16 text-center">Prec.</th>
+                    <th className="px-2 py-2 w-14 text-center">Hide</th>
+                    <th className="pl-1 pr-2 py-2 w-[72px]" aria-label="Actions" />
+                  </tr>
+                </thead>
+                <SortableContext
+                  items={fieldNames}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {fieldNames.map((fieldName, index) => (
+                    <SortableFieldRow
+                      key={fieldName}
+                      fieldName={fieldName}
+                      config={localFields[fieldName]}
+                      onUpdate={(newConfig) => onUpdateField(fieldName, newConfig)}
+                      onRemove={() => onRemoveField(fieldName)}
+                      onMoveUp={() => reorderFields(index, index - 1)}
+                      onMoveDown={() => reorderFields(index, index + 1)}
+                      canMoveUp={index > 0}
+                      canMoveDown={index < fieldNames.length - 1}
+                      isExpanded={expandedField === fieldName}
+                      onToggleExpand={() => setExpandedField(expandedField === fieldName ? null : fieldName)}
+                    />
+                  ))}
+                </SortableContext>
+              </table>
+            </DndContext>
+          </div>
+        )}
 
         {/* Add new field */}
         <div className="flex gap-2 pt-2 border-t">
