@@ -196,8 +196,8 @@ const FieldsEditorTabs = ({
 
   const canDetect = sourceUrl && sourceFormat;
 
-  // Explicit display positions take precedence over JSON object-key order.
-  const fieldNames = orderedFieldNames(localFields);
+  // The hook sorts by explicit order on open; during editing row order is authoritative.
+  const fieldNames = Object.keys(localFields);
   const reorderFields = (fromIndex: number, toIndex: number) => {
     if (toIndex < 0 || toIndex >= fieldNames.length || fromIndex === toIndex) return;
     const next = [...fieldNames];

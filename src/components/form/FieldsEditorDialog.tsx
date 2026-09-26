@@ -92,7 +92,7 @@ const FieldsEditorDialog = ({
   };
 
   const handleSave = () => {
-    onUpdate(assignFieldOrder(localFields, orderedFieldNames(localFields)));
+    onUpdate(assignFieldOrder(localFields, Object.keys(localFields)));
     handleOpen(false);
   };
 
