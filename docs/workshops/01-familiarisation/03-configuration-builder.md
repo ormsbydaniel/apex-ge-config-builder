@@ -19,7 +19,8 @@ picture of what a "finished" configuration contains.
 
 ### 1. Open the Configuration Builder
 
-!!! info "Geospatial Explorer Configuration Builder" - <https://ge-config-builder.apex.esa.int/>
+!!! info "Geospatial Explorer Configuration Builder"
+    - <https://ge-config-builder.apex.esa.int/>
 
 Save it as a bookmark in your browser as you will use this constantly throughout the tutorials.
 
