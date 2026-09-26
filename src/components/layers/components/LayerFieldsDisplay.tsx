@@ -9,15 +9,15 @@ import { Button } from '@/components/ui/button';
 import { List, EyeOff, Pencil } from 'lucide-react';
 import { FieldsConfig } from '@/types/category';
 import FieldsEditorDialog from '@/components/form/FieldsEditorDialog';
+import type { DataSourceItem } from '@/types/dataSource';
 
 interface LayerFieldsDisplayProps {
   fields: FieldsConfig;
   onUpdate?: (fields: FieldsConfig) => void;
-  sourceUrl?: string;
-  sourceFormat?: string;
+  dataSources?: DataSourceItem[];
 }
 
-const LayerFieldsDisplay = ({ fields, onUpdate, sourceUrl, sourceFormat }: LayerFieldsDisplayProps) => {
+const LayerFieldsDisplay = ({ fields, onUpdate, dataSources }: LayerFieldsDisplayProps) => {
   const fieldEntries = Object.entries(fields);
   const hasFields = fieldEntries.length > 0;
 
@@ -42,8 +42,7 @@ const LayerFieldsDisplay = ({ fields, onUpdate, sourceUrl, sourceFormat }: Layer
           <FieldsEditorDialog
             fields={fields}
             onUpdate={onUpdate}
-            sourceUrl={sourceUrl}
-            sourceFormat={sourceFormat}
+            dataSources={dataSources}
             trigger={
               <Button variant="ghost" size="icon" className="h-6 w-6">
                 <Pencil className="h-3.5 w-3.5" />
