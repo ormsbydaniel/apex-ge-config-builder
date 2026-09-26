@@ -30,7 +30,7 @@ import FieldItem from './FieldItem';
 import FieldsCopyFromLayer from './FieldsCopyFromLayer';
 import { detectFieldsFromSource, DetectedField } from '@/utils/fieldDetection';
 import { useToast } from '@/hooks/use-toast';
-import { assignFieldOrder, orderedFieldNames } from '@/utils/fieldOrder';
+import { assignFieldOrder } from '@/utils/fieldOrder';
 
 interface AvailableSourceLayer {
   name: string;
