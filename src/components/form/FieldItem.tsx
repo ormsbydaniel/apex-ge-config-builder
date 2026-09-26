@@ -126,7 +126,7 @@ const FieldItem = ({
         </td>
 
         {/* Display label */}
-        <td className="px-1 py-1.5 min-w-[140px]">
+        <td className="px-1 py-1.5 min-w-[104px]">
           <Input
             id={`label-${fieldName}`}
             aria-label={`Display label for ${fieldName}`}
@@ -139,7 +139,7 @@ const FieldItem = ({
         </td>
 
         {/* Prefix */}
-        <td className="px-1 py-1.5 w-24">
+        <td className="px-1 py-1.5 w-16">
           <Input
             id={`prefix-${fieldName}`}
             aria-label={`Prefix for ${fieldName}`}
@@ -152,7 +152,7 @@ const FieldItem = ({
         </td>
 
         {/* Suffix */}
-        <td className="px-1 py-1.5 w-24">
+        <td className="px-1 py-1.5 w-16">
           <Input
             id={`suffix-${fieldName}`}
             aria-label={`Suffix for ${fieldName}`}
@@ -165,7 +165,7 @@ const FieldItem = ({
         </td>
 
         {/* Precision */}
-        <td className="px-1 py-1.5 w-16">
+        <td className="px-1 py-1.5 w-12">
           <Input
             id={`precision-${fieldName}`}
             aria-label={`Precision for ${fieldName}`}
@@ -180,7 +180,7 @@ const FieldItem = ({
           />
         </td>
 
-        {/* Type and date format */}
+        {/* Type */}
         <td className="px-1 py-1.5 w-28 min-w-[112px]">
           <Select
             value={config?.type || 'default'}
@@ -197,17 +197,6 @@ const FieldItem = ({
               <SelectItem value="url">URL</SelectItem>
             </SelectContent>
           </Select>
-        </td>
-        <td className="px-1 py-1.5 w-32 min-w-[128px]">
-          {(config?.type === 'date' || config?.type === 'datetime') && (
-            <Input
-              aria-label={`Format for ${fieldName}`}
-              placeholder="yyyy-MM-dd"
-              value={config.format || ''}
-              onChange={(e) => handleConfigChange('format', e.target.value)}
-              className="h-7 text-xs"
-            />
-          )}
         </td>
 
         {/* Hidden toggle */}
