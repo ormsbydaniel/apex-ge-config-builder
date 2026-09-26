@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { FieldsConfig, FieldConfig } from '@/types/category';
 import { useToast } from '@/hooks/use-toast';
+import { orderedFieldNames } from '@/utils/fieldOrder';
 
 interface AvailableSourceLayer {
   name: string;
@@ -36,8 +37,9 @@ export const useFieldsEditorState = ({
 
   const handleOpen = (isOpen: boolean) => {
     setOpen(isOpen);
-    if (isOpen && !activeTab) {
-      setActiveTab("define");
+    if (isOpen) {
+      setLocalFields(Object.fromEntries(orderedFieldNames(fields).map(name => [name, fields[name]])));
+      setActiveTab('define');
     }
   };
 

@@ -30,6 +30,7 @@ import FieldItem from './FieldItem';
 import FieldsCopyFromLayer from './FieldsCopyFromLayer';
 import { detectFieldsFromSource, DetectedField } from '@/utils/fieldDetection';
 import { useToast } from '@/hooks/use-toast';
+import { assignFieldOrder } from '@/utils/fieldOrder';
 
 interface AvailableSourceLayer {
   name: string;
@@ -65,8 +66,6 @@ const SortableFieldRow = ({
   onMoveDown,
   canMoveUp,
   canMoveDown,
-  isExpanded,
-  onToggleExpand,
 }: {
   fieldName: string;
   config: FieldConfig | null;
@@ -76,8 +75,6 @@ const SortableFieldRow = ({
   onMoveDown: () => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
-  isExpanded: boolean;
-  onToggleExpand: () => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: fieldName,
@@ -103,8 +100,6 @@ const SortableFieldRow = ({
         onMoveDown={onMoveDown}
         canMoveUp={canMoveUp}
         canMoveDown={canMoveDown}
-        isExpanded={isExpanded}
-        onToggleExpand={onToggleExpand}
         dragAttributes={attributes}
         dragListeners={listeners}
       />
@@ -131,7 +126,6 @@ const FieldsEditorTabs = ({
   onSetLocalFields
 }: FieldsEditorTabsProps) => {
   const { toast } = useToast();
-  const [expandedField, setExpandedField] = useState<string | null>(null);
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectedFields, setDetectedFields] = useState<DetectedField[]>([]);
   const [selectedDetectedFields, setSelectedDetectedFields] = useState<Set<string>>(new Set());
@@ -202,18 +196,14 @@ const FieldsEditorTabs = ({
 
   const canDetect = sourceUrl && sourceFormat;
 
-  // Field ordering: rebuild the fields object in a new key order.
+  // The hook sorts by explicit order on open; during editing row order is authoritative.
   const fieldNames = Object.keys(localFields);
   const reorderFields = (fromIndex: number, toIndex: number) => {
     if (toIndex < 0 || toIndex >= fieldNames.length || fromIndex === toIndex) return;
     const next = [...fieldNames];
     const [moved] = next.splice(fromIndex, 1);
     next.splice(toIndex, 0, moved);
-    const reordered: FieldsConfig = {};
-    next.forEach((name) => {
-      reordered[name] = localFields[name];
-    });
-    onSetLocalFields(reordered);
+    onSetLocalFields(assignFieldOrder(localFields, next));
   };
 
   const sensors = useSensors(
@@ -266,13 +256,13 @@ const FieldsEditorTabs = ({
 
         {/* Field table */}
         {fieldCount > 0 && (
-          <div className="max-h-[320px] overflow-y-auto border border-border rounded-lg">
+          <div className="max-h-[320px] overflow-auto border border-border rounded-lg">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[1040px] text-left border-collapse">
                 <thead className="bg-muted/60 sticky top-0 z-10 border-b border-border">
                   <tr className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
                     <th className="pl-2 pr-1 py-2 w-[72px]" aria-label="Reorder" />
@@ -281,8 +271,10 @@ const FieldsEditorTabs = ({
                     <th className="px-1 py-2 w-24">Prefix</th>
                     <th className="px-1 py-2 w-24">Suffix</th>
                     <th className="px-1 py-2 w-16 text-center">Prec.</th>
+                    <th className="px-1 py-2 w-28">Type</th>
+                    <th className="px-1 py-2 w-32">Format</th>
                     <th className="px-2 py-2 w-14 text-center">Hide</th>
-                    <th className="pl-1 pr-2 py-2 w-[72px]" aria-label="Actions" />
+                    <th className="pl-1 pr-2 py-2 w-10" aria-label="Actions" />
                   </tr>
                 </thead>
                 <SortableContext
@@ -300,8 +292,6 @@ const FieldsEditorTabs = ({
                       onMoveDown={() => reorderFields(index, index + 1)}
                       canMoveUp={index > 0}
                       canMoveDown={index < fieldNames.length - 1}
-                      isExpanded={expandedField === fieldName}
-                      onToggleExpand={() => setExpandedField(expandedField === fieldName ? null : fieldName)}
                     />
                   ))}
                 </SortableContext>

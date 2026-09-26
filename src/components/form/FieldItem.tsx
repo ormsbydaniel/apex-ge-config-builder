@@ -1,7 +1,6 @@
 /**
  * Individual field configuration row for the Fields Editor table.
- * One row per field with inline editing, ordering controls and a
- * collapsible advanced section (type / format / order).
+ * One row per field with inline editing and ordering controls.
  */
 
 import React from 'react';
@@ -9,7 +8,6 @@ import { FieldConfig } from '@/types/category';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Trash2, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import {
   Select,
@@ -31,8 +29,6 @@ interface FieldItemProps {
   onMoveDown: () => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
-  isExpanded?: boolean;
-  onToggleExpand?: () => void;
   dragAttributes?: DraggableAttributes;
   dragListeners?: SyntheticListenerMap;
 }
@@ -46,8 +42,6 @@ const FieldItem = ({
   onMoveDown,
   canMoveUp,
   canMoveDown,
-  isExpanded = false,
-  onToggleExpand,
   dragAttributes,
   dragListeners
 }: FieldItemProps) => {
@@ -71,7 +65,6 @@ const FieldItem = ({
   };
 
   return (
-    <>
       <tr
         className={cn(
           'group border-b border-border last:border-0 transition-colors',
@@ -81,15 +74,17 @@ const FieldItem = ({
         {/* Ordering controls */}
         <td className="pl-2 pr-1 py-1.5 w-[72px]">
           <div className="flex items-center gap-0.5">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               aria-label={`Drag to reorder ${fieldName}`}
-              className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+              className="h-7 w-5 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
               {...dragAttributes}
               {...dragListeners}
             >
               <GripVertical className="h-4 w-4" />
-            </button>
+            </Button>
             <div className="flex flex-col">
               <Button
                 type="button"
@@ -185,6 +180,36 @@ const FieldItem = ({
           />
         </td>
 
+        {/* Type and date format */}
+        <td className="px-1 py-1.5 w-28 min-w-[112px]">
+          <Select
+            value={config?.type || 'default'}
+            onValueChange={(value) => handleConfigChange('type', value === 'default' ? undefined : value)}
+            disabled={isHidden}
+          >
+            <SelectTrigger className="h-7 text-xs px-2" aria-label={`Type for ${fieldName}`}>
+              <SelectValue placeholder="Default" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Default</SelectItem>
+              <SelectItem value="date">Date</SelectItem>
+              <SelectItem value="datetime">DateTime</SelectItem>
+              <SelectItem value="url">URL</SelectItem>
+            </SelectContent>
+          </Select>
+        </td>
+        <td className="px-1 py-1.5 w-32 min-w-[128px]">
+          {(config?.type === 'date' || config?.type === 'datetime') && (
+            <Input
+              aria-label={`Format for ${fieldName}`}
+              placeholder="yyyy-MM-dd"
+              value={config.format || ''}
+              onChange={(e) => handleConfigChange('format', e.target.value)}
+              className="h-7 text-xs"
+            />
+          )}
+        </td>
+
         {/* Hidden toggle */}
         <td className="px-2 py-1.5 w-14 text-center">
           <Switch
@@ -195,25 +220,9 @@ const FieldItem = ({
           />
         </td>
 
-        {/* Advanced expand + delete */}
-        <td className="pl-1 pr-2 py-1.5 w-[72px]">
-          <div className="flex items-center justify-end gap-0.5">
-            {!isHidden && onToggleExpand && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                aria-label={`${isExpanded ? 'Hide' : 'Show'} advanced settings for ${fieldName}`}
-                onClick={onToggleExpand}
-                className="h-7 w-7 p-0"
-              >
-                {isExpanded ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-              </Button>
-            )}
+        {/* Delete */}
+        <td className="pl-1 pr-2 py-1.5 w-10">
+          <div className="flex items-center justify-end">
             <Button
               type="button"
               variant="ghost"
@@ -227,60 +236,6 @@ const FieldItem = ({
           </div>
         </td>
       </tr>
-
-      {/* Advanced settings row: type, format, order */}
-      {!isHidden && isExpanded && (
-        <tr className="border-b border-border bg-muted/30">
-          <td colSpan={8} className="px-4 py-3">
-            <div className="grid grid-cols-3 gap-3">
-              {/* Type */}
-              <div className="space-y-1">
-                <Label className="text-xs">Type</Label>
-                <Select
-                  value={config?.type || 'default'}
-                  onValueChange={(value) => handleConfigChange('type', value === 'default' ? undefined : value)}
-                >
-                  <SelectTrigger className="h-8 text-sm" aria-label={`Type for ${fieldName}`}>
-                    <SelectValue placeholder="Default" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="default">Default</SelectItem>
-                    <SelectItem value="date">Date</SelectItem>
-                    <SelectItem value="datetime">DateTime</SelectItem>
-                    <SelectItem value="url">URL</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Format - only show for date types */}
-              {(config?.type === 'date' || config?.type === 'datetime') && (
-                <div className="space-y-1">
-                  <Label className="text-xs">Format</Label>
-                  <Input
-                    placeholder="e.g., yyyy-MM-dd"
-                    value={config?.format || ''}
-                    onChange={(e) => handleConfigChange('format', e.target.value)}
-                    className="h-8 text-sm"
-                  />
-                </div>
-              )}
-
-              {/* Order */}
-              <div className="space-y-1">
-                <Label className="text-xs">Order</Label>
-                <Input
-                  type="number"
-                  placeholder="Display order"
-                  value={config?.order ?? ''}
-                  onChange={(e) => handleConfigChange('order', e.target.value ? parseInt(e.target.value) : undefined)}
-                  className="h-8 text-sm"
-                />
-              </div>
-            </div>
-          </td>
-        </tr>
-      )}
-    </>
   );
 };
 

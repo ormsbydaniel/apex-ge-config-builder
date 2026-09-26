@@ -28,12 +28,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { FieldsConfig, FieldConfig } from '@/types/category';
+import { FieldsConfig } from '@/types/category';
 import { DataSource } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useFieldsEditorState } from '@/hooks/useFieldsEditorState';
 import FieldsEditorTabs from './FieldsEditorTabs';
-import { isVectorFormat } from '@/utils/fieldDetection';
+import { assignFieldOrder } from '@/utils/fieldOrder';
 
 interface FieldsEditorDialogProps {
   fields: FieldsConfig;
@@ -91,7 +91,7 @@ const FieldsEditorDialog = ({
   };
 
   const handleSave = () => {
-    onUpdate(localFields);
+    onUpdate(assignFieldOrder(localFields, Object.keys(localFields)));
     handleOpen(false);
   };
 
