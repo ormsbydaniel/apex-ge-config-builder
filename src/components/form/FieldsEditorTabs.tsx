@@ -262,17 +262,16 @@ const FieldsEditorTabs = ({
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
-              <table className="w-full min-w-[1040px] text-left border-collapse">
+              <table className="w-full text-left border-collapse">
                 <thead className="bg-muted/60 sticky top-0 z-10 border-b border-border">
                   <tr className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
                     <th className="pl-2 pr-1 py-2 w-[72px]" aria-label="Reorder" />
                     <th className="px-2 py-2">Field name</th>
                     <th className="px-1 py-2">Display label</th>
-                    <th className="px-1 py-2 w-24">Prefix</th>
-                    <th className="px-1 py-2 w-24">Suffix</th>
-                    <th className="px-1 py-2 w-16 text-center">Prec.</th>
+                    <th className="px-1 py-2 w-16">Prefix</th>
+                    <th className="px-1 py-2 w-16">Suffix</th>
+                    <th className="px-1 py-2 w-12 text-center">Prec.</th>
                     <th className="px-1 py-2 w-28">Type</th>
-                    <th className="px-1 py-2 w-32">Format</th>
                     <th className="px-2 py-2 w-14 text-center">Hide</th>
                     <th className="pl-1 pr-2 py-2 w-10" aria-label="Actions" />
                   </tr>

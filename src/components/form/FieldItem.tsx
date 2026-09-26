@@ -180,7 +180,7 @@ const FieldItem = ({
           />
         </td>
 
-        {/* Type and date format */}
+        {/* Type */}
         <td className="px-1 py-1.5 w-28 min-w-[112px]">
           <Select
             value={config?.type || 'default'}
