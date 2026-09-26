@@ -126,7 +126,7 @@ const FieldItem = ({
         </td>
 
         {/* Display label */}
-        <td className="px-1 py-1.5 min-w-[140px]">
+        <td className="px-1 py-1.5 min-w-[104px]">
           <Input
             id={`label-${fieldName}`}
             aria-label={`Display label for ${fieldName}`}
@@ -139,7 +139,7 @@ const FieldItem = ({
         </td>
 
         {/* Prefix */}
-        <td className="px-1 py-1.5 w-24">
+        <td className="px-1 py-1.5 w-16">
           <Input
             id={`prefix-${fieldName}`}
             aria-label={`Prefix for ${fieldName}`}
@@ -152,7 +152,7 @@ const FieldItem = ({
         </td>
 
         {/* Suffix */}
-        <td className="px-1 py-1.5 w-24">
+        <td className="px-1 py-1.5 w-16">
           <Input
             id={`suffix-${fieldName}`}
             aria-label={`Suffix for ${fieldName}`}
