@@ -34,6 +34,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { useFieldsEditorState } from '@/hooks/useFieldsEditorState';
 import FieldsEditorTabs from './FieldsEditorTabs';
 import { isVectorFormat } from '@/utils/fieldDetection';
+import { assignFieldOrder, orderedFieldNames } from '@/utils/fieldOrder';
 
 interface FieldsEditorDialogProps {
   fields: FieldsConfig;
@@ -91,7 +92,7 @@ const FieldsEditorDialog = ({
   };
 
   const handleSave = () => {
-    onUpdate(localFields);
+    onUpdate(assignFieldOrder(localFields, orderedFieldNames(localFields)));
     handleOpen(false);
   };
 
