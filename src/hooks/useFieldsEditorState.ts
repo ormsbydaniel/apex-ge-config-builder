@@ -27,7 +27,6 @@ export const useFieldsEditorState = ({
   const [activeTab, setActiveTab] = useState<string>('');
   const [localFields, setLocalFields] = useState<FieldsConfig>({ ...fields });
   const [selectedSourceLayer, setSelectedSourceLayer] = useState<string>('');
-  const [isDetecting, setIsDetecting] = useState(false);
   const [showAppendReplaceDialog, setShowAppendReplaceDialog] = useState(false);
   const [pendingCopyData, setPendingCopyData] = useState<AvailableSourceLayer | null>(null);
 
@@ -112,35 +111,12 @@ export const useFieldsEditorState = ({
     });
   };
 
-  const importDetectedFields = (fieldNames: string[], mode: 'append' | 'replace') => {
-    const newFields: FieldsConfig = {};
-    fieldNames.forEach(name => {
-      newFields[name] = {};
-    });
-
-    let finalFields: FieldsConfig;
-    if (mode === 'append') {
-      finalFields = { ...localFields, ...newFields };
-    } else {
-      finalFields = newFields;
-    }
-
-    setLocalFields(finalFields);
-    setActiveTab('define');
-
-    toast({
-      title: 'Fields Imported',
-      description: `Imported ${fieldNames.length} fields from source.`,
-    });
-  };
-
   return {
     // State
     open,
     activeTab,
     localFields,
     selectedSourceLayer,
-    isDetecting,
     showAppendReplaceDialog,
     pendingCopyData,
     editingFieldName,
@@ -150,7 +126,6 @@ export const useFieldsEditorState = ({
     setActiveTab,
     setLocalFields,
     setSelectedSourceLayer,
-    setIsDetecting,
     setShowAppendReplaceDialog,
     setPendingCopyData,
     setEditingFieldName,
@@ -163,7 +138,6 @@ export const useFieldsEditorState = ({
     removeField,
     addField,
     toggleFieldHidden,
-    performCopy,
-    importDetectedFields
+    performCopy
   };
 };

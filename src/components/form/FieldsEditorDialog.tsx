@@ -34,21 +34,20 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { useFieldsEditorState } from '@/hooks/useFieldsEditorState';
 import FieldsEditorTabs from './FieldsEditorTabs';
 import { assignFieldOrder } from '@/utils/fieldOrder';
+import type { DataSourceItem } from '@/types/dataSource';
 
 interface FieldsEditorDialogProps {
   fields: FieldsConfig;
   onUpdate: (fields: FieldsConfig) => void;
   trigger: React.ReactNode;
-  sourceUrl?: string;
-  sourceFormat?: string;
+  dataSources?: DataSourceItem[];
 }
 
 const FieldsEditorDialog = ({
   fields,
   onUpdate,
   trigger,
-  sourceUrl,
-  sourceFormat
+  dataSources = []
 }: FieldsEditorDialogProps) => {
   const { config } = useConfig();
 
@@ -83,7 +82,6 @@ const FieldsEditorDialog = ({
     removeField,
     addField,
     performCopy,
-    importDetectedFields
   } = useFieldsEditorState({ fields, availableSourceLayers });
 
   const handleAdd = () => {
@@ -130,8 +128,7 @@ const FieldsEditorDialog = ({
             localFields={localFields}
             availableSourceLayers={availableSourceLayers}
             selectedSourceLayer={selectedSourceLayer}
-            sourceUrl={sourceUrl}
-            sourceFormat={sourceFormat}
+            dataSources={dataSources}
             newFieldName={newFieldName}
             onActiveTabChange={setActiveTab}
             onSetLocalFields={setLocalFields}
@@ -141,7 +138,6 @@ const FieldsEditorDialog = ({
             onAddField={addField}
             onUpdateField={updateField}
             onRemoveField={removeField}
-            onImportDetectedFields={importDetectedFields}
           />
 
           <DialogFooter>
