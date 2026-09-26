@@ -165,7 +165,7 @@ const FieldItem = ({
         </td>
 
         {/* Precision */}
-        <td className="px-1 py-1.5 w-16">
+        <td className="px-1 py-1.5 w-12">
           <Input
             id={`precision-${fieldName}`}
             aria-label={`Precision for ${fieldName}`}
@@ -197,17 +197,6 @@ const FieldItem = ({
               <SelectItem value="url">URL</SelectItem>
             </SelectContent>
           </Select>
-        </td>
-        <td className="px-1 py-1.5 w-32 min-w-[128px]">
-          {(config?.type === 'date' || config?.type === 'datetime') && (
-            <Input
-              aria-label={`Format for ${fieldName}`}
-              placeholder="yyyy-MM-dd"
-              value={config.format || ''}
-              onChange={(e) => handleConfigChange('format', e.target.value)}
-              className="h-7 text-xs"
-            />
-          )}
         </td>
 
         {/* Hidden toggle */}
