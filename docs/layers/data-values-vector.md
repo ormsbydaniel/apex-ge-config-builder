@@ -60,10 +60,6 @@ The editor presents one row per field:
 - Rows are arranged with the drag handle or the up/down chevrons, and that
   order becomes the display order in the Explorer.
 
-!!! note
-    The full editor reference — including auto-detection behaviour and
-    date format strings — is on the [Vector fields](vector-fields.md) page.
-
 ## Where the settings live
 
 Field settings are stored on the data source under `meta.fields`, keyed by
