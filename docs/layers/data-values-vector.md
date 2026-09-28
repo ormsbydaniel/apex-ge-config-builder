@@ -82,6 +82,5 @@ and JSON editing like everything else.
 
 ## Related
 
-- [Vector fields](vector-fields.md) — the full Manage Fields editor reference
 - [Vector styling](vector-styling.md) — how features look on the map
 - [Standard layers](standard-layers.md) — where vector layers are configured
