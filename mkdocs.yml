@@ -86,6 +86,7 @@ nav:
           - Colormaps: layers/colormaps.md
           - RGB composite: layers/rgb-composite.md
           - Vector styling: layers/vector-styling.md
+          - Data Values (vector): layers/data-values-vector.md
           - Vector fields: layers/vector-fields.md
       - Time Series: layers/time-series.md
       - Statistics: statistics/overview.md
