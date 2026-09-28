@@ -206,7 +206,7 @@ const FieldsEditorTabs = ({
           disabled={availableSourceLayers.length === 0}
           className="flex items-center gap-2"
         >
-          Copy from layer
+          Copy field config from layer
           <Badge variant="secondary" className="text-xs">
             {availableSourceLayers.length}
           </Badge>
