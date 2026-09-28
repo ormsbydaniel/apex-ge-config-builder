@@ -28,4 +28,4 @@ The runtime reads each selected property from the clicked feature and builds the
 ## Related
 
 - [GeoJSON / FlatGeoBuf data sources](../data-sources/geojson-flatgeobuf.md)
-- [Vector fields](../layers/vector-fields.md) — controlling info-panel display of the same properties.
+- [Data Values (vector)](../layers/data-values-vector.md) — controlling info-panel display of the same properties.

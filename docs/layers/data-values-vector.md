@@ -21,7 +21,6 @@ feature reads like this instead:
 
 ![Data Values panel with friendly labels, units, rounded values and a hidden field](../assets/screenshots/data-values-after-customised.png)
 
-*[Placeholder screenshots — replace with real Explorer captures.]*
 
 ## What you can change
 

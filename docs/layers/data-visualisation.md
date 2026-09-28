@@ -48,7 +48,7 @@ See the per-tool pages:
 - [Colormaps](colormaps.md)
 - [RGB composite](rgb-composite.md)
 - [Vector styling](vector-styling.md)
-- [Vector fields](vector-fields.md)
+- [Data Values (vector)](data-values-vector.md)
 
 ## Clearing a setting
 
