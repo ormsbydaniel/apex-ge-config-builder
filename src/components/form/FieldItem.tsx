@@ -139,7 +139,7 @@ const FieldItem = ({
         </td>
 
         {/* Prefix */}
-        <td className="px-1 py-1.5 w-[100px]">
+        <td className="px-1 py-1.5 w-[140px]">
           <Input
             id={`prefix-${fieldName}`}
             aria-label={`Prefix for ${fieldName}`}
