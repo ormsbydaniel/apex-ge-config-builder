@@ -21,7 +21,6 @@ feature reads like this instead:
 
 ![Data Values panel with friendly labels, units, rounded values and a hidden field](../assets/screenshots/data-values-after-customised.png)
 
-*[Placeholder screenshots — replace with real Explorer captures.]*
 
 ## What you can change
 
@@ -60,10 +59,6 @@ The editor presents one row per field:
 - Rows are arranged with the drag handle or the up/down chevrons, and that
   order becomes the display order in the Explorer.
 
-!!! note
-    The full editor reference — including auto-detection behaviour and
-    date format strings — is on the [Vector fields](vector-fields.md) page.
-
 ## Where the settings live
 
 Field settings are stored on the data source under `meta.fields`, keyed by
@@ -86,6 +81,5 @@ and JSON editing like everything else.
 
 ## Related
 
-- [Vector fields](vector-fields.md) — the full Manage Fields editor reference
 - [Vector styling](vector-styling.md) — how features look on the map
 - [Standard layers](standard-layers.md) — where vector layers are configured

@@ -32,13 +32,13 @@ Layer Card → **Datasets → Add Dataset** → **Direct Connection**. Set
 You can also pick the file from an [S3 browser](s3-browser.md) — the
 format is auto-detected from the extension.
 
-## Vector fields
+## Data values
 
-Once the source is set, open **Vector fields** (or click *Add Fields* in
+Once the source is set, open **Manage Fields** (or click *Add Fields* in
 the layer card) to auto-populate the field list from the data. The
 builder reads the first feature for GeoJSON, or the FlatGeoBuf header,
 and lists all property names with detected types. See
-[Vector fields](../layers/vector-fields.md).
+[Data Values (vector)](../layers/data-values-vector.md).
 
 ## Visualisation
 
