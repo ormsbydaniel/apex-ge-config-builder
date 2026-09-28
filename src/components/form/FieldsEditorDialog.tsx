@@ -118,7 +118,7 @@ const FieldsEditorDialog = ({
       </div>
 
       <Dialog open={open} onOpenChange={handleOpen}>
-        <DialogContent className="sm:max-w-[944px] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[1024px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Manage Fields</DialogTitle>
           </DialogHeader>
