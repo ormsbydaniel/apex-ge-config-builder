@@ -21,6 +21,21 @@ feature reads like this instead:
 
 ![Data Values panel with friendly labels, units, rounded values and a hidden field](../assets/screenshots/data-values-after-customised.png)
 
+The result above comes from this field configuration in the Manage Fields
+editor:
+
+![Manage Fields editor configuring the fields shown in the after image](../assets/screenshots/data-values-manage-fields-example.png)
+
+- `date` is shown as **Observation Date**.
+- `no2_ugm3` is shown as **Nitrogen Dioxide**, with the suffix `ug / m3` and
+  rounded to 2 decimal places.
+- `uncertainty_ugm3` is shown as **Uncertainty**, with the prefix `+/-`, the
+  suffix `%` and rounded to a whole number.
+- `city`, `product`, `datetime_utc` and `source_datetime` are hidden, so
+  they don't appear in the panel at all.
+- The rows are in the same order as the lines in the panel.
+
+
 
 ## What you can change
 
