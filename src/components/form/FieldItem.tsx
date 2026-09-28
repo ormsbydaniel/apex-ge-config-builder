@@ -152,7 +152,7 @@ const FieldItem = ({
         </td>
 
         {/* Suffix */}
-        <td className="px-1 py-1.5 w-[100px]">
+        <td className="px-1 py-1.5 w-[132px]">
           <Input
             id={`suffix-${fieldName}`}
             aria-label={`Suffix for ${fieldName}`}
