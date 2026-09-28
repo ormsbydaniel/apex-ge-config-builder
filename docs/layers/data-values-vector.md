@@ -6,7 +6,7 @@ status: draft
 
 When a user clicks a vector feature in the Geospatial Explorer — a country
 polygon, a monitoring site, a building footprint — the **Data Values** panel
-lists that feature's properties. What it shows there is entirely up to you.
+lists that feature's properties.
 
 ![Data Values panel showing raw property names and full-precision values](../assets/screenshots/data-values-before-raw.png)
 
