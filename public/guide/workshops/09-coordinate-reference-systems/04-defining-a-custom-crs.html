@@ -1886,17 +1886,21 @@ in OSGB so it lines up natively with the National Grid.</p>
    Connection → COG</strong> and paste in this URL:</li>
 </ol>
 <p><code>https://dap.ceda.ac.uk/neodc/sentinel_ard/data/sentinel_2/2026/09/21/S2A_20260921_latn518lone0007_T30UYC_ORB094_20260921161450_utm30n_osgb_vmsk_sharp_rad_srefdem_stdsref.tif</code></p>
-<p>Click on the "(i)" icon on the dataset row, to view the metadata for the COG and note that the EPSG it is in.</p>
+<div class="highlight"><pre><span></span><code>Click on the **(i)** icon on the dataset row to view the metadata for the
+COG and note the EPSG it is in.
+</code></pre></div>
 <ol>
-<li>Define how to visualise the data. Select the pencil icon on <strong>Data
+<li>
+<p>Define how to visualise the data. Select the pencil icon on <strong>Data
    visualisation → RGB composites</strong>. This will add the first 3 bands of this
-   COG into the Red, Blue and Green channels. Select <strong>Save</strong>.</li>
-</ol>
+   COG into the Red, Blue and Green channels. Select <strong>Save</strong>.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
+<p>Note the purpose of this exercise is to work with projections, not
+visualisation. This step has <strong>not</strong> configured Sentinel 2 RGB bands
+onto these channels so the data will look a bit odd in the next step.</p>
 </div>
-<p>Note the purpose of this exercise is to work with projections,not visualisation. This step has <strong>not</strong> configured Sentinel 2 RGB bands onto these channels so the data will look a bit odd in the next step.</p>
-<ol>
+</li>
 <li>
 <p>Open the <strong>Preview</strong> and toggle the newly added layer on.</p>
 </li>
@@ -1906,10 +1910,10 @@ in OSGB so it lines up natively with the National Grid.</p>
 </ol>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-</div>
 <p>PROJ.4 definitions for almost any CRS can be copied from
 <a href="https://epsg.io">https://epsg.io</a> — search for the EPSG code and copy the
 PROJ.4 definition.</p>
+</div>
 
 
 
