@@ -14,6 +14,9 @@ title: 9-2. Key concepts
 - The Explorer can **reproject data between supported projections**. If a
   dataset is stored in a different CRS, it is transformed at runtime so that it
   lines up correctly with everything else on the map.
+
+    ![Source data stored in EPSG:4326 is reprojected at runtime for a map displayed in EPSG:3413, while the source file stays unchanged](../../assets/crs-runtime-reprojection.svg)
+
 - This means you are not limited to data stored in Web Mercator: you can use
   datasets kept in another projection, **and/or change the CRS used for
   display** — for example a polar stereographic view when working with Arctic
