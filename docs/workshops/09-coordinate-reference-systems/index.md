@@ -28,3 +28,4 @@ By the end of this tutorial you will be able to:
 - [9-1. Pre-requisites](01-prerequisites.md)
 - [9-2. Key concepts](02-key-concepts.md)
 - [9-3. Using an alternative projection](03-using-an-alternative-projection.md)
+- [9-4. Defining a custom CRS](04-defining-a-custom-crs.md)

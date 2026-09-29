@@ -191,6 +191,7 @@ nav:
           - 9-1. Pre-requisites: workshops/09-coordinate-reference-systems/01-prerequisites.md
           - 9-2. Key concepts: workshops/09-coordinate-reference-systems/02-key-concepts.md
           - 9-3. Using an alternative projection: workshops/09-coordinate-reference-systems/03-using-an-alternative-projection.md
+          - 9-4. Defining a custom CRS: workshops/09-coordinate-reference-systems/04-defining-a-custom-crs.md
   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
