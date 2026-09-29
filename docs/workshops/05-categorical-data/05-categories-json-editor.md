@@ -54,12 +54,20 @@ editor.
    ]
    ```
 
-2. On your _World Cover 2020_ layer card, open the **{JSON}** editor.
+2. On your _World Cover 2020_ layer card, click the **{JSON}** icon to open
+   the JSON editor, then click **Enable editing** to switch from the read-only
+   view to edit mode.
+
+   ![The {JSON} icon on the layer card](../../assets/screenshots/layer-json-editor-icon.png)
+
+   _The **{JSON}** icon on the layer card._
+
 3. Scroll down to the `categories` section. It reads `"categories": []` — an
    empty list, because we have not given this layer any categories yet.
-4. Select the empty `[]` and paste in the JSON you copied, so
-   `"categories": []` is replaced with the full list. **Apply changes** and
-   preview the layer — the legend now shows a row per class.
+4. Highlight the entire line of the empty `categories` (`"categories": []`),
+   and then press paste to replace that one line with the clipboard copy from
+   above. **Apply changes** and preview the layer — the legend now shows a row
+   per class.
 
 !!! tip "Full-config JSON editor"
 
