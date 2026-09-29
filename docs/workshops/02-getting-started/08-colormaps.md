@@ -15,7 +15,7 @@ values render as a colour ramp on the map.
    the legend is generated automatically from the colormap. Your map should
    look something like this:
 
-![AGB layer styled with a colormap in GE Preview](../../assets/screenshots/workshops-getting-started-colormap-preview.png)
+    ![AGB layer styled with a colormap in GE Preview](../../assets/screenshots/workshops-getting-started-colormap-preview.png)
 
 6.  Click on the **Data values** tab and take a look at a few of the values returned.  Check these are consistent with what you expect from the colormap.
 7.  **Have you exported recently?**  If not, now might be a good time before you lose your work. 

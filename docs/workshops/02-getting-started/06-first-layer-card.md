@@ -16,6 +16,7 @@ attach content — descriptions, data sources, statistics, constraints and so on
     ```text
     Above-ground biomass (AGB) is the **total dry mass of living vegetation** above the soil, including tree trunks, branches, bark, and leaves. It is commonly used to estimate how much carbon is stored in forests.
     ```
+
 5. Add `Forest Carbon Monitoring` as the **Attribution text**, and use
    <https://www.forestcarbonplatform.org/> as the **Attribution URL**.
 6. Leave all other settings as default or blank, then select
