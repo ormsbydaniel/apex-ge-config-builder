@@ -18,10 +18,10 @@ in OSGB so it lines up natively with the National Grid.
 2. Open the **Settings** tab and scroll to the **CRS** section. Under
    **Custom CRS**, select **+ Add CRS** and complete the dialog:
 
-   - **Name:** `British National Grid`
-   - **CRS Code:** `EPSG:27700`
-   - **PROJ.4 Definition:**
-     `+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs +type=crs`
+    - **Name:** `British National Grid`
+    - **CRS Code:** `EPSG:27700`
+    - **PROJ.4 Definition:**
+      `+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs +type=crs`
 
    The new CRS appears as a pill under **Custom CRS** and, from now on, in the
    **Default Coordinate Reference System** dropdown under _Custom Projections_.
@@ -44,7 +44,7 @@ We will now add some source data in this projection. The following layer is stor
    **Sentinel 2 British National Grid**. Choose **+ Add dataset → Direct
    Connection → COG** and paste in this URL:
 
-   `https://dap.ceda.ac.uk/neodc/sentinel_ard/data/sentinel_2/2026/09/21/S2A_20260921_latn518lone0007_T30UYC_ORB094_20260921161450_utm30n_osgb_vmsk_sharp_rad_srefdem_stdsref.tif`
+    `https://dap.ceda.ac.uk/neodc/sentinel_ard/data/sentinel_2/2026/09/21/S2A_20260921_latn518lone0007_T30UYC_ORB094_20260921161450_utm30n_osgb_vmsk_sharp_rad_srefdem_stdsref.tif`
 
     Click on the **(i)** icon on the dataset row to view the metadata for the
     COG and note the EPSG it is in.
