@@ -46,11 +46,12 @@ title: 9-2. Key concepts
   be used in two ways: to **support datasets stored in that projection**, or as
   the **default CRS** for the whole map.
 
-See [Projections and CRS](../../configuration/projections.md) for the full reference.
+See [Settings](../../settings/overview.md#crs-coordinate-reference-system) for
+the full reference on default and custom CRS.
 ```
 
 ## Checks after writing
 
-- Update the reference link at the end to the actual CRS/projections docs page if the target differs (verify the path exists; adjust or drop the link).
-- Confirm the 9-3 relative link filename matches the moved page.
+- The reference link points to `docs/settings/overview.md` (the CRS section) — verified to exist; no dedicated CRS reference page exists yet.
+- Confirm the 9-3 relative link filename matches the moved page (`03-using-an-alternative-projection.md`).
 - Rebuild: `PYTHONPATH=/tmp/mkdocs-toolchain python3 -m mkdocs build --strict`.
