@@ -1,7 +1,7 @@
 ---
-title: 4-5. Alternative projections
+title: 9-3. Using an alternative projection
 ---
-# 4-5. Alternative projections
+# 9-3. Using an alternative projection
 
 The Geospatial Explorer can render maps in a variety of Coordinate Reference
 Systems (CRS). In this tutorial you will switch the default projection to a
