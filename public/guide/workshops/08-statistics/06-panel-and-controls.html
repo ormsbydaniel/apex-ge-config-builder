@@ -1893,32 +1893,26 @@ load one of the same files as ordinary vector data.</p>
 </li>
 <li>
 <p>On the <code>Temp</code> layer card, open <strong>Data Sources</strong> and stay on the <strong>Data</strong>
-   tab — <em>not</em> Statistics this time.</p>
-</li>
-<li>
-<p>Click <strong>Add source</strong>, choose <strong>Direct</strong> connection and the format
-   <strong>FlatGeoBuf</strong>.</p>
-</li>
-<li>
-<p>Use the NUTS level 0 file again:</p>
+   tab — <em>not</em> Statistics this time. Click <strong>Add source</strong>, choose <strong>Direct</strong>
+   connection and the format <strong>FlatGeoBuf</strong>, and use the NUTS level 0 file
+   again:</p>
 <div class="highlight"><pre><span></span><code>https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level00.fgb
 </code></pre></div>
 </li>
 <li>
 <p><strong>Save</strong> the source and open the <strong>Preview</strong>, turning the <code>Temp</code> layer on.
-    The country boundaries are drawn as a normal vector layer.</p>
+   The country boundaries are drawn as a normal vector layer.</p>
 </li>
 <li>
 <p>Select the <strong>Data Values</strong> tab in the panel and click on a country. The
-    feature's properties are listed in full.</p>
+   feature's properties are listed in full.</p>
 <p><img alt="Data Values panel for the Netherlands, showing NUTS properties and pre-computed class areas" src="../../assets/screenshots/statistics-temp-data-values.png" /></p>
-</li>
-<li>
-<p>Look at what is there. Alongside the descriptive fields — country and region
-   names, NUTS codes, level — are the pre-computed class areas for each World
-   Cover class. These attributes are exactly what the <strong>Statistics</strong> tab reads
-   and charts under the bonnet; the only difference is that a statistics source
-   is interpreted as a summary to plot, rather than as a layer to draw.</p>
+<p>Look at what is there. Alongside the descriptive fields — country and
+region names, NUTS codes, level — are the pre-computed class areas for
+each World Cover class. These attributes are exactly what the
+<strong>Statistics</strong> tab reads and charts under the bonnet; the only difference
+is that a statistics source is interpreted as a summary to plot, rather
+than as a layer to draw.</p>
 </li>
 <li>
 <p>Delete the <code>Temp</code> layer when you are done — it was only there to look inside
