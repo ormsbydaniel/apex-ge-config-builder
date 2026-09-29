@@ -18,7 +18,8 @@ However, once it has been added as a service in the GE Configuration Builder (as
    - select the pencil icon next to colormap to call up the appropriate UI, then choose an appropriate colormap as you see fit
   
 !!! info About the Project Results Repository
-   The PRR contains outputs from a range of ESA funded projects.  Whilst many of these may be compatible with the *APEX Geospatial Explorer*, such as those with assets in a compatible format (e.g. COGS, GeoJSON, FlatGeobuff etc), it somewhat depends on the intended use case that the relevant project team have.  For example some products might have been provided for the purpose of analysis rather than display and for more complex datasets, such as hyperspectral data, considerations such as the interleaving of bands may be optimised for those analysis purposes rather than visualisation.   So, whilst the PRR is a great resource to explore some of the outputs from the  
+
+    The PRR contains outputs from a range of ESA funded projects.  Whilst many of these may be compatible with the *APEX Geospatial Explorer*, such as those with assets in a compatible format (e.g. COGS, GeoJSON, FlatGeobuff etc), it somewhat depends on the intended use case that the relevant project team have.  For example some products might have been provided for the purpose of analysis rather than display and for more complex datasets, such as hyperspectral data, considerations such as the interleaving of bands may be optimised for those analysis purposes rather than visualisation.   So, whilst the PRR is a great resource to explore some of the outputs from the  
 
 See [STAC browser](../../data-sources/stac-browser.md) for the full reference,
 including asset filtering and bulk selection.
