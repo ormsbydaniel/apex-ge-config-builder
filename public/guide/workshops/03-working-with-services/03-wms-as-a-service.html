@@ -1867,17 +1867,15 @@ URL and layer name were typed straight into the layer card. In this step we will
 register the same endpoint as a <strong>service</strong>, so that its capabilities are read
 once and its layers can be browsed whenever you add a dataset.</p>
 <ol>
-<li>
-<p>On the <strong>Services</strong> tab, select <strong>Add Service</strong> (top right). Leave <strong>Service Type</strong> set to <strong>WMS</strong> and paste the following into the <strong>Service URL</strong>:</p>
+<li>On the <strong>Services</strong> tab, select <strong>Add Service</strong> (top right). Leave <strong>Service Type</strong> set to <strong>WMS</strong> and paste the following into the <strong>Service URL</strong>:</li>
+</ol>
 <div class="highlight"><pre><span></span><code>https://mapproxy.terrascope.be/mapproxy/service
 </code></pre></div>
-</li>
-<li>
-<p>Wait for the validation message. When the endpoint responds you will see a
+<ol>
+<li>Wait for the validation message. When the endpoint responds you will see a
    green <strong>Reachable</strong> status, and the <strong>Service Name</strong> is auto-populated from
    the service's <code>GetCapabilities</code> response. You can override the name if you
-   prefer something shorter, e.g. <code>Terrascope WMS</code>.</p>
-</li>
+   prefer something shorter, e.g. <code>Terrascope WMS</code>.</li>
 <li>Select <strong>Add Service</strong>. The service now appears in the <strong>Configured
    Services</strong> list, with a badge showing the number of layers discovered and the
    WMS version reported by the service.</li>
@@ -1885,34 +1883,36 @@ once and its layers can be browsed whenever you add a dataset.</p>
 <h2 id="use-the-service-in-a-layer-card">Use the service in a layer card<a class="headerlink" href="#use-the-service-in-a-layer-card" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Return to the <strong>Layers</strong> tab and add a new layer card called <code>World Cover
-   2020</code> in your <code>Land cover</code> interface group.</li>
-<li>Select <strong>+ Add dataset → From service</strong> and pick the WMS service you just added. The builder loads the capabilities and
+2020</code> in your <code>Land cover</code> interface group.</li>
+<li>Select <strong>+ Add dataset → From service</strong> and pick the <strong>MapProxy WMS</strong> service you just added. The builder loads the capabilities and
    presents a searchable list of layers.</li>
 <li>Search for <code>worldcover</code>. Multiple years will appear in the search results,
-    including layers named <strong>WORLDCOVER MAP</strong>; select the <strong>2020</strong> version,
-    then choose <strong>Select</strong> then <strong>Add source</strong> to complete the step.</li>
+   including layers named <strong>WORLDCOVER MAP</strong>; select the <strong>2020</strong> version,
+   then choose <strong>Select</strong> then <strong>Add source</strong> to complete the step.</li>
 <li><em>Preview</em> your config now to see the new layer, then select <em>Export</em> so you
    don't lose your work.</li>
 </ol>
 <h2 id="add-more-wms-layers">Add more WMS layers<a class="headerlink" href="#add-more-wms-layers" title="Permanent link">&para;</a></h2>
 <p>Once you have added the recommended services in <a href="04-recommended-services.html">3-4</a>,
 you can return here to pick another WMS layer from one of them.</p>
+<p>Add some more WMS layers.</p>
 <ol>
 <li>Create a new <strong>layer card</strong> called <code>temp</code> — you'll rename it once you've
    picked the data.</li>
-<li>On the card, select <strong>+ Add dataset → From service</strong> and browse to a WMS
-   service, for example <strong>MapProxy WMS</strong> (or <strong>CLMS</strong>).</li>
-<li>Pick a WMS layer of interest and add it to your layer card.</li>
+<li>Repeat the steps above to browse other layers in the <strong>MapProxy WMS</strong>, pick one of interest and add it to your layer card.</li>
 <li>Edit the layer card and rename it from <code>temp</code> to something meaningful for
    the data you picked. Adjust attribution and controls as needed.</li>
 </ol>
-<p>As with a direct-connection layer, remember to give the card a meaningful name
-and set its attribution after choosing the data.</p>
+<p><strong>Note</strong>: once you have added the recommended services in the next tutorial, you might want to add some other layers from the additional WMS services available. You may also know of a specific WMS service that you want to experiement with. Try returning to the start of the tutorial but using a WMS URL of your own choice.</p>
 <div class="admonition tip">
 <p class="admonition-title">Direct connection vs service</p>
 <p>Use a <strong>direct connection</strong> for a one-off layer where you already know the
 layer name. Register a <strong>service</strong> when you expect to pull several layers
 from the same endpoint, or when you want to browse what is available.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">No WMS layer showing?</p>
+<p>When the Geospatial Explorer loads it makes a runtime call to the <em>GetCapabilities</em> endpoint of the WMS service to fetch necessary metadata about the layer.  The GE has a default timeout of 2500 milliseconds (2.5 s),for each layer load, and if it hasn't had a response in that time it assumes the layer is not available and won't even include it in the layer list.  If you have a working WMS but it is just a bit slow you can overide this timout.  Simply go to <strong>Settings -&gt; More settings -&gt; Layer Fetch timeout</strong> (bottom of page) and increase the timeout for a longer wait.</p>
 </div>
 <p>See <a href="../../services/adding-services.html">Adding services</a> and
 <a href="../../data-sources/wms-wmts-wfs.html">WMS / WMTS / WFS</a> for the full reference.</p>
