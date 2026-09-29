@@ -6,11 +6,10 @@ title: 2-6. Your first layer card
 A **layer card** is a UI element in the Geospatial Explorer into which we
 attach content — descriptions, data sources, statistics, constraints and so on.
 
-1. On the **Layers** tab, expand your *Forest Carbon* interface group and
-   select **+ Add layer**.
+1. On the **Layers** tab, expand your *Forest Carbon* interface group and select **+ Add layer** followed by **Add layer card**.
 2. Leave the **default** layer type and layout style.
 3. Type `Above Ground Biomass` into the **Layer name** field.
-4. Paste the description below into the **Description** field. The description
+4. Paste the description below into the **Description** field or write something similar yourself. The description
     supports basic Markdown, so the bold text below will render correctly in the
     layer's info panel in the Explorer.
 
