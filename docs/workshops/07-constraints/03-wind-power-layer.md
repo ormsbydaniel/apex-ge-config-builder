@@ -45,7 +45,7 @@ a single COG layer showing wind power density at 100 m over Austria.
 6. Open **Preview** and toggle the layer on. You should see a jet colour ramp
    over Austria with a gradient legend,and a **Filter** icon in the layer card, which looks like a _funnel._
 
-7. Click on the filter, then **drag the slider** values. See how this effects the display of the wind power laye.
+7. Click on the filter, then **drag the slider** values. See how this effects the display of the wind power layer.
 
    ![Austria Wind Power Density layer preview with the layer panel open, showing the jet colour ramp legend and layer description](../../assets/screenshots/wind-power-layer-result.png)
 
