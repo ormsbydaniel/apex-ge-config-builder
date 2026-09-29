@@ -24,4 +24,3 @@ By the end of this tutorial you will be able to:
 - [3-3. Adding WMS as a service](03-wms-as-a-service.md)
 - [3-4. Add recommended services](04-recommended-services.md)
 - [3-5. Add data from the PRR](05-data-from-prr.md)
-- [3-6. Add more WMS layers](06-more-wms-layers.md)

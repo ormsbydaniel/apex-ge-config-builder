@@ -144,7 +144,6 @@ nav:
           - 3-3. Adding WMS as a service: workshops/03-working-with-services/03-wms-as-a-service.md
           - 3-4. Add recommended services: workshops/03-working-with-services/04-recommended-services.md
           - 3-5. Add data from the PRR: workshops/03-working-with-services/05-data-from-prr.md
-          - 3-6. Add more WMS layers: workshops/03-working-with-services/06-more-wms-layers.md
       - 4. Fine tuning my config:
           - Overview: workshops/04-fine-tuning/index.md
           - 4-1. Pre-requisites: workshops/04-fine-tuning/01-prerequisites.md
