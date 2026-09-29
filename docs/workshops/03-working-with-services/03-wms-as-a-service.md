@@ -56,5 +56,9 @@ Add some more WMS layers.
     layer name. Register a **service** when you expect to pull several layers
     from the same endpoint, or when you want to browse what is available.
 
+!!! warning "No WMS layer showing?"
+
+    When the Geospatial Explorer loads it makes a runtime call to the *GetCapabilities* endpoint of the WMS service to fetch necessary metadata about the layer.  The GE has a default timeout of 2500 milliseconds (2.5 s),for each layer load, and if it hasn't had a response in that time it assumes the layer is not available and won't even include it in the layer list.  If you have a working WMS but it is just a bit slow you can overide this timout.  Simply go to **Settings -> More settings -> Layer Fetch timeout** (bottom of page) and increase the timeout for a longer wait.
+
 See [Adding services](../../services/adding-services.md) and
 [WMS / WMTS / WFS](../../data-sources/wms-wmts-wfs.md) for the full reference.
