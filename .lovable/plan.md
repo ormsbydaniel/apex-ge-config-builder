@@ -36,6 +36,8 @@ title: 9-2. Key concepts
     | EPSG:3035 | ETRS89-extended / LAEA Europe |
     | EPSG:3413 | WGS 84 / NSIDC Sea Ice Polar Stereographic North |
     | EPSG:3031 | WGS 84 / Antarctic Polar Stereographic |
+    | EPSG:32601–32660 | WGS 84 / UTM zones 1N–60N (northern hemisphere) |
+    | EPSG:32701–32760 | WGS 84 / UTM zones 1S–60S (southern hemisphere) |
 
     <!-- PLACEHOLDER — verify this list before publishing; it reflects the
          built-in options in the config builder at the time of writing. -->
@@ -54,4 +56,6 @@ the full reference on default and custom CRS.
 
 - The reference link points to `docs/settings/overview.md` (the CRS section) — verified to exist; no dedicated CRS reference page exists yet.
 - Confirm the 9-3 relative link filename matches the moved page (`03-using-an-alternative-projection.md`).
+- The UTM rows use range notation (EPSG:32601–32660 / 32701–32760) rather than listing every zone; confirm the Explorer's supported UTM range matches before publishing.
 - Rebuild: `PYTHONPATH=/tmp/mkdocs-toolchain python3 -m mkdocs build --strict`.
+- Add an unchecked roadmap.md item for drafting 9-2 (plan mode blocks roadmap edits now).
