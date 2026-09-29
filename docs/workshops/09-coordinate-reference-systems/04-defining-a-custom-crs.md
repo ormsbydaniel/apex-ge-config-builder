@@ -46,7 +46,11 @@ We will now add some source data in this projection.
 
     `https://dap.ceda.ac.uk/neodc/sentinel_ard/data/sentinel_2/2026/09/21/S2A_20260921_latn518lone0007_T30UYC_ORB094_20260921161450_utm30n_osgb_vmsk_sharp_rad_srefdem_stdsref.tif`
 
-2. Open the preview and toggle the newly added layer on.
+2. Define how to visualise the data. Select the pencil icon on **Data
+    visualisation → RGB composites**. This will add the first 3 bands of this
+    COG into the Red, Blue and Green channels. Select **Save**.
+
+3. Open the preview and toggle the newly added layer on.
 
 !!! tip
     PROJ.4 definitions for almost any CRS can be copied from
