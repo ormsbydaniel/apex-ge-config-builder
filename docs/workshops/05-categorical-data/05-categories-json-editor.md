@@ -14,11 +14,20 @@ So far in this tutorial we have configured categories in three ways:
   ([5-3](03-categories-cog.md)).
 
 A further, more advanced technique is to edit the layer's JSON directly. This is
-useful for bulk edits, or for pasting in a complete category set in one go. The
-Configuration Builder provides two JSON editors — one for the whole
+useful for bulk edits, or for pasting in a complete category set in one go.
+
+Recall that we now have two World Cover WMS layers: *World Cover 2021*, added in
+[2-9](../02-getting-started/09-wms-service.md), and *World Cover 2020*, added
+from the MapProxy service in
+[3-3](../03-working-with-services/03-wms-as-a-service.md). The 2021 layer
+already has its categories — we copied them across from the COG in
+[5-4](04-categories-wms.md). In this exercise we will use the *World Cover 2020*
+layer to explore a direct JSON copy of a complete category set.
+
+The Configuration Builder provides two JSON editors — one for the whole
 configuration (on the JSON config tab) and one scoped to a single layer (a small
 orange **{JSON}** icon on the layer card). This tutorial uses the per-layer
-editor to replace the categories on the World Cover COG layer.
+editor.
 
 !!! tip "Export first"
 
@@ -44,11 +53,12 @@ editor to replace the categories on the World Cover COG layer.
     ]
     ```
 
-2. On your *World Cover COG* layer card, open the **{JSON}** editor.
-3. Scroll down to the start of the `categories` section.
-4. Use the collapse arrow to fold the existing `categories` array down to
-   `categories [ ]`, then delete from the opening `[` to the closing `]`.
-5. Paste in the JSON you copied. **Apply changes** and preview the layer.
+2. On your *World Cover 2020* layer card, open the **{JSON}** editor.
+3. Scroll down to the `categories` section. It reads `"categories": []` — an
+   empty list, because we have not given this layer any categories yet.
+4. Select the empty `[]` and paste in the JSON you copied, so
+   `"categories": []` is replaced with the full list. **Apply changes** and
+   preview the layer — the legend now shows a row per class.
 
 !!! tip "Full-config JSON editor"
 
