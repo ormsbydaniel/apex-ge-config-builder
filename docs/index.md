@@ -26,7 +26,7 @@ The user interface structure, the content that it serves and the functionality p
 - Validate every URL in your config with the **Run Healthcheck** tool and see
   data-access plus performance scores at a glance.
   - Define specific **branding** and **navigation defaults** (e.g. projection; start location and scale)   
-- Preview the resulting APEx Geospatial Explorer inline using **GE Preview** before exporting JSON.
+- Preview the resulting APEx Geospatial Explorer inline using **Preview** before exporting JSON.
 
 ## Where to start
 

@@ -63,7 +63,7 @@ XYZ, WMS, etc.), and `position` on each `DataSourceItem` (`'left'` or
    etc.) apply per source; see [Data visualisation](data-visualisation.md).
 8. **Save Layer**. The new swipe card appears in the chosen interface
    group, with a swipe badge.
-9. Open [GE Preview](../configuration/preview.md) to confirm the handle
+9. Open [Preview](../configuration/preview.md) to confirm the handle
    drags as expected.
 
 ## Related

@@ -133,7 +133,7 @@ are not already present. Duplicates are deduped by URL.
 
 - Run the [healthcheck](../services/healthcheck.md) to confirm the new
   layer reaches its data source.
-- Open [GE Preview](../configuration/preview.md) to see the layer rendered
+- Open [Preview](../configuration/preview.md) to see the layer rendered
   in the actual APEx Geospatial Explorer.
 - If the layer fails to render, double-check the data source URL, that
   it appears in the right interface group, and that the chosen

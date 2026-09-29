@@ -27,7 +27,7 @@ extent — no manual pan/zoom required.
 
 This is the same gesture used in:
 
-- The **GE Preview** tab when iterating on layer styling.
+- The **Preview** tab when iterating on layer styling.
 - The **STAC browser** item list.
 - The **S3 browser** when previewing a COG.
 
