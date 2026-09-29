@@ -47,11 +47,8 @@ in OSGB so it lines up natively with the National Grid.
    National Grid**.
 
 4. Still in **Settings**, set the start location to the UK. In the
-   **Navigation** section, change **Quick location** to **Custom (Manual
-   Entry)** and enter:
-   - **Latitude:** `54`
-   - **Longitude:** `-2`
-   - **Zoom level:** `6`
+   **Navigation** section, choose **United Kingdom** from the **Quick
+   location** list.
 
 5. Open **Preview**. The map should now open on the UK in British National
    Grid rather than Web Mercator.
