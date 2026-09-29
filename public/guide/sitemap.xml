@@ -524,4 +524,8 @@
          <loc>https://ge-config-builder.apex.esa.int/guide/workshops/09-coordinate-reference-systems/03-using-an-alternative-projection.html</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
+    <url>
+         <loc>https://ge-config-builder.apex.esa.int/guide/workshops/09-coordinate-reference-systems/04-defining-a-custom-crs.html</loc>
+         <lastmod>2026-09-29</lastmod>
+    </url>
 </urlset>
