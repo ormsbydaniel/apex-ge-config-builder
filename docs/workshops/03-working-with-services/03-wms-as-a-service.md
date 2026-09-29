@@ -1,6 +1,7 @@
 ---
 title: 3-3. Adding WMS as a service
 ---
+
 # 3-3. Adding WMS as a service
 
 In tutorial 2 you added a WMS layer using a **direct connection** — the service
@@ -10,9 +11,9 @@ once and its layers can be browsed whenever you add a dataset.
 
 1. On the **Services** tab, select **Add Service** (top right). Leave **Service Type** set to **WMS** and paste the following into the **Service URL**:
 
-    ```
-    https://mapproxy.terrascope.be/mapproxy/service
-    ```
+   ```
+   https://mapproxy.terrascope.be/mapproxy/service
+   ```
 
 2. Wait for the validation message. When the endpoint responds you will see a
    green **Reachable** status, and the **Service Name** is auto-populated from
@@ -25,13 +26,13 @@ once and its layers can be browsed whenever you add a dataset.
 ## Use the service in a layer card
 
 1. Return to the **Layers** tab and add a new layer card called `World Cover
-   2020` in your `Land cover` interface group.
-2. Select **+ Add dataset → From service** and pick the WMS service you just added. The builder loads the capabilities and
+2020` in your `Land cover` interface group.
+2. Select **+ Add dataset → From service** and pick the **MapProxy WMS** service you just added. The builder loads the capabilities and
    presents a searchable list of layers.
 3. Search for `worldcover`. Multiple years will appear in the search results,
-    including layers named **WORLDCOVER MAP**; select the **2020** version,
-    then choose **Select** then **Add source** to complete the step.
-4. *Preview* your config now to see the new layer, then select *Export* so you
+   including layers named **WORLDCOVER MAP**; select the **2020** version,
+   then choose **Select** then **Add source** to complete the step.
+4. _Preview_ your config now to see the new layer, then select _Export_ so you
    don't lose your work.
 
 ## Add more WMS layers
@@ -39,16 +40,15 @@ once and its layers can be browsed whenever you add a dataset.
 Once you have added the recommended services in [3-4](04-recommended-services.md),
 you can return here to pick another WMS layer from one of them.
 
+Add some more WMS layers.
+
 1. Create a new **layer card** called `temp` — you'll rename it once you've
    picked the data.
-2. On the card, select **+ Add dataset → From service** and browse to a WMS
-   service, for example **MapProxy WMS** (or **CLMS**).
-3. Pick a WMS layer of interest and add it to your layer card.
-4. Edit the layer card and rename it from `temp` to something meaningful for
+2. Repeat the steps above to browse other layers in the **MapProxy WMS**, pick one of interest and add it to your layer card.
+3. Edit the layer card and rename it from `temp` to something meaningful for
    the data you picked. Adjust attribution and controls as needed.
 
-As with a direct-connection layer, remember to give the card a meaningful name
-and set its attribution after choosing the data.
+**Note**: once you have added the recommended services in the next tutorial, you might want to add some other layers from the additional WMS services available. You may also know of a specific WMS service that you want to experiement with. Try returning to the start of the tutorial but using a WMS URL of your own choice.
 
 !!! tip "Direct connection vs service"
 
