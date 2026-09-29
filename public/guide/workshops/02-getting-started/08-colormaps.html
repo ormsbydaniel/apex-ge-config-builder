@@ -962,6 +962,8 @@
       
         
       
+        
+      
     
     
       
@@ -1451,8 +1453,6 @@
       
         
       
-        
-      
     
     
       
@@ -1739,6 +1739,61 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../09-coordinate-reference-systems/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    9. Coordinate reference systems
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1841,20 +1896,21 @@
 <p>Now that your COG is attached, style it with a <strong>colormap</strong> so the pixel
 values render as a colour ramp on the map.</p>
 <ol>
-<li>Select the <strong>pencil</strong> edit icon at the top of your <em>Above Ground Biomass</em>
-   layer card to return to edit mode.</li>
-<li>Expand the <strong>Data Visualisation</strong> section (the eye icon) on the layer card.</li>
-<li>Next to <strong>Colormap</strong>, select the <strong>pencil</strong> icon (or the <strong>Add…</strong>
-   affordance if no colormap is set yet). The colormap editor opens.</li>
+<li>In your <em>Above Ground Biomass</em> layer card, click on the <strong>pencil</strong> icon next to <strong>Colormaps</strong> in the <strong>Data visualisation</strong> section. The colormap editor opens.</li>
 <li>Pick a colour ramp of your choice — for example <em>Viridis</em> for biomass.</li>
 <li>Enter the <strong>min</strong> and <strong>max</strong> values you noted from the COG metadata in the
-   <a href="07-add-cog-data.html">previous step</a>. Values outside this range are clamped.</li>
-<li><strong>Save</strong> the colormap, then <strong>Save changes</strong> on the layer card.</li>
-<li>Go to <strong>GE Preview</strong>. The AGB data now renders with your colour ramp, and
+   <a href="07-add-cog-data.html">previous step</a>. This is the range over which the colormap will be rendered.</li>
+<li>Click <strong>Add colormap</strong> then <strong>Save changes</strong> to return to the layer card</li>
+<li>Go to <strong>Preview</strong>. The Above Ground Biomass data now renders with your colour ramp, and
    the legend is generated automatically from the colormap. Your map should
    look something like this:</li>
 </ol>
 <p><img alt="AGB layer styled with a colormap in GE Preview" src="../../assets/screenshots/workshops-getting-started-colormap-preview.png" /></p>
+<ol>
+<li>Click on the <strong>Data values</strong> tab and take a look at a few of the values returned.  Check these are consistent with what you expect from the colormap.</li>
+<li><strong>Have you exported recently?</strong>  If not, now might be a good time before you lose your work. </li>
+</ol>
+<p>The colormap you have set up is the default for this dataset.  However user can actually change it themselves too.  If you click the <strong>Gear</strong> icon to the right of the legend in the overview panel, you will see a very similar UI to the one you just used to set the default up. </p>
 <div class="admonition tip">
 <p class="admonition-title">One styling tool at a time</p>
 <p>Categories, Colormap, RGB Composite and Gradient are mutually exclusive for

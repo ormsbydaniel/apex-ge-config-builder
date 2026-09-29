@@ -1584,6 +1584,8 @@
       
         
       
+        
+      
     
     
       
@@ -1767,6 +1769,19 @@ of knowing what your data means or how you would like it presented.</p>
 <p>The Configuration Builder lets you customise the display so the same
 feature reads like this instead:</p>
 <p><img alt="Data Values panel with friendly labels, units, rounded values and a hidden field" src="../assets/screenshots/data-values-after-customised.png" /></p>
+<p>The result above comes from this field configuration in the Manage Fields
+editor:</p>
+<p><img alt="Manage Fields editor configuring the fields shown in the after image" src="../assets/screenshots/data-values-manage-fields-example.png" /></p>
+<ul>
+<li><code>date</code> is shown as <strong>Observation Date</strong>.</li>
+<li><code>no2_ugm3</code> is shown as <strong>Nitrogen Dioxide</strong>, with the suffix <code>ug / m3</code> and
+  rounded to 2 decimal places.</li>
+<li><code>uncertainty_ugm3</code> is shown as <strong>Uncertainty</strong>, with the prefix <code>+/-</code>, the
+  suffix <code>%</code> and rounded to a whole number.</li>
+<li><code>city</code>, <code>product</code>, <code>datetime_utc</code> and <code>source_datetime</code> are hidden, so
+  they don't appear in the panel at all.</li>
+<li>The rows are in the same order as the lines in the panel.</li>
+</ul>
 <h2 id="what-you-can-change">What you can change<a class="headerlink" href="#what-you-can-change" title="Permanent link">&para;</a></h2>
 <p>Each field of a vector data source can be configured independently:</p>
 <table>
