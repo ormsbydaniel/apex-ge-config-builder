@@ -68,11 +68,11 @@ Two controls:
   Pick from the built-in list (EPSG:3857, EPSG:4326, common polar and
   national grids) or any custom CRS you have added.
 - **Custom CRS** — list of project-defined CRSes shown as removable pills.
-  Click **+ Add CRS** to register a new one (proj4 definition required).
+  Click **+ Add CRS** to register a new one (PROJ.4 definition required).
   See [Projections / CRS management](#) — managed inline here.
 
 Adding a custom CRS opens a dialog asking for an EPSG-style code and a
-proj4 string. Once added, it becomes available in the **Default CRS**
+PROJ.4 definition. Once added, it becomes available in the **Default CRS**
 dropdown and to every layer in the config.
 
 ![Settings tab — Map centre, Zoom slider, and Coordinate Reference System controls with the Branding section visible below](../assets/screenshots/settings-map-and-crs.png)

@@ -34,8 +34,8 @@ title: 9-2. Key concepts
     | EPSG:32701–32760 | WGS 84 / UTM zones 1S–60S (southern hemisphere) |
 
 - If the CRS you need is not in that list, **additional CRS can be defined in
-  the Configuration Builder** (Settings → Custom CRS) by supplying a **proj4
-  string** — the standard one-line definition of a projection. A custom CRS can
+  the Configuration Builder** (Settings → Custom CRS) by supplying a **PROJ.4
+  definition** — the standard one-line definition of a CRS. A custom CRS can
   be used in two ways: to **support datasets stored in that projection**, or as
   the **default CRS** for the whole map.
 

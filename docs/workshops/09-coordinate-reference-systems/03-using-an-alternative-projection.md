@@ -41,7 +41,7 @@ polar view centred on the North Pole.
     The Geospatial Explorer ships with the default projections shown in the
     **Default Coordinate Reference System** dropdown. If you need a projection
     that is not listed, you can add it under **Custom Projections** by entering
-    the appropriate Proj4JS string.
+    the appropriate PROJ.4 definition.
 
     Data is reprojected on the fly from its source projection to the display
     projection, so custom projections can also be useful for supporting specific
