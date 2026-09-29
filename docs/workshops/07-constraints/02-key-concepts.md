@@ -5,7 +5,7 @@ title: 7-2. Key concepts
 # 7-2. Key concepts
 
 - **Constraints** only apply to COG data. They are not applicable to WMS or WMTS services.
-- A constraint is a filter applied to the data — pixels that fall outside the
+- A constraint is a **filter** applied to what data is visible. Pixels that fall outside the
   constraint are masked out at render time.
 - You may have encoutered the **Constraint** toggle if you did exercise **4-3** where it was used to filter the layer on its own pixel values.
 - Constraints can also come from **secondary layers** — for example land use,
@@ -13,7 +13,7 @@ title: 7-2. Key concepts
   _separate_ COG and masks the primary layer where the constraint is not met.
 - Secondary constraint layers **must have the same CRS, resolution and origin**
   as the primary data they constrain. This usually requires preparing
-  compatible constraint layers in advance.
+  compatible constraint layers in advance. This preparation is outside the scope of this tutorial, but can be readily undertaken using GIS tools like QGIS.
 - Multiple constraints are applied **together** — a pixel is only drawn where
   every active constraint is satisfied.
 - Constraints can be **interactive** where the user is able to change the constraint criteria, (e.g. elevation between values on a slider) or **static** where by the constraint is defined in the config (e.g. elevation above 1000m).
