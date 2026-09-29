@@ -48,6 +48,8 @@ expect.
 Close the preview (or switch tabs) to return to the Configuration
 Builder. This is where you'll spend most of the tutorials.
 
+![The preview toolbar with the Back to Config Builder button](../../assets/screenshots/preview-back-to-config-builder.png)
+
 ### 5. Expand the layer groups and layers
 
 In the **Map layers** section, expand the interface groups, then their
