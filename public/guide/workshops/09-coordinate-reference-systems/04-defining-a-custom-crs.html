@@ -1853,13 +1853,13 @@ in OSGB so it lines up natively with the National Grid.</p>
 <li>
 <p>Open the <strong>Settings</strong> tab and scroll to the <strong>CRS</strong> section. Under
    <strong>Custom CRS</strong>, select <strong>+ Add CRS</strong> and complete the dialog:</p>
-</li>
-<li>
-<p><strong>Name:</strong> <code>British National Grid</code></p>
-</li>
+<ul>
+<li><strong>Name:</strong> <code>British National Grid</code></li>
 <li><strong>CRS Code:</strong> <code>EPSG:27700</code></li>
 <li><strong>PROJ.4 Definition:</strong>
-     <code>+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs +type=crs</code></li>
+  <code>+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs +type=crs</code></li>
+</ul>
+</li>
 </ol>
 <p>The new CRS appears as a pill under <strong>Custom CRS</strong> and, from now on, in the
    <strong>Default Coordinate Reference System</strong> dropdown under <em>Custom Projections</em>.</p>
@@ -1881,15 +1881,14 @@ in OSGB so it lines up natively with the National Grid.</p>
 <h2 id="adding-data-that-uses-the-custom-crs-optional">Adding data that uses the custom CRS (optional)<a class="headerlink" href="#adding-data-that-uses-the-custom-crs-optional" title="Permanent link">&para;</a></h2>
 <p>We will now add some source data in this projection. The following layer is stored in EPSG:27700</p>
 <ol>
-<li>Go back to the <strong>Layers</strong> tab and add a new layer called
+<li>
+<p>Go back to the <strong>Layers</strong> tab and add a new layer called
    <strong>Sentinel 2 British National Grid</strong>. Choose <strong>+ Add dataset → Direct
-   Connection → COG</strong> and paste in this URL:</li>
-</ol>
+   Connection → COG</strong> and paste in this URL:</p>
 <p><code>https://dap.ceda.ac.uk/neodc/sentinel_ard/data/sentinel_2/2026/09/21/S2A_20260921_latn518lone0007_T30UYC_ORB094_20260921161450_utm30n_osgb_vmsk_sharp_rad_srefdem_stdsref.tif</code></p>
-<div class="highlight"><pre><span></span><code>Click on the **(i)** icon on the dataset row to view the metadata for the
-COG and note the EPSG it is in.
-</code></pre></div>
-<ol>
+<p>Click on the <strong>(i)</strong> icon on the dataset row to view the metadata for the
+COG and note the EPSG it is in.</p>
+</li>
 <li>
 <p>Define how to visualise the data. Select the pencil icon on <strong>Data
    visualisation → RGB composites</strong>. This will add the first 3 bands of this
