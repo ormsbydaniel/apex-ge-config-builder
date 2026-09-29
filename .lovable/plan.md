@@ -75,7 +75,8 @@ projections — such as the UTM grid used for most Sentinel-2 scenes — is
 reprojected on the fly, as you saw in 9-3.
 ```
 
-Values for latitude/longitude/zoom in step 4 are drafted to centre on the UK and may need a nudge — flag for review.
+Step 4 uses the existing **United Kingdom** quick location
+(src/constants/geoLocations.ts: centre -2, 54, zoom 6).
 
 ## Technical details
 
