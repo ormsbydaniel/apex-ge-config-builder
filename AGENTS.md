@@ -1,1 +1,2 @@
 - Keep field-row display ordering in `src/utils/fieldOrder.ts`, deriving saved `order` values from visible row positions so JSON key order never determines display order.
+- Register each new guide tutorial in `mkdocs.yml` and `docs/javascripts/nav-groups.js` so its menu grouping and step labels stay in sync.
