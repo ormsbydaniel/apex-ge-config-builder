@@ -1750,16 +1750,7 @@
 Systems (CRS). In this tutorial you will switch the default projection to a
 polar view centred on the North Pole.</p>
 <ol>
-<li>
-<p>Open the <strong>Settings</strong> tab in the configuration builder.</p>
-</li>
-<li>
-<p>Select <strong>Navigation</strong> from the settings list.</p>
-</li>
-<li>
-<p>In the <strong>Default start location</strong> section, switch to <strong>Custom (Manual Entry)</strong>
-   and set:</p>
-</li>
+<li>Using your own config from earlier exercises open the <strong>Settings</strong> tab. In the <strong>Navigation</strong> section, change the <strong>Quick location</strong> to <strong>Custom (Manual Entry)</strong> and enter in the following to set the location to the North Pole:</li>
 <li><strong>Latitude:</strong> <code>90</code></li>
 <li><strong>Longitude:</strong> <code>0</code></li>
 <li>
@@ -1770,47 +1761,45 @@ polar view centred on the North Pole.</p>
    <strong>EPSG:3413</strong> — <em>WGS 84 / NSIDC Sea Ice Polar Stereographic North</em>.</p>
 </li>
 <li>
-<p><strong>Save</strong> the settings.</p>
+<p>Switch the basemap to <strong>Blue Marble</strong> or <strong>Stadia Satellite</strong> to see the polar view clearly. To do this:</p>
 </li>
 <li>
-<p>Open <strong>GE Preview</strong>. The map should now open looking down on the North Pole.</p>
+<p>Go to the <strong>Layers</strong> tab and open the <strong>Base Maps</strong> section.</p>
 </li>
-<li>
-<p>If you added the recommended background maps, switch the basemap to
-   <strong>Blue Marble</strong> or <strong>Stadia Satellite</strong> to see the polar view clearly:</p>
-<ol>
-<li>Go to the <strong>Layers</strong> tab and open the <strong>Base Maps</strong> section.</li>
-<li>Select the <strong>Edit</strong> button on the OpenStreetMap base map and turn off its
-   <strong>Display on load</strong> toggle.</li>
+<li>If you do not already have them, add the <strong>Blue Marble</strong> and <strong>Stadia Satellite</strong> background maps from the recommended base maps list.</li>
 <li>Select the <strong>Edit</strong> button on <strong>Blue Marble</strong> or <strong>Stadia Satellite</strong> and
-   turn on its <strong>Display on load</strong> toggle.</li>
-<li><strong>Save</strong> the base map changes.</li>
-</ol>
+     turn on its <strong>Display on load</strong> toggle.</li>
+<li>
+<p><strong>Save</strong> the base map changes.</p>
 </li>
 <li>
-<p>Open <strong>GE Preview</strong> again and turn on the <strong>Above Ground Biomass</strong> layer to
-   see how the data reprojects on the fly in the polar projection.</p>
+<p>Open <strong>Preview</strong>. The map should now open looking down on the North Pole.</p>
+</li>
+<li>
+<p>If you are using a config from the core tutorials, toggle on the <strong>Above Ground Biomass</strong> layer. Note how the data reprojects on the fly in the polar projection.</p>
 </li>
 </ol>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
+</div>
 <p>Try returning to <strong>Settings → Navigation</strong> later and switching the CRS back
 to EPSG:3857 or EPSG:4326 to compare how the same start location and layer
 look in a different projection.</p>
-<p>If you want to continue with other tutorials, you may find it easier to
-switch back to the default <strong>EPSG:3857</strong> and a more familiar start location
-after exploring the polar view.</p>
-</div>
+<div class="highlight"><pre><span></span><code>If you want to continue with other tutorials, you may find it easier to
+switch back to the default **EPSG:3857** and a more familiar start location
+after exploring the polar view.
+</code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
+</div>
 <p>The Geospatial Explorer ships with the default projections shown in the
 <strong>Default Coordinate Reference System</strong> dropdown. If you need a projection
 that is not listed, you can add it under <strong>Custom Projections</strong> by entering
 the appropriate Proj4JS string.</p>
-<p>Data is reprojected on the fly from its source projection to the display
+<div class="highlight"><pre><span></span><code>Data is reprojected on the fly from its source projection to the display
 projection, so custom projections can also be useful for supporting specific
-datasets even when the display CRS is one of the built-in options.</p>
-</div>
+datasets even when the display CRS is one of the built-in options.
+</code></pre></div>
 
 
 

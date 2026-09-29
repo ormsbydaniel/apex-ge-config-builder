@@ -1755,13 +1755,18 @@
   as <strong>Web Mercator</strong>. This is the most common CRS for web mapping services
   worldwide — it is what tile services like OpenStreetMap and most commercial
   basemaps use — which is why it is the Explorer's default.</li>
-<li>The Explorer can <strong>reproject data between supported projections</strong>. If a
+<li>
+<p>The Explorer can <strong>reproject data between supported projections</strong>. If a
   dataset is stored in a different CRS, it is transformed at runtime so that it
-  lines up correctly with everything else on the map.</li>
-<li>This means you are not limited to data stored in Web Mercator: you can use
+  lines up correctly with everything else on the map.</p>
+<p><img alt="Source data stored in EPSG:4326 is reprojected at runtime for a map displayed in EPSG:3413, while the source file stays unchanged" src="../../assets/crs-runtime-reprojection.svg" /></p>
+</li>
+<li>
+<p>This means you are not limited to data stored in Web Mercator: you can use
   datasets kept in another projection, <strong>and/or change the CRS used for
   display</strong> — for example a polar stereographic view when working with Arctic
-  data (see <a href="03-using-an-alternative-projection.html">9-3</a>).</li>
+  data (see <a href="03-using-an-alternative-projection.html">9-3</a>).</p>
+</li>
 <li>
 <p>A number of standard CRS are <strong>included with the Explorer</strong>:</p>
 <table>
