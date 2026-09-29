@@ -1,61 +1,12 @@
-# Draft 9-2. Key concepts — Tutorial 9 (Coordinate reference systems)
+# Add a runtime CRS diagram to Tutorial 9-2
 
-Fill in `docs/workshops/09-coordinate-reference-systems/02-key-concepts.md` with the content below, replacing the placeholder text. Bullet list in the house style of 8-2, ending with a pointer to the full reference. No other files change; rebuild the guide afterwards.
+## Documentation
 
-The supported-CRS list is taken from `src/constants/projections.ts` (the built-in options in the config builder) — flagged below for the user's verification before it ships, as requested.
+- Add a compact diagram immediately after the explanation of runtime reprojection in **9-2. Key concepts**. Show **Data in source CRS (for example EPSG:4326) → Reproject at runtime → Map in selected display CRS (for example EPSG:3413)**.
+- Make clear in the diagram or its caption that the source data stays in its original CRS; the transformation is for map display. Give the diagram descriptive alternative text.
+- Keep the existing lesson text and supported-CRS table unchanged.
 
-## Drafted content
+## Technical details
 
-```markdown
----
-title: 9-2. Key concepts
----
-# 9-2. Key concepts
-
-- A **CRS** (Coordinate Reference System) is essentially a **map projection** —
-  the mathematical recipe for flattening the curved surface of the Earth onto a
-  flat map. Because there is no single "right" way to do this, many different
-  CRS exist, each suited to different regions, scales and purposes.
-- By default the Geospatial Explorer displays maps in **EPSG:3857**, also known
-  as **Web Mercator**. This is the most common CRS for web mapping services
-  worldwide — it is what tile services like OpenStreetMap and most commercial
-  basemaps use — which is why it is the Explorer's default.
-- The Explorer can **reproject data between supported projections**. If a
-  dataset is stored in a different CRS, it is transformed at runtime so that it
-  lines up correctly with everything else on the map.
-- This means you are not limited to data stored in Web Mercator: you can use
-  datasets kept in another projection, **and/or change the CRS used for
-  display** — for example a polar stereographic view when working with Arctic
-  data (see [9-3](03-using-an-alternative-projection.md)).
-- A number of standard CRS are **included with the Explorer**:
-
-    | Code | Name |
-    | --- | --- |
-    | EPSG:3857 | WGS 84 / Pseudo-Mercator (default) |
-    | EPSG:4326 | WGS 84 |
-    | EPSG:3035 | ETRS89-extended / LAEA Europe |
-    | EPSG:3413 | WGS 84 / NSIDC Sea Ice Polar Stereographic North |
-    | EPSG:3031 | WGS 84 / Antarctic Polar Stereographic |
-    | EPSG:32601–32660 | WGS 84 / UTM zones 1N–60N (northern hemisphere) |
-    | EPSG:32701–32760 | WGS 84 / UTM zones 1S–60S (southern hemisphere) |
-
-    <!-- PLACEHOLDER — verify this list before publishing; it reflects the
-         built-in options in the config builder at the time of writing. -->
-
-- If the CRS you need is not in that list, **additional CRS can be defined in
-  the Configuration Builder** (Settings → Custom CRS) by supplying a **proj4
-  string** — the standard one-line definition of a projection. A custom CRS can
-  be used in two ways: to **support datasets stored in that projection**, or as
-  the **default CRS** for the whole map.
-
-See [Settings](../../settings/overview.md#crs-coordinate-reference-system) for
-the full reference on default and custom CRS.
-```
-
-## Checks after writing
-
-- The reference link points to `docs/settings/overview.md` (the CRS section) — verified to exist; no dedicated CRS reference page exists yet.
-- Confirm the 9-3 relative link filename matches the moved page (`03-using-an-alternative-projection.md`).
-- The UTM rows use range notation (EPSG:32601–32660 / 32701–32760) rather than listing every zone; confirm the Explorer's supported UTM range matches before publishing.
-- Rebuild: `PYTHONPATH=/tmp/mkdocs-toolchain python3 -m mkdocs build --strict`.
-- Add an unchecked roadmap.md item for drafting 9-2 (plan mode blocks roadmap edits now).
+- Create a self-contained, responsive SVG in the guide’s assets and reference it from the Markdown page. Use simple labels and arrows that remain readable on narrow screens and in light/dark guide themes.
+- Regenerate the served guide and verify the strict MkDocs build and diagram asset reference. This does not publish the site.
