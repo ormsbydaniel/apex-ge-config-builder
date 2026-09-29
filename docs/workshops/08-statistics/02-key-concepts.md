@@ -5,13 +5,8 @@ title: 8-2. Key concepts
 # 8-2. Key concepts
 
 - A layer's **data** sources are what the user _sees_ on the map. Its
-  **tatistics** sources are what the user _queries_ — they are stored in a
-  separate `statistics` array on the layer and are never drawn as a normal
-  layer.
-- In this tutorial the statistics sources are **vector** files
-  (**FlatGeoBuf**, or **GeoJSON**) whose features are administrative
-  boundaries. Each feature carries **pre-computed attributes** — in this case
-  the area of each World Cover class inside that boundary.
+  **statistics** sources are vector datasets (**FlatGeoBuf**, or **GeoJSON**) that contain precomputed statistics about the layer based for administrative boundaries defined in the vector layer.
+- In this tutorial the statistics sources are a measure of the area of each _World Cover_ classification within the administrative boundary.
 - Because the numbers are computed in advance, the Explorer does not have to
   process any raster on the fly. It simply loads the vector file for the
   current view and reads the attributes of whichever feature the user clicks.
@@ -37,5 +32,8 @@ title: 8-2. Key concepts
   Add them coarsest first and the numbering takes care of itself.
 - In the Explorer the user opens the **Statistics** tab and clicks a feature to
   see the summary for that area.
+
+!!! info
+The preparation of statistics layers themselves is beyond the scope of the tutorial. Please contact that APEX team for further information about how these are defined.
 
 See [Statistics](../../statistics/overview.md) for the full reference.
