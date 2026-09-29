@@ -1773,11 +1773,13 @@
 Systems (CRS). In this tutorial you will switch the default projection to a
 polar view centred on the North Pole.</p>
 <ol>
-<li>Using your own config from earlier exercises open the <strong>Settings</strong> tab. In the <strong>Navigation</strong> section, change the <strong>Quick location</strong> to <strong>Custom (Manual Entry)</strong> and enter in the following to set the location to the North Pole:</li>
+<li>
+<p>Using your own config from earlier exercises open the <strong>Settings</strong> tab. In the <strong>Navigation</strong> section, change the <strong>Quick location</strong> to <strong>Custom (Manual Entry)</strong> and enter in the following to set the location to the North Pole:</p>
+<ul>
 <li><strong>Latitude:</strong> <code>90</code></li>
 <li><strong>Longitude:</strong> <code>0</code></li>
-<li>
-<p><strong>Zoom level:</strong> <code>4</code></p>
+<li><strong>Zoom level:</strong> <code>4</code></li>
+</ul>
 </li>
 <li>
 <p>In the <strong>CRS</strong> section, set the <strong>Default Coordinate Reference System</strong> to
@@ -1785,15 +1787,13 @@ polar view centred on the North Pole.</p>
 </li>
 <li>
 <p>Switch the basemap to <strong>Blue Marble</strong> or <strong>Stadia Satellite</strong> to see the polar view clearly. To do this:</p>
-</li>
-<li>
-<p>Go to the <strong>Layers</strong> tab and open the <strong>Base Maps</strong> section.</p>
-</li>
+<ul>
+<li>Go to the <strong>Layers</strong> tab and open the <strong>Base Maps</strong> section.</li>
 <li>If you do not already have them, add the <strong>Blue Marble</strong> and <strong>Stadia Satellite</strong> background maps from the recommended base maps list.</li>
 <li>Select the <strong>Edit</strong> button on <strong>Blue Marble</strong> or <strong>Stadia Satellite</strong> and
-     turn on its <strong>Display on load</strong> toggle.</li>
-<li>
-<p><strong>Save</strong> the base map changes.</p>
+  turn on its <strong>Display on load</strong> toggle.</li>
+<li><strong>Save</strong> the base map changes.</li>
+</ul>
 </li>
 <li>
 <p>Open <strong>Preview</strong>. The map should now open looking down on the North Pole.</p>
@@ -1804,25 +1804,23 @@ polar view centred on the North Pole.</p>
 </ol>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-</div>
 <p>Try returning to <strong>Settings → Navigation</strong> later and switching the CRS back
 to EPSG:3857 or EPSG:4326 to compare how the same start location and layer
 look in a different projection.</p>
-<div class="highlight"><pre><span></span><code>If you want to continue with other tutorials, you may find it easier to
-switch back to the default **EPSG:3857** and a more familiar start location
-after exploring the polar view.
-</code></pre></div>
+<p>If you want to continue with other tutorials, you may find it easier to
+switch back to the default <strong>EPSG:3857</strong> and a more familiar start location
+after exploring the polar view.</p>
+</div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-</div>
 <p>The Geospatial Explorer ships with the default projections shown in the
 <strong>Default Coordinate Reference System</strong> dropdown. If you need a projection
 that is not listed, you can add it under <strong>Custom Projections</strong> by entering
 the appropriate Proj4JS string.</p>
-<div class="highlight"><pre><span></span><code>Data is reprojected on the fly from its source projection to the display
+<p>Data is reprojected on the fly from its source projection to the display
 projection, so custom projections can also be useful for supporting specific
-datasets even when the display CRS is one of the built-in options.
-</code></pre></div>
+datasets even when the display CRS is one of the built-in options.</p>
+</div>
 
 
 
