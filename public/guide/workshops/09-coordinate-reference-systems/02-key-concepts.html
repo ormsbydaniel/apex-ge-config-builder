@@ -1746,7 +1746,73 @@
 
 
 <h1 id="9-2-key-concepts">9-2. Key concepts<a class="headerlink" href="#9-2-key-concepts" title="Permanent link">&para;</a></h1>
-<p>Key concepts for this tutorial will be added here.</p>
+<ul>
+<li>A <strong>CRS</strong> (Coordinate Reference System) is essentially a <strong>map projection</strong> —
+  the mathematical recipe for flattening the curved surface of the Earth onto a
+  flat map. Because there is no single "right" way to do this, many different
+  CRS exist, each suited to different regions, scales and purposes.</li>
+<li>By default the Geospatial Explorer displays maps in <strong>EPSG:3857</strong>, also known
+  as <strong>Web Mercator</strong>. This is the most common CRS for web mapping services
+  worldwide — it is what tile services like OpenStreetMap and most commercial
+  basemaps use — which is why it is the Explorer's default.</li>
+<li>The Explorer can <strong>reproject data between supported projections</strong>. If a
+  dataset is stored in a different CRS, it is transformed at runtime so that it
+  lines up correctly with everything else on the map.</li>
+<li>This means you are not limited to data stored in Web Mercator: you can use
+  datasets kept in another projection, <strong>and/or change the CRS used for
+  display</strong> — for example a polar stereographic view when working with Arctic
+  data (see <a href="03-using-an-alternative-projection.html">9-3</a>).</li>
+<li>
+<p>A number of standard CRS are <strong>included with the Explorer</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EPSG:3857</td>
+<td>WGS 84 / Pseudo-Mercator (default)</td>
+</tr>
+<tr>
+<td>EPSG:4326</td>
+<td>WGS 84</td>
+</tr>
+<tr>
+<td>EPSG:3035</td>
+<td>ETRS89-extended / LAEA Europe</td>
+</tr>
+<tr>
+<td>EPSG:3413</td>
+<td>WGS 84 / NSIDC Sea Ice Polar Stereographic North</td>
+</tr>
+<tr>
+<td>EPSG:3031</td>
+<td>WGS 84 / Antarctic Polar Stereographic</td>
+</tr>
+<tr>
+<td>EPSG:32601–32660</td>
+<td>WGS 84 / UTM zones 1N–60N (northern hemisphere)</td>
+</tr>
+<tr>
+<td>EPSG:32701–32760</td>
+<td>WGS 84 / UTM zones 1S–60S (southern hemisphere)</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>If the CRS you need is not in that list, <strong>additional CRS can be defined in
+  the Configuration Builder</strong> (Settings → Custom CRS) by supplying a <strong>proj4
+  string</strong> — the standard one-line definition of a projection. A custom CRS can
+  be used in two ways: to <strong>support datasets stored in that projection</strong>, or as
+  the <strong>default CRS</strong> for the whole map.</p>
+</li>
+</ul>
+<p>See <a href="../../settings/overview.html#crs-coordinate-reference-system">Settings</a> for
+the full reference on default and custom CRS.</p>
 
 
 
