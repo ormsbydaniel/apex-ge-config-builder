@@ -33,7 +33,4 @@ title: 8-2. Key concepts
 - In the Explorer the user opens the **Statistics** tab and clicks a feature to
   see the summary for that area.
 
-!!! info
-The preparation of statistics layers themselves is beyond the scope of the tutorial. Please contact that APEX team for further information about how these are defined.
-
 See [Statistics](../../statistics/overview.md) for the full reference.
