@@ -36,7 +36,7 @@ Every configuration is a single JSON object with this shape:
 | `workflows` | object[] | no | Top-level algorithms available across the config — see [`workflows[]`](#workflows). |
 | `stories` | object[] | no | Storymaps (guided tours) — see [`stories[]`](#stories). |
 | `mapConstraints` | object | no | Initial zoom, centre, and CRS. |
-| `projections` | object[] | no | Custom proj4 [Coordinate Reference System](../settings/index.md) definitions. |
+| `projections` | object[] | no | Custom [Coordinate Reference System](../settings/index.md) definitions in PROJ.4 format. |
 
 !!! info "Naming: workflows vs. algorithms"
     "Workflow" in the JSON (and in code) is the same thing the UI calls
@@ -560,13 +560,13 @@ Initial map view.
 
 ## `projections[]`
 
-Custom proj4 [Coordinate Reference System](../settings/index.md) definitions
+Custom [Coordinate Reference System](../settings/index.md) definitions in PROJ.4 format
 made available to `mapConstraints.projection` and to the layer renderer.
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
 | `code` | string | yes | EPSG-style code (e.g. `EPSG:3035`). |
-| `definition` | string | yes | proj4 definition string. |
+| `definition` | string | yes | PROJ.4 definition string. |
 | `name` | string | no | Friendly label. |
 
 ```json

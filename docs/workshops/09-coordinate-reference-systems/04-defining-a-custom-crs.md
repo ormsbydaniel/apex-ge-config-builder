@@ -20,7 +20,7 @@ in OSGB so it lines up natively with the National Grid.
 
     - **Name:** `British National Grid`
     - **CRS Code:** `EPSG:27700`
-    - **Proj4js Definition:**
+    - **PROJ.4 Definition:**
       `+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs +type=crs`
 
     The new CRS appears as a pill under **Custom CRS** and, from now on, in the
@@ -49,9 +49,9 @@ We will now add some source data in this projection.
 2. Open the preview and toggle the newly added layer on.
 
 !!! tip
-    Proj4js definitions for almost any CRS can be copied from
+    PROJ.4 definitions for almost any CRS can be copied from
     [https://epsg.io](https://epsg.io) — search for the EPSG code and copy the
-    Proj4 string.
+    PROJ.4 definition.
 
 !!! info
     This dataset is supplied in OSGB (British National Grid), so it can be shown without reprojection when the display CRS is EPSG:27700. Data stored in other projections — such as the UTM grid used for most Sentinel-2 scenes — is reprojected on the fly, as you saw in 9-3.

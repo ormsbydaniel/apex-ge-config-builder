@@ -681,7 +681,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="proj-def">Proj4js Definition <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="proj-def">PROJ.4 Definition <span className="text-destructive">*</span></Label>
                     <Input
                       id="proj-def"
                       value={newProjectionDefinition}
@@ -690,7 +690,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ config }) => {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Copy Proj4js strings from{' '}
+                    Copy PROJ.4 definitions from{' '}
                     <a href="https://epsg.io/" target="_blank" rel="noopener noreferrer" className="underline text-primary hover:text-primary/80">
                       https://epsg.io/
                     </a>
