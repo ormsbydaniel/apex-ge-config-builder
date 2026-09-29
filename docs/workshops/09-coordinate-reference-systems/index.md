@@ -19,7 +19,7 @@ By the end of this tutorial you will be able to:
   the display CRS — and which CRS are supported out of the box
   (EPSG:3857, EPSG:4326, EPSG:3035, and the polar stereographic options).
 - Understand how to set a different CRS as the default display for a
-  configuration, and see the effect in GE Preview.
+  configuration, and see the effect in Preview.
 - Understand how to add an additional CRS to a configuration so it becomes
   available as the default or per-layer display option.
 

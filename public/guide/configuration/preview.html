@@ -24,7 +24,7 @@
     
     
       
-        <title>GE Preview - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>Preview - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ge-preview" class="md-skip">
+        <a href="#preview" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              GE Preview
+              Preview
             
           </span>
         </div>
@@ -395,7 +395,7 @@
   
     
   
-  GE Preview
+  Preview
 
       </a>
     </li>
@@ -931,7 +931,7 @@
           
   
   <span class="md-ellipsis">
-    GE Preview
+    Preview
   </span>
   
 
@@ -942,7 +942,7 @@
         
   
   <span class="md-ellipsis">
-    GE Preview
+    Preview
   </span>
   
 
@@ -964,9 +964,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#opening-ge-preview" class="md-nav__link">
+  <a href="#opening-preview" class="md-nav__link">
     <span class="md-ellipsis">
-      Opening GE Preview
+      Opening Preview
     </span>
   </a>
   
@@ -1009,9 +1009,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#when-to-use-ge-preview-vs-healthcheck" class="md-nav__link">
+  <a href="#when-to-use-preview-vs-healthcheck" class="md-nav__link">
     <span class="md-ellipsis">
-      When to use GE Preview vs. healthcheck
+      When to use Preview vs. healthcheck
     </span>
   </a>
   
@@ -1176,9 +1176,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#opening-ge-preview" class="md-nav__link">
+  <a href="#opening-preview" class="md-nav__link">
     <span class="md-ellipsis">
-      Opening GE Preview
+      Opening Preview
     </span>
   </a>
   
@@ -1221,9 +1221,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#when-to-use-ge-preview-vs-healthcheck" class="md-nav__link">
+  <a href="#when-to-use-preview-vs-healthcheck" class="md-nav__link">
     <span class="md-ellipsis">
-      When to use GE Preview vs. healthcheck
+      When to use Preview vs. healthcheck
     </span>
   </a>
   
@@ -1244,8 +1244,8 @@
                   
 
 
-<h1 id="ge-preview">GE Preview<a class="headerlink" href="#ge-preview" title="Permanent link">&para;</a></h1>
-<p>The <strong>Preview</strong> tab (rendered as <strong>GE Preview</strong> in the navigation) runs
+<h1 id="preview">Preview<a class="headerlink" href="#preview" title="Permanent link">&para;</a></h1>
+<p>The <strong>Preview</strong> tab runs
 the actual APEx Geospatial Explorer inline using your current
 configuration. It is the fastest way to confirm a layer renders, a
 colormap looks right, or the layer panel reads sensibly before you ship a
@@ -1255,8 +1255,8 @@ config.</p>
 <p>Screenshots on this page were taken with the <strong>Comprehensive demo</strong>
 config loaded.</p>
 </div>
-<p><img alt="GE Preview running the Comprehensive demo: top toolbar with version selector and Ready badge, layer panel on the left, an info panel on the right showing Topsoil Soil Organic Carbon details" src="../assets/screenshots/ge-preview-loaded.png" /></p>
-<h2 id="opening-ge-preview">Opening GE Preview<a class="headerlink" href="#opening-ge-preview" title="Permanent link">&para;</a></h2>
+<p><img alt="Preview running the Comprehensive demo: top toolbar with version selector and Ready badge, layer panel on the left, an info panel on the right showing Topsoil Soil Organic Carbon details" src="../assets/screenshots/ge-preview-loaded.png" /></p>
+<h2 id="opening-preview">Opening Preview<a class="headerlink" href="#opening-preview" title="Permanent link">&para;</a></h2>
 <p>Click the <strong>Preview</strong> tab in the top navigation. Two preconditions:</p>
 <ul>
 <li><strong>No unsaved form changes.</strong> If a layer or service editor is open with
@@ -1267,7 +1267,7 @@ config loaded.</p>
   you will see an explanatory error.</li>
 </ul>
 <h2 id="what-loads">What loads<a class="headerlink" href="#what-loads" title="Permanent link">&para;</a></h2>
-<p>GE Preview loads your current in-memory config — the same one the Home tab
+<p>Preview loads your current in-memory config — the same one the Home tab
 shows statistics for — into a real instance of the APEx Geospatial Explorer
 running in an iframe. No file is written; nothing is uploaded; no export
 step is needed.</p>
@@ -1299,7 +1299,7 @@ one you last used, an alert offers two choices:</p>
 authors pick up new releases automatically.</p>
 <h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
 <ul>
-<li>GE Preview is a runtime view, not an editor — to change anything, use
+<li>Preview is a runtime view, not an editor — to change anything, use
   <strong>Back to Config Builder</strong>.</li>
 <li>Network-dependent layers (WMS, WMTS, COG, S3) are fetched live; if your
   network or the upstream service is down, those layers will fail to
@@ -1308,14 +1308,14 @@ authors pick up new releases automatically.</p>
   Switching to the latest version usually resolves "feature not available"
   warnings.</li>
 </ul>
-<h2 id="when-to-use-ge-preview-vs-healthcheck">When to use GE Preview vs. healthcheck<a class="headerlink" href="#when-to-use-ge-preview-vs-healthcheck" title="Permanent link">&para;</a></h2>
+<h2 id="when-to-use-preview-vs-healthcheck">When to use Preview vs. healthcheck<a class="headerlink" href="#when-to-use-preview-vs-healthcheck" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Use <a href="../services/healthcheck.html">Run Healthcheck</a> for a structured
   pass/fail report across every URL.</li>
-<li>Use <strong>GE Preview</strong> when you want to <em>see</em> the result — colour ramps,
+<li>Use <strong>Preview</strong> when you want to <em>see</em> the result — colour ramps,
   legend layout, swipe behaviour, basemap interaction.</li>
 </ul>
-<p>A typical loop is <em>edit → save → GE Preview → back → edit → run
+<p>A typical loop is <em>edit → save → Preview → back → edit → run
 healthcheck → export</em>.</p>
 
 

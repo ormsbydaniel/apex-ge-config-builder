@@ -81,7 +81,7 @@ warnings the chart raises when this is not the case.
 **Preview tab is blank**
 The viewer iframe failed to load. Check the browser console for a
 `viewer.js` error and confirm the bundle version is reachable in
-`/viewer/<version>/`. See the [GE Preview tab](../configuration/preview.md)
+`/viewer/<version>/`. See the [Preview tab](../configuration/preview.md)
 for version pinning.
 
 **Deep link parameters do nothing**

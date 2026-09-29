@@ -16,7 +16,7 @@ area of interest straight away.
 
 4. **Save** the settings.
 
-5. Open **GE Preview**. The map should now open focused on the country you
+5. Open **Preview**. The map should now open focused on the country you
    selected rather than the whole world.
 
 !!! tip

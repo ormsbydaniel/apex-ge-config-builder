@@ -59,7 +59,7 @@ In the dialog:
 
 1. Pick a **Service Type** that matches your endpoint (start with **WMTS**
    if you have one — they are tile-pyramid backed and feel responsive in
-   GE Preview).
+   Preview).
 2. Paste the **Service URL** (the base endpoint, no `?service=...` query
    string).
 3. Wait for the green **Reachable** badge. The **Service Name** field
@@ -115,13 +115,13 @@ Open the [Draw Order](../configuration/draw-order.md) tab and confirm
 that **Forest cover** sits above **OpenStreetMap** so the data layer
 draws on top of the basemap. Drag to reorder if needed.
 
-## 7. Preview in GE Preview
+## 7. Preview the config
 
 Click **Preview** in the top navigation to open
-[GE Preview](../configuration/preview.md). The actual APEx Geospatial
+[Preview](../configuration/preview.md). The actual APEx Geospatial
 Explorer loads in an iframe with your config applied.
 
-![GE Preview running with a loaded config: layer panel on the left, map in the middle, info panel on the right](../assets/screenshots/ge-preview-loaded.png)
+![Preview running with a loaded config: layer panel on the left, map in the middle, info panel on the right](../assets/screenshots/ge-preview-loaded.png)
 
 Confirm:
 

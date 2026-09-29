@@ -116,7 +116,7 @@ nav:
       - Export options: configuration/export-options.md
   - JSON config: configuration/json-config.md
   
-  - GE Preview: configuration/preview.md
+  - Preview: configuration/preview.md
   - Tutorials:
 
       - Overview: workshops/index.md
