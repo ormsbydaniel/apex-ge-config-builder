@@ -1,6 +1,15 @@
 ---
 title: 9-1. Pre-requisites
 ---
+
 # 9-1. Pre-requisites
 
-Pre-requisites for this tutorial will be added here.
+Completion of all core tutorials or existing familiarity with the configuration
+builder:
+
+- [1. Familiarisation](../01-familiarisation/index.md)
+- [2. My first config](../02-getting-started/index.md)
+- [3. Working with Services](../03-working-with-services/index.md)
+
+If you are already comfortable with the Configuration Builder you can start
+here and use your own configuration as the starting point.
