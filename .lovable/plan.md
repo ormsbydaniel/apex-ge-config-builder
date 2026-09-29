@@ -23,11 +23,11 @@ title: 9-4. Defining a custom CRS
 
 # 9-4. Defining a custom CRS
 
-The Geospatial Explorer ships with a set of built-in CRS options, but you are
-not limited to them. In this tutorial you will add **EPSG:27700 — British
-National Grid** as a custom CRS, use it as the display projection for the map,
-and add a Sentinel-2 dataset that is supplied in OSGB so it lines up natively
-with the National Grid.
+The Geospatial Explorer ships with a set of built-in CRS options [as noted in
+9-2](02-key-concepts.md), but you are not limited to them. In this tutorial you
+will add **EPSG:27700 — British National Grid** as a custom CRS, use it as the
+display projection for the map, and add a Sentinel-2 dataset that is supplied
+in OSGB so it lines up natively with the National Grid.
 
 1. Start with either a new config, or add to your existing one from the
    earlier exercises.
@@ -47,11 +47,8 @@ with the National Grid.
    National Grid**.
 
 4. Still in **Settings**, set the start location to the UK. In the
-   **Navigation** section, change **Quick location** to **Custom (Manual
-   Entry)** and enter:
-   - **Latitude:** `54`
-   - **Longitude:** `-2`
-   - **Zoom level:** `6`
+   **Navigation** section, choose **United Kingdom** from the **Quick
+   location** list.
 
 5. Open **Preview**. The map should now open on the UK in British National
    Grid rather than Web Mercator.
@@ -78,7 +75,8 @@ projections — such as the UTM grid used for most Sentinel-2 scenes — is
 reprojected on the fly, as you saw in 9-3.
 ```
 
-Values for latitude/longitude/zoom in step 4 are drafted to centre on the UK and may need a nudge — flag for review.
+Step 4 uses the existing **United Kingdom** quick location
+(src/constants/geoLocations.ts: centre -2, 54, zoom 6).
 
 ## Technical details
 
