@@ -15,7 +15,6 @@ By the end of this tutorial you will be able to:
 - Define categories for a COG so raw pixel values are rendered by class.
 - Define categories for a WMS layer so the Explorer renders a legend.
 - Use the JSON editor to make bulk category edits.
-- Copy categories between layers.
 
 ## Steps
 
@@ -24,4 +23,3 @@ By the end of this tutorial you will be able to:
 - [5-3. Categories for a COG](03-categories-cog.md)
 - [5-4. Categories for a WMS layer](04-categories-wms.md)
 - [5-5. Use the JSON editor](05-categories-json-editor.md)
-- [5-6. Copy categories between layers](06-copy-categories.md)
