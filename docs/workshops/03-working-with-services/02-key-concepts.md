@@ -4,8 +4,8 @@ title: 3-2. Key concepts
 # 3-2. Key concepts
 
 !!! info "Services"
-  **Services**, in the context of the Geospatial Explorer, are **platforms
-  that serve up data** or **catalogues of data**.
+    **Services**, in the context of the Geospatial Explorer, are **platforms
+    that serve up data** or **catalogues of data**.
 
 ## Data services
 
