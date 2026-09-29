@@ -34,6 +34,22 @@ once and its layers can be browsed whenever you add a dataset.
 4. *Preview* your config now to see the new layer, then select *Export* so you
    don't lose your work.
 
+## Add more WMS layers
+
+Once you have added the recommended services in [3-4](04-recommended-services.md),
+you can return here to pick another WMS layer from one of them.
+
+1. Create a new **layer card** called `temp` — you'll rename it once you've
+   picked the data.
+2. On the card, select **+ Add dataset → From service** and browse to a WMS
+   service, for example **MapProxy WMS** (or **CLMS**).
+3. Pick a WMS layer of interest and add it to your layer card.
+4. Edit the layer card and rename it from `temp` to something meaningful for
+   the data you picked. Adjust attribution and controls as needed.
+
+As with a direct-connection layer, remember to give the card a meaningful name
+and set its attribution after choosing the data.
+
 !!! tip "Direct connection vs service"
 
     Use a **direct connection** for a one-off layer where you already know the
