@@ -1897,26 +1897,22 @@ data.</p>
 <p><img alt="Statistics tab in the Data Sources section of the layer card" src="../../assets/screenshots/data-sources-statistics-tab.png" /></p>
 </li>
 <li>
-<p>Click <strong>Add source</strong> and choose the format <strong>FlatGeoBuf</strong>.</p>
+<p>Click <strong>Add source</strong>, choose <strong>FlatGeoBuf</strong>, and enter the NUTS level 0 (country) source details:</p>
 <div class="admonition note">
 <p class="admonition-title">Supported formats</p>
 <p>Statistics sources must be <strong>FlatGeoBuf</strong> or <strong>GeoJSON</strong>. FlatGeoBuf is
 preferred: it is indexed, so the Explorer only downloads the features
 in view.</p>
 </div>
-</li>
-<li>
-<p>Paste in the NUTS level 0 (country) file:</p>
+<ul>
+<li><strong>File URL:</strong></li>
+</ul>
 <div class="highlight"><pre><span></span><code>https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level00.fgb
 </code></pre></div>
-</li>
-<li>
-<p>Note the <strong>level</strong> field. This is the first statistics source on the layer,
-   so it is pre-filled with <code>0</code> — the coarsest boundaries. Leave it as it is.</p>
-</li>
-<li>
-<p>The <strong>zIndex</strong> is set to <code>100</code>, above the display data, so that the clickable
-   boundaries sit on top of the raster. Leave it as it is.</p>
+<ul>
+<li><strong>level:</strong> Leave it at the pre-filled <code>0</code> — this is the first statistics source on the layer, with the coarsest boundaries.</li>
+<li><strong>zIndex:</strong> Leave it at <code>100</code>, above the display data so the clickable boundaries sit on top of the raster.</li>
+</ul>
 </li>
 <li>
 <p><strong>Save</strong> the source. It now appears under <strong>Statistics</strong>, separately from the
