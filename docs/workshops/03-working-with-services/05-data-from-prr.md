@@ -5,18 +5,14 @@ title: 3-5. Add data from the "PRR"
 
 The *Project Results Repository ("PRR")* is a STAC catalogue of ESA project
 results. The full catalogue is visible on the APEX Project Website [here](https://browser.apex.esa.int/external/eoresults.esa.int/stac?.language=en).
-However, it has been added as a service in the GE Configuration Builder, we can drill down into its details directly from within the user interface of the CB.
+However, once it has been added as a service in the GE Configuration Builder (as you did in 3-4), we can drill into its details directly from the user interface of the CB.
 
-1. On the **Layers** tab, create a new layer card called `Below Ground Biomass` in your `Forest Carbon` interface group. A name for the layer is all you need at this stage, but if you want you can fill in a description and
-   attribution similar to what you did on the `Above Ground Biomass'.
+1. On the **Layers** tab, create a new layer card called `Below Ground Biomass` in your `Forest Carbon` interface group. A name for the layer is all you need at this stage, but if you want you can fill in a description and attribution similar to what you did on the `Above Ground Biomass'.
 2. On the card, select **+ Add dataset** and then **From service**.
-3. Select **Project Results Repository**. The STAC browser opens, showing the
-   collections in the PRR.
+3. Select **Project Results Repository**. The STAC browser opens, showing the collections in the PRR.
 4. Spend a moment browsing the PRR to see how collections, items and assets are structured.
-5. **Search** with the word `below` to find the *FCM 100 m Europeran-wide Below Ground Biomass* collection.  From here select **Browse items** and then select an item and **View Assets**. Although some collections might have multiple assets for an item, that is not the case here.  Just pick **Select** to add the Cloud Optimised Geotiff for this item.
-   through the collection's assets and items until you see individual COGs listed.
-6. You will now see the *Add Data Source* screen populated with your selected COG.  Complete the step by clicking the **Add Source** button to attach this dataset to your layer.
-7. Finish styling the layer, just as you did in tutorial 2-8.  To recap, you need to:
+5. **Search** with the word `below` to find the *FCM 100 m Europeran-wide Below Ground Biomass* collection.  From here select **Browse items**, select an item and **View Assets**. Although some collections might have multiple assets for an item, that is not the case here.  Just pick **Select**. You will now see the *Add Data Source* screen populated with your selected COG.  Complete the step by clicking the **Add Source** button to attach this dataset to your layer.
+6. Finish styling the layer, just as you did in tutorial 2-8.  To recap, you need to:
    - click on the "(i)" icon on the dataset row to inspect its metadata
    - note the min/max values of the cog
    - select the pencil icon next to colormap to call up the appropriate UI, then choose an appropriate colormap as you see fit
