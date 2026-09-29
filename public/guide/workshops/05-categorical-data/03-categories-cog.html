@@ -1868,45 +1868,42 @@
 <p>The category system determines how COGs are rendered when their values represent a data classification (as opposed to a continuous variable).</p>
 <ol>
 <li>Create a new layer card called <code>World Cover - Austria</code> in the <strong>Land Cover</strong> interface group - see tutorial 2-6 for a recap if needed</li>
-<li>
-<p>Add the following dataset — a World Cover COG for Austria - see tutorial 2-7 for a recap if needed:</p>
+<li>Add the following dataset — a World Cover COG for Austria - see tutorial 2-7 for a recap if needed:</li>
+</ol>
 <div class="highlight"><pre><span></span><code>https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif
 </code></pre></div>
-</li>
-<li>
-<p>Click the <strong>(i)</strong> info icon on the dataset row to open the COG metadata
-   dialog.</p>
+<ol>
+<li>Click the <strong>(i)</strong> info icon on the dataset row to open the COG metadata
+   dialog.</li>
+</ol>
 <p><img alt="COG metadata dialog showing categorical statistics and the embedded colour palette" src="../../assets/screenshots/cog-categories-metadata.png" /></p>
+<ol>
+<li>Scroll down until you see the colour palette display, Click <strong>Copy embedded colormap to config categories</strong>. This takes both the class values (10, 30, 40 etc) and colours (green, yellow, red) from the colourmap in the COG and copies them into our layer definition. Then <strong>close</strong> the metadata dialog.</li>
+<li>
+<p>Although this COG has an emebedded colormap, that is not always the case. The option to <strong>Copy unique values to config categories</strong> is used when there is no colormap but will still transfer our unique values.</p>
 </li>
 <li>
-<p>Use one of the category buttons to populate the editor:</p>
-<ul>
-<li><strong>Populate categories</strong> (or <em>Copy unique values to config categories</em>) adds the
-  classes found in the COG sample to the config, assigning arbitrary colours
-  automatically. This is the fallback when a COG does not have an embedded colour map.</li>
-<li><strong>Copy embedded colormap to config categories</strong> copies both the class values and
-  their original colours from the COG itself. Use this option when the COG has an
-  embedded colour map — this is the case for the World Cover Austria COG, so it is
-  the preferred option here.</li>
-</ul>
+<p>Now select the <strong>pen</strong> icon, next to <strong>Categeories</strong> in the <strong>Data Visualisation</strong> section of the layer card. Edit a couple of the category labels to align to the World Cover class
+   names (e.g. <code>10 → Tree cover</code>, <code>30 → Grassland</code>). See the
+   <a href="#worldcover-class-lookup">WorldCover class lookup</a> below for the full list
+   of values, colours and names.</p>
 </li>
-<li>
-<p>Edit a couple of the category labels to align to the World Cover class
-    names (e.g. <code>10 → Tree cover</code>, <code>30 → Grassland</code>). See the
-    <a href="#worldcover-class-lookup">WorldCover class lookup</a> below for the full list
-    of values, colours and names.</p>
+</ol>
 <p><img alt="Edit Categories dialog for the World Cover COG layer showing populated categories with labels and values" src="../../assets/screenshots/cog-categories-editor-world-cover.png" /></p>
-<p>To save on manual typing you can also import or export categories from CSV
-files. If you want to do this quickly, download
-<a href="../../assets/world-cover-classes.csv"><code>world-cover-classes.csv</code></a> and then
-import it from there.</p>
-</li>
-<li>
-<p>Save the layer card and preview. The COG is now rendered with the labels
-    and colours you defined.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+</div>
 <p>The values are populated from a <strong>sample</strong> of pixels. It is possible for
 a small number of pixels to fall into classes that were not sampled.
 Cross-check against the source data if completeness matters.</p>
+<ol>
+<li>
+<p>To save on manual typing you can also <strong>import</strong> or export categories from CSV
+    files. You can do this now by downloading
+    <a href="../../assets/world-cover-classes.csv"><code>world-cover-classes.csv</code></a> (&lt;- click on the link to download). Then select <strong>Import CSV</strong> and load up the file you just downloaded.</p>
+</li>
+<li>
+<p>Select <strong>Save Categories</strong> to exit the dialog and then <strong>Preview</strong>, toggle on the layer and view the reesults. The COG is now rendered with the labels and colours you defined.</p>
 </li>
 <li>
 <p><em>(Optional)</em> Go back to <strong>Data Visualisation → Categories → Edit</strong> and change

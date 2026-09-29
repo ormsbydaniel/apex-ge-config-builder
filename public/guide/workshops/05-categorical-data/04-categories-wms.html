@@ -1809,46 +1809,43 @@
 
 
 <h1 id="5-4-categories-for-a-wms-layer">5-4. Categories for a WMS layer<a class="headerlink" href="#5-4-categories-for-a-wms-layer" title="Permanent link">&para;</a></h1>
-<p>Now update the <em>World Cover</em> WMS layer you created in
-<a href="../02-getting-started/09-wms-service.html">Add a WMS layer directly</a>.</p>
+<p>Now we will update the <em>World Cover</em> WMS layer you created in
+<a href="../02-getting-started/09-wms-service.html">2-9. Add a WMS data source</a>.</p>
 <p>Unlike a COG, a WMS or WMTS service cannot be interrogated for its pixel
-values — there is no way to sample the underlying data, so the class numbers
-are not available and, in fact, are not relevant here. What we still need are
-the <strong>colours</strong> and the <strong>labels</strong>, so the Explorer can draw a meaningful
-legend.</p>
-<p>Because we already defined a full category set on the COG layer, we can simply
-copy it across.</p>
+values — there is no way to sample the underlying data,so the class numbers
+are not available. Sometimes the WMS services return a legend, but if not (like this one), we can still use the categories tool to create the legend.</p>
+<p>You can manually define the categories using the dialogue in the same way as we did in 5-3, or import from a CSV. However, because we already defined a full category set on the COG layer, we can simply copy it across.</p>
+<ol>
+<li>On the <strong>Layers</strong> tab, expand <em>World Cover 2021</em> layer card, go to <strong>Data Visualisation → Categories → Edit</strong>, and choose <strong>Copy from layer</strong> and select
+   <strong>Austria Land Cover</strong> (the COG layer from
+   <a href="03-categories-cog.html">5-3. Categories for a COG</a>).</li>
+</ol>
+<p><img alt="Edit Categories dialog for the World Cover WMS layer showing populated categories" src="../../assets/screenshots/categories-wms-editor.png" /></p>
+<ol>
+<li><strong>Save categories</strong> to return the layer card and then <strong>Preview</strong>. The legend in the Explorer now contains a
+   row per class, using the colours and labels you copied.</li>
+</ol>
+<p>If in the last tutorial you only edited the class names that the COG
+   populated, you will not have <strong>Shrubland</strong> or <strong>Mangroves</strong> here — neither
+   class is present in Austria, so they were never sampled. If you imported
+   the CSV, the full set will be there.</p>
+<p>An alternative for this WMS layer is therefore to import the categories
+   directly from
+   <a href="../../assets/world-cover-classes.csv"><code>world-cover-classes.csv</code></a>, as
+   described in <a href="03-categories-cog.html">5-3 step 5</a>.</p>
 <ol>
 <li>
-<p>On the <strong>Layers</strong> tab, edit the <em>World Cover</em> layer card. Go to <strong>Data Visualisation → Categories → Edit</strong>, choose <strong>Copy from layer</strong> and select
-    <strong>Austria Land Cover</strong> (the COG layer from
-    <a href="03-categories-cog.html">5-3. Categories for a COG</a>).</p>
-<p><img alt="Edit Categories dialog for the World Cover WMS layer showing populated categories" src="../../assets/screenshots/categories-wms-editor.png" /></p>
-</li>
-<li>
-<p>Save the layer card and preview. The legend in the Explorer now contains a
-    row per class, using the colours and labels you copied.</p>
-<p>If in the last tutorial you only edited the class names that the COG
-populated, you will not have <strong>Shrubland</strong> or <strong>Mangroves</strong> here — neither
-class is present in Austria, so they were never sampled. If you imported
-the CSV, the full set will be there.</p>
-<p>An alternative for this WMS layer is therefore to import the categories
-directly from
-<a href="../../assets/world-cover-classes.csv"><code>world-cover-classes.csv</code></a>, as
-described in <a href="03-categories-cog.html">5-3 step 5</a>.</p>
-</li>
-<li>
 <p><em>(Optional)</em> Open the categories editor again and untoggle <strong>Use category
-    values</strong>. Save the layer card and preview. The legend still shows the class
-    labels and colours, but the numeric values are no longer displayed — this
-    reflects the fact that class numbers cannot be read from a WMS or WMTS
-    layer.</p>
+   values</strong>. Save the layer card and preview. The legend still shows the class
+   labels and colours, but the numeric values are no longer displayed — this
+   reflects the fact that class numbers cannot be read from a WMS or WMTS
+   layer.</p>
 </li>
 <li>
 <p><em>(Optional)</em> In the categories editor, change the colour for one of the
-    classes and save. The legend in the Explorer will now show the new colour
-    for that class. However, for WMS / WMTS layers the actual map styling is
-    determined by the service, so the rendered tiles will not change.</p>
+   classes and save. The legend in the Explorer will now show the new colour
+   for that class. However, for WMS / WMTS layers the actual map styling is
+   determined by the service, so the rendered tiles will not change.</p>
 </li>
 </ol>
 <p>See the full WorldCover class lookup in
