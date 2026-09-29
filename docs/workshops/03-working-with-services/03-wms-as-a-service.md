@@ -28,13 +28,13 @@ once and its layers can be browsed whenever you add a dataset.
 ## Use the service in a layer card
 
 1. Return to the **Layers** tab and add a new layer card called `World Cover
-   2020`.
+   2020` in your `Land cover` interface group.
 2. Select **+ Add dataset** and choose **From service**.
 3. Pick the WMS service you just added. The builder loads the capabilities and
    presents a searchable list of layers.
 4. Search for `worldcover`. Multiple years will appear in the search results,
     including layers named **WORLDCOVER MAP**; select the **2020** version,
-    then choose **Select**.
+    then choose **Select** then **Add source** to complete the step.
 5. *Preview* your config now to see the new layer, then select *Export* so you
    don't lose your work.
 
