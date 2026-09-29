@@ -1,10 +1,11 @@
 ---
 title: 8-2. Key concepts
 ---
+
 # 8-2. Key concepts
 
-- A layer's **data** sources are what the user *sees* on the map. Its
-  **statistics** sources are what the user *queries* — they are stored in a
+- A layer's **data** sources are what the user _sees_ on the map. Its
+  **tatistics** sources are what the user _queries_ — they are stored in a
   separate `statistics` array on the layer and are never drawn as a normal
   layer.
 - In this tutorial the statistics sources are **vector** files
@@ -22,15 +23,15 @@ title: 8-2. Key concepts
   level appropriate to the current map zoom, so a user sees countries when
   zoomed out and small regions when zoomed in.
 
-    Here we use **NUTS** (*Nomenclature of territorial units for statistics*),
-    the standard European hierarchy:
+  Here we use **NUTS** (_Nomenclature of territorial units for statistics_),
+  the standard European hierarchy:
 
-    | Level | NUTS | Typical unit |
-    | --- | --- | --- |
-    | 0 | NUTS 0 | Country |
-    | 1 | NUTS 1 | Major region |
-    | 2 | NUTS 2 | Basic region / province |
-    | 3 | NUTS 3 | Small region |
+  | Level | NUTS   | Typical unit            |
+  | ----- | ------ | ----------------------- |
+  | 0     | NUTS 0 | Country                 |
+  | 1     | NUTS 1 | Major region            |
+  | 2     | NUTS 2 | Basic region / province |
+  | 3     | NUTS 3 | Small region            |
 
 - Levels are assigned **in the order you add the sources**, starting at `0`.
   Add them coarsest first and the numbering takes care of itself.
