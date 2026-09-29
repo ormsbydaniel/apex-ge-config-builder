@@ -1915,11 +1915,13 @@ a single COG layer showing wind power density at 100 m over Austria.</p>
 </li>
 <li>
 <p>Add a <strong>COG</strong> data source with this URL:</p>
+</li>
+</ol>
 <div class="highlight"><pre><span></span><code>https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix.tif
 </code></pre></div>
-</li>
-<li>
-<p>Open <strong>Data Visualisation → Colormaps → Edit</strong> and add a colormap:</p>
+<ol>
+<li>Open <strong>Data Visualisation → Colormaps → Edit</strong> and add a colormap:</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -1950,24 +1952,37 @@ a single COG layer showing wind power density at 100 m over Austria.</p>
 </tr>
 </tbody>
 </table>
-</li>
+<ol>
 <li>
 <p>In the layer card <strong>Controls</strong>, enable:</p>
-<ul>
-<li><strong>Opacity slider</strong></li>
-<li><strong>Zoom to centre</strong></li>
-<li><strong>Constraint slider</strong></li>
-</ul>
-<p>Leave <strong>Temporal controls</strong> and <strong>Blend controls</strong> off.</p>
-<div class="admonition warning">
-<p class="admonition-title">Constraint slider</p>
-<p>Without the <strong>Constraint slider</strong> control the constraints you add in
-the following steps will be saved to the configuration but will never
-appear in the viewer.</p>
-</div>
 </li>
 <li>
-<p><strong>Optional — polish the layer and the start location.</strong></p>
+<p><strong>Opacity slider</strong></p>
+</li>
+<li><strong>Zoom to centre</strong></li>
+<li><strong>Constraint slider</strong></li>
+</ol>
+<p>Leave <strong>Temporal controls</strong> and <strong>Blend controls</strong> unchecked, then close the dialogue.</p>
+<p>!!! warning "Constraint slider"
+   Without the <strong>Constraint slider</strong> control the constraints you add in
+   the rest ot this tutorial steps will be saved to the configuration but will never
+   appear in the viewer.</p>
+<ol>
+<li>
+<p>To avoid you having to constantly zoom for the rest of this tutorial,go to <strong>Settings → Navigation</strong> and pick <strong>Austria</strong> from the quick location list.</p>
+</li>
+<li>
+<p>Open <strong>Preview</strong> and toggle the layer on. You should see a jet colour ramp
+   over Austria with a gradient legend,and a <strong>Filter</strong> icon in the layer card, which looks like a <em>funnel.</em></p>
+</li>
+<li>
+<p>Click on the filter, then <strong>drag the slider</strong> values. See how this effects the display of the wind power layer.</p>
+</li>
+</ol>
+<p><img alt="Austria Wind Power Density layer preview with the layer panel open, showing the jet colour ramp legend and layer description" src="../../assets/screenshots/wind-power-layer-result.png" /></p>
+<ol>
+<li><strong>Optional — polish the layer and the start location.</strong></li>
+</ol>
 <p>In the layer <strong>Metadata</strong>, set:</p>
 <ul>
 <li>
@@ -1982,21 +1997,8 @@ by multiple criteria.
 <p><strong>Units</strong> — <code>w / m 2</code></p>
 </li>
 <li><strong>Attribution</strong> — text <code>ESA GTIF</code>, URL
-  <a href="https://gtif.esa.int/" target="_blank">https://gtif.esa.int/</a></li>
+     <a href="https://gtif.esa.int/" target="_blank">https://gtif.esa.int/</a></li>
 </ul>
-<p>Then open <strong>Settings → Navigation</strong> and pick <strong>Austria</strong> from the quick
-location list, so the Explorer always opens on the area of interest. See
-<a href="../04-fine-tuning/04-default-start-location.html">4-4. Default start location</a>.</p>
-</li>
-<li>
-<p>Open the <strong>Preview</strong> and turn the layer on. You should see a jet colour ramp
-    over Austria with a gradient legend, and a <strong>Filter</strong> icon in the layer card.
-    The filter is the constraint control for this layer: it lets you mask the
-    wind power layer by its own data values, even before any additional
-    constraint layers are added in the later steps.</p>
-<p><img alt="Austria Wind Power Density layer preview with the layer panel open, showing the jet colour ramp legend and layer description" src="../../assets/screenshots/wind-power-layer-result.png" /></p>
-</li>
-</ol>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
 
