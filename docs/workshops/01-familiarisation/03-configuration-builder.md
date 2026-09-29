@@ -43,21 +43,19 @@ demo config rather than the reference deployment.
 Have a quick click around to confirm it behaves as an end user would
 expect.
 
-### 4. Switch back to the Configuration Builder
+### 4. Explore the layer groups and layers
 
 Close the preview (or switch tabs) to return to the Configuration
 Builder. This is where you'll spend most of the tutorials.
 
 ![The preview toolbar with the Back to Config Builder button](../../assets/screenshots/preview-back-to-config-builder.png)
 
-### 5. Expand the layer groups and layers
-
 In the **Map layers** section, expand the interface groups, then their
 sub-groups, and finally the individual layers inside. Each layer card
 reveals further sections — data source, data visualisation, charts,
 constraints, metadata, and more.
 
-### 6. Have a look around
+### 5. Have a look around
 
 Take a few minutes to browse through what's configured. You don't need
 to understand every field yet — the goal is just to build up a sense

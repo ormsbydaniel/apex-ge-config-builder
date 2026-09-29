@@ -9,11 +9,15 @@ results. The full catalogue is visible on the APEX Project Website [here](https:
 However, once it has been added as a service in the GE Configuration Builder (as you did in 3-4), we can drill into its details directly from the user interface of the CB.
 
 1. On the **Layers** tab, create a new layer card called `Below Ground Biomass` in your `Forest Carbon` interface group. A name for the layer is all you need at this stage, but if you want you can fill in a description and attribution similar to what you did on the `Above Ground Biomass'.
-2. On the card, select **+ Add dataset** and then **From service**.
-3. Select **ESA Project Results Repository**. The STAC browser opens, showing the collections in the PRR.
-4. Spend a moment browsing the PRR to see how collections, items and assets are structured.
-5. **Search** with the word `below` to find the _FCM 100 m Europeran-wide Below Ground Biomass_ collection. From here select **Browse items**, select an item and **View Assets**. Although some collections might have multiple assets for an item, that is not the case here. Just pick **Select**. You will now see the _Add Data Source_ screen populated with your selected COG. Complete the step by clicking the **Add Source** button to attach this dataset to your layer.
-6. Finish styling the layer, just as you did in tutorial 2-8. To recap, you need to:
+2. On the card, select **+ Add dataset → From service**, then select **ESA Project Results Repository**. The STAC browser opens, showing the collections in the PRR.
+3. Spend a moment browsing the PRR to see how collections, items and assets are structured.
+4. Find and attach a Below Ground Biomass COG:
+
+    - **Search** for `below` and find the _FCM 100 m Europeran-wide Below Ground Biomass_ collection.
+    - Select **Browse items**, select an item and choose **View Assets**. Although some collections might have multiple assets for an item, that is not the case here.
+    - Choose **Select**. The _Add Data Source_ screen is populated with your selected COG; click **Add Source** to attach it to the layer.
+
+5. Finish styling the layer, just as you did in tutorial 2-8. To recap, you need to:
 
     - click on the "(i)" icon on the dataset row to inspect its metadata
     - note the min/max values of the cog

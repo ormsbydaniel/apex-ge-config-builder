@@ -10,35 +10,34 @@ temporal control directly from the service.
 1. Create a new interface group called **Soils**, and inside it a layer card
    called **Soil Water Index Daily Time Series**.
 2. In the layer **Controls**, add **Temporal Control → Days**.
-3. Select **+ Add dataset → Direct Connection → Add WMTS**. Note that this is
-   **WMTS**, not WMS.
-4. Enter the source URL:
+3. Select **+ Add dataset → Direct Connection → Add WMTS**. Note that this is **WMTS**, not WMS. Enter the dataset details:
 
-    ```
-    https://land.copernicus.eu/cdse/swi_europe_1km_daily_v2/
-    ```
+    - **Source URL:**
 
-5. Enter the layer name:
+      ```text
+      https://land.copernicus.eu/cdse/swi_europe_1km_daily_v2/
+      ```
 
-    ```
-    SWI010
-    ```
+    - **Layer name:**
 
-6. Note that the **Use TIME parameter** toggle is enabled — the builder has
-   detected that the service advertises a time dimension for this layer.
-7. After adding the dataset, click the **(i)** icon on the dataset row to open
+      ```text
+      SWI010
+      ```
+
+    Note that the **Use TIME parameter** toggle is enabled — the builder has detected that the service advertises a time dimension for this layer. Add the dataset.
+4. Click the **(i)** icon on the dataset row to open
    the metadata. This shows the temporal extent and the granularity advertised
    by the service.
 
     ![WMTS metadata showing temporal dimension, extent and granularity](../../assets/screenshots/wmts-swi-metadata-temporal.png)
 
-8. Open **Units and Legend**, set **Legend type** to **Image** and paste in:
+5. Open **Units and Legend**, set **Legend type** to **Image** and paste in:
 
     ```
     https://land.copernicus.eu/en/cdse-legends/clms_global_swi_12-5km_v3_10daily.png/@@images/image-89-5435993c0267e2917be79312734cfade.png
     ```
 
-9. Save and click **Preview**. The layer has a daily temporal control, and the
+6. Save and click **Preview**. The layer has a daily temporal control, and the
    official CLMS legend graphic is shown alongside it.
 
     ![Soil Water Index daily time series preview with legend graphic](../../assets/screenshots/wmts-swi-preview-legend.png)
