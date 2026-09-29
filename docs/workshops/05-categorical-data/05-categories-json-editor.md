@@ -55,12 +55,12 @@ editor.
    ```
 
 2. On your _World Cover 2020_ layer card, click the **{JSON}** icon to open
-   the JSON editor, then click **Enable editing** to switch from the read-only
-   view to edit mode.
+    the JSON editor, then click **Enable editing** to switch from the
+    read-only view to edit mode.
 
-   ![The {JSON} icon on the layer card](../../assets/screenshots/layer-json-editor-icon.png)
+    ![The {JSON} icon on the layer card](../../assets/screenshots/layer-json-editor-icon.png)
 
-   _The **{JSON}** icon on the layer card._
+    _The **{JSON}** icon on the layer card._
 
 3. Scroll down to the `categories` section. It reads `"categories": []` — an
    empty list, because we have not given this layer any categories yet.
