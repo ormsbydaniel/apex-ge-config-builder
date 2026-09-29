@@ -5,27 +5,27 @@ title: 2-9. Add a WMS data source
 
 Add a WMS layer using the direct connection flow.
 
-1. On the **Layers** tab, add a new **interface group** called `Land Cover`.
-2. Inside it, click a **Add layer** followed by **Add layer card**.   Create a layer called `World Cover 2021` with a suitable
+1. On the **Layers** tab, add a new **interface group** called `Land Cover`. Inside it, click **Add layer** followed by **Add layer card**. Create a layer called `World Cover 2021` with a suitable
    description (e.g. "Classification of land cover from Sentinel 2 data") and attribution ("ESA World Cover", <https://esa-worldcover.org/en>).
-3. On the card, select **+ Add dataset**.
-4. Choose **Direct Connection → Add WMS**.
-5. Paste the following into the **Service URL**:
+2. On the card, select **+ Add dataset → Direct Connection → Add WMS**. Enter the following service details:
 
-    ```
-    https://mapproxy.terrascope.be/mapproxy/service
-    ```
+    - **Service URL:**
 
-6. Paste the following into the **Layer name**:
+      ```text
+      https://mapproxy.terrascope.be/mapproxy/service
+      ```
 
-    ```
-    esa-worldcover-map-10m-2021-v2_map
-    ```
-    then click on **Add source** to complete the step.
+    - **Layer name:**
 
-7. **Export** your current configuration so that you have a saved copy.
+      ```text
+      esa-worldcover-map-10m-2021-v2_map
+      ```
 
-8. Select **Preview**. The World Cover WMS renders on the map with your chosen
+    Then click **Add source**.
+
+3. **Export** your current configuration so that you have a saved copy.
+
+4. Select **Preview**. The World Cover WMS renders on the map with your chosen
    attribution and description in the info panel. Your configuration should now
    look something like this.
 
