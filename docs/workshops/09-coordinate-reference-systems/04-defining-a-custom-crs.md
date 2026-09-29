@@ -13,45 +13,45 @@ in OSGB so it lines up natively with the National Grid.
 ## Defining the custom CRS
 
 1. Start with either a new config, or add to your existing one from the
-   earlier exercises.
+    earlier exercises.
 
 2. Open the **Settings** tab and scroll to the **CRS** section. Under
-   **Custom CRS**, select **+ Add CRS** and complete the dialog:
+    **Custom CRS**, select **+ Add CRS** and complete the dialog:
 
-   - **Name:** `British National Grid`
-   - **CRS Code:** `EPSG:27700`
-   - **Proj4js Definition:**
-     `+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs +type=crs`
+    - **Name:** `British National Grid`
+    - **CRS Code:** `EPSG:27700`
+    - **Proj4js Definition:**
+      `+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs +type=crs`
 
-   The new CRS appears as a pill under **Custom CRS** and, from now on, in the
-   **Default Coordinate Reference System** dropdown under _Custom Projections_.
+    The new CRS appears as a pill under **Custom CRS** and, from now on, in the
+    **Default Coordinate Reference System** dropdown under _Custom Projections_.
 
 3. Set the **Default Coordinate Reference System** to **EPSG:27700 - British
-   National Grid**.
+    National Grid**.
 
 4. Still in **Settings**, set the start location to the UK. In the
-   **Navigation** section, choose **United Kingdom** from the **Quick
-   location** list.
+    **Navigation** section, choose **United Kingdom** from the **Quick
+    location** list.
 
 5. Open **Preview**. The map should now open on the UK in British National
-   Grid rather than Web Mercator. If you zoom out a few times you will notice how data for the rest of the world now looks very different. This is because this CRS is optimised for mimising reprojection distortion in the UK and isn't concerned with data elsewhere!
+    Grid rather than Web Mercator. If you zoom out a few times you will notice how data for the rest of the world now looks very different. This is because this CRS is optimised for mimising reprojection distortion in the UK and isn't concerned with data elsewhere!
 
 ## Adding data that uses the custom CRS (optional)
 
 We will now add some source data in this projection.
 
 1. Go back to the **Layers** tab and add a new layer called
-   **Sentinel 2 British National Grid**. Choose **+ Add dataset → Direct
-   Connection → COG** and paste in this URL:
+    **Sentinel 2 British National Grid**. Choose **+ Add dataset → Direct
+    Connection → COG** and paste in this URL:
 
-`https://dap.ceda.ac.uk/neodc/sentinel_ard/data/sentinel_2/2026/09/21/S2A_20260921_latn518lone0007_T30UYC_ORB094_20260921161450_utm30n_osgb_vmsk_sharp_rad_srefdem_stdsref.tif`
+    `https://dap.ceda.ac.uk/neodc/sentinel_ard/data/sentinel_2/2026/09/21/S2A_20260921_latn518lone0007_T30UYC_ORB094_20260921161450_utm30n_osgb_vmsk_sharp_rad_srefdem_stdsref.tif`
 
 2. Open the preview and toggle the newly added layer on.
 
 !!! tip
-Proj4js definitions for almost any CRS can be copied from
-[https://epsg.io](https://epsg.io) — search for the EPSG code and copy the
-Proj4 string.
+    Proj4js definitions for almost any CRS can be copied from
+    [https://epsg.io](https://epsg.io) — search for the EPSG code and copy the
+    Proj4 string.
 
 !!! info
-This dataset is supplied in OSGB (British National Grid), so it can be shown without reprojection when the display CRS is EPSG:27700. Data stored in other projections — such as the UTM grid used for most Sentinel-2 scenes — is reprojected on the fly, as you saw in 9-3.
+    This dataset is supplied in OSGB (British National Grid), so it can be shown without reprojection when the display CRS is EPSG:27700. Data stored in other projections — such as the UTM grid used for most Sentinel-2 scenes — is reprojected on the fly, as you saw in 9-3.

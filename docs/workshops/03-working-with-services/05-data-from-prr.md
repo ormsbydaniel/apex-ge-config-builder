@@ -14,9 +14,10 @@ However, once it has been added as a service in the GE Configuration Builder (as
 4. Spend a moment browsing the PRR to see how collections, items and assets are structured.
 5. **Search** with the word `below` to find the _FCM 100 m Europeran-wide Below Ground Biomass_ collection. From here select **Browse items**, select an item and **View Assets**. Although some collections might have multiple assets for an item, that is not the case here. Just pick **Select**. You will now see the _Add Data Source_ screen populated with your selected COG. Complete the step by clicking the **Add Source** button to attach this dataset to your layer.
 6. Finish styling the layer, just as you did in tutorial 2-8. To recap, you need to:
-   - click on the "(i)" icon on the dataset row to inspect its metadata
-   - note the min/max values of the cog
-   - select the pencil icon next to colormap to call up the appropriate UI, then choose an appropriate colormap as you see fit
+
+    - click on the "(i)" icon on the dataset row to inspect its metadata
+    - note the min/max values of the cog
+    - select the pencil icon next to colormap to call up the appropriate UI, then choose an appropriate colormap as you see fit
 
 !!! info About the Project Results Repository
 
