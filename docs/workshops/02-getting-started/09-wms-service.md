@@ -6,9 +6,8 @@ title: 2-9. Add a WMS data source
 Add a WMS layer using the direct connection flow.
 
 1. On the **Layers** tab, add a new **interface group** called `Land Cover`.
-2. Inside it, add a **layer card** called `World Cover 2021` with a suitable
-   description (e.g. "Classification of land cover from Sentinel 2 data") and
-   attribution ("ESA World Cover", <https://esa-worldcover.org/en>).
+2. Inside it, click a **Add layer** followed by **Add layer card**.   Create a layer called `World Cover 2021` with a suitable
+   description (e.g. "Classification of land cover from Sentinel 2 data") and attribution ("ESA World Cover", <https://esa-worldcover.org/en>).
 3. On the card, select **+ Add dataset**.
 4. Choose **Direct Connection → Add WMS**.
 5. Paste the following into the **Service URL**:
@@ -22,6 +21,7 @@ Add a WMS layer using the direct connection flow.
     ```
     esa-worldcover-map-10m-2021-v2_map
     ```
+    then click on **Add source** to complete the step.
 
 7. **Export** your current configuration so that you have a saved copy.
 
