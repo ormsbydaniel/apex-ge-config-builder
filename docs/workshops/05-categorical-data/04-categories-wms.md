@@ -15,15 +15,13 @@ legend.
 Because we already defined a full category set on the COG layer, we can simply
 copy it across.
 
-1. On the **Layers** tab, edit the *World Cover* layer card.
-2. Go to **Data Visualisation → Categories → Edit**.
-3. In the categories editor choose **Copy from layer** and select
+1. On the **Layers** tab, edit the *World Cover* layer card. Go to **Data Visualisation → Categories → Edit**, choose **Copy from layer** and select
     **Austria Land Cover** (the COG layer from
     [5-3. Categories for a COG](03-categories-cog.md)).
 
     ![Edit Categories dialog for the World Cover WMS layer showing populated categories](../../assets/screenshots/categories-wms-editor.png)
 
-4. Save the layer card and preview. The legend in the Explorer now contains a
+2. Save the layer card and preview. The legend in the Explorer now contains a
     row per class, using the colours and labels you copied.
 
     If in the last tutorial you only edited the class names that the COG
@@ -36,13 +34,13 @@ copy it across.
     [`world-cover-classes.csv`](../../assets/world-cover-classes.csv), as
     described in [5-3 step 5](03-categories-cog.md).
 
-5. *(Optional)* Open the categories editor again and untoggle **Use category
+3. *(Optional)* Open the categories editor again and untoggle **Use category
     values**. Save the layer card and preview. The legend still shows the class
     labels and colours, but the numeric values are no longer displayed — this
     reflects the fact that class numbers cannot be read from a WMS or WMTS
     layer.
 
-6. *(Optional)* In the categories editor, change the colour for one of the
+4. *(Optional)* In the categories editor, change the colour for one of the
     classes and save. The legend in the Explorer will now show the new colour
     for that class. However, for WMS / WMTS layers the actual map styling is
     determined by the service, so the rendered tiles will not change.

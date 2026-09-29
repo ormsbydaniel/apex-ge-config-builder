@@ -1874,24 +1874,22 @@ temporal control directly from the service.</p>
 <li>Create a new interface group called <strong>Soils</strong>, and inside it a layer card
    called <strong>Soil Water Index Daily Time Series</strong>.</li>
 <li>In the layer <strong>Controls</strong>, add <strong>Temporal Control → Days</strong>.</li>
-<li>Select <strong>+ Add dataset → Direct Connection → Add WMTS</strong>. Note that this is
-   <strong>WMTS</strong>, not WMS.</li>
 <li>
-<p>Enter the source URL:</p>
+<p>Select <strong>+ Add dataset → Direct Connection → Add WMTS</strong>. Note that this is <strong>WMTS</strong>, not WMS. Enter the dataset details:</p>
+<ul>
+<li><strong>Source URL:</strong></li>
+</ul>
 <div class="highlight"><pre><span></span><code>https://land.copernicus.eu/cdse/swi_europe_1km_daily_v2/
 </code></pre></div>
-</li>
-<li>
-<p>Enter the layer name:</p>
+<ul>
+<li><strong>Layer name:</strong></li>
+</ul>
 <div class="highlight"><pre><span></span><code>SWI010
 </code></pre></div>
+<p>Note that the <strong>Use TIME parameter</strong> toggle is enabled — the builder has detected that the service advertises a time dimension for this layer. Add the dataset.</p>
 </li>
 <li>
-<p>Note that the <strong>Use TIME parameter</strong> toggle is enabled — the builder has
-   detected that the service advertises a time dimension for this layer.</p>
-</li>
-<li>
-<p>After adding the dataset, click the <strong>(i)</strong> icon on the dataset row to open
+<p>Click the <strong>(i)</strong> icon on the dataset row to open
    the metadata. This shows the temporal extent and the granularity advertised
    by the service.</p>
 <p><img alt="WMTS metadata showing temporal dimension, extent and granularity" src="../../assets/screenshots/wmts-swi-metadata-temporal.png" /></p>
