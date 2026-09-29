@@ -25,6 +25,7 @@ temporal control directly from the service.
       ```
 
     Note that the **Use TIME parameter** toggle is enabled — the builder has detected that the service advertises a time dimension for this layer. Add the dataset.
+
 4. Click the **(i)** icon on the dataset row to open
    the metadata. This shows the temporal extent and the granularity advertised
    by the service.
