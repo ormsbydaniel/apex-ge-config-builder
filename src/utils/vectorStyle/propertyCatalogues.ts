@@ -21,6 +21,9 @@ export interface PropertyDef {
 
 export const FILL_PROPS: PropertyDef[] = [
   { key: 'fill-color', label: 'Color', type: 'color' },
+  { key: 'fill-pattern-src', label: 'Pattern image URL', type: 'string', advanced: true },
+  { key: 'fill-pattern-size', label: 'Pattern size', type: 'numberArray', advanced: true },
+  { key: 'fill-pattern-offset', label: 'Pattern offset', type: 'numberArray', advanced: true },
 ];
 
 export const LINE_PROPS: PropertyDef[] = [

@@ -33,6 +33,8 @@ For **Graduated**, the range is rounded out to tidy numbers that still cover the
 
 If the layer already has rules, select **New from recipe** in the dialog header. You then choose whether the recipe **replaces** the existing rules or is **appended** after them. The generated rules can be edited like any other rule.
 
+For **Simple uniform** polygons a **Fill style** choice offers **Solid**, **Hatch** and **Cross hatch**. Hatched fills are drawn as a small repeating tile tinted with the chosen fill colour, so they always render at full colour strength and have no separate transparency setting; the outline colour still applies as normal. The pattern properties (`fill-pattern-src`, `fill-pattern-size`, `fill-pattern-offset`) appear in the Fill tab of the rule editor should you want to tweak the tile.
+
 
 !!! info "Geometry vs styles"
     Geometry is what the data holds — points, lines or polygons. Styles are how it is drawn — fill, line, marker and label. Recipes read the geometry from the layer's first data file and preselect **Symbolise as** to match (for example, polygons get a fill and an outline). You can still change it, for instance to draw polygons as markers.

@@ -41,6 +41,14 @@ export const UNIFORM_LINE_STYLES: { id: UniformLineStyle; label: string }[] = [
 
 export const UNIFORM_LINE_WEIGHTS = [1, 2, 3, 4, 6] as const;
 
+export type UniformFillStyle = 'solid' | 'hatch' | 'cross-hatch';
+
+export const UNIFORM_FILL_STYLES: { id: UniformFillStyle; label: string }[] = [
+  { id: 'solid', label: 'Solid' },
+  { id: 'hatch', label: 'Hatch' },
+  { id: 'cross-hatch', label: 'Cross hatch' },
+];
+
 export interface RecipeDefinition {
   id: RecipeId;
   name: string;
@@ -111,6 +119,28 @@ const lineStyleProps = (
   };
 };
 
+/**
+ * Fill patterns are small repeating SVG tiles (transparent background, black
+ * strokes) that OpenLayers loads via `fill-pattern-*` and tints with
+ * `fill-color`. Tiles must stay black-on-transparent: the tint multiplies the
+ * tile's colour, so any other ink would resist recolouring.
+ */
+const FILL_PATTERN_TILES: Record<Exclude<UniformFillStyle, 'solid'>, string> = {
+  hatch:
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M-1 1 L1 -1 M0 8 L8 0 M7 9 L9 7' stroke='%23000000' stroke-width='1' fill='none'/%3E%3C/svg%3E",
+  'cross-hatch':
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M-1 1 L1 -1 M0 8 L8 0 M7 9 L9 7 M-1 -1 L1 1 M0 0 L8 8 M7 -1 L9 1' stroke='%23000000' stroke-width='1' fill='none'/%3E%3C/svg%3E",
+};
+
+const fillStyleProps = (style: UniformFillStyle): Record<string, ValueModel> => {
+  if (style === 'solid') return {};
+  return {
+    'fill-pattern-src': constant(FILL_PATTERN_TILES[style]),
+    'fill-pattern-size': constant([8, 8]),
+    'fill-pattern-offset': constant([0, 0]),
+  };
+};
+
 /** Build primitives that colour the given geometry target. */
 const colouredPrimitives = (
   geometry: GeometryTarget,
@@ -120,6 +150,7 @@ const colouredPrimitives = (
     outlineWidth?: number;
     radius?: number;
     lineStyle?: UniformLineStyle;
+    fillStyle?: UniformFillStyle;
   } = {},
 ): RulePrimitives => {
   const outlineColor = options.outlineColor ?? DEFAULT_OUTLINE;
@@ -152,7 +183,12 @@ const colouredPrimitives = (
   }
 
   return {
-    fill: { props: { 'fill-color': color } },
+    fill: {
+      props: {
+        'fill-color': color,
+        ...fillStyleProps(options.fillStyle ?? 'solid'),
+      },
+    },
     line: {
       props: {
         'stroke-color': constant(outlineColor),
@@ -287,6 +323,7 @@ export interface UniformRecipeInput {
   outlineColor?: string;
   outlineWidth?: number;
   lineStyle?: UniformLineStyle;
+  fillStyle?: UniformFillStyle;
   radius?: number;
   fillAlpha?: number;
   ruleName?: string;
@@ -300,16 +337,28 @@ const UNIFORM_LINE_STYLE_NAMES: Record<UniformLineStyle, string> = {
   'long-dash': 'Long dash line',
 };
 
+const UNIFORM_FILL_STYLE_NAMES: Record<UniformFillStyle, string> = {
+  solid: 'Fill and outline',
+  hatch: 'Hatched',
+  'cross-hatch': 'Cross-hatched',
+};
+
 /** Describe what the user picked, so the rule list reads like the cartography. */
 export const uniformRuleName = (input: UniformRecipeInput): string => {
   if (input.geometry === 'line') return UNIFORM_LINE_STYLE_NAMES[input.lineStyle ?? 'solid'];
   if (input.geometry === 'point') return 'Point marker';
-  return 'Fill and outline';
+  return UNIFORM_FILL_STYLE_NAMES[input.fillStyle ?? 'solid'];
 };
 
 export const buildUniformRecipe = (input: UniformRecipeInput): StyleRule[] => {
   const base = input.color ?? '#3b82f6';
-  const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
+  const fillStyle = input.fillStyle ?? 'solid';
+  // Pattern tiles are tinted by multiply-compositing, so the tint must stay
+  // fully opaque — a semi-transparent tint would leave the strokes black.
+  const alpha =
+    input.geometry === 'polygon' && fillStyle === 'solid'
+      ? input.fillAlpha ?? DEFAULT_FILL_ALPHA
+      : 1;
   const color = constant(alpha >= 1 ? base : withAlpha(base, alpha));
 
   return [
@@ -320,6 +369,7 @@ export const buildUniformRecipe = (input: UniformRecipeInput): StyleRule[] => {
         outlineColor: input.outlineColor,
         outlineWidth: input.outlineWidth,
         lineStyle: input.lineStyle,
+        fillStyle,
         radius: input.radius,
       }),
     },
