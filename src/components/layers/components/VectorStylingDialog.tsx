@@ -202,7 +202,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[80vh] overflow-hidden flex flex-col gap-2">
+      <DialogContent className="max-w-5xl h-[85vh] overflow-hidden flex flex-col gap-2">
         <DialogHeader>
           <div className="flex items-center justify-between gap-2 pr-6">
             <DialogTitle>Vector Styling — {source.name}</DialogTitle>
