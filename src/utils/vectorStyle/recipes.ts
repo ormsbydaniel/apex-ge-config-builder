@@ -1,0 +1,403 @@
+/**
+ * Intent-first styling recipes.
+ *
+ * Each recipe is a pure function that turns a small intent description into
+ * standard `StyleRule[]` entries — the same model the structured editor and
+ * `toFlatStyleArray` already use. Recipes never introduce a new persistence
+ * format; they simply scaffold rules the user then refines.
+ */
+
+import type {
+  AttributeStop,
+  ConstantValue,
+  FilterModel,
+  FilterOperator,
+  RulePrimitives,
+  Stop,
+  StyleRule,
+  ValueModel,
+} from '@/types/vectorStyle';
+import { assignCategoricalColors, sampleRamp, withAlpha } from './palettes';
+import { equalIntervalBreaks, quantileBreaks } from './sampleSourceData';
+
+export type RecipeId =
+  | 'categorized'
+  | 'graduated'
+  | 'uniform'
+  | 'labels'
+  | 'highlight';
+
+export type GeometryTarget = 'polygon' | 'line' | 'point';
+
+export interface RecipeDefinition {
+  id: RecipeId;
+  name: string;
+  description: string;
+  /** Field kind the recipe needs, if any. */
+  requires?: 'category' | 'number' | 'any';
+}
+
+export const RECIPES: RecipeDefinition[] = [
+  {
+    id: 'categorized',
+    name: 'Categorised',
+    description: 'Colour features by the unique values of a text attribute.',
+    requires: 'category',
+  },
+  {
+    id: 'graduated',
+    name: 'Graduated',
+    description: 'Colour features along a ramp using a numeric attribute.',
+    requires: 'number',
+  },
+  {
+    id: 'uniform',
+    name: 'Simple uniform',
+    description: 'One clean fill, outline or marker for every feature.',
+  },
+  {
+    id: 'labels',
+    name: 'Feature labels',
+    description: 'Show a text label from an attribute, with a halo and offset.',
+    requires: 'any',
+  },
+  {
+    id: 'highlight',
+    name: 'Filter / highlight',
+    description: 'Pick out the features that match a condition.',
+    requires: 'any',
+  },
+];
+
+export const getRecipe = (id: RecipeId): RecipeDefinition | undefined =>
+  RECIPES.find(r => r.id === id);
+
+// ----- helpers ----------------------------------------------------------------------
+
+const constant = (value: ConstantValue): ValueModel => ({ kind: 'constant', value });
+
+const DEFAULT_FILL_ALPHA = 0.6;
+const DEFAULT_OUTLINE = '#ffffff';
+const DEFAULT_FALLBACK = '#9ca3af';
+
+/** Build primitives that colour the given geometry target. */
+const colouredPrimitives = (
+  geometry: GeometryTarget,
+  color: ValueModel,
+  options: { outlineColor?: string; outlineWidth?: number; radius?: number } = {},
+): RulePrimitives => {
+  const outlineColor = options.outlineColor ?? DEFAULT_OUTLINE;
+  const outlineWidth = options.outlineWidth ?? 1;
+
+  if (geometry === 'line') {
+    return {
+      line: {
+        props: {
+          'stroke-color': color,
+          'stroke-width': constant(options.outlineWidth ?? 2),
+        },
+      },
+    };
+  }
+
+  if (geometry === 'point') {
+    return {
+      marker: {
+        subMode: 'circle',
+        props: {
+          'circle-radius': constant(options.radius ?? 6),
+          'circle-fill-color': color,
+          'circle-stroke-color': constant(outlineColor),
+          'circle-stroke-width': constant(outlineWidth),
+        },
+      },
+    };
+  }
+
+  return {
+    fill: { props: { 'fill-color': color } },
+    line: {
+      props: {
+        'stroke-color': constant(outlineColor),
+        'stroke-width': constant(outlineWidth),
+      },
+    },
+  };
+};
+
+// ----- Categorised ------------------------------------------------------------------
+
+export interface CategoryAssignment {
+  value: string;
+  color: string;
+}
+
+export interface CategorizedRecipeInput {
+  field: string;
+  /** Unique values to colour. Colours are auto-assigned when omitted. */
+  categories: Array<string | CategoryAssignment>;
+  geometry: GeometryTarget;
+  paletteId?: string;
+  /** Colour for features that match none of the categories. */
+  fallbackColor?: string;
+  /** Apply transparency to polygon fills (ignored for lines/points). */
+  fillAlpha?: number;
+  ruleName?: string;
+}
+
+export const resolveCategoryColors = (
+  categories: Array<string | CategoryAssignment>,
+  paletteId?: string,
+): CategoryAssignment[] => {
+  const palette = assignCategoricalColors(categories.length, paletteId);
+  return categories.map((entry, index) =>
+    typeof entry === 'string'
+      ? { value: entry, color: palette[index] }
+      : { value: entry.value, color: entry.color || palette[index] },
+  );
+};
+
+export const buildCategorizedRecipe = (input: CategorizedRecipeInput): StyleRule[] => {
+  const assignments = resolveCategoryColors(input.categories, input.paletteId);
+  const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
+  const paint = (hex: string) => (alpha >= 1 ? hex : withAlpha(hex, alpha));
+
+  const stops: AttributeStop[] = assignments.map(({ value, color }) => ({
+    key: value,
+    value: paint(color),
+  }));
+
+  const color: ValueModel = {
+    kind: 'attribute',
+    field: input.field,
+    mode: 'match',
+    stops,
+    default: paint(input.fallbackColor ?? DEFAULT_FALLBACK),
+  };
+
+  return [
+    {
+      name: input.ruleName ?? `Categorised by ${input.field}`,
+      enabled: true,
+      primitives: colouredPrimitives(input.geometry, color),
+    },
+  ];
+};
+
+// ----- Graduated / choropleth -------------------------------------------------------
+
+export type ClassificationMethod = 'equal-interval' | 'quantile';
+
+export interface GraduatedRecipeInput {
+  field: string;
+  geometry: GeometryTarget;
+  classes: number;
+  /** Observed range; required for equal-interval classification. */
+  min?: number;
+  max?: number;
+  /** Observed values; required for quantile classification. */
+  values?: number[];
+  method?: ClassificationMethod;
+  paletteId?: string;
+  fillAlpha?: number;
+  ruleName?: string;
+}
+
+export const buildGraduatedRecipe = (input: GraduatedRecipeInput): StyleRule[] => {
+  const method = input.method ?? 'equal-interval';
+  const classes = Math.max(2, Math.floor(input.classes));
+
+  const breaks =
+    method === 'quantile' && input.values?.length
+      ? quantileBreaks(input.values, classes)
+      : equalIntervalBreaks(input.min ?? 0, input.max ?? 1, classes);
+
+  const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
+  const ramp = sampleRamp(breaks.length, input.paletteId);
+
+  const stops: Stop[] = breaks.map((breakInput, index) => ({
+    input: breakInput,
+    value: alpha >= 1 ? ramp[index] : withAlpha(ramp[index], alpha),
+  }));
+
+  const color: ValueModel = {
+    kind: 'attribute',
+    field: input.field,
+    mode: 'interpolate',
+    interpolation: 'linear',
+    stops,
+  };
+
+  return [
+    {
+      name: input.ruleName ?? `Graduated by ${input.field}`,
+      enabled: true,
+      primitives: colouredPrimitives(input.geometry, color),
+    },
+  ];
+};
+
+// ----- Simple uniform ---------------------------------------------------------------
+
+export interface UniformRecipeInput {
+  geometry: GeometryTarget;
+  color?: string;
+  outlineColor?: string;
+  outlineWidth?: number;
+  radius?: number;
+  fillAlpha?: number;
+  ruleName?: string;
+}
+
+export const buildUniformRecipe = (input: UniformRecipeInput): StyleRule[] => {
+  const base = input.color ?? '#3b82f6';
+  const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
+  const color = constant(alpha >= 1 ? base : withAlpha(base, alpha));
+
+  return [
+    {
+      name: input.ruleName ?? 'All features',
+      enabled: true,
+      primitives: colouredPrimitives(input.geometry, color, {
+        outlineColor: input.outlineColor,
+        outlineWidth: input.outlineWidth,
+        radius: input.radius,
+      }),
+    },
+  ];
+};
+
+// ----- Feature labels ---------------------------------------------------------------
+
+export interface LabelRecipeInput {
+  field: string;
+  fontSize?: number;
+  fontFamily?: string;
+  color?: string;
+  haloColor?: string;
+  haloWidth?: number;
+  offsetY?: number;
+  placement?: 'point' | 'line';
+  ruleName?: string;
+}
+
+export const buildLabelRecipe = (input: LabelRecipeInput): StyleRule[] => {
+  const size = input.fontSize ?? 12;
+  const family = input.fontFamily ?? 'sans-serif';
+
+  const props: Record<string, ValueModel> = {
+    'text-value': { kind: 'expression', raw: ['get', input.field] },
+    'text-font': constant(`${size}px ${family}`),
+    'text-fill-color': constant(input.color ?? '#ffffff'),
+    'text-stroke-color': constant(input.haloColor ?? '#374151'),
+    'text-stroke-width': constant(input.haloWidth ?? 2),
+  };
+
+  if (input.offsetY !== undefined) props['text-offset-y'] = constant(input.offsetY);
+  if (input.placement) props['text-placement'] = constant(input.placement);
+
+  return [
+    {
+      name: input.ruleName ?? `Labels from ${input.field}`,
+      enabled: true,
+      primitives: { label: { props } },
+    },
+  ];
+};
+
+// ----- Filter / highlight -----------------------------------------------------------
+
+export interface HighlightRecipeInput {
+  field: string;
+  op: FilterOperator;
+  value?: ConstantValue | ConstantValue[];
+  geometry: GeometryTarget;
+  highlightColor?: string;
+  /** Colour for everything else; omit to leave non-matching features unstyled. */
+  baseColor?: string;
+  fillAlpha?: number;
+  ruleName?: string;
+}
+
+export const buildHighlightRecipe = (input: HighlightRecipeInput): StyleRule[] => {
+  const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
+  const paint = (hex: string) => (alpha >= 1 ? hex : withAlpha(hex, alpha));
+
+  const filter: FilterModel = {
+    kind: 'simple',
+    combinator: 'all',
+    clauses: [{ field: input.field, op: input.op, value: input.value }],
+  };
+
+  const rules: StyleRule[] = [
+    {
+      name: input.ruleName ?? `Highlight ${input.field}`,
+      enabled: true,
+      filter,
+      primitives: colouredPrimitives(
+        input.geometry,
+        constant(paint(input.highlightColor ?? '#e11d48')),
+        { outlineColor: '#ffffff', outlineWidth: 2 },
+      ),
+    },
+  ];
+
+  if (input.baseColor) {
+    rules.push({
+      name: 'Everything else',
+      enabled: true,
+      else: true,
+      primitives: colouredPrimitives(input.geometry, constant(paint(input.baseColor)), {
+        outlineColor: '#d1d5db',
+      }),
+    });
+  }
+
+  return rules;
+};
+
+// ----- Application ------------------------------------------------------------------
+
+export type RecipeApplyMode = 'replace' | 'append';
+
+/**
+ * Merge recipe-generated rules into an existing rule list.
+ * `replace` discards existing rules; `append` keeps them and adds the new ones.
+ * Any `else` rule is kept last, as OpenLayers evaluates it as the fallback.
+ */
+export const applyRecipeRules = (
+  existing: StyleRule[],
+  generated: StyleRule[],
+  mode: RecipeApplyMode,
+): StyleRule[] => {
+  const combined = mode === 'replace' ? [...generated] : [...existing, ...generated];
+  const elseRules = combined.filter(r => r.else);
+  const rest = combined.filter(r => !r.else);
+  // Only one else branch is meaningful; keep the last one authored.
+  return elseRules.length ? [...rest, elseRules[elseRules.length - 1]] : rest;
+};
+
+export type RecipeInput =
+  | ({ recipe: 'categorized' } & CategorizedRecipeInput)
+  | ({ recipe: 'graduated' } & GraduatedRecipeInput)
+  | ({ recipe: 'uniform' } & UniformRecipeInput)
+  | ({ recipe: 'labels' } & LabelRecipeInput)
+  | ({ recipe: 'highlight' } & HighlightRecipeInput);
+
+/** Dispatch helper so the UI can call one function for any recipe. */
+export const buildRecipeRules = (input: RecipeInput): StyleRule[] => {
+  switch (input.recipe) {
+    case 'categorized':
+      return buildCategorizedRecipe(input);
+    case 'graduated':
+      return buildGraduatedRecipe(input);
+    case 'uniform':
+      return buildUniformRecipe(input);
+    case 'labels':
+      return buildLabelRecipe(input);
+    case 'highlight':
+      return buildHighlightRecipe(input);
+    default:
+      return [];
+  }
+};
