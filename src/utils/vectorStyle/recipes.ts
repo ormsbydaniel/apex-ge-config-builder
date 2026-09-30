@@ -323,6 +323,7 @@ export interface UniformRecipeInput {
   outlineColor?: string;
   outlineWidth?: number;
   lineStyle?: UniformLineStyle;
+  fillStyle?: UniformFillStyle;
   radius?: number;
   fillAlpha?: number;
   ruleName?: string;
