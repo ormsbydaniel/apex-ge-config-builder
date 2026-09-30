@@ -213,7 +213,7 @@ const DonorConfigPickerDialog = ({
     refetch: refetchExamples,
     isFetching: examplesFetching,
   } = useQuery({
-    queryKey: ['example-configs-manifest'],
+    queryKey: ['example-configs-list'],
     queryFn: () => fetchExamples(),
     enabled: open && activeTab === 'examples',
     staleTime: 5 * 60 * 1000,
