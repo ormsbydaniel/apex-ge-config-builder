@@ -36,8 +36,18 @@ export interface FieldSample {
   numeric?: NumericSample;
 }
 
+export type SampledGeometry = 'polygon' | 'line' | 'point';
+
+export interface GeometrySample {
+  /** Most common geometry kind, or null when none was found. */
+  dominant: SampledGeometry | null;
+  counts: Record<SampledGeometry, number>;
+}
+
 export interface SourceSample {
   featureCount: number;
+  /** Geometry kinds observed in the sampled features. */
+  geometry?: GeometrySample;
   fields: FieldSample[];
   /** Populated when sampling failed; fields will be empty. */
   error?: string;
@@ -116,6 +126,27 @@ export const summariseProperties = (rows: Properties[]): FieldSample[] => {
   }).sort((a, b) => a.name.localeCompare(b.name));
 };
 
+const geometryKind = (type: unknown): SampledGeometry | null => {
+  switch (type) {
+    case 'Point': case 'MultiPoint': return 'point';
+    case 'LineString': case 'MultiLineString': return 'line';
+    case 'Polygon': case 'MultiPolygon': return 'polygon';
+    default: return null;
+  }
+};
+
+/** Tally geometry kinds (Multi* folded into their base kind). */
+export const summariseGeometries = (types: unknown[]): GeometrySample => {
+  const counts: Record<SampledGeometry, number> = { polygon: 0, line: 0, point: 0 };
+  for (const t of types) {
+    const k = geometryKind(t);
+    if (k) counts[k] += 1;
+  }
+  const best = (Object.entries(counts) as [SampledGeometry, number][])
+    .sort((a, b) => b[1] - a[1])[0];
+  return { dominant: best[1] > 0 ? best[0] : null, counts };
+};
+
 const sampleGeoJson = async (url: string, limit: number): Promise<SourceSample> => {
   const response = await fetch(url);
   if (!response.ok) {
@@ -123,7 +154,7 @@ const sampleGeoJson = async (url: string, limit: number): Promise<SourceSample> 
   }
 
   const data = await response.json();
-  let features: Array<{ properties?: Properties }> = [];
+  let features: Array<{ properties?: Properties; geometry?: { type?: string } }> = [];
 
   if (data?.type === 'FeatureCollection' && Array.isArray(data.features)) {
     features = data.features;
@@ -131,11 +162,14 @@ const sampleGeoJson = async (url: string, limit: number): Promise<SourceSample> 
     features = [data];
   }
 
-  const rows = features
-    .slice(0, limit)
-    .map(f => (f?.properties ?? {}) as Properties);
+  const slice = features.slice(0, limit);
+  const rows = slice.map(f => (f?.properties ?? {}) as Properties);
 
-  return { featureCount: features.length, fields: summariseProperties(rows) };
+  return {
+    featureCount: features.length,
+    fields: summariseProperties(rows),
+    geometry: summariseGeometries(slice.map(f => f?.geometry?.type)),
+  };
 };
 
 const sampleFlatGeobuf = async (url: string, limit: number): Promise<SourceSample> => {
@@ -146,13 +180,19 @@ const sampleFlatGeobuf = async (url: string, limit: number): Promise<SourceSampl
 
   const buffer = new Uint8Array(await response.arrayBuffer());
   const rows: Properties[] = [];
+  const geomTypes: unknown[] = [];
 
-  for await (const feature of deserialize(buffer) as AsyncIterable<{ properties?: Properties }>) {
+  for await (const feature of deserialize(buffer) as AsyncIterable<{ properties?: Properties; geometry?: { type?: string } }>) {
     rows.push((feature?.properties ?? {}) as Properties);
+    geomTypes.push(feature?.geometry?.type);
     if (rows.length >= limit) break;
   }
 
-  return { featureCount: rows.length, fields: summariseProperties(rows) };
+  return {
+    featureCount: rows.length,
+    fields: summariseProperties(rows),
+    geometry: summariseGeometries(geomTypes),
+  };
 };
 
 /**

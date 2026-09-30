@@ -32,9 +32,9 @@ interface RecipeWizardProps {
 }
 
 const GEOMETRIES: { id: GeometryTarget; label: string }[] = [
-  { id: 'polygon', label: 'Polygons' },
-  { id: 'line', label: 'Lines' },
-  { id: 'point', label: 'Points' },
+  { id: 'polygon', label: 'Polygons — fill + outline' },
+  { id: 'line', label: 'Lines — stroke' },
+  { id: 'point', label: 'Points — marker' },
 ];
 
 const OPS: { id: FilterOperator; label: string }[] = [
@@ -72,6 +72,26 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
   }, [sampled, def.requires, sampleFailed, fallbackFields]);
 
   const [geometry, setGeometry] = useState<GeometryTarget>('polygon');
+  const [geometryTouched, setGeometryTouched] = useState(false);
+  const detected = sample?.geometry;
+
+  // Preselect how to draw from the geometry found in the data.
+  useEffect(() => {
+    if (!geometryTouched && detected?.dominant) setGeometry(detected.dominant);
+  }, [detected, geometryTouched]);
+
+  const geometryNote = (() => {
+    if (sampling) return null;
+    if (!detected?.dominant) return "Couldn't detect geometry — choose how to draw it.";
+    const plural = { polygon: 'polygons', line: 'lines', point: 'points' } as const;
+    const present = (Object.keys(detected.counts) as GeometryTarget[]).filter((k) => detected.counts[k] > 0);
+    if (present.length > 1) {
+      return `Mixed: ${present.map((k) => `${detected.counts[k]} ${plural[k]}`).join(', ')} — rule targets ${plural[geometry]}.`;
+    }
+    const n = detected.counts[detected.dominant];
+    return `Detected: ${plural[detected.dominant]} (${n} feature${n === 1 ? '' : 's'} sampled).`;
+  })();
+
   const [field, setField] = useState('');
   const [palette, setPalette] = useState(recipe === 'graduated' ? RAMP_PALETTES[0].id : CATEGORICAL_PALETTES[0].id);
   const [categoriesText, setCategoriesText] = useState('');
@@ -126,7 +146,7 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
         rules = buildRecipeRules({ recipe, geometry, color, outlineColor: outline });
         break;
       case 'labels':
-        rules = buildRecipeRules({ recipe, field, placement: geometry === 'line' ? 'line' : undefined });
+        rules = buildRecipeRules({ recipe, field, placement: detected?.dominant === 'line' ? 'line' : undefined });
         break;
       case 'highlight':
         rules = buildRecipeRules({
@@ -168,13 +188,16 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
       <div className="grid grid-cols-[140px_1fr] gap-x-3 gap-y-3 items-center">
         {recipe !== 'labels' && (
           <>
-            <Label className="text-xs">Geometry</Label>
-            <Select value={geometry} onValueChange={(v) => setGeometry(v as GeometryTarget)}>
-              <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {GEOMETRIES.map((g) => <SelectItem key={g.id} value={g.id}>{g.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Label className="text-xs self-start pt-2">Symbolise as</Label>
+            <div className="space-y-1">
+              <Select value={geometry} onValueChange={(v) => { setGeometryTouched(true); setGeometry(v as GeometryTarget); }}>
+                <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {GEOMETRIES.map((g) => <SelectItem key={g.id} value={g.id}>{g.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {geometryNote && <div className="text-xs text-muted-foreground">{geometryNote}</div>}
+            </div>
           </>
         )}
 
