@@ -15,6 +15,8 @@ interface StyleEditorProps {
   fallbackCount?: number;
   onPickRecipe: (id: RecipeId) => void;
   onRulesEmpty: () => void;
+  /** Ask the editor to select (and scroll to) a rule, e.g. one just created by a recipe. */
+  focusRule?: { index: number; nonce: number } | null;
 }
 
 const RECIPE_ICONS = { categorized: Palette, graduated: TrendingUp, uniform: Square, labels: Type, highlight: Filter };
