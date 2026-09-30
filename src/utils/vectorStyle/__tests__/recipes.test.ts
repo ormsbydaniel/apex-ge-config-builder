@@ -226,7 +226,6 @@ describe('buildUniformRecipe', () => {
     for (const geometry of ['line', 'point'] as const) {
       const [rule] = buildUniformRecipe({ geometry, fillStyle: 'hatch' });
       expect(rule.primitives.fill).toBeUndefined();
-ecpect;
     }
   });
 });
