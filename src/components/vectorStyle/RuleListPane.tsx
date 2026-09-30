@@ -57,7 +57,7 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
 
   // Keep the selected rule visible in the scrollable list (e.g. after a recipe appends a rule).
   React.useEffect(() => {
-    itemRefs.current[selected]?.scrollIntoView({ block: 'nearest' });
+    itemRefs.current[selected]?.scrollIntoView?.({ block: 'nearest' });
   }, [selected, rules.length]);
 
   return (
