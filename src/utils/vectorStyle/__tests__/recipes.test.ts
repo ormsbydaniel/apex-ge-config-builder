@@ -180,6 +180,55 @@ describe('buildUniformRecipe', () => {
     const [rule] = buildUniformRecipe({ geometry: 'line', lineStyle: 'dashed', ruleName: 'Roads' });
     expect(rule.name).toBe('Roads');
   });
+
+  it('keeps solid polygon fills free of pattern properties', () => {
+    const [rule] = buildUniformRecipe({ geometry: 'polygon', color: '#ff0000' });
+    expect(rule.primitives.fill?.props['fill-pattern-src']).toBeUndefined();
+    expect(rule.primitives.fill?.props['fill-pattern-size']).toBeUndefined();
+    expect(rule.primitives.fill?.props['fill-pattern-offset']).toBeUndefined();
+  });
+
+  it.each([
+    ['hatch', 'Hatched', 'M0 8 L8 0'],
+    ['cross-hatch', 'Cross-hatched', 'M0 0 L8 8'],
+  ] as const)('creates a %s fill pattern named "%s"', (fillStyle, expected, tileSignature) => {
+    const [rule] = buildUniformRecipe({ geometry: 'polygon', fillStyle, color: '#3b82f6' });
+    const props = rule.primitives.fill?.props;
+
+    const src = props?.['fill-pattern-src'];
+    expect(src).toMatchObject({ kind: 'constant' });
+    if (src && src.kind === 'constant') {
+      expect(String(src.value)).toContain('data:image/svg+xml');
+      expect(String(src.value)).toContain(tileSignature);
+ expect(String(src.value)).not.toContain('background');
+    }
+    expect(props?.['fill-pattern-size']).toEqual({ kind: 'constant', value: [8, 8] });
+    expect(props?.['fill-pattern-offset']).toEqual({ kind: 'constant', value: [0, 0] });
+    expect(rule.name).toBe(expected);
+  });
+
+  it('tints hatch patterns with the fully opaque fill colour', () => {
+    const [rule] = buildUniformRecipe({ geometry: 'polygon', fillStyle: 'hatch', color: '#3b82f6' });
+    // A semi-transparent tint would multiply-composite to black strokes.
+    expect(rule.primitives.fill?.props['fill-color']).toEqual({ kind: 'constant', value: '#3b82f6' });
+  });
+
+  it('serialises hatch fills to standard flat-style properties', () => {
+    const rules = buildUniformRecipe({ geometry: 'polygon', fillStyle: 'hatch', fillAlpha: 0.6 });
+    const flat = toFlatStyleArray(rules)[0] as Record<string, unknown>;
+    expect(flat['fill-pattern-size']).toEqual([8, 8]);
+    expect(flat['fill-pattern-offset']).toEqual([0, 0]);
+    expect(String(flat['fill-pattern-src'])).toContain('data:image/svg+xml');
+    expect(flat['fill-color']).toBe('#3b82f6');
+  });
+
+  it('does not change line or point rules when a fill style is set', () => {
+    for (const geometry of ['line', 'point'] as const) {
+      const [rule] = buildUniformRecipe({ geometry, fillStyle: 'hatch' });
+      expect(rule.primitives.fill).toBeUndefined();
+ecpect;
+    }
+  });
 });
 
 describe('buildLabelRecipe', () => {
