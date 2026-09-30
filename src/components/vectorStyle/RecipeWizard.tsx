@@ -10,11 +10,13 @@ import {
   buildRecipeRules,
   getRecipe,
   niceRange,
+  UNIFORM_FILL_STYLES,
   UNIFORM_LINE_STYLES,
   UNIFORM_LINE_WEIGHTS,
   type ClassificationMethod,
   type GeometryTarget,
   type RecipeId,
+  type UniformFillStyle,
   type UniformLineStyle,
 } from '@/utils/vectorStyle/recipes';
 import {
@@ -113,6 +115,7 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
   const [color, setColor] = useState('#3b82f6');
   const [outline, setOutline] = useState('#1e3a8a');
   const [lineStyle, setLineStyle] = useState<UniformLineStyle>('solid');
+  const [fillStyle, setFillStyle] = useState<UniformFillStyle>('solid');
   const [lineWeight, setLineWeight] = useState('2');
   const [op, setOp] = useState<FilterOperator>('==');
   const [value, setValue] = useState('');
@@ -181,6 +184,7 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
           outlineColor: outline,
           outlineWidth: Number(lineWeight),
           lineStyle,
+          fillStyle,
         });
         break;
       case 'labels':
@@ -380,6 +384,19 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
           <>
             <Label className="text-xs">{recipe === 'highlight' ? 'Highlight colour' : 'Colour'}</Label>
             <input type="color" className="h-8 w-16 rounded border" value={color} onChange={(e) => setColor(e.target.value)} />
+          </>
+        )}
+        {recipe === 'uniform' && geometry === 'polygon' && (
+          <>
+            <Label className="text-xs">Fill style</Label>
+            <Select value={fillStyle} onValueChange={(v) => setFillStyle(v as UniformFillStyle)}>
+              <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {UNIFORM_FILL_STYLES.map((style) => (
+                  <SelectItem key={style.id} value={style.id}>{style.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </>
         )}
         {recipe === 'uniform' && geometry !== 'line' && (
