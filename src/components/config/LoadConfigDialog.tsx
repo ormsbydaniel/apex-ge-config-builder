@@ -24,9 +24,10 @@ import { useConfigImport } from '@/hooks/useConfigIO';
 import type { ImportProgress } from '@/hooks/useConfigImport';
 import { ValidationErrorDetails } from '@/types/config';
 import {
-  fetchExamples,
+  fetchExampleManifest,
   EXAMPLES_MANIFEST_URL,
   type ExampleConfigEntry,
+  type ExampleManifest,
 } from '@/utils/exampleManifest';
 import { useQuery } from '@tanstack/react-query';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
@@ -240,17 +241,19 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   );
 
   const {
-    data: examples,
+    data: manifest,
     isLoading: examplesLoading,
     error: examplesError,
     refetch: refetchExamples,
     isFetching: examplesFetching,
   } = useQuery({
     queryKey: ['example-configs-manifest'],
-    queryFn: () => fetchExamples(),
+    queryFn: () => fetchExampleManifest(),
     enabled: open && activeTab === 'examples',
     staleTime: 5 * 60 * 1000,
   });
+  const examples = manifest?.examples;
+  const testConfigs = manifest?.testConfigs;
 
   // ---- Loading view subcomponent ----
   const renderLoadingView = () => {
