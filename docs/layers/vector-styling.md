@@ -15,6 +15,22 @@ Style GeoJSON, FlatGeoBuf, and WFS layers using rule-based fills, lines, and lab
 
 If you only want to control which attributes appear in the info panel and how they are formatted, use [Data Values (vector)](data-values-vector.md) instead — that is a separate, non-styling editor.
 
+## Styling recipes
+
+When a layer has no style yet, the styling dialog opens on a set of recipes. Each recipe asks a few questions and then creates the style rules for you:
+
+| Recipe | What it does |
+|---|---|
+| Categorised | Gives each value of an attribute its own colour, for example land-cover class |
+| Graduated | Colours features along a colour ramp using a numeric attribute, with equal-interval or quantile classes |
+| Simple uniform | Uses one fill, outline or marker for every feature |
+| Feature labels | Shows a text label from an attribute |
+| Filter / highlight | Picks out the features that match a condition and can show the rest in grey |
+
+The recipe reads the attributes from the layer's first data file (up to 500 features). It then offers the fields, categories and value ranges it finds. If the file can't be read, you can type the field name and values yourself.
+
+If the layer already has rules, select **New from recipe** in the dialog header. You then choose whether the recipe **replaces** the existing rules or is **appended** after them. The generated rules can be edited like any other rule.
+
 ## Editor structure
 
 The vector style editor is split into three property panels:
