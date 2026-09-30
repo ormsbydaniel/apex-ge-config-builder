@@ -23,7 +23,7 @@ describe('populate field details', () => {
     expect(merged).toEqual({
       hidden: null,
       existing: { label: 'Custom', order: 1, type: 'url' },
-      when: { type: 'datetime', order: 2 },
+      when: { type: 'date', order: 2 },
       date: { type: 'date', order: 3 },
       count: { order: 4 },
     });

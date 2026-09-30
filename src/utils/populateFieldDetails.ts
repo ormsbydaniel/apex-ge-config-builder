@@ -18,7 +18,8 @@ export function mergeDetectedFields(fields: FieldsConfig, detected: DetectedFiel
   for (const { name, type } of detected) {
     if (!name || Object.prototype.hasOwnProperty.call(next, name)) continue;
     const normalized = type.toLowerCase();
-    next[name] = normalized === 'date' || normalized === 'datetime' ? { type: normalized } : {};
+    // The Explorer only renders type "date"; detected datetime fields map to it too.
+    next[name] = normalized === 'date' || normalized === 'datetime' ? { type: 'date' } : {};
   }
   return assignFieldOrder(next, Object.keys(next));
 }
