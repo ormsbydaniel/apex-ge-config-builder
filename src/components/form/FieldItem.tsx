@@ -211,40 +211,29 @@ const FieldItem = ({
             </SelectContent>
           </Select>
           {isDateType && (
-            <div className="mt-1 space-y-1">
-              <Select
-                value={isCustomFormat ? 'custom' : formatValue || 'none'}
-                onValueChange={(value) => {
-                  if (value === 'none') handleConfigChange('format', undefined);
-                  else if (value === 'custom') handleConfigChange('format', isCustomFormat ? formatValue : 'yyyy-MM-dd HH:mm');
-                  else handleConfigChange('format', value);
-                }}
-                disabled={isHidden}
-              >
-                <SelectTrigger className="h-6 text-xs px-2" aria-label={`Date format for ${fieldName}`}>
-                  <SelectValue placeholder="Format" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Raw value</SelectItem>
-                  {DATE_FORMAT_PRESETS.map((preset) => (
-                    <SelectItem key={preset} value={preset}>{preset}</SelectItem>
-                  ))}
-                  <SelectItem value="custom">Custom…</SelectItem>
-                </SelectContent>
-              </Select>
-              {isCustomFormat && (
-                <Input
-                  id={`format-${fieldName}`}
-                  aria-label={`Custom date format for ${fieldName}`}
-                  placeholder="yyyy-MM-dd HH:mm"
-                  title="Luxon format tokens, e.g. yyyy-MM-dd HH:mm"
-                  value={formatValue}
-                  onChange={(e) => handleConfigChange('format', e.target.value || undefined)}
-                  disabled={isHidden}
-                  className="h-6 text-xs px-2 font-mono"
-                />
-              )}
-            </div>
+            <Select
+              value={isCustomFormat ? formatValue : (formatValue || 'none')}
+              onValueChange={(value) => {
+                if (value === 'none') handleConfigChange('format', undefined);
+                else handleConfigChange('format', value);
+              }}
+              disabled={isHidden}
+            >
+              <SelectTrigger className="h-6 text-xs px-2" aria-label={`Date format for ${fieldName}`}>
+                <SelectValue placeholder="Format" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Raw value</SelectItem>
+                {DATE_FORMAT_PRESETS.map((preset) => (
+                  <SelectItem key={preset} value={preset}>{preset}</SelectItem>
+                ))}
+                {/* Legacy configs may hold a non-preset format string; show it so the
+                    current value stays visible and selectable in the dropdown. */}
+                {isCustomFormat && (
+                  <SelectItem value={formatValue}>{formatValue}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
           )}
         </td>
 
