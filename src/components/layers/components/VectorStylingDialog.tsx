@@ -101,6 +101,11 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     setView('editor');
   };
 
+  const handleStartFromScratch = () => {
+    setRules([{ enabled: true, primitives: {} }]);
+    setView('editor');
+  };
+
   // Stable URL + format for the first vector data item — avoids re-fetching when
   // the parent re-renders with a new `source.data` array identity.
   const firstVectorItem = useMemo(() => {
@@ -243,7 +248,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
           ) : view === 'gallery' ? (
             <RecipeGallery
                onPick={(id) => { setWizardOrigin('gallery'); setRecipe(id); setView('wizard'); }}
-              onScratch={() => setView('editor')}
+              onScratch={handleStartFromScratch}
               hasExistingRules={rules.length > 0}
             />
           ) : view === 'wizard' && recipe ? (
@@ -263,6 +268,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
               fields={fields}
               fallbackCount={fallbackCount}
                onPickRecipe={(id) => { setWizardOrigin('editor'); setRecipe(id); setView('wizard'); }}
+               onRulesEmpty={() => setView('gallery')}
             />
           )}
         </div>

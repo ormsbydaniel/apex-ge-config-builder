@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Filter, Palette, PencilRuler, Square, TrendingUp, Type } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import RuleListPane from './RuleListPane';
 import RuleEditorPane from './RuleEditorPane';
 import type { StyleRule } from '@/types/vectorStyle';
@@ -13,30 +14,43 @@ interface StyleEditorProps {
   fields: VectorFieldDescriptor[];
   fallbackCount?: number;
   onPickRecipe: (id: RecipeId) => void;
+  onRulesEmpty: () => void;
 }
 
 const RECIPE_ICONS = { categorized: Palette, graduated: TrendingUp, uniform: Square, labels: Type, highlight: Filter };
 
 const AddAnother = ({ onPickRecipe, onScratch }: { onPickRecipe: (id: RecipeId) => void; onScratch: () => void }) => (
-  <div className="border-t pt-3 space-y-1">
-    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">Add another rule</p>
-    {RECIPES.map((recipe) => {
-      const Icon = RECIPE_ICONS[recipe.id];
-      return (
-        <Button key={recipe.id} type="button" variant="ghost" size="sm"
-          className="w-full h-8 justify-start px-2 text-xs font-normal" onClick={() => onPickRecipe(recipe.id)}>
-          <Icon className="h-4 w-4 mr-2 text-primary" />{recipe.name}
-        </Button>
-      );
-    })}
-    <Button type="button" variant="ghost" size="sm" className="w-full h-8 justify-start px-2 text-xs font-normal"
-      onClick={onScratch}>
-      <PencilRuler className="h-4 w-4 mr-2 text-muted-foreground" />Start from scratch
-    </Button>
-  </div>
+  <TooltipProvider delayDuration={400}>
+    <div className="border-t pt-3 space-y-1">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">Add another rule</p>
+      {RECIPES.map((recipe) => {
+        const Icon = RECIPE_ICONS[recipe.id];
+        return (
+          <Tooltip key={recipe.id}>
+            <TooltipTrigger asChild>
+              <Button type="button" variant="ghost" size="sm"
+                className="w-full h-8 justify-start px-2 text-xs font-normal" onClick={() => onPickRecipe(recipe.id)}>
+                <Icon className="h-4 w-4 mr-2 text-primary" />{recipe.name}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="max-w-64">{recipe.description}</TooltipContent>
+          </Tooltip>
+        );
+      })}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button type="button" variant="ghost" size="sm" className="w-full h-8 justify-start px-2 text-xs font-normal"
+            onClick={onScratch}>
+            <PencilRuler className="h-4 w-4 mr-2 text-muted-foreground" />Start from scratch
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="max-w-64">Build a blank rule by hand in the rule editor.</TooltipContent>
+      </Tooltip>
+    </div>
+  </TooltipProvider>
 );
 
-const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe }: StyleEditorProps) => {
+const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe, onRulesEmpty }: StyleEditorProps) => {
   const [selected, setSelected] = useState(0);
   useEffect(() => {
     if (selected > rules.length - 1) setSelected(Math.max(0, rules.length - 1));
@@ -45,7 +59,9 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
     onChange(rules.map((r, i) => (i === idx ? next : r)));
 
   const removeRule = (idx: number) => {
-    onChange(rules.filter((_, i) => i !== idx));
+    const next = rules.filter((_, i) => i !== idx);
+    onChange(next);
+    if (next.length === 0) onRulesEmpty();
     setSelected((s) => Math.max(0, s > idx ? s - 1 : s === idx ? Math.min(idx, rules.length - 2) : s));
   };
 
@@ -102,7 +118,7 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
               onRemove={removeRule}
             />
           </div>
-          <div className="pt-2">
+          <div className="pt-4">
             <AddAnother onPickRecipe={onPickRecipe} onScratch={addRule} />
           </div>
         </div>
