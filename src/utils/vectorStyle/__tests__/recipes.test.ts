@@ -200,7 +200,7 @@ describe('buildUniformRecipe', () => {
     if (src && src.kind === 'constant') {
       expect(String(src.value)).toContain('data:image/svg+xml');
       expect(String(src.value)).toContain(tileSignature);
- expect(String(src.value)).not.toContain('background');
+      expect(String(src.value)).not.toContain('background');
     }
     expect(props?.['fill-pattern-size']).toEqual({ kind: 'constant', value: [8, 8] });
     expect(props?.['fill-pattern-offset']).toEqual({ kind: 'constant', value: [0, 0] });
