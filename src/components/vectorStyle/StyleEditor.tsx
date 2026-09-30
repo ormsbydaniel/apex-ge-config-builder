@@ -19,7 +19,7 @@ const RECIPE_ICONS = { categorized: Palette, graduated: TrendingUp, uniform: Squ
 
 const AddAnother = ({ onPickRecipe, onScratch }: { onPickRecipe: (id: RecipeId) => void; onScratch: () => void }) => (
   <div className="border-t pt-3 space-y-1">
-    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">Add another</p>
+    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">Add another rule</p>
     {RECIPES.map((recipe) => {
       const Icon = RECIPE_ICONS[recipe.id];
       return (
@@ -46,7 +46,7 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
 
   const removeRule = (idx: number) => {
     onChange(rules.filter((_, i) => i !== idx));
-    setSelected((s) => Math.max(0, s >= idx ? s - 1 : s));
+    setSelected((s) => Math.max(0, s > idx ? s - 1 : s === idx ? Math.min(idx, rules.length - 2) : s));
   };
 
   const duplicateRule = (idx: number) => {
@@ -98,10 +98,13 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
               selected={Math.min(selected, rules.length - 1)}
               onSelect={setSelected}
               onMove={moveRule}
-              onToggle={(i) => updateRule(i, { ...rules[i], enabled: rules[i].enabled === false })}
+              onDuplicate={duplicateRule}
+              onRemove={removeRule}
             />
           </div>
-          <AddAnother onPickRecipe={onPickRecipe} onScratch={addRule} />
+          <div className="pt-2">
+            <AddAnother onPickRecipe={onPickRecipe} onScratch={addRule} />
+          </div>
         </div>
         <div className="min-w-0">
           {rules[Math.min(selected, rules.length - 1)] && (
@@ -109,8 +112,6 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
               index={Math.min(selected, rules.length - 1)}
               rule={rules[Math.min(selected, rules.length - 1)]}
               onChange={(next) => updateRule(Math.min(selected, rules.length - 1), next)}
-              onDuplicate={() => duplicateRule(Math.min(selected, rules.length - 1))}
-              onRemove={() => removeRule(Math.min(selected, rules.length - 1))}
               fields={fields}
             />
           )}

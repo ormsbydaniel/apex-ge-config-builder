@@ -175,6 +175,20 @@ describe('applyRecipeRules', () => {
     const result = applyRecipeRules(existing, generated, 'append');
     expect(result).toHaveLength(2);
     expect(result[0].name).toBe('Existing');
+    expect(result[1].name).toBe('All features');
+    expect(existing).toHaveLength(1);
+  });
+
+  it('appends to an empty style without prompting for a mode', () => {
+    const generated = buildUniformRecipe({ geometry: 'line' });
+    expect(applyRecipeRules([], generated, 'append')).toEqual(generated);
+  });
+
+  it('places new rules before an existing everything-else fallback', () => {
+    const fallback: StyleRule = { name: 'Everything else', enabled: true, else: true, primitives: {} };
+    const generated = buildUniformRecipe({ geometry: 'polygon' });
+    const result = applyRecipeRules([...existing, fallback], generated, 'append');
+    expect(result.map((rule) => rule.name)).toEqual(['Existing', 'All features', 'Everything else']);
   });
 
   it('keeps a single else rule last', () => {
