@@ -29,7 +29,7 @@ When a layer has no style yet, the styling dialog opens on a set of recipes. Eac
 
 The recipe reads the attributes from the layer's first data file (up to 500 features). It then offers the fields, categories and value ranges it finds. If the file can't be read, you can type the field name and values yourself.
 
-For **Graduated**, the range is rounded out to tidy numbers that still cover the data (for example `2.18 – 61417.36` becomes `0 – 70000`). The exact sample range is shown underneath; click **Use exact** to use it instead.
+For **Graduated**, the range is rounded out to tidy numbers that still cover the data (for example `2.18 – 61417.36` becomes `0 – 70000`). The exact sample range is shown underneath; click **Use exact** to use it instead. Once clicked it changes to **Round**, which restores the rounded range. Graduated and Categorised recipes also have a **Reverse** checkbox beside the palette to flip its colour order.
 
 If the layer already has rules, select **New from recipe** in the dialog header. You then choose whether the recipe **replaces** the existing rules or is **appended** after them. The generated rules can be edited like any other rule.
 
