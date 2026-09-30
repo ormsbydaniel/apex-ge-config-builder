@@ -4,6 +4,7 @@ import {
   quantileBreaks,
   summariseProperties,
   canSampleSource,
+  summariseGeometries,
   MAX_CATEGORIES,
 } from '../sampleSourceData';
 
@@ -68,5 +69,21 @@ describe('canSampleSource', () => {
     expect(canSampleSource('fgb')).toBe(true);
     expect(canSampleSource('cog')).toBe(false);
     expect(canSampleSource('wms')).toBe(false);
+  });
+});
+
+describe('summariseGeometries', () => {
+  it('detects a single type and folds Multi* types', () => {
+    const g = summariseGeometries(['Polygon', 'MultiPolygon']);
+    expect(g.dominant).toBe('polygon');
+    expect(g.counts.polygon).toBe(2);
+  });
+  it('picks the dominant type for mixed data', () => {
+    const g = summariseGeometries(['Point', 'LineString', 'MultiLineString']);
+    expect(g.dominant).toBe('line');
+    expect(g.counts).toEqual({ polygon: 0, line: 2, point: 1 });
+  });
+  it('returns null when nothing is recognised', () => {
+    expect(summariseGeometries([undefined, 'GeometryCollection']).dominant).toBeNull();
   });
 });
