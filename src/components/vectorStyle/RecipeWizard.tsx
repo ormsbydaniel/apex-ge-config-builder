@@ -324,6 +324,11 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
                 </SelectContent>
               </Select>
             </div>
+            {classBreaksPreview && (
+              <div className="text-xs text-muted-foreground">
+                Classes: {classBreaksPreview.join(' · ')}
+              </div>
+            )}
           </>
         )}
 
