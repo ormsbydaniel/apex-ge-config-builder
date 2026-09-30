@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trash2, Plus, Filter as FilterIcon } from 'lucide-react';
+import { Trash2, Plus, Filter as FilterIcon, Check } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import FilterBuilder from './FilterBuilder';
 import MarkerPanel from './MarkerPanel';
 import { FillPanel, LinePanel, LabelPanel } from './SimplePanels';
@@ -111,7 +112,21 @@ const RuleEditorPane = ({ rule, index, onChange, fields }: RuleEditorPaneProps) 
               <TabsTrigger key={t.key} value={t.key} className="shrink-0 text-xs gap-1">
                 {t.key === 'when' ? <FilterIcon className="h-3 w-3" /> : <span>{t.glyph}</span>}
                 {t.label}
-                {active && <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-primary" aria-label="in use" />}
+                {active && (
+                  <TooltipProvider delayDuration={400}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span
+                          className="ml-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary/10 text-primary"
+                          aria-label={`${t.label} set in this rule`}
+                        >
+                          <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>{t.label} set in this rule</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </TabsTrigger>
             );
           })}
