@@ -93,7 +93,7 @@ const RuleEditorPane = ({ rule, index, onChange, fields }: RuleEditorPaneProps) 
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="flex items-center gap-2 pb-2">
+      <div className="flex items-center gap-2 pb-1">
         <Input
           className="h-8 flex-1 text-sm"
           placeholder={`Rule ${index + 1}`}
@@ -102,6 +102,7 @@ const RuleEditorPane = ({ rule, index, onChange, fields }: RuleEditorPaneProps) 
           aria-label="Rule name"
         />
       </div>
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground pb-1">Rule settings</p>
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="flex flex-col flex-1 min-h-0">
         <TabsList className="w-full justify-start overflow-x-auto overflow-y-hidden">
           {TABS.map((t) => {
