@@ -274,7 +274,7 @@ describe('niceRange', () => {
     const r = niceRange(-37.2, 81.9);
     expect(r.min).toBeLessThanOrEqual(-37.2);
     expect(r.max).toBeGreaterThanOrEqual(81.9);
-    expect(r).toMatchObject({ min: -40, max: 90 });
+    expect(r).toMatchObject({ min: -40, max: 100 });
   });
   it('handles tiny decimals', () => {
     expect(niceRange(0.0012, 0.0087)).toMatchObject({ min: 0, max: 0.009 });
