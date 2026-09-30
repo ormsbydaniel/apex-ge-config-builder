@@ -150,6 +150,7 @@ const colouredPrimitives = (
     outlineWidth?: number;
     radius?: number;
     lineStyle?: UniformLineStyle;
+    fillStyle?: UniformFillStyle;
   } = {},
 ): RulePrimitives => {
   const outlineColor = options.outlineColor ?? DEFAULT_OUTLINE;
@@ -182,7 +183,12 @@ const colouredPrimitives = (
   }
 
   return {
-    fill: { props: { 'fill-color': color } },
+    fill: {
+      props: {
+        'fill-color': color,
+        ...fillStyleProps(options.fillStyle ?? 'solid'),
+      },
+    },
     line: {
       props: {
         'stroke-color': constant(outlineColor),
