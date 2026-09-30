@@ -111,11 +111,11 @@ const RuleEditorPane = ({ rule, index, onChange, onDuplicate, onRemove, fields }
         </Button>
       </div>
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="flex flex-col flex-1 min-h-0">
-        <TabsList className="justify-start">
+        <TabsList className="w-full justify-start overflow-x-auto overflow-y-hidden">
           {TABS.map((t) => {
             const active = t.key === 'when' ? hasFilter : !!rule.primitives[t.key as PrimitiveKey];
             return (
-              <TabsTrigger key={t.key} value={t.key} className="text-xs gap-1">
+              <TabsTrigger key={t.key} value={t.key} className="shrink-0 text-xs gap-1">
                 {t.key === 'when' ? <FilterIcon className="h-3 w-3" /> : <span>{t.glyph}</span>}
                 {t.label}
                 {active && <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-primary" aria-label="in use" />}
