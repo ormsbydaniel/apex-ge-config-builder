@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   Clock,
   RefreshCw,
+  FlaskConical,
 } from 'lucide-react';
 import { useConfigImport } from '@/hooks/useConfigIO';
 import type { ImportProgress } from '@/hooks/useConfigImport';
