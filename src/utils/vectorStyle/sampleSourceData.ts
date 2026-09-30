@@ -147,7 +147,7 @@ const sampleFlatGeobuf = async (url: string, limit: number): Promise<SourceSampl
   const buffer = new Uint8Array(await response.arrayBuffer());
   const rows: Properties[] = [];
 
-  for (const feature of deserialize(buffer) as Iterable<{ properties?: Properties }>) {
+  for await (const feature of deserialize(buffer) as AsyncIterable<{ properties?: Properties }>) {
     rows.push((feature?.properties ?? {}) as Properties);
     if (rows.length >= limit) break;
   }
