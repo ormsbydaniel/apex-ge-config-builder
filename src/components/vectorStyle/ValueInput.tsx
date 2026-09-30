@@ -168,11 +168,31 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
     </Tooltip>
   );
 
-  // Compact, single-line layout when in constant mode and not expanded.
-  if (mode === 'constant' && !advancedOpen) {
+  // Compact, single-line layout when in constant mode. The value mode
+  // dropdown is always visible so users can see how each value is set.
+  if (mode === 'constant') {
     return (
-      <div className="flex items-center gap-2 md:col-start-1">
-        <Label className="text-xs w-20 shrink-0">{prop.label}</Label>
+      <div className="flex items-center gap-2 md:col-span-2">
+        <Label className="text-xs w-24 shrink-0">{prop.label}</Label>
+        <Select
+          value={mode}
+          onValueChange={(v) => {
+            handleModeChange(v as Mode);
+            setAdvancedOpen(true);
+          }}
+        >
+          <SelectTrigger className="h-7 w-[130px] shrink-0 text-xs" aria-label={`${prop.label} value mode`}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="constant">{MODE_LABEL.constant}</SelectItem>
+            <SelectItem value="attribute">{MODE_LABEL.attribute}</SelectItem>
+            {interpAvailable(prop.type) && (
+              <SelectItem value="zoom">{MODE_LABEL.zoom}</SelectItem>
+            )}
+            <SelectItem value="expression">{MODE_LABEL.expression}</SelectItem>
+          </SelectContent>
+        </Select>
         <div className="flex-1 min-w-0">
           {value.kind === 'constant' && (
             <ConstantInput
@@ -183,7 +203,6 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
             />
           )}
         </div>
-        {advancedToggle}
       </div>
     );
   }
