@@ -466,7 +466,7 @@ const DonorConfigPickerDialog = ({
                 </TabsList>
 
                 {/* Upload */}
-                <TabsContent value="upload" className="mt-4 flex-1 min-h-0 overflow-auto">
+                <TabsContent value="upload" className="mt-4 flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden">
                   <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center gap-3 bg-muted/30">
                     <Upload className="h-10 w-10 text-muted-foreground" />
                     <div className="text-center">
@@ -491,7 +491,7 @@ const DonorConfigPickerDialog = ({
                 </TabsContent>
 
                 {/* Examples */}
-                <TabsContent value="examples" className="mt-4 flex-1 min-h-0 overflow-auto">
+                <TabsContent value="examples" className="mt-4 flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden">
                   {examplesLoading || (examplesFetching && !examples) ? (
                     <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
                       <Loader2 className="h-4 w-4 animate-spin" />

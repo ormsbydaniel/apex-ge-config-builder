@@ -325,7 +325,7 @@ export const DonorConfigSourcePicker: React.FC<DonorConfigSourcePickerProps> = (
         </TabsList>
 
         {/* Upload */}
-        <TabsContent value="upload" className="mt-4 flex-1 min-h-0 overflow-auto">
+        <TabsContent value="upload" className="mt-4 flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden">
           <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center gap-3 bg-muted/30">
             <Upload className="h-10 w-10 text-muted-foreground" />
             <div className="text-center">
@@ -350,7 +350,7 @@ export const DonorConfigSourcePicker: React.FC<DonorConfigSourcePickerProps> = (
         </TabsContent>
 
         {/* Examples */}
-        <TabsContent value="examples" className="mt-4 flex-1 min-h-0 overflow-auto">
+        <TabsContent value="examples" className="mt-4 flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden">
           {examplesLoading || (examplesFetching && !examples) ? (
             <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -409,7 +409,7 @@ export const DonorConfigSourcePicker: React.FC<DonorConfigSourcePickerProps> = (
         </TabsContent>
 
         {/* From GitHub */}
-        <TabsContent value="github" className="mt-4 space-y-3 flex-1 min-h-0 flex flex-col">
+        <TabsContent value="github" className="mt-4 space-y-3 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-3 items-end">
             <div className="space-y-1 min-w-0">
               <div className="flex items-center gap-2">
