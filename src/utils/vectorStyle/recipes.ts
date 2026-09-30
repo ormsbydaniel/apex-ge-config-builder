@@ -41,6 +41,14 @@ export const UNIFORM_LINE_STYLES: { id: UniformLineStyle; label: string }[] = [
 
 export const UNIFORM_LINE_WEIGHTS = [1, 2, 3, 4, 6] as const;
 
+export type UniformFillStyle = 'solid' | 'hatch' | 'cross-hatch';
+
+export const UNIFORM_FILL_STYLES: { id: UniformFillStyle; label: string }[] = [
+  { id: 'solid', label: 'Solid' },
+  { id: 'hatch', label: 'Hatch' },
+  { id: 'cross-hatch', label: 'Cross hatch' },
+];
+
 export interface RecipeDefinition {
   id: RecipeId;
   name: string;
@@ -108,6 +116,28 @@ const lineStyleProps = (
   return {
     'stroke-line-dash': constant(patterns[style]),
     ...(style === 'dotted' ? { 'stroke-line-cap': constant('round') } : {}),
+  };
+};
+
+/**
+ * Fill patterns are small repeating SVG tiles (transparent background, black
+ * strokes) that OpenLayers loads via `fill-pattern-*` and tints with
+ * `fill-color`. Tiles must stay black-on-transparent: the tint multiplies the
+ * tile's colour, so any other ink would resist recolouring.
+ */
+const FILL_PATTERN_TILES: Record<Exclude<UniformFillStyle, 'solid'>, string> = {
+  hatch:
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M-1 1 L1 -1 M0 8 L8 0 M7 9 L9 7' stroke='%23000000' stroke-width='1' fill='none'/%3E%3C/svg%3E",
+  'cross-hatch':
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M-1 1 L1 -1 M0 8 L8 0 M7 9 L9 7 M-1 -1 L1 1 M0 0 L8 8 M7 -1 L9 1' stroke='%23000000' stroke-width='1' fill='none'/%3E%3C/svg%3E",
+};
+
+const fillStyleProps = (style: UniformFillStyle): Record<string, ValueModel> => {
+  if (style === 'solid') return {};
+  return {
+    'fill-pattern-src': constant(FILL_PATTERN_TILES[style]),
+    'fill-pattern-size': constant([8, 8]),
+    'fill-pattern-offset': constant([0, 0]),
   };
 };
 
