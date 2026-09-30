@@ -46,7 +46,7 @@ Each field of a vector data source can be configured independently:
 | **Display label** | Replaces the raw property name with a prettier version, e.g. `no2_ugm3` → `NO₂`. |
 | **Prefix / Suffix** | Adds text before or after the value — units (` µg/m³`, ` %`, `°C`), qualifiers (`≈ `), anything the value needs for context. |
 | **Precision** | Rounds numeric values to a fixed number of decimal places (e.g. `17.382913` → `17.4`). |
-| **Type** | Marks a field as `Date` or `DateTime` so the timestamp is formatted for reading rather than shown as raw ISO 8601. |
+| **Type** | Marks a field as `Date / DateTime` so the timestamp is formatted for reading rather than shown as raw ISO 8601. Formatting only applies once a **Format** is chosen — a dropdown of common presets (e.g. `yyyy-MM-dd`, `dd MMM yyyy, HH:mm`) or a custom Luxon token string. |
 | **Display order** | Controls the sequence the fields appear in the panel — set by arranging the rows in the fields editor. |
 | **Hide** | Removes a field from the panel entirely — ideal for internal IDs, geometry references and other noise. A hidden field stays in the config (stored as `null`), so unhiding it later restores everything. |
 
@@ -69,7 +69,9 @@ The editor presents one row per field:
 - **Field name** — the property name in the data, shown in monospace.
 - **Display label, Prefix, Suffix** — inline text inputs for the readout.
 - **Precision** — decimal places for numeric values.
-- **Type** — `default`, `Date` or `DateTime`.
+- **Type** — `default`, `Date / DateTime` or `URL`. Date fields get an inline
+  **Format** picker (common presets or a custom Luxon token string); without a
+  format the raw value is shown.
 - **Hide** — a toggle; hidden rows stay in the table, greyed out.
 - Rows are arranged with the drag handle or the up/down chevrons, and that
   order becomes the display order in the Explorer.
