@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronUp, ChevronDown, Copy, Trash2, GripVertical } from 'lucide-react';
+import { Copy, Trash2, GripVertical } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { StyleRule, ValueModel } from '@/types/vectorStyle';
@@ -90,16 +90,6 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
                 ))}
                 <span className="font-mono text-[10px] text-muted-foreground truncate">{filterSummary(rule)}</span>
               </div>
-            </div>
-            <div className="flex flex-col" onClick={(e) => e.stopPropagation()}>
-              <Button type="button" variant="ghost" size="icon" className="h-3.5 w-6" disabled={idx === 0}
-                onClick={() => onMove(idx, idx - 1)} aria-label="Move rule up">
-                <ChevronUp className="h-3 w-3" />
-              </Button>
-              <Button type="button" variant="ghost" size="icon" className="h-3.5 w-6" disabled={idx === rules.length - 1}
-                onClick={() => onMove(idx, idx + 1)} aria-label="Move rule down">
-                <ChevronDown className="h-3 w-3" />
-              </Button>
             </div>
             <TooltipProvider delayDuration={400}>
               <div className="flex shrink-0" onClick={(e) => e.stopPropagation()}>
