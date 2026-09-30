@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import {
   buildRecipeRules,
   getRecipe,
+  niceRange,
   UNIFORM_LINE_STYLES,
   UNIFORM_LINE_WEIGHTS,
   type ClassificationMethod,
@@ -122,8 +123,9 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
     if (!fieldSample) return;
     if (fieldSample.categories) setCategoriesText(fieldSample.categories.map((c) => c.value).join('\n'));
     if (fieldSample.numeric) {
-      setMin(String(fieldSample.numeric.min));
-      setMax(String(fieldSample.numeric.max));
+      const nice = niceRange(fieldSample.numeric.min, fieldSample.numeric.max, classes);
+      setMin(String(nice.min));
+      setMax(String(nice.max));
     }
   }, [fieldSample]);
 
@@ -269,10 +271,25 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
         {recipe === 'graduated' && (
           <>
             <Label className="text-xs">Range</Label>
-            <div className="flex items-center gap-2">
-              <Input className="h-8 w-28" type="number" value={min} onChange={(e) => setMin(e.target.value)} />
-              <span className="text-xs text-muted-foreground">to</span>
-              <Input className="h-8 w-28" type="number" value={max} onChange={(e) => setMax(e.target.value)} />
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Input className="h-8 w-28" type="number" value={min} onChange={(e) => setMin(e.target.value)} />
+                <span className="text-xs text-muted-foreground">to</span>
+                <Input className="h-8 w-28" type="number" value={max} onChange={(e) => setMax(e.target.value)} />
+              </div>
+              {fieldSample?.numeric && (
+                <div className="text-xs text-muted-foreground">
+                  Sample: {fieldSample.numeric.min.toLocaleString(undefined, { maximumFractionDigits: 2 })} – {fieldSample.numeric.max.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  {' · '}
+                  <button
+                    type="button"
+                    className="underline hover:text-foreground"
+                    onClick={() => { setMin(String(fieldSample.numeric!.min)); setMax(String(fieldSample.numeric!.max)); }}
+                  >
+                    Use exact
+                  </button>
+                </div>
+              )}
             </div>
             <Label className="text-xs">Classes</Label>
             <div className="flex items-center gap-2">
