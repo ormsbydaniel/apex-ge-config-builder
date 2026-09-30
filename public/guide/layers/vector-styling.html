@@ -1872,6 +1872,10 @@
 </table>
 <p>The recipe reads the attributes from the layer's first data file (up to 500 features). It then offers the fields, categories and value ranges it finds. If the file can't be read, you can type the field name and values yourself.</p>
 <p>If the layer already has rules, select <strong>New from recipe</strong> in the dialog header. You then choose whether the recipe <strong>replaces</strong> the existing rules or is <strong>appended</strong> after them. The generated rules can be edited like any other rule.</p>
+<div class="admonition info">
+<p class="admonition-title">Geometry vs styles</p>
+<p>Geometry is what the data holds — points, lines or polygons. Styles are how it is drawn — fill, line, marker and label. Recipes read the geometry from the layer's first data file and preselect <strong>Symbolise as</strong> to match (for example, polygons get a fill and an outline). You can still change it, for instance to draw polygons as markers.</p>
+</div>
 <h2 id="editor-structure">Editor structure<a class="headerlink" href="#editor-structure" title="Permanent link">&para;</a></h2>
 <p>The vector style editor is split into three property panels:</p>
 <table>
