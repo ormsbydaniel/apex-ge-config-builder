@@ -50,6 +50,8 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const [view, setView] = useState<'gallery' | 'wizard' | 'editor'>('editor');
   const [recipe, setRecipe] = useState<RecipeId | null>(null);
   const [wizardOrigin, setWizardOrigin] = useState<'gallery' | 'editor'>('gallery');
+  // Index + nonce of a rule to select when the editor reopens (e.g. a rule just created by a recipe).
+  const [focusRule, setFocusRule] = useState<{ index: number; nonce: number } | null>(null);
 
   const initialStyle: unknown[] = useMemo(() => {
     if (!open) return [];
@@ -97,7 +99,12 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   }, [open]);
 
   const handleRecipeRules = (generated: StyleRule[]) => {
-    setRules((current) => applyRecipeRules(current, generated, 'append'));
+    const prev = new Set(rules);
+    const next = applyRecipeRules(rules, generated, 'append');
+    setRules(next);
+    // Select the first newly added rule (append can shift it if an else branch moves last).
+    const firstNew = next.findIndex((r) => !prev.has(r));
+    setFocusRule({ index: firstNew >= 0 ? firstNew : Math.max(0, next.length - 1), nonce: Date.now() });
     setView('editor');
   };
 
