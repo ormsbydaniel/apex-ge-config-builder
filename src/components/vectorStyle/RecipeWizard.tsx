@@ -141,8 +141,8 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
   const catPreview = assignCategoricalColors(Math.min(categories.length, 20), palette);
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-1">
+    <div className="space-y-5">
+      <div className="space-y-3">
         <div>
           <Button type="button" variant="ghost" size="sm" onClick={onBack} className="h-7 px-2">
             <ArrowLeft className="h-4 w-4 mr-1" /> {backLabel}
