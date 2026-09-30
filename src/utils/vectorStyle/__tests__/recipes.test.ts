@@ -264,3 +264,27 @@ describe('recipe output serialises to a flat style array', () => {
     expect(flat.length).toBeGreaterThan(0);
   });
 });
+
+import { niceRange } from '../recipes';
+describe('niceRange', () => {
+  it('rounds the sample example', () => {
+    expect(niceRange(2.18025523, 61417.3589)).toMatchObject({ min: 0, max: 70000 });
+  });
+  it('covers raw range for negatives', () => {
+    const r = niceRange(-37.2, 81.9);
+    expect(r.min).toBeLessThanOrEqual(-37.2);
+    expect(r.max).toBeGreaterThanOrEqual(81.9);
+    expect(r).toMatchObject({ min: -40, max: 100 });
+  });
+  it('handles tiny decimals', () => {
+    expect(niceRange(0.0012, 0.0087)).toMatchObject({ min: 0, max: 0.009 });
+  });
+  it('does not snap to zero when far from it', () => {
+    expect(niceRange(512, 587)).toMatchObject({ min: 510, max: 590 });
+  });
+  it('widens when min equals max', () => {
+    const r = niceRange(50, 50);
+    expect(r.min).toBeLessThan(50);
+    expect(r.max).toBeGreaterThan(50);
+  });
+});

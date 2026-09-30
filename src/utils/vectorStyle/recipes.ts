@@ -440,3 +440,37 @@ export const buildRecipeRules = (input: RecipeInput): StyleRule[] => {
       return [];
   }
 };
+
+/** Round a positive number up to 1, 2, 2.5 or 5 × a power of ten. */
+const niceStep = (raw: number): number => {
+  if (!(raw > 0) || !isFinite(raw)) return 1;
+  const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+  const f = raw / pow;
+  const m = f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10;
+  return m * pow;
+};
+
+const roundTo = (v: number, step: number) => {
+  const decimals = Math.max(0, -Math.floor(Math.log10(step)) + 1);
+  return Number(v.toFixed(Math.min(decimals, 12)));
+};
+
+/**
+ * "Nice numbers" range (D3 / Excel axis style): widens [min, max] to round
+ * values that always cover the data. Snaps to 0 when min is non-negative and
+ * close to zero relative to the span.
+ */
+export const niceRange = (min: number, max: number, _classes = 5): { min: number; max: number; step: number } => {
+  if (!isFinite(min) || !isFinite(max)) return { min, max, step: 1 };
+  if (min > max) [min, max] = [max, min];
+  if (min === max) {
+    const step = niceStep(Math.abs(min) / 10 || 1);
+    return { min: roundTo(min - step, step), max: roundTo(max + step, step), step };
+  }
+  const span = max - min;
+  const step = niceStep(span / 10);
+  let lo = Math.floor(min / step) * step;
+  const hi = Math.ceil(max / step) * step;
+  if (min >= 0 && min < span * 0.2) lo = 0;
+  return { min: roundTo(lo, step), max: roundTo(hi, step), step };
+};
