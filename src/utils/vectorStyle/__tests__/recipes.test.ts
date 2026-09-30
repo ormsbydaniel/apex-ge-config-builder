@@ -116,6 +116,52 @@ describe('buildUniformRecipe', () => {
     expect(rule.primitives.fill?.props['fill-color']).toMatchObject({ kind: 'constant' });
     expect(rule.primitives.line?.props['stroke-width']).toMatchObject({ kind: 'constant' });
   });
+
+  it.each([
+    ['dashed', 3, [12, 6]],
+    ['dotted', 2, [2, 4]],
+    ['dash-dot', 4, [16, 8, 4, 8]],
+    ['long-dash', 6, [48, 18]],
+  ] as const)('creates a scaled %s pattern at %d px', (lineStyle, outlineWidth, dashPattern) => {
+    const [rule] = buildUniformRecipe({ geometry: 'line', lineStyle, outlineWidth });
+    expect(rule.primitives.line?.props['stroke-width']).toEqual({ kind: 'constant', value: outlineWidth });
+    expect(rule.primitives.line?.props['stroke-line-dash']).toEqual({ kind: 'constant', value: dashPattern });
+  });
+
+  it('uses round caps for dotted lines', () => {
+    const [rule] = buildUniformRecipe({ geometry: 'line', lineStyle: 'dotted' });
+    expect(rule.primitives.line?.props['stroke-line-cap']).toEqual({ kind: 'constant', value: 'round' });
+  });
+
+  it.each([1, 2, 3, 4, 6])('supports the %d px line-weight preset', (outlineWidth) => {
+    const [rule] = buildUniformRecipe({ geometry: 'line', outlineWidth });
+    expect(rule.primitives.line?.props['stroke-width']).toEqual({ kind: 'constant', value: outlineWidth });
+  });
+
+  it('keeps solid lines free of dash and cap properties', () => {
+    const [rule] = buildUniformRecipe({ geometry: 'line', lineStyle: 'solid', outlineWidth: 2 });
+    expect(rule.primitives.line?.props['stroke-line-dash']).toBeUndefined();
+    expect(rule.primitives.line?.props['stroke-line-cap']).toBeUndefined();
+  });
+
+  it('serialises line style and weight to standard flat-style properties', () => {
+    const rules = buildUniformRecipe({ geometry: 'line', lineStyle: 'dash-dot', outlineWidth: 3 });
+    expect(toFlatStyleArray(rules)).toEqual([
+      expect.objectContaining({
+        'stroke-width': 3,
+        'stroke-line-dash': [12, 6, 3, 6],
+      }),
+    ]);
+  });
+
+  it('does not add line-pattern properties to polygon or point recipes', () => {
+    for (const geometry of ['polygon', 'point'] as const) {
+      const [rule] = buildUniformRecipe({ geometry, lineStyle: 'dashed', outlineWidth: 4 });
+      const props = geometry === 'polygon' ? rule.primitives.line?.props : rule.primitives.marker?.props;
+      expect(props?.['stroke-line-dash']).toBeUndefined();
+      expect(props?.['stroke-line-cap']).toBeUndefined();
+    }
+  });
 });
 
 describe('buildLabelRecipe', () => {
