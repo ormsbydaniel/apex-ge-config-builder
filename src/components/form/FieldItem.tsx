@@ -47,6 +47,20 @@ const FieldItem = ({
 }: FieldItemProps) => {
   const isHidden = config === null;
 
+  // The Explorer only formats fields with type "date"; legacy "datetime" values
+  // are shown as the same option and normalised to "date" on save.
+  const DATE_FORMAT_PRESETS = [
+    'yyyy-MM-dd',
+    'dd/MM/yyyy',
+    'dd MMM yyyy',
+    'yyyy-MM-dd HH:mm',
+    'dd MMM yyyy, HH:mm',
+  ];
+  const fieldType = config?.type === 'datetime' ? 'date' : (config?.type || 'default');
+  const isDateType = fieldType === 'date';
+  const formatValue = config?.format || '';
+  const isCustomFormat = !!formatValue && !DATE_FORMAT_PRESETS.includes(formatValue);
+
   const handleToggleHidden = () => {
     onUpdate(isHidden ? {} : null);
   };
