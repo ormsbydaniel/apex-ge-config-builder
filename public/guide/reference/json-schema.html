@@ -2293,6 +2293,48 @@ non-empty <code>images[]</code> array must be provided.</p>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
+<p>Each field entry supports (all optional):</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>label</code></td>
+<td>string</td>
+<td>Display name replacing the raw property name.</td>
+</tr>
+<tr>
+<td><code>prefix</code> / <code>suffix</code></td>
+<td>string</td>
+<td>Text shown before/after the value (units, qualifiers).</td>
+</tr>
+<tr>
+<td><code>precision</code></td>
+<td>integer</td>
+<td>Decimal places for numeric values.</td>
+</tr>
+<tr>
+<td><code>order</code></td>
+<td>integer</td>
+<td>Display position in the Data Values panel (1-based).</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td><code>date</code> or <code>url</code>. <code>date</code> only takes effect when <code>format</code> is also set.</td>
+</tr>
+<tr>
+<td><code>format</code></td>
+<td>string</td>
+<td>Luxon token string (e.g. <code>yyyy-MM-dd</code>, <code>dd MMM yyyy, HH:mm</code>) used to format <code>date</code> fields. Without it the raw value is shown.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="layout-per-source"><code>layout</code> (per-source)<a class="headerlink" href="#layout-per-source" title="Permanent link">&para;</a></h2>
 <p>Where the layer lives in the GE UI and how its legend / controls render.</p>
 <table>
