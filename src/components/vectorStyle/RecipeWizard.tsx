@@ -142,10 +142,12 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Button type="button" variant="ghost" size="sm" onClick={onBack} className="h-7 px-2">
-          <ArrowLeft className="h-4 w-4 mr-1" /> {backLabel}
-        </Button>
+      <div className="space-y-1">
+        <div>
+          <Button type="button" variant="ghost" size="sm" onClick={onBack} className="h-7 px-2">
+            <ArrowLeft className="h-4 w-4 mr-1" /> {backLabel}
+          </Button>
+        </div>
         <div>
           <div className="text-sm font-medium">{def.name}</div>
           <div className="text-xs text-muted-foreground">{def.description}</div>

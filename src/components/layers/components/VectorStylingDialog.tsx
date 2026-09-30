@@ -265,7 +265,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
               sample={sampleQuery.data}
               sampling={sampleQuery.isFetching}
               fallbackFields={fields.map((f) => f.name)}
-               backLabel={wizardOrigin === 'editor' ? 'Rules' : 'Recipes'}
+               backLabel={wizardOrigin === 'editor' ? 'Back to rules' : 'Back to recipes'}
                onBack={() => setView(wizardOrigin)}
               onApply={handleRecipeRules}
             />
