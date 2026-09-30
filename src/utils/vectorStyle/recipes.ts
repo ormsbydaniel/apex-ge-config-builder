@@ -337,16 +337,28 @@ const UNIFORM_LINE_STYLE_NAMES: Record<UniformLineStyle, string> = {
   'long-dash': 'Long dash line',
 };
 
+const UNIFORM_FILL_STYLE_NAMES: Record<UniformFillStyle, string> = {
+  solid: 'Fill and outline',
+  hatch: 'Hatched',
+  'cross-hatch': 'Cross-hatched',
+};
+
 /** Describe what the user picked, so the rule list reads like the cartography. */
 export const uniformRuleName = (input: UniformRecipeInput): string => {
   if (input.geometry === 'line') return UNIFORM_LINE_STYLE_NAMES[input.lineStyle ?? 'solid'];
   if (input.geometry === 'point') return 'Point marker';
-  return 'Fill and outline';
+  return UNIFORM_FILL_STYLE_NAMES[input.fillStyle ?? 'solid'];
 };
 
 export const buildUniformRecipe = (input: UniformRecipeInput): StyleRule[] => {
   const base = input.color ?? '#3b82f6';
-  const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
+  const fillStyle = input.fillStyle ?? 'solid';
+  // Pattern tiles are tinted by multiply-compositing, so the tint must stay
+  // fully opaque — a semi-transparent tint would leave the strokes black.
+  const alpha =
+    input.geometry === 'polygon' && fillStyle === 'solid'
+      ? input.fillAlpha ?? DEFAULT_FILL_ALPHA
+      : 1;
   const color = constant(alpha >= 1 ? base : withAlpha(base, alpha));
 
   return [
@@ -357,6 +369,7 @@ export const buildUniformRecipe = (input: UniformRecipeInput): StyleRule[] => {
         outlineColor: input.outlineColor,
         outlineWidth: input.outlineWidth,
         lineStyle: input.lineStyle,
+        fillStyle,
         radius: input.radius,
       }),
     },
