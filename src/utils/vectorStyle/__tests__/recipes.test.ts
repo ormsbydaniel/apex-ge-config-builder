@@ -365,3 +365,12 @@ describe('reverse palette', () => {
     expect(_assignCat(10, 'tableau10', true)[0]).toBe(a[9]);
   });
 });
+
+describe('categorised numeric fields', () => {
+  it('matches numeric keys when numericValues is set', async () => {
+    const { buildCategorizedRecipe } = await import('../recipes');
+    const [rule] = buildCategorizedRecipe({ field: 'voltage', geometry: 'line', categories: ['220', '380'], numericValues: true });
+    const color = rule.primitives.line!.props['stroke-color'] as { stops: { key: unknown }[] };
+    expect(color.stops.map((s) => s.key)).toEqual([220, 380]);
+  });
+});

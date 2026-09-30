@@ -168,7 +168,10 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
     let rules: StyleRule[] = [];
     switch (recipe) {
       case 'categorized':
-        rules = buildRecipeRules({ recipe, field, geometry, categories, paletteId: palette, reversePalette });
+        rules = buildRecipeRules({
+          recipe, field, geometry, categories, paletteId: palette, reversePalette,
+          numericValues: fieldSample?.type === 'number',
+        });
         break;
       case 'graduated':
         rules = buildRecipeRules({
