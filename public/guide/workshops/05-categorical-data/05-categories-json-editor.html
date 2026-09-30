@@ -16,7 +16,7 @@
         <link rel="prev" href="04-categories-wms.html">
       
       
-        <link rel="next" href="06-copy-categories.html">
+        <link rel="next" href="../06-time-series/index.html">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -393,7 +393,7 @@
   
     
   
-  GE Preview
+  Preview
 
       </a>
     </li>
@@ -922,7 +922,7 @@
         
   
   <span class="md-ellipsis">
-    GE Preview
+    Preview
   </span>
   
 
@@ -944,6 +944,8 @@
       
         
           
+        
+      
         
       
         
@@ -1155,8 +1157,6 @@
       
         
       
-        
-      
     
     
       
@@ -1204,8 +1204,6 @@
       
         
           
-        
-      
         
       
         
@@ -1265,8 +1263,6 @@
       
         
           
-        
-      
         
       
         
@@ -1432,27 +1428,6 @@
 
       </a>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="06-copy-categories.html" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    5-6. Copy categories between layers
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1655,6 +1630,63 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../09-coordinate-reference-systems/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    9. Coordinate reference systems
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1754,13 +1786,38 @@
 
 
 <h1 id="5-5-use-the-json-editor">5-5. Use the JSON editor<a class="headerlink" href="#5-5-use-the-json-editor" title="Permanent link">&para;</a></h1>
-<p>The CB provides two JSON editors — one for the whole configuration (on the
-Home tab) and one scoped to a single layer (a small orange <strong>{JSON}</strong> icon on
-the layer card). This tutorial uses the per-layer editor to paste in a full
-set of World Cover categories.</p>
+<p>So far in this tutorial we have configured categories in four ways:</p>
+<ul>
+<li><strong>Defined categories one by one</strong> in the Categories editor — for the COG layer
+  in <a href="03-categories-cog.html">5-3</a> and the WMS layer in <a href="04-categories-wms.html">5-4</a>.</li>
+<li><strong>Populated categories</strong> from a COG's sampled values and embedded colour map,
+  then edited the labels — COG layers only (<a href="03-categories-cog.html">5-3</a>).</li>
+<li><strong>Imported categories, colours and labels from a CSV file</strong>
+  (<a href="03-categories-cog.html">5-3</a>).</li>
+<li><strong>Copied</strong> the category definition from one layer to another.</li>
+</ul>
+<p>A further, more advanced technique is to edit the layer's JSON directly. This is
+useful for bulk edits, or for pasting in a complete category set in one go.</p>
+<p>Recall that we now have two World Cover WMS layers: <em>World Cover 2021</em>, added in
+<a href="../02-getting-started/09-wms-service.html">2-9</a>, and <em>World Cover 2020</em>, added
+from the MapProxy service in
+<a href="../03-working-with-services/03-wms-as-a-service.html">3-3</a>. The 2021 layer
+already has its categories — we copied them across from the COG in
+<a href="04-categories-wms.html">5-4</a>. In this exercise we will use the <em>World Cover 2020</em>
+layer to explore a direct JSON copy of a complete category set.</p>
+<p>The Configuration Builder provides two JSON editors — one for the whole
+configuration (on the JSON config tab) and one scoped to a single layer (a small
+orange <strong>{JSON}</strong> icon on the layer card). This tutorial uses the per-layer
+editor.</p>
+<div class="admonition tip">
+<p class="admonition-title">Export first</p>
+<p>Hand-editing JSON bypasses the safeguards built into the Categories editor,
+so export your configuration before you start. That way you always have a
+working copy to fall back on.</p>
+</div>
 <ol>
-<li>
-<p>Copy the following JSON to your clipboard:</p>
+<li>Copy the following JSON to your clipboard:</li>
+</ol>
 <div class="highlight"><pre><span></span><code><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#006400"</span><span class="p">,</span><span class="w"> </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tree cover"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#ffbb22"</span><span class="p">,</span><span class="w"> </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Shrubland"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="p">},</span>
@@ -1775,18 +1832,22 @@ set of World Cover categories.</p>
 <span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#fae6a0"</span><span class="p">,</span><span class="w"> </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Moss and lichen"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="p">}</span>
 <span class="p">]</span>
 </code></pre></div>
+<ol>
+<li>
+<p>On your <em>World Cover 2020</em> layer card, click the <strong>{JSON}</strong> icon to open
+    the JSON editor, then click <strong>Enable editing</strong> to switch from the
+    read-only view to edit mode.</p>
+<p><img alt="The {JSON} icon on the layer card" src="../../assets/screenshots/layer-json-editor-icon.png" /></p>
+<p><em>The <strong>{JSON}</strong> icon on the layer card.</em></p>
 </li>
 <li>
-<p>On your <em>World Cover COG</em> layer card, open the <strong>{JSON}</strong> editor.</p>
+<p>Scroll down to the <code>categories</code> section. It reads <code>"categories": []</code> — an
+   empty list, because we have not given this layer any categories yet.</p>
 </li>
-<li>
-<p>Scroll down to the start of the <code>categories</code> section.</p>
-</li>
-<li>
-<p>Use the collapse arrow to fold the existing <code>categories</code> array down to
-   <code>categories [ ]</code>, then delete from the opening <code>[</code> to the closing <code>]</code>.</p>
-</li>
-<li>Paste in the JSON you copied. <strong>Apply changes</strong> and preview the layer.</li>
+<li>Highlight the entire line of the empty <code>categories</code> (<code>"categories": []</code>),
+   and then press paste to replace that one line with the clipboard copy from
+   above. <strong>Apply changes</strong> and preview the layer — the legend now shows a row
+   per class.</li>
 </ol>
 <div class="admonition tip">
 <p class="admonition-title">Full-config JSON editor</p>
@@ -1850,13 +1911,13 @@ useful for larger edits. See <a href="../../configuration/json-config.html">JSON
         
         
           
-          <a href="06-copy-categories.html" class="md-footer__link md-footer__link--next" aria-label="Next: 5-6. Copy categories between layers">
+          <a href="../06-time-series/index.html" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                5-6. Copy categories between layers
+                Overview
               </div>
             </div>
             <div class="md-footer__button md-icon">

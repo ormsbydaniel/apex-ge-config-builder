@@ -1,6 +1,7 @@
 ---
 title: 8-1. Pre-requisites
 ---
+
 # 8-1. Pre-requisites
 
 ## Tutorial pre-requisites
@@ -25,6 +26,9 @@ configuration you have been developing, or in a fresh configuration.
 - NUTS 2024 zonal statistics for World Cover 2021, published as FlatGeoBuf
   files at four levels of administrative detail.
 
+!!! info
+The preparation of statistics layers themselves is beyond the scope of the tutorial. Please contact that APEX team for further support on the preparation of statistics datasets.
+
 !!! tip "Export often"
-    Export your configuration after each step so you can recover if your
-    browser tab closes.
+Export your configuration after each step so you can recover if your
+browser tab closes.

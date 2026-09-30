@@ -393,7 +393,7 @@
   
     
   
-  GE Preview
+  Preview
 
       </a>
     </li>
@@ -922,7 +922,7 @@
         
   
   <span class="md-ellipsis">
-    GE Preview
+    Preview
   </span>
   
 
@@ -944,6 +944,8 @@
       
         
           
+        
+      
         
       
         
@@ -1155,8 +1157,6 @@
       
         
       
-        
-      
     
     
       
@@ -1214,8 +1214,6 @@
       
         
       
-        
-      
     
     
       
@@ -1263,8 +1261,6 @@
       
         
           
-        
-      
         
       
         
@@ -1502,6 +1498,63 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="09-coordinate-reference-systems/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    9. Coordinate reference systems
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1594,6 +1647,24 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#what-you-need" class="md-nav__link">
+    <span class="md-ellipsis">
+      What you need
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tutorial-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tutorial setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#navigating-the-tutorials" class="md-nav__link">
     <span class="md-ellipsis">
       Navigating the tutorials
@@ -1603,9 +1674,27 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tutorial-pre-requisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tutorial pre-requisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#workshops" class="md-nav__link">
     <span class="md-ellipsis">
       Workshops
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#byo-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      BYO data
     </span>
   </a>
   
@@ -1627,16 +1716,79 @@
 
 
 <h1 id="welcome-to-the-geospatial-explorer-tutorials">Welcome to the Geospatial Explorer tutorials<a class="headerlink" href="#welcome-to-the-geospatial-explorer-tutorials" title="Permanent link">&para;</a></h1>
-<p>In this tutorial series, you will use the <strong>Geospatial Explorer Configuration Builder</strong> to create your own Geospaital Explorer solution.</p>
-<p>Tutorials are devided into <strong>"core"</strong> and <strong>"topic"</strong> tutorials.</p>
+<p>In this tutorial series, you will use the <strong>Geospatial Explorer Configuration Builder</strong> to create your own Geospatial Explorer solution.</p>
+<p>Tutorials are divided into <strong>"core"</strong> and <strong>"topic"</strong> tutorials.</p>
 <p><strong>"Core"</strong> tutorials introduce the <em>Geospatial Explorer</em>, the <em>Configuration Builder</em> and get you started creating your first simple configuration. It is recommended that anybody working with the <em>Geospatial Explorer</em> for the first time, follows these tutorials in the order they are listed.</p>
 <p><strong>"Topic"</strong> tutorials explore a specific area of functionality. You can dive straight into any topic of interest in any order. For example a <em>"Time series"</em> tutorial could be done before a <em>"statistics"</em> tutorial or vice versa. Topics with similar names and #1, #2 suffixes etc, would generally be done in sequence, but would be clarified in the pre-requisites of each topic.</p>
+<h2 id="what-you-need">What you need<a class="headerlink" href="#what-you-need" title="Permanent link">&para;</a></h2>
+<p>Here is the best bit. The tutorials require:</p>
+<ul>
+<li><strong>No</strong> Earth observation experience.</li>
+<li><strong>No</strong> software development experience.</li>
+<li><strong>No</strong> pre-installed tools or environments on your machine.</li>
+<li><strong>No</strong> detailed technical knowledge.</li>
+<li>The <strong>only</strong> requirement is a computer with web browser and internet access.</li>
+</ul>
+<p>The tutorials make use of a few key technologies and data formats, in particular:</p>
+<ul>
+<li><strong>Cloud Optimised GeoTiff (COG)</strong> files</li>
+<li>Mapping services, such as <strong>WMS / WMTS</strong> and <strong>XYZ</strong> tile services</li>
+<li>Vector data in <strong>GeoJSON</strong> and <strong>FlatGeobuf</strong> format</li>
+<li><strong>SpatioTemporal Asset Catalogs (STAC)</strong></li>
+</ul>
+<p>Some basic understanding of these concepts is useful but not essential. The
+tutorials make use of them but do not aim to teach them.</p>
+<h2 id="tutorial-setup">Tutorial setup<a class="headerlink" href="#tutorial-setup" title="Permanent link">&para;</a></h2>
+<p>For the majority of tutorials you will be consulting this guide while working
+with the <strong>Geospatial Explorer Configuration Builder</strong>.</p>
+<ul>
+<li><strong>Modern browser required.</strong> Chrome, Firefox, Edge or Safari (latest version)
+  will all work. The Config Builder is a single-page web app — nothing to
+  install.</li>
+<li><strong>Two monitors are ideal.</strong> Keep the Config Builder open on one screen and
+  this guide on the other so you can follow along without switching windows.</li>
+<li><strong>One monitor is fine too.</strong> If you only have one screen, open the Config
+  Builder and this guide in two separate browser tabs and switch between them
+  as you work through each step.</li>
+<li><strong>One monitor and phone.</strong> If you want to avoid too much tab switching, you
+  might find it easier to read the tutorial instructions on your phone and
+  follow them on your monitor — then just switch tabs for things like copying
+  URLs to clipboard. Scan this QR code to open the Tutorials home page on your
+  phone:</li>
+</ul>
+<p><img alt="QR code linking to the Tutorials home page" src="../assets/screenshots/tutorial-setup-qr-code.png" width="245" /></p>
 <h2 id="navigating-the-tutorials">Navigating the tutorials<a class="headerlink" href="#navigating-the-tutorials" title="Permanent link">&para;</a></h2>
-<p>Use the <strong>left-hand navigation</strong> to see the full outline of tutorials and
-jump to any step. At the bottom of each page, the <strong>Previous</strong> and <strong>Next</strong>
-arrows step you through the tutorials in order.</p>
+<p>Each tutorial is broken into short steps, most of which take 5 to 10 minutes.
+Use the <strong>tutorial menu</strong> to see the full outline of tutorials and jump to any
+step. The tutorial menu is to the left of the page, or in the <strong>top-left
+dropdown menu if accessed on a phone</strong>. At the bottom of each page, the
+<strong>Previous</strong> and <strong>Next</strong> arrows step you through the tutorials in order.</p>
+<p>If you fall behind, don't worry — you can catch up quickly by jumping to the
+current step.</p>
+<h2 id="tutorial-pre-requisites">Tutorial pre-requisites<a class="headerlink" href="#tutorial-pre-requisites" title="Permanent link">&para;</a></h2>
+<p>Each tutorial has its own <strong>"home"</strong> page explaining what it will cover,
+followed by a pre-requisites step. This tells you which other tutorials we
+recommend you complete first. If you have done those tutorials, you can keep
+using the configuration you have been working on. If not, and you want to dive
+straight in, the pre-requisites page provides a suitable starting
+configuration.</p>
+<p>Tutorials 2 and 3 build directly on Tutorial 1. The remaining tutorials assume
+completion of all core tutorials (1–3), or existing familiarity with the
+Configuration Builder.</p>
 <h2 id="workshops">Workshops<a class="headerlink" href="#workshops" title="Permanent link">&para;</a></h2>
-<p>If attending workshop, tutorial content will be used as a combination of facilitator led demonstrations and self-paced learning exercises.</p>
+<p>If attending a workshop, the tutorial content will be used as a combination of
+facilitator-led demonstrations and self-paced learning exercises.</p>
+<p>Interrupt the facilitator at any time — questions are welcome and usually help
+everyone. If you get stuck on a step, flag it early rather than falling behind.</p>
+<h2 id="byo-data">BYO data<a class="headerlink" href="#byo-data" title="Permanent link">&para;</a></h2>
+<p>The tutorials use <strong>cloud hosted data sources</strong> — such as <strong>Cloud Optimised
+GeoTiff (COG)</strong> files, <strong>WMS / WMTS</strong> services and more — so you can follow
+along without preparing anything in advance.</p>
+<p>If you have your <strong>own data at a publicly accessible URL</strong>, you are welcome to
+try substituting it in the tutorials. If you are doing this in a workshop
+environment, whilst your facilitator may be more than happy to help if
+possible, we can't use workshop sessions to troubleshoot any issues with your
+own data, as this is likely to impact attention for the other delegates.</p>
 
 
 
@@ -1677,7 +1829,7 @@ arrows step you through the tutorials in order.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../configuration/preview.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: GE Preview">
+          <a href="../configuration/preview.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Preview">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1687,7 +1839,7 @@ arrows step you through the tutorials in order.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                GE Preview
+                Preview
               </div>
             </div>
           </a>

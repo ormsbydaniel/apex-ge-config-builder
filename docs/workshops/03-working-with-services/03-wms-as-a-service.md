@@ -1,6 +1,7 @@
 ---
 title: 3-3. Adding WMS as a service
 ---
+
 # 3-3. Adding WMS as a service
 
 In tutorial 2 you added a WMS layer using a **direct connection** — the service
@@ -8,41 +9,56 @@ URL and layer name were typed straight into the layer card. In this step we will
 register the same endpoint as a **service**, so that its capabilities are read
 once and its layers can be browsed whenever you add a dataset.
 
-1. Move to the **Services** tab.
-2. Select **Add Service** (top right).
-3. Leave **Service Type** set to **WMS**.
-4. Paste the following into the **Service URL**:
+1. On the **Services** tab, select **Add Service** (top right). Leave **Service Type** set to **WMS** and paste the following into the **Service URL**:
 
-    ```
-    https://mapproxy.terrascope.be/mapproxy/service
-    ```
+   ```
+   https://mapproxy.terrascope.be/mapproxy/service
+   ```
 
-5. Wait for the validation message. When the endpoint responds you will see a
+2. Wait for the validation message. When the endpoint responds you will see a
    green **Reachable** status, and the **Service Name** is auto-populated from
    the service's `GetCapabilities` response. You can override the name if you
    prefer something shorter, e.g. `Terrascope WMS`.
-6. Select **Add Service**. The service now appears in the **Configured
+3. Select **Add Service**. The service now appears in the **Configured
    Services** list, with a badge showing the number of layers discovered and the
    WMS version reported by the service.
 
 ## Use the service in a layer card
 
 1. Return to the **Layers** tab and add a new layer card called `World Cover
-   2020`.
-2. Select **+ Add dataset** and choose **From service**.
-3. Pick the WMS service you just added. The builder loads the capabilities and
+2020` in your `Land cover` interface group.
+2. Select **+ Add dataset → From service** and pick the **MapProxy WMS** service you just added. The builder loads the capabilities and
    presents a searchable list of layers.
-4. Search for `worldcover`. Multiple years will appear in the search results,
-    including layers named **WORLDCOVER MAP**; select the **2020** version,
-    then choose **Select**.
-5. *Preview* your config now to see the new layer, then select *Export* so you
+3. Search for `worldcover`. Multiple years will appear in the search results,
+   including layers named **WORLDCOVER MAP**; select the **2020** version,
+   then choose **Select** then **Add source** to complete the step.
+4. _Preview_ your config now to see the new layer, then select _Export_ so you
    don't lose your work.
+
+## Add more WMS layers
+
+Once you have added the recommended services in [3-4](04-recommended-services.md),
+you can return here to pick another WMS layer from one of them.
+
+Add some more WMS layers.
+
+1. Create a new **layer card** called `temp` — you'll rename it once you've
+   picked the data.
+2. Repeat the steps above to browse other layers in the **MapProxy WMS**, pick one of interest and add it to your layer card.
+3. Edit the layer card and rename it from `temp` to something meaningful for
+   the data you picked. Adjust attribution and controls as needed.
+
+**Note**: once you have added the recommended services in the next tutorial, you might want to add some other layers from the additional WMS services available. You may also know of a specific WMS service that you want to experiement with. Try returning to the start of the tutorial but using a WMS URL of your own choice.
 
 !!! tip "Direct connection vs service"
 
     Use a **direct connection** for a one-off layer where you already know the
     layer name. Register a **service** when you expect to pull several layers
     from the same endpoint, or when you want to browse what is available.
+
+!!! warning "No WMS layer showing?"
+
+    When the Geospatial Explorer loads it makes a runtime call to the *GetCapabilities* endpoint of the WMS service to fetch necessary metadata about the layer.  The GE has a default timeout of 2500 milliseconds (2.5 s),for each layer load, and if it hasn't had a response in that time it assumes the layer is not available and won't even include it in the layer list.  If you have a working WMS but it is just a bit slow you can overide this timout.  Simply go to **Settings -> More settings -> Layer Fetch timeout** (bottom of page) and increase the timeout for a longer wait.
 
 See [Adding services](../../services/adding-services.md) and
 [WMS / WMTS / WFS](../../data-sources/wms-wmts-wfs.md) for the full reference.

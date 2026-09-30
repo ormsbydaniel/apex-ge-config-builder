@@ -28,27 +28,26 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { FieldsConfig, FieldConfig } from '@/types/category';
+import { FieldsConfig } from '@/types/category';
 import { DataSource } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useFieldsEditorState } from '@/hooks/useFieldsEditorState';
 import FieldsEditorTabs from './FieldsEditorTabs';
-import { isVectorFormat } from '@/utils/fieldDetection';
+import { assignFieldOrder } from '@/utils/fieldOrder';
+import type { DataSourceItem } from '@/types/dataSource';
 
 interface FieldsEditorDialogProps {
   fields: FieldsConfig;
   onUpdate: (fields: FieldsConfig) => void;
   trigger: React.ReactNode;
-  sourceUrl?: string;
-  sourceFormat?: string;
+  dataSources?: DataSourceItem[];
 }
 
 const FieldsEditorDialog = ({
   fields,
   onUpdate,
   trigger,
-  sourceUrl,
-  sourceFormat
+  dataSources = []
 }: FieldsEditorDialogProps) => {
   const { config } = useConfig();
 
@@ -83,7 +82,6 @@ const FieldsEditorDialog = ({
     removeField,
     addField,
     performCopy,
-    importDetectedFields
   } = useFieldsEditorState({ fields, availableSourceLayers });
 
   const handleAdd = () => {
@@ -91,7 +89,7 @@ const FieldsEditorDialog = ({
   };
 
   const handleSave = () => {
-    onUpdate(localFields);
+    onUpdate(assignFieldOrder(localFields, Object.keys(localFields)));
     handleOpen(false);
   };
 
@@ -120,7 +118,7 @@ const FieldsEditorDialog = ({
       </div>
 
       <Dialog open={open} onOpenChange={handleOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[1024px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Manage Fields</DialogTitle>
           </DialogHeader>
@@ -130,8 +128,7 @@ const FieldsEditorDialog = ({
             localFields={localFields}
             availableSourceLayers={availableSourceLayers}
             selectedSourceLayer={selectedSourceLayer}
-            sourceUrl={sourceUrl}
-            sourceFormat={sourceFormat}
+            dataSources={dataSources}
             newFieldName={newFieldName}
             onActiveTabChange={setActiveTab}
             onSetLocalFields={setLocalFields}
@@ -141,7 +138,6 @@ const FieldsEditorDialog = ({
             onAddField={addField}
             onUpdateField={updateField}
             onRemoveField={removeField}
-            onImportDetectedFields={importDetectedFields}
           />
 
           <DialogFooter>

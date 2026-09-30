@@ -13,7 +13,7 @@ Style GeoJSON, FlatGeoBuf, and WFS layers using rule-based fills, lines, and lab
 - Apply different styles to subsets of features (rule-based)
 - Add data-driven labels
 
-If you only want to control which attributes appear in the info panel and how they are formatted, use [Vector fields](vector-fields.md) instead — that is a separate, non-styling editor.
+If you only want to control which attributes appear in the info panel and how they are formatted, use [Data Values (vector)](data-values-vector.md) instead — that is a separate, non-styling editor.
 
 ## Editor structure
 

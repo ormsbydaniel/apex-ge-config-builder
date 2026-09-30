@@ -1,6 +1,7 @@
 ---
 title: 7-3. Add the wind power layer
 ---
+
 # 7-3. Add the wind power layer
 
 Before adding constraints we need something to constrain. In this step we build
@@ -12,64 +13,57 @@ a single COG layer showing wind power density at 100 m over Austria.
 
 2. Add a **COG** data source with this URL:
 
-
-    ```
-    https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix.tif
-    ```
+   ```
+   https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix.tif
+   ```
 
 3. Open **Data Visualisation → Colormaps → Edit** and add a colormap:
 
-    | Setting | Value |
-    | --- | --- |
-    | Name | `jet` |
-    | Min | 0 |
-    | Max | 2000 |
-    | Steps | 50 |
-    | Reverse | off |
+   | Setting | Value |
+   | ------- | ----- |
+   | Name    | `jet` |
+   | Min     | 0     |
+   | Max     | 2000  |
+   | Steps   | 50    |
+   | Reverse | off   |
 
 4. In the layer card **Controls**, enable:
 
+   - **Opacity slider**
+   - **Zoom to centre**
+   - **Constraint slider**
 
-    - **Opacity slider**
-    - **Zoom to centre**
-    - **Constraint slider**
+   Leave **Temporal controls** and **Blend controls** unchecked, then close the dialogue.
 
-    Leave **Temporal controls** and **Blend controls** off.
+   !!! warning "Constraint slider"
+   Without the **Constraint slider** control the constraints you add in
+   the rest ot this tutorial steps will be saved to the configuration but will never
+   appear in the viewer.
 
-    !!! warning "Constraint slider"
-        Without the **Constraint slider** control the constraints you add in
-        the following steps will be saved to the configuration but will never
-        appear in the viewer.
+5. To avoid you having to constantly zoom for the rest of this tutorial,go to **Settings → Navigation** and pick **Austria** from the quick location list.
 
-5. **Optional — polish the layer and the start location.**
+6. Open **Preview** and toggle the layer on. You should see a jet colour ramp
+   over Austria with a gradient legend,and a **Filter** icon in the layer card, which looks like a _funnel._
 
-    In the layer **Metadata**, set:
+7. Click on the filter, then **drag the slider** values. See how this effects the display of the wind power layer.
 
-    - **Description** — copy in the following text:
+   ![Austria Wind Power Density layer preview with the layer panel open, showing the jet colour ramp legend and layer description](../../assets/screenshots/wind-power-layer-result.png)
 
-        ```
-        The wind power density (w m 2) is a measure of the available wind
-        resource at 100 metres height. Higher wind power density indicates
-        greater wind power potential. Constraints allow the data to be filtered
-        by multiple criteria.
-        ```
+8. **Optional — polish the layer and the start location.**
 
-    - **Units** — `w / m 2`
-    - **Attribution** — text `ESA GTIF`, URL
-      [https://gtif.esa.int/](https://gtif.esa.int/){:target="_blank"}
+   In the layer **Metadata**, set:
 
+   - **Description** — copy in the following text:
 
-    Then open **Settings → Navigation** and pick **Austria** from the quick
-    location list, so the Explorer always opens on the area of interest. See
-    [4-4. Default start location](../04-fine-tuning/04-default-start-location.md).
+     ```
+     The wind power density (w m 2) is a measure of the available wind
+     resource at 100 metres height. Higher wind power density indicates
+     greater wind power potential. Constraints allow the data to be filtered
+     by multiple criteria.
+     ```
 
-6. Open the **Preview** and turn the layer on. You should see a jet colour ramp
-    over Austria with a gradient legend, and a **Filter** icon in the layer card.
-    The filter is the constraint control for this layer: it lets you mask the
-    wind power layer by its own data values, even before any additional
-    constraint layers are added in the later steps.
-
-    ![Austria Wind Power Density layer preview with the layer panel open, showing the jet colour ramp legend and layer description](../../assets/screenshots/wind-power-layer-result.png)
-
+   - **Units** — `w / m 2`
+   - **Attribution** — text `ESA GTIF`, URL
+     [https://gtif.esa.int/](https://gtif.esa.int/){:target="_blank"}
 
 ### Did you remember to export?

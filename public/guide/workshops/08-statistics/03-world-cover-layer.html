@@ -393,7 +393,7 @@
   
     
   
-  GE Preview
+  Preview
 
       </a>
     </li>
@@ -922,7 +922,7 @@
         
   
   <span class="md-ellipsis">
-    GE Preview
+    Preview
   </span>
   
 
@@ -944,6 +944,8 @@
       
         
           
+        
+      
         
       
         
@@ -1155,8 +1157,6 @@
       
         
       
-        
-      
     
     
       
@@ -1214,8 +1214,6 @@
       
         
       
-        
-      
     
     
       
@@ -1263,8 +1261,6 @@
       
         
           
-        
-      
         
       
         
@@ -1715,6 +1711,63 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../09-coordinate-reference-systems/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    9. Coordinate reference systems
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1831,46 +1884,37 @@
 
 
 <h1 id="8-3-reuse-the-world-cover-layer">8-3. Reuse the World Cover layer<a class="headerlink" href="#8-3-reuse-the-world-cover-layer" title="Permanent link">&para;</a></h1>
-<p>We do not need a new layer for this tutorial. The World Cover 2021 WMS layer
+<p>We do not need a new layer for this tutorial. We will use the World Cover 2021 WMS layer
 built in <a href="../02-getting-started/09-wms-service.html">2-9. Add a WMS data source</a>
-already has everything the statistics need.</p>
+as the starting point for this exercise.</p>
 <ol>
 <li>
 <p>In the <strong>Layers</strong> tab, find the <code>World Cover 2021</code> layer in the <code>Land Cover</code>
-   interface group and <strong>edit its name</strong> to:</p>
+   interface group</p>
+</li>
+<li>
+<p><strong>edit its name</strong> to:</p>
 <div class="highlight"><pre><span></span><code>World Cover 2021 with statistics
 </code></pre></div>
 </li>
 <li>
-<p>Check the WMS data source is still the Terrascope MapProxy service
-   (<code>https://mapproxy.terrascope.be/mapproxy/service</code>, layer
-   <code>esa-worldcover-map-10m-2021-v2_map</code>). Nothing else about the source needs to
-   change.</p>
-</li>
-<li>
-<p>Extend the layer <strong>description</strong> so users know where to look — copy in:</p>
+<p>update the layer <strong>description</strong> with the folliwng user guidance:</p>
 <div class="highlight"><pre><span></span><code>A 10 meter resolution global land cover product for the year 2021, developed and validated in near-real time based on Sentinel-1 and Sentinel-2 data.  Data is provided with statistics for NUTS (Nomenclature of territorial units for statistics) boundaries.  Select the "statistics" tab and click on a feature to view.
 </code></pre></div>
-<p>The last sentence matters: statistics are only visible once the user opens
-the <strong>Statistics</strong> tab.</p>
 </li>
 <li>
 <p>Confirm the layer has its World Cover <strong>categories</strong> defined. If you
-   completed <a href="../05-categorical-data/index.html">5. Categorical data</a> they are
-   already there. If not, add them now via <strong>Data Visualisation → Categories →
-   Edit</strong>, either with <strong>Copy from layer</strong> or by importing the
-   <a href="../../assets/world-cover-classes.csv">World Cover class CSV</a>, and set the
-   <strong>legend type</strong> to <strong>Swatch</strong>.</p>
+completed <a href="../05-categorical-data/index.html">5. Categorical data</a> they are
+already there. If not, add them now via <strong>Data Visualisation → Categories →
+Edit</strong>, either with <strong>Copy from layer</strong> or by importing the
+<a href="../../assets/world-cover-classes.csv">World Cover class CSV</a>, and set the
+<strong>legend type</strong> to <strong>Swatch</strong>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Categories drive the statistics display</p>
 <p>The statistics files store an area per class value. Without the
 category list the Explorer can only show raw numbers; with it, each
 entry gets its label and colour.</p>
 </div>
-</li>
-<li>
-<p><strong>Export</strong> and check the layer still renders in the <strong>Preview</strong> before moving
-   on.</p>
 </li>
 </ol>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>

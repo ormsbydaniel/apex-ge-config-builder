@@ -16,7 +16,7 @@ Config Builder and how it fits into the wider Geospatial Explorer stack.
   JSON file, and reload it later by importing that file back into the CB.
 - Configurations are shareable — email or Slack the exported JSON to a
   collaborator and they can load it into their own browser using the CB.
-- A run-time version of the GE is **integrated into the CB** on the **GE Preview**
+- A run-time version of the GE is **integrated into the CB** on the **Preview**
   tab. Both released versions and interim development versions of the GE are
   available, so you can build configurations that target features not yet in a
   stable release.

@@ -393,7 +393,7 @@
   
     
   
-  GE Preview
+  Preview
 
       </a>
     </li>
@@ -922,7 +922,7 @@
         
   
   <span class="md-ellipsis">
-    GE Preview
+    Preview
   </span>
   
 
@@ -944,6 +944,8 @@
       
         
           
+        
+      
         
       
         
@@ -1155,8 +1157,6 @@
       
         
       
-        
-      
     
     
       
@@ -1214,8 +1214,6 @@
       
         
       
-        
-      
     
     
       
@@ -1263,8 +1261,6 @@
       
         
           
-        
-      
         
       
         
@@ -1676,6 +1672,63 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../09-coordinate-reference-systems/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    9. Coordinate reference systems
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1777,26 +1830,21 @@
 <h1 id="8-2-key-concepts">8-2. Key concepts<a class="headerlink" href="#8-2-key-concepts" title="Permanent link">&para;</a></h1>
 <ul>
 <li>A layer's <strong>data</strong> sources are what the user <em>sees</em> on the map. Its
-  <strong>statistics</strong> sources are what the user <em>queries</em> — they are stored in a
-  separate <code>statistics</code> array on the layer and are never drawn as a normal
-  layer.</li>
-<li>In this tutorial the statistics sources are <strong>vector</strong> files
-  (<strong>FlatGeoBuf</strong>, or <strong>GeoJSON</strong>) whose features are administrative
-  boundaries. Each feature carries <strong>pre-computed attributes</strong> — in this case
-  the area of each World Cover class inside that boundary.</li>
+  <strong>statistics</strong> sources are vector datasets (<strong>FlatGeoBuf</strong>, or <strong>GeoJSON</strong>) that contain precomputed statistics about the layer based for administrative boundaries defined in the vector layer.</li>
+<li>In this tutorial the statistics sources are a measure of the area of each <em>World Cover</em> classification within the administrative boundary.</li>
 <li>Because the numbers are computed in advance, the Explorer does not have to
   process any raster on the fly. It simply loads the vector file for the
   current view and reads the attributes of whichever feature the user clicks.</li>
 <li>Statistics render best when the layer also has <strong>categories</strong> defined: the
   class labels and colours from the layer's category list are used to present
   the per-feature breakdown.</li>
-<li>
-<p>Each statistics source has a <strong>level</strong>. Level <code>0</code> is the coarsest set of
+<li>Each statistics source has a <strong>level</strong>. Level <code>0</code> is the coarsest set of
   boundaries and higher levels are progressively finer. The Explorer picks the
   level appropriate to the current map zoom, so a user sees countries when
-  zoomed out and small regions when zoomed in.</p>
+  zoomed out and small regions when zoomed in.</li>
+</ul>
 <p>Here we use <strong>NUTS</strong> (<em>Nomenclature of territorial units for statistics</em>),
-the standard European hierarchy:</p>
+  the standard European hierarchy:</p>
 <table>
 <thead>
 <tr>
@@ -1828,11 +1876,9 @@ the standard European hierarchy:</p>
 </tr>
 </tbody>
 </table>
-</li>
-<li>
-<p>Levels are assigned <strong>in the order you add the sources</strong>, starting at <code>0</code>.
-  Add them coarsest first and the numbering takes care of itself.</p>
-</li>
+<ul>
+<li>Levels are assigned <strong>in the order you add the sources</strong>, starting at <code>0</code>.
+  Add them coarsest first and the numbering takes care of itself.</li>
 <li>In the Explorer the user opens the <strong>Statistics</strong> tab and clicks a feature to
   see the summary for that area.</li>
 </ul>

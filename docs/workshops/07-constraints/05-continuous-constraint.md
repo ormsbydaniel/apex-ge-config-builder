@@ -15,28 +15,25 @@ that has been prepared to match the wind power grid.
 
 ## Configure it
 
-1. In the **Constraints** tab of the *Austria Wind Power Density at 100m* layer
-   card, select **Add constraint**.
-
-2. Keep the source type as **Direct URL** and paste:
+1. In the **Constraints** tab of the *Austria Wind Power Density at 100m* layer card, select **Add constraint**. Keep the source type as **Direct URL** and paste:
 
     ```
     https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/Copernicus_DSM_COG_10m_3857_fix.tif
     ```
 
-3. Set:
+    Set:
 
     - **Label** — `Elevation`
     - **Interactive** — on
     - **Constraint Type** — **Continuous**
 
-4. Select **Populate Min & Max from COG**. The builder reads the statistics
+2. Select **Populate Min & Max from COG**. The builder reads the statistics
    from the file and fills in the range.
 
-5. Round the values to `0` and `4000` so the slider has sensible stops, and set
+3. Round the values to `0` and `4000` so the slider has sensible stops, and set
    **Units** to `meters`.
 
-6. **Save** the constraint.
+4. **Save** the constraint.
 
 ## View the result
 

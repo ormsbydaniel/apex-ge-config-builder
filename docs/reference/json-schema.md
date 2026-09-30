@@ -36,7 +36,7 @@ Every configuration is a single JSON object with this shape:
 | `workflows` | object[] | no | Top-level algorithms available across the config — see [`workflows[]`](#workflows). |
 | `stories` | object[] | no | Storymaps (guided tours) — see [`stories[]`](#stories). |
 | `mapConstraints` | object | no | Initial zoom, centre, and CRS. |
-| `projections` | object[] | no | Custom proj4 [Coordinate Reference System](../settings/index.md) definitions. |
+| `projections` | object[] | no | Custom [Coordinate Reference System](../settings/index.md) definitions in PROJ.4 format. |
 
 !!! info "Naming: workflows vs. algorithms"
     "Workflow" in the JSON (and in code) is the same thing the UI calls
@@ -310,6 +310,17 @@ Vector layer with field display config (`null` hides a field):
 }
 ```
 
+Each field entry supports (all optional):
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `label` | string | Display name replacing the raw property name. |
+| `prefix` / `suffix` | string | Text shown before/after the value (units, qualifiers). |
+| `precision` | integer | Decimal places for numeric values. |
+| `order` | integer | Display position in the Data Values panel (1-based). |
+| `type` | string | `date` or `url`. `date` only takes effect when `format` is also set. |
+| `format` | string | Luxon token string (e.g. `yyyy-MM-dd`, `dd MMM yyyy, HH:mm`) used to format `date` fields. Without it the raw value is shown. |
+
 ## `layout` (per-source)
 
 Where the layer lives in the GE UI and how its legend / controls render.
@@ -560,13 +571,13 @@ Initial map view.
 
 ## `projections[]`
 
-Custom proj4 [Coordinate Reference System](../settings/index.md) definitions
+Custom [Coordinate Reference System](../settings/index.md) definitions in PROJ.4 format
 made available to `mapConstraints.projection` and to the layer renderer.
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
 | `code` | string | yes | EPSG-style code (e.g. `EPSG:3035`). |
-| `definition` | string | yes | proj4 definition string. |
+| `definition` | string | yes | PROJ.4 definition string. |
 | `name` | string | no | Friendly label. |
 
 ```json

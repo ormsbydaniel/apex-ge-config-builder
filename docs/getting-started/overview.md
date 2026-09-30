@@ -20,7 +20,7 @@ The top navigation gives you one tab per major concern.
 | **[Services](../services/index.md)** | Register and validate reusable endpoint definitions (WMS, WMTS, WFS, COG, XYZ, GeoJSON, FlatGeoBuf, CSV, S3, STAC). Layers reference services by name, so you can swap an endpoint URL in one place. |
 | **[Settings](../settings/index.md)** | Top-level configuration that applies to the whole APEx Geospatial Explorer instance: export filename, design variant, navigation defaults, custom CRS, branding, footer links, interface groups, and URL parameters reference. |
 | **[JSON Config](../configuration/json-config.md)** | Inspect the raw configuration document as it would be exported, or paste in a configuration to load. URLs are sanitised in the preview. |
-| **[GE Preview](../configuration/preview.md)** | Run the actual APEx Geospatial Explorer inline using your current config — the fastest way to confirm a layer renders, a colormap looks right, or the layer panel reads sensibly before shipping. |
+| **[Preview](../configuration/preview.md)** | Run the actual APEx Geospatial Explorer inline using your current config — the fastest way to confirm a layer renders, a colormap looks right, or the layer panel reads sensibly before shipping. |
 
 ## Core concepts
 

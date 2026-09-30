@@ -1,16 +1,12 @@
 ---
 title: 8-2. Key concepts
 ---
+
 # 8-2. Key concepts
 
-- A layer's **data** sources are what the user *sees* on the map. Its
-  **statistics** sources are what the user *queries* — they are stored in a
-  separate `statistics` array on the layer and are never drawn as a normal
-  layer.
-- In this tutorial the statistics sources are **vector** files
-  (**FlatGeoBuf**, or **GeoJSON**) whose features are administrative
-  boundaries. Each feature carries **pre-computed attributes** — in this case
-  the area of each World Cover class inside that boundary.
+- A layer's **data** sources are what the user _sees_ on the map. Its
+  **statistics** sources are vector datasets (**FlatGeoBuf**, or **GeoJSON**) that contain precomputed statistics about the layer based for administrative boundaries defined in the vector layer.
+- In this tutorial the statistics sources are a measure of the area of each _World Cover_ classification within the administrative boundary.
 - Because the numbers are computed in advance, the Explorer does not have to
   process any raster on the fly. It simply loads the vector file for the
   current view and reads the attributes of whichever feature the user clicks.
@@ -22,15 +18,15 @@ title: 8-2. Key concepts
   level appropriate to the current map zoom, so a user sees countries when
   zoomed out and small regions when zoomed in.
 
-    Here we use **NUTS** (*Nomenclature of territorial units for statistics*),
-    the standard European hierarchy:
+  Here we use **NUTS** (_Nomenclature of territorial units for statistics_),
+  the standard European hierarchy:
 
-    | Level | NUTS | Typical unit |
-    | --- | --- | --- |
-    | 0 | NUTS 0 | Country |
-    | 1 | NUTS 1 | Major region |
-    | 2 | NUTS 2 | Basic region / province |
-    | 3 | NUTS 3 | Small region |
+  | Level | NUTS   | Typical unit            |
+  | ----- | ------ | ----------------------- |
+  | 0     | NUTS 0 | Country                 |
+  | 1     | NUTS 1 | Major region            |
+  | 2     | NUTS 2 | Basic region / province |
+  | 3     | NUTS 3 | Small region            |
 
 - Levels are assigned **in the order you add the sources**, starting at `0`.
   Add them coarsest first and the numbering takes care of itself.

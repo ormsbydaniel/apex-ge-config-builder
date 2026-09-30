@@ -11,29 +11,26 @@ data.
 
     ![Statistics tab in the Data Sources section of the layer card](../../assets/screenshots/data-sources-statistics-tab.png)
 
-2. Click **Add source** and choose the format **FlatGeoBuf**.
+2. Click **Add source**, choose **FlatGeoBuf**, and enter the NUTS level 0 (country) source details:
 
     !!! note "Supported formats"
         Statistics sources must be **FlatGeoBuf** or **GeoJSON**. FlatGeoBuf is
         preferred: it is indexed, so the Explorer only downloads the features
         in view.
 
-3. Paste in the NUTS level 0 (country) file:
+    - **File URL:**
 
-    ```
-    https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level00.fgb
-    ```
+      ```text
+      https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level00.fgb
+      ```
 
-4. Note the **level** field. This is the first statistics source on the layer,
-   so it is pre-filled with `0` — the coarsest boundaries. Leave it as it is.
+    - **level:** Leave it at the pre-filled `0` — this is the first statistics source on the layer, with the coarsest boundaries.
+    - **zIndex:** Leave it at `100`, above the display data so the clickable boundaries sit on top of the raster.
 
-5. The **zIndex** is set to `100`, above the display data, so that the clickable
-   boundaries sit on top of the raster. Leave it as it is.
-
-6. **Save** the source. It now appears under **Statistics**, separately from the
+3. **Save** the source. It now appears under **Statistics**, separately from the
    WMS source on the **Data** tab.
 
-7. View the result. Open the **Preview**, turn the layer on, then:
+4. View the result. Open the **Preview**, turn the layer on, then:
 
     - Select the **Statistics** tab in the info panel.
     - Click on a **country** on the map.

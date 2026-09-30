@@ -1,9 +1,9 @@
 ---
-title: GE Preview
+title: Preview
 ---
-# GE Preview
+# Preview
 
-The **Preview** tab (rendered as **GE Preview** in the navigation) runs
+The **Preview** tab runs
 the actual APEx Geospatial Explorer inline using your current
 configuration. It is the fastest way to confirm a layer renders, a
 colormap looks right, or the layer panel reads sensibly before you ship a
@@ -13,9 +13,9 @@ config.
     Screenshots on this page were taken with the **Comprehensive demo**
     config loaded.
 
-![GE Preview running the Comprehensive demo: top toolbar with version selector and Ready badge, layer panel on the left, an info panel on the right showing Topsoil Soil Organic Carbon details](../assets/screenshots/ge-preview-loaded.png)
+![Preview running the Comprehensive demo: top toolbar with version selector and Ready badge, layer panel on the left, an info panel on the right showing Topsoil Soil Organic Carbon details](../assets/screenshots/ge-preview-loaded.png)
 
-## Opening GE Preview
+## Opening Preview
 
 Click the **Preview** tab in the top navigation. Two preconditions:
 
@@ -28,7 +28,7 @@ Click the **Preview** tab in the top navigation. Two preconditions:
 
 ## What loads
 
-GE Preview loads your current in-memory config — the same one the Home tab
+Preview loads your current in-memory config — the same one the Home tab
 shows statistics for — into a real instance of the APEx Geospatial Explorer
 running in an iframe. No file is written; nothing is uploaded; no export
 step is needed.
@@ -66,7 +66,7 @@ authors pick up new releases automatically.
 
 ## Limitations
 
-- GE Preview is a runtime view, not an editor — to change anything, use
+- Preview is a runtime view, not an editor — to change anything, use
   **Back to Config Builder**.
 - Network-dependent layers (WMS, WMTS, COG, S3) are fetched live; if your
   network or the upstream service is down, those layers will fail to
@@ -75,12 +75,12 @@ authors pick up new releases automatically.
   Switching to the latest version usually resolves "feature not available"
   warnings.
 
-## When to use GE Preview vs. healthcheck
+## When to use Preview vs. healthcheck
 
 - Use [Run Healthcheck](../services/healthcheck.md) for a structured
   pass/fail report across every URL.
-- Use **GE Preview** when you want to *see* the result — colour ramps,
+- Use **Preview** when you want to *see* the result — colour ramps,
   legend layout, swipe behaviour, basemap interaction.
 
-A typical loop is *edit → save → GE Preview → back → edit → run
+A typical loop is *edit → save → Preview → back → edit → run
 healthcheck → export*.

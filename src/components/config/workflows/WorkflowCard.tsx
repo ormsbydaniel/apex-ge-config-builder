@@ -118,9 +118,7 @@ export const WorkflowCard = ({
   };
 
   const adapter = toSourceAdapter(workflow);
-  const firstVectorSource = isDataSourceItemArray(adapter.data)
-    ? adapter.data.find((d) => d.format && isVectorFormat(d.format))
-    : undefined;
+  const hasVectorSource = isDataSourceItemArray(adapter.data) && adapter.data.some((d) => d.format && isVectorFormat(d.format));
 
   const endpointHost = workflow.serviceDetails?.endpoint
     ?.replace(/^https?:\/\//, '')
@@ -270,12 +268,11 @@ export const WorkflowCard = ({
               onUpdateLayoutAndMeta={handleUpdateLayoutAndMeta}
             />
 
-            {firstVectorSource && (
+            {hasVectorSource && (
               <LayerFieldsDisplay
                 fields={workflow.meta?.fields || {}}
                 onUpdate={(fields) => handleUpdateMeta({ fields })}
-                sourceUrl={firstVectorSource.url}
-                sourceFormat={firstVectorSource.format}
+                dataSources={adapter.data}
               />
             )}
 

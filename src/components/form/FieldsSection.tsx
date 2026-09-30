@@ -9,19 +9,18 @@ import { Badge } from '@/components/ui/badge';
 import { Edit3, EyeOff, List } from 'lucide-react';
 import { FieldsConfig } from '@/types/category';
 import FieldsEditorDialog from './FieldsEditorDialog';
+import type { DataSourceItem } from '@/types/dataSource';
 
 interface FieldsSectionProps {
   fields: FieldsConfig;
   onUpdate: (field: string, value: any) => void;
-  sourceUrl?: string;
-  sourceFormat?: string;
+  dataSources?: DataSourceItem[];
 }
 
 const FieldsSection = ({
   fields,
   onUpdate,
-  sourceUrl,
-  sourceFormat
+  dataSources
 }: FieldsSectionProps) => {
   const handleFieldsUpdate = (updatedFields: FieldsConfig) => {
     onUpdate('fields', updatedFields);
@@ -75,8 +74,7 @@ const FieldsSection = ({
       <FieldsEditorDialog
         fields={fields}
         onUpdate={handleFieldsUpdate}
-        sourceUrl={sourceUrl}
-        sourceFormat={sourceFormat}
+        dataSources={dataSources}
         trigger={
           <Button 
             type="button" 

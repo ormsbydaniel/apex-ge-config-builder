@@ -16,26 +16,22 @@ the labels are only for display.
 
 ## Configure it
 
-1. On the *Austria Wind Power Density at 100m* layer card, click on the
-   **Constraints** tab.
-
-2. Select **Add constraint**, keep the source type as **Direct URL** and paste
-   the WorldCover COG that has been prepared to align with the wind power data:
+1. On the *Austria Wind Power Density at 100m* layer card, open the **Constraints** tab and select **Add constraint**. Keep the source type as **Direct URL** and paste the WorldCover COG that has been prepared to align with the wind power data:
 
     ```
     https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif
     ```
 
-3. Set:
+    Set:
 
     - **Label** — `Land Cover (from World Cover)`
     - **Interactive** — on
     - **Constraint Type** — **Categorical**
 
-4. Select **Populate Categories from COG**. The builder reads the distinct
+2. Select **Populate Categories from COG**. The builder reads the distinct
    values present in the file and creates a row for each one.
 
-5. Edit the labels so they read as class names rather than numbers:
+3. Edit the labels so they read as class names rather than numbers:
 
     | Label | Value |
     | --- | --- |
@@ -59,7 +55,7 @@ the labels are only for display.
         Not every class is present in Austria. Values that the COG does not
         contain simply never mask anything, so it is harmless to leave them in.
 
-6. **Save** the constraint.
+4. **Save** the constraint.
 
 ## View the result
 

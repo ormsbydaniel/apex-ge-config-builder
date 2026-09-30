@@ -8,7 +8,7 @@ controls the Explorer shows for that layer. Open your *Above Ground Biomass*
 layer card, find the **Controls** section, and click the pencil icon to open
 **Edit Controls**.
 
-After each change, **Save** the layer card and open **GE Preview** to see the
+After each change, **Save** the layer card and open **Preview** to see the
 effect in the Explorer.
 
 ![Layer controls on a layer card in the Explorer](../../assets/screenshots/layer-card-controls-row.png)
@@ -34,7 +34,7 @@ where it zooms to.
 **Layer bounds** — zooms to the extent of the data itself.
 
 1. Tick **Zoom to Center** and choose **Layer bounds**.
-2. **Save**, then open **GE Preview**.
+2. **Save**, then open **Preview**.
 3. Pan and zoom the map somewhere else, then click the layer's zoom button.
 
 **Custom extent** — zooms to coordinates you supply, useful when you want to
@@ -66,7 +66,7 @@ land on a particular region rather than the whole dataset.
 Lets users fade the layer so they can see what is underneath it.
 
 1. Tick **Opacity Slider** and **Save**.
-2. In **GE Preview**, drag the slider and watch the base map show through.
+2. In **Preview**, drag the slider and watch the base map show through.
 
 ### Blend Controls
 
@@ -74,7 +74,7 @@ Exposes blend modes (multiply, overlay, and so on) that change how the layer
 combines with the layers below it.
 
 1. Tick **Blend Controls** and **Save**.
-2. In **GE Preview**, try a couple of blend modes over your base map.
+2. In **Preview**, try a couple of blend modes over your base map.
 
 ![Blend Layers control on a layer card in the Explorer](../../assets/screenshots/layer-card-blend-controls.png)
 
@@ -119,7 +119,7 @@ where that button points.
     https://eoresults.esa.int/d/FCM-AGB-100m/2023/01/01/FCM-AGB-100m-2023/FCM_Europe_demo_2023_AGB.tif
     ```
 
-2. **Save**, then open **GE Preview**.
+2. **Save**, then open **Preview**.
 3. Click the download button on the layer card and check the download starts.
 
 !!! tip "Download links"

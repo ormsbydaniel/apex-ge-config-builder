@@ -6,25 +6,17 @@ title: 2-7. Add a COG data source
 In this step we will attach a Cloud Optimized GeoTIFF (COG) to your
 *Above Ground Biomass* layer card.
 
-1. On your layer card, select the **Datasets** tab and choose
-   **+ Add dataset**.
-2. Keep **Direct connection** and **COG** selected as the data format.
-3. Paste the following into the **Data source URL** and select **Add source**:
+1. On your layer card, select the **Datasets** tab and choose **+ Add dataset**. Keep **Direct connection** and **COG** selected as the data format.
+2. Paste the following into the **Data source URL** and select **Add source**:
 
     ```
     https://eoresults.esa.int/d/FCM-AGB-100m/2023/01/01/FCM-AGB-100m-2023/FCM_Europe_demo_2023_AGB.tif
     ```
 
 
-4. The data source is now listed on the *Datasets* tab.
-5. Click the **(i)** info icon on the row to interrogate the COG's metadata.
-   Take a general look at what is reported — whether the file is cloud
-   optimized, the file size, overviews, and the image properties.
+3. On the *Datasets* tab, click the **(i)** info icon on the new data source row. Take a general look at the COG's metadata — whether the file is cloud optimized, the file size, overviews, and the image properties. Make a note of the **min** and **max** pixel values for the next step, then close the dialog.
 
     ![COG metadata dialog for the AGB GeoTIFF](../../assets/screenshots/workshops-getting-started-cog-metadata.png)
-
-6. Make a note of the **min** and **max** pixel values — you will need them in
-   the next step — then close the dialog.
 
 
 

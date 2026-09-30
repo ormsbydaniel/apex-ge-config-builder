@@ -10,7 +10,7 @@ title: 2-5. Add recommended base maps
 
 2. Look at the base map cards that appear — attribution and layer metadata are
    populated automatically.
-3. Go to the **GE Preview** tab. You will now see a base map switcher in the
+3. Go to the **Preview** tab. You will now see a base map switcher in the
    Explorer.
 
     ![Base map switcher showing thumbnails of each available base map](../../assets/screenshots/workshops-getting-started-basemap-switcher.png)

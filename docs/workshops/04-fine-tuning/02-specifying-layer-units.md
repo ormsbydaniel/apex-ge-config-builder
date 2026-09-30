@@ -8,30 +8,21 @@ much easier to understand when the units are displayed in the legend and in
 data-value pop-ups. This exercise adds units to the AGB layer and checks how
 they appear in the Explorer.
 
-1. Open **GE Preview** for your configuration and display the **Above Ground
+1. Open **Preview** for your configuration and toggle on the **Above Ground
    Biomass** layer.
 
 2. Look at the legend. Notice that the value labels do not include any units.
 
-3. Click on a few features on the map using **Data values** to inspect the
+3. Now select the **Data values** tab and click on a few locations in the dataset to inspect its
    pixel values. Notice that the values also lack units.
 
 4. Select **Back to Config Builder** to return to the configuration.
 
-5. Open the **Above Ground Biomass** layer card and find the **Units** field.
-
-6. Enter the units as:
+5. Open the **Above Ground Biomass** layer card and select the **pencil** icon next to **Units and Legend** field.  Enter the units as:
 
     ```
     tonnes / ha
     ```
+then **Save** the layer card.
 
-7. **Save** the layer card.
-
-8. Open **GE Preview** again and display the **Above Ground Biomass** layer.
-
-9. Check the legend: the unit label now shows **tonnes / ha** alongside the
-   values.
-
-10. Click on a feature with **Data values** again. The values now include the
-    units, making it clear what the numbers represent.
+6. Open **Preview** again, toggle on **Above Ground Biomass** layer.  Check how the legend and the data values display now.  Both of them should include the **tonnes / ha** units.

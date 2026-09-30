@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://ge-config-builder.apex.esa.int/guide/layers/vector-fields.html">
+        <link rel="canonical" href="https://ge-config-builder.apex.esa.int/guide/layers/data-values-vector.html">
       
       
         <link rel="prev" href="vector-styling.html">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Vector fields - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>Data Values (vector) - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#vector-fields" class="md-skip">
+        <a href="#data-values-vector" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Vector fields
+              Data Values (vector)
             
           </span>
         </div>
@@ -395,7 +395,7 @@
   
     
   
-  GE Preview
+  Preview
 
       </a>
     </li>
@@ -1041,7 +1041,7 @@
           
   
   <span class="md-ellipsis">
-    Vector fields
+    Data Values (vector)
   </span>
   
     
@@ -1056,11 +1056,11 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="vector-fields.html" class="md-nav__link md-nav__link--active">
+      <a href="data-values-vector.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    Vector fields
+    Data Values (vector)
   </span>
   
     
@@ -1090,60 +1090,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#when-to-use" class="md-nav__link">
+  <a href="#what-you-can-change" class="md-nav__link">
     <span class="md-ellipsis">
-      When to use
+      What you can change
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#opening-the-editor" class="md-nav__link">
+  <a href="#how-its-done" class="md-nav__link">
     <span class="md-ellipsis">
-      Opening the editor
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Opening the editor">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#auto-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      Auto-detection
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#field-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Field configuration
+      How it's done
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#schema" class="md-nav__link">
+  <a href="#where-the-settings-live" class="md-nav__link">
     <span class="md-ellipsis">
-      Schema
+      Where the settings live
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
+  <a href="#related" class="md-nav__link">
     <span class="md-ellipsis">
-      Tips
+      Related
     </span>
   </a>
   
@@ -1570,7 +1546,7 @@
         
   
   <span class="md-ellipsis">
-    GE Preview
+    Preview
   </span>
   
 
@@ -1590,6 +1566,8 @@
       
         
           
+        
+      
         
       
         
@@ -1728,60 +1706,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#when-to-use" class="md-nav__link">
+  <a href="#what-you-can-change" class="md-nav__link">
     <span class="md-ellipsis">
-      When to use
+      What you can change
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#opening-the-editor" class="md-nav__link">
+  <a href="#how-its-done" class="md-nav__link">
     <span class="md-ellipsis">
-      Opening the editor
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Opening the editor">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#auto-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      Auto-detection
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#field-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Field configuration
+      How it's done
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#schema" class="md-nav__link">
+  <a href="#where-the-settings-live" class="md-nav__link">
     <span class="md-ellipsis">
-      Schema
+      Where the settings live
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
+  <a href="#related" class="md-nav__link">
     <span class="md-ellipsis">
-      Tips
+      Related
     </span>
   </a>
   
@@ -1802,96 +1756,112 @@
                   
 
 
-<h1 id="vector-fields">Vector fields<a class="headerlink" href="#vector-fields" title="Permanent link">&para;</a></h1>
-<p>The <strong>Fields editor</strong> controls which feature properties appear in the APEx Geospatial Explorer's info panel and how each value is labelled and formatted. It is independent of <a href="vector-styling.html">Vector styling</a>: styling controls how a feature looks on the map, fields control what users see when they click a feature.</p>
-<p><img alt="Manage Fields dialog with Define / Auto-detect / Copy from layer tabs" src="../assets/screenshots/fields-editor.png" /></p>
-<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<h1 id="data-values-vector">Data Values (vector)<a class="headerlink" href="#data-values-vector" title="Permanent link">&para;</a></h1>
+<p>When a user clicks a vector feature in the Geospatial Explorer — a country
+polygon, a monitoring site, a building footprint — the <strong>Data Values</strong> panel
+lists that feature's properties.</p>
+<p><img alt="Data Values panel showing raw property names and full-precision values" src="../assets/screenshots/data-values-before-raw.png" /></p>
+<p>Left unconfigured, the panel presents the data exactly as it is stored: raw
+property names (<code>no2_ugm3</code>), full-precision numbers (<code>17.382913</code>), ISO
+timestamps, and internal fields like <code>fid</code> or <code>geom_id</code> that mean nothing to
+a reader. That is faithful, but not friendly — and the Explorer has no way
+of knowing what your data means or how you would like it presented.</p>
+<p>The Configuration Builder lets you customise the display so the same
+feature reads like this instead:</p>
+<p><img alt="Data Values panel with friendly labels, units, rounded values and a hidden field" src="../assets/screenshots/data-values-after-customised.png" /></p>
+<p>The result above comes from this field configuration in the Manage Fields
+editor:</p>
+<p><img alt="Manage Fields editor configuring the fields shown in the after image" src="../assets/screenshots/data-values-manage-fields-example.png" /></p>
 <ul>
-<li>Hide noisy or internal properties (<code>fid</code>, <code>geom_id</code>, raw timestamps)</li>
-<li>Give properties friendlier display labels (e.g. <code>co2_t_yr</code> → <code>CO₂ (tonnes/year)</code>)</li>
-<li>Add prefix/suffix units (<code>%</code>, <code>°C</code>, <code>km²</code>)</li>
-<li>Round numeric values to a sensible precision</li>
-<li>Format dates and timestamps consistently</li>
+<li><code>date</code> is shown as <strong>Observation Date</strong>.</li>
+<li><code>no2_ugm3</code> is shown as <strong>Nitrogen Dioxide</strong>, with the suffix <code>ug / m3</code> and
+  rounded to 2 decimal places.</li>
+<li><code>uncertainty_ugm3</code> is shown as <strong>Uncertainty</strong>, with the prefix <code>+/-</code>, the
+  suffix <code>%</code> and rounded to a whole number.</li>
+<li><code>city</code>, <code>product</code>, <code>datetime_utc</code> and <code>source_datetime</code> are hidden, so
+  they don't appear in the panel at all.</li>
+<li>The rows are in the same order as the lines in the panel.</li>
 </ul>
-<h2 id="opening-the-editor">Opening the editor<a class="headerlink" href="#opening-the-editor" title="Permanent link">&para;</a></h2>
-<p>In the layer card for any vector source (GeoJSON, FlatGeoBuf, WFS), click the inline <strong>Fields</strong> edit trigger. The dialog opens with one row per detected property.</p>
-<h3 id="auto-detection">Auto-detection<a class="headerlink" href="#auto-detection" title="Permanent link">&para;</a></h3>
-<p>Fields are detected directly from the data source URL on first open:</p>
-<ul>
-<li><strong>FlatGeoBuf</strong> — read from the file header (no full download)</li>
-<li><strong>GeoJSON</strong> — inferred from the first feature's <code>properties</code> object</li>
-</ul>
-<p>If detection fails (CORS, network error, empty source) you can add fields manually by name.</p>
-<h2 id="field-configuration">Field configuration<a class="headerlink" href="#field-configuration" title="Permanent link">&para;</a></h2>
-<p>Each row exposes the following options:</p>
+<h2 id="what-you-can-change">What you can change<a class="headerlink" href="#what-you-can-change" title="Permanent link">&para;</a></h2>
+<p>Each field of a vector data source can be configured independently:</p>
 <table>
 <thead>
 <tr>
 <th>Option</th>
-<th>Type</th>
-<th>Purpose</th>
+<th>What it does</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Visible</strong></td>
-<td>toggle</td>
-<td>Set to off to hide the field from the info panel (stored as <code>null</code> in config)</td>
+<td><strong>Display label</strong></td>
+<td>Replaces the raw property name with a prettier version, e.g. <code>no2_ugm3</code> → <code>NO₂</code>.</td>
 </tr>
 <tr>
-<td><strong>Label</strong></td>
-<td>text</td>
-<td>Display name shown in the info panel</td>
-</tr>
-<tr>
-<td><strong>Prefix</strong></td>
-<td>text</td>
-<td>Prepended to the value (e.g. <code>≈</code>)</td>
-</tr>
-<tr>
-<td><strong>Suffix</strong></td>
-<td>text</td>
-<td>Appended to the value (e.g. <code>°C</code>)</td>
+<td><strong>Prefix / Suffix</strong></td>
+<td>Adds text before or after the value — units (<code>µg/m³</code>, <code>%</code>, <code>°C</code>), qualifiers (<code>≈</code>), anything the value needs for context.</td>
 </tr>
 <tr>
 <td><strong>Precision</strong></td>
-<td>integer</td>
-<td>Decimal places for numeric values</td>
-</tr>
-<tr>
-<td><strong>Order</strong></td>
-<td>integer</td>
-<td>Position in the info panel (lower = higher)</td>
+<td>Rounds numeric values to a fixed number of decimal places (e.g. <code>17.382913</code> → <code>17.4</code>).</td>
 </tr>
 <tr>
 <td><strong>Type</strong></td>
-<td>select</td>
-<td><code>string</code> (default) or <code>date</code></td>
+<td>Marks a field as <code>Date / DateTime</code> so the timestamp is formatted for reading rather than shown as raw ISO 8601. Formatting only applies once a <strong>Format</strong> is chosen — a dropdown of common presets (e.g. <code>yyyy-MM-dd</code>, <code>dd MMM yyyy, HH:mm</code>) or a custom Luxon token string.</td>
 </tr>
 <tr>
-<td><strong>Format</strong></td>
-<td>text</td>
-<td>When <code>type = date</code>, a <a href="https://date-fns.org/v2/docs/format">date-fns format string</a> (e.g. <code>yyyy-MM-dd</code>)</td>
+<td><strong>Display order</strong></td>
+<td>Controls the sequence the fields appear in the panel — set by arranging the rows in the fields editor.</td>
+</tr>
+<tr>
+<td><strong>Hide</strong></td>
+<td>Removes a field from the panel entirely — ideal for internal IDs, geometry references and other noise. A hidden field stays in the config (stored as <code>null</code>), so unhiding it later restores everything.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
-<p>The configuration is persisted under the data source's <code>meta.fields</code> as a record:</p>
+<div class="admonition tip">
+<p class="admonition-title">Styling is separate</p>
+<p>Data Values controls what users read when they query a feature. How
+features look on the map — colours, strokes, interpolation — is
+<a href="vector-styling.html">Vector styling</a>.</p>
+</div>
+<h2 id="how-its-done">How it's done<a class="headerlink" href="#how-its-done" title="Permanent link">&para;</a></h2>
+<p>In the Configuration Builder, open the layer card for a vector layer
+(GeoJSON, FlatGeoBuf or WFS) and open the <strong>Manage Fields</strong> editor. Fields
+can be populated automatically from the source file with <strong>Populate field
+details</strong> — if the layer has several vector files, a searchable picker lets
+you choose which one to read the fields from — and existing field settings
+can be copied from another layer with <strong>Copy from layer</strong>.</p>
+<p>The editor presents one row per field:</p>
+<ul>
+<li><strong>Field name</strong> — the property name in the data, shown in monospace.</li>
+<li><strong>Display label, Prefix, Suffix</strong> — inline text inputs for the readout.</li>
+<li><strong>Precision</strong> — decimal places for numeric values.</li>
+<li><strong>Type</strong> — <code>default</code>, <code>Date / DateTime</code> or <code>URL</code>. Date fields get an inline
+  <strong>Format</strong> picker (common presets or a custom Luxon token string); without a
+  format the raw value is shown.</li>
+<li><strong>Hide</strong> — a toggle; hidden rows stay in the table, greyed out.</li>
+<li>Rows are arranged with the drag handle or the up/down chevrons, and that
+  order becomes the display order in the Explorer.</li>
+</ul>
+<h2 id="where-the-settings-live">Where the settings live<a class="headerlink" href="#where-the-settings-live" title="Permanent link">&para;</a></h2>
+<p>Field settings are stored on the data source under <code>meta.fields</code>, keyed by
+the raw property name. A string is all it takes for a simple rename; an
+object carries the full configuration, and <code>null</code> hides the field:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nt">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Site Name"</span><span class="p">,</span><span class="w"> </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"co2_t_yr"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CO₂"</span><span class="p">,</span><span class="w"> </span><span class="nt">"suffix"</span><span class="p">:</span><span class="w"> </span><span class="s2">" t/yr"</span><span class="p">,</span><span class="w"> </span><span class="nt">"precision"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"observed_at"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Observed"</span><span class="p">,</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"date"</span><span class="p">,</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"yyyy-MM-dd"</span><span class="p">,</span><span class="w"> </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"no2_ugm3"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NO₂"</span><span class="p">,</span><span class="w"> </span><span class="nt">"suffix"</span><span class="p">:</span><span class="w"> </span><span class="s2">" µg/m³"</span><span class="p">,</span><span class="w"> </span><span class="nt">"precision"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"observed_at"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Observed"</span><span class="p">,</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"date"</span><span class="p">,</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dd MMMM yyyy, HH:mm"</span><span class="p">,</span><span class="w"> </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"geom_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"fid"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>A <code>null</code> value hides the field. An object with no properties uses the raw property name as the label.</p>
-<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<p>Because the settings live in the config, they travel with import, export
+and JSON editing like everything else.</p>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Define fields once per source and the configuration travels with import/export and JSON edits.</li>
-<li>Order is sparse — gaps are fine; fields without an <code>order</code> go to the bottom alphabetically.</li>
-<li>Date format strings are case-sensitive — <code>YYYY</code> is wrong, use <code>yyyy</code>.</li>
+<li><a href="vector-styling.html">Vector styling</a> — how features look on the map</li>
+<li><a href="standard-layers.html">Standard layers</a> — where vector layers are configured</li>
 </ul>
 
 

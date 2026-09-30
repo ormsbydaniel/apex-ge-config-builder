@@ -1,6 +1,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import type { PropType } from '@/utils/vectorStyle/propertyCatalogues';
+import { convertColorToHex } from '@/utils/colorUtils';
 
 interface ConstantInputProps {
   type: PropType;
@@ -15,15 +16,15 @@ interface ConstantInputProps {
 const ConstantInput = ({ type, options, value, onChange }: ConstantInputProps) => {
   if (type === 'color') {
     const v = typeof value === 'string' ? value : '#000000';
-    // Native color input only accepts #rrggbb. Show alongside a text field so
-    // users can paste rgba()/hsl() strings if they need to.
-    const showHex = /^#[0-9a-fA-F]{6}$/.test(v);
+    // Native color inputs need hex; keep the original string (including alpha)
+    // in the text field and the saved style rather than replacing it on load.
+    const previewHex = convertColorToHex(v);
     return (
       <div className="flex items-center gap-2">
         <input
           type="color"
           className="h-8 w-10 rounded border bg-background p-0"
-          value={showHex ? v : '#000000'}
+          value={previewHex}
           onChange={e => onChange(e.target.value)}
         />
         <Input

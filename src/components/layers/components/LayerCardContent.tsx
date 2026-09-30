@@ -61,10 +61,9 @@ const LayerCardContent = ({
   // Find the index of this source in the config
   const sourceIndex = config.sources.findIndex(s => s.name === source.name);
 
-  // Extract first vector data source for fields editor
-  const firstVectorSource = isDataSourceItemArray(source.data)
-    ? source.data.find((item: DataSourceItem) => item.format && isVectorFormat(item.format))
-    : undefined;
+  const vectorSources = isDataSourceItemArray(source.data)
+    ? source.data.filter((item: DataSourceItem) => item.format && isVectorFormat(item.format))
+    : [];
 
   // Handler to update meta fields
   const handleUpdateMeta = (updates: Partial<DataSourceMeta>) => {
@@ -208,12 +207,11 @@ const LayerCardContent = ({
       <LayerLegendSection source={source} onUpdateLayout={handleUpdateLayout} onUpdateMeta={handleUpdateMeta} onUpdateLayoutAndMeta={handleUpdateLayoutAndMeta} />
 
       {/* Fields - Vector layer attribute configuration */}
-      {firstVectorSource && (
+      {vectorSources.length > 0 && (
         <LayerFieldsDisplay
           fields={source.meta?.fields || {}}
           onUpdate={(fields) => handleUpdateMeta({ fields })}
-          sourceUrl={firstVectorSource.url}
-          sourceFormat={firstVectorSource.format}
+          dataSources={source.data}
         />
       )}
 

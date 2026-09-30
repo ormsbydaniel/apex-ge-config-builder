@@ -86,7 +86,7 @@ nav:
           - Colormaps: layers/colormaps.md
           - RGB composite: layers/rgb-composite.md
           - Vector styling: layers/vector-styling.md
-          - Vector fields: layers/vector-fields.md
+          - Data Values (vector): layers/data-values-vector.md
       - Time Series: layers/time-series.md
       - Statistics: statistics/overview.md
       - Constraints: constraints/overview.md
@@ -116,7 +116,7 @@ nav:
       - Export options: configuration/export-options.md
   - JSON config: configuration/json-config.md
   
-  - GE Preview: configuration/preview.md
+  - Preview: configuration/preview.md
   - Tutorials:
 
       - Overview: workshops/index.md
@@ -144,14 +144,12 @@ nav:
           - 3-3. Adding WMS as a service: workshops/03-working-with-services/03-wms-as-a-service.md
           - 3-4. Add recommended services: workshops/03-working-with-services/04-recommended-services.md
           - 3-5. Add data from the PRR: workshops/03-working-with-services/05-data-from-prr.md
-          - 3-6. Add more WMS layers: workshops/03-working-with-services/06-more-wms-layers.md
       - 4. Fine tuning my config:
           - Overview: workshops/04-fine-tuning/index.md
           - 4-1. Pre-requisites: workshops/04-fine-tuning/01-prerequisites.md
-          - 4-2. Specifying layer units: workshops/04-fine-tuning/02-layer-controls.md
-          - 4-3. Experiment with layer controls: workshops/04-fine-tuning/03-specifying-layer-units.md
+          - 4-2. Specifying layer units: workshops/04-fine-tuning/02-specifying-layer-units.md
+          - 4-3. Experiment with layer controls: workshops/04-fine-tuning/03-layer-controls.md
           - 4-4. Default start location: workshops/04-fine-tuning/04-default-start-location.md
-          - 4-5. Alternative projections: workshops/04-fine-tuning/05-alternative-projections.md
       - 5. Categorical Data:
           - Overview: workshops/05-categorical-data/index.md
           - 5-1. Pre-requisites: workshops/05-categorical-data/01-prerequisites.md
@@ -159,7 +157,6 @@ nav:
           - 5-3. Categories for a COG: workshops/05-categorical-data/03-categories-cog.md
           - 5-4. Categories for a WMS layer: workshops/05-categorical-data/04-categories-wms.md
           - 5-5. Use the JSON editor: workshops/05-categorical-data/05-categories-json-editor.md
-          - 5-6. Copy categories between layers: workshops/05-categorical-data/06-copy-categories.md
       - 6. Time Series:
           - Overview: workshops/06-time-series/index.md
           - 6-1. Pre-requisites: workshops/06-time-series/01-prerequisites.md
@@ -187,6 +184,12 @@ nav:
           - 8-5. Add the remaining NUTS levels: workshops/08-statistics/05-more-statistics-levels.md
           - 8-6. Understanding the statistics files: workshops/08-statistics/06-panel-and-controls.md
           - 8-7. Preview and review: workshops/08-statistics/07-preview-and-review.md
+      - 9. Coordinate reference systems:
+          - Overview: workshops/09-coordinate-reference-systems/index.md
+          - 9-1. Pre-requisites: workshops/09-coordinate-reference-systems/01-prerequisites.md
+          - 9-2. Key concepts: workshops/09-coordinate-reference-systems/02-key-concepts.md
+          - 9-3. Using an alternative projection: workshops/09-coordinate-reference-systems/03-using-an-alternative-projection.md
+          - 9-4. Defining a custom CRS: workshops/09-coordinate-reference-systems/04-defining-a-custom-crs.md
   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md

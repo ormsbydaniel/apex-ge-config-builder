@@ -323,8 +323,7 @@ const LayerCardForm = ({
             <FieldsSection
               fields={formData.fields || {}}
               onUpdate={handleFieldChange}
-              sourceUrl={editingLayer?.data?.[0]?.url}
-              sourceFormat={editingLayer?.data?.[0]?.format}
+              dataSources={editingLayer?.data}
             />
 
             <UnifiedLegendTypeSection

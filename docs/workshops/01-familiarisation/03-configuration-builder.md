@@ -6,7 +6,7 @@ title: 1-3. Configuration Builder
 
 The **Configuration Builder** is the companion tool to the Geospatial
 Explorer. Where the Explorer is the end-user application, the
-Configuration Builder is the no-code editor used to *shape* what an
+Configuration Builder is the no-code editor used to _shape_ what an
 Explorer deployment looks like — which layers appear, how they are
 grouped, what styling and charts are attached, which storymaps are on
 offer, and so on.
@@ -26,7 +26,7 @@ Save it as a bookmark in your browser as you will use this constantly throughout
 
 ### 2. Load the "Comprehensive Demo" example
 
-From the home page, open the **Examples** dialog
+From the _Home_ tab select **Load** then **Examples** dialog
 and choose **Comprehensive Demo**. This will load a rich, pre-built
 configuration into the editor.
 ![Load Configuration dialog with the Examples tab selected, showing the Comprehensive demo and Full screen storymap demo entries](../../assets/screenshots/configuration-load-examples.png)
@@ -43,19 +43,19 @@ demo config rather than the reference deployment.
 Have a quick click around to confirm it behaves as an end user would
 expect.
 
-### 4. Switch back to the Configuration Builder
+### 4. Explore the layer groups and layers
 
 Close the preview (or switch tabs) to return to the Configuration
 Builder. This is where you'll spend most of the tutorials.
 
-### 5. Expand the layer groups and layers
+![The preview toolbar with the Back to Config Builder button](../../assets/screenshots/preview-back-to-config-builder.png)
 
 In the **Map layers** section, expand the interface groups, then their
 sub-groups, and finally the individual layers inside. Each layer card
 reveals further sections — data source, data visualisation, charts,
 constraints, metadata, and more.
 
-### 6. Have a look around
+### 5. Have a look around
 
 Take a few minutes to browse through what's configured. You don't need
 to understand every field yet — the goal is just to build up a sense
@@ -69,5 +69,5 @@ of the shape of a configuration:
   defined elsewhere in the sidebar.
 
 By the end of this browse you should have a rough answer to the
-question *"what kinds of things live in a configuration?"* — which is
+question _"what kinds of things live in a configuration?"_ — which is
 exactly the foundation we'll build on in the next tutorial.
