@@ -6,7 +6,13 @@ import { DataSourceItem } from '@/types/dataSource';
 import { isVectorFormat, detectFieldsFromSource } from '@/utils/fieldDetection';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
-import { FileJson } from 'lucide-react';
+import { FileJson, Sparkles } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import RecipeGallery from '@/components/vectorStyle/RecipeGallery';
+import RecipeWizard from '@/components/vectorStyle/RecipeWizard';
+import ReplaceOrAppendDialog from '@/components/vectorStyle/ReplaceOrAppendDialog';
+import { applyRecipeRules, type RecipeId } from '@/utils/vectorStyle/recipes';
+import { sampleSourceData, canSampleSource } from '@/utils/vectorStyle/sampleSourceData';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import StyleEditor from '@/components/vectorStyle/StyleEditor';
@@ -42,6 +48,9 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const [rules, setRules] = useState<StyleRule[]>([]);
   const [fallbackCount, setFallbackCount] = useState(0);
   const [detectedFields, setDetectedFields] = useState<VectorFieldDescriptor[]>([]);
+  const [view, setView] = useState<'gallery' | 'wizard' | 'editor'>('editor');
+  const [recipe, setRecipe] = useState<RecipeId | null>(null);
+  const [pendingRules, setPendingRules] = useState<StyleRule[] | null>(null);
 
   const initialStyle: unknown[] = useMemo(() => {
     if (!open) return [];
@@ -81,8 +90,21 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     setRules(parsed.rules);
     setFallbackCount(parsed.fallbacks.length);
     setMode(lastMode);
+    // Empty styles open on the recipe gallery; existing styles open on their rules.
+    setView(parsed.rules.length === 0 && parsed.fallbacks.length === 0 ? 'gallery' : 'editor');
+    setRecipe(null);
+    setPendingRules(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  const handleRecipeRules = (generated: StyleRule[]) => {
+    if (rules.length > 0) {
+      setPendingRules(generated);
+      return;
+    }
+    setRules(applyRecipeRules([], generated, 'replace'));
+    setView('editor');
+  };
 
   // Stable URL + format for the first vector data item — avoids re-fetching when
   // the parent re-renders with a new `source.data` array identity.
@@ -176,6 +198,12 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
         <DialogHeader>
           <div className="flex items-center justify-between gap-2 pr-6">
             <DialogTitle>Vector Styling — {source.name}</DialogTitle>
+            <div className="flex items-center gap-2">
+            {!jsonActive && view === 'editor' && (
+              <Button type="button" variant="outline" size="sm" className="h-7" onClick={() => setView('gallery')}>
+                <Sparkles className="h-3.5 w-3.5 mr-1" /> New from recipe
+              </Button>
+            )}
             <TooltipProvider delayDuration={400}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -198,6 +226,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            </div>
           </div>
         </DialogHeader>
 
@@ -213,6 +242,21 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
                 height="400px"
               />
             </>
+          ) : view === 'gallery' ? (
+            <RecipeGallery
+              onPick={(id) => { setRecipe(id); setView('wizard'); }}
+              onScratch={() => setView('editor')}
+              hasExistingRules={rules.length > 0}
+            />
+          ) : view === 'wizard' && recipe ? (
+            <RecipeWizard
+              recipe={recipe}
+              sample={sampleQuery.data}
+              sampling={sampleQuery.isFetching}
+              fallbackFields={fields.map((f) => f.name)}
+              onBack={() => setView('gallery')}
+              onApply={handleRecipeRules}
+            />
           ) : (
             <StyleEditor
               rules={rules}
@@ -228,6 +272,16 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
           <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
+      <ReplaceOrAppendDialog
+        open={!!pendingRules}
+        existingCount={rules.length}
+        onCancel={() => setPendingRules(null)}
+        onChoose={(m) => {
+          if (pendingRules) setRules(applyRecipeRules(rules, pendingRules, m));
+          setPendingRules(null);
+          setView('editor');
+        }}
+      />
     </Dialog>
   );
 };
