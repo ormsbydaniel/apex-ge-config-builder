@@ -78,3 +78,12 @@ Point sources surface a **Marker** sub-panel with shape (circle, square, triangl
 
 - Vector style is stored inline on the data source `meta`. It is not currently shareable between layers — duplicate layers if you need the same style elsewhere.
 - Heatmaps and cluster styling are not part of this editor. Configure them upstream in the source if needed.
+
+## Editing rules
+
+The styling dialog is split into two panes:
+
+- **Rules (left)** — every rule, drawn top to bottom. Each entry shows the rule name, its drawing layers, colour swatches and a one-line filter summary. Drag a rule, or use the up/down arrows, to change its order. The eye icon hides a rule without deleting it.
+- **Rule editor (right)** — the selected rule's name, plus **Fill**, **Line**, **Marker**, **Label** and **When** tabs. A dot on a tab means that part is in use.
+
+Every property shows a value mode dropdown (**Constant**, **From field**, **By zoom**, **Expression**), so you can see at a glance how each value is set. Use **+ Add property** to add any property that isn't set yet, including advanced ones such as dash pattern, line cap, label offsets or icon anchor. The **×** beside a property removes it from the saved style.
