@@ -295,7 +295,7 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
       </div>
 
       <div className="flex justify-end">
-        <Button type="button" onClick={apply} disabled={!canApply}>Create rules</Button>
+        <Button type="button" onClick={apply} disabled={!canApply}>Create rule</Button>
       </div>
     </div>
   );
