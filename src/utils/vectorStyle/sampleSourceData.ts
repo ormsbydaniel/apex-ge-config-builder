@@ -92,7 +92,7 @@ export const summariseProperties = (rows: Properties[]): FieldSample[] => {
         numbers.set(name, list);
       }
 
-      if (type === 'string' || type === 'boolean') {
+      if (type === 'string' || type === 'boolean' || type === 'number') {
         const key = String(value);
         const tally = counts.get(name) ?? new Map<string, number>();
         tally.set(key, (tally.get(key) ?? 0) + 1);
@@ -108,10 +108,15 @@ export const summariseProperties = (rows: Properties[]): FieldSample[] => {
     const sample: FieldSample = { name, type };
 
     const tally = counts.get(name);
-    if (tally && (type === 'string' || type === 'boolean')) {
+    if (tally && (type === 'string' || type === 'boolean' || type === 'number')) {
+      // Numeric categories list in ascending order; text by frequency.
       const sorted = Array.from(tally.entries())
         .map(([value, count]) => ({ value, count }))
-        .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value));
+        .sort((a, b) =>
+          type === 'number'
+            ? Number(a.value) - Number(b.value)
+            : b.count - a.count || a.value.localeCompare(b.value),
+        );
       sample.categoriesTruncated = sorted.length > MAX_CATEGORIES;
       sample.categories = sorted.slice(0, MAX_CATEGORIES);
     }

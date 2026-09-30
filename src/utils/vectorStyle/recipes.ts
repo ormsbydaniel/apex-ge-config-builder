@@ -218,6 +218,8 @@ export interface CategorizedRecipeInput {
   /** Apply transparency to polygon fills (ignored for lines/points). */
   fillAlpha?: number;
   ruleName?: string;
+  /** Treat category values as numbers (numeric field). */
+  numericValues?: boolean;
 }
 
 export const resolveCategoryColors = (
@@ -238,8 +240,14 @@ export const buildCategorizedRecipe = (input: CategorizedRecipeInput): StyleRule
   const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
   const paint = (hex: string) => (alpha >= 1 ? hex : withAlpha(hex, alpha));
 
+  // Numeric fields must match numbers, not strings, in OpenLayers `match`.
+  const toKey = (value: string): string | number => {
+    if (!input.numericValues) return value;
+    const n = Number(value);
+    return value.trim() !== '' && Number.isFinite(n) ? n : value;
+  };
   const stops: AttributeStop[] = assignments.map(({ value, color }) => ({
-    key: value,
+    key: toKey(value),
     value: paint(color),
   }));
 
