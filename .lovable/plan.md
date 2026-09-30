@@ -14,3 +14,8 @@
 - Tests: reversed ramp/categorical output in `recipes.test.ts` (first/last colour swapped, default unchanged).
 - Docs: one sentence in `docs/layers/vector-styling.md` recipes section; strict MkDocs build.
 - No schema changes. Visual testing left to you.
+
+## Also: "Use exact" / "Round" toggle (Graduated range)
+- After clicking **Use exact**, the button changes to **Round**, which puts the rounded range back. Clicking it again switches to Use exact, and so on.
+- If you type your own min or max, the button shows **Round** (rounds whatever is currently sampled). Picking a new field resets it to the rounded range with **Use exact** showing.
+- Technical: in `RecipeWizard.tsx`, compare the current min/max to the rounded values from `niceRange` to decide which label to show; clicking sets min/max to the other pair. No logic changes elsewhere.
