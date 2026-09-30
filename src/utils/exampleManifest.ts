@@ -36,6 +36,12 @@ export interface RecommendedCatalogueEntry {
 
 export interface ExampleManifest {
   examples: ExampleConfigEntry[];
+  /**
+   * Test / development configurations. These are surfaced in the Load
+   * Configuration dialog under their own group, but never offered as
+   * "donor" configs for layer import.
+   */
+  testConfigs: ExampleConfigEntry[];
   recommended: {
     basemaps?: RecommendedResourceEntry;
     services?: RecommendedResourceEntry;
