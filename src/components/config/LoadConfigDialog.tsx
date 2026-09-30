@@ -422,22 +422,53 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                     No examples are listed in the manifest.
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {examples.map((ex) => (
-                      <button
-                        key={ex.id}
-                        onClick={() => handleLoadExample(ex)}
-                        className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <div className="font-medium text-sm">{ex.name}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5">{ex.description}</div>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      {examples.map((ex) => (
+                        <button
+                          key={ex.id}
+                          onClick={() => handleLoadExample(ex)}
+                          className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <div className="font-medium text-sm">{ex.name}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">{ex.description}</div>
+                            </div>
+                            <FileText className="h-4 w-4 text-muted-foreground" />
                           </div>
-                          <FileText className="h-4 w-4 text-muted-foreground" />
+                        </button>
+                      ))}
+                    </div>
+
+                    {testConfigs && testConfigs.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 pt-2">
+                          <FlaskConical className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            Test &amp; development
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            — configs for testing and building features
+                          </span>
                         </div>
-                      </button>
-                    ))}
+                        {testConfigs.map((ex) => (
+                          <button
+                            key={ex.id}
+                            onClick={() => handleLoadExample(ex)}
+                            className="w-full text-left p-4 rounded-lg border border-dashed border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <div className="font-medium text-sm">{ex.name}</div>
+                                <div className="text-xs text-muted-foreground mt-0.5">{ex.description}</div>
+                              </div>
+                              <FlaskConical className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </TabsContent>
