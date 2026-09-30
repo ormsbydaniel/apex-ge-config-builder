@@ -39,6 +39,11 @@ export interface RecipeDefinition {
 
 export const RECIPES: RecipeDefinition[] = [
   {
+    id: 'uniform',
+    name: 'Simple uniform',
+    description: 'One clean fill, outline or marker for every feature.',
+  },
+  {
     id: 'categorized',
     name: 'Categorised',
     description: 'Colour features by the unique values of a text attribute.',
@@ -49,11 +54,6 @@ export const RECIPES: RecipeDefinition[] = [
     name: 'Graduated',
     description: 'Colour features along a ramp using a numeric attribute.',
     requires: 'number',
-  },
-  {
-    id: 'uniform',
-    name: 'Simple uniform',
-    description: 'One clean fill, outline or marker for every feature.',
   },
   {
     id: 'labels',
