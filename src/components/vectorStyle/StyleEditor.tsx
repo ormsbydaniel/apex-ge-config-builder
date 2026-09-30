@@ -46,7 +46,7 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
 
   const removeRule = (idx: number) => {
     onChange(rules.filter((_, i) => i !== idx));
-    setSelected((s) => Math.max(0, s >= idx ? s - 1 : s));
+    setSelected((s) => Math.max(0, s > idx ? s - 1 : s === idx ? Math.min(idx, rules.length - 2) : s));
   };
 
   const duplicateRule = (idx: number) => {
