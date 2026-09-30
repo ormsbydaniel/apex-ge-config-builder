@@ -87,3 +87,12 @@ describe('summariseGeometries', () => {
     expect(summariseGeometries([undefined, 'GeometryCollection']).dominant).toBeNull();
   });
 });
+
+describe('numeric categories', () => {
+  it('lists distinct numeric values in ascending order', async () => {
+    const { summariseProperties } = await import('../sampleSourceData');
+    const fields = summariseProperties([{ voltage: 380 }, { voltage: 220 }, { voltage: 380 }] as never);
+    const v = fields.find((f) => f.name === 'voltage')!;
+    expect(v.categories!.map((c) => c.value)).toEqual(['220', '380']);
+  });
+});
