@@ -135,6 +135,23 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
   }, [fieldSample]);
 
   const categories = categoriesText.split('\n').map((s) => s.trim()).filter(Boolean);
+
+  // Live preview of the class boundaries for the Graduated recipe.
+  const classBreaksPreview = useMemo(() => {
+    if (recipe !== 'graduated') return null;
+    const lo = Number(min);
+    const hi = Number(max);
+    if (!Number.isFinite(lo) || !Number.isFinite(hi) || hi <= lo || classes < 2) return null;
+    const breaks =
+      method === 'quantile'
+        ? fieldSample?.numeric?.values?.length
+          ? quantileBreaks(fieldSample.numeric.values, classes)
+          : []
+        : equalIntervalBreaks(lo, hi, classes);
+    if (breaks.length < 2) return null;
+    const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    return breaks.slice(0, -1).map((b, i) => `${fmt(b)} – ${fmt(breaks[i + 1])}`);
+  }, [recipe, min, max, classes, method, fieldSample]);
   const needsField = recipe !== 'uniform';
   const canApply =
     (!needsField || !!field) &&
