@@ -240,16 +240,7 @@ const ValueInput = ({ prop, value, onChange, fields }: ValueInputProps) => {
             </SelectContent>
           </Select>
         )}
-        {advancedOpen && mode === 'constant' && value.kind === 'constant' ? (
-          <div className="flex-1 min-w-0">
-            <ConstantInput
-              type={prop.type}
-              options={prop.options}
-              value={value.value}
-              onChange={(v) => onChange({ kind: 'constant', value: v })}
-            />
-          </div>
-        ) : showAdvanced && mode === 'attribute' && value.kind === 'attribute' ? (
+        {showAdvanced && mode === 'attribute' && value.kind === 'attribute' ? (
           <div className="flex-1 min-w-0">
             <Select value={attrField} onValueChange={handleFieldChange}>
               <SelectTrigger className="h-7 w-[200px] text-xs">
