@@ -21,7 +21,12 @@ import {
   RAMP_PALETTES,
   assignCategoricalColors,
 } from '@/utils/vectorStyle/palettes';
-import type { FieldSample, SourceSample } from '@/utils/vectorStyle/sampleSourceData';
+import {
+  equalIntervalBreaks,
+  quantileBreaks,
+  type FieldSample,
+  type SourceSample,
+} from '@/utils/vectorStyle/sampleSourceData';
 import type { FilterOperator, StyleRule } from '@/types/vectorStyle';
 
 interface RecipeWizardProps {
