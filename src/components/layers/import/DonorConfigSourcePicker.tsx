@@ -199,7 +199,7 @@ export const DonorConfigSourcePicker: React.FC<DonorConfigSourcePickerProps> = (
     refetch: refetchExamples,
     isFetching: examplesFetching,
   } = useQuery({
-    queryKey: ['example-configs-manifest'],
+    queryKey: ['example-configs-list'],
     queryFn: () => fetchExamples(),
     enabled: active && activeTab === 'examples',
     staleTime: 5 * 60 * 1000,
