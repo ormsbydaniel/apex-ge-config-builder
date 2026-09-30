@@ -194,10 +194,10 @@ const FieldItem = ({
           />
         </td>
 
-        {/* Type */}
-        <td className="px-1 py-1.5 w-28 min-w-[112px]">
+        {/* Type (+ Format for date fields) */}
+        <td className="px-1 py-1.5 w-40 min-w-[160px]">
           <Select
-            value={config?.type || 'default'}
+            value={fieldType}
             onValueChange={(value) => handleConfigChange('type', value === 'default' ? undefined : value)}
             disabled={isHidden}
           >
@@ -206,11 +206,46 @@ const FieldItem = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="default">Default</SelectItem>
-              <SelectItem value="date">Date</SelectItem>
-              <SelectItem value="datetime">DateTime</SelectItem>
+              <SelectItem value="date">Date / DateTime</SelectItem>
               <SelectItem value="url">URL</SelectItem>
             </SelectContent>
           </Select>
+          {isDateType && (
+            <div className="mt-1 space-y-1">
+              <Select
+                value={isCustomFormat ? 'custom' : formatValue || 'none'}
+                onValueChange={(value) => {
+                  if (value === 'none') handleConfigChange('format', undefined);
+                  else if (value === 'custom') handleConfigChange('format', isCustomFormat ? formatValue : 'yyyy-MM-dd HH:mm');
+                  else handleConfigChange('format', value);
+                }}
+                disabled={isHidden}
+              >
+                <SelectTrigger className="h-6 text-xs px-2" aria-label={`Date format for ${fieldName}`}>
+                  <SelectValue placeholder="Format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Raw value</SelectItem>
+                  {DATE_FORMAT_PRESETS.map((preset) => (
+                    <SelectItem key={preset} value={preset}>{preset}</SelectItem>
+                  ))}
+                  <SelectItem value="custom">Custom…</SelectItem>
+                </SelectContent>
+              </Select>
+              {isCustomFormat && (
+                <Input
+                  id={`format-${fieldName}`}
+                  aria-label={`Custom date format for ${fieldName}`}
+                  placeholder="yyyy-MM-dd HH:mm"
+                  title="Luxon format tokens, e.g. yyyy-MM-dd HH:mm"
+                  value={formatValue}
+                  onChange={(e) => handleConfigChange('format', e.target.value || undefined)}
+                  disabled={isHidden}
+                  className="h-6 text-xs px-2 font-mono"
+                />
+              )}
+            </div>
+          )}
         </td>
 
         {/* Hidden toggle */}
