@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Plus } from 'lucide-react';
+import { Filter, Palette, PencilRuler, Square, TrendingUp, Type } from 'lucide-react';
 import RuleListPane from './RuleListPane';
 import RuleEditorPane from './RuleEditorPane';
 import {
@@ -17,17 +11,39 @@ import {
 } from '@/utils/vectorStyle/defaults';
 import type { StyleRule } from '@/types/vectorStyle';
 import type { VectorFieldDescriptor } from './types';
+import { RECIPES, type RecipeId } from '@/utils/vectorStyle/recipes';
 
 interface StyleEditorProps {
   rules: StyleRule[];
   onChange: (next: StyleRule[]) => void;
   fields: VectorFieldDescriptor[];
   fallbackCount?: number;
+  onPickRecipe: (id: RecipeId) => void;
 }
 
 type Preset = 'marker' | 'line' | 'fill' | 'label' | 'blank';
+const RECIPE_ICONS = { categorized: Palette, graduated: TrendingUp, uniform: Square, labels: Type, highlight: Filter };
 
-const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0 }: StyleEditorProps) => {
+const AddAnother = ({ onPickRecipe, onScratch }: { onPickRecipe: (id: RecipeId) => void; onScratch: () => void }) => (
+  <div className="border-t pt-3 space-y-1">
+    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">Add another</p>
+    {RECIPES.map((recipe) => {
+      const Icon = RECIPE_ICONS[recipe.id];
+      return (
+        <Button key={recipe.id} type="button" variant="ghost" size="sm"
+          className="w-full h-8 justify-start px-2 text-xs font-normal" onClick={() => onPickRecipe(recipe.id)}>
+          <Icon className="h-4 w-4 mr-2 text-primary" />{recipe.name}
+        </Button>
+      );
+    })}
+    <Button type="button" variant="ghost" size="sm" className="w-full h-8 justify-start px-2 text-xs font-normal"
+      onClick={onScratch}>
+      <PencilRuler className="h-4 w-4 mr-2 text-muted-foreground" />Start from scratch
+    </Button>
+  </div>
+);
+
+const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe }: StyleEditorProps) => {
   const [selected, setSelected] = useState(0);
   useEffect(() => {
     if (selected > rules.length - 1) setSelected(Math.max(0, rules.length - 1));
@@ -77,22 +93,9 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0 }: StyleEditor
 
   if (rules.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
-        <p className="text-sm text-muted-foreground">No style rules yet — start with one:</p>
-        <div className="flex flex-wrap gap-2 justify-center">
-          <Button type="button" variant="outline" onClick={() => addRule('marker')}>
-            <span className="mr-1">●</span> Add markers
-          </Button>
-          <Button type="button" variant="outline" onClick={() => addRule('line')}>
-            <span className="mr-1">─</span> Add lines
-          </Button>
-          <Button type="button" variant="outline" onClick={() => addRule('fill')}>
-            <span className="mr-1">▢</span> Add fills
-          </Button>
-          <Button type="button" variant="outline" onClick={() => addRule('label')}>
-            <span className="mr-1">A</span> Add labels
-          </Button>
-        </div>
+      <div className="w-full max-w-xs">
+        <p className="text-sm text-muted-foreground mb-3">No style rules yet.</p>
+        <AddAnother onPickRecipe={onPickRecipe} onScratch={() => addRule('blank')} />
       </div>
     );
   }
@@ -104,42 +107,21 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0 }: StyleEditor
           {fallbackCount} item{fallbackCount === 1 ? '' : 's'} opened in expression mode — they couldn't be mapped to a structured form, but will save back unchanged.
         </div>
       )}
-      <div className="grid grid-cols-[minmax(220px,30%)_1fr] gap-3 min-h-[420px]">
-        <div className="space-y-2 border-r pr-3">
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(220px,30%)_minmax(0,1fr)] gap-3 min-h-[420px]">
+        <div className="space-y-3 md:border-r md:pr-3 min-w-0">
           <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
             Rules — drawn top to bottom
           </p>
-          <RuleListPane
-            rules={rules}
-            selected={Math.min(selected, rules.length - 1)}
-            onSelect={setSelected}
-            onMove={moveRule}
-            onToggle={(i) => updateRule(i, { ...rules[i], enabled: rules[i].enabled === false })}
-          />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" variant="outline" size="sm" className="w-full">
-              <Plus className="h-4 w-4 mr-1" /> Add rule
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onSelect={() => addRule('marker')}>
-              <span className="mr-2">●</span> Marker
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => addRule('line')}>
-              <span className="mr-2">─</span> Line
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => addRule('fill')}>
-              <span className="mr-2">▢</span> Fill
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => addRule('label')}>
-              <span className="mr-2">A</span> Label
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => addRule('blank')}>
-              Blank
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <div className="max-h-48 overflow-y-auto pr-1">
+            <RuleListPane
+              rules={rules}
+              selected={Math.min(selected, rules.length - 1)}
+              onSelect={setSelected}
+              onMove={moveRule}
+              onToggle={(i) => updateRule(i, { ...rules[i], enabled: rules[i].enabled === false })}
+            />
+          </div>
+          <AddAnother onPickRecipe={onPickRecipe} onScratch={() => addRule('blank')} />
         </div>
         <div className="min-w-0">
           {rules[Math.min(selected, rules.length - 1)] && (

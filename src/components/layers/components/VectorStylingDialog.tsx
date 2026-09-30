@@ -6,7 +6,7 @@ import { DataSourceItem } from '@/types/dataSource';
 import { isVectorFormat, detectFieldsFromSource } from '@/utils/fieldDetection';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
-import { FileJson, Sparkles } from 'lucide-react';
+import { FileJson } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import RecipeGallery from '@/components/vectorStyle/RecipeGallery';
 import RecipeWizard from '@/components/vectorStyle/RecipeWizard';
@@ -50,6 +50,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const [detectedFields, setDetectedFields] = useState<VectorFieldDescriptor[]>([]);
   const [view, setView] = useState<'gallery' | 'wizard' | 'editor'>('editor');
   const [recipe, setRecipe] = useState<RecipeId | null>(null);
+  const [wizardOrigin, setWizardOrigin] = useState<'gallery' | 'editor'>('gallery');
   const [pendingRules, setPendingRules] = useState<StyleRule[] | null>(null);
 
   const initialStyle: unknown[] = useMemo(() => {
@@ -93,6 +94,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     // Empty styles open on the recipe gallery; existing styles open on their rules.
     setView(parsed.rules.length === 0 && parsed.fallbacks.length === 0 ? 'gallery' : 'editor');
     setRecipe(null);
+    setWizardOrigin('gallery');
     setPendingRules(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -202,16 +204,11 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl h-[85vh] overflow-hidden flex flex-col gap-2">
+      <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] h-[85vh] overflow-hidden flex flex-col gap-2">
         <DialogHeader>
           <div className="flex items-center justify-between gap-2 pr-6">
             <DialogTitle>Vector Styling — {source.name}</DialogTitle>
             <div className="flex items-center gap-2">
-            {!jsonActive && view === 'editor' && (
-              <Button type="button" variant="outline" size="sm" className="h-7" onClick={() => setView('gallery')}>
-                <Sparkles className="h-3.5 w-3.5 mr-1" /> New from recipe
-              </Button>
-            )}
             <TooltipProvider delayDuration={400}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -252,7 +249,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
             </>
           ) : view === 'gallery' ? (
             <RecipeGallery
-              onPick={(id) => { setRecipe(id); setView('wizard'); }}
+               onPick={(id) => { setWizardOrigin('gallery'); setRecipe(id); setView('wizard'); }}
               onScratch={() => setView('editor')}
               hasExistingRules={rules.length > 0}
             />
@@ -262,7 +259,8 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
               sample={sampleQuery.data}
               sampling={sampleQuery.isFetching}
               fallbackFields={fields.map((f) => f.name)}
-              onBack={() => setView('gallery')}
+               backLabel={wizardOrigin === 'editor' ? 'Rules' : 'Recipes'}
+               onBack={() => setView(wizardOrigin)}
               onApply={handleRecipeRules}
             />
           ) : (
@@ -271,6 +269,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
               onChange={setRules}
               fields={fields}
               fallbackCount={fallbackCount}
+               onPickRecipe={(id) => { setWizardOrigin('editor'); setRecipe(id); setView('wizard'); }}
             />
           )}
         </div>

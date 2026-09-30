@@ -27,6 +27,7 @@ interface RecipeWizardProps {
   /** Field names known from config, used when sampling fails. */
   fallbackFields: string[];
   onBack: () => void;
+  backLabel?: string;
   onApply: (rules: StyleRule[]) => void;
 }
 
@@ -56,7 +57,7 @@ const Swatches = ({ colors }: { colors: string[] }) => (
 const typeBadge = (f?: FieldSample) =>
   f ? (f.type === 'number' ? '123' : f.type === 'string' ? 'abc' : f.type) : '';
 
-const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, onApply }: RecipeWizardProps) => {
+const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLabel = 'Recipes', onApply }: RecipeWizardProps) => {
   const def = getRecipe(recipe)!;
   const sampled = sample?.fields ?? [];
   const sampleFailed = !sampling && (!sample || !!sample.error || sampled.length === 0);
@@ -143,7 +144,7 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, onAppl
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Button type="button" variant="ghost" size="sm" onClick={onBack} className="h-7 px-2">
-          <ArrowLeft className="h-4 w-4 mr-1" /> Recipes
+          <ArrowLeft className="h-4 w-4 mr-1" /> {backLabel}
         </Button>
         <div>
           <div className="text-sm font-medium">{def.name}</div>
