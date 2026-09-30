@@ -95,6 +95,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     setView(parsed.rules.length === 0 && parsed.fallbacks.length === 0 ? 'gallery' : 'editor');
     setRecipe(null);
     setWizardOrigin('gallery');
+    setFocusRule(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -274,8 +275,9 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
               onChange={setRules}
               fields={fields}
               fallbackCount={fallbackCount}
-               onPickRecipe={(id) => { setWizardOrigin('editor'); setRecipe(id); setView('wizard'); }}
-               onRulesEmpty={() => setView('gallery')}
+              focusRule={focusRule}
+              onPickRecipe={(id) => { setWizardOrigin('editor'); setRecipe(id); setView('wizard'); }}
+              onRulesEmpty={() => setView('gallery')}
             />
           )}
         </div>
