@@ -68,6 +68,7 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
         return (
           <li
             key={idx}
+            ref={(el) => { itemRefs.current[idx] = el; }}
             draggable
             onDragStart={() => setDragFrom(idx)}
             onDragOver={(e) => e.preventDefault()}
