@@ -1806,7 +1806,7 @@ editor:</p>
 </tr>
 <tr>
 <td><strong>Type</strong></td>
-<td>Marks a field as <code>Date</code> or <code>DateTime</code> so the timestamp is formatted for reading rather than shown as raw ISO 8601.</td>
+<td>Marks a field as <code>Date / DateTime</code> so the timestamp is formatted for reading rather than shown as raw ISO 8601. Formatting only applies once a <strong>Format</strong> is chosen — a dropdown of common presets (e.g. <code>yyyy-MM-dd</code>, <code>dd MMM yyyy, HH:mm</code>) or a custom Luxon token string.</td>
 </tr>
 <tr>
 <td><strong>Display order</strong></td>
@@ -1836,7 +1836,9 @@ can be copied from another layer with <strong>Copy from layer</strong>.</p>
 <li><strong>Field name</strong> — the property name in the data, shown in monospace.</li>
 <li><strong>Display label, Prefix, Suffix</strong> — inline text inputs for the readout.</li>
 <li><strong>Precision</strong> — decimal places for numeric values.</li>
-<li><strong>Type</strong> — <code>default</code>, <code>Date</code> or <code>DateTime</code>.</li>
+<li><strong>Type</strong> — <code>default</code>, <code>Date / DateTime</code> or <code>URL</code>. Date fields get an inline
+  <strong>Format</strong> picker (common presets or a custom Luxon token string); without a
+  format the raw value is shown.</li>
 <li><strong>Hide</strong> — a toggle; hidden rows stay in the table, greyed out.</li>
 <li>Rows are arranged with the drag handle or the up/down chevrons, and that
   order becomes the display order in the Explorer.</li>

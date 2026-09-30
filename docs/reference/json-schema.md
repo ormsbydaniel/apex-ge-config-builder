@@ -310,6 +310,17 @@ Vector layer with field display config (`null` hides a field):
 }
 ```
 
+Each field entry supports (all optional):
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `label` | string | Display name replacing the raw property name. |
+| `prefix` / `suffix` | string | Text shown before/after the value (units, qualifiers). |
+| `precision` | integer | Decimal places for numeric values. |
+| `order` | integer | Display position in the Data Values panel (1-based). |
+| `type` | string | `date` or `url`. `date` only takes effect when `format` is also set. |
+| `format` | string | Luxon token string (e.g. `yyyy-MM-dd`, `dd MMM yyyy, HH:mm`) used to format `date` fields. Without it the raw value is shown. |
+
 ## `layout` (per-source)
 
 Where the layer lives in the GE UI and how its legend / controls render.
