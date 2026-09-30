@@ -1,79 +1,54 @@
-# Vector Styling Revamp — Two-Pane Rule Manager + Intent-First Recipes
+# Vector styling revamp: next build step
 
-The user picked rendered wireframes for both directions:
-- Proposal 2 (two-pane rule manager): wireframe v1 — "Two-pane rule manager"
-- Proposal 3 (intent-first recipes): wireframe v1 — "Recipe selection" entry screen
+## What the test config gives us
 
-They are complementary: the recipe screen is the dialog's entry state; picking a recipe
-scaffolds a rule and lands in the two-pane editor to refine it.
+The "Vector datasets" test config has six vector layers. Each one tests something different:
 
-## Phase 1 — Two-pane rule editor (core)
+| Layer | Data | Current style | Good for testing |
+|---|---|---|---|
+| Field Boundaries | 40 FlatGeoBuf files (polygons) | Plain red outline | Uniform recipe, sampling FlatGeoBuf files |
+| HV Transmission Grid | 1 GeoJSON (lines) | `case` expression on `current` / `voltage` | Opening existing complex styles; Categorised and Graduated recipes on lines |
+| Oslo NO2 | 694 GeoJSON files (polygons) | `interpolate` ramp on `no2_ugm3` | Graduated recipe; round-tripping stops; sampling only the first file |
+| External GeoJSON Example | Countries (polygons) | None | Categorised recipe (`name`), Labels, starting with an empty style |
+| AGB statistics / World Cover statistics | Statistics layers | None | Empty-style entry path, Filter/Highlight |
 
-Replace the vertical stack of collapsible `StyleRuleCard`s in `VectorStylingDialog.tsx`
-with a two-pane layout inside the existing dialog (widen from max-w-3xl to ~max-w-5xl):
+These layers cover the three main situations: an empty style, a simple style and a complex style written with expressions.
 
-- Left pane (~1/3): compact rule list — one row per rule: drag handle, name,
-  filter summary (small mono text, e.g. `CONTINENT = Europe`), primitive swatches,
-  visibility eye, up/down reorder; plus "Add rule". Selected rule highlighted.
-  Mirrors the Manage Fields table pattern (FieldItem rows).
-- Right pane (~2/3): selected-rule editor with the existing Marker / Line / Fill /
-  Label / When tabs. Inside a tab, property rows keep the current inputs
-  (ConstantInput, StopsEditor, FilterBuilder unchanged) but:
-  - value-mode dropdown (Constant / From field / By zoom / Expression) is always
-    visible — no chevron; collapsed italic summaries disappear;
-  - an "Add property" picker lists catalogued properties not yet set for that
-    primitive (dash pattern, line cap/join, miter limit, label placement/offsets,
-    icon anchor/tint, shape inner radius) so they are reachable without the JSON editor.
-- When tab: FilterBuilder moves into the tab as today; an else-branch section stays.
-- State: keep the existing flat style array model, `toFlatStyleArray` /
-  `fromFlatStyleArray`, mode toggle and Save/Cancel/{JSON} icon behaviour exactly
-  as-is; only the presentation layer changes.
+## Phase 2: recipe entry (build next)
 
-Files: `src/components/layers/components/VectorStylingDialog.tsx` (layout + selection
-state), new `src/components/vectorStyle/RuleListPane.tsx` and
-`src/components/vectorStyle/RuleEditorPane.tsx`, reuse `ValueInput.tsx`,
-`FilterBuilder.tsx`, `StopsEditor.tsx`, `SimplePanels.tsx`, and the property
-catalogue from `src/utils/vectorStyle/defaults.ts` (extend with the missing
-advanced properties if not already catalogued).
+1. **Recipe gallery.** When a layer has no style, the styling dialog opens on five cards: Categorised, Graduated, Uniform, Labels and Filter/Highlight, plus "Start from scratch". When a layer already has a style, the header gets a "New from recipe" button.
+2. **Recipe wizard.** It takes one short screen per recipe:
+    - Pick a field. The list is filled by sampling the layer's first data file. Numeric and text fields are marked.
+    - Pick a palette: categorical palettes for Categorised, colour ramps for Graduated.
+    - Values are auto-detected (up to 20 categories, or min/max with equal-interval or quantile breaks) and can be edited before you apply them.
+    - If sampling fails, you can enter values yourself.
+3. **Replace or Append.** If the layer already has rules, you choose whether the new rules replace them or are added to them. The single "else" rule always stays last.
+4. The generated rules go into the existing rule cards. This means results can be checked in Preview straight away, before the two-pane editor is built.
 
-## Phase 2 — Intent-first recipe entry
+## Phase 3: two-pane rule editor (after Phase 2 sign-off)
 
-When the layer has no style yet, the dialog opens on a recipe screen instead of an
-empty rule list ("What would you like to style?"):
+- Left side: a compact list of rules showing the name, filter summary, colour swatches, visibility toggle and reorder controls.
+- Right side: tabs for the selected rule (Fill / Stroke / Marker / Label / When).
+- Each property shows its mode dropdown (Constant / From field / By zoom / Expression) at all times.
+- A "+ Add property" picker gives access to the advanced properties (dash, cap/join, label offsets, icon anchor and so on).
+- The {JSON} editor stays. The dialog gets wider.
 
-- Goal cards: Colour features by an attribute, Size symbols by a value,
-  Label features, Show only matching features, Style everything the same,
-  plus "Start from scratch" link.
-- Picking a goal opens a compact scaffold form (choose field — from configured
-  `meta.fields` or auto-detected; choose palette/classification; label field;
-  filter field/op/value as appropriate) and writes the matching entries into the
-  flat style array (field-driven colour via match/interpolate stops, sized markers
-  via zoom/attribute stops, label primitive, filter in When).
-- The user then lands in the Phase 1 two-pane editor to refine.
-- "Start from scratch" skips straight to the editor. Existing styles open the
-  editor directly (recipe screen only for empty styles); recipes never create a
-  second persistence format — they only seed the existing style array.
+## Verification against the test config
 
-Files: new `src/components/vectorStyle/RecipeEntry.tsx` +
-`src/components/vectorStyle/RecipeScaffold.tsx`; a
-`src/utils/vectorStyle/recipes.ts` module that builds style-array entries per goal;
-`VectorStylingDialog.tsx` routes between recipe screen and editor.
+- Opening HV Grid and Oslo must not change their saved style when you save without edits. This is a round-trip check on `case` and `interpolate`.
+- Graduated on Oslo `no2_ugm3` and Categorised on Countries `name` must render correctly in Preview.
+- Field Boundaries: sampling reads only the first FlatGeoBuf file and stays within the 500-feature cap.
+- You do the visual testing. I will not publish anything.
 
 ## Docs
 
-- Update `docs/layers/vector-styling` coverage (the Data Visualisation docs page)
-  with the new dialog: recipe entry, two-pane editor, add-property picker —
-  house style, 4-space indentation, new screenshots via `scripts/add-screenshot.sh`.
-- Rebuild the guide with `python3 -m mkdocs build --strict`.
+- Update `docs/layers/vector-styling.md` with a "Styling recipes" section. Add screenshots with the screenshot script, then run a strict MkDocs build.
+- Add a 2.7.0 announcement entry once you have signed off.
 
-## Verification
+## Technical details
 
-- Existing unit tests keep passing (`toFlatStyleArray`/`fromFlatStyleArray`
-  round-trip untouched); add tests for `recipes.ts` scaffolding.
-- Build clean; user does visual testing in the preview (no publishing).
-
-## Notes
-
-- Schema/types unchanged — visual + UX only, so no Zod/TS sync work.
-- Per plan-mode constraints, `roadmap.md` could not be updated this turn; fold the
-  two phases into it when implementation starts.
+- New components in `src/components/vectorStyle/`: `RecipeGallery.tsx`, `RecipeWizard.tsx`, `ReplaceOrAppendDialog.tsx`. They connect into `VectorStylingDialog.tsx`.
+- They use the existing `src/utils/vectorStyle/recipes.ts`, `sampleSourceData.ts` and `palettes.ts` (already tested). Output goes through `toFlatStyleArray`, so there are no config schema changes.
+- Sampling uses the first `data[]` entry only, is cached per URL (react-query) and never throws.
+- Add a round-trip unit test for the HV Grid and Oslo styles (`fromFlatStyleArray` → `toFlatStyleArray`, which must give identical output).
+- Phase 3 files: `RuleListPane.tsx` and `RuleEditorPane.tsx`. The add-property picker uses `propertyCatalogues.ts` entries marked `advanced: true`.
