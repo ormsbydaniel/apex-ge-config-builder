@@ -6,6 +6,12 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-09-30",
+    title:
+      "Release 2.6.0 - Improvements to vector field values config dialog. Various tutorial improvement.",
+    category: "Improvement",
+  },
+  {
     date: "2026-09-14",
     title: "Release 2.5.0 - Addition of pixel time series chart config",
     category: "Feature",
