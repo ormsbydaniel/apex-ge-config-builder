@@ -19,14 +19,16 @@ import {
   CheckCircle2,
   Clock,
   RefreshCw,
+  FlaskConical,
 } from 'lucide-react';
 import { useConfigImport } from '@/hooks/useConfigIO';
 import type { ImportProgress } from '@/hooks/useConfigImport';
 import { ValidationErrorDetails } from '@/types/config';
 import {
-  fetchExamples,
+  fetchExampleManifest,
   EXAMPLES_MANIFEST_URL,
   type ExampleConfigEntry,
+  type ExampleManifest,
 } from '@/utils/exampleManifest';
 import { useQuery } from '@tanstack/react-query';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
@@ -240,17 +242,19 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   );
 
   const {
-    data: examples,
+    data: manifest,
     isLoading: examplesLoading,
     error: examplesError,
     refetch: refetchExamples,
     isFetching: examplesFetching,
   } = useQuery({
     queryKey: ['example-configs-manifest'],
-    queryFn: () => fetchExamples(),
+    queryFn: () => fetchExampleManifest(),
     enabled: open && activeTab === 'examples',
     staleTime: 5 * 60 * 1000,
   });
+  const examples = manifest?.examples;
+  const testConfigs = manifest?.testConfigs;
 
   // ---- Loading view subcomponent ----
   const renderLoadingView = () => {
@@ -418,22 +422,53 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                     No examples are listed in the manifest.
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {examples.map((ex) => (
-                      <button
-                        key={ex.id}
-                        onClick={() => handleLoadExample(ex)}
-                        className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <div className="font-medium text-sm">{ex.name}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5">{ex.description}</div>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      {examples.map((ex) => (
+                        <button
+                          key={ex.id}
+                          onClick={() => handleLoadExample(ex)}
+                          className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <div className="font-medium text-sm">{ex.name}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">{ex.description}</div>
+                            </div>
+                            <FileText className="h-4 w-4 text-muted-foreground" />
                           </div>
-                          <FileText className="h-4 w-4 text-muted-foreground" />
+                        </button>
+                      ))}
+                    </div>
+
+                    {testConfigs && testConfigs.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 pt-2">
+                          <FlaskConical className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            Test &amp; development
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            — configs for testing and building features
+                          </span>
                         </div>
-                      </button>
-                    ))}
+                        {testConfigs.map((ex) => (
+                          <button
+                            key={ex.id}
+                            onClick={() => handleLoadExample(ex)}
+                            className="w-full text-left p-4 rounded-lg border border-dashed border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <div className="font-medium text-sm">{ex.name}</div>
+                                <div className="text-xs text-muted-foreground mt-0.5">{ex.description}</div>
+                              </div>
+                              <FlaskConical className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </TabsContent>
