@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronUp, ChevronDown, Eye, EyeOff, GripVertical } from 'lucide-react';
+import { ChevronUp, ChevronDown, Copy, Trash2, GripVertical } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { StyleRule, ValueModel } from '@/types/vectorStyle';
 
@@ -9,7 +10,8 @@ interface RuleListPaneProps {
   selected: number;
   onSelect: (idx: number) => void;
   onMove: (from: number, to: number) => void;
-  onToggle: (idx: number) => void;
+  onDuplicate: (idx: number) => void;
+  onRemove: (idx: number) => void;
 }
 
 const SWATCH_KEYS = [
@@ -49,7 +51,7 @@ export const filterSummary = (rule: StyleRule): string => {
 
 const GLYPH: Record<string, string> = { marker: '●', line: '─', fill: '▢', label: 'A' };
 
-const RuleListPane = ({ rules, selected, onSelect, onMove, onToggle }: RuleListPaneProps) => {
+const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove }: RuleListPaneProps) => {
   const [dragFrom, setDragFrom] = React.useState<number | null>(null);
 
   return (
@@ -99,11 +101,28 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onToggle }: RuleListP
                 <ChevronDown className="h-3 w-3" />
               </Button>
             </div>
-            <Button type="button" variant="ghost" size="icon" className="h-6 w-6 shrink-0"
-              onClick={(e) => { e.stopPropagation(); onToggle(idx); }}
-              aria-label={enabled ? 'Hide rule' : 'Show rule'}>
-              {enabled ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
-            </Button>
+            <TooltipProvider delayDuration={400}>
+              <div className="flex shrink-0" onClick={(e) => e.stopPropagation()}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6"
+                      onClick={() => onDuplicate(idx)} aria-label="Duplicate rule">
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Duplicate rule</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive"
+                      onClick={() => onRemove(idx)} aria-label="Delete rule">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Delete rule</TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
           </li>
         );
       })}

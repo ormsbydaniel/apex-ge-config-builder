@@ -10,7 +10,6 @@ import { FileJson } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import RecipeGallery from '@/components/vectorStyle/RecipeGallery';
 import RecipeWizard from '@/components/vectorStyle/RecipeWizard';
-import ReplaceOrAppendDialog from '@/components/vectorStyle/ReplaceOrAppendDialog';
 import { applyRecipeRules, type RecipeId } from '@/utils/vectorStyle/recipes';
 import { sampleSourceData, canSampleSource } from '@/utils/vectorStyle/sampleSourceData';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -51,7 +50,6 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const [view, setView] = useState<'gallery' | 'wizard' | 'editor'>('editor');
   const [recipe, setRecipe] = useState<RecipeId | null>(null);
   const [wizardOrigin, setWizardOrigin] = useState<'gallery' | 'editor'>('gallery');
-  const [pendingRules, setPendingRules] = useState<StyleRule[] | null>(null);
 
   const initialStyle: unknown[] = useMemo(() => {
     if (!open) return [];
@@ -95,16 +93,11 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     setView(parsed.rules.length === 0 && parsed.fallbacks.length === 0 ? 'gallery' : 'editor');
     setRecipe(null);
     setWizardOrigin('gallery');
-    setPendingRules(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleRecipeRules = (generated: StyleRule[]) => {
-    if (rules.length > 0) {
-      setPendingRules(generated);
-      return;
-    }
-    setRules(applyRecipeRules([], generated, 'replace'));
+    setRules((current) => applyRecipeRules(current, generated, 'append'));
     setView('editor');
   };
 
@@ -279,16 +272,6 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
           <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
-      <ReplaceOrAppendDialog
-        open={!!pendingRules}
-        existingCount={rules.length}
-        onCancel={() => setPendingRules(null)}
-        onChoose={(m) => {
-          if (pendingRules) setRules(applyRecipeRules(rules, pendingRules, m));
-          setPendingRules(null);
-          setView('editor');
-        }}
-      />
     </Dialog>
   );
 };

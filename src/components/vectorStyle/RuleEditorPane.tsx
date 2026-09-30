@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, Trash2, Plus, Filter as FilterIcon } from 'lucide-react';
+import { Trash2, Plus, Filter as FilterIcon } from 'lucide-react';
 import FilterBuilder from './FilterBuilder';
 import MarkerPanel from './MarkerPanel';
 import { FillPanel, LinePanel, LabelPanel } from './SimplePanels';
@@ -25,15 +25,13 @@ interface RuleEditorPaneProps {
   rule: StyleRule;
   index: number;
   onChange: (next: StyleRule) => void;
-  onDuplicate: () => void;
-  onRemove: () => void;
   fields: VectorFieldDescriptor[];
 }
 
 const firstActiveTab = (rule: StyleRule): TabKey =>
   (TABS.find((t) => t.key !== 'when' && rule.primitives[t.key as PrimitiveKey])?.key) ?? 'fill';
 
-const RuleEditorPane = ({ rule, index, onChange, onDuplicate, onRemove, fields }: RuleEditorPaneProps) => {
+const RuleEditorPane = ({ rule, index, onChange, fields }: RuleEditorPaneProps) => {
   const [tab, setTab] = useState<TabKey>(() => firstActiveTab(rule));
   // Reset to the first drawing layer when a different rule is selected.
   useEffect(() => { setTab(firstActiveTab(rule)); }, [index]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -103,12 +101,6 @@ const RuleEditorPane = ({ rule, index, onChange, onDuplicate, onRemove, fields }
           onChange={(e) => onChange({ ...rule, name: e.target.value || undefined })}
           aria-label="Rule name"
         />
-        <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={onDuplicate} aria-label="Duplicate rule">
-          <Copy className="h-4 w-4" />
-        </Button>
-        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={onRemove} aria-label="Delete rule">
-          <Trash2 className="h-4 w-4" />
-        </Button>
       </div>
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="flex flex-col flex-1 min-h-0">
         <TabsList className="w-full justify-start overflow-x-auto overflow-y-hidden">
