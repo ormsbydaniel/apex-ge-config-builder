@@ -8,9 +8,12 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import {
   buildRecipeRules,
   getRecipe,
+  UNIFORM_LINE_STYLES,
+  UNIFORM_LINE_WEIGHTS,
   type ClassificationMethod,
   type GeometryTarget,
   type RecipeId,
+  type UniformLineStyle,
 } from '@/utils/vectorStyle/recipes';
 import {
   CATEGORICAL_PALETTES,
@@ -101,6 +104,8 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
   const [max, setMax] = useState('');
   const [color, setColor] = useState('#3b82f6');
   const [outline, setOutline] = useState('#1e3a8a');
+  const [lineStyle, setLineStyle] = useState<UniformLineStyle>('solid');
+  const [lineWeight, setLineWeight] = useState('2');
   const [op, setOp] = useState<FilterOperator>('==');
   const [value, setValue] = useState('');
   const [dimOthers, setDimOthers] = useState(true);
@@ -143,7 +148,14 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
         });
         break;
       case 'uniform':
-        rules = buildRecipeRules({ recipe, geometry, color, outlineColor: outline });
+        rules = buildRecipeRules({
+          recipe,
+          geometry,
+          color,
+          outlineColor: outline,
+          outlineWidth: Number(lineWeight),
+          lineStyle,
+        });
         break;
       case 'labels':
         rules = buildRecipeRules({ recipe, field, placement: detected?.dominant === 'line' ? 'line' : undefined });
@@ -315,6 +327,28 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
           <>
             <Label className="text-xs">Outline</Label>
             <input type="color" className="h-8 w-16 rounded border" value={outline} onChange={(e) => setOutline(e.target.value)} />
+          </>
+        )}
+        {recipe === 'uniform' && geometry === 'line' && (
+          <>
+            <Label className="text-xs">Line style</Label>
+            <Select value={lineStyle} onValueChange={(v) => setLineStyle(v as UniformLineStyle)}>
+              <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {UNIFORM_LINE_STYLES.map((style) => (
+                  <SelectItem key={style.id} value={style.id}>{style.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Label className="text-xs">Line weight</Label>
+            <Select value={lineWeight} onValueChange={setLineWeight}>
+              <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {UNIFORM_LINE_WEIGHTS.map((weight) => (
+                  <SelectItem key={weight} value={String(weight)}>{weight} px</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </>
         )}
       </div>

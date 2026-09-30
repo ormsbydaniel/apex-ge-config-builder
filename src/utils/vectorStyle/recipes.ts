@@ -29,6 +29,18 @@ export type RecipeId =
 
 export type GeometryTarget = 'polygon' | 'line' | 'point';
 
+export type UniformLineStyle = 'solid' | 'dashed' | 'dotted' | 'dash-dot' | 'long-dash';
+
+export const UNIFORM_LINE_STYLES: { id: UniformLineStyle; label: string }[] = [
+  { id: 'solid', label: 'Solid' },
+  { id: 'dashed', label: 'Dashed' },
+  { id: 'dotted', label: 'Dotted' },
+  { id: 'dash-dot', label: 'Dash-dot' },
+  { id: 'long-dash', label: 'Long dash' },
+];
+
+export const UNIFORM_LINE_WEIGHTS = [1, 2, 3, 4, 6] as const;
+
 export interface RecipeDefinition {
   id: RecipeId;
   name: string;
@@ -80,11 +92,35 @@ const DEFAULT_FILL_ALPHA = 0.6;
 const DEFAULT_OUTLINE = '#ffffff';
 const DEFAULT_FALLBACK = '#9ca3af';
 
+const lineStyleProps = (
+  style: UniformLineStyle,
+  width: number,
+): Record<string, ValueModel> => {
+  if (style === 'solid') return {};
+
+  const patterns: Record<Exclude<UniformLineStyle, 'solid'>, number[]> = {
+    dashed: [4 * width, 2 * width],
+    dotted: [width, 2 * width],
+    'dash-dot': [4 * width, 2 * width, width, 2 * width],
+    'long-dash': [8 * width, 3 * width],
+  };
+
+  return {
+    'stroke-line-dash': constant(patterns[style]),
+    ...(style === 'dotted' ? { 'stroke-line-cap': constant('round') } : {}),
+  };
+};
+
 /** Build primitives that colour the given geometry target. */
 const colouredPrimitives = (
   geometry: GeometryTarget,
   color: ValueModel,
-  options: { outlineColor?: string; outlineWidth?: number; radius?: number } = {},
+  options: {
+    outlineColor?: string;
+    outlineWidth?: number;
+    radius?: number;
+    lineStyle?: UniformLineStyle;
+  } = {},
 ): RulePrimitives => {
   const outlineColor = options.outlineColor ?? DEFAULT_OUTLINE;
   const outlineWidth = options.outlineWidth ?? 1;
@@ -95,6 +131,7 @@ const colouredPrimitives = (
         props: {
           'stroke-color': color,
           'stroke-width': constant(options.outlineWidth ?? 2),
+          ...lineStyleProps(options.lineStyle ?? 'solid', options.outlineWidth ?? 2),
         },
       },
     };
@@ -244,6 +281,7 @@ export interface UniformRecipeInput {
   color?: string;
   outlineColor?: string;
   outlineWidth?: number;
+  lineStyle?: UniformLineStyle;
   radius?: number;
   fillAlpha?: number;
   ruleName?: string;
@@ -261,6 +299,7 @@ export const buildUniformRecipe = (input: UniformRecipeInput): StyleRule[] => {
       primitives: colouredPrimitives(input.geometry, color, {
         outlineColor: input.outlineColor,
         outlineWidth: input.outlineWidth,
+        lineStyle: input.lineStyle,
         radius: input.radius,
       }),
     },
