@@ -175,6 +175,8 @@ export interface CategorizedRecipeInput {
   categories: Array<string | CategoryAssignment>;
   geometry: GeometryTarget;
   paletteId?: string;
+  /** Reverse the palette colour order. */
+  reversePalette?: boolean;
   /** Colour for features that match none of the categories. */
   fallbackColor?: string;
   /** Apply transparency to polygon fills (ignored for lines/points). */
@@ -185,8 +187,9 @@ export interface CategorizedRecipeInput {
 export const resolveCategoryColors = (
   categories: Array<string | CategoryAssignment>,
   paletteId?: string,
+  reverse = false,
 ): CategoryAssignment[] => {
-  const palette = assignCategoricalColors(categories.length, paletteId);
+  const palette = assignCategoricalColors(categories.length, paletteId, reverse);
   return categories.map((entry, index) =>
     typeof entry === 'string'
       ? { value: entry, color: palette[index] }
@@ -195,7 +198,7 @@ export const resolveCategoryColors = (
 };
 
 export const buildCategorizedRecipe = (input: CategorizedRecipeInput): StyleRule[] => {
-  const assignments = resolveCategoryColors(input.categories, input.paletteId);
+  const assignments = resolveCategoryColors(input.categories, input.paletteId, input.reversePalette);
   const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
   const paint = (hex: string) => (alpha >= 1 ? hex : withAlpha(hex, alpha));
 
@@ -236,6 +239,8 @@ export interface GraduatedRecipeInput {
   values?: number[];
   method?: ClassificationMethod;
   paletteId?: string;
+  /** Reverse the palette colour order. */
+  reversePalette?: boolean;
   fillAlpha?: number;
   ruleName?: string;
 }
@@ -250,7 +255,7 @@ export const buildGraduatedRecipe = (input: GraduatedRecipeInput): StyleRule[] =
       : equalIntervalBreaks(input.min ?? 0, input.max ?? 1, classes);
 
   const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
-  const ramp = sampleRamp(breaks.length, input.paletteId);
+  const ramp = sampleRamp(breaks.length, input.paletteId, input.reversePalette);
 
   const stops: Stop[] = breaks.map((breakInput, index) => ({
     input: breakInput,

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import {
   buildRecipeRules,
@@ -103,6 +104,7 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
 
   const [field, setField] = useState('');
   const [palette, setPalette] = useState(recipe === 'graduated' ? RAMP_PALETTES[0].id : CATEGORICAL_PALETTES[0].id);
+  const [reversePalette, setReversePalette] = useState(false);
   const [categoriesText, setCategoriesText] = useState('');
   const [classes, setClasses] = useState(5);
   const [method, setMethod] = useState<ClassificationMethod>('equal-interval');
@@ -163,11 +165,11 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
     let rules: StyleRule[] = [];
     switch (recipe) {
       case 'categorized':
-        rules = buildRecipeRules({ recipe, field, geometry, categories, paletteId: palette });
+        rules = buildRecipeRules({ recipe, field, geometry, categories, paletteId: palette, reversePalette });
         break;
       case 'graduated':
         rules = buildRecipeRules({
-          recipe, field, geometry, classes, method, paletteId: palette,
+          recipe, field, geometry, classes, method, paletteId: palette, reversePalette,
           min: Number(min), max: Number(max), values: fieldSample?.numeric?.values,
         });
         break;
@@ -194,7 +196,7 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
     onApply(rules);
   };
 
-  const catPreview = assignCategoricalColors(Math.min(categories.length, 20), palette);
+  const catPreview = assignCategoricalColors(Math.min(categories.length, 20), palette, reversePalette);
 
   return (
     <div className="space-y-5">
@@ -261,16 +263,23 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
         {(recipe === 'categorized' || recipe === 'graduated') && (
           <>
             <Label className="text-xs">Palette</Label>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
             <Select value={palette} onValueChange={setPalette}>
               <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {(recipe === 'graduated' ? RAMP_PALETTES : CATEGORICAL_PALETTES).map((p) => (
                   <SelectItem key={p.id} value={p.id}>
-                    <span className="inline-flex items-center gap-2"><Swatches colors={p.colors} /> {p.name}</span>
+                    <span className="inline-flex items-center gap-2"><Swatches colors={reversePalette ? [...p.colors].reverse() : p.colors} /> {p.name}</span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+              </div>
+              <label className="flex items-center gap-1.5 text-xs whitespace-nowrap">
+                <Checkbox checked={reversePalette} onCheckedChange={(c) => setReversePalette(c === true)} /> Reverse
+              </label>
+            </div>
           </>
         )}
 
@@ -306,9 +315,15 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
                   <button
                     type="button"
                     className="underline hover:text-foreground"
-                    onClick={() => { setMin(String(fieldSample.numeric!.min)); setMax(String(fieldSample.numeric!.max)); }}
+                    onClick={() => {
+                    const n = fieldSample.numeric!;
+                    const nice = niceRange(n.min, n.max, classes);
+                    const isNice = Number(min) === nice.min && Number(max) === nice.max && min !== '';
+                    const next = isNice ? { min: n.min, max: n.max } : nice;
+                    setMin(String(next.min)); setMax(String(next.max));
+                  }}
                   >
-                    Use exact
+                    {(() => { const n = fieldSample.numeric!; const nice = niceRange(n.min, n.max, classes); return Number(min) === nice.min && Number(max) === nice.max && min !== '' ? 'Use exact' : 'Round'; })()}
                   </button>
                 </div>
               )}

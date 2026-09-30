@@ -85,8 +85,9 @@ export const getRampPalette = (id: string): RampPalette =>
   RAMP_PALETTES.find(p => p.id === id) ?? DEFAULT_RAMP_PALETTE;
 
 /** Cycle palette colours so any number of categories gets a swatch. */
-export const assignCategoricalColors = (count: number, paletteId?: string): string[] => {
-  const { colors } = getCategoricalPalette(paletteId ?? DEFAULT_CATEGORICAL_PALETTE.id);
+export const assignCategoricalColors = (count: number, paletteId?: string, reverse = false): string[] => {
+  const base = getCategoricalPalette(paletteId ?? DEFAULT_CATEGORICAL_PALETTE.id).colors;
+  const colors = reverse ? [...base].reverse() : base;
   return Array.from({ length: Math.max(0, count) }, (_, i) => colors[i % colors.length]);
 };
 
@@ -117,8 +118,9 @@ export const mixHex = (from: string, to: string, t: number): string => {
  * Resample a ramp palette to exactly `count` colours, interpolating between
  * the palette's control points.
  */
-export const sampleRamp = (count: number, paletteId?: string): string[] => {
-  const { colors } = getRampPalette(paletteId ?? DEFAULT_RAMP_PALETTE.id);
+export const sampleRamp = (count: number, paletteId?: string, reverse = false): string[] => {
+  const base = getRampPalette(paletteId ?? DEFAULT_RAMP_PALETTE.id).colors;
+  const colors = reverse ? [...base].reverse() : base;
   if (count <= 0) return [];
   if (count === 1) return [colors[Math.floor(colors.length / 2)]];
 
