@@ -3,12 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Filter, Palette, PencilRuler, Square, TrendingUp, Type } from 'lucide-react';
 import RuleListPane from './RuleListPane';
 import RuleEditorPane from './RuleEditorPane';
-import {
-  defaultFill,
-  defaultLabel,
-  defaultLine,
-  defaultMarker,
-} from '@/utils/vectorStyle/defaults';
 import type { StyleRule } from '@/types/vectorStyle';
 import type { VectorFieldDescriptor } from './types';
 import { RECIPES, type RecipeId } from '@/utils/vectorStyle/recipes';
@@ -21,7 +15,6 @@ interface StyleEditorProps {
   onPickRecipe: (id: RecipeId) => void;
 }
 
-type Preset = 'marker' | 'line' | 'fill' | 'label' | 'blank';
 const RECIPE_ICONS = { categorized: Palette, graduated: TrendingUp, uniform: Square, labels: Type, highlight: Filter };
 
 const AddAnother = ({ onPickRecipe, onScratch }: { onPickRecipe: (id: RecipeId) => void; onScratch: () => void }) => (
@@ -48,19 +41,6 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
   useEffect(() => {
     if (selected > rules.length - 1) setSelected(Math.max(0, rules.length - 1));
   }, [rules.length, selected]);
-  const firstString = fields.find((f) => !f.type || f.type === 'string')?.name;
-
-  const newRule = (preset: Preset): StyleRule => {
-    const base: StyleRule = { enabled: true, primitives: {} };
-    switch (preset) {
-      case 'marker': return { ...base, primitives: { marker: defaultMarker() } };
-      case 'line': return { ...base, primitives: { line: defaultLine() } };
-      case 'fill': return { ...base, primitives: { fill: defaultFill() } };
-      case 'label': return { ...base, primitives: { label: defaultLabel(firstString) } };
-      case 'blank': return base;
-    }
-  };
-
   const updateRule = (idx: number, next: StyleRule) =>
     onChange(rules.map((r, i) => (i === idx ? next : r)));
 
@@ -86,8 +66,8 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
     setSelected((s) => (s === from ? to : from < s && to >= s ? s - 1 : from > s && to <= s ? s + 1 : s));
   };
 
-  const addRule = (preset: Preset) => {
-    onChange([...rules, newRule(preset)]);
+  const addRule = () => {
+    onChange([...rules, { enabled: true, primitives: {} }]);
     setSelected(rules.length);
   };
 
@@ -95,7 +75,7 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
     return (
       <div className="w-full max-w-xs">
         <p className="text-sm text-muted-foreground mb-3">No style rules yet.</p>
-        <AddAnother onPickRecipe={onPickRecipe} onScratch={() => addRule('blank')} />
+        <AddAnother onPickRecipe={onPickRecipe} onScratch={addRule} />
       </div>
     );
   }
@@ -121,7 +101,7 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe 
               onToggle={(i) => updateRule(i, { ...rules[i], enabled: rules[i].enabled === false })}
             />
           </div>
-          <AddAnother onPickRecipe={onPickRecipe} onScratch={() => addRule('blank')} />
+          <AddAnother onPickRecipe={onPickRecipe} onScratch={addRule} />
         </div>
         <div className="min-w-0">
           {rules[Math.min(selected, rules.length - 1)] && (
