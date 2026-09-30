@@ -45,4 +45,21 @@ describe('StyleEditor rule list', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(2);
     expect(screen.getAllByRole('listitem')[0]).toHaveAttribute('draggable', 'true');
   });
+
+  it('selects the rule the focusRule prop points at after a recipe append', () => {
+    const base = { onChange: vi.fn(), fields: [], onPickRecipe: vi.fn(), onRulesEmpty: vi.fn() };
+    const { rerender } = render(<StyleEditor rules={[rule('First')]} {...base} />);
+
+    // A recipe appended a second rule; the dialog asks the editor to focus it.
+    rerender(
+      <StyleEditor
+        rules={[rule('First'), rule('Second')]}
+        {...base}
+        focusRule={{ index: 1, nonce: 1 }}
+      />,
+    );
+
+    // The editor pane shows the newly appended rule, not the top one.
+    expect(screen.getByDisplayValue('Second')).toBeInTheDocument();
+  });
 });
