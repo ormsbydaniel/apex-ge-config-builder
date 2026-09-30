@@ -52,11 +52,14 @@ const AddAnother = ({ onPickRecipe, onScratch }: { onPickRecipe: (id: RecipeId) 
   </TooltipProvider>
 );
 
-const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe, onRulesEmpty }: StyleEditorProps) => {
+const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe, onRulesEmpty, focusRule }: StyleEditorProps) => {
   const [selected, setSelected] = useState(0);
   useEffect(() => {
     if (selected > rules.length - 1) setSelected(Math.max(0, rules.length - 1));
   }, [rules.length, selected]);
+  useEffect(() => {
+    if (focusRule && focusRule.index <= rules.length - 1) setSelected(focusRule.index);
+  }, [focusRule]); // eslint-disable-line react-hooks/exhaustive-deps
   const updateRule = (idx: number, next: StyleRule) =>
     onChange(rules.map((r, i) => (i === idx ? next : r)));
 
