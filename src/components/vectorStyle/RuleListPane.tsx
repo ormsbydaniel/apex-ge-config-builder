@@ -53,6 +53,12 @@ const GLYPH: Record<string, string> = { marker: '●', line: '─', fill: '▢',
 
 const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove }: RuleListPaneProps) => {
   const [dragFrom, setDragFrom] = React.useState<number | null>(null);
+  const itemRefs = React.useRef<(HTMLLIElement | null)[]>([]);
+
+  // Keep the selected rule visible in the scrollable list (e.g. after a recipe appends a rule).
+  React.useEffect(() => {
+    itemRefs.current[selected]?.scrollIntoView?.({ block: 'nearest' });
+  }, [selected, rules.length]);
 
   return (
     <ul className="space-y-1" aria-label="Style rules">
@@ -62,6 +68,7 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
         return (
           <li
             key={idx}
+            ref={(el) => { itemRefs.current[idx] = el; }}
             draggable
             onDragStart={() => setDragFrom(idx)}
             onDragOver={(e) => e.preventDefault()}
