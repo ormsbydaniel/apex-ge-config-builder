@@ -162,6 +162,24 @@ describe('buildUniformRecipe', () => {
       expect(props?.['stroke-line-cap']).toBeUndefined();
     }
   });
+
+  it.each([
+    ['polygon', undefined, 'Fill and outline'],
+    ['point', undefined, 'Point marker'],
+    ['line', 'solid', 'Solid line'],
+    ['line', 'dashed', 'Dashed line'],
+    ['line', 'dotted', 'Dotted line'],
+    ['line', 'dash-dot', 'Dash-dot line'],
+    ['line', 'long-dash', 'Long dash line'],
+  ] as const)('names a %s rule from the %s pick as "%s"', (geometry, lineStyle, expected) => {
+    const [rule] = buildUniformRecipe({ geometry, lineStyle });
+    expect(rule.name).toBe(expected);
+  });
+
+  it('lets an explicit rule name take precedence', () => {
+    const [rule] = buildUniformRecipe({ geometry: 'line', lineStyle: 'dashed', ruleName: 'Roads' });
+    expect(rule.name).toBe('Roads');
+  });
 });
 
 describe('buildLabelRecipe', () => {
@@ -213,7 +231,7 @@ describe('applyRecipeRules', () => {
   it('replaces existing rules in replace mode', () => {
     const generated = buildUniformRecipe({ geometry: 'polygon' });
     expect(applyRecipeRules(existing, generated, 'replace')).toHaveLength(1);
-    expect(applyRecipeRules(existing, generated, 'replace')[0].name).toBe('All features');
+    expect(applyRecipeRules(existing, generated, 'replace')[0].name).toBe('Fill and outline');
   });
 
   it('keeps existing rules in append mode', () => {
@@ -221,7 +239,7 @@ describe('applyRecipeRules', () => {
     const result = applyRecipeRules(existing, generated, 'append');
     expect(result).toHaveLength(2);
     expect(result[0].name).toBe('Existing');
-    expect(result[1].name).toBe('All features');
+    expect(result[1].name).toBe('Fill and outline');
     expect(existing).toHaveLength(1);
   });
 
@@ -234,7 +252,7 @@ describe('applyRecipeRules', () => {
     const fallback: StyleRule = { name: 'Everything else', enabled: true, else: true, primitives: {} };
     const generated = buildUniformRecipe({ geometry: 'polygon' });
     const result = applyRecipeRules([...existing, fallback], generated, 'append');
-    expect(result.map((rule) => rule.name)).toEqual(['Existing', 'All features', 'Everything else']);
+    expect(result.map((rule) => rule.name)).toEqual(['Existing', 'Fill and outline', 'Everything else']);
   });
 
   it('keeps a single else rule last', () => {

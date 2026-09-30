@@ -292,6 +292,21 @@ export interface UniformRecipeInput {
   ruleName?: string;
 }
 
+const UNIFORM_LINE_STYLE_NAMES: Record<UniformLineStyle, string> = {
+  solid: 'Solid line',
+  dashed: 'Dashed line',
+  dotted: 'Dotted line',
+  'dash-dot': 'Dash-dot line',
+  'long-dash': 'Long dash line',
+};
+
+/** Describe what the user picked, so the rule list reads like the cartography. */
+export const uniformRuleName = (input: UniformRecipeInput): string => {
+  if (input.geometry === 'line') return UNIFORM_LINE_STYLE_NAMES[input.lineStyle ?? 'solid'];
+  if (input.geometry === 'point') return 'Point marker';
+  return 'Fill and outline';
+};
+
 export const buildUniformRecipe = (input: UniformRecipeInput): StyleRule[] => {
   const base = input.color ?? '#3b82f6';
   const alpha = input.geometry === 'polygon' ? input.fillAlpha ?? DEFAULT_FILL_ALPHA : 1;
@@ -299,7 +314,7 @@ export const buildUniformRecipe = (input: UniformRecipeInput): StyleRule[] => {
 
   return [
     {
-      name: input.ruleName ?? 'All features',
+      name: input.ruleName ?? uniformRuleName(input),
       enabled: true,
       primitives: colouredPrimitives(input.geometry, color, {
         outlineColor: input.outlineColor,
