@@ -114,6 +114,14 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const firstVectorUrl = firstVectorItem?.url ?? '';
   const firstVectorFormat = firstVectorItem?.format ?? '';
 
+  // Sample attributes from the first data file for recipes (cached per URL, never throws).
+  const sampleQuery = useQuery({
+    queryKey: ['vector-style-sample', firstVectorUrl, firstVectorFormat],
+    queryFn: () => sampleSourceData(firstVectorUrl, firstVectorFormat),
+    enabled: open && view === 'wizard' && !!firstVectorUrl && canSampleSource(firstVectorFormat),
+    staleTime: 10 * 60 * 1000,
+  });
+
   // Auto-detect fields from the first vector source if none are configured.
   useEffect(() => {
     if (!open) return;
