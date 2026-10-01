@@ -218,6 +218,8 @@ export function RgbCompositeEditorDialog({
         : [1, 2, 3];
       setSelectedBands(bands);
       setShowAdvanced(false);
+      setStretchSummary(null);
+      setStretchError(null);
       setActiveChannel(null);
       setHistogramCache({});
       setHistogramLoading({});
