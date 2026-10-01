@@ -108,7 +108,16 @@ export function RgbCompositeEditorDialog({
   const [stretchSummary, setStretchSummary] = useState<string | null>(null);
   const [stretchError, setStretchError] = useState<string | null>(null);
 
-  const bandLabels = (source.meta as any)?.bandLabels as string[] | undefined;
+  // Band labels: layer meta wins, otherwise fall back to labels extracted from
+  // STAC eo:bands metadata stored on the first COG data item.
+  const bandLabels = useMemo(() => {
+    const fromMeta = (source.meta as any)?.bandLabels as string[] | undefined;
+    if (fromMeta && fromMeta.some(Boolean)) return fromMeta;
+    const fromItem = (source.data || []).find(
+      (d: DataSourceItem) => d.format === 'cog' && d.bandLabels?.some(Boolean),
+    )?.bandLabels;
+    return fromItem;
+  }, [source.meta, source.data]);
 
   // Find first COG source URL for band count
   const firstCogUrl = useMemo(() => {
