@@ -29,6 +29,11 @@ describe('buildIndexStyle', () => {
   it('guards zero sums and uses ascending stops within range', () => {
     const style = buildIndexStyle({ recipe: 'ndvi', bandA: 8, bandB: 4, colormap: 'greens', reverse: true, min: -0.1, max: 0.8 });
     expect(style.color[0]).toBe('case');
+    // reads the remapped bands 1 and 2, never the absolute numbers
+    const json = JSON.stringify(style);
+    expect(json).toContain('["band",1]');
+    expect(json).toContain('["band",2]');
+    expect(json).not.toContain('["band",8]');
     const stops = indexColorStops('greens', true, -0.1, 0.8);
     expect(stops[0][0]).toBeCloseTo(-0.1);
     expect(stops[stops.length - 1][0]).toBeCloseTo(0.8);

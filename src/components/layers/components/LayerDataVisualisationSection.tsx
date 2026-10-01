@@ -99,7 +99,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   const handleDeleteRgbComposites = () => {
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
       if (d.spectralIndex) {
-        const { spectralIndex, style, convertToRGB, ...rest } = d;
+        const { spectralIndex, style, convertToRGB, bands, ...rest } = d;
         return rest as DataSourceItem;
       }
       if (d.convertToRGB) {
