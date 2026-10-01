@@ -8,7 +8,7 @@ const ICONS: Record<RgbRecipeId, React.ComponentType<{ className?: string }>> = 
   natural: Image,
   'false-colour-ir': Leaf,
   agriculture: Wheat,
-  geology: Mountain,
+  geology: Building2,
   custom: PencilRuler,
 };
 
