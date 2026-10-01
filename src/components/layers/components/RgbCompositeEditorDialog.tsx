@@ -152,16 +152,22 @@ export function RgbCompositeEditorDialog({
       setHistogramLoading({});
       setHistogramError({});
 
-      // Initialize min/max from existing style variables
+      // Initialize min/max from existing style variables (shown as "Custom"),
+      // otherwise auto-apply the default stretch once histograms load.
       const vars = (firstRgb as any)?.style?.variables;
       if (vars) {
         setRMinMax({ min: vars.rMin ?? 0, max: vars.rMax ?? 10000 });
         setGMinMax({ min: vars.gMin ?? 0, max: vars.gMax ?? 10000 });
         setBMinMax({ min: vars.bMin ?? 0, max: vars.bMax ?? 10000 });
+        setStretchCustom(true);
+        setPendingStretch([]);
       } else {
         setRMinMax({ min: 0, max: 10000 });
         setGMinMax({ min: 0, max: 10000 });
         setBMinMax({ min: 0, max: 10000 });
+        setStretchMethod('percent-2-98');
+        setStretchCustom(false);
+        setPendingStretch([0, 1, 2]);
       }
     }
     prevOpenRef.current = open;
