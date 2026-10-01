@@ -91,7 +91,7 @@ export function RgbCompositeEditorDialog({
   source,
   onUpdateDataSources,
 }: RgbCompositeEditorDialogProps) {
-  const [selectedBands, setSelectedBands] = useState<number[]>([1, 2, 3]);
+  const [selectedBands, setSelectedBands] = useState<(number | null)[]>([1, 2, 3]);
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
   const [rMinMax, setRMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
@@ -205,8 +205,7 @@ export function RgbCompositeEditorDialog({
   /** Assign a band to a channel; if another channel already uses it, swap them. */
   const assignBand = (channelIdx: number, band: number) => {
     setStretchSummary(null);
-    const next = [...selectedBands];
-    while (next.length < MAX_BANDS) next.push(allBands.find((b) => !next.includes(b)) ?? 1);
+    const next: (number | null)[] = [selectedBands[0] ?? null, selectedBands[1] ?? null, selectedBands[2] ?? null];
     const changed = new Set<number>([channelIdx]);
     const other = next.indexOf(band);
     if (other !== -1 && other !== channelIdx) {
