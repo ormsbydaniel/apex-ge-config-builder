@@ -112,10 +112,14 @@ export function indexColorStops(colormap: string, reverse: boolean, min: number,
   return out;
 }
 
-/** OpenLayers WebGL tile style for a normalised difference index (absolute band numbers). */
+/**
+ * OpenLayers WebGL tile style for a normalised difference index.
+ * The data item saves `bands: [bandA, bandB]`; the viewer loads only those and
+ * renumbers them, so the style always reads band 1 (A) and band 2 (B).
+ */
 export function buildIndexStyle(cfg: SpectralIndexConfig) {
-  const a = ['band', cfg.bandA];
-  const b = ['band', cfg.bandB];
+  const a = ['band', 1];
+  const b = ['band', 2];
   const sum = ['+', a, b];
   const index = ['/', ['-', a, b], sum];
   const stops = indexColorStops(cfg.colormap, !!cfg.reverse, cfg.min, cfg.max).flatMap(([v, c]) => [v, c]);

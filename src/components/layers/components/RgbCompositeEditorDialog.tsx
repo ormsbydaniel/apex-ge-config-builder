@@ -272,9 +272,9 @@ export function RgbCompositeEditorDialog({
       };
       const updatedData = (source.data || []).map((d: DataSourceItem) => {
         if (d.format !== 'cog') return d;
-        // Index uses absolute band numbers, so the full band stack is read.
+        // The viewer loads only `bands` and renumbers them 1..n, so the style reads bands 1 and 2.
         const { convertToRGB, bands, ...rest } = d as any;
-        return { ...rest, style: buildIndexStyle(cfg), spectralIndex: cfg } as DataSourceItem;
+        return { ...rest, bands: [cfg.bandA, cfg.bandB], style: buildIndexStyle(cfg), spectralIndex: cfg } as DataSourceItem;
       });
       onUpdateDataSources(updatedData);
       onOpenChange(false);
