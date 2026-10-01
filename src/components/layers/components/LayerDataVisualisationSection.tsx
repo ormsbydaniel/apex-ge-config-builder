@@ -1,3 +1,4 @@
+import { createGradientCSS } from '@/utils/colormapUtils';
 import React, { useState } from 'react';
 import { Eye, Tags, Palette, Layers, Blend, PenTool } from 'lucide-react';
 import { Button } from '@/components/ui/button';
