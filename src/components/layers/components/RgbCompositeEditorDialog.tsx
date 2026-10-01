@@ -391,6 +391,7 @@ export function RgbCompositeEditorDialog({
                     </div>
                     <div className="flex flex-col gap-1">
                       {RGB_RECIPES.map((r) => {
+                        const Icon = RECIPE_ICONS[r.id];
                         const bands = resolveRecipeBands(r.id, cogBandCount, bandLabels);
                         const unavailable = r.id !== 'custom' && !bands;
                         const active = currentRecipe === r.id;
@@ -406,14 +407,22 @@ export function RgbCompositeEditorDialog({
                                   disabled={unavailable}
                                   onClick={() => applyRecipe(r.id)}
                                 >
-                                  <span>{r.name}</span>
+                                  <span className="flex items-center gap-1.5 min-w-0">
+                                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">{r.name}</span>
+                                  </span>
                                   {bands && <span className="opacity-70 font-normal">{bands.join('-')}</span>}
                                 </Button>
+                                {active && !unavailable && (
+                                  <p className="text-[11px] text-muted-foreground mt-1 px-1">{r.description}</p>
+                                )}
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent side="right" className="max-w-[240px]">
-                              <p>{unavailable ? `${r.description} Not available — this source lacks the required bands or band labels.` : r.description}</p>
-                            </TooltipContent>
+                            {!active && (
+                              <TooltipContent side="right" className="max-w-[240px]">
+                                <p>{unavailable ? `${r.description} Not available — this source lacks the required bands or band labels.` : r.description}</p>
+                              </TooltipContent>
+                            )}
                           </Tooltip>
                         );
                       })}
