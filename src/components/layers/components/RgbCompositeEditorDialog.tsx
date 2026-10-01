@@ -338,6 +338,12 @@ export function RgbCompositeEditorDialog({
     queueStretch([0, 1, 2]);
   };
 
+  /** Gallery card picked: apply the recipe and enter the editor. */
+  const handleGalleryPick = (id: RgbRecipeId) => {
+    applyRecipe(id);
+    setView('editor');
+  };
+
   const sectionLabel = 'text-xs font-medium text-muted-foreground uppercase tracking-wide';
 
   return (
