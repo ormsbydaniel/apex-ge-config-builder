@@ -20,6 +20,7 @@ import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
 import { fetchCogHeaderMetadata, fetchBandHistogram, BandHistogramResult } from '@/utils/cogMetadata';
 import { BandHistogram } from './BandHistogram';
+import CompositeGallery from './CompositeGallery';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
@@ -92,6 +93,9 @@ export function RgbCompositeEditorDialog({
   onUpdateDataSources,
 }: RgbCompositeEditorDialogProps) {
   const [selectedBands, setSelectedBands] = useState<(number | null)[]>([1, 2, 3]);
+  const [view, setView] = useState<'gallery' | 'editor'>('editor');
+  // True when this session started on the gallery (no existing composite).
+  const [startedOnGallery, setStartedOnGallery] = useState(false);
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
   const [rMinMax, setRMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
