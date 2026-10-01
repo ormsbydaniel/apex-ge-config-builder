@@ -104,9 +104,17 @@ export function RgbCompositeEditorDialog({
   const [histogramError, setHistogramError] = useState<Record<number, string | null>>({});
   const [noDataValue, setNoDataValue] = useState<number | undefined>(undefined);
   const [stretchMethod, setStretchMethod] = useState<StretchMethod>('percent-2-98');
+  // True once the user edits a min/max by hand; the dropdown then shows "Custom".
+  const [stretchCustom, setStretchCustom] = useState(false);
+  // Channels (0=R,1=G,2=B) waiting for their band's histogram to apply the active stretch.
+  const [pendingStretch, setPendingStretch] = useState<number[]>([]);
   const [stretching, setStretching] = useState(false);
   const [stretchSummary, setStretchSummary] = useState<string | null>(null);
   const [stretchError, setStretchError] = useState<string | null>(null);
+
+  const queueStretch = (channels: number[]) => {
+    setPendingStretch((prev) => Array.from(new Set([...prev, ...channels])));
+  };
 
   // Band labels: layer meta wins, otherwise fall back to labels extracted from
   // STAC eo:bands metadata stored on the first COG data item.
