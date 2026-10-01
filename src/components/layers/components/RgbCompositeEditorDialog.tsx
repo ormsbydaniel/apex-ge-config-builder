@@ -104,9 +104,17 @@ export function RgbCompositeEditorDialog({
   const [histogramError, setHistogramError] = useState<Record<number, string | null>>({});
   const [noDataValue, setNoDataValue] = useState<number | undefined>(undefined);
   const [stretchMethod, setStretchMethod] = useState<StretchMethod>('percent-2-98');
+  // True once the user edits a min/max by hand; the dropdown then shows "Custom".
+  const [stretchCustom, setStretchCustom] = useState(false);
+  // Channels (0=R,1=G,2=B) waiting for their band's histogram to apply the active stretch.
+  const [pendingStretch, setPendingStretch] = useState<number[]>([]);
   const [stretching, setStretching] = useState(false);
   const [stretchSummary, setStretchSummary] = useState<string | null>(null);
   const [stretchError, setStretchError] = useState<string | null>(null);
+
+  const queueStretch = (channels: number[]) => {
+    setPendingStretch((prev) => Array.from(new Set([...prev, ...channels])));
+  };
 
   // Band labels: layer meta wins, otherwise fall back to labels extracted from
   // STAC eo:bands metadata stored on the first COG data item.
@@ -144,16 +152,22 @@ export function RgbCompositeEditorDialog({
       setHistogramLoading({});
       setHistogramError({});
 
-      // Initialize min/max from existing style variables
+      // Initialize min/max from existing style variables (shown as "Custom"),
+      // otherwise auto-apply the default stretch once histograms load.
       const vars = (firstRgb as any)?.style?.variables;
       if (vars) {
         setRMinMax({ min: vars.rMin ?? 0, max: vars.rMax ?? 10000 });
         setGMinMax({ min: vars.gMin ?? 0, max: vars.gMax ?? 10000 });
         setBMinMax({ min: vars.bMin ?? 0, max: vars.bMax ?? 10000 });
+        setStretchCustom(true);
+        setPendingStretch([]);
       } else {
         setRMinMax({ min: 0, max: 10000 });
         setGMinMax({ min: 0, max: 10000 });
         setBMinMax({ min: 0, max: 10000 });
+        setStretchMethod('percent-2-98');
+        setStretchCustom(false);
+        setPendingStretch([0, 1, 2]);
       }
     }
     prevOpenRef.current = open;
@@ -191,14 +205,18 @@ export function RgbCompositeEditorDialog({
   /** Assign a band to a channel; if another channel already uses it, swap them. */
   const assignBand = (channelIdx: number, band: number) => {
     setStretchSummary(null);
-    setSelectedBands((prev) => {
-      const next = [...prev];
-      while (next.length < MAX_BANDS) next.push(allBands.find((b) => !next.includes(b)) ?? 1);
-      const other = next.indexOf(band);
-      if (other !== -1 && other !== channelIdx) next[other] = next[channelIdx];
-      next[channelIdx] = band;
-      return next;
-    });
+    const next = [...selectedBands];
+    while (next.length < MAX_BANDS) next.push(allBands.find((b) => !next.includes(b)) ?? 1);
+    const changed = new Set<number>([channelIdx]);
+    const other = next.indexOf(band);
+    if (other !== -1 && other !== channelIdx) {
+      next[other] = next[channelIdx];
+      changed.add(other);
+    }
+    next[channelIdx] = band;
+    setSelectedBands(next);
+    // Re-stretch the affected channels with the active method (2–98% when "Custom").
+    queueStretch(Array.from(changed));
   };
 
   const hasAdvancedValues = rMinMax.min !== 0 || rMinMax.max !== 10000 ||
@@ -220,6 +238,18 @@ export function RgbCompositeEditorDialog({
     onOpenChange(false);
   };
 
+  /** Manual edits to a channel range switch the stretch dropdown to "Custom". */
+  const editRange = (
+    setter: React.Dispatch<React.SetStateAction<{ min: number; max: number }>>,
+    channelIdx: number,
+    update: React.SetStateAction<{ min: number; max: number }>,
+  ) => {
+    setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
+    setStretchCustom(true);
+    setStretchSummary(null);
+    setter(update);
+  };
+
   const channelConfigs = [
     { label: 'Red', color: RGB_COLORS[0], band: selectedBands[0], minMax: rMinMax, setMinMax: setRMinMax },
     { label: 'Green', color: RGB_COLORS[1], band: selectedBands[1], minMax: gMinMax, setMinMax: setGMinMax },
@@ -229,7 +259,6 @@ export function RgbCompositeEditorDialog({
   // Load histograms for every assigned band (stacked view shows all three)
   useEffect(() => {
     if (!open || loading || !firstCogUrl) return;
-    const setters = [setRMinMax, setGMinMax, setBMinMax];
     selectedBands.forEach((band) => {
       if (histogramCache[band] || inFlightRef.current.has(band)) return;
       inFlightRef.current.add(band);
@@ -238,13 +267,6 @@ export function RgbCompositeEditorDialog({
       fetchBandHistogram(firstCogUrl, band - 1, noDataValue)
         .then((result) => {
           setHistogramCache((prev) => ({ ...prev, [band]: result }));
-          // Seed untouched channels (still at defaults) with the data range
-          selectedBandsRef.current.forEach((b, i) => {
-            if (b !== band) return;
-            setters[i]((mm) => (mm.min === 0 && mm.max === 10000
-              ? { min: Math.floor(result.min), max: Math.ceil(result.max) }
-              : mm));
-          });
         })
         .catch((err) => {
           setHistogramError((prev) => ({
@@ -259,6 +281,20 @@ export function RgbCompositeEditorDialog({
     });
   }, [open, loading, firstCogUrl, noDataValue, selectedBands, histogramCache]);
 
+  // Apply the active stretch to queued channels as soon as their histogram is available.
+  useEffect(() => {
+    if (!pendingStretch.length) return;
+    const setters = [setRMinMax, setGMinMax, setBMinMax];
+    const remaining: number[] = [];
+    pendingStretch.forEach((ch) => {
+      const band = selectedBands[ch];
+      const hist = band ? histogramCache[band] : undefined;
+      if (hist) setters[ch](computeStretch(stretchMethod, hist));
+      else if (band && !histogramError[band]) remaining.push(ch);
+    });
+    if (remaining.length !== pendingStretch.length) setPendingStretch(remaining);
+  }, [pendingStretch, histogramCache, histogramError, selectedBands, stretchMethod]);
+
   // ── Recipes & auto-stretch ──
   const sensor = guessSensor(cogBandCount);
   const currentRecipe = useMemo(
@@ -270,7 +306,19 @@ export function RgbCompositeEditorDialog({
     setStretchSummary(null);
     if (id === 'custom') return;
     const bands = resolveRecipeBands(id, cogBandCount, bandLabels);
-    if (bands) setSelectedBands([...bands]);
+    if (!bands) return;
+    setSelectedBands([...bands]);
+    setStretchCustom(false);
+    queueStretch([0, 1, 2]);
+  };
+
+  /** Choosing a stretch method re-applies it to all three channels. */
+  const chooseStretchMethod = (value: string) => {
+    if (value === 'custom') return;
+    setStretchMethod(value as StretchMethod);
+    setStretchCustom(false);
+    setStretchSummary(null);
+    queueStretch([0, 1, 2]);
   };
 
   const stretchAll = async () => {
@@ -287,7 +335,9 @@ export function RgbCompositeEditorDialog({
         })
       );
       const setters = [setRMinMax, setGMinMax, setBMinMax];
+      setPendingStretch([]);
       results.forEach((hist, i) => setters[i](computeStretch(stretchMethod, hist)));
+      setStretchCustom(false);
       setStretchSummary(`Applied ${STRETCH_METHODS.find((m) => m.id === stretchMethod)?.name} to R, G and B`);
     } catch (err) {
       setStretchError(err instanceof Error ? err.message : 'Could not read pixel values');
@@ -387,12 +437,13 @@ export function RgbCompositeEditorDialog({
                   <div className="space-y-2">
                     <div className={sectionLabel}>Contrast stretch</div>
                     <div className="flex items-center gap-2">
-                      <Select value={stretchMethod} onValueChange={(v) => setStretchMethod(v as StretchMethod)}>
-                        <SelectTrigger className="h-8 flex-1 text-xs"><SelectValue /></SelectTrigger>
+                      <Select value={stretchCustom ? 'custom' : stretchMethod} onValueChange={chooseStretchMethod}>
+                        <SelectTrigger className="h-8 flex-1 text-xs" aria-label="Contrast stretch"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {STRETCH_METHODS.map((m) => (
                             <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
                           ))}
+                          <SelectItem value="custom" disabled className="text-xs">Custom</SelectItem>
                         </SelectContent>
                       </Select>
                       <Button
@@ -408,7 +459,9 @@ export function RgbCompositeEditorDialog({
                       </Button>
                     </div>
                     <p className="text-[11px] text-muted-foreground">
-                      {STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
+                      {stretchCustom
+                        ? 'Ranges have been set by hand. Pick a method or click Stretch all to re-apply it to every channel.'
+                        : STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
                     </p>
                     {stretchSummary && <p className="text-[11px] text-muted-foreground">{stretchSummary}</p>}
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
@@ -441,9 +494,9 @@ export function RgbCompositeEditorDialog({
                               dataMax={hist?.max ?? 1}
                               min={cfg.minMax.min}
                               max={cfg.minMax.max}
-                              onMinChange={(v) => cfg.setMinMax((mm) => ({ ...mm, min: v }))}
-                              onMaxChange={(v) => cfg.setMinMax((mm) => ({ ...mm, max: v }))}
-                              onStretch={(lo, hi) => cfg.setMinMax({ min: lo, max: hi })}
+                              onMinChange={(v) => editRange(cfg.setMinMax, i, (mm) => ({ ...mm, min: v }))}
+                              onMaxChange={(v) => editRange(cfg.setMinMax, i, (mm) => ({ ...mm, max: v }))}
+                              onStretch={(lo, hi) => editRange(cfg.setMinMax, i, { min: lo, max: hi })}
                               chartHeight={110}
                             />
                           </div>

@@ -102,7 +102,7 @@ export type StretchMethod = 'percent-2-98' | 'min-max' | 'mean-2sd';
 
 export const STRETCH_METHODS: { id: StretchMethod; name: string; description: string }[] = [
   { id: 'percent-2-98', name: '2–98% cut', description: 'Ignore the darkest and brightest 2% of pixels. Best default for imagery.' },
-  { id: 'min-max', name: 'Min – max', description: 'Use the full sampled value range.' },
+  { id: 'min-max', name: 'Full range (min – max)', description: 'Use the full sampled value range, without trimming the darkest or brightest pixels.' },
   { id: 'mean-2sd', name: 'Mean ± 2σ', description: 'Centre on the average, two standard deviations either side.' },
 ];
 
