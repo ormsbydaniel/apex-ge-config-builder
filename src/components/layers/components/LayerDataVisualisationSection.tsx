@@ -240,7 +240,19 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
               </Button>
             )}
           </div>
-          {hasRgbComposites && (() => {
+          {hasRgbComposites && indexSources.length > 0 && (() => {
+            const si = indexSources[0].spectralIndex!;
+            const name = si.recipe === 'custom-index' ? 'Index' : si.recipe.toUpperCase();
+            return (
+              <div className="flex items-center gap-1.5 ml-5">
+                <span className="inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-medium">
+                  {name}: B{si.bandA} / B{si.bandB} · {si.colormap}
+                </span>
+                <span className="inline-block h-2.5 w-14 rounded-sm" style={{ background: createGradientCSS(si.colormap, !!si.reverse) }} />
+              </div>
+            );
+          })()}
+          {hasRgbComposites && convertToRgbSources.length > 0 && (() => {
             const firstRgbSource = convertToRgbSources[0];
             const bands = firstRgbSource?.bands && firstRgbSource.bands.length >= 3
               ? firstRgbSource.bands
