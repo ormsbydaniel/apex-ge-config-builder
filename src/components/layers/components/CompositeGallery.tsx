@@ -4,13 +4,15 @@ import { RGB_RECIPES, resolveRecipeBands, type RgbRecipeId } from '@/utils/rgbCo
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
-const ICONS: Record<RgbRecipeId, React.ComponentType<{ className?: string }>> = {
+export const RECIPE_ICONS: Record<RgbRecipeId, React.ComponentType<{ className?: string }>> = {
   natural: Image,
   'false-colour-ir': Leaf,
   agriculture: Wheat,
   geology: Building2,
   custom: PencilRuler,
 };
+
+const ICONS = RECIPE_ICONS;
 
 interface CompositeGalleryProps {
   bandCount: number;
