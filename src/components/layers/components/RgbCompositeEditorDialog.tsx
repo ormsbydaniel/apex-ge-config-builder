@@ -8,34 +8,14 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ChevronUp, ChevronDown, GripVertical, Settings, ArrowLeft, Wand2 } from 'lucide-react';
+import { Wand2, Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   RGB_RECIPES, SENSOR_NAMES, STRETCH_METHODS, computeStretch, guessSensor, matchRecipe, resolveRecipeBands,
   type RgbRecipeId, type StretchMethod,
 } from '@/utils/rgbComposite/recipes';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
 import { fetchCogHeaderMetadata, fetchBandHistogram, BandHistogramResult } from '@/utils/cogMetadata';
@@ -52,77 +32,6 @@ const RGB_COLORS = ['hsl(0, 84%, 60%)', 'hsl(142, 71%, 45%)', 'hsl(217, 91%, 60%
 const RGB_LABELS = ['R', 'G', 'B'];
 const CHANNEL_NAMES = ['Red', 'Green', 'Blue'];
 const MAX_BANDS = 3;
-
-interface SortableRgbBandRowProps {
-  band: number;
-  idx: number;
-  total: number;
-  getBandLabel: (band: number) => string;
-  onDeselect: (band: number) => void;
-  onMoveUp: (idx: number) => void;
-  onMoveDown: (idx: number) => void;
-}
-
-function SortableRgbBandRow({ band, idx, total, getBandLabel, onDeselect, onMoveUp, onMoveDown }: SortableRgbBandRowProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: band.toString() });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center gap-1.5 px-1.5 py-1.5 text-xs rounded select-none hover:bg-muted transition-colors"
-    >
-      <Checkbox
-        checked={true}
-        onCheckedChange={() => onDeselect(band)}
-      />
-      <span className="flex-1 truncate">{getBandLabel(band)}</span>
-      <div className="flex gap-0.5 items-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-5 w-5 p-0"
-          onClick={() => onMoveUp(idx)}
-          disabled={idx === 0}
-          title="Move up"
-        >
-          <ChevronUp className="h-3 w-3" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-5 w-5 p-0"
-          onClick={() => onMoveDown(idx)}
-          disabled={idx === total - 1}
-          title="Move down"
-        >
-          <ChevronDown className="h-3 w-3" />
-        </Button>
-        <button
-          type="button"
-          className="cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground flex-shrink-0"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical className="h-3 w-3" />
-        </button>
-      </div>
-    </div>
-  );
-}
 
 interface ChannelMinMax {
   min: number;
@@ -185,13 +94,11 @@ export function RgbCompositeEditorDialog({
   const [selectedBands, setSelectedBands] = useState<number[]>([1, 2, 3]);
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [rMinMax, setRMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
   const [gMinMax, setGMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
   const [bMinMax, setBMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
 
   // Histogram state
-  const [activeChannel, setActiveChannel] = useState<number | null>(null);
   const [histogramCache, setHistogramCache] = useState<Record<number, BandHistogramResult>>({});
   const [histogramLoading, setHistogramLoading] = useState<Record<number, boolean>>({});
   const [histogramError, setHistogramError] = useState<Record<number, string | null>>({});
@@ -208,6 +115,10 @@ export function RgbCompositeEditorDialog({
     return (source.data || []).find((d: DataSourceItem) => d.format === 'cog')?.url;
   }, [source.data]);
 
+  const inFlightRef = React.useRef<Set<number>>(new Set());
+  const selectedBandsRef = React.useRef(selectedBands);
+  selectedBandsRef.current = selectedBands;
+
   // Initialize state only when dialog opens
   const prevOpenRef = React.useRef(false);
   useEffect(() => {
@@ -217,10 +128,9 @@ export function RgbCompositeEditorDialog({
         ? firstRgb.bands.slice(0, 3)
         : [1, 2, 3];
       setSelectedBands(bands);
-      setShowAdvanced(false);
       setStretchSummary(null);
       setStretchError(null);
-      setActiveChannel(null);
+      inFlightRef.current = new Set();
       setHistogramCache({});
       setHistogramLoading({});
       setHistogramError({});
@@ -264,57 +174,23 @@ export function RgbCompositeEditorDialog({
     [cogBandCount]
   );
 
-  const availableBands = useMemo(
-    () => allBands.filter((b) => !selectedBands.includes(b)),
-    [allBands, selectedBands]
-  );
-
   const getBandLabel = (band: number) => {
     const label = bandLabels?.[band - 1];
     return label ? `Band ${band} (${label})` : `Band ${band}`;
   };
 
-  const selectBand = (band: number) => {
-    if (selectedBands.length >= MAX_BANDS) return;
-    setSelectedBands((prev) => [...prev, band]);
-  };
-
-  const deselectBand = (band: number) => {
-    setSelectedBands((prev) => prev.filter((b) => b !== band));
-  };
-
-  const moveBandUp = (idx: number) => {
-    if (idx === 0) return;
-    setSelectedBands((prev) => arrayMove(prev, idx, idx - 1));
-  };
-
-  const moveBandDown = (idx: number) => {
+  /** Assign a band to a channel; if another channel already uses it, swap them. */
+  const assignBand = (channelIdx: number, band: number) => {
+    setStretchSummary(null);
     setSelectedBands((prev) => {
-      if (idx >= prev.length - 1) return prev;
-      return arrayMove(prev, idx, idx + 1);
+      const next = [...prev];
+      while (next.length < MAX_BANDS) next.push(allBands.find((b) => !next.includes(b)) ?? 1);
+      const other = next.indexOf(band);
+      if (other !== -1 && other !== channelIdx) next[other] = next[channelIdx];
+      next[channelIdx] = band;
+      return next;
     });
   };
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      setSelectedBands((prev) => {
-        const oldIndex = prev.indexOf(Number(active.id));
-        const newIndex = prev.indexOf(Number(over.id));
-        return arrayMove(prev, oldIndex, newIndex);
-      });
-    }
-  };
-
-  const sortableIds = useMemo(
-    () => selectedBands.map((b) => b.toString()),
-    [selectedBands]
-  );
 
   const hasAdvancedValues = rMinMax.min !== 0 || rMinMax.max !== 10000 ||
     gMinMax.min !== 0 || gMinMax.max !== 10000 ||
@@ -335,57 +211,44 @@ export function RgbCompositeEditorDialog({
     onOpenChange(false);
   };
 
-  const atLimit = selectedBands.length >= MAX_BANDS;
-
   const channelConfigs = [
     { label: 'Red', color: RGB_COLORS[0], band: selectedBands[0], minMax: rMinMax, setMinMax: setRMinMax },
     { label: 'Green', color: RGB_COLORS[1], band: selectedBands[1], minMax: gMinMax, setMinMax: setGMinMax },
     { label: 'Blue', color: RGB_COLORS[2], band: selectedBands[2], minMax: bMinMax, setMinMax: setBMinMax },
   ];
 
-  // Fetch histogram for a channel
-  const fetchHistogramForChannel = useCallback((channelIdx: number) => {
-    const band = selectedBands[channelIdx];
-    if (!band || !firstCogUrl) return;
-
-    // Use band number as cache key
-    if (histogramCache[band]) return;
-
-    setHistogramLoading(prev => ({ ...prev, [band]: true }));
-    setHistogramError(prev => ({ ...prev, [band]: null }));
-
-    fetchBandHistogram(firstCogUrl, band - 1, noDataValue)
-      .then((result) => {
-        setHistogramCache(prev => ({ ...prev, [band]: result }));
-
-        // Auto-populate min/max if at defaults
-        const cfg = channelConfigs[channelIdx];
-        if (cfg && cfg.minMax.min === 0 && cfg.minMax.max === 10000) {
-          cfg.setMinMax({ min: Math.floor(result.min), max: Math.ceil(result.max) });
-        }
-      })
-      .catch((err) => {
-        setHistogramError(prev => ({
-          ...prev,
-          [band]: err instanceof Error ? err.message : 'Failed to load histogram',
-        }));
-      })
-      .finally(() => {
-        setHistogramLoading(prev => ({ ...prev, [band]: false }));
-      });
-  }, [selectedBands, firstCogUrl, noDataValue, histogramCache, channelConfigs]);
-
-  const handleChannelClick = useCallback((channelIdx: number) => {
-    setActiveChannel(channelIdx);
-    fetchHistogramForChannel(channelIdx);
-  }, [fetchHistogramForChannel]);
-
-  // Derive active histogram data
-  const activeBand = activeChannel !== null ? selectedBands[activeChannel] : null;
-  const activeHistData = activeBand !== null ? histogramCache[activeBand] ?? null : null;
-  const activeHistLoading = activeBand !== null ? histogramLoading[activeBand] ?? false : false;
-  const activeHistError = activeBand !== null ? histogramError[activeBand] ?? null : null;
-  const activeConfig = activeChannel !== null ? channelConfigs[activeChannel] : null;
+  // Load histograms for every assigned band (stacked view shows all three)
+  useEffect(() => {
+    if (!open || loading || !firstCogUrl) return;
+    const setters = [setRMinMax, setGMinMax, setBMinMax];
+    selectedBands.forEach((band) => {
+      if (histogramCache[band] || inFlightRef.current.has(band)) return;
+      inFlightRef.current.add(band);
+      setHistogramLoading((prev) => ({ ...prev, [band]: true }));
+      setHistogramError((prev) => ({ ...prev, [band]: null }));
+      fetchBandHistogram(firstCogUrl, band - 1, noDataValue)
+        .then((result) => {
+          setHistogramCache((prev) => ({ ...prev, [band]: result }));
+          // Seed untouched channels (still at defaults) with the data range
+          selectedBandsRef.current.forEach((b, i) => {
+            if (b !== band) return;
+            setters[i]((mm) => (mm.min === 0 && mm.max === 10000
+              ? { min: Math.floor(result.min), max: Math.ceil(result.max) }
+              : mm));
+          });
+        })
+        .catch((err) => {
+          setHistogramError((prev) => ({
+            ...prev,
+            [band]: err instanceof Error ? err.message : 'Failed to load histogram',
+          }));
+        })
+        .finally(() => {
+          inFlightRef.current.delete(band);
+          setHistogramLoading((prev) => ({ ...prev, [band]: false }));
+        });
+    });
+  }, [open, loading, firstCogUrl, noDataValue, selectedBands, histogramCache]);
 
   // ── Recipes & auto-stretch ──
   const sensor = guessSensor(cogBandCount);
@@ -425,268 +288,164 @@ export function RgbCompositeEditorDialog({
   };
 
 
-  // Dialog width: wider when in advanced mode
-  const dialogClass = showAdvanced
-    ? "sm:max-w-[850px] max-h-[80vh] flex flex-col"
-    : "sm:max-w-[600px] max-h-[80vh] flex flex-col";
+  const sectionLabel = 'text-xs font-medium text-muted-foreground uppercase tracking-wide';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={dialogClass}>
+      <DialogContent className="sm:max-w-5xl h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>RGB Composite Editor</DialogTitle>
           <DialogDescription>
-            Assign bands to the Red, Green, and Blue channels. Changes apply to all COG sources in this layer.
+            Choose a composite, assign bands to Red, Green and Blue, then set each channel's range. Changes apply to all COG sources in this layer.
           </DialogDescription>
         </DialogHeader>
 
-        {!loading && (
-          <TooltipProvider delayDuration={400}>
-            <div className="space-y-3 flex-shrink-0">
-              <div className="space-y-1.5">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Composite{sensor && <span className="normal-case tracking-normal font-normal ml-2">· detected {SENSOR_NAMES[sensor]}</span>}
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {RGB_RECIPES.map((r) => {
-                    const bands = resolveRecipeBands(r.id, cogBandCount, bandLabels);
-                    const unavailable = r.id !== 'custom' && !bands;
-                    const active = currentRecipe === r.id;
-                    return (
-                      <Tooltip key={r.id}>
-                        <TooltipTrigger asChild>
-                          <span>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant={active ? 'default' : 'outline'}
-                              className="h-7 text-xs"
-                              disabled={unavailable}
-                              onClick={() => applyRecipe(r.id)}
-                            >
-                              {r.name}
-                              {bands && <span className="ml-1.5 opacity-70 font-normal">{bands.join('-')}</span>}
-                            </Button>
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="max-w-[240px]">
-                          <p>{unavailable ? `${r.description} Not available — this source lacks the required bands or band labels.` : r.description}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Contrast stretch</span>
-                <Select value={stretchMethod} onValueChange={(v) => setStretchMethod(v as StretchMethod)}>
-                  <SelectTrigger className="h-7 w-[140px] text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {STRETCH_METHODS.map((m) => (
-                      <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  className="h-7 text-xs gap-1"
-                  disabled={selectedBands.length !== MAX_BANDS || !firstCogUrl || stretching}
-                  onClick={stretchAll}
-                >
-                  <Wand2 className="h-3 w-3" />
-                  {stretching ? 'Stretching…' : 'Stretch all channels'}
-                </Button>
-                {stretchSummary && <span className="text-[11px] text-muted-foreground">{stretchSummary}</span>}
-                {stretchError && <span className="text-[11px] text-destructive">{stretchError}</span>}
-              </div>
-              <p className="text-[11px] text-muted-foreground -mt-1">
-                {STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
-              </p>
-            </div>
-          </TooltipProvider>
-        )}
-
         {loading ? (
-          <div className="text-xs text-muted-foreground py-4 text-center">Loading band information…</div>
-        ) : showAdvanced ? (
-          /* ── Advanced Settings Panel ── */
-          <div className="flex flex-col gap-3 flex-1 min-h-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="self-start gap-1 text-xs text-muted-foreground hover:text-foreground -ml-2"
-              onClick={() => { setShowAdvanced(false); setActiveChannel(null); }}
-            >
-              <ArrowLeft className="h-3 w-3" />
-              Back to Band Selection
-            </Button>
-
-            <div className="flex gap-4 flex-1 min-h-0" style={{ minHeight: 320 }}>
-              {/* Left: Channel list */}
-              <div className="flex flex-col gap-1 w-[180px] flex-shrink-0">
-                <div className="text-xs font-medium text-muted-foreground mb-1">Channels</div>
-                {channelConfigs.map(({ label, color, band }, idx) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => handleChannelClick(idx)}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-md border text-left transition-colors ${
-                      activeChannel === idx
-                        ? 'border-primary bg-accent'
-                        : 'border-transparent hover:bg-muted'
-                    }`}
-                  >
-                    <span
-                      className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-6 h-6 flex-shrink-0"
-                      style={{ backgroundColor: color }}
-                    >
-                      {label[0]}
-                    </span>
-                    <span className="text-xs font-medium truncate">
-                      {getBandLabel(band)}
-                    </span>
-                  </button>
-                ))}
-                <p className="text-[10px] text-muted-foreground mt-2">
-                  Click a channel to view its pixel distribution and set min/max thresholds.
-                </p>
-              </div>
-
-              {/* Right: Histogram */}
-              <div className="flex-1 flex flex-col min-w-0 border-l pl-4">
-                {activeChannel === null ? (
-                  <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
-                    Click a channel to view its pixel distribution
-                  </div>
-                ) : activeConfig ? (
-                  <BandHistogram
-                    data={activeHistData?.bins ?? null}
-                    loading={activeHistLoading}
-                    error={activeHistError}
-                    channelColor={activeConfig.color}
-                    channelLabel={activeConfig.label[0]}
-                    bandLabel={`${getBandLabel(activeConfig.band)} – ${activeConfig.label} Channel`}
-                    dataMin={activeHistData?.min ?? 0}
-                    dataMax={activeHistData?.max ?? 1}
-                    min={activeConfig.minMax.min}
-                    max={activeConfig.minMax.max}
-                     onMinChange={(v) => activeConfig.setMinMax({ ...activeConfig.minMax, min: v })}
-                     onMaxChange={(v) => activeConfig.setMinMax({ ...activeConfig.minMax, max: v })}
-                     onStretch={(newMin, newMax) => activeConfig.setMinMax({ min: newMin, max: newMax })}
-                  />
-                ) : null}
-              </div>
-            </div>
+          <div className="flex-1 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading band information…
           </div>
         ) : (
-          /* ── Band Selection Panel ── */
-          <>
-            <div className="flex gap-2 items-stretch h-[320px] flex-shrink-0">
-              {/* Available Bands */}
-              <div className="flex-1 min-w-0 flex flex-col">
-                <div className="text-xs font-medium text-muted-foreground mb-1">
-                  Available Bands ({availableBands.length})
-                </div>
-                <ScrollArea className="flex-1 border rounded-md">
-                  <div className="p-1">
-                    {availableBands.map((band) => (
-                      <label
-                        key={band}
-                        className={`flex items-center gap-2 px-2 py-1.5 text-xs rounded select-none transition-colors ${
-                          atLimit ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-muted'
-                        }`}
-                      >
-                        <Checkbox
-                          checked={false}
-                          disabled={atLimit}
-                          onCheckedChange={() => selectBand(band)}
-                        />
-                        {getBandLabel(band)}
-                      </label>
-                    ))}
-                    {availableBands.length === 0 && (
-                      <div className="text-xs text-muted-foreground text-center py-4">
-                        All bands selected
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-                {atLimit && (
-                  <div className="text-[10px] text-muted-foreground mt-1">
-                    Maximum 3 bands (R, G, B). Deselect one to change.
-                  </div>
-                )}
-              </div>
-
-              {/* Selected Bands (R, G, B) */}
-              <div className="flex-1 min-w-0 flex flex-col">
-                <div className="text-xs font-medium text-muted-foreground mb-1">
-                  Selected Bands ({selectedBands.length}/{MAX_BANDS})
-                </div>
-                <div className="flex border rounded-md overflow-hidden">
-                  {/* Fixed R/G/B channel labels */}
-                  <div className="flex flex-col bg-muted/50 border-r">
-                    {RGB_LABELS.map((label, i) => (
-                      <div
-                        key={label}
-                        className="flex items-center justify-center px-1.5 h-[34px]"
-                      >
-                        <span
-                          className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-5 h-5 flex-shrink-0"
-                          style={{ backgroundColor: RGB_COLORS[i] }}
-                        >
-                          {label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Sortable band rows */}
-                  <ScrollArea className="flex-1">
-                    <div className="p-1">
-                      <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                      >
-                        <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-                          {selectedBands.map((band, idx) => (
-                            <SortableRgbBandRow
-                              key={band}
-                              band={band}
-                              idx={idx}
-                              total={selectedBands.length}
-                              getBandLabel={getBandLabel}
-                              onDeselect={deselectBand}
-                              onMoveUp={moveBandUp}
-                              onMoveDown={moveBandDown}
-                            />
-                          ))}
-                        </SortableContext>
-                      </DndContext>
-                      {selectedBands.length === 0 && (
-                        <div className="text-xs text-muted-foreground text-center py-4">
-                          Select 3 bands for RGB composite. The first band selected will use Red, the second Blue, the third Green. The order can be changed after selection.
-                        </div>
-                      )}
+          <TooltipProvider delayDuration={400}>
+            <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5 flex-1 min-h-0">
+              {/* ── Left pane: composite, channels, stretch ── */}
+              <ScrollArea className="min-h-0 pr-3">
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <div className={sectionLabel}>
+                      Composite
+                      {sensor && <span className="normal-case tracking-normal font-normal ml-2">· detected {SENSOR_NAMES[sensor]}</span>}
                     </div>
-                  </ScrollArea>
+                    <div className="flex flex-col gap-1">
+                      {RGB_RECIPES.map((r) => {
+                        const bands = resolveRecipeBands(r.id, cogBandCount, bandLabels);
+                        const unavailable = r.id !== 'custom' && !bands;
+                        const active = currentRecipe === r.id;
+                        return (
+                          <Tooltip key={r.id}>
+                            <TooltipTrigger asChild>
+                              <span>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant={active ? 'default' : 'outline'}
+                                  className="h-8 w-full justify-between text-xs"
+                                  disabled={unavailable}
+                                  onClick={() => applyRecipe(r.id)}
+                                >
+                                  <span>{r.name}</span>
+                                  {bands && <span className="opacity-70 font-normal">{bands.join('-')}</span>}
+                                </Button>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="right" className="max-w-[240px]">
+                              <p>{unavailable ? `${r.description} Not available — this source lacks the required bands or band labels.` : r.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className={sectionLabel}>Channels</div>
+                    {CHANNEL_NAMES.map((name, i) => (
+                      <div key={name} className="flex items-center gap-2">
+                        <span
+                          className="inline-flex items-center justify-center rounded text-[11px] font-bold text-primary-foreground w-6 h-6 flex-shrink-0"
+                          style={{ backgroundColor: RGB_COLORS[i] }}
+                          aria-label={name}
+                        >
+                          {RGB_LABELS[i]}
+                        </span>
+                        <Select
+                          value={selectedBands[i] ? String(selectedBands[i]) : undefined}
+                          onValueChange={(v) => assignBand(i, Number(v))}
+                        >
+                          <SelectTrigger className="h-8 text-xs flex-1" aria-label={`${name} channel band`}>
+                            <SelectValue placeholder="Choose a band" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {allBands.map((b) => (
+                              <SelectItem key={b} value={String(b)} className="text-xs">{getBandLabel(b)}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                    <p className="text-[11px] text-muted-foreground">Picking a band already used by another channel swaps the two.</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className={sectionLabel}>Contrast stretch</div>
+                    <div className="flex items-center gap-2">
+                      <Select value={stretchMethod} onValueChange={(v) => setStretchMethod(v as StretchMethod)}>
+                        <SelectTrigger className="h-8 flex-1 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {STRETCH_METHODS.map((m) => (
+                            <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        className="h-8 text-xs gap-1"
+                        disabled={selectedBands.length !== MAX_BANDS || !firstCogUrl || stretching}
+                        onClick={stretchAll}
+                      >
+                        <Wand2 className="h-3 w-3" />
+                        {stretching ? 'Stretching…' : 'Stretch all'}
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
+                    </p>
+                    {stretchSummary && <p className="text-[11px] text-muted-foreground">{stretchSummary}</p>}
+                    {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
+                  </div>
                 </div>
-                {/* Advanced Settings button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="self-start gap-1 text-xs text-muted-foreground hover:text-foreground mt-1"
-                  disabled={selectedBands.length !== MAX_BANDS}
-                  onClick={() => setShowAdvanced(true)}
-                >
-                  <Settings className="h-3 w-3" />
-                  Advanced Settings &gt;&gt;&gt;
-                </Button>
-              </div>
+              </ScrollArea>
+
+              {/* ── Right pane: stacked channel histograms ── */}
+              <ScrollArea className="min-h-0 border-l pl-5 pr-3">
+                <div className="space-y-2">
+                  <div className={sectionLabel}>Channel ranges</div>
+                  {!firstCogUrl ? (
+                    <p className="text-sm text-muted-foreground py-6 text-center">No COG source to read pixel values from.</p>
+                  ) : (
+                    <div className="space-y-6">
+                      {channelConfigs.map((cfg, i) => {
+                        const band = cfg.band;
+                        if (!band) return null;
+                        const hist = histogramCache[band] ?? null;
+                        return (
+                          <div key={cfg.label} className="flex flex-col">
+                            <BandHistogram
+                              data={hist?.bins ?? null}
+                              loading={histogramLoading[band] ?? !hist}
+                              error={histogramError[band] ?? null}
+                              channelColor={cfg.color}
+                              channelLabel={RGB_LABELS[i]}
+                              bandLabel={`${getBandLabel(band)} – ${cfg.label}`}
+                              dataMin={hist?.min ?? 0}
+                              dataMax={hist?.max ?? 1}
+                              min={cfg.minMax.min}
+                              max={cfg.minMax.max}
+                              onMinChange={(v) => cfg.setMinMax((mm) => ({ ...mm, min: v }))}
+                              onMaxChange={(v) => cfg.setMinMax((mm) => ({ ...mm, max: v }))}
+                              onStretch={(lo, hi) => cfg.setMinMax({ min: lo, max: hi })}
+                              chartHeight={110}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
             </div>
-          </>
+          </TooltipProvider>
         )}
 
         <DialogFooter>
