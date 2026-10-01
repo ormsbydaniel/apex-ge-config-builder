@@ -469,7 +469,7 @@ export function RgbCompositeEditorDialog({
                         size="sm"
                         variant="secondary"
                         className="h-8 text-xs gap-1"
-                        disabled={selectedBands.length !== MAX_BANDS || !firstCogUrl || stretching}
+                        disabled={!allChannelsSet || !firstCogUrl || stretching}
                         onClick={stretchAll}
                       >
                         <Wand2 className="h-3 w-3" />
@@ -532,7 +532,7 @@ export function RgbCompositeEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={selectedBands.length !== MAX_BANDS}>
+          <Button onClick={handleSave} disabled={!allChannelsSet}>
             Save
           </Button>
         </DialogFooter>
