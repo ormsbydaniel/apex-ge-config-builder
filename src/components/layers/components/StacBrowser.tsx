@@ -24,7 +24,8 @@ import {
   ensureSlash,
   type StacLink,
   type StacAsset,
-  type StacCollection as StacCollectionType,
+  type StacCollection as StacCollectionType,,
+  extractBandLabels,
 } from '@/utils/stacUtils';
 import { rankCollection, filterAndRankCollections } from '@/utils/stacSearchUtils';
 
@@ -620,6 +621,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
               roles: asset.roles,
               fileSize: asset['file:size'],
               title: asset.title,
+              bandLabels: extractBandLabels(asset, item.properties),
             });
           } catch (error) {
             console.error(`Failed to process asset ${assetKey} from item ${item.id}:`, error);
@@ -683,6 +685,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           roles: asset.roles,
           fileSize: asset['file:size'],
           title: asset.title,
+          bandLabels: extractBandLabels(asset, item.properties),
         });
       } catch (error) {
         console.error(`Failed to process asset ${assetKey} from item ${item.id}:`, error);
@@ -706,6 +709,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       url: asset.url,
       format: asset.format,
       datetime: asset.datetime,
+      bandLabels: asset.bandLabels,
     }));
 
     onAssetSelect(assetSelections);
