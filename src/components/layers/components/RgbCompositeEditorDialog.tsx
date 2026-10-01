@@ -20,7 +20,7 @@ import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
 import { fetchCogHeaderMetadata, fetchBandHistogram, BandHistogramResult } from '@/utils/cogMetadata';
 import { BandHistogram } from './BandHistogram';
-import CompositeGallery from './CompositeGallery';
+import CompositeGallery, { RECIPE_ICONS } from './CompositeGallery';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
