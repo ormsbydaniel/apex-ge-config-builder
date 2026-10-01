@@ -617,6 +617,13 @@ const DataSourceForm = ({
       delete baseItem.assets;
     }
 
+    // Band labels extracted from STAC eo:bands metadata (used by RGB composite recipes)
+    if (stacBandLabels && stacBandLabels.length > 0) {
+      baseItem.bandLabels = stacBandLabels;
+    } else if (!editingDataSource) {
+      delete baseItem.bandLabels;
+    }
+
     // layers: only meaningful for OGC-style services
     if (layers) {
       baseItem.layers = layers;
