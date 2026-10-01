@@ -408,6 +408,7 @@ export function RgbCompositeEditorDialog({
     }
     const bands = resolveRecipeBands(id, cogBandCount, bandLabels);
     if (!bands) return;
+    setMode('rgb');
     setSelectedBands([...bands]);
     setStretchCustom(false);
     queueStretch([0, 1, 2]);
@@ -427,15 +428,116 @@ export function RgbCompositeEditorDialog({
     setView('editor');
   };
 
+  const handleGalleryPickIndex = (id: IndexRecipeId) => {
+    applyIndexRecipe(id);
+    setView('editor');
+  };
+
   const sectionLabel = 'text-xs font-medium text-muted-foreground uppercase tracking-wide';
+  const indexStops = indexMax > indexMin ? indexColorStops(indexColormap, indexReverse, indexMin, indexMax) : [];
+  const fmt = (v: number) => parseFloat(v.toFixed(3)).toString();
+
+  const indexLeft = (
+    <>
+      <div className="space-y-2">
+        <div className={sectionLabel}>Index bands</div>
+        {[0, 1].map((slot) => (
+          <div key={slot} className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center rounded text-[11px] font-bold bg-muted text-foreground w-6 h-6 flex-shrink-0">
+              {slot === 0 ? 'A' : 'B'}
+            </span>
+            <Select
+              value={indexBands[slot] ? String(indexBands[slot]) : undefined}
+              onValueChange={(v) => assignIndexBand(slot, Number(v))}
+            >
+              <SelectTrigger className="h-8 text-xs flex-1" aria-label={`Index band ${slot === 0 ? 'A' : 'B'}`}>
+                <SelectValue placeholder="Choose a band" />
+              </SelectTrigger>
+              <SelectContent>
+                {allBands.map((b) => (
+                  <SelectItem key={b} value={String(b)} className="text-xs">{getBandLabel(b)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+        <p className="text-[11px] text-muted-foreground font-mono">
+          {INDEX_RECIPES.find((r) => r.id === indexRecipe)?.formula} · computed as (A − B) / (A + B)
+        </p>
+      </div>
+      <div className="space-y-2">
+        <div className={sectionLabel}>Colour ramp</div>
+        <div className="flex items-center gap-2">
+          <Select value={indexColormap} onValueChange={setIndexColormap}>
+            <SelectTrigger className="h-8 text-xs flex-1" aria-label="Colour ramp"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {INDEX_COLORMAPS.map((c) => (
+                <SelectItem key={c} value={c} className="text-xs">
+                  <span className="flex items-center gap-2">
+                    <span className="inline-block h-2.5 w-16 rounded-sm" style={{ background: createGradientCSS(c, indexReverse) }} />
+                    {c}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <label className="flex items-center gap-1.5 text-xs">
+            <Checkbox checked={indexReverse} onCheckedChange={(v) => setIndexReverse(v === true)} /> Reverse
+          </label>
+        </div>
+      </div>
+    </>
+  );
+
+  const indexRight = (
+    <div className="space-y-4">
+      <div className={sectionLabel}>Index value range</div>
+      <div className="space-y-1">
+        <div className="h-5 rounded-sm border" style={{ background: createGradientCSS(indexColormap, indexReverse) }} />
+        <div className="flex justify-between text-[11px] text-muted-foreground">
+          <span>{fmt(indexMin)}</span>
+          <span>{fmt((indexMin + indexMax) / 2)}</span>
+          <span>{fmt(indexMax)}</span>
+        </div>
+      </div>
+      <div className="flex items-end gap-3">
+        <label className="space-y-1 text-xs">
+          <span className="text-muted-foreground">Min</span>
+          <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMin}
+            onChange={(e) => setIndexMin(Number(e.target.value))} />
+        </label>
+        <label className="space-y-1 text-xs">
+          <span className="text-muted-foreground">Max</span>
+          <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMax}
+            onChange={(e) => setIndexMax(Number(e.target.value))} />
+        </label>
+        <Button type="button" size="sm" variant="outline" className="h-8 text-xs" onClick={resetIndexRange}>
+          Reset to default
+        </Button>
+      </div>
+      {!(indexMax > indexMin) && <p className="text-[11px] text-destructive">Max must be greater than min.</p>}
+      <div className="flex flex-wrap gap-1.5">
+        {INDEX_RANGE_PRESETS.map((p) => (
+          <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
+            onClick={() => { setIndexMin(p.min); setIndexMax(p.max); }}>
+            {p.label} ({p.min} – {p.max})
+          </Button>
+        ))}
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        Index values run from −1 to 1. Values below min take the first colour, above max the last. Pixels where both bands are zero (no data) stay transparent.
+        {indexStops.length > 0 && ` ${indexStops.length} colour stops.`}
+      </p>
+    </div>
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-5xl h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>RGB Composite Editor</DialogTitle>
+          <DialogTitle>RGB Composite & Spectral Index Editor</DialogTitle>
           <DialogDescription>
-            Choose a composite, assign bands to Red, Green and Blue, then set each channel's range. Changes apply to all COG sources in this layer.
+            Choose a three-band composite or a spectral index, then fine-tune bands and ranges. Changes apply to all COG sources in this layer.
           </DialogDescription>
         </DialogHeader>
 
