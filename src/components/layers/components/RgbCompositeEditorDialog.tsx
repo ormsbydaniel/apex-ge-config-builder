@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -91,7 +91,7 @@ export function RgbCompositeEditorDialog({
   source,
   onUpdateDataSources,
 }: RgbCompositeEditorDialogProps) {
-  const [selectedBands, setSelectedBands] = useState<number[]>([1, 2, 3]);
+  const [selectedBands, setSelectedBands] = useState<(number | null)[]>([1, 2, 3]);
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
   const [rMinMax, setRMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
@@ -205,8 +205,7 @@ export function RgbCompositeEditorDialog({
   /** Assign a band to a channel; if another channel already uses it, swap them. */
   const assignBand = (channelIdx: number, band: number) => {
     setStretchSummary(null);
-    const next = [...selectedBands];
-    while (next.length < MAX_BANDS) next.push(allBands.find((b) => !next.includes(b)) ?? 1);
+    const next: (number | null)[] = [selectedBands[0] ?? null, selectedBands[1] ?? null, selectedBands[2] ?? null];
     const changed = new Set<number>([channelIdx]);
     const other = next.indexOf(band);
     if (other !== -1 && other !== channelIdx) {
@@ -223,10 +222,14 @@ export function RgbCompositeEditorDialog({
     gMinMax.min !== 0 || gMinMax.max !== 10000 ||
     bMinMax.min !== 0 || bMinMax.max !== 10000;
 
+  const allChannelsSet = selectedBands.length === MAX_BANDS && selectedBands.every((b) => b != null);
+
   const handleSave = () => {
+    if (!allChannelsSet) return;
+    const bands = selectedBands as number[];
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
       if (d.format === 'cog') {
-        const updated: any = { ...d, convertToRGB: true, bands: [...selectedBands] };
+        const updated: any = { ...d, convertToRGB: true, bands: [...bands] };
         if (hasAdvancedValues) {
           updated.style = buildRgbStyle(rMinMax, gMinMax, bMinMax);
         }
@@ -260,7 +263,7 @@ export function RgbCompositeEditorDialog({
   useEffect(() => {
     if (!open || loading || !firstCogUrl) return;
     selectedBands.forEach((band) => {
-      if (histogramCache[band] || inFlightRef.current.has(band)) return;
+      if (band == null || histogramCache[band] || inFlightRef.current.has(band)) return;
       inFlightRef.current.add(band);
       setHistogramLoading((prev) => ({ ...prev, [band]: true }));
       setHistogramError((prev) => ({ ...prev, [band]: null }));
@@ -298,13 +301,27 @@ export function RgbCompositeEditorDialog({
   // ── Recipes & auto-stretch ──
   const sensor = guessSensor(cogBandCount);
   const currentRecipe = useMemo(
-    () => (selectedBands.length === MAX_BANDS ? matchRecipe(selectedBands, cogBandCount, bandLabels) : 'custom'),
-    [selectedBands, cogBandCount, bandLabels]
+    () => (allChannelsSet ? matchRecipe(selectedBands as number[], cogBandCount, bandLabels) : 'custom'),
+    [selectedBands, cogBandCount, bandLabels, allChannelsSet]
   );
 
   const applyRecipe = (id: RgbRecipeId) => {
     setStretchSummary(null);
-    if (id === 'custom') return;
+    setStretchError(null);
+    if (id === 'custom') {
+      // Start from a blank slate: clear channels, ranges and histograms.
+      setSelectedBands([null, null, null]);
+      setRMinMax({ min: 0, max: 10000 });
+      setGMinMax({ min: 0, max: 10000 });
+      setBMinMax({ min: 0, max: 10000 });
+      setHistogramCache({});
+      setHistogramLoading({});
+      setHistogramError({});
+      inFlightRef.current = new Set();
+      setPendingStretch([]);
+      setStretchCustom(false);
+      return;
+    }
     const bands = resolveRecipeBands(id, cogBandCount, bandLabels);
     if (!bands) return;
     setSelectedBands([...bands]);
@@ -322,12 +339,13 @@ export function RgbCompositeEditorDialog({
   };
 
   const stretchAll = async () => {
-    if (!firstCogUrl || selectedBands.length !== MAX_BANDS) return;
+    if (!firstCogUrl || !allChannelsSet) return;
+    const bands = selectedBands as number[];
     setStretching(true);
     setStretchError(null);
     try {
       const results = await Promise.all(
-        selectedBands.map(async (band) => {
+        bands.map(async (band) => {
           if (histogramCache[band]) return histogramCache[band];
           const r = await fetchBandHistogram(firstCogUrl, band - 1, noDataValue);
           setHistogramCache((prev) => ({ ...prev, [band]: r }));
@@ -451,7 +469,7 @@ export function RgbCompositeEditorDialog({
                         size="sm"
                         variant="secondary"
                         className="h-8 text-xs gap-1"
-                        disabled={selectedBands.length !== MAX_BANDS || !firstCogUrl || stretching}
+                        disabled={!allChannelsSet || !firstCogUrl || stretching}
                         onClick={stretchAll}
                       >
                         <Wand2 className="h-3 w-3" />
@@ -475,6 +493,8 @@ export function RgbCompositeEditorDialog({
                   <div className={sectionLabel}>Channel ranges</div>
                   {!firstCogUrl ? (
                     <p className="text-sm text-muted-foreground py-6 text-center">No COG source to read pixel values from.</p>
+                  ) : selectedBands.every((b) => b == null) ? (
+                    <p className="text-sm text-muted-foreground py-6 text-center">Assign a band to a channel to see its histogram.</p>
                   ) : (
                     <div className="space-y-6">
                       {channelConfigs.map((cfg, i) => {
@@ -514,7 +534,7 @@ export function RgbCompositeEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={selectedBands.length !== MAX_BANDS}>
+          <Button onClick={handleSave} disabled={!allChannelsSet}>
             Save
           </Button>
         </DialogFooter>
