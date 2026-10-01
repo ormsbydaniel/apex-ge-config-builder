@@ -301,13 +301,27 @@ export function RgbCompositeEditorDialog({
   // ── Recipes & auto-stretch ──
   const sensor = guessSensor(cogBandCount);
   const currentRecipe = useMemo(
-    () => (selectedBands.length === MAX_BANDS ? matchRecipe(selectedBands, cogBandCount, bandLabels) : 'custom'),
-    [selectedBands, cogBandCount, bandLabels]
+    () => (allChannelsSet ? matchRecipe(selectedBands as number[], cogBandCount, bandLabels) : 'custom'),
+    [selectedBands, cogBandCount, bandLabels, allChannelsSet]
   );
 
   const applyRecipe = (id: RgbRecipeId) => {
     setStretchSummary(null);
-    if (id === 'custom') return;
+    setStretchError(null);
+    if (id === 'custom') {
+      // Start from a blank slate: clear channels, ranges and histograms.
+      setSelectedBands([null, null, null]);
+      setRMinMax({ min: 0, max: 10000 });
+      setGMinMax({ min: 0, max: 10000 });
+      setBMinMax({ min: 0, max: 10000 });
+      setHistogramCache({});
+      setHistogramLoading({});
+      setHistogramError({});
+      inFlightRef.current = new Set();
+      setPendingStretch([]);
+      setStretchCustom(false);
+      return;
+    }
     const bands = resolveRecipeBands(id, cogBandCount, bandLabels);
     if (!bands) return;
     setSelectedBands([...bands]);
@@ -325,12 +339,13 @@ export function RgbCompositeEditorDialog({
   };
 
   const stretchAll = async () => {
-    if (!firstCogUrl || selectedBands.length !== MAX_BANDS) return;
+    if (!firstCogUrl || !allChannelsSet) return;
+    const bands = selectedBands as number[];
     setStretching(true);
     setStretchError(null);
     try {
       const results = await Promise.all(
-        selectedBands.map(async (band) => {
+        bands.map(async (band) => {
           if (histogramCache[band]) return histogramCache[band];
           const r = await fetchBandHistogram(firstCogUrl, band - 1, noDataValue);
           setHistogramCache((prev) => ({ ...prev, [band]: r }));
