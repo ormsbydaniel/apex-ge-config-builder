@@ -222,10 +222,14 @@ export function RgbCompositeEditorDialog({
     gMinMax.min !== 0 || gMinMax.max !== 10000 ||
     bMinMax.min !== 0 || bMinMax.max !== 10000;
 
+  const allChannelsSet = selectedBands.length === MAX_BANDS && selectedBands.every((b) => b != null);
+
   const handleSave = () => {
+    if (!allChannelsSet) return;
+    const bands = selectedBands as number[];
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
       if (d.format === 'cog') {
-        const updated: any = { ...d, convertToRGB: true, bands: [...selectedBands] };
+        const updated: any = { ...d, convertToRGB: true, bands: [...bands] };
         if (hasAdvancedValues) {
           updated.style = buildRgbStyle(rMinMax, gMinMax, bMinMax);
         }
@@ -259,7 +263,7 @@ export function RgbCompositeEditorDialog({
   useEffect(() => {
     if (!open || loading || !firstCogUrl) return;
     selectedBands.forEach((band) => {
-      if (histogramCache[band] || inFlightRef.current.has(band)) return;
+      if (band == null || histogramCache[band] || inFlightRef.current.has(band)) return;
       inFlightRef.current.add(band);
       setHistogramLoading((prev) => ({ ...prev, [band]: true }));
       setHistogramError((prev) => ({ ...prev, [band]: null }));
