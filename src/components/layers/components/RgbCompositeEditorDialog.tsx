@@ -437,12 +437,13 @@ export function RgbCompositeEditorDialog({
                   <div className="space-y-2">
                     <div className={sectionLabel}>Contrast stretch</div>
                     <div className="flex items-center gap-2">
-                      <Select value={stretchMethod} onValueChange={(v) => setStretchMethod(v as StretchMethod)}>
-                        <SelectTrigger className="h-8 flex-1 text-xs"><SelectValue /></SelectTrigger>
+                      <Select value={stretchCustom ? 'custom' : stretchMethod} onValueChange={chooseStretchMethod}>
+                        <SelectTrigger className="h-8 flex-1 text-xs" aria-label="Contrast stretch"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {STRETCH_METHODS.map((m) => (
                             <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
                           ))}
+                          <SelectItem value="custom" disabled className="text-xs">Custom</SelectItem>
                         </SelectContent>
                       </Select>
                       <Button
@@ -458,7 +459,9 @@ export function RgbCompositeEditorDialog({
                       </Button>
                     </div>
                     <p className="text-[11px] text-muted-foreground">
-                      {STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
+                      {stretchCustom
+                        ? 'Ranges have been set by hand. Pick a method or click Stretch all to re-apply it to every channel.'
+                        : STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
                     </p>
                     {stretchSummary && <p className="text-[11px] text-muted-foreground">{stretchSummary}</p>}
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
@@ -491,9 +494,9 @@ export function RgbCompositeEditorDialog({
                               dataMax={hist?.max ?? 1}
                               min={cfg.minMax.min}
                               max={cfg.minMax.max}
-                              onMinChange={(v) => cfg.setMinMax((mm) => ({ ...mm, min: v }))}
-                              onMaxChange={(v) => cfg.setMinMax((mm) => ({ ...mm, max: v }))}
-                              onStretch={(lo, hi) => cfg.setMinMax({ min: lo, max: hi })}
+                              onMinChange={(v) => editRange(cfg.setMinMax, i, (mm) => ({ ...mm, min: v }))}
+                              onMaxChange={(v) => editRange(cfg.setMinMax, i, (mm) => ({ ...mm, max: v }))}
+                              onStretch={(lo, hi) => editRange(cfg.setMinMax, i, { min: lo, max: hi })}
                               chartHeight={110}
                             />
                           </div>
