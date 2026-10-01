@@ -108,6 +108,8 @@ const DataSourceForm = ({
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [selectedLayerTemporalSuggestion, setSelectedLayerTemporalSuggestion] = useState<TemporalSuggestion | null>(null);
+  // Band labels extracted from STAC eo:bands metadata for the pending single selection
+  const [stacBandLabels, setStacBandLabels] = useState<string[] | null>(null);
 
   const existingVersion = editingDataSource?.format === 'wmts'
     ? editingDataSource.version
@@ -460,6 +462,7 @@ const DataSourceForm = ({
     if (format) {
       setSelectedFormat(format);
     }
+    setStacBandLabels(bandLabels && bandLabels.length > 0 ? bandLabels : null);
 
     // Capture temporal suggestion from WMS/WMTS service capabilities so the layer
     // card can be auto-populated with an appropriate timeframe and default date.
