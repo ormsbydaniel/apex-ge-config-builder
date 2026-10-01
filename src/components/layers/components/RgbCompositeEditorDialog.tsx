@@ -20,6 +20,7 @@ import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
 import { fetchCogHeaderMetadata, fetchBandHistogram, BandHistogramResult } from '@/utils/cogMetadata';
 import { BandHistogram } from './BandHistogram';
+import CompositeGallery from './CompositeGallery';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
@@ -92,6 +93,9 @@ export function RgbCompositeEditorDialog({
   onUpdateDataSources,
 }: RgbCompositeEditorDialogProps) {
   const [selectedBands, setSelectedBands] = useState<(number | null)[]>([1, 2, 3]);
+  const [view, setView] = useState<'gallery' | 'editor'>('editor');
+  // True when this session started on the gallery (no existing composite).
+  const [startedOnGallery, setStartedOnGallery] = useState(false);
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
   const [rMinMax, setRMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
@@ -139,6 +143,9 @@ export function RgbCompositeEditorDialog({
   useEffect(() => {
     if (open && !prevOpenRef.current) {
       const firstRgb = (source.data || []).find((d: DataSourceItem) => d.convertToRGB === true);
+      const hasExisting = !!firstRgb;
+      setView(hasExisting ? 'editor' : 'gallery');
+      setStartedOnGallery(!hasExisting);
       const bands = firstRgb?.bands && firstRgb.bands.length >= 3
         ? firstRgb.bands.slice(0, 3)
         : [1, 2, 3];
@@ -331,6 +338,12 @@ export function RgbCompositeEditorDialog({
     queueStretch([0, 1, 2]);
   };
 
+  /** Gallery card picked: apply the recipe and enter the editor. */
+  const handleGalleryPick = (id: RgbRecipeId) => {
+    applyRecipe(id);
+    setView('editor');
+  };
+
   const sectionLabel = 'text-xs font-medium text-muted-foreground uppercase tracking-wide';
 
   return (
@@ -343,7 +356,16 @@ export function RgbCompositeEditorDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {loading ? (
+        {view === 'gallery' ? (
+          <ScrollArea className="flex-1 min-h-0 pr-3">
+            <CompositeGallery
+              bandCount={cogBandCount}
+              bandLabels={bandLabels}
+              loading={loading}
+              onPick={handleGalleryPick}
+            />
+          </ScrollArea>
+        ) : loading ? (
           <div className="flex-1 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading band information…
           </div>
@@ -353,6 +375,15 @@ export function RgbCompositeEditorDialog({
               {/* ── Left pane: composite, channels, stretch ── */}
               <ScrollArea className="min-h-0 pr-3">
                 <div className="space-y-5">
+                  {startedOnGallery && (
+                    <button
+                      type="button"
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={() => setView('gallery')}
+                    >
+                      ← Back to composites
+                    </button>
+                  )}
                   <div className="space-y-2">
                     <div className={sectionLabel}>
                       Composite
@@ -492,9 +523,11 @@ export function RgbCompositeEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!allChannelsSet}>
-            Save
-          </Button>
+          {view === 'editor' && (
+            <Button onClick={handleSave} disabled={!allChannelsSet}>
+              Save
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
