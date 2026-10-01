@@ -33,6 +33,8 @@ interface BandHistogramProps {
   onMinChange: (v: number) => void;
   onMaxChange: (v: number) => void;
   onStretch?: (min: number, max: number) => void;
+  /** Fixed chart height in px (used when histograms are stacked). */
+  chartHeight?: number;
 }
 
 function formatTickValue(v: number): string {
@@ -67,10 +69,11 @@ interface DraggableChartProps {
   onMinChange: (v: number) => void;
   onMaxChange: (v: number) => void;
   onStretch?: (min: number, max: number) => void;
+  chartHeight?: number;
 }
 
 function DraggableChart({
-  data, dataMin, dataMax, min, max, channelColor, onMinChange, onMaxChange, onStretch,
+  data, dataMin, dataMax, min, max, channelColor, onMinChange, onMaxChange, onStretch, chartHeight,
 }: DraggableChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<'min' | 'max' | null>(null);
@@ -136,7 +139,7 @@ function DraggableChart({
     <div
       ref={containerRef}
       className="flex-1 min-h-0 relative select-none"
-      style={{ minHeight: 200 }}
+      style={chartHeight ? { height: chartHeight, flex: 'none' } : { minHeight: 200 }}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
@@ -263,6 +266,7 @@ export function BandHistogram({
   onMinChange,
   onMaxChange,
   onStretch,
+  chartHeight,
 }: BandHistogramProps) {
   const applyStretch = useCallback(
     (lo: number, hi: number) => {
@@ -327,6 +331,7 @@ export function BandHistogram({
         onMinChange={onMinChange}
         onMaxChange={onMaxChange}
         onStretch={onStretch}
+        chartHeight={chartHeight}
       />
 
       {/* Min/Max inputs + auto-stretch */}
