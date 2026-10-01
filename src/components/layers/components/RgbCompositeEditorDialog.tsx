@@ -20,7 +20,14 @@ import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
 import { fetchCogHeaderMetadata, fetchBandHistogram, BandHistogramResult } from '@/utils/cogMetadata';
 import { BandHistogram } from './BandHistogram';
-import CompositeGallery, { RECIPE_ICONS } from './CompositeGallery';
+import CompositeGallery, { RECIPE_ICONS, INDEX_ICONS } from './CompositeGallery';
+import {
+  INDEX_RECIPES, INDEX_COLORMAPS, INDEX_RANGE_PRESETS, buildIndexStyle, matchIndexRecipe, resolveIndexBands, indexColorStops,
+  type IndexRecipeId, type SpectralIndexConfig,
+} from '@/utils/rgbComposite/indices';
+import { createGradientCSS } from '@/utils/colormapUtils';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
@@ -114,8 +121,27 @@ export function RgbCompositeEditorDialog({
   const [pendingStretch, setPendingStretch] = useState<number[]>([]);
   const [stretchError, setStretchError] = useState<string | null>(null);
 
+  // Spectral index mode
+  const [mode, setMode] = useState<'rgb' | 'index'>('rgb');
+  const [indexRecipe, setIndexRecipe] = useState<IndexRecipeId>('ndvi');
+  const [indexBands, setIndexBands] = useState<(number | null)[]>([null, null]);
+  const [indexColormap, setIndexColormap] = useState('greens');
+  const [indexReverse, setIndexReverse] = useState(false);
+  const [indexMin, setIndexMin] = useState(-1);
+  const [indexMax, setIndexMax] = useState(1);
+
   const queueStretch = (channels: number[]) => {
     setPendingStretch((prev) => Array.from(new Set([...prev, ...channels])));
+  };
+
+  const loadIndexConfig = (cfg: SpectralIndexConfig) => {
+    setMode('index');
+    setIndexRecipe(cfg.recipe);
+    setIndexBands([cfg.bandA, cfg.bandB]);
+    setIndexColormap(cfg.colormap);
+    setIndexReverse(!!cfg.reverse);
+    setIndexMin(cfg.min);
+    setIndexMax(cfg.max);
   };
 
   // Band labels: layer meta wins, otherwise fall back to labels extracted from
@@ -143,9 +169,12 @@ export function RgbCompositeEditorDialog({
   useEffect(() => {
     if (open && !prevOpenRef.current) {
       const firstRgb = (source.data || []).find((d: DataSourceItem) => d.convertToRGB === true);
-      const hasExisting = !!firstRgb;
+      const firstIndex = (source.data || []).find((d: DataSourceItem) => d.format === 'cog' && d.spectralIndex);
+      const hasExisting = !!firstRgb || !!firstIndex;
       setView(hasExisting ? 'editor' : 'gallery');
       setStartedOnGallery(!hasExisting);
+      setMode('rgb');
+      if (firstIndex) loadIndexConfig(firstIndex.spectralIndex as SpectralIndexConfig);
       const bands = firstRgb?.bands && firstRgb.bands.length >= 3
         ? firstRgb.bands.slice(0, 3)
         : [1, 2, 3];
