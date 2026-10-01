@@ -20,6 +20,7 @@ export interface PreviewAsset {
   roles?: string[];
   fileSize?: number;
   title?: string;
+  bandLabels?: string[];
 }
 
 interface AssetPreviewDialogProps {

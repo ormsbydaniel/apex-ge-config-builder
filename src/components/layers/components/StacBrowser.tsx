@@ -49,6 +49,7 @@ export interface AssetSelection {
   url: string;
   format: DataSourceFormat | string;
   datetime?: string;
+  bandLabels?: string[];
 }
 
 interface StacBrowserProps {
@@ -569,7 +570,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     const format = detectAssetFormat(asset);
     const resolved = resolveAssetUrl(asset.href, serviceUrl);
     const datetime = selectedItem?.properties?.datetime;
-    onAssetSelect({ url: resolved, format, datetime });
+    const bandLabels = extractBandLabels(asset, selectedItem?.properties);
+    onAssetSelect({ url: resolved, format, datetime, bandLabels });
   };
 
   const handleAddAllItems = async () => {
