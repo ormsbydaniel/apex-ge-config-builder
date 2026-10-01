@@ -143,6 +143,9 @@ export function RgbCompositeEditorDialog({
   useEffect(() => {
     if (open && !prevOpenRef.current) {
       const firstRgb = (source.data || []).find((d: DataSourceItem) => d.convertToRGB === true);
+      const hasExisting = !!firstRgb;
+      setView(hasExisting ? 'editor' : 'gallery');
+      setStartedOnGallery(!hasExisting);
       const bands = firstRgb?.bands && firstRgb.bands.length >= 3
         ? firstRgb.bands.slice(0, 3)
         : [1, 2, 3];
