@@ -255,15 +255,40 @@ export function RgbCompositeEditorDialog({
     bMinMax.min !== 0 || bMinMax.max !== 10000;
 
   const allChannelsSet = selectedBands.length === MAX_BANDS && selectedBands.every((b) => b != null);
+  const indexReady = indexBands[0] != null && indexBands[1] != null && indexBands[0] !== indexBands[1] && indexMax > indexMin;
+  const canSave = mode === 'index' ? indexReady : allChannelsSet;
 
   const handleSave = () => {
-    if (!allChannelsSet) return;
+    if (!canSave) return;
+    if (mode === 'index') {
+      const cfg: SpectralIndexConfig = {
+        recipe: indexRecipe,
+        bandA: indexBands[0] as number,
+        bandB: indexBands[1] as number,
+        colormap: indexColormap,
+        reverse: indexReverse,
+        min: indexMin,
+        max: indexMax,
+      };
+      const updatedData = (source.data || []).map((d: DataSourceItem) => {
+        if (d.format !== 'cog') return d;
+        // Index uses absolute band numbers, so the full band stack is read.
+        const { convertToRGB, bands, ...rest } = d as any;
+        return { ...rest, style: buildIndexStyle(cfg), spectralIndex: cfg } as DataSourceItem;
+      });
+      onUpdateDataSources(updatedData);
+      onOpenChange(false);
+      return;
+    }
     const bands = selectedBands as number[];
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
       if (d.format === 'cog') {
-        const updated: any = { ...d, convertToRGB: true, bands: [...bands] };
+        const { spectralIndex, ...rest } = d as any;
+        const updated: any = { ...rest, convertToRGB: true, bands: [...bands] };
         if (hasAdvancedValues) {
           updated.style = buildRgbStyle(rMinMax, gMinMax, bMinMax);
+        } else if (spectralIndex) {
+          delete updated.style;
         }
         return updated;
       }
@@ -271,6 +296,35 @@ export function RgbCompositeEditorDialog({
     });
     onUpdateDataSources(updatedData);
     onOpenChange(false);
+  };
+
+  // ── Spectral index actions ──
+  const applyIndexRecipe = (id: IndexRecipeId) => {
+    const r = INDEX_RECIPES.find((x) => x.id === id)!;
+    setMode('index');
+    setIndexRecipe(id);
+    const bands = resolveIndexBands(id, cogBandCount, bandLabels);
+    setIndexBands(bands ? [...bands] : [null, null]);
+    setIndexColormap(r.colormap);
+    setIndexReverse(r.reverse);
+    setIndexMin(r.min);
+    setIndexMax(r.max);
+  };
+
+  const assignIndexBand = (slot: number, band: number) => {
+    const next = [...indexBands];
+    const other = slot === 0 ? 1 : 0;
+    if (next[other] === band) next[other] = next[slot];
+    next[slot] = band;
+    setIndexBands(next);
+    if (next[0] != null && next[1] != null) {
+      setIndexRecipe(matchIndexRecipe([next[0], next[1]], cogBandCount, bandLabels));
+    }
+  };
+
+  const resetIndexRange = () => {
+    const r = INDEX_RECIPES.find((x) => x.id === indexRecipe);
+    if (r) { setIndexMin(r.min); setIndexMax(r.max); }
   };
 
   /** Manual edits to a channel range switch the stretch dropdown to "Custom". */
