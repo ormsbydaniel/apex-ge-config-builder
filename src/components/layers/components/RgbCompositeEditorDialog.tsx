@@ -346,7 +346,7 @@ export function RgbCompositeEditorDialog({
 
   // Load histograms for every assigned band (stacked view shows all three)
   useEffect(() => {
-    if (!open || loading || !firstCogUrl) return;
+    if (!open || loading || !firstCogUrl || mode !== 'rgb') return;
     selectedBands.forEach((band) => {
       if (band == null || histogramCache[band] || inFlightRef.current.has(band)) return;
       inFlightRef.current.add(band);
@@ -367,7 +367,7 @@ export function RgbCompositeEditorDialog({
           setHistogramLoading((prev) => ({ ...prev, [band]: false }));
         });
     });
-  }, [open, loading, firstCogUrl, noDataValue, selectedBands, histogramCache]);
+  }, [open, loading, firstCogUrl, noDataValue, selectedBands, histogramCache, mode]);
 
   // Apply the active stretch to queued channels as soon as their histogram is available.
   useEffect(() => {
@@ -393,6 +393,7 @@ export function RgbCompositeEditorDialog({
   const applyRecipe = (id: RgbRecipeId) => {
     setStretchError(null);
     if (id === 'custom') {
+      setMode('rgb');
       // Start from a blank slate: clear channels, ranges and histograms.
       setSelectedBands([null, null, null]);
       setRMinMax({ min: 0, max: 10000 });
