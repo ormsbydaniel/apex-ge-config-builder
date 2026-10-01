@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-10-01",
+    title: "Revamp of vector data styling user interface",
+    category: "Feature",
+  },
+  {
     date: "2026-09-30",
     title:
       "Release 2.6.0 - Improvements to vector field values config dialog. Various tutorial improvement.",
