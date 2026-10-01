@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DataSourceItemSchema } from '@/schemas/configSchema';
-import { getStacCollectionDataSourceUrl } from '@/utils/stacUtils';
+import { extractBandLabels, getStacCollectionDataSourceUrl } from '@/utils/stacUtils';
 
 describe('STAC collection data sources', () => {
   it('preserves asset names, zoom bounds, and styles through validation', () => {
