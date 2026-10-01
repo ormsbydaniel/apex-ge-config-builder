@@ -523,9 +523,11 @@ export function RgbCompositeEditorDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!allChannelsSet}>
-            Save
-          </Button>
+          {view === 'editor' && (
+            <Button onClick={handleSave} disabled={!allChannelsSet}>
+              Save
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
