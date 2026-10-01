@@ -493,6 +493,8 @@ export function RgbCompositeEditorDialog({
                   <div className={sectionLabel}>Channel ranges</div>
                   {!firstCogUrl ? (
                     <p className="text-sm text-muted-foreground py-6 text-center">No COG source to read pixel values from.</p>
+                  ) : selectedBands.every((b) => b == null) ? (
+                    <p className="text-sm text-muted-foreground py-6 text-center">Assign a band to a channel to see its histogram.</p>
                   ) : (
                     <div className="space-y-6">
                       {channelConfigs.map((cfg, i) => {
