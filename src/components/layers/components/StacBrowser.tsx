@@ -25,6 +25,7 @@ import {
   type StacLink,
   type StacAsset,
   type StacCollection as StacCollectionType,
+  extractBandLabels,
 } from '@/utils/stacUtils';
 import { rankCollection, filterAndRankCollections } from '@/utils/stacSearchUtils';
 
@@ -49,6 +50,7 @@ export interface AssetSelection {
   url: string;
   format: DataSourceFormat | string;
   datetime?: string;
+  bandLabels?: string[];
 }
 
 interface StacBrowserProps {
@@ -569,7 +571,8 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
     const format = detectAssetFormat(asset);
     const resolved = resolveAssetUrl(asset.href, serviceUrl);
     const datetime = selectedItem?.properties?.datetime;
-    onAssetSelect({ url: resolved, format, datetime });
+    const bandLabels = extractBandLabels(asset, selectedItem?.properties);
+    onAssetSelect({ url: resolved, format, datetime, bandLabels });
   };
 
   const handleAddAllItems = async () => {
@@ -618,6 +621,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
               roles: asset.roles,
               fileSize: asset['file:size'],
               title: asset.title,
+              bandLabels: extractBandLabels(asset, item.properties),
             });
           } catch (error) {
             console.error(`Failed to process asset ${assetKey} from item ${item.id}:`, error);
@@ -681,6 +685,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
           roles: asset.roles,
           fileSize: asset['file:size'],
           title: asset.title,
+          bandLabels: extractBandLabels(asset, item.properties),
         });
       } catch (error) {
         console.error(`Failed to process asset ${assetKey} from item ${item.id}:`, error);
@@ -704,6 +709,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
       url: asset.url,
       format: asset.format,
       datetime: asset.datetime,
+      bandLabels: asset.bandLabels,
     }));
 
     onAssetSelect(assetSelections);

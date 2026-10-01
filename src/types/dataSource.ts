@@ -24,6 +24,8 @@ export interface DataSourceItem {
   maxZoom?: number;
   // Optional STAC collection asset names/keys
   assets?: string[];
+  // Band labels extracted from STAC eo:bands metadata (drives RGB composite recipes)
+  bandLabels?: string[];
   // Temporal support
   timestamps?: number[]; // Array of Unix timestamps
   useTimeParameter?: boolean; // Use TIME parameter from WMS/WMTS service

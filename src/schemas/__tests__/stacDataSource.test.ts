@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DataSourceItemSchema } from '@/schemas/configSchema';
-import { getStacCollectionDataSourceUrl } from '@/utils/stacUtils';
+import { extractBandLabels, getStacCollectionDataSourceUrl } from '@/utils/stacUtils';
 
 describe('STAC collection data sources', () => {
   it('preserves asset names, zoom bounds, and styles through validation', () => {
@@ -35,5 +35,36 @@ describe('STAC collection data sources', () => {
       id: 'ports',
       collectionUrl: 'https://example.test/static/ports/collection.json',
     }, 'https://example.test/catalog.json')).toBe('https://example.test/static/ports/collection.json');
+  });
+});
+
+describe('extractBandLabels', () => {
+  it('reads band names from asset-level eo:bands', () => {
+    expect(extractBandLabels({
+      href: 'https://example.test/cog.tif',
+      'eo:bands': [{ name: 'B02' }, { name: 'B03' }, { name: 'B04' }],
+    })).toEqual(['B02', 'B03', 'B04']);
+  });
+
+  it('falls back to item-level eo:bands and common_name', () => {
+    expect(extractBandLabels(
+      { href: 'https://example.test/cog.tif' },
+      { 'eo:bands': [{ common_name: 'red' }, { name: 'B08' }] },
+    )).toEqual(['red', 'B08']);
+  });
+
+  it('returns undefined when no eo:bands metadata is present', () => {
+    expect(extractBandLabels({ href: 'https://example.test/cog.tif' })).toBeUndefined();
+    expect(extractBandLabels({ href: 'https://example.test/cog.tif' }, {})).toBeUndefined();
+  });
+
+  it('preserves bandLabels through data source validation', () => {
+    const parsed = DataSourceItemSchema.parse({
+      url: 'https://example.test/cog.tif',
+      format: 'cog',
+      zIndex: 50,
+      bandLabels: ['B02', 'B03', 'B04'],
+    });
+    expect(parsed.bandLabels).toEqual(['B02', 'B03', 'B04']);
   });
 });

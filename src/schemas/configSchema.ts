@@ -217,6 +217,8 @@ export const DataSourceItemSchema = z.object({
   maxZoom: z.number().optional(),
   // Optional asset names/keys for STAC collection data sources
   assets: z.array(z.string().min(1)).optional(),
+  // Band labels extracted from STAC eo:bands metadata (drives RGB composite recipes)
+  bandLabels: z.array(z.string()).optional(),
   // Temporal fields for data items
   timestamps: z.array(z.number()).optional(),
   // Opacity support (0-1 range)  

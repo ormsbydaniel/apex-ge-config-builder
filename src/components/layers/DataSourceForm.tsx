@@ -108,6 +108,8 @@ const DataSourceForm = ({
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [selectedLayerTemporalSuggestion, setSelectedLayerTemporalSuggestion] = useState<TemporalSuggestion | null>(null);
+  // Band labels extracted from STAC eo:bands metadata for the pending single selection
+  const [stacBandLabels, setStacBandLabels] = useState<string[] | null>(null);
 
   const existingVersion = editingDataSource?.format === 'wmts'
     ? editingDataSource.version
@@ -349,7 +351,8 @@ const DataSourceForm = ({
     layers: string = '',
     format?: DataSourceFormat,
     datetime?: string,
-    layerInfo?: LayerInfo
+    layerInfo?: LayerInfo,
+    bandLabels?: string[]
   ) => {
 
     // Handle catalogue bulk selections
@@ -423,6 +426,7 @@ const DataSourceForm = ({
         ...(asset.datetime && requiresTimestamp && {
           timestamps: [Math.floor(new Date(asset.datetime).getTime() / 1000)]
         }),
+        ...(asset.bandLabels && asset.bandLabels.length > 0 && { bandLabels: asset.bandLabels }),
         ...(shouldAddAsStatistics && { level: levelToUse + index }) // Increment level for each statistics source
       }));
 
@@ -458,6 +462,7 @@ const DataSourceForm = ({
     if (format) {
       setSelectedFormat(format);
     }
+    setStacBandLabels(bandLabels && bandLabels.length > 0 ? bandLabels : null);
 
     // Capture temporal suggestion from WMS/WMTS service capabilities so the layer
     // card can be auto-populated with an appropriate timeframe and default date.
@@ -610,6 +615,13 @@ const DataSourceForm = ({
       else delete baseItem.maxZoom;
     } else {
       delete baseItem.assets;
+    }
+
+    // Band labels extracted from STAC eo:bands metadata (used by RGB composite recipes)
+    if (stacBandLabels && stacBandLabels.length > 0) {
+      baseItem.bandLabels = stacBandLabels;
+    } else if (!editingDataSource) {
+      delete baseItem.bandLabels;
     }
 
     // layers: only meaningful for OGC-style services

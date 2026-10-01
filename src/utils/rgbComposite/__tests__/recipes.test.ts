@@ -14,6 +14,13 @@ describe('rgb recipes', () => {
     expect(resolveRecipeBands('natural', 4, labels)).toEqual([3, 2, 1]);
     expect(resolveRecipeBands('false-colour-ir', 4, labels)).toEqual([4, 3, 2]);
   });
+  it('resolves Sentinel-2 ARD (10 bands, no B01/B09/B10)', () => {
+    expect(guessSensor(10)).toBe('sentinel2-ard');
+    expect(resolveRecipeBands('natural', 10)).toEqual([3, 2, 1]);
+    expect(resolveRecipeBands('false-colour-ir', 10)).toEqual([7, 3, 2]);
+    expect(resolveRecipeBands('agriculture', 10)).toEqual([9, 7, 1]);
+    expect(resolveRecipeBands('geology', 10)).toEqual([10, 9, 3]);
+  });
   it('returns null when unsupported', () => {
     expect(resolveRecipeBands('agriculture', 4)).toBeNull();
     expect(resolveRecipeBands('natural', 9)).toBeNull();
