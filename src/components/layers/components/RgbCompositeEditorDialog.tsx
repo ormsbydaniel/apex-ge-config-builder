@@ -12,7 +12,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ChevronUp, ChevronDown, GripVertical, Settings, ArrowLeft } from 'lucide-react';
+import { ChevronUp, ChevronDown, GripVertical, Settings, ArrowLeft, Wand2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  RGB_RECIPES, SENSOR_NAMES, STRETCH_METHODS, computeStretch, guessSensor, matchRecipe, resolveRecipeBands,
+  type RgbRecipeId, type StretchMethod,
+} from '@/utils/rgbComposite/recipes';
 import {
   DndContext,
   closestCenter,
@@ -190,6 +196,10 @@ export function RgbCompositeEditorDialog({
   const [histogramLoading, setHistogramLoading] = useState<Record<number, boolean>>({});
   const [histogramError, setHistogramError] = useState<Record<number, string | null>>({});
   const [noDataValue, setNoDataValue] = useState<number | undefined>(undefined);
+  const [stretchMethod, setStretchMethod] = useState<StretchMethod>('percent-2-98');
+  const [stretching, setStretching] = useState(false);
+  const [stretchSummary, setStretchSummary] = useState<string | null>(null);
+  const [stretchError, setStretchError] = useState<string | null>(null);
 
   const bandLabels = (source.meta as any)?.bandLabels as string[] | undefined;
 
@@ -375,6 +385,44 @@ export function RgbCompositeEditorDialog({
   const activeHistError = activeBand !== null ? histogramError[activeBand] ?? null : null;
   const activeConfig = activeChannel !== null ? channelConfigs[activeChannel] : null;
 
+  // ── Recipes & auto-stretch ──
+  const sensor = guessSensor(cogBandCount);
+  const currentRecipe = useMemo(
+    () => (selectedBands.length === MAX_BANDS ? matchRecipe(selectedBands, cogBandCount, bandLabels) : 'custom'),
+    [selectedBands, cogBandCount, bandLabels]
+  );
+
+  const applyRecipe = (id: RgbRecipeId) => {
+    setStretchSummary(null);
+    if (id === 'custom') return;
+    const bands = resolveRecipeBands(id, cogBandCount, bandLabels);
+    if (bands) setSelectedBands([...bands]);
+  };
+
+  const stretchAll = async () => {
+    if (!firstCogUrl || selectedBands.length !== MAX_BANDS) return;
+    setStretching(true);
+    setStretchError(null);
+    try {
+      const results = await Promise.all(
+        selectedBands.map(async (band) => {
+          if (histogramCache[band]) return histogramCache[band];
+          const r = await fetchBandHistogram(firstCogUrl, band - 1, noDataValue);
+          setHistogramCache((prev) => ({ ...prev, [band]: r }));
+          return r;
+        })
+      );
+      const setters = [setRMinMax, setGMinMax, setBMinMax];
+      results.forEach((hist, i) => setters[i](computeStretch(stretchMethod, hist)));
+      setStretchSummary(`Applied ${STRETCH_METHODS.find((m) => m.id === stretchMethod)?.name} to R, G and B`);
+    } catch (err) {
+      setStretchError(err instanceof Error ? err.message : 'Could not read pixel values');
+    } finally {
+      setStretching(false);
+    }
+  };
+
+
   // Dialog width: wider when in advanced mode
   const dialogClass = showAdvanced
     ? "sm:max-w-[850px] max-h-[80vh] flex flex-col"
@@ -389,6 +437,74 @@ export function RgbCompositeEditorDialog({
             Assign bands to the Red, Green, and Blue channels. Changes apply to all COG sources in this layer.
           </DialogDescription>
         </DialogHeader>
+
+        {!loading && (
+          <TooltipProvider delayDuration={400}>
+            <div className="space-y-3 flex-shrink-0">
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Composite{sensor && <span className="normal-case tracking-normal font-normal ml-2">· detected {SENSOR_NAMES[sensor]}</span>}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {RGB_RECIPES.map((r) => {
+                    const bands = resolveRecipeBands(r.id, cogBandCount, bandLabels);
+                    const unavailable = r.id !== 'custom' && !bands;
+                    const active = currentRecipe === r.id;
+                    return (
+                      <Tooltip key={r.id}>
+                        <TooltipTrigger asChild>
+                          <span>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={active ? 'default' : 'outline'}
+                              className="h-7 text-xs"
+                              disabled={unavailable}
+                              onClick={() => applyRecipe(r.id)}
+                            >
+                              {r.name}
+                              {bands && <span className="ml-1.5 opacity-70 font-normal">{bands.join('-')}</span>}
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-[240px]">
+                          <p>{unavailable ? `${r.description} Not available — this source lacks the required bands or band labels.` : r.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Contrast stretch</span>
+                <Select value={stretchMethod} onValueChange={(v) => setStretchMethod(v as StretchMethod)}>
+                  <SelectTrigger className="h-7 w-[140px] text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {STRETCH_METHODS.map((m) => (
+                      <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="h-7 text-xs gap-1"
+                  disabled={selectedBands.length !== MAX_BANDS || !firstCogUrl || stretching}
+                  onClick={stretchAll}
+                >
+                  <Wand2 className="h-3 w-3" />
+                  {stretching ? 'Stretching…' : 'Stretch all channels'}
+                </Button>
+                {stretchSummary && <span className="text-[11px] text-muted-foreground">{stretchSummary}</span>}
+                {stretchError && <span className="text-[11px] text-destructive">{stretchError}</span>}
+              </div>
+              <p className="text-[11px] text-muted-foreground -mt-1">
+                {STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
+              </p>
+            </div>
+          </TooltipProvider>
+        )}
 
         {loading ? (
           <div className="text-xs text-muted-foreground py-4 text-center">Loading band information…</div>
