@@ -15,6 +15,30 @@ Style GeoJSON, FlatGeoBuf, and WFS layers using rule-based fills, lines, and lab
 
 If you only want to control which attributes appear in the info panel and how they are formatted, use [Data Values (vector)](data-values-vector.md) instead — that is a separate, non-styling editor.
 
+## Styling recipes
+
+When a layer has no style yet, the styling dialog opens on a set of recipes. Each recipe asks a few questions and then creates the style rules for you:
+
+| Recipe | What it does |
+|---|---|
+| Categorised | Gives each value of an attribute its own colour, for example land-cover class |
+| Graduated | Colours features along a colour ramp using a numeric attribute, with equal-interval or quantile classes |
+| Simple uniform | Uses one fill, outline or marker for every feature |
+| Feature labels | Shows a text label from an attribute |
+| Filter / highlight | Picks out the features that match a condition and can show the rest in grey |
+
+The recipe reads the attributes from the layer's first data file (up to 500 features). It then offers the fields, categories and value ranges it finds. If the file can't be read, you can type the field name and values yourself.
+
+For **Graduated**, the range is rounded out to tidy numbers that still cover the data (for example `2.18 – 61417.36` becomes `0 – 70000`). The exact sample range is shown underneath; click **Use exact** to use it instead. Once clicked it changes to **Round**, which restores the rounded range. Graduated and Categorised recipes also have a **Reverse** checkbox beside the palette to flip its colour order.
+
+If the layer already has rules, select **New from recipe** in the dialog header. You then choose whether the recipe **replaces** the existing rules or is **appended** after them. The generated rules can be edited like any other rule.
+
+For **Simple uniform** polygons a **Fill style** choice offers **Solid**, **Hatch** and **Cross hatch**. Hatched fills are drawn as a small repeating tile tinted with the chosen fill colour, so they always render at full colour strength and have no separate transparency setting; the outline colour still applies as normal. The pattern properties (`fill-pattern-src`, `fill-pattern-size`, `fill-pattern-offset`) appear in the Fill tab of the rule editor should you want to tweak the tile.
+
+
+!!! info "Geometry vs styles"
+    Geometry is what the data holds — points, lines or polygons. Styles are how it is drawn — fill, line, marker and label. Recipes read the geometry from the layer's first data file and preselect **Symbolise as** to match (for example, polygons get a fill and an outline). You can still change it, for instance to draw polygons as markers.
+
 ## Editor structure
 
 The vector style editor is split into three property panels:
@@ -62,3 +86,12 @@ Point sources surface a **Marker** sub-panel with shape (circle, square, triangl
 
 - Vector style is stored inline on the data source `meta`. It is not currently shareable between layers — duplicate layers if you need the same style elsewhere.
 - Heatmaps and cluster styling are not part of this editor. Configure them upstream in the source if needed.
+
+## Editing rules
+
+The styling dialog is split into two panes:
+
+- **Rules (left)** — every rule, drawn top to bottom. Each entry shows the rule name, its drawing layers, colour swatches and a one-line filter summary. Drag a rule, or use the up/down arrows, to change its order. The eye icon hides a rule without deleting it.
+- **Rule editor (right)** — the selected rule's name, plus **Fill**, **Line**, **Marker**, **Label** and **When** tabs. A dot on a tab means that part is in use.
+
+Every property shows a value mode dropdown (**Constant**, **From field**, **By zoom**, **Expression**), so you can see at a glance how each value is set. Use **+ Add property** to add any property that isn't set yet, including advanced ones such as dash pattern, line cap, label offsets or icon anchor. The **×** beside a property removes it from the saved style.

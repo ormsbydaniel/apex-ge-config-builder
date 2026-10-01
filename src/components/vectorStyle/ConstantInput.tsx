@@ -1,7 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import type { PropType } from '@/utils/vectorStyle/propertyCatalogues';
 import { convertColorToHex } from '@/utils/colorUtils';
+
+export const parseNumberList = (text: string): number[] =>
+  text
+    .split(',')
+    .map(s => s.trim())
+    .filter(s => s !== '')
+    .map(Number)
+    .filter(n => Number.isFinite(n));
+
+const sameArray = (a: number[], b: number[]) =>
+  a.length === b.length && a.every((n, i) => n === b[i]);
+
+/** Keeps the raw typed text (commas included) while sending parsed numbers upward. */
+const NumberArrayInput = ({ value, onChange }: { value: number[]; onChange: (next: number[]) => void }) => {
+  const [text, setText] = useState(() => value.join(', '));
+
+  useEffect(() => {
+    // Resync only when the value changed elsewhere, so typing isn't overwritten.
+    if (!sameArray(parseNumberList(text), value)) setText(value.join(', '));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <Input
+      className="h-8"
+      value={text}
+      onChange={e => {
+        setText(e.target.value);
+        onChange(parseNumberList(e.target.value));
+      }}
+      onBlur={() => setText(parseNumberList(text).join(', '))}
+      placeholder="e.g. 5, 5"
+    />
+  );
+};
 
 interface ConstantInputProps {
   type: PropType;
@@ -67,21 +102,10 @@ const ConstantInput = ({ type, options, value, onChange }: ConstantInputProps) =
   }
 
   if (type === 'numberArray') {
-    const arr = Array.isArray(value) ? value : [];
     return (
-      <Input
-        className="h-8"
-        value={arr.join(', ')}
-        onChange={e => {
-          const next = e.target.value
-            .split(',')
-            .map(s => s.trim())
-            .filter(s => s !== '')
-            .map(Number)
-            .filter(n => Number.isFinite(n));
-          onChange(next);
-        }}
-        placeholder="e.g. 5, 5"
+      <NumberArrayInput
+        value={Array.isArray(value) ? value : []}
+        onChange={onChange}
       />
     );
   }

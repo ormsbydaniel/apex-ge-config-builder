@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import ConstantInput from '../ConstantInput';
+import ConstantInput, { parseNumberList } from '../ConstantInput';
+
+describe('number list parsing', () => {
+  it('keeps complete numbers while a trailing comma is typed', () => {
+    expect(parseNumberList('5,')).toEqual([5]);
+    expect(parseNumberList('5, 5')).toEqual([5, 5]);
+  });
+});
 
 describe('vector style colour preview', () => {
   it('previews RGBA stop colours while retaining their original value', () => {

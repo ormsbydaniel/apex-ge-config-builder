@@ -36,6 +36,12 @@ export interface RecommendedCatalogueEntry {
 
 export interface ExampleManifest {
   examples: ExampleConfigEntry[];
+  /**
+   * Test / development configurations. These are surfaced in the Load
+   * Configuration dialog under their own group, but never offered as
+   * "donor" configs for layer import.
+   */
+  testConfigs: ExampleConfigEntry[];
   recommended: {
     basemaps?: RecommendedResourceEntry;
     services?: RecommendedResourceEntry;
@@ -89,7 +95,11 @@ const resolveRef = (raw: { file?: unknown; url?: unknown }): string | null => {
   return null;
 };
 
-const parseEntry = (raw: RawManifestEntry, index: number): ExampleConfigEntry | null => {
+const parseEntry = (
+  raw: RawManifestEntry,
+  index: number,
+  idPrefix = 'example',
+): ExampleConfigEntry | null => {
   if (!isNonEmptyString(raw.name) || !isNonEmptyString(raw.description)) return null;
 
   const url = resolveRef(raw);
@@ -102,7 +112,7 @@ const parseEntry = (raw: RawManifestEntry, index: number): ExampleConfigEntry | 
     fileName = url;
   }
 
-  const id = isNonEmptyString(raw.id) ? raw.id : `example-${index}`;
+  const id = isNonEmptyString(raw.id) ? raw.id : `${idPrefix}-${index}`;
   return { id, name: raw.name, description: raw.description, url, fileName };
 };
 
@@ -147,6 +157,14 @@ export const fetchExampleManifest = async (
       .map((e, i) => parseEntry(e, i))
       .filter((e): e is ExampleConfigEntry => e !== null);
 
+    // Optional "testConfigs" section — test / development configurations.
+    // Entries use the same shape as examples; a missing section is fine.
+    const testConfigs = Array.isArray((raw as Record<string, unknown>).testConfigs)
+      ? ((raw as Record<string, unknown>).testConfigs as RawManifestEntry[])
+          .map((e, i) => parseEntry(e, i, 'test-config'))
+          .filter((e): e is ExampleConfigEntry => e !== null)
+      : [];
+
     const rec = (raw.recommended ?? {}) as Record<string, unknown>;
     const catalogues = Array.isArray(rec.catalogues)
       ? (rec.catalogues as unknown[])
@@ -159,7 +177,7 @@ export const fetchExampleManifest = async (
       catalogues: catalogues.length > 0 ? catalogues : undefined,
     };
 
-    return { examples, recommended } satisfies ExampleManifest;
+    return { examples, testConfigs, recommended } satisfies ExampleManifest;
   })();
 
   cache = run.catch((e) => {
@@ -176,9 +194,18 @@ export const clearExampleManifestCache = () => {
 
 /**
  * Convenience: fetch just the examples list (kept for the Load Configuration
- * / Donor pickers which don't care about recommended resources).
+ * / Donor pickers which don't care about recommended resources). Deliberately
+ * excludes `testConfigs`, which must never appear in the donor picker.
  */
 export const fetchExamples = async (): Promise<ExampleConfigEntry[]> => {
   const m = await fetchExampleManifest();
   return m.examples;
+};
+
+/**
+ * Convenience: fetch just the test / development configuration list.
+ */
+export const fetchTestConfigs = async (): Promise<ExampleConfigEntry[]> => {
+  const m = await fetchExampleManifest();
+  return m.testConfigs;
 };

@@ -1070,6 +1070,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#styling-recipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Styling recipes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#editor-structure" class="md-nav__link">
     <span class="md-ellipsis">
       Editor structure
@@ -1109,6 +1118,15 @@
   <a href="#limitations" class="md-nav__link">
     <span class="md-ellipsis">
       Limitations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Editing rules
     </span>
   </a>
   
@@ -1733,6 +1751,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#styling-recipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Styling recipes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#editor-structure" class="md-nav__link">
     <span class="md-ellipsis">
       Editor structure
@@ -1777,6 +1804,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#editing-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Editing rules
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1802,6 +1838,46 @@
 <li>Add data-driven labels</li>
 </ul>
 <p>If you only want to control which attributes appear in the info panel and how they are formatted, use <a href="data-values-vector.html">Data Values (vector)</a> instead — that is a separate, non-styling editor.</p>
+<h2 id="styling-recipes">Styling recipes<a class="headerlink" href="#styling-recipes" title="Permanent link">&para;</a></h2>
+<p>When a layer has no style yet, the styling dialog opens on a set of recipes. Each recipe asks a few questions and then creates the style rules for you:</p>
+<table>
+<thead>
+<tr>
+<th>Recipe</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Categorised</td>
+<td>Gives each value of an attribute its own colour, for example land-cover class</td>
+</tr>
+<tr>
+<td>Graduated</td>
+<td>Colours features along a colour ramp using a numeric attribute, with equal-interval or quantile classes</td>
+</tr>
+<tr>
+<td>Simple uniform</td>
+<td>Uses one fill, outline or marker for every feature</td>
+</tr>
+<tr>
+<td>Feature labels</td>
+<td>Shows a text label from an attribute</td>
+</tr>
+<tr>
+<td>Filter / highlight</td>
+<td>Picks out the features that match a condition and can show the rest in grey</td>
+</tr>
+</tbody>
+</table>
+<p>The recipe reads the attributes from the layer's first data file (up to 500 features). It then offers the fields, categories and value ranges it finds. If the file can't be read, you can type the field name and values yourself.</p>
+<p>For <strong>Graduated</strong>, the range is rounded out to tidy numbers that still cover the data (for example <code>2.18 – 61417.36</code> becomes <code>0 – 70000</code>). The exact sample range is shown underneath; click <strong>Use exact</strong> to use it instead. Once clicked it changes to <strong>Round</strong>, which restores the rounded range. Graduated and Categorised recipes also have a <strong>Reverse</strong> checkbox beside the palette to flip its colour order.</p>
+<p>If the layer already has rules, select <strong>New from recipe</strong> in the dialog header. You then choose whether the recipe <strong>replaces</strong> the existing rules or is <strong>appended</strong> after them. The generated rules can be edited like any other rule.</p>
+<p>For <strong>Simple uniform</strong> polygons a <strong>Fill style</strong> choice offers <strong>Solid</strong>, <strong>Hatch</strong> and <strong>Cross hatch</strong>. Hatched fills are drawn as a small repeating tile tinted with the chosen fill colour, so they always render at full colour strength and have no separate transparency setting; the outline colour still applies as normal. The pattern properties (<code>fill-pattern-src</code>, <code>fill-pattern-size</code>, <code>fill-pattern-offset</code>) appear in the Fill tab of the rule editor should you want to tweak the tile.</p>
+<div class="admonition info">
+<p class="admonition-title">Geometry vs styles</p>
+<p>Geometry is what the data holds — points, lines or polygons. Styles are how it is drawn — fill, line, marker and label. Recipes read the geometry from the layer's first data file and preselect <strong>Symbolise as</strong> to match (for example, polygons get a fill and an outline). You can still change it, for instance to draw polygons as markers.</p>
+</div>
 <h2 id="editor-structure">Editor structure<a class="headerlink" href="#editor-structure" title="Permanent link">&para;</a></h2>
 <p>The vector style editor is split into three property panels:</p>
 <table>
@@ -1858,6 +1934,13 @@
 <li>Vector style is stored inline on the data source <code>meta</code>. It is not currently shareable between layers — duplicate layers if you need the same style elsewhere.</li>
 <li>Heatmaps and cluster styling are not part of this editor. Configure them upstream in the source if needed.</li>
 </ul>
+<h2 id="editing-rules">Editing rules<a class="headerlink" href="#editing-rules" title="Permanent link">&para;</a></h2>
+<p>The styling dialog is split into two panes:</p>
+<ul>
+<li><strong>Rules (left)</strong> — every rule, drawn top to bottom. Each entry shows the rule name, its drawing layers, colour swatches and a one-line filter summary. Drag a rule, or use the up/down arrows, to change its order. The eye icon hides a rule without deleting it.</li>
+<li><strong>Rule editor (right)</strong> — the selected rule's name, plus <strong>Fill</strong>, <strong>Line</strong>, <strong>Marker</strong>, <strong>Label</strong> and <strong>When</strong> tabs. A dot on a tab means that part is in use.</li>
+</ul>
+<p>Every property shows a value mode dropdown (<strong>Constant</strong>, <strong>From field</strong>, <strong>By zoom</strong>, <strong>Expression</strong>), so you can see at a glance how each value is set. Use <strong>+ Add property</strong> to add any property that isn't set yet, including advanced ones such as dash pattern, line cap, label offsets or icon anchor. The <strong>×</strong> beside a property removes it from the saved style.</p>
 
 
 

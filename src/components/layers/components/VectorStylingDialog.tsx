@@ -7,6 +7,11 @@ import { isVectorFormat, detectFieldsFromSource } from '@/utils/fieldDetection';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
 import { FileJson } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import RecipeGallery from '@/components/vectorStyle/RecipeGallery';
+import RecipeWizard from '@/components/vectorStyle/RecipeWizard';
+import { applyRecipeRules, type RecipeId } from '@/utils/vectorStyle/recipes';
+import { sampleSourceData, canSampleSource } from '@/utils/vectorStyle/sampleSourceData';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import StyleEditor from '@/components/vectorStyle/StyleEditor';
@@ -42,6 +47,11 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const [rules, setRules] = useState<StyleRule[]>([]);
   const [fallbackCount, setFallbackCount] = useState(0);
   const [detectedFields, setDetectedFields] = useState<VectorFieldDescriptor[]>([]);
+  const [view, setView] = useState<'gallery' | 'wizard' | 'editor'>('editor');
+  const [recipe, setRecipe] = useState<RecipeId | null>(null);
+  const [wizardOrigin, setWizardOrigin] = useState<'gallery' | 'editor'>('gallery');
+  // Index + nonce of a rule to select when the editor reopens (e.g. a rule just created by a recipe).
+  const [focusRule, setFocusRule] = useState<{ index: number; nonce: number } | null>(null);
 
   const initialStyle: unknown[] = useMemo(() => {
     if (!open) return [];
@@ -81,8 +91,28 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
     setRules(parsed.rules);
     setFallbackCount(parsed.fallbacks.length);
     setMode(lastMode);
+    // Empty styles open on the recipe gallery; existing styles open on their rules.
+    setView(parsed.rules.length === 0 && parsed.fallbacks.length === 0 ? 'gallery' : 'editor');
+    setRecipe(null);
+    setWizardOrigin('gallery');
+    setFocusRule(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  const handleRecipeRules = (generated: StyleRule[]) => {
+    const prev = new Set(rules);
+    const next = applyRecipeRules(rules, generated, 'append');
+    setRules(next);
+    // Select the first newly added rule (append can shift it if an else branch moves last).
+    const firstNew = next.findIndex((r) => !prev.has(r));
+    setFocusRule({ index: firstNew >= 0 ? firstNew : Math.max(0, next.length - 1), nonce: Date.now() });
+    setView('editor');
+  };
+
+  const handleStartFromScratch = () => {
+    setRules([{ enabled: true, primitives: {} }]);
+    setView('editor');
+  };
 
   // Stable URL + format for the first vector data item — avoids re-fetching when
   // the parent re-renders with a new `source.data` array identity.
@@ -91,6 +121,14 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   }, [source.data]);
   const firstVectorUrl = firstVectorItem?.url ?? '';
   const firstVectorFormat = firstVectorItem?.format ?? '';
+
+  // Sample attributes from the first data file for recipes (cached per URL, never throws).
+  const sampleQuery = useQuery({
+    queryKey: ['vector-style-sample', firstVectorUrl, firstVectorFormat],
+    queryFn: () => sampleSourceData(firstVectorUrl, firstVectorFormat),
+    enabled: open && view === 'wizard' && !!firstVectorUrl && canSampleSource(firstVectorFormat),
+    staleTime: 10 * 60 * 1000,
+  });
 
   // Auto-detect fields from the first vector source if none are configured.
   useEffect(() => {
@@ -172,10 +210,11 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[80vh] overflow-hidden flex flex-col gap-2">
+      <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] h-[85vh] overflow-hidden flex flex-col gap-2">
         <DialogHeader>
           <div className="flex items-center justify-between gap-2 pr-6">
             <DialogTitle>Vector Styling — {source.name}</DialogTitle>
+            <div className="flex items-center gap-2">
             <TooltipProvider delayDuration={400}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -198,6 +237,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            </div>
           </div>
         </DialogHeader>
 
@@ -213,12 +253,31 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
                 height="400px"
               />
             </>
+          ) : view === 'gallery' ? (
+            <RecipeGallery
+               onPick={(id) => { setWizardOrigin('gallery'); setRecipe(id); setView('wizard'); }}
+              onScratch={handleStartFromScratch}
+              hasExistingRules={rules.length > 0}
+            />
+          ) : view === 'wizard' && recipe ? (
+            <RecipeWizard
+              recipe={recipe}
+              sample={sampleQuery.data}
+              sampling={sampleQuery.isFetching}
+              fallbackFields={fields.map((f) => f.name)}
+               backLabel={wizardOrigin === 'editor' ? 'Back to rules' : 'Back to recipes'}
+               onBack={() => setView(wizardOrigin)}
+              onApply={handleRecipeRules}
+            />
           ) : (
             <StyleEditor
               rules={rules}
               onChange={setRules}
               fields={fields}
               fallbackCount={fallbackCount}
+              focusRule={focusRule}
+              onPickRecipe={(id) => { setWizardOrigin('editor'); setRecipe(id); setView('wizard'); }}
+              onRulesEmpty={() => setView('gallery')}
             />
           )}
         </div>

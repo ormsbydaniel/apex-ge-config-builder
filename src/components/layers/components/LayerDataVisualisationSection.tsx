@@ -105,6 +105,21 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
     onUpdateDataSources(updatedData);
   };
 
+  const hasVectorStyling = source.data.some(
+    item => isVectorFormat(item.format) && Array.isArray(item.style) && item.style.length > 0
+  );
+
+  const handleDeleteVectorStyling = () => {
+    const updatedData = (source.data || []).map((d: DataSourceItem) => {
+      if (isVectorFormat(d.format) && d.style) {
+        const { style, ...rest } = d;
+        return rest as DataSourceItem;
+      }
+      return d;
+    });
+    onUpdateDataSources(updatedData);
+  };
+
   return (
     <div className="space-y-2">
       {/* Section header */}
@@ -340,6 +355,11 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
               }
               return btn;
             })()}
+            {hasVectorStyling && (
+              <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={handleDeleteVectorStyling}>
+                <Trash2 className="h-2.5 w-2.5" />
+              </Button>
+            )}
           </div>
 
           <VectorStylingDialog
