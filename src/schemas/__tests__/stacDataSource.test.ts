@@ -62,6 +62,7 @@ describe('extractBandLabels', () => {
     const parsed = DataSourceItemSchema.parse({
       url: 'https://example.test/cog.tif',
       format: 'cog',
+      zIndex: 50,
       bandLabels: ['B02', 'B03', 'B04'],
     });
     expect(parsed.bandLabels).toEqual(['B02', 'B03', 'B04']);

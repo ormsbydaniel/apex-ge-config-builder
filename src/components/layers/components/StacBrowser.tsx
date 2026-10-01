@@ -24,7 +24,7 @@ import {
   ensureSlash,
   type StacLink,
   type StacAsset,
-  type StacCollection as StacCollectionType,,
+  type StacCollection as StacCollectionType,
   extractBandLabels,
 } from '@/utils/stacUtils';
 import { rankCollection, filterAndRankCollections } from '@/utils/stacSearchUtils';
