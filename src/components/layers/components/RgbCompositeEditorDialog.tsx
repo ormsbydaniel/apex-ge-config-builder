@@ -356,7 +356,16 @@ export function RgbCompositeEditorDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {loading ? (
+        {view === 'gallery' ? (
+          <ScrollArea className="flex-1 min-h-0 pr-3">
+            <CompositeGallery
+              bandCount={cogBandCount}
+              bandLabels={bandLabels}
+              loading={loading}
+              onPick={handleGalleryPick}
+            />
+          </ScrollArea>
+        ) : loading ? (
           <div className="flex-1 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading band information…
           </div>
@@ -366,6 +375,15 @@ export function RgbCompositeEditorDialog({
               {/* ── Left pane: composite, channels, stretch ── */}
               <ScrollArea className="min-h-0 pr-3">
                 <div className="space-y-5">
+                  {startedOnGallery && (
+                    <button
+                      type="button"
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={() => setView('gallery')}
+                    >
+                      ← Back to composites
+                    </button>
+                  )}
                   <div className="space-y-2">
                     <div className={sectionLabel}>
                       Composite
