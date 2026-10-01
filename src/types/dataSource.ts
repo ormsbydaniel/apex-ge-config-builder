@@ -36,6 +36,16 @@ export interface DataSourceItem {
   opacity?: number;
   // RGB composite rendering flag
   convertToRGB?: boolean;
+  // Spectral index settings (editor metadata; the rendered expression lives in `style`)
+  spectralIndex?: {
+    recipe: string;
+    bandA: number;
+    bandB: number;
+    colormap: string;
+    reverse?: boolean;
+    min: number;
+    max: number;
+  };
   // Allow arbitrary additional properties (e.g., env, styles, time, transparent)
   [key: string]: any;
 }

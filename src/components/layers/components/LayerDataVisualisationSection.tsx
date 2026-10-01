@@ -33,7 +33,8 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   
   // Detect RGB composites from data source items
   const convertToRgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
-  const convertToRgbCount = convertToRgbSources.length;
+  const indexSources = (source.data || []).filter((d: DataSourceItem) => d.format === 'cog' && !!d.spectralIndex);
+  const convertToRgbCount = convertToRgbSources.length + indexSources.length;
 
   const hasCategories = categories.length > 0;
   const hasColormaps = colormaps.length > 0;
@@ -96,6 +97,10 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
 
   const handleDeleteRgbComposites = () => {
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
+      if (d.spectralIndex) {
+        const { spectralIndex, style, convertToRGB, ...rest } = d;
+        return rest as DataSourceItem;
+      }
       if (d.convertToRGB) {
         const { convertToRGB, ...rest } = d;
         return rest as DataSourceItem;
