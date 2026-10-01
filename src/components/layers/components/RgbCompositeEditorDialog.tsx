@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Wand2, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -108,8 +108,6 @@ export function RgbCompositeEditorDialog({
   const [stretchCustom, setStretchCustom] = useState(false);
   // Channels (0=R,1=G,2=B) waiting for their band's histogram to apply the active stretch.
   const [pendingStretch, setPendingStretch] = useState<number[]>([]);
-  const [stretching, setStretching] = useState(false);
-  const [stretchSummary, setStretchSummary] = useState<string | null>(null);
   const [stretchError, setStretchError] = useState<string | null>(null);
 
   const queueStretch = (channels: number[]) => {
@@ -145,7 +143,6 @@ export function RgbCompositeEditorDialog({
         ? firstRgb.bands.slice(0, 3)
         : [1, 2, 3];
       setSelectedBands(bands);
-      setStretchSummary(null);
       setStretchError(null);
       inFlightRef.current = new Set();
       setHistogramCache({});
@@ -204,7 +201,6 @@ export function RgbCompositeEditorDialog({
 
   /** Assign a band to a channel; if another channel already uses it, swap them. */
   const assignBand = (channelIdx: number, band: number) => {
-    setStretchSummary(null);
     const next: (number | null)[] = [selectedBands[0] ?? null, selectedBands[1] ?? null, selectedBands[2] ?? null];
     const changed = new Set<number>([channelIdx]);
     const other = next.indexOf(band);
@@ -249,7 +245,6 @@ export function RgbCompositeEditorDialog({
   ) => {
     setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
     setStretchCustom(true);
-    setStretchSummary(null);
     setter(update);
   };
 
@@ -306,7 +301,6 @@ export function RgbCompositeEditorDialog({
   );
 
   const applyRecipe = (id: RgbRecipeId) => {
-    setStretchSummary(null);
     setStretchError(null);
     if (id === 'custom') {
       // Start from a blank slate: clear channels, ranges and histograms.
@@ -334,36 +328,8 @@ export function RgbCompositeEditorDialog({
     if (value === 'custom') return;
     setStretchMethod(value as StretchMethod);
     setStretchCustom(false);
-    setStretchSummary(null);
     queueStretch([0, 1, 2]);
   };
-
-  const stretchAll = async () => {
-    if (!firstCogUrl || !allChannelsSet) return;
-    const bands = selectedBands as number[];
-    setStretching(true);
-    setStretchError(null);
-    try {
-      const results = await Promise.all(
-        bands.map(async (band) => {
-          if (histogramCache[band]) return histogramCache[band];
-          const r = await fetchBandHistogram(firstCogUrl, band - 1, noDataValue);
-          setHistogramCache((prev) => ({ ...prev, [band]: r }));
-          return r;
-        })
-      );
-      const setters = [setRMinMax, setGMinMax, setBMinMax];
-      setPendingStretch([]);
-      results.forEach((hist, i) => setters[i](computeStretch(stretchMethod, hist)));
-      setStretchCustom(false);
-      setStretchSummary(`Applied ${STRETCH_METHODS.find((m) => m.id === stretchMethod)?.name} to R, G and B`);
-    } catch (err) {
-      setStretchError(err instanceof Error ? err.message : 'Could not read pixel values');
-    } finally {
-      setStretching(false);
-    }
-  };
-
 
   const sectionLabel = 'text-xs font-medium text-muted-foreground uppercase tracking-wide';
 
