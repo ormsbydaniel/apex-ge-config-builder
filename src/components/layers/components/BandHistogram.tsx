@@ -35,6 +35,8 @@ interface BandHistogramProps {
   onStretch?: (min: number, max: number) => void;
   /** Fixed chart height in px (used when histograms are stacked). */
   chartHeight?: number;
+  /** Optional per-band stretch buttons; replaces the default percentile buttons. */
+  stretchOptions?: { id: string; label: string; description?: string; onApply: () => void }[];
 }
 
 function formatTickValue(v: number): string {
@@ -267,6 +269,7 @@ export function BandHistogram({
   onMaxChange,
   onStretch,
   chartHeight,
+  stretchOptions,
 }: BandHistogramProps) {
   const applyStretch = useCallback(
     (lo: number, hi: number) => {
@@ -354,6 +357,23 @@ export function BandHistogram({
             onChange={(e) => onMaxChange(Number(e.target.value))}
           />
         </div>
+        {stretchOptions && stretchOptions.length > 0 ? (
+          <div className="flex items-center gap-1">
+            {stretchOptions.map((opt, idx) => (
+              <Button
+                key={opt.id}
+                variant="outline"
+                size="sm"
+                className="h-7 text-[11px] px-2"
+                title={opt.description}
+                onClick={() => opt.onApply()}
+              >
+                {idx === 0 && <Wand2 className="h-3 w-3 mr-1" />}
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+        ) : (
         <div className="flex items-center gap-1">
           <Button
             variant="outline"
@@ -381,6 +401,7 @@ export function BandHistogram({
             Full
           </Button>
         </div>
+        )}
       </div>
 
       {/* Data range helper */}
