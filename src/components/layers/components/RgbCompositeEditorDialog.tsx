@@ -549,6 +549,7 @@ export function RgbCompositeEditorDialog({
               bandLabels={bandLabels}
               loading={loading}
               onPick={handleGalleryPick}
+              onPickIndex={handleGalleryPickIndex}
             />
           </ScrollArea>
         ) : loading ? (
@@ -580,7 +581,7 @@ export function RgbCompositeEditorDialog({
                         const Icon = RECIPE_ICONS[r.id];
                         const bands = resolveRecipeBands(r.id, cogBandCount, bandLabels);
                         const unavailable = r.id !== 'custom' && !bands;
-                        const active = currentRecipe === r.id;
+                        const active = mode === 'rgb' && currentRecipe === r.id;
                         return (
                           <Tooltip key={r.id}>
                             <TooltipTrigger asChild>
@@ -615,6 +616,47 @@ export function RgbCompositeEditorDialog({
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <div className={sectionLabel}>Spectral indices</div>
+                    <div className="flex flex-col gap-1">
+                      {INDEX_RECIPES.map((r) => {
+                        const Icon = INDEX_ICONS[r.id];
+                        const bands = resolveIndexBands(r.id, cogBandCount, bandLabels);
+                        const unavailable = r.id !== 'custom-index' && !bands;
+                        const active = mode === 'index' && indexRecipe === r.id;
+                        return (
+                          <Tooltip key={r.id}>
+                            <TooltipTrigger asChild>
+                              <span>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant={active ? 'default' : 'outline'}
+                                  className="h-8 w-full justify-between text-xs"
+                                  disabled={unavailable}
+                                  onClick={() => applyIndexRecipe(r.id)}
+                                >
+                                  <span className="flex items-center gap-1.5 min-w-0">
+                                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">{r.fullName}</span>
+                                  </span>
+                                  {bands && <span className="opacity-70 font-normal">{bands.join(' & ')}</span>}
+                                </Button>
+                                {active && <p className="text-[11px] text-muted-foreground mt-1 px-1">{r.description}</p>}
+                              </span>
+                            </TooltipTrigger>
+                            {!active && (
+                              <TooltipContent side="right" className="max-w-[240px]">
+                                <p>{unavailable ? `${r.description} Not available — this source lacks the required bands or band labels.` : r.description}</p>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {mode === 'rgb' ? (<>
                   <div className="space-y-2">
                     <div className={sectionLabel}>Channels</div>
                     {CHANNEL_NAMES.map((name, i) => (
@@ -662,11 +704,13 @@ export function RgbCompositeEditorDialog({
                     </p>
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
                   </div>
+                  </>) : indexLeft}
                 </div>
               </ScrollArea>
 
               {/* ── Right pane: stacked channel histograms ── */}
               <ScrollArea className="min-h-0 border-l pl-5 pr-3">
+                {mode === 'rgb' ? (
                 <div className="space-y-2">
                   <div className={sectionLabel}>Channel ranges</div>
                   {!firstCogUrl ? (
@@ -709,6 +753,7 @@ export function RgbCompositeEditorDialog({
                     </div>
                   )}
                 </div>
+                ) : indexRight}
               </ScrollArea>
             </div>
           </TooltipProvider>
@@ -719,7 +764,7 @@ export function RgbCompositeEditorDialog({
             Cancel
           </Button>
           {view === 'editor' && (
-            <Button onClick={handleSave} disabled={!allChannelsSet}>
+            <Button onClick={handleSave} disabled={!canSave}>
               Save
             </Button>
           )}
