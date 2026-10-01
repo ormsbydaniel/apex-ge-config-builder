@@ -349,7 +349,8 @@ const DataSourceForm = ({
     layers: string = '',
     format?: DataSourceFormat,
     datetime?: string,
-    layerInfo?: LayerInfo
+    layerInfo?: LayerInfo,
+    bandLabels?: string[]
   ) => {
 
     // Handle catalogue bulk selections
@@ -423,6 +424,7 @@ const DataSourceForm = ({
         ...(asset.datetime && requiresTimestamp && {
           timestamps: [Math.floor(new Date(asset.datetime).getTime() / 1000)]
         }),
+        ...(asset.bandLabels && asset.bandLabels.length > 0 && { bandLabels: asset.bandLabels }),
         ...(shouldAddAsStatistics && { level: levelToUse + index }) // Increment level for each statistics source
       }));
 
