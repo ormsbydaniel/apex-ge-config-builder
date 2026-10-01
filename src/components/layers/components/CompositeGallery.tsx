@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Leaf, Wheat, Mountain, PencilRuler, Loader2 } from 'lucide-react';
+import { Image, Leaf, Wheat, Building2, PencilRuler, Loader2 } from 'lucide-react';
 import { RGB_RECIPES, resolveRecipeBands, type RgbRecipeId } from '@/utils/rgbComposite/recipes';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -8,7 +8,7 @@ const ICONS: Record<RgbRecipeId, React.ComponentType<{ className?: string }>> = 
   natural: Image,
   'false-colour-ir': Leaf,
   agriculture: Wheat,
-  geology: Mountain,
+  geology: Building2,
   custom: PencilRuler,
 };
 
