@@ -8,7 +8,7 @@ import type { HistogramBin } from '@/utils/cogMetadata';
 
 export type RgbRecipeId = 'natural' | 'false-colour-ir' | 'agriculture' | 'geology' | 'custom';
 
-export type SensorId = 'sentinel2-l2a' | 'sentinel2-l1c' | 'landsat-sr' | 'rgbn' | 'rgb';
+export type SensorId = 'sentinel2-l2a' | 'sentinel2-l1c' | 'sentinel2-ard' | 'landsat-sr' | 'rgbn' | 'rgb';
 
 export interface RgbRecipe {
   id: RgbRecipeId;
@@ -29,6 +29,7 @@ export const RGB_RECIPES: RgbRecipe[] = [
 export const SENSOR_NAMES: Record<SensorId, string> = {
   'sentinel2-l2a': 'Sentinel-2 L2A (12 bands)',
   'sentinel2-l1c': 'Sentinel-2 L1C (13 bands)',
+  'sentinel2-ard': 'Sentinel-2 ARD (10 bands, no B01/B09/B10)',
   'landsat-sr': 'Landsat 8/9 surface reflectance (7 bands)',
   rgbn: 'RGB + NIR (4 bands)',
   rgb: 'RGB (3 bands)',
