@@ -453,35 +453,21 @@ export function RgbCompositeEditorDialog({
                   </div>
 
                   <div className="space-y-2">
-                    <div className={sectionLabel}>Contrast stretch</div>
-                    <div className="flex items-center gap-2">
-                      <Select value={stretchCustom ? 'custom' : stretchMethod} onValueChange={chooseStretchMethod}>
-                        <SelectTrigger className="h-8 flex-1 text-xs" aria-label="Contrast stretch"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {STRETCH_METHODS.map((m) => (
-                            <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
-                          ))}
-                          <SelectItem value="custom" disabled className="text-xs">Custom</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        className="h-8 text-xs gap-1"
-                        disabled={!allChannelsSet || !firstCogUrl || stretching}
-                        onClick={stretchAll}
-                      >
-                        <Wand2 className="h-3 w-3" />
-                        {stretching ? 'Stretching…' : 'Stretch all'}
-                      </Button>
-                    </div>
+                    <div className={sectionLabel}>Contrast stretch (all bands)</div>
+                    <Select value={stretchCustom ? 'custom' : stretchMethod} onValueChange={chooseStretchMethod}>
+                      <SelectTrigger className="h-8 w-full text-xs" aria-label="Contrast stretch (all bands)"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {STRETCH_METHODS.map((m) => (
+                          <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
+                        ))}
+                        <SelectItem value="custom" disabled className="text-xs">Custom</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <p className="text-[11px] text-muted-foreground">
                       {stretchCustom
-                        ? 'Ranges have been set by hand. Pick a method or click Stretch all to re-apply it to every channel.'
+                        ? 'Ranges differ per band or were set by hand. Pick a method to re-apply it to every band.'
                         : STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
                     </p>
-                    {stretchSummary && <p className="text-[11px] text-muted-foreground">{stretchSummary}</p>}
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
                   </div>
                 </div>
@@ -517,6 +503,12 @@ export function RgbCompositeEditorDialog({
                               onMinChange={(v) => editRange(cfg.setMinMax, i, (mm) => ({ ...mm, min: v }))}
                               onMaxChange={(v) => editRange(cfg.setMinMax, i, (mm) => ({ ...mm, max: v }))}
                               onStretch={(lo, hi) => editRange(cfg.setMinMax, i, { min: lo, max: hi })}
+                              stretchOptions={hist ? STRETCH_METHODS.map((m) => ({
+                                id: m.id,
+                                label: m.shortName,
+                                description: m.description,
+                                onApply: () => editRange(cfg.setMinMax, i, computeStretch(m.id, hist)),
+                              })) : undefined}
                               chartHeight={110}
                             />
                           </div>
