@@ -534,12 +534,28 @@ export function RgbCompositeEditorDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-5xl h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Multi-band visualisations</DialogTitle>
-          <DialogDescription>
-            {view === 'gallery' ? 'Choose a composite or index to edit.' : 'Adjust bands and ranges. Changes apply to all COG sources in this layer.'}
-          </DialogDescription>
-        </DialogHeader>
+        {view === 'gallery' ? (
+          <DialogHeader>
+            <DialogTitle>Multi-band visualisations</DialogTitle>
+            <DialogDescription>Choose a composite or index to edit.</DialogDescription>
+          </DialogHeader>
+        ) : (
+          <DialogHeader className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5 space-y-0 text-left">
+            <div className="flex flex-col items-start gap-2">
+              <DialogTitle>Multi-band visualisations</DialogTitle>
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="h-auto p-0 text-xs text-muted-foreground"
+                onClick={() => { setHomeTab(mode); setView('gallery'); }}
+              >← Back to visualisations</Button>
+            </div>
+            <DialogDescription className="border-l pl-5 pr-3">
+              Adjust bands and ranges. Changes apply to all COG sources in this layer.
+            </DialogDescription>
+          </DialogHeader>
+        )}
 
         {view === 'gallery' ? (
           <ScrollArea className="flex-1 min-h-0 pr-3">
@@ -563,15 +579,6 @@ export function RgbCompositeEditorDialog({
               {/* ── Left pane: composite, channels, stretch ── */}
               <ScrollArea className="min-h-0 pr-3">
                 <div className="space-y-5">
-                  <div>
-                    <Button
-                      type="button"
-                      variant="link"
-                      size="sm"
-                      className="h-auto p-0 text-xs text-muted-foreground"
-                      onClick={() => { setHomeTab(mode); setView('gallery'); }}
-                    >← Back to visualisations</Button>
-                  </div>
                   {mode === 'rgb' && <div className="space-y-2">
                     <div className={sectionLabel}>
                       Composite
