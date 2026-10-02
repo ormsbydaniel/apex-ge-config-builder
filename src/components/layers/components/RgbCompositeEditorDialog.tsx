@@ -854,43 +854,46 @@ export function RgbCompositeEditorDialog({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className={sectionLabel}>Contrast stretch (all bands)</div>
-                    <Select value={sharedMethod ?? 'custom'} onValueChange={chooseStretchMethod}>
-                      <SelectTrigger className="h-8 w-full text-xs" aria-label="Contrast stretch (all bands)"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {STRETCH_METHODS.map((m) => (
-                          <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
-                        ))}
-                        <SelectItem value="custom" disabled className="text-xs">Custom</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                      <Select value={sharedMethod ?? 'custom'} onValueChange={chooseStretchMethod}>
+                        <SelectTrigger className="h-8 w-auto gap-2 text-xs" aria-label="Contrast stretch (all bands)"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {STRETCH_METHODS.map((m) => (
+                            <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
+                          ))}
+                          <SelectItem value="custom" disabled className="text-xs">Custom</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {multiDataset && isFirstScope && (
+                        <label className="flex items-center gap-2 text-xs cursor-pointer">
+                          <Checkbox
+                            checked={applyAll}
+                            disabled={!allChannelsSet}
+                            aria-label="Apply to all datasets"
+                            onCheckedChange={(v) => {
+                              const on = v === true;
+                              setApplyAll(on);
+                              if (!on) { batchAbortRef.current?.abort(); setBatchProgress(null); setBatchMessage(null); }
+                              else void applyToAllDatasets();
+                            }}
+                          />
+                          Apply to all datasets
+                        </label>
+                      )}
+                      {batchProgress && (
+                        <span className="flex items-center text-[11px] text-muted-foreground">
+                          <Loader2 className="h-3 w-3 animate-spin mr-1" /> {batchProgress.done} of {batchProgress.total} datasets
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] text-muted-foreground">
                       {!sharedMethod
                         ? 'Ranges differ per band or were set by hand. Pick a method to re-apply it to every band.'
                         : STRETCH_METHODS.find((m) => m.id === sharedMethod)?.description}
+                      {multiDataset && isFirstScope && applyAll && ' Each dataset is stretched using its own pixel values; datasets with own settings are left unchanged.'}
                     </p>
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
-                    {multiDataset && isFirstScope && (
-                      <div className="space-y-1 pt-1">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          className="h-8 w-full text-xs"
-                          disabled={!sharedMethod || !allChannelsSet || batchProgress !== null}
-                          onClick={runBatch}
-                        >
-                          {batchProgress
-                            ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> {batchProgress.done} of {batchProgress.total} datasets</>
-                            : 'Compute stretch per dataset'}
-                        </Button>
-                        <p className="text-[11px] text-muted-foreground">
-                          {!sharedMethod
-                            ? 'Pick a stretch method above to compute it for each dataset.'
-                            : 'Applies this method separately to each dataset using its own pixel values. Datasets with own settings are left unchanged.'}
-                        </p>
-                        {batchMessage && <p className="text-[11px] text-muted-foreground">{batchMessage}</p>}
-                      </div>
-                    )}
+                    {batchMessage && <p className="text-[11px] text-muted-foreground">{batchMessage}</p>}
                   </div>
                   {!firstCogUrl ? (
                     <p className="text-sm text-muted-foreground py-6 text-center">No COG source to read pixel values from.</p>
