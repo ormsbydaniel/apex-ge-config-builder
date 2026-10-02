@@ -57,3 +57,7 @@ When a layer holds more than one COG (for example a time series), the editor sho
 ## Bulk behaviour
 
 Deleting the RGB Composite bulk-removes `convertToRGB` and `bands` from every data source under the layer. Use this when switching to a categorical or colormap rendering.
+
+## Visible range (spectral indices)
+
+In the indices editor, **Index value range** sets where the colour ramp is stretched; **Visible range** is a separate mask. Drag the two slider handles (or type Min/Max) to make pixels outside the range transparent — e.g. NDWI stretched over −1 to 1 with a visible range of 0 to 1 hides land and shows only water. It is saved as optional `visibleMin` / `visibleMax` in `spectralIndex` (omitted when nothing is hidden) and compiled into the style as extra transparent `case` branches.

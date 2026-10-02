@@ -254,6 +254,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
               <div className="flex items-center gap-1.5 ml-5">
                 <span className="inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-medium">
                   {name}: B{si.bandA} / B{si.bandB} · {si.colormap}
+                  {(si.visibleMin != null || si.visibleMax != null) && ` · visible ${si.visibleMin ?? -1} – ${si.visibleMax ?? 1}`}
                 </span>
                 <span className="inline-block h-2.5 w-14 rounded-sm" style={{ background: createGradientCSS(si.colormap, !!si.reverse) }} />
               </div>

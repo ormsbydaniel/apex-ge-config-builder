@@ -228,6 +228,8 @@ export const DataSourceItemSchema = z.object({
     reverse: z.boolean().optional(),
     min: z.number(),
     max: z.number(),
+    visibleMin: z.number().optional(),
+    visibleMax: z.number().optional(),
   }).optional(),
   // Per-dataset visualisation marker ('first' = same as first dataset)
   styleSource: z.enum(['first', 'own', 'batch']).optional(),
