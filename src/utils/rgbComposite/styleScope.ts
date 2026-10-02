@@ -1,5 +1,7 @@
 import type { DataSourceItem } from '@/types/dataSource';
 import { copyVisualisation, firstCogIndex, isCog } from './perDataset';
+import { matchRecipe, RGB_RECIPES } from './recipes';
+import { INDEX_RECIPES } from './indices';
 
 /** Change composite bands without replacing each dataset's existing RGB ranges. */
 export function applyCompositeStyle(
@@ -26,12 +28,11 @@ export function applyCompositeStyle(
 
 export function visualisationName(item: DataSourceItem, bandCount: number, bandLabels?: string[]): string {
   if (item.spectralIndex) {
-    const name = item.spectralIndex.recipe;
-    return name === 'custom-index' ? 'Custom index' : name.toUpperCase();
+    return INDEX_RECIPES.find((r) => r.id === item.spectralIndex?.recipe)?.fullName ?? 'Custom index';
   }
   if (item.convertToRGB && item.bands?.length >= 3) {
-    // Resolved recipes are sensor-specific, not inferred from a label alone.
-    return item.bands.slice(0, 3).join('-');
+    const id = matchRecipe(item.bands.slice(0, 3), bandCount, bandLabels);
+    return RGB_RECIPES.find((r) => r.id === id)?.name ?? 'Custom';
   }
   return 'No visualisation';
 }
