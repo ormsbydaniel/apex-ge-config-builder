@@ -1,5 +1,20 @@
 import { describe, it, expect } from 'vitest';
-import { buildIndexStyle, indexColorStops, matchIndexRecipe, resolveIndexBands } from '../indices';
+import { buildIndexStyle, indexColorStops, indexRangePresets, matchIndexRecipe, resolveIndexBands } from '../indices';
+
+describe('indexRangePresets', () => {
+  it('gives each recipe its own contextual presets', () => {
+    expect(indexRangePresets('ndvi').map((p) => p.label)).toContain('Vegetation');
+    expect(indexRangePresets('ndwi').map((p) => p.label)).toContain('Open water');
+    expect(indexRangePresets('mndwi').map((p) => p.label)).toContain('Open water');
+    expect(indexRangePresets('ndbi').map((p) => p.label)).toContain('Urban / built-up');
+    expect(indexRangePresets('nbr').map((p) => p.label)).toContain('Burn severity');
+    expect(indexRangePresets('ndre').map((p) => p.label)).toContain('Dense canopy');
+    expect(indexRangePresets('ndwi').map((p) => p.label)).not.toContain('Vegetation');
+  });
+  it('falls back to the generic pair for the custom index', () => {
+    expect(indexRangePresets('custom-index').map((p) => p.label)).toEqual(['Full range', 'Positive only']);
+  });
+});
 
 describe('resolveIndexBands', () => {
   it('resolves Sentinel-2 ARD (10 bands)', () => {
