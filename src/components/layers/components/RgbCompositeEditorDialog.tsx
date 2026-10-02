@@ -346,6 +346,50 @@ export function RgbCompositeEditorDialog({
     if (close) onOpenChange(false);
   };
 
+  /** Compute the chosen stretch from each dataset's own pixels (skips datasets with own settings). */
+  const runBatch = async () => {
+    if (stretchCustom || !allChannelsSet) return;
+    const data = source.data || [];
+    const bands = selectedBands as number[];
+    const targets = cogIdx
+      .filter((i) => i === firstIdx || !hasOwnSettings(data[i]))
+      .map((i) => ({ index: i, url: data[i].url as string }));
+    const ctrl = new AbortController();
+    batchAbortRef.current = ctrl;
+    setBatchMessage(null);
+    setBatchProgress({ done: 0, total: targets.length });
+    const results = await computeBatchStretch(
+      targets, bands, stretchMethod,
+      (url, b0) => fetchBandHistogram(url, b0, noDataValue),
+      { concurrency: 3, signal: ctrl.signal, onProgress: (done, total) => setBatchProgress({ done, total }) },
+    );
+    setBatchProgress(null);
+    if (ctrl.signal.aborted) return;
+    const byIndex = new Map(results.map((r) => [r.index, r]));
+    const failed = results.filter((r) => r.error).length;
+    const next = data.map((d, i) => {
+      const r = byIndex.get(i);
+      if (!r?.ranges) return d;
+      const { spectralIndex, ...rest } = d as any;
+      const [rr, gg, bb] = r.ranges;
+      return {
+        ...rest,
+        convertToRGB: true,
+        bands: [...bands],
+        style: buildRgbStyle(rr, gg, bb),
+        styleSource: 'batch',
+        batchStretch: { method: stretchMethod },
+      } as DataSourceItem;
+    });
+    onUpdateDataSources(next);
+    const mine = byIndex.get(scope)?.ranges;
+    if (mine) { setRMinMax(mine[0]); setGMinMax(mine[1]); setBMinMax(mine[2]); }
+    setBatchMessage(
+      `Stretch computed for ${results.length - failed} of ${targets.length} datasets` +
+      (failed ? ` (${failed} failed and were left unchanged).` : '.'),
+    );
+  };
+
   // ── Spectral index actions ──
   const applyIndexRecipe = (id: IndexRecipeId) => {
     const r = INDEX_RECIPES.find((x) => x.id === id)!;
