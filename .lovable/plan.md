@@ -16,6 +16,5 @@ Make it easier to choose a visualisation without splitting the workflow into sep
 - No changes to index expressions, COG band loading, schema, or Explorer bundle. The reported Explorer rendering issue remains a separate investigation.
 
 ## Verification
-- Check empty-style opening, both home tabs, available/unavailable cards, Custom in each tab, selection into the right editor, Back, Cancel, and Save.
-- Check reopening both saved composites and saved indices goes straight to their editors, with only same-kind recipes shown and Back returning to the appropriate tab.
-- Run focused UI tests and inspect the dialog in desktop and narrow preview sizes; check the preview build signal.
+- Run basic checks of both tabs, recipe selection, Back, and reopening an existing style in its editor; check the preview build signal.
+- Leave detailed visual and end-to-end checks to the user's desktop UI testing; no narrow-viewport review is required.
