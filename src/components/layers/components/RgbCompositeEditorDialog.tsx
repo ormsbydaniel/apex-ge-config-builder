@@ -738,8 +738,9 @@ export function RgbCompositeEditorDialog({
       <div className="flex flex-wrap gap-1.5">
         {indexRangePresets(indexRecipe).map((p) => (
           <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
-            onClick={() => { setIndexMin(p.min); setIndexMax(p.max); }}>
-            {p.label} ({p.min} – {p.max})
+            title={p.visibleMin != null || p.visibleMax != null ? `Colours ${p.min} – ${p.max}, shows only ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}` : `Colours ${p.min} – ${p.max}, shows all values`}
+            onClick={() => { setIndexMin(p.min); setIndexMax(p.max); setVisibleRange([p.visibleMin ?? -1, p.visibleMax ?? 1]); }}>
+            {p.label} ({p.min} – {p.max}{p.visibleMin != null || p.visibleMax != null ? `, visible ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}` : ''})
           </Button>
         ))}
       </div>

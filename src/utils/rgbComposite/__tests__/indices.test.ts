@@ -3,13 +3,17 @@ import { buildIndexStyle, indexColorStops, indexRangePresets, matchIndexRecipe, 
 
 describe('indexRangePresets', () => {
   it('gives each recipe its own contextual presets', () => {
-    expect(indexRangePresets('ndvi').map((p) => p.label)).toContain('Vegetation');
+    expect(indexRangePresets('ndvi').map((p) => p.label)).toContain('Vegetation only');
     expect(indexRangePresets('ndwi').map((p) => p.label)).toContain('Open water');
     expect(indexRangePresets('mndwi').map((p) => p.label)).toContain('Open water');
     expect(indexRangePresets('ndbi').map((p) => p.label)).toContain('Urban / built-up');
-    expect(indexRangePresets('nbr').map((p) => p.label)).toContain('Burn severity');
+    expect(indexRangePresets('nbr').map((p) => p.label)).toContain('Burn scars');
     expect(indexRangePresets('ndre').map((p) => p.label)).toContain('Dense canopy');
-    expect(indexRangePresets('ndwi').map((p) => p.label)).not.toContain('Vegetation');
+    expect(indexRangePresets('ndwi').map((p) => p.label)).not.toContain('Vegetation only');
+  });
+  it('task presets keep the ramp centred and mask via the visible range', () => {
+    const water = indexRangePresets('ndwi').find((p) => p.label === 'Open water')!;
+    expect([water.min, water.max, water.visibleMin, water.visibleMax]).toEqual([-0.5, 0.5, 0, 1]);
   });
   it('falls back to the generic pair for the custom index', () => {
     expect(indexRangePresets('custom-index').map((p) => p.label)).toEqual(['Full range', 'Positive only']);

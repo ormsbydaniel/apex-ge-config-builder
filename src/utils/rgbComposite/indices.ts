@@ -16,6 +16,9 @@ export interface IndexRangePreset {
   label: string;
   min: number;
   max: number;
+  /** Optional visible-range mask applied with the preset; omitted = show all (−1..1). */
+  visibleMin?: number;
+  visibleMax?: number;
 }
 
 export interface IndexRecipe {
@@ -33,19 +36,28 @@ export interface IndexRecipe {
   presets?: IndexRangePreset[];
 }
 
+const FULL: IndexRangePreset = { label: 'Full range', min: -1, max: 1 };
+const POS: IndexRangePreset = { label: 'Positive only', min: 0, max: 1 };
+const BALANCED: IndexRangePreset = { label: 'Balanced', min: -0.5, max: 0.5 };
+
+/**
+ * Defaults keep 0 (the physical inflection point of every normalised difference)
+ * meaningful: diverging ramps are centred on 0, sequential ramps start near it.
+ * Task presets ("Open water" etc.) keep the ramp and hide values via the visible range.
+ */
 export const INDEX_RECIPES: IndexRecipe[] = [
-  { id: 'ndvi', name: 'NDVI', fullName: 'Vegetation (NDVI)', description: 'Vegetation density and health — dense, healthy vegetation shows dark green.', formula: '(NIR − Red) / (NIR + Red)', roles: ['nir', 'red'], colormap: 'greens', reverse: true, min: -0.1, max: 0.8,
-    presets: [{ label: 'Full range', min: -1, max: 1 }, { label: 'Positive only', min: 0, max: 1 }, { label: 'Vegetation', min: 0.1, max: 0.7 }] },
-  { id: 'ndwi', name: 'NDWI', fullName: 'Water (NDWI)', description: 'Open water bodies — water shows blue, land stays red/white.', formula: '(Green − NIR) / (Green + NIR)', roles: ['green', 'nir'], colormap: 'rdbu', reverse: true, min: -0.3, max: 0.5,
-    presets: [{ label: 'Full range', min: -1, max: 1 }, { label: 'Positive only', min: 0, max: 1 }, { label: 'Open water', min: 0.1, max: 0.6 }] },
-  { id: 'mndwi', name: 'MNDWI', fullName: 'Modified water (MNDWI)', description: 'Water in built-up areas — suppresses noise from buildings.', formula: '(Green − SWIR1) / (Green + SWIR1)', roles: ['green', 'swir1'], colormap: 'rdbu', reverse: true, min: -0.4, max: 0.6,
-    presets: [{ label: 'Full range', min: -1, max: 1 }, { label: 'Positive only', min: 0, max: 1 }, { label: 'Open water', min: 0.1, max: 0.6 }] },
-  { id: 'ndbi', name: 'NDBI', fullName: 'Built-up (NDBI)', description: 'Built-up and impervious surfaces — urban areas show red.', formula: '(SWIR1 − NIR) / (SWIR1 + NIR)', roles: ['swir1', 'nir'], colormap: 'yiorrd', reverse: true, min: -0.3, max: 0.5,
-    presets: [{ label: 'Full range', min: -1, max: 1 }, { label: 'Positive only', min: 0, max: 1 }, { label: 'Urban / built-up', min: 0, max: 0.4 }] },
+  { id: 'ndvi', name: 'NDVI', fullName: 'Vegetation (NDVI)', description: 'Vegetation density and health — dense, healthy vegetation shows dark green.', formula: '(NIR − Red) / (NIR + Red)', roles: ['nir', 'red'], colormap: 'greens', reverse: true, min: 0, max: 0.8,
+    presets: [FULL, { label: 'Vegetation ramp', min: 0, max: 0.8 }, { label: 'Vegetation only', min: 0, max: 0.8, visibleMin: 0.1, visibleMax: 1 }] },
+  { id: 'ndwi', name: 'NDWI', fullName: 'Water (NDWI)', description: 'Open water bodies — water shows blue, land stays red/white.', formula: '(Green − NIR) / (Green + NIR)', roles: ['green', 'nir'], colormap: 'rdbu', reverse: true, min: -0.5, max: 0.5,
+    presets: [FULL, BALANCED, { label: 'Open water', min: -0.5, max: 0.5, visibleMin: 0, visibleMax: 1 }] },
+  { id: 'mndwi', name: 'MNDWI', fullName: 'Modified water (MNDWI)', description: 'Water in built-up areas — suppresses noise from buildings.', formula: '(Green − SWIR1) / (Green + SWIR1)', roles: ['green', 'swir1'], colormap: 'rdbu', reverse: true, min: -0.5, max: 0.5,
+    presets: [FULL, BALANCED, { label: 'Open water', min: -0.5, max: 0.5, visibleMin: 0, visibleMax: 1 }] },
+  { id: 'ndbi', name: 'NDBI', fullName: 'Built-up (NDBI)', description: 'Built-up and impervious surfaces — urban areas show red.', formula: '(SWIR1 − NIR) / (SWIR1 + NIR)', roles: ['swir1', 'nir'], colormap: 'yiorrd', reverse: true, min: 0, max: 0.5,
+    presets: [FULL, { label: 'Built-up ramp', min: 0, max: 0.5 }, { label: 'Urban / built-up', min: 0, max: 0.5, visibleMin: 0, visibleMax: 1 }] },
   { id: 'nbr', name: 'NBR', fullName: 'Burn ratio (NBR)', description: 'Fire scars and burn severity — burnt ground shows dark.', formula: '(NIR − SWIR2) / (NIR + SWIR2)', roles: ['nir', 'swir2'], colormap: 'inferno', reverse: false, min: -0.2, max: 0.8,
-    presets: [{ label: 'Full range', min: -1, max: 1 }, { label: 'Positive only', min: 0, max: 1 }, { label: 'Burn severity', min: -0.1, max: 0.6 }] },
+    presets: [FULL, { label: 'Vegetation to burn', min: -0.2, max: 0.8 }, { label: 'Burn scars', min: -0.5, max: 0.1, visibleMin: -1, visibleMax: 0.1 }] },
   { id: 'ndre', name: 'NDRE', fullName: 'Red edge (NDRE)', description: 'Canopy chlorophyll — sensitive in dense crops where NDVI saturates.', formula: '(NIR − Red edge) / (NIR + Red edge)', roles: ['nir', 'rededge1'], colormap: 'viridis', reverse: false, min: 0, max: 0.8,
-    presets: [{ label: 'Full range', min: -1, max: 1 }, { label: 'Positive only', min: 0, max: 1 }, { label: 'Dense canopy', min: 0.2, max: 0.6 }] },
+    presets: [FULL, { label: 'Canopy ramp', min: 0, max: 0.8 }, { label: 'Dense canopy', min: 0, max: 0.8, visibleMin: 0.2, visibleMax: 1 }] },
   { id: 'custom-index', name: 'Custom index', fullName: 'Custom index', description: 'Pick any two bands: (A − B) / (A + B).', formula: '(A − B) / (A + B)', colormap: 'viridis', reverse: false, min: -1, max: 1 },
 ];
 
@@ -162,10 +174,7 @@ export function buildIndexStyle(cfg: SpectralIndexConfig) {
 }
 
 /** Generic range shortcuts, used for recipes without their own presets. */
-export const INDEX_RANGE_PRESETS: IndexRangePreset[] = [
-  { label: 'Full range', min: -1, max: 1 },
-  { label: 'Positive only', min: 0, max: 1 },
-];
+export const INDEX_RANGE_PRESETS: IndexRangePreset[] = [FULL, POS];
 
 /** Range preset buttons for a recipe — its own presets, or the generic pair. */
 export function indexRangePresets(id: IndexRecipeId): IndexRangePreset[] {
