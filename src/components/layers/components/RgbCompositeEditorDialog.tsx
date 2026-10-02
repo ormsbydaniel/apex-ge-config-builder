@@ -653,6 +653,11 @@ export function RgbCompositeEditorDialog({
           {INDEX_RECIPES.find((r) => r.id === indexRecipe)?.formula} · computed as (A − B) / (A + B)
         </p>
       </div>
+    </>
+  );
+
+  const indexRight = (
+    <div className="space-y-4">
       <div className="space-y-2">
         <div className={sectionLabel}>Colour ramp</div>
         <div className="flex items-center gap-2">
@@ -674,11 +679,6 @@ export function RgbCompositeEditorDialog({
           </label>
         </div>
       </div>
-    </>
-  );
-
-  const indexRight = (
-    <div className="space-y-4">
       <div className={sectionLabel}>Index value range</div>
       <div className="space-y-1">
         <div className="h-5 rounded-sm border" style={{ background: createGradientCSS(indexColormap, indexReverse) }} />
