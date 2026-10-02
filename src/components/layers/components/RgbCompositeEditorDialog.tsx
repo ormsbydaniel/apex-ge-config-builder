@@ -487,9 +487,11 @@ export function RgbCompositeEditorDialog({
     }
     setRangeDirty(false);
     const methodName = STRETCH_METHODS.find((m) => m.id === method)?.shortName ?? method;
+    const CHANNEL_NAMES = ['red', 'green', 'blue'];
+    const methodLabel = channel == null ? methodName : `${methodName} on ${CHANNEL_NAMES[channel]} channel`;
     const applied = results.length - failed;
     setBatchMessage({
-      text: `${methodName} applied to ${applied} ${applied === 1 ? 'dataset' : 'datasets'}` +
+      text: `${methodLabel} applied to ${applied} ${applied === 1 ? 'dataset' : 'datasets'}` +
         (failed ? ` · ${failed} failed and left unchanged` : ''),
       failed: failed > 0,
     });
