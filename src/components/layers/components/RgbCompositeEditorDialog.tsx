@@ -12,8 +12,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   applyToScope, cogIndices, datasetLabel, firstCogIndex,
-import {
-  applyToScope, cogIndices, copyToAll, datasetLabel, firstCogIndex, resetToFirst,
 } from '@/utils/rgbComposite/perDataset';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
