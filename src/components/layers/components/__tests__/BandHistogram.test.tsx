@@ -2,6 +2,13 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { BandHistogram } from '../BandHistogram';
 
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
 describe('BandHistogram stretch buttons', () => {
   it('emphasises only the selected method and applies the clicked method', () => {
     const onFullRange = vi.fn();
