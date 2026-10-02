@@ -12,7 +12,7 @@ describe('CompositeGallery', () => {
 
     expect(screen.getByRole('button', { name: /Natural colour/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Vegetation \(NDVI\)/ })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('tab', { name: 'Indices' }));
+    fireEvent.pointerDown(screen.getByRole('tab', { name: 'Indices' }), { button: 0, ctrlKey: false });
     expect(onTabChange).toHaveBeenCalledWith('index');
 
     rerender(
