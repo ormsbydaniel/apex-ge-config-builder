@@ -384,7 +384,7 @@ export function RgbCompositeEditorDialog({
   };
 
   /** Compute the chosen stretch from each dataset's own pixels (skips datasets with own settings). */
-  const applyToAllDatasets = async (method: StretchMethod | null = sharedMethod) => {
+  const applyToAllDatasets = async (method: StretchMethod | null = sharedMethod, channel?: number) => {
     if (!method || !allChannelsSet) return;
     const data = source.data || [];
     const targets = cogIdx.filter((i) => (i === scope && mode === 'rgb') || (data[i].convertToRGB && !data[i].spectralIndex))
@@ -396,7 +396,7 @@ export function RgbCompositeEditorDialog({
     batchAbortRef.current = ctrl;
     setBatchMessage(null);
     // Fully cached: apply instantly without a progress indicator.
-    const cached = validTargets.map((t) => t.bands.map((b) => peekStretch(t.url, b - 1, noDataValue, method)));
+    const cached = validTargets.map((t) => t.bands.map((b, j) => channel == null || channel === j ? peekStretch(t.url, b - 1, noDataValue, method) : { min: 0, max: 0 }));
     const allCached = cached.every((r) => r.every(Boolean));
     if (!allCached) setBatchProgress({ done: 0, total: validTargets.length });
     const results = allCached
@@ -409,7 +409,8 @@ export function RgbCompositeEditorDialog({
           while (next < validTargets.length && !ctrl.signal.aborted) {
             const target = validTargets[next++];
             try {
-              const ranges = await Promise.all(target.bands.map(async (b) => computeStretch(method, await getHistogram(target.url, b - 1, noDataValue))));
+              const ranges = await Promise.all(target.bands.map(async (b, j) => channel == null || channel === j
+                ? computeStretch(method, await getHistogram(target.url, b - 1, noDataValue)) : { min: 0, max: 0 }));
               results.push({ index: target.index, ranges });
             } catch (e) { results.push({ index: target.index, error: e instanceof Error ? e.message : 'Failed' }); }
             setBatchProgress({ done: ++done, total: validTargets.length });
@@ -424,20 +425,29 @@ export function RgbCompositeEditorDialog({
     const next = data.map((d, i) => {
       const r = byIndex.get(i);
       if (!r?.ranges) return d;
-      const { spectralIndex, ...rest } = d as any;
+      const { spectralIndex, batchStretch, ...rest } = d as any;
       const [rr, gg, bb] = r.ranges;
+      const prior = (d.style as { variables?: Record<string, number> } | undefined)?.variables;
+      const current = [{ min: prior?.rMin ?? rMinMax.min, max: prior?.rMax ?? rMinMax.max },
+        { min: prior?.gMin ?? gMinMax.min, max: prior?.gMax ?? gMinMax.max },
+        { min: prior?.bMin ?? bMinMax.min, max: prior?.bMax ?? bMinMax.max }];
+      const ranges = channel == null ? [rr, gg, bb] : current.map((range, j) => j === channel ? r.ranges?.[j] ?? range : range);
       return {
         ...rest,
         convertToRGB: true,
         bands: i === scope ? [...selectedBands] : [...(d.bands ?? selectedBands)],
-        style: buildRgbStyle(rr, gg, bb),
+        style: buildRgbStyle(ranges[0], ranges[1], ranges[2]),
         styleSource: i === firstIdx ? 'batch' : d.styleSource === 'own' ? 'own' : 'batch',
-        batchStretch: { method },
+        ...(channel == null && d.styleSource !== 'own' ? { batchStretch: { method } } : {}),
       } as DataSourceItem;
     });
     onUpdateDataSources(next);
     const mine = byIndex.get(scope)?.ranges;
-    if (mine) { setRMinMax(mine[0]); setGMinMax(mine[1]); setBMinMax(mine[2]); }
+    if (mine) {
+      if (channel == null || channel === 0) setRMinMax(mine[0]);
+      if (channel == null || channel === 1) setGMinMax(mine[1]);
+      if (channel == null || channel === 2) setBMinMax(mine[2]);
+    }
     setBatchMessage(allCached && !failed ? null :
       `Stretch computed for ${results.length - failed} of ${validTargets.length} datasets` +
       (failed ? ` (${failed} failed and were left unchanged).` : '.'),
@@ -488,6 +498,7 @@ export function RgbCompositeEditorDialog({
     setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
     [setRMinMax, setGMinMax, setBMinMax][channelIdx](computeStretch(method, hist));
     setChannelMethods((prev) => prev.map((current, i) => i === channelIdx ? method : current));
+    if (applyAll && multiDataset) void applyToAllDatasets(method, channelIdx);
   };
 
   const channelConfigs = [
