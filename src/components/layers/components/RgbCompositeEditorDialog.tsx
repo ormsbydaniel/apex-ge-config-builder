@@ -175,6 +175,7 @@ export function RgbCompositeEditorDialog({
   const [applyAll, setApplyAll] = useState(false);
   const [styleScope, setStyleScope] = useState<'this' | 'all'>('this');
   const [styleDirty, setStyleDirty] = useState(false);
+  const [rangeDirty, setRangeDirty] = useState(false);
   const [pendingStyle, setPendingStyle] = useState<(() => void) | null>(null);
 
   const askStyleScope = (change: () => void) => {
@@ -254,6 +255,7 @@ export function RgbCompositeEditorDialog({
       setApplyAll(first >= 0 && data[first]?.styleSource === 'batch');
       setStyleScope('this');
       setStyleDirty(false);
+      setRangeDirty(false);
       setPendingStyle(null);
       loadFromItem(first < 0 ? undefined : data[first], true);
     }
@@ -267,6 +269,7 @@ export function RgbCompositeEditorDialog({
     setBatchMessage(null);
     setStyleScope('this');
     setStyleDirty(false);
+    setRangeDirty(false);
     loadFromItem(source.data[i], false);
     setView('editor');
   };
@@ -374,9 +377,10 @@ export function RgbCompositeEditorDialog({
       const styled = applyCompositeStyle(data, effectiveScope, bands, styleDirty && styleScope === 'all', (item) => {
         if (effectiveScope === data.indexOf(item)) return buildRgbStyle(rMinMax, gMinMax, bMinMax);
         return item.style ?? buildRgbStyle(rMinMax, gMinMax, bMinMax);
-      }, styleDirty);
+      }, styleDirty, rangeDirty);
       onUpdateDataSources(styled);
       setStyleDirty(false);
+      setRangeDirty(false);
     } else {
       onUpdateDataSources(applyToScope(data, effectiveScope, transform));
     }
@@ -448,6 +452,7 @@ export function RgbCompositeEditorDialog({
       if (channel == null || channel === 1) setGMinMax(mine[1]);
       if (channel == null || channel === 2) setBMinMax(mine[2]);
     }
+    setRangeDirty(false);
     setBatchMessage(allCached && !failed ? null :
       `Stretch computed for ${results.length - failed} of ${validTargets.length} datasets` +
       (failed ? ` (${failed} failed and were left unchanged).` : '.'),
@@ -489,12 +494,14 @@ export function RgbCompositeEditorDialog({
     channelIdx: number,
     update: React.SetStateAction<{ min: number; max: number }>,
   ) => {
+    setRangeDirty(true);
     setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
     setChannelMethods((prev) => prev.map((method, i) => i === channelIdx ? null : method));
     setter(update);
   };
 
   const applyChannelStretch = (channelIdx: number, method: StretchMethod, hist: BandHistogramResult) => {
+    setRangeDirty(!applyAll);
     setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
     [setRMinMax, setGMinMax, setBMinMax][channelIdx](computeStretch(method, hist));
     setChannelMethods((prev) => prev.map((current, i) => i === channelIdx ? method : current));
@@ -581,6 +588,7 @@ export function RgbCompositeEditorDialog({
   /** Choosing a stretch method re-applies it to all three channels. */
   const chooseStretchMethod = (value: string) => {
     if (value === 'custom') return;
+    setRangeDirty(!applyAll);
     setStretchMethod(value as StretchMethod);
     setChannelMethods([value as StretchMethod, value as StretchMethod, value as StretchMethod]);
     queueStretch([0, 1, 2]);
@@ -604,7 +612,7 @@ export function RgbCompositeEditorDialog({
 
   const indexLeft = (
     <>
-      <div className="space-y-2">
+      <div className="border-t pt-5 space-y-2">
         <div className={sectionLabel}>Index bands</div>
         {[0, 1].map((slot) => (
           <div key={slot} className="flex items-center gap-2">

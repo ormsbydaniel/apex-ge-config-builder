@@ -6,14 +6,14 @@ import { INDEX_RECIPES } from './indices';
 /** Change composite bands without replacing each dataset's existing RGB ranges. */
 export function applyCompositeStyle(
   data: DataSourceItem[], scope: number, bands: number[], all: boolean,
-  makeStyle: (item: DataSourceItem) => DataSourceItem['style'], styleDirty = true,
+  makeStyle: (item: DataSourceItem) => DataSourceItem['style'], styleDirty = true, rangeDirty = false,
 ): DataSourceItem[] {
   const first = firstCogIndex(data);
   return data.map((item, i) => {
     if (!isCog(item)) return item;
     if (!all && i !== scope) {
       // A first-dataset-only change must not quietly alter its followers.
-      if (styleDirty && scope === first && i !== first && !item.styleSource) {
+      if ((styleDirty || rangeDirty) && scope === first && i !== first && !item.styleSource) {
         return copyVisualisation(item, item, 'own');
       }
       return item;
