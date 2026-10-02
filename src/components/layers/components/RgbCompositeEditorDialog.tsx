@@ -299,7 +299,7 @@ export function RgbCompositeEditorDialog({
     }
     next[channelIdx] = band;
     setSelectedBands(next);
-    // Re-stretch the affected channels with the active method (2–98% when "Custom").
+    // Re-stretch affected channels with their own methods (2–98% for an untracked range).
     setChannelMethods((prev) => prev.map((method, i) => changed.has(i) ? (method ?? stretchMethod) : method));
     queueStretch(Array.from(changed));
   };
@@ -512,7 +512,7 @@ export function RgbCompositeEditorDialog({
     if (!bands) return;
     setMode('rgb');
     setSelectedBands([...bands]);
-    setChannelMethods([stretchMethod, stretchMethod, stretchMethod]);
+    setChannelMethods((prev) => prev.map((method) => method ?? stretchMethod));
     queueStretch([0, 1, 2]);
   };
 
@@ -863,7 +863,7 @@ export function RgbCompositeEditorDialog({
                     <p className="text-[11px] text-muted-foreground">
                       {!sharedMethod
                         ? 'Ranges differ per band or were set by hand. Pick a method to re-apply it to every band.'
-                        : STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
+                        : STRETCH_METHODS.find((m) => m.id === sharedMethod)?.description}
                     </p>
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
                     {multiDataset && isFirstScope && (
