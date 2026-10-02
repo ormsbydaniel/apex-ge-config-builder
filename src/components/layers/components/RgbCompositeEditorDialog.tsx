@@ -447,7 +447,10 @@ export function RgbCompositeEditorDialog({
                 ? computeStretch(method, await getHistogram(target.url, b - 1, noDataValue)) : { min: 0, max: 0 }));
               results.push({ index: target.index, ranges });
             } catch (e) { results.push({ index: target.index, error: e instanceof Error ? e.message : 'Failed' }); }
-            setBatchProgress({ done: ++done, total: validTargets.length });
+            done++;
+            if (!ctrl.signal.aborted && batchAbortRef.current === ctrl) {
+              setBatchProgress({ done, total: validTargets.length });
+            }
           }
         }));
         return results;
