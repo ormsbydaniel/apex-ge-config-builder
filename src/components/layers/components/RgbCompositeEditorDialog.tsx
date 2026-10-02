@@ -648,7 +648,7 @@ export function RgbCompositeEditorDialog({
               type="button"
               variant="link"
               size="sm"
-              className="h-auto p-0 text-xs text-muted-foreground"
+              className="h-auto self-start p-0 text-xs text-muted-foreground"
               onClick={() => { setHomeTab(mode); setView('gallery'); }}
             >← Back to visualisations</Button>
           </DialogHeader>
@@ -673,54 +673,52 @@ export function RgbCompositeEditorDialog({
         ) : (
           <TooltipProvider delayDuration={400}>
             <div className="flex flex-col flex-1 min-h-0 gap-3">
-              {multiDataset && (
-                <div className="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5">
-                  <div className="space-y-2 min-w-0 pr-3">
-                    <div className={sectionLabel}>Dataset</div>
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <Button type="button" size="icon" variant="outline" className="h-7 w-7 shrink-0" aria-label="Previous dataset"
-                        disabled={scopePos <= 0} onClick={() => changeScope(cogIdx[scopePos - 1])}>
-                        <ChevronLeft className="h-3.5 w-3.5" />
-                      </Button>
-                      <Select value={String(scope)} onValueChange={(v) => changeScope(Number(v))}>
-                        <SelectTrigger className="h-7 min-w-0 flex-1 text-xs" aria-label="Dataset"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {cogIdx.map((i, pos) => (
-                            <SelectItem key={i} value={String(i)} className="text-xs">
-                              {datasetLabel(source.data[i], pos + 1)}{statusLabel(i) !== 'Same as first' ? ` · ${statusLabel(i)}` : ''}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button type="button" size="icon" variant="outline" className="h-7 w-7 shrink-0" aria-label="Next dataset"
-                        disabled={scopePos >= cogIdx.length - 1} onClick={() => changeScope(cogIdx[scopePos + 1])}>
-                        <ChevronRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-x-2 gap-y-1 flex-wrap">
-                      <Badge variant="outline" className="text-[10px] font-normal">{statusLabel(scope)}</Badge>
-                      {!isFirstScope && (source.data[scope]?.styleSource === 'own' || source.data[scope]?.styleSource === 'batch') && (
-                        <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleResetToFirst}>
-                          Reset to same as first
-                        </Button>
-                      )}
-                      <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleCopyToAll}
-                        title="Copy this dataset's saved settings to every dataset">
-                        Copy to all
-                      </Button>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground">
-                      {isFirstScope
-                        ? 'Changes here also update datasets marked “Same as first”.'
-                        : 'Changes here apply only to this dataset when saved.'}
-                    </p>
-                  </div>
-                </div>
-              )}
               <div className="grid grid-rows-2 sm:grid-rows-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3 sm:gap-5 flex-1 min-h-0">
               {/* ── Left pane: recipe and bands ── */}
               <ScrollArea className="min-h-0 pr-3">
                 <div className="space-y-5">
+                  {multiDataset && (
+                    <div className="space-y-2 min-w-0">
+                      <div className={sectionLabel}>Dataset</div>
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Button type="button" size="icon" variant="outline" className="h-7 w-7 shrink-0" aria-label="Previous dataset"
+                          disabled={scopePos <= 0} onClick={() => changeScope(cogIdx[scopePos - 1])}>
+                          <ChevronLeft className="h-3.5 w-3.5" />
+                        </Button>
+                        <Select value={String(scope)} onValueChange={(v) => changeScope(Number(v))}>
+                          <SelectTrigger className="h-7 min-w-0 flex-1 text-xs" aria-label="Dataset"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {cogIdx.map((i, pos) => (
+                              <SelectItem key={i} value={String(i)} className="text-xs">
+                                {datasetLabel(source.data[i], pos + 1)}{statusLabel(i) !== 'Same as first' ? ` · ${statusLabel(i)}` : ''}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button type="button" size="icon" variant="outline" className="h-7 w-7 shrink-0" aria-label="Next dataset"
+                          disabled={scopePos >= cogIdx.length - 1} onClick={() => changeScope(cogIdx[scopePos + 1])}>
+                          <ChevronRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-x-2 gap-y-1 flex-wrap">
+                        <Badge variant="outline" className="text-[10px] font-normal">{statusLabel(scope)}</Badge>
+                        {!isFirstScope && (source.data[scope]?.styleSource === 'own' || source.data[scope]?.styleSource === 'batch') && (
+                          <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleResetToFirst}>
+                            Reset to same as first
+                          </Button>
+                        )}
+                        <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleCopyToAll}
+                          title="Copy this dataset's saved settings to every dataset">
+                          Copy to all
+                        </Button>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        {isFirstScope
+                          ? 'Changes here also update datasets marked “Same as first”.'
+                          : 'Changes here apply only to this dataset when saved.'}
+                      </p>
+                    </div>
+                  )}
                   {mode === 'rgb' && <div className="space-y-2">
                     <div className={sectionLabel}>
                       Composite
