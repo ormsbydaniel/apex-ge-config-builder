@@ -642,20 +642,15 @@ export function RgbCompositeEditorDialog({
             <DialogDescription>Choose a composite or index to edit.</DialogDescription>
           </DialogHeader>
         ) : (
-          <DialogHeader className="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-2 sm:gap-5 space-y-0 text-left">
-            <div className="flex flex-col items-start gap-2">
-              <DialogTitle>Multi-band visualisations</DialogTitle>
-              <Button
-                type="button"
-                variant="link"
-                size="sm"
-                className="h-auto p-0 text-xs text-muted-foreground"
-                onClick={() => { setHomeTab(mode); setView('gallery'); }}
-              >← Back to visualisations</Button>
-            </div>
-            {mode === 'rgb' ? (
-              <div className="sm:border-l sm:pl-5 sm:pr-3"><div className={sectionLabel}>Channel ranges</div></div>
-            ) : <div />}
+          <DialogHeader className="space-y-1 text-left">
+            <DialogTitle>Multi-band visualisations</DialogTitle>
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="h-auto p-0 text-xs text-muted-foreground"
+              onClick={() => { setHomeTab(mode); setView('gallery'); }}
+            >← Back to visualisations</Button>
           </DialogHeader>
         )}
 
