@@ -267,18 +267,6 @@ export function RgbCompositeEditorDialog({
     setView('editor');
   };
 
-  const handleResetToFirst = () => {
-    const next = resetToFirst(source.data || [], scope);
-    onUpdateDataSources(next);
-    loadFromItem(next[scope], false);
-  };
-
-  const handleCopyToAll = () => {
-    const next = copyToAll(source.data || [], scope);
-    onUpdateDataSources(next);
-    loadFromItem(next[scope], false);
-  };
-
   // Fetch band count and noData from first COG
   useEffect(() => {
     if (!open || !firstCogUrl) return;
