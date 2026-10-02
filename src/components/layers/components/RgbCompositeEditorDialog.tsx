@@ -33,7 +33,7 @@ import { createGradientCSS } from '@/utils/colormapUtils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from '@/components/ui/alert-dialog';
-import { applyCompositeStyle, visualisationName } from '@/utils/rgbComposite/styleScope';
+import { applyCompositeStyle, applyIndexStyle, visualisationName } from '@/utils/rgbComposite/styleScope';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
@@ -380,10 +380,22 @@ export function RgbCompositeEditorDialog({
   // Commit a confirmed composite change straight away, so the map and the
   // dataset labels reflect it (This dataset / All datasets) without saving first.
   useEffect(() => {
-    if (!commitStyle || mode !== 'rgb' || !allChannelsSet) return;
+    if (!commitStyle) return;
     const data = source.data || [];
     const target = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
     const all = commitStyle === 'all';
+    if (mode === 'index') {
+      if (indexBands[0] == null || indexBands[1] == null) return;
+      onUpdateDataSources(applyIndexStyle(data, target, {
+        recipe: indexRecipe, bandA: indexBands[0] as number, bandB: indexBands[1] as number,
+        colormap: indexColormap, reverse: indexReverse, min: indexMin, max: indexMax,
+      }, all));
+      setCommitStyle(null);
+      return;
+    }
+    if (!allChannelsSet) return;
+    // Switching from an index: ranges are re-stretched in the editor, so let Save write them.
+    if (data[target]?.spectralIndex) setRangeDirty(true);
     const styled = applyCompositeStyle(data, target, selectedBands as number[], all, (item) =>
       data.indexOf(item) === target ? buildRgbStyle(rMinMax, gMinMax, bMinMax) : item.style ?? buildRgbStyle(rMinMax, gMinMax, bMinMax),
     true, false);
@@ -391,7 +403,7 @@ export function RgbCompositeEditorDialog({
     setCommitStyle(null);
     if (all) setRestretchAll(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commitStyle, selectedBands, mode]);
+  }, [commitStyle, selectedBands, mode, indexBands]);
 
   // After an all-datasets band change, re-stretch each dataset from its own new bands.
   useEffect(() => {
@@ -611,13 +623,12 @@ export function RgbCompositeEditorDialog({
 
   /** Gallery card picked: apply the recipe and enter the editor. */
   const handleGalleryPick = (id: RgbRecipeId) => {
-    setStyleDirty(true);
-    applyRecipe(id);
+    askStyleScope(() => { setStyleDirty(true); applyRecipe(id); });
     setView('editor');
   };
 
   const handleGalleryPickIndex = (id: IndexRecipeId) => {
-    applyIndexRecipe(id);
+    askStyleScope(() => applyIndexRecipe(id));
     setView('editor');
   };
 
@@ -851,7 +862,7 @@ export function RgbCompositeEditorDialog({
                                   variant={active ? 'default' : 'outline'}
                                   className="h-8 w-full justify-between text-xs"
                                   disabled={unavailable}
-                                  onClick={() => applyIndexRecipe(r.id)}
+                                  onClick={() => askStyleScope(() => applyIndexRecipe(r.id))}
                                 >
                                   <span className="flex items-center gap-1.5 min-w-0">
                                     <Icon className="h-3.5 w-3.5 shrink-0" />
