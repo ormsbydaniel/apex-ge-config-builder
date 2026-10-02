@@ -373,6 +373,12 @@ export function RgbCompositeEditorDialog({
     }
     const effectiveScope = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
     if (mode === 'rgb') {
+      // Batch stretch writes its own per-item styles immediately; saving without
+      // further edits must not turn a batch dataset into an own-style override.
+      if (!styleDirty && !rangeDirty) {
+        if (close) onOpenChange(false);
+        return;
+      }
       const bands = selectedBands as number[];
       const styled = applyCompositeStyle(data, effectiveScope, bands, styleDirty && styleScope === 'all', (item) => {
         if (effectiveScope === data.indexOf(item)) return rangeDirty || styleDirty ? buildRgbStyle(rMinMax, gMinMax, bMinMax) : item.style;
