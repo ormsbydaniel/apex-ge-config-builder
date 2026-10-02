@@ -188,12 +188,6 @@ export function RgbCompositeEditorDialog({
     setPendingStyle(null);
   };
 
-  const statusLabel = (i: number) => {
-    if (i === firstIdx) return 'First dataset';
-    const s = source.data?.[i]?.styleSource;
-    return s === 'own' ? 'Own settings' : s === 'batch' ? 'Per-dataset stretch' : 'Same as first';
-  };
-
   // URL of the COG being edited (drives band count, noData and histograms)
   const firstCogUrl = useMemo(() => {
     const item = source.data?.[scope];
