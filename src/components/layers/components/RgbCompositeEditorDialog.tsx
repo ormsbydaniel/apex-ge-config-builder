@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
-  applyToScope, cogIndices, computeBatchStretch, copyToAll, datasetLabel, firstCogIndex, hasOwnSettings, resetToFirst,
+  applyToScope, cogIndices, copyToAll, datasetLabel, firstCogIndex, resetToFirst,
 } from '@/utils/rgbComposite/perDataset';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -736,7 +736,7 @@ export function RgbCompositeEditorDialog({
                           <SelectContent>
                             {cogIdx.map((i, pos) => (
                               <SelectItem key={i} value={String(i)} className="text-xs">
-                                {datasetLabel(source.data[i], pos + 1)}{statusLabel(i) !== 'Same as first' ? ` · ${statusLabel(i)}` : ''}
+                                {datasetLabel(source.data[i], pos + 1)} · {visualisationName(source.data[i], cogBandCount, bandLabels)}
                               </SelectItem>
                             ))}
                           </SelectContent>
