@@ -174,6 +174,7 @@ export function RgbCompositeEditorDialog({
   const batchAbortRef = React.useRef<AbortController | null>(null);
   const [applyAll, setApplyAll] = useState(false);
   const [styleScope, setStyleScope] = useState<'this' | 'all'>('this');
+  const [styleDirty, setStyleDirty] = useState(false);
   const [pendingStyle, setPendingStyle] = useState<(() => void) | null>(null);
 
   const askStyleScope = (change: () => void) => {
@@ -182,6 +183,7 @@ export function RgbCompositeEditorDialog({
   };
   const confirmStyleScope = (choice: 'this' | 'all') => {
     setStyleScope(choice);
+    setStyleDirty(true);
     pendingStyle?.();
     setPendingStyle(null);
   };
@@ -251,6 +253,7 @@ export function RgbCompositeEditorDialog({
       setBatchProgress(null);
       setApplyAll(first >= 0 && data[first]?.styleSource === 'batch');
       setStyleScope('this');
+      setStyleDirty(false);
       setPendingStyle(null);
       loadFromItem(first < 0 ? undefined : data[first], true);
     }
@@ -263,6 +266,7 @@ export function RgbCompositeEditorDialog({
     setScope(i);
     setBatchMessage(null);
     setStyleScope('this');
+    setStyleDirty(false);
     loadFromItem(source.data[i], false);
     setView('editor');
   };
@@ -367,11 +371,12 @@ export function RgbCompositeEditorDialog({
     const effectiveScope = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
     if (mode === 'rgb') {
       const bands = selectedBands as number[];
-      const styled = applyCompositeStyle(data, effectiveScope, bands, styleScope === 'all', (item) => {
+      const styled = applyCompositeStyle(data, effectiveScope, bands, styleDirty && styleScope === 'all', (item) => {
         if (effectiveScope === data.indexOf(item)) return buildRgbStyle(rMinMax, gMinMax, bMinMax);
         return item.style ?? buildRgbStyle(rMinMax, gMinMax, bMinMax);
-      });
+      }, styleDirty);
       onUpdateDataSources(styled);
+      setStyleDirty(false);
     } else {
       onUpdateDataSources(applyToScope(data, effectiveScope, transform));
     }
@@ -384,29 +389,30 @@ export function RgbCompositeEditorDialog({
     const data = source.data || [];
     const targets = cogIdx.filter((i) => i === scope || (data[i].convertToRGB && !data[i].spectralIndex))
       .map((i) => ({ index: i, url: data[i].url as string,
-        bands: i === scope ? selectedBands as number[] : data[i].bands?.slice(0, 3) as number[] }));
+        bands: i === scope ? selectedBands as number[] : (data[i].bands?.slice(0, 3) ?? []) }));
+    const validTargets = targets.filter((t) => t.bands.length === 3 && t.bands.every((b) => typeof b === 'number'));
     batchAbortRef.current?.abort();
     const ctrl = new AbortController();
     batchAbortRef.current = ctrl;
     setBatchMessage(null);
     // Fully cached: apply instantly without a progress indicator.
-    const cached = targets.map((t) => t.bands.map((b) => peekStretch(t.url, b - 1, noDataValue, method)));
+    const cached = validTargets.map((t) => t.bands.map((b) => peekStretch(t.url, b - 1, noDataValue, method)));
     const allCached = cached.every((r) => r.every(Boolean));
-    if (!allCached) setBatchProgress({ done: 0, total: targets.length });
+    if (!allCached) setBatchProgress({ done: 0, total: validTargets.length });
     const results = allCached
-      ? targets.map((t, k) => ({ index: t.index, ranges: cached[k] as { min: number; max: number }[], error: undefined as string | undefined }))
+      ? validTargets.map((t, k) => ({ index: t.index, ranges: cached[k] as { min: number; max: number }[], error: undefined as string | undefined }))
       : await (async () => {
         let next = 0;
         let done = 0;
         const results: { index: number; ranges?: { min: number; max: number }[]; error?: string }[] = [];
-        await Promise.all(Array.from({ length: Math.min(3, targets.length) }, async () => {
-          while (next < targets.length && !ctrl.signal.aborted) {
-            const target = targets[next++];
+        await Promise.all(Array.from({ length: Math.min(3, validTargets.length) }, async () => {
+          while (next < validTargets.length && !ctrl.signal.aborted) {
+            const target = validTargets[next++];
             try {
               const ranges = await Promise.all(target.bands.map(async (b) => computeStretch(method, await getHistogram(target.url, b - 1, noDataValue))));
               results.push({ index: target.index, ranges });
             } catch (e) { results.push({ index: target.index, error: e instanceof Error ? e.message : 'Failed' }); }
-            setBatchProgress({ done: ++done, total: targets.length });
+            setBatchProgress({ done: ++done, total: validTargets.length });
           }
         }));
         return results;
@@ -433,7 +439,7 @@ export function RgbCompositeEditorDialog({
     const mine = byIndex.get(scope)?.ranges;
     if (mine) { setRMinMax(mine[0]); setGMinMax(mine[1]); setBMinMax(mine[2]); }
     setBatchMessage(allCached && !failed ? null :
-      `Stretch computed for ${results.length - failed} of ${targets.length} datasets` +
+      `Stretch computed for ${results.length - failed} of ${validTargets.length} datasets` +
       (failed ? ` (${failed} failed and were left unchanged).` : '.'),
     );
   };
