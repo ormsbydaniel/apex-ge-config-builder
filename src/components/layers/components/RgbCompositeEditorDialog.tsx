@@ -633,7 +633,7 @@ export function RgbCompositeEditorDialog({
             <DialogDescription>Choose a composite or index to edit.</DialogDescription>
           </DialogHeader>
         ) : (
-          <DialogHeader className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5 space-y-0 text-left">
+          <DialogHeader className="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-2 sm:gap-5 space-y-0 text-left">
             <div className="flex flex-col items-start gap-2">
               <DialogTitle>Multi-band visualisations</DialogTitle>
               <Button
@@ -644,46 +644,8 @@ export function RgbCompositeEditorDialog({
                 onClick={() => { setHomeTab(mode); setView('gallery'); }}
               >← Back to visualisations</Button>
             </div>
-            <div className="border-l pl-5 pr-3 space-y-2">
-              <DialogDescription>
-                {!multiDataset
-                  ? 'Adjust bands and ranges.'
-                  : isFirstScope
-                    ? 'Editing the first dataset. Datasets marked \u201cSame as first\u201d follow these settings.'
-                    : 'Editing this dataset only. Saving gives it its own settings.'}
-              </DialogDescription>
-              {multiDataset && (
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <Button type="button" size="icon" variant="outline" className="h-7 w-7" aria-label="Previous dataset"
-                    disabled={scopePos <= 0} onClick={() => changeScope(cogIdx[scopePos - 1])}>
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                  </Button>
-                  <Select value={String(scope)} onValueChange={(v) => changeScope(Number(v))}>
-                    <SelectTrigger className="h-7 w-[220px] text-xs" aria-label="Dataset"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {cogIdx.map((i, pos) => (
-                        <SelectItem key={i} value={String(i)} className="text-xs">
-                          {datasetLabel(source.data[i], pos + 1)}{statusLabel(i) !== 'Same as first' ? ` · ${statusLabel(i)}` : ''}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button type="button" size="icon" variant="outline" className="h-7 w-7" aria-label="Next dataset"
-                    disabled={scopePos >= cogIdx.length - 1} onClick={() => changeScope(cogIdx[scopePos + 1])}>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Button>
-                  <Badge variant="outline" className="text-[10px] font-normal">{statusLabel(scope)}</Badge>
-                  {!isFirstScope && (source.data[scope]?.styleSource === 'own' || source.data[scope]?.styleSource === 'batch') && (
-                    <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleResetToFirst}>
-                      Reset to same as first
-                    </Button>
-                  )}
-                  <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleCopyToAll}
-                    title="Copy this dataset's saved settings to every dataset">
-                    Copy to all
-                  </Button>
-                </div>
-              )}
+            <div className="sm:border-l sm:pl-5 sm:pr-3">
+              <DialogDescription>Adjust bands and ranges for the selected dataset.</DialogDescription>
             </div>
           </DialogHeader>
         )}
@@ -706,8 +668,53 @@ export function RgbCompositeEditorDialog({
           </div>
         ) : (
           <TooltipProvider delayDuration={400}>
-            <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5 flex-1 min-h-0">
-              {/* ── Left pane: composite, channels, stretch ── */}
+            <div className="flex flex-col flex-1 min-h-0 gap-3">
+              {multiDataset && (
+                <div className="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5">
+                  <div className="space-y-2 min-w-0 pr-3">
+                    <div className={sectionLabel}>Dataset</div>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Button type="button" size="icon" variant="outline" className="h-7 w-7 shrink-0" aria-label="Previous dataset"
+                        disabled={scopePos <= 0} onClick={() => changeScope(cogIdx[scopePos - 1])}>
+                        <ChevronLeft className="h-3.5 w-3.5" />
+                      </Button>
+                      <Select value={String(scope)} onValueChange={(v) => changeScope(Number(v))}>
+                        <SelectTrigger className="h-7 min-w-0 flex-1 text-xs" aria-label="Dataset"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {cogIdx.map((i, pos) => (
+                            <SelectItem key={i} value={String(i)} className="text-xs">
+                              {datasetLabel(source.data[i], pos + 1)}{statusLabel(i) !== 'Same as first' ? ` · ${statusLabel(i)}` : ''}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button type="button" size="icon" variant="outline" className="h-7 w-7 shrink-0" aria-label="Next dataset"
+                        disabled={scopePos >= cogIdx.length - 1} onClick={() => changeScope(cogIdx[scopePos + 1])}>
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-x-2 gap-y-1 flex-wrap">
+                      <Badge variant="outline" className="text-[10px] font-normal">{statusLabel(scope)}</Badge>
+                      {!isFirstScope && (source.data[scope]?.styleSource === 'own' || source.data[scope]?.styleSource === 'batch') && (
+                        <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleResetToFirst}>
+                          Reset to same as first
+                        </Button>
+                      )}
+                      <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleCopyToAll}
+                        title="Copy this dataset's saved settings to every dataset">
+                        Copy to all
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {isFirstScope
+                        ? 'Changes here also update datasets marked “Same as first”.'
+                        : 'Changes here apply only to this dataset when saved.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div className="grid grid-rows-2 sm:grid-rows-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3 sm:gap-5 flex-1 min-h-0">
+              {/* ── Left pane: recipe and bands ── */}
               <ScrollArea className="min-h-0 pr-3">
                 <div className="space-y-5">
                   {mode === 'rgb' && <div className="space-y-2">
@@ -825,6 +832,15 @@ export function RgbCompositeEditorDialog({
                     <p className="text-[11px] text-muted-foreground">Picking a band already used by another channel swaps the two.</p>
                   </div>
 
+                  </>) : indexLeft}
+                </div>
+              </ScrollArea>
+
+              {/* ── Right pane: stacked channel histograms ── */}
+              <ScrollArea className="min-h-0 border-l pl-5 pr-3">
+                {mode === 'rgb' ? (
+                <div className="space-y-4">
+                  <div className={sectionLabel}>Channel ranges</div>
                   <div className="space-y-2">
                     <div className={sectionLabel}>Contrast stretch (all bands)</div>
                     <Select value={stretchCustom ? 'custom' : stretchMethod} onValueChange={chooseStretchMethod}>
@@ -859,21 +875,12 @@ export function RgbCompositeEditorDialog({
                         <p className="text-[11px] text-muted-foreground">
                           {stretchCustom
                             ? 'Pick a stretch method above to compute it for each dataset.'
-                            : 'Uses these bands and computes the chosen stretch from each dataset\u2019s own pixel values. Datasets with own settings are left unchanged.'}
+                            : 'Applies this method separately to each dataset using its own pixel values. Datasets with own settings are left unchanged.'}
                         </p>
                         {batchMessage && <p className="text-[11px] text-muted-foreground">{batchMessage}</p>}
                       </div>
                     )}
                   </div>
-                  </>) : indexLeft}
-                </div>
-              </ScrollArea>
-
-              {/* ── Right pane: stacked channel histograms ── */}
-              <ScrollArea className="min-h-0 border-l pl-5 pr-3">
-                {mode === 'rgb' ? (
-                <div className="space-y-2">
-                  <div className={sectionLabel}>Channel ranges</div>
                   {!firstCogUrl ? (
                     <p className="text-sm text-muted-foreground py-6 text-center">No COG source to read pixel values from.</p>
                   ) : selectedBands.every((b) => b == null) ? (
@@ -916,6 +923,7 @@ export function RgbCompositeEditorDialog({
                 </div>
                 ) : indexRight}
               </ScrollArea>
+              </div>
             </div>
           </TooltipProvider>
         )}
