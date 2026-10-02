@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
 import {
   applyToScope, cogIndices, datasetLabel, firstCogIndex,
 } from '@/utils/rgbComposite/perDataset';
@@ -168,7 +168,7 @@ export function RgbCompositeEditorDialog({
   const multiDataset = cogIdx.length > 1;
   const scopePos = cogIdx.indexOf(scope);
   const [batchProgress, setBatchProgress] = useState<{ done: number; total: number } | null>(null);
-  const [batchMessage, setBatchMessage] = useState<string | null>(null);
+  const [batchMessage, setBatchMessage] = useState<{ text: string; failed: boolean } | null>(null);
   const batchAbortRef = React.useRef<AbortController | null>(null);
   const [applyAll, setApplyAll] = useState(false);
   const [styleScope, setStyleScope] = useState<'this' | 'all'>('this');
@@ -183,6 +183,7 @@ export function RgbCompositeEditorDialog({
   const [commitStyle, setCommitStyle] = useState<'this' | 'all' | null>(null);
   const [restretchAll, setRestretchAll] = useState(false);
   const confirmStyleScope = (choice: 'this' | 'all') => {
+    setBatchMessage(null);
     setStyleScope(choice);
     setStyleDirty(true);
     pendingStyle?.();
@@ -261,6 +262,8 @@ export function RgbCompositeEditorDialog({
 
   const changeScope = (i: number) => {
     if (i === scope || i < 0) return;
+    batchAbortRef.current?.abort();
+    setBatchProgress(null);
     setScope(i);
     setBatchMessage(null);
     setStyleScope('this');
@@ -425,6 +428,7 @@ export function RgbCompositeEditorDialog({
     const ctrl = new AbortController();
     batchAbortRef.current = ctrl;
     setBatchMessage(null);
+    setBatchProgress(null);
     // Fully cached: apply instantly without a progress indicator.
     const cached = validTargets.map((t) => t.bands.map((b, j) => channel == null || channel === j ? peekStretch(t.url, b - 1, noDataValue, method) : { min: 0, max: 0 }));
     const allCached = cached.every((r) => r.every(Boolean));
@@ -443,13 +447,16 @@ export function RgbCompositeEditorDialog({
                 ? computeStretch(method, await getHistogram(target.url, b - 1, noDataValue)) : { min: 0, max: 0 }));
               results.push({ index: target.index, ranges });
             } catch (e) { results.push({ index: target.index, error: e instanceof Error ? e.message : 'Failed' }); }
-            setBatchProgress({ done: ++done, total: validTargets.length });
+            done++;
+            if (!ctrl.signal.aborted && batchAbortRef.current === ctrl) {
+              setBatchProgress({ done, total: validTargets.length });
+            }
           }
         }));
         return results;
       })();
+    if (ctrl.signal.aborted || batchAbortRef.current !== ctrl) return;
     setBatchProgress(null);
-    if (ctrl.signal.aborted) return;
     const byIndex = new Map(results.map((r) => [r.index, r]));
     const failed = results.filter((r) => r.error).length;
     const next = data.map((d, i) => {
@@ -479,10 +486,13 @@ export function RgbCompositeEditorDialog({
       if (channel == null || channel === 2) setBMinMax(mine[2]);
     }
     setRangeDirty(false);
-    setBatchMessage(allCached && !failed ? null :
-      `Stretch computed for ${results.length - failed} of ${validTargets.length} datasets` +
-      (failed ? ` (${failed} failed and were left unchanged).` : '.'),
-    );
+    const methodName = STRETCH_METHODS.find((m) => m.id === method)?.shortName ?? method;
+    const applied = results.length - failed;
+    setBatchMessage({
+      text: `${methodName} applied to ${applied} ${applied === 1 ? 'dataset' : 'datasets'}` +
+        (failed ? ` · ${failed} failed and left unchanged` : ''),
+      failed: failed > 0,
+    });
   };
 
   // ── Spectral index actions ──
@@ -520,6 +530,7 @@ export function RgbCompositeEditorDialog({
     channelIdx: number,
     update: React.SetStateAction<{ min: number; max: number }>,
   ) => {
+    setBatchMessage(null);
     setRangeDirty(true);
     setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
     setChannelMethods((prev) => prev.map((method, i) => i === channelIdx ? null : method));
@@ -527,6 +538,7 @@ export function RgbCompositeEditorDialog({
   };
 
   const applyChannelStretch = (channelIdx: number, method: StretchMethod, hist: BandHistogramResult) => {
+    setBatchMessage(null);
     setRangeDirty(!applyAll);
     setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
     [setRMinMax, setGMinMax, setBMinMax][channelIdx](computeStretch(method, hist));
@@ -587,6 +599,7 @@ export function RgbCompositeEditorDialog({
   );
 
   const applyRecipe = (id: RgbRecipeId) => {
+    setBatchMessage(null);
     setStretchError(null);
     if (id === 'custom') {
       setMode('rgb');
@@ -614,6 +627,7 @@ export function RgbCompositeEditorDialog({
   /** Choosing a stretch method re-applies it to all three channels. */
   const chooseStretchMethod = (value: string) => {
     if (value === 'custom') return;
+    setBatchMessage(null);
     setRangeDirty(!applyAll);
     setStretchMethod(value as StretchMethod);
     setChannelMethods([value as StretchMethod, value as StretchMethod, value as StretchMethod]);
@@ -628,6 +642,7 @@ export function RgbCompositeEditorDialog({
   };
 
   const handleGalleryPickIndex = (id: IndexRecipeId) => {
+    setBatchMessage(null);
     askStyleScope(() => applyIndexRecipe(id));
     setView('editor');
   };
@@ -939,7 +954,7 @@ export function RgbCompositeEditorDialog({
                           <Checkbox
                             checked={applyAll}
                             disabled={!allChannelsSet}
-                            aria-label="Apply to all datasets"
+                            aria-label="Apply stretch to all datasets"
                             onCheckedChange={(v) => {
                               const on = v === true;
                               setApplyAll(on);
@@ -947,12 +962,18 @@ export function RgbCompositeEditorDialog({
                               else void applyToAllDatasets();
                             }}
                           />
-                          Apply to all datasets
+                          Apply stretch to all datasets
                         </label>
                       )}
                       {batchProgress && (
-                        <span className="flex items-center text-[11px] text-muted-foreground">
-                          <Loader2 className="h-3 w-3 animate-spin mr-1" /> {batchProgress.done} of {batchProgress.total} datasets
+                        <span className="flex items-center text-[11px] text-muted-foreground" role="status">
+                          <Loader2 className="h-3 w-3 animate-spin mr-1" /> Calculating histograms — {batchProgress.done} of {batchProgress.total} datasets
+                        </span>
+                      )}
+                      {!batchProgress && batchMessage && (
+                        <span className={`flex items-center text-[11px] ${batchMessage.failed ? 'text-destructive' : 'text-muted-foreground'}`} role="status">
+                          {batchMessage.failed ? <AlertCircle className="h-3 w-3 mr-1 shrink-0" /> : <Check className="h-3 w-3 mr-1 shrink-0" />}
+                          {batchMessage.text}
                         </span>
                       )}
                     </div>
@@ -963,7 +984,6 @@ export function RgbCompositeEditorDialog({
                       {multiDataset && applyAll && ' Each composite dataset is stretched using its own bands and pixel values.'}
                     </p>
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
-                    {batchMessage && <p className="text-[11px] text-muted-foreground">{batchMessage}</p>}
                   </div>
                   {!firstCogUrl ? (
                     <p className="text-sm text-muted-foreground py-6 text-center">No COG source to read pixel values from.</p>
