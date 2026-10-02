@@ -211,6 +211,7 @@ export function RgbCompositeEditorDialog({
       setRMinMax({ min: vars.rMin ?? 0, max: vars.rMax ?? 10000 });
       setGMinMax({ min: vars.gMin ?? 0, max: vars.gMax ?? 10000 });
       setBMinMax({ min: vars.bMin ?? 0, max: vars.bMax ?? 10000 });
+      setStretchMethod('percent-2-98');
       setChannelMethods([null, null, null]);
       setPendingStretch([]);
     } else {
