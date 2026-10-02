@@ -377,6 +377,30 @@ export function RgbCompositeEditorDialog({
     if (close) onOpenChange(false);
   };
 
+  // Commit a confirmed composite change straight away, so the map and the
+  // dataset labels reflect it (This dataset / All datasets) without saving first.
+  useEffect(() => {
+    if (!commitStyle || mode !== 'rgb' || !allChannelsSet) return;
+    const data = source.data || [];
+    const target = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
+    const all = commitStyle === 'all';
+    const styled = applyCompositeStyle(data, target, selectedBands as number[], all, (item) =>
+      data.indexOf(item) === target ? buildRgbStyle(rMinMax, gMinMax, bMinMax) : item.style ?? buildRgbStyle(rMinMax, gMinMax, bMinMax),
+    true, false);
+    onUpdateDataSources(styled);
+    setCommitStyle(null);
+    if (all) setRestretchAll(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commitStyle, selectedBands, mode]);
+
+  // After an all-datasets band change, re-stretch each dataset from its own new bands.
+  useEffect(() => {
+    if (!restretchAll) return;
+    setRestretchAll(false);
+    applyToAllDatasets(sharedMethod ?? stretchMethod);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restretchAll, source.data]);
+
   /** Compute the chosen stretch from each dataset's own pixels (skips datasets with own settings). */
   const applyToAllDatasets = async (method: StretchMethod | null = sharedMethod, channel?: number) => {
     if (!method || !allChannelsSet) return;
