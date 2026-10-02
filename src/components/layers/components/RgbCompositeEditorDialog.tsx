@@ -33,6 +33,8 @@ import {
 import { createGradientCSS } from '@/utils/colormapUtils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from '@/components/ui/alert-dialog';
+import { applyCompositeStyle, visualisationName } from '@/utils/rgbComposite/styleScope';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
@@ -171,6 +173,18 @@ export function RgbCompositeEditorDialog({
   const [batchMessage, setBatchMessage] = useState<string | null>(null);
   const batchAbortRef = React.useRef<AbortController | null>(null);
   const [applyAll, setApplyAll] = useState(false);
+  const [styleScope, setStyleScope] = useState<'this' | 'all'>('this');
+  const [pendingStyle, setPendingStyle] = useState<(() => void) | null>(null);
+
+  const askStyleScope = (change: () => void) => {
+    if (!multiDataset) { change(); return; }
+    setPendingStyle(() => change);
+  };
+  const confirmStyleScope = (choice: 'this' | 'all') => {
+    setStyleScope(choice);
+    pendingStyle?.();
+    setPendingStyle(null);
+  };
 
   const statusLabel = (i: number) => {
     if (i === firstIdx) return 'First dataset';
@@ -236,6 +250,8 @@ export function RgbCompositeEditorDialog({
       setBatchMessage(null);
       setBatchProgress(null);
       setApplyAll(first >= 0 && data[first]?.styleSource === 'batch');
+      setStyleScope('this');
+      setPendingStyle(null);
       loadFromItem(first < 0 ? undefined : data[first], true);
     }
     if (!open && prevOpenRef.current) batchAbortRef.current?.abort();
@@ -246,6 +262,7 @@ export function RgbCompositeEditorDialog({
     if (i === scope || i < 0) return;
     setScope(i);
     setBatchMessage(null);
+    setStyleScope('this');
     loadFromItem(source.data[i], false);
     setView('editor');
   };
@@ -348,7 +365,16 @@ export function RgbCompositeEditorDialog({
       };
     }
     const effectiveScope = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
-    onUpdateDataSources(applyToScope(data, effectiveScope, transform));
+    if (mode === 'rgb') {
+      const bands = selectedBands as number[];
+      const styled = applyCompositeStyle(data, effectiveScope, bands, styleScope === 'all', (item) => {
+        if (effectiveScope === data.indexOf(item)) return buildRgbStyle(rMinMax, gMinMax, bMinMax);
+        return item.style ?? buildRgbStyle(rMinMax, gMinMax, bMinMax);
+      });
+      onUpdateDataSources(styled);
+    } else {
+      onUpdateDataSources(applyToScope(data, effectiveScope, transform));
+    }
     if (close) onOpenChange(false);
   };
 
@@ -356,25 +382,35 @@ export function RgbCompositeEditorDialog({
   const applyToAllDatasets = async (method: StretchMethod | null = sharedMethod) => {
     if (!method || !allChannelsSet) return;
     const data = source.data || [];
-    const bands = selectedBands as number[];
-    const targets = cogIdx
-      .filter((i) => i === firstIdx || !hasOwnSettings(data[i]))
-      .map((i) => ({ index: i, url: data[i].url as string }));
+    const targets = cogIdx.filter((i) => i === scope || (data[i].convertToRGB && !data[i].spectralIndex))
+      .map((i) => ({ index: i, url: data[i].url as string,
+        bands: i === scope ? selectedBands as number[] : data[i].bands?.slice(0, 3) as number[] }));
     batchAbortRef.current?.abort();
     const ctrl = new AbortController();
     batchAbortRef.current = ctrl;
     setBatchMessage(null);
     // Fully cached: apply instantly without a progress indicator.
-    const cached = targets.map((t) => bands.map((b) => peekStretch(t.url, b - 1, noDataValue, method)));
+    const cached = targets.map((t) => t.bands.map((b) => peekStretch(t.url, b - 1, noDataValue, method)));
     const allCached = cached.every((r) => r.every(Boolean));
     if (!allCached) setBatchProgress({ done: 0, total: targets.length });
     const results = allCached
       ? targets.map((t, k) => ({ index: t.index, ranges: cached[k] as { min: number; max: number }[], error: undefined as string | undefined }))
-      : await computeBatchStretch(
-      targets, bands, method,
-      (url, b0) => getHistogram(url, b0, noDataValue),
-      { concurrency: 3, signal: ctrl.signal, onProgress: (done, total) => setBatchProgress({ done, total }) },
-    );
+      : await (async () => {
+        let next = 0;
+        let done = 0;
+        const results: { index: number; ranges?: { min: number; max: number }[]; error?: string }[] = [];
+        await Promise.all(Array.from({ length: Math.min(3, targets.length) }, async () => {
+          while (next < targets.length && !ctrl.signal.aborted) {
+            const target = targets[next++];
+            try {
+              const ranges = await Promise.all(target.bands.map(async (b) => computeStretch(method, await getHistogram(target.url, b - 1, noDataValue))));
+              results.push({ index: target.index, ranges });
+            } catch (e) { results.push({ index: target.index, error: e instanceof Error ? e.message : 'Failed' }); }
+            setBatchProgress({ done: ++done, total: targets.length });
+          }
+        }));
+        return results;
+      })();
     setBatchProgress(null);
     if (ctrl.signal.aborted) return;
     const byIndex = new Map(results.map((r) => [r.index, r]));
@@ -387,9 +423,9 @@ export function RgbCompositeEditorDialog({
       return {
         ...rest,
         convertToRGB: true,
-        bands: [...bands],
+        bands: i === scope ? [...selectedBands] : [...(d.bands ?? selectedBands)],
         style: buildRgbStyle(rr, gg, bb),
-        styleSource: 'batch',
+        styleSource: i === firstIdx ? 'batch' : d.styleSource === 'own' ? 'own' : 'batch',
         batchStretch: { method },
       } as DataSourceItem;
     });
@@ -531,7 +567,7 @@ export function RgbCompositeEditorDialog({
     setStretchMethod(value as StretchMethod);
     setChannelMethods([value as StretchMethod, value as StretchMethod, value as StretchMethod]);
     queueStretch([0, 1, 2]);
-    if (applyAll && multiDataset && isFirstScope) void applyToAllDatasets(value as StretchMethod);
+    if (applyAll && multiDataset) void applyToAllDatasets(value as StretchMethod);
   };
 
   /** Gallery card picked: apply the recipe and enter the editor. */
@@ -645,7 +681,7 @@ export function RgbCompositeEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl h-[85vh] flex flex-col">
+        <DialogContent className="sm:max-w-6xl h-[85vh] flex flex-col">
         {view === 'gallery' ? (
           <DialogHeader>
             <DialogTitle>Multi-band visualisations</DialogTitle>
@@ -729,7 +765,7 @@ export function RgbCompositeEditorDialog({
                       </p>
                     </div>
                   )}
-                  {mode === 'rgb' && <div className="space-y-2">
+                  {mode === 'rgb' && <div className={`${multiDataset ? 'border-t pt-5' : ''} space-y-2`}>
                     <div className={sectionLabel}>
                       Composite
                       {sensor && <span className="normal-case tracking-normal font-normal ml-2">· detected {SENSOR_NAMES[sensor]}</span>}
@@ -750,7 +786,7 @@ export function RgbCompositeEditorDialog({
                                   variant={active ? 'default' : 'outline'}
                                   className="h-8 w-full justify-between text-xs"
                                   disabled={unavailable}
-                                  onClick={() => applyRecipe(r.id)}
+                                  onClick={() => askStyleScope(() => applyRecipe(r.id))}
                                 >
                                   <span className="flex items-center gap-1.5 min-w-0">
                                     <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -774,7 +810,7 @@ export function RgbCompositeEditorDialog({
                     </div>
                   </div>}
 
-                  {mode === 'index' && <div className="space-y-2">
+                  {mode === 'index' && <div className={`${multiDataset ? 'border-t pt-5' : ''} space-y-2`}>
                     <div className={sectionLabel}>Spectral indices</div>
                     <div className="flex flex-col gap-1">
                       {INDEX_RECIPES.map((r) => {
@@ -815,7 +851,7 @@ export function RgbCompositeEditorDialog({
                   </div>}
 
                   {mode === 'rgb' ? (<>
-                  <div className="space-y-2">
+                  <div className="border-t pt-5 space-y-2">
                     <div className={sectionLabel}>Channels</div>
                     {CHANNEL_NAMES.map((name, i) => (
                       <div key={name} className="flex items-center gap-2">
@@ -828,7 +864,7 @@ export function RgbCompositeEditorDialog({
                         </span>
                         <Select
                           value={selectedBands[i] ? String(selectedBands[i]) : undefined}
-                          onValueChange={(v) => assignBand(i, Number(v))}
+                          onValueChange={(v) => askStyleScope(() => assignBand(i, Number(v)))}
                         >
                           <SelectTrigger className="h-8 text-xs flex-1" aria-label={`${name} channel band`}>
                             <SelectValue placeholder="Choose a band" />
@@ -864,7 +900,7 @@ export function RgbCompositeEditorDialog({
                           <SelectItem value="custom" disabled className="text-xs">Custom</SelectItem>
                         </SelectContent>
                       </Select>
-                      {multiDataset && isFirstScope && (
+                      {multiDataset && (
                         <label className="flex items-center gap-2 text-xs cursor-pointer">
                           <Checkbox
                             checked={applyAll}
@@ -890,7 +926,7 @@ export function RgbCompositeEditorDialog({
                       {!sharedMethod
                         ? 'Ranges differ per band or were set by hand. Pick a method to re-apply it to every band.'
                         : STRETCH_METHODS.find((m) => m.id === sharedMethod)?.description}
-                      {multiDataset && isFirstScope && applyAll && ' Each dataset is stretched using its own pixel values; datasets with own settings are left unchanged.'}
+                      {multiDataset && applyAll && ' Each composite dataset is stretched using its own bands and pixel values.'}
                     </p>
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
                     {batchMessage && <p className="text-[11px] text-muted-foreground">{batchMessage}</p>}
@@ -958,6 +994,19 @@ export function RgbCompositeEditorDialog({
             </Button>
           )}
         </DialogFooter>
+        <AlertDialog open={pendingStyle !== null} onOpenChange={(isOpen) => { if (!isOpen) setPendingStyle(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Change composite style?</AlertDialogTitle>
+              <AlertDialogDescription>Apply this composite or band choice to this dataset, or use it for every dataset? Contrast stretch is controlled separately.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setPendingStyle(null)}>Cancel</Button>
+              <Button variant="outline" onClick={() => confirmStyleScope('this')}>This dataset</Button>
+              <Button onClick={() => confirmStyleScope('all')}>All datasets</Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );
