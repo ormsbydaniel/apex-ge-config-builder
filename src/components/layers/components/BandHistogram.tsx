@@ -364,7 +364,7 @@ export function BandHistogram({
       />
 
       {/* Data range helper */}
-      <p className="text-[10px] text-muted-foreground">
+      <p className="text-[10px] text-muted-foreground mt-0.5">
         Data range: {formatTickValue(dataMin)} – {formatTickValue(dataMax)}
       </p>
     </div>
