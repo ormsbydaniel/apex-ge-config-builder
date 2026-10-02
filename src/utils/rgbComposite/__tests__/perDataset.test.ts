@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   applyToScope, resetToFirst, copyToAll, countOwn, computeBatchStretch, datasetLabel,
 } from '../perDataset';
-import { DataSourceSchema } from '@/schemas/configSchema';
+import { DataSourceItemSchema } from '@/schemas/configSchema';
 
 const cog = (n: number, extra: any = {}) => ({ url: `https://x/${n}.tif`, format: 'cog', convertToRGB: true, bands: [3, 2, 1], ...extra });
 const setBands = (b: number[]) => (d: any) => ({ ...d, bands: b });
@@ -67,14 +67,12 @@ describe('per-dataset multi-band settings', () => {
   });
 
   it('schema keeps the per-dataset marker', () => {
-    if (!DataSourceSchema) return;
-    const parsed = (DataSourceSchema as any).safeParse({
-      name: 'L', isActive: true,
-      data: [cog(1), cog(2, { styleSource: 'batch', batchStretch: { method: 'mean-2sd' } })],
-    });
+    const parsed = DataSourceItemSchema.safeParse(cog(2, { zIndex: 50, timestamps: [1782255600], styleSource: 'batch', batchStretch: { method: 'mean-2sd' } }));
+    expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data.data[1].styleSource).toBe('batch');
-      expect(parsed.data.data[1].batchStretch).toEqual({ method: 'mean-2sd' });
+      expect((parsed.data as any).styleSource).toBe('batch');
+      expect((parsed.data as any).batchStretch).toEqual({ method: 'mean-2sd' });
     }
+    expect(DataSourceItemSchema.safeParse(cog(3, { styleSource: 'nope' })).success).toBe(false);
   });
 });
