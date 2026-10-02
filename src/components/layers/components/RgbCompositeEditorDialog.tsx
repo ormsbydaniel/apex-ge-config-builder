@@ -180,12 +180,16 @@ export function RgbCompositeEditorDialog({
     if (!multiDataset) { change(); return; }
     setPendingStyle(() => change);
   };
+  const [commitStyle, setCommitStyle] = useState<'this' | 'all' | null>(null);
+  const [restretchAll, setRestretchAll] = useState(false);
   const confirmStyleScope = (choice: 'this' | 'all') => {
     setStyleScope(choice);
     setStyleDirty(true);
     pendingStyle?.();
     setPendingStyle(null);
+    setCommitStyle(choice);
   };
+
 
   // URL of the COG being edited (drives band count, noData and histograms)
   const firstCogUrl = useMemo(() => {
