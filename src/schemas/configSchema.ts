@@ -229,6 +229,9 @@ export const DataSourceItemSchema = z.object({
     min: z.number(),
     max: z.number(),
   }).optional(),
+  // Per-dataset visualisation marker ('first' = same as first dataset)
+  styleSource: z.enum(['first', 'own', 'batch']).optional(),
+  batchStretch: z.object({ method: z.string() }).optional(),
   // Temporal fields for data items
   timestamps: z.array(z.number()).optional(),
   // Opacity support (0-1 range)  

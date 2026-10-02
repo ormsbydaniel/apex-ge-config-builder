@@ -46,6 +46,10 @@ export interface DataSourceItem {
     min: number;
     max: number;
   };
+  // Per-dataset visualisation: absent/'first' = same as first dataset, 'own' = own settings, 'batch' = per-dataset computed stretch
+  styleSource?: 'first' | 'own' | 'batch';
+  // Stretch rule used when styleSource is 'batch'
+  batchStretch?: { method: string };
   // Allow arbitrary additional properties (e.g., env, styles, time, transparent)
   [key: string]: any;
 }

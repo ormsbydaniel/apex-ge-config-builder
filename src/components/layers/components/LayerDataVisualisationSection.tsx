@@ -17,6 +17,7 @@ import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
 import VectorStyleSummary from '@/components/layers/components/VectorStyleSummary';
+import { countOwn } from '@/utils/rgbComposite/perDataset';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
@@ -239,6 +240,11 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
               <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" onClick={handleDeleteRgbComposites}>
                 <Trash2 className="h-2.5 w-2.5" />
               </Button>
+            )}
+            {hasRgbComposites && countOwn(source.data || []) > 0 && (
+              <span className="text-[10px] text-muted-foreground italic">
+                {countOwn(source.data || [])} of {(source.data || []).filter((d) => d.format === 'cog').length} datasets with own settings
+              </span>
             )}
           </div>
           {hasRgbComposites && indexSources.length > 0 && (() => {
