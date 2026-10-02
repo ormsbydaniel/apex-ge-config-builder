@@ -166,7 +166,6 @@ export function RgbCompositeEditorDialog({
   const cogIdx = useMemo(() => cogIndices(source.data || []), [source.data]);
   const firstIdx = cogIdx[0] ?? 0;
   const multiDataset = cogIdx.length > 1;
-  const isFirstScope = scope === firstIdx;
   const scopePos = cogIdx.indexOf(scope);
   const [batchProgress, setBatchProgress] = useState<{ done: number; total: number } | null>(null);
   const [batchMessage, setBatchMessage] = useState<string | null>(null);
