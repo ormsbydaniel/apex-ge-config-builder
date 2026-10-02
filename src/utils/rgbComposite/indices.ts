@@ -147,8 +147,13 @@ export function buildIndexStyle(cfg: SpectralIndexConfig) {
   };
 }
 
-export const INDEX_RANGE_PRESETS: { label: string; min: number; max: number }[] = [
+/** Generic range shortcuts, used for recipes without their own presets. */
+export const INDEX_RANGE_PRESETS: IndexRangePreset[] = [
   { label: 'Full range', min: -1, max: 1 },
   { label: 'Positive only', min: 0, max: 1 },
-  { label: 'Vegetation', min: 0.1, max: 0.7 },
 ];
+
+/** Range preset buttons for a recipe — its own presets, or the generic pair. */
+export function indexRangePresets(id: IndexRecipeId): IndexRangePreset[] {
+  return INDEX_RECIPES.find((r) => r.id === id)?.presets ?? INDEX_RANGE_PRESETS;
+}
