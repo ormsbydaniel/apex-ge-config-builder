@@ -1,4 +1,6 @@
 - Keep field-row display ordering in `src/utils/fieldOrder.ts`, deriving saved `order` values from visible row positions so JSON key order never determines display order.
 - Register each new guide tutorial in `mkdocs.yml` and `docs/javascripts/nav-groups.js` so its menu grouping and step labels stay in sync.
 - Define vector line-style presets in recipe utilities so the wizard and generated OpenLayers properties cannot drift apart.
-- Keep composite and spectral-index recipes in separate tabs and same-kind editor lists within one multi-band dialog, so each styling workflow stays focused without duplicating saving logic.- Per-dataset multi-band settings live on each COG data item, marked by `styleSource` (absent = same as first COG, 'own', 'batch'), with scope helpers in `src/utils/rgbComposite/perDataset.ts`; there is no layer-level copy, so "same as first" cannot drift.
+- Keep composite and spectral-index recipes in separate tabs and same-kind editor lists within one multi-band dialog, so each styling workflow stays focused without duplicating saving logic.
+- Per-dataset multi-band settings live on each COG data item, marked by `styleSource` (absent = same as first COG, 'own', 'batch'), with scope helpers in `src/utils/rgbComposite/perDataset.ts`; there is no layer-level copy, so "same as first" cannot drift.
+- Keep composite recipe scope and display-name transformations in `src/utils/rgbComposite/styleScope.ts`, so the editor preserves each COG's own stretch and labels without duplicating scope rules.
