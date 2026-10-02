@@ -109,6 +109,18 @@ export interface SpectralIndexConfig {
   reverse?: boolean;
   min: number;
   max: number;
+  /** Visibility mask: pixels with index values outside [visibleMin, visibleMax] are transparent. Omitted = no mask. */
+  visibleMin?: number;
+  visibleMax?: number;
+}
+
+/** Returns cfg with visible bounds set, omitting bounds that do not narrow the full −1..1 range. */
+export function withVisibleRange<T extends SpectralIndexConfig>(cfg: T, vmin: number, vmax: number): T {
+  const { visibleMin, visibleMax, ...rest } = cfg;
+  const out = { ...rest } as T;
+  if (vmin > -1) out.visibleMin = vmin;
+  if (vmax < 1) out.visibleMax = vmax;
+  return out;
 }
 
 /** Colour stops of a ramp spread across [min, max]. */
@@ -142,6 +154,8 @@ export function buildIndexStyle(cfg: SpectralIndexConfig) {
       'case',
       ['<=', sum, 0],
       [0, 0, 0, 0],
+      ...(cfg.visibleMin != null && cfg.visibleMin > -1 ? [['<', index, cfg.visibleMin], [0, 0, 0, 0]] : []),
+      ...(cfg.visibleMax != null && cfg.visibleMax < 1 ? [['>', index, cfg.visibleMax], [0, 0, 0, 0]] : []),
       ['interpolate', ['linear'], index, ...stops],
     ],
   };

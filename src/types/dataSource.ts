@@ -45,6 +45,8 @@ export interface DataSourceItem {
     reverse?: boolean;
     min: number;
     max: number;
+    visibleMin?: number;
+    visibleMax?: number;
   };
   // Per-dataset visualisation: absent/'first' = same as first dataset, 'own' = own settings, 'batch' = per-dataset computed stretch
   styleSource?: 'first' | 'own' | 'batch';

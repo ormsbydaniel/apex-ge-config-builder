@@ -26,11 +26,12 @@ import { getHistogram, peekStretch } from '@/utils/rgbComposite/histogramCache';
 import { BandHistogram } from './BandHistogram';
 import CompositeGallery, { RECIPE_ICONS, INDEX_ICONS } from './CompositeGallery';
 import {
-  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, buildIndexStyle, matchIndexRecipe, resolveIndexBands, indexColorStops,
+  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, buildIndexStyle, matchIndexRecipe, resolveIndexBands, indexColorStops, withVisibleRange,
   type IndexRecipeId, type SpectralIndexConfig,
 } from '@/utils/rgbComposite/indices';
 import { createGradientCSS } from '@/utils/colormapUtils';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from '@/components/ui/alert-dialog';
 import { applyCompositeStyle, applyIndexStyle, visualisationName } from '@/utils/rgbComposite/styleScope';
@@ -135,6 +136,7 @@ export function RgbCompositeEditorDialog({
   const [indexReverse, setIndexReverse] = useState(false);
   const [indexMin, setIndexMin] = useState(-1);
   const [indexMax, setIndexMax] = useState(1);
+  const [visibleRange, setVisibleRange] = useState<[number, number]>([-1, 1]);
 
   const queueStretch = (channels: number[]) => {
     setPendingStretch((prev) => Array.from(new Set([...prev, ...channels])));
@@ -148,6 +150,7 @@ export function RgbCompositeEditorDialog({
     setIndexReverse(!!cfg.reverse);
     setIndexMin(cfg.min);
     setIndexMax(cfg.max);
+    setVisibleRange([cfg.visibleMin ?? -1, cfg.visibleMax ?? 1]);
   };
 
   // Band labels: layer meta wins, otherwise fall back to labels extracted from
@@ -331,7 +334,7 @@ export function RgbCompositeEditorDialog({
     const data = source.data || [];
     let transform: (d: DataSourceItem) => DataSourceItem;
     if (mode === 'index') {
-      const cfg: SpectralIndexConfig = {
+      const cfg: SpectralIndexConfig = withVisibleRange({
         recipe: indexRecipe,
         bandA: indexBands[0] as number,
         bandB: indexBands[1] as number,
@@ -339,7 +342,7 @@ export function RgbCompositeEditorDialog({
         reverse: indexReverse,
         min: indexMin,
         max: indexMax,
-      };
+      }, visibleRange[0], visibleRange[1]);
       // The viewer loads only `bands` and renumbers them 1..n, so the style reads bands 1 and 2.
       transform = (d) => {
         const { convertToRGB, bands, ...rest } = d as any;
@@ -389,10 +392,10 @@ export function RgbCompositeEditorDialog({
     const all = commitStyle === 'all';
     if (mode === 'index') {
       if (indexBands[0] == null || indexBands[1] == null) return;
-      onUpdateDataSources(applyIndexStyle(data, target, {
+      onUpdateDataSources(applyIndexStyle(data, target, withVisibleRange({
         recipe: indexRecipe, bandA: indexBands[0] as number, bandB: indexBands[1] as number,
         colormap: indexColormap, reverse: indexReverse, min: indexMin, max: indexMax,
-      }, all));
+      }, visibleRange[0], visibleRange[1]), all));
       setCommitStyle(null);
       return;
     }
@@ -739,6 +742,32 @@ export function RgbCompositeEditorDialog({
             {p.label} ({p.min} – {p.max})
           </Button>
         ))}
+      </div>
+      <div className={sectionLabel}>Visible range</div>
+      <div className="space-y-2">
+        <div className="relative h-3 rounded-sm border overflow-hidden" style={{ background: createGradientCSS(indexColormap, indexReverse) }}>
+          <div className="absolute inset-y-0 left-0 bg-muted/90" style={{ width: `${((visibleRange[0] + 1) / 2) * 100}%` }} />
+          <div className="absolute inset-y-0 right-0 bg-muted/90" style={{ width: `${((1 - visibleRange[1]) / 2) * 100}%` }} />
+        </div>
+        <Slider min={-1} max={1} step={0.01} value={visibleRange} minStepsBetweenThumbs={1}
+          aria-label="Visible range" onValueChange={(v) => setVisibleRange([v[0], v[1]])} />
+        <div className="flex items-end gap-3">
+          <label className="space-y-1 text-xs">
+            <span className="text-muted-foreground">Min</span>
+            <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={visibleRange[0]}
+              onChange={(e) => { const v = Math.max(-1, Math.min(Number(e.target.value), visibleRange[1])); setVisibleRange([v, visibleRange[1]]); }} />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="text-muted-foreground">Max</span>
+            <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={visibleRange[1]}
+              onChange={(e) => { const v = Math.min(1, Math.max(Number(e.target.value), visibleRange[0])); setVisibleRange([visibleRange[0], v]); }} />
+          </label>
+          <Button type="button" size="sm" variant="link" className="h-8 px-0 text-xs" onClick={() => setVisibleRange([-1, 1])}
+            disabled={visibleRange[0] <= -1 && visibleRange[1] >= 1}>
+            Show all
+          </Button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">Values outside this range are transparent. Colours still follow the value range above.</p>
       </div>
       <p className="text-[11px] text-muted-foreground">
         Index values run from −1 to 1. Values below min take the first colour, above max the last. Pixels where both bands are zero (no data) stay transparent.
