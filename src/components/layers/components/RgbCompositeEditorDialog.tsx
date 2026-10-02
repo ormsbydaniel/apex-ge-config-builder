@@ -22,7 +22,7 @@ import { fetchCogHeaderMetadata, fetchBandHistogram, BandHistogramResult } from 
 import { BandHistogram } from './BandHistogram';
 import CompositeGallery, { RECIPE_ICONS, INDEX_ICONS } from './CompositeGallery';
 import {
-  INDEX_RECIPES, INDEX_COLORMAPS, INDEX_RANGE_PRESETS, buildIndexStyle, matchIndexRecipe, resolveIndexBands, indexColorStops,
+  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, buildIndexStyle, matchIndexRecipe, resolveIndexBands, indexColorStops,
   type IndexRecipeId, type SpectralIndexConfig,
 } from '@/utils/rgbComposite/indices';
 import { createGradientCSS } from '@/utils/colormapUtils';
@@ -517,7 +517,7 @@ export function RgbCompositeEditorDialog({
       </div>
       {!(indexMax > indexMin) && <p className="text-[11px] text-destructive">Max must be greater than min.</p>}
       <div className="flex flex-wrap gap-1.5">
-        {INDEX_RANGE_PRESETS.map((p) => (
+        {indexRangePresets(indexRecipe).map((p) => (
           <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
             onClick={() => { setIndexMin(p.min); setIndexMax(p.max); }}>
             {p.label} ({p.min} – {p.max})
