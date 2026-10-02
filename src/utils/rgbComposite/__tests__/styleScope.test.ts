@@ -40,3 +40,20 @@ describe('composite style scope', () => {
     expect(visualisationName(items[1], 10)).toBe('Agriculture');
   });
 });
+import { applyIndexStyle } from '../styleScope';
+describe('applyIndexStyle', () => {
+  const cog = (url: string) => ({ format: 'cog', url, convertToRGB: true, bands: [9, 7, 1] } as any);
+  const cfg = { recipe: 'ndre', bandA: 8, bandB: 5, colormap: 'viridis', reverse: false, min: 0, max: 0.8 } as any;
+  it('switches one dataset from composite to index', () => {
+    const out = applyIndexStyle([cog('a'), cog('b')], 1, cfg, false);
+    expect(out[0].convertToRGB).toBe(true);
+    expect(out[1].convertToRGB).toBeUndefined();
+    expect(out[1].spectralIndex?.recipe).toBe('ndre');
+    expect(out[1].bands).toEqual([8, 5]);
+    expect(out[1].styleSource).toBe('own');
+  });
+  it('switches all datasets and clears markers', () => {
+    const out = applyIndexStyle([cog('a'), { ...cog('b'), styleSource: 'own' }], 1, cfg, true);
+    expect(out.every((d) => d.spectralIndex && !d.styleSource)).toBe(true);
+  });
+});
