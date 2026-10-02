@@ -100,6 +100,12 @@ export function matchRecipe(bands: number[], bandCount: number, bandLabels?: str
 
 export type StretchMethod = 'percent-2-98' | 'min-max' | 'mean-2sd';
 
+/** A shared method is shown only when every channel explicitly uses it. */
+export function sharedStretchMethod(methods: (StretchMethod | null)[]): StretchMethod | null {
+  const first = methods[0];
+  return first && methods.every((method) => method === first) ? first : null;
+}
+
 export const STRETCH_METHODS: { id: StretchMethod; name: string; shortName: string; description: string }[] = [
   { id: 'percent-2-98', name: '2–98% cut', shortName: '2–98%', description: 'Ignore the darkest and brightest 2% of pixels. Best default for imagery.' },
   { id: 'min-max', name: 'Full range (min – max)', shortName: 'Full range', description: 'Use the full sampled value range, without trimming the darkest or brightest pixels.' },
