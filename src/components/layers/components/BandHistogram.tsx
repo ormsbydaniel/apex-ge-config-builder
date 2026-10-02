@@ -207,7 +207,7 @@ function DraggableChart({
         }}
       >
         {(['min', 'max'] as const).map((which) => {
-          const pct = which === 'min' ? minPct : maxPct;
+          const pct = Math.max(0, Math.min(100, which === 'min' ? minPct : maxPct));
           return (
             <div
               key={which}
@@ -215,7 +215,7 @@ function DraggableChart({
               className="absolute top-0 h-full"
               style={{
                 left: `${pct}%`,
-                transform: 'translateX(-50%)',
+                 transform: pct === 0 ? 'none' : pct === 100 ? 'translateX(-100%)' : 'translateX(-50%)',
                 width: 14,
                 cursor: 'ew-resize',
                 zIndex: 10,
@@ -241,8 +241,13 @@ function DraggableChart({
               </div>
               {/* Label */}
               <div
-                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[9px] font-semibold whitespace-nowrap pointer-events-none"
-                style={{ color: channelColor }}
+                 className="absolute -top-3 text-[9px] font-semibold whitespace-nowrap pointer-events-none"
+                 style={{
+                   color: channelColor,
+                   left: pct <= 5 ? 0 : pct >= 95 ? undefined : '50%',
+                   right: pct >= 95 ? 0 : undefined,
+                   transform: pct <= 5 || pct >= 95 ? 'none' : 'translateX(-50%)',
+                 }}
               >
                 {which === 'min' ? 'Min' : 'Max'}
               </div>
