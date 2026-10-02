@@ -375,7 +375,7 @@ export function RgbCompositeEditorDialog({
     if (mode === 'rgb') {
       const bands = selectedBands as number[];
       const styled = applyCompositeStyle(data, effectiveScope, bands, styleDirty && styleScope === 'all', (item) => {
-        if (effectiveScope === data.indexOf(item)) return buildRgbStyle(rMinMax, gMinMax, bMinMax);
+        if (effectiveScope === data.indexOf(item)) return rangeDirty || styleDirty ? buildRgbStyle(rMinMax, gMinMax, bMinMax) : item.style;
         return item.style ?? buildRgbStyle(rMinMax, gMinMax, bMinMax);
       }, styleDirty, rangeDirty);
       onUpdateDataSources(styled);
