@@ -17,7 +17,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
-  RGB_RECIPES, SENSOR_NAMES, STRETCH_METHODS, computeStretch, guessSensor, matchRecipe, resolveRecipeBands,
+  RGB_RECIPES, SENSOR_NAMES, STRETCH_METHODS, computeStretch, guessSensor, matchRecipe, resolveRecipeBands, sharedStretchMethod,
   type RgbRecipeId, type StretchMethod,
 } from '@/utils/rgbComposite/recipes';
 import { DataSource } from '@/types/config';
@@ -118,8 +118,9 @@ export function RgbCompositeEditorDialog({
   const [histogramError, setHistogramError] = useState<Record<number, string | null>>({});
   const [noDataValue, setNoDataValue] = useState<number | undefined>(undefined);
   const [stretchMethod, setStretchMethod] = useState<StretchMethod>('percent-2-98');
-  // True once the user edits a min/max by hand; the dropdown then shows "Custom".
-  const [stretchCustom, setStretchCustom] = useState(false);
+  // Saved numeric ranges do not retain their originating method.
+  const [channelMethods, setChannelMethods] = useState<(StretchMethod | null)[]>(['percent-2-98', 'percent-2-98', 'percent-2-98']);
+  const sharedMethod = sharedStretchMethod(channelMethods);
   // Channels (0=R,1=G,2=B) waiting for their band's histogram to apply the active stretch.
   const [pendingStretch, setPendingStretch] = useState<number[]>([]);
   const [stretchError, setStretchError] = useState<string | null>(null);
@@ -210,14 +211,14 @@ export function RgbCompositeEditorDialog({
       setRMinMax({ min: vars.rMin ?? 0, max: vars.rMax ?? 10000 });
       setGMinMax({ min: vars.gMin ?? 0, max: vars.gMax ?? 10000 });
       setBMinMax({ min: vars.bMin ?? 0, max: vars.bMax ?? 10000 });
-      setStretchCustom(true);
+      setChannelMethods([null, null, null]);
       setPendingStretch([]);
     } else {
       setRMinMax({ min: 0, max: 10000 });
       setGMinMax({ min: 0, max: 10000 });
       setBMinMax({ min: 0, max: 10000 });
       setStretchMethod('percent-2-98');
-      setStretchCustom(false);
+      setChannelMethods(['percent-2-98', 'percent-2-98', 'percent-2-98']);
       setPendingStretch([0, 1, 2]);
     }
   };
@@ -298,6 +299,7 @@ export function RgbCompositeEditorDialog({
     next[channelIdx] = band;
     setSelectedBands(next);
     // Re-stretch the affected channels with the active method (2–98% when "Custom").
+    setChannelMethods((prev) => prev.map((method, i) => changed.has(i) ? (method ?? stretchMethod) : method));
     queueStretch(Array.from(changed));
   };
 
@@ -348,7 +350,7 @@ export function RgbCompositeEditorDialog({
 
   /** Compute the chosen stretch from each dataset's own pixels (skips datasets with own settings). */
   const runBatch = async () => {
-    if (stretchCustom || !allChannelsSet) return;
+    if (!sharedMethod || !allChannelsSet) return;
     const data = source.data || [];
     const bands = selectedBands as number[];
     const targets = cogIdx
@@ -359,7 +361,7 @@ export function RgbCompositeEditorDialog({
     setBatchMessage(null);
     setBatchProgress({ done: 0, total: targets.length });
     const results = await computeBatchStretch(
-      targets, bands, stretchMethod,
+      targets, bands, sharedMethod,
       (url, b0) => fetchBandHistogram(url, b0, noDataValue),
       { concurrency: 3, signal: ctrl.signal, onProgress: (done, total) => setBatchProgress({ done, total }) },
     );
@@ -378,7 +380,7 @@ export function RgbCompositeEditorDialog({
         bands: [...bands],
         style: buildRgbStyle(rr, gg, bb),
         styleSource: 'batch',
-        batchStretch: { method: stretchMethod },
+        batchStretch: { method: sharedMethod },
       } as DataSourceItem;
     });
     onUpdateDataSources(next);
@@ -426,8 +428,14 @@ export function RgbCompositeEditorDialog({
     update: React.SetStateAction<{ min: number; max: number }>,
   ) => {
     setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
-    setStretchCustom(true);
+    setChannelMethods((prev) => prev.map((method, i) => i === channelIdx ? null : method));
     setter(update);
+  };
+
+  const applyChannelStretch = (channelIdx: number, method: StretchMethod, hist: BandHistogramResult) => {
+    setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
+    [setRMinMax, setGMinMax, setBMinMax][channelIdx](computeStretch(method, hist));
+    setChannelMethods((prev) => prev.map((current, i) => i === channelIdx ? method : current));
   };
 
   const channelConfigs = [
@@ -469,11 +477,11 @@ export function RgbCompositeEditorDialog({
     pendingStretch.forEach((ch) => {
       const band = selectedBands[ch];
       const hist = band ? histogramCache[band] : undefined;
-      if (hist) setters[ch](computeStretch(stretchMethod, hist));
+      if (hist) setters[ch](computeStretch(channelMethods[ch] ?? stretchMethod, hist));
       else if (band && !histogramError[band]) remaining.push(ch);
     });
     if (remaining.length !== pendingStretch.length) setPendingStretch(remaining);
-  }, [pendingStretch, histogramCache, histogramError, selectedBands, stretchMethod]);
+  }, [pendingStretch, histogramCache, histogramError, selectedBands, stretchMethod, channelMethods]);
 
   // ── Recipes & auto-stretch ──
   const sensor = guessSensor(cogBandCount);
@@ -496,14 +504,14 @@ export function RgbCompositeEditorDialog({
       setHistogramError({});
       inFlightRef.current = new Set();
       setPendingStretch([]);
-      setStretchCustom(false);
+      setChannelMethods([null, null, null]);
       return;
     }
     const bands = resolveRecipeBands(id, cogBandCount, bandLabels);
     if (!bands) return;
     setMode('rgb');
     setSelectedBands([...bands]);
-    setStretchCustom(false);
+    setChannelMethods([stretchMethod, stretchMethod, stretchMethod]);
     queueStretch([0, 1, 2]);
   };
 
@@ -511,7 +519,7 @@ export function RgbCompositeEditorDialog({
   const chooseStretchMethod = (value: string) => {
     if (value === 'custom') return;
     setStretchMethod(value as StretchMethod);
-    setStretchCustom(false);
+    setChannelMethods([value as StretchMethod, value as StretchMethod, value as StretchMethod]);
     queueStretch([0, 1, 2]);
   };
 
@@ -644,9 +652,9 @@ export function RgbCompositeEditorDialog({
                 onClick={() => { setHomeTab(mode); setView('gallery'); }}
               >← Back to visualisations</Button>
             </div>
-            <div className="sm:border-l sm:pl-5 sm:pr-3">
-              <DialogDescription>Adjust bands and ranges for the selected dataset.</DialogDescription>
-            </div>
+            {mode === 'rgb' ? (
+              <div className="sm:border-l sm:pl-5 sm:pr-3"><div className={sectionLabel}>Channel ranges</div></div>
+            ) : <div />}
           </DialogHeader>
         )}
 
@@ -840,10 +848,9 @@ export function RgbCompositeEditorDialog({
               <ScrollArea className="min-h-0 border-l pl-5 pr-3">
                 {mode === 'rgb' ? (
                 <div className="space-y-4">
-                  <div className={sectionLabel}>Channel ranges</div>
                   <div className="space-y-2">
                     <div className={sectionLabel}>Contrast stretch (all bands)</div>
-                    <Select value={stretchCustom ? 'custom' : stretchMethod} onValueChange={chooseStretchMethod}>
+                    <Select value={sharedMethod ?? 'custom'} onValueChange={chooseStretchMethod}>
                       <SelectTrigger className="h-8 w-full text-xs" aria-label="Contrast stretch (all bands)"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {STRETCH_METHODS.map((m) => (
@@ -853,7 +860,7 @@ export function RgbCompositeEditorDialog({
                       </SelectContent>
                     </Select>
                     <p className="text-[11px] text-muted-foreground">
-                      {stretchCustom
+                      {!sharedMethod
                         ? 'Ranges differ per band or were set by hand. Pick a method to re-apply it to every band.'
                         : STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
                     </p>
@@ -865,7 +872,7 @@ export function RgbCompositeEditorDialog({
                           size="sm"
                           variant="outline"
                           className="h-8 w-full text-xs"
-                          disabled={stretchCustom || !allChannelsSet || batchProgress !== null}
+                          disabled={!sharedMethod || !allChannelsSet || batchProgress !== null}
                           onClick={runBatch}
                         >
                           {batchProgress
@@ -873,7 +880,7 @@ export function RgbCompositeEditorDialog({
                             : 'Compute stretch per dataset'}
                         </Button>
                         <p className="text-[11px] text-muted-foreground">
-                          {stretchCustom
+                          {!sharedMethod
                             ? 'Pick a stretch method above to compute it for each dataset.'
                             : 'Applies this method separately to each dataset using its own pixel values. Datasets with own settings are left unchanged.'}
                         </p>
@@ -911,7 +918,8 @@ export function RgbCompositeEditorDialog({
                                 id: m.id,
                                 label: m.shortName,
                                 description: m.description,
-                                onApply: () => editRange(cfg.setMinMax, i, computeStretch(m.id, hist)),
+                                active: channelMethods[i] === m.id,
+                                onApply: () => applyChannelStretch(i, m.id, hist),
                               })) : undefined}
                               chartHeight={110}
                             />

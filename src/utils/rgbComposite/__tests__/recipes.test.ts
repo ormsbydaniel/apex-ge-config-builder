@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveRecipeBands, matchRecipe, computeStretch, tidyStretch, guessSensor } from '../recipes';
+import { resolveRecipeBands, matchRecipe, computeStretch, tidyStretch, guessSensor, sharedStretchMethod } from '../recipes';
 
 const bins = Array.from({ length: 100 }, (_, i) => ({ x: i * 100, count: 1 }));
 
@@ -33,6 +33,13 @@ describe('rgb recipes', () => {
 });
 
 describe('stretches', () => {
+  it('shows a shared method only when all channel selections agree', () => {
+    expect(sharedStretchMethod(['percent-2-98', 'percent-2-98', 'percent-2-98'])).toBe('percent-2-98');
+    expect(sharedStretchMethod(['percent-2-98', 'min-max', 'percent-2-98'])).toBeNull();
+    expect(sharedStretchMethod(['percent-2-98', null, 'percent-2-98'])).toBeNull();
+    expect(sharedStretchMethod([null, null, null])).toBeNull();
+    expect(sharedStretchMethod(['min-max', 'min-max', 'min-max'])).toBe('min-max');
+  });
   it('min-max uses histogram bounds', () => {
     expect(computeStretch('min-max', { bins, min: 0, max: 9900 })).toEqual({ min: 0, max: 9900 });
   });

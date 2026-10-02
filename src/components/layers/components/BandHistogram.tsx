@@ -36,7 +36,7 @@ interface BandHistogramProps {
   /** Fixed chart height in px (used when histograms are stacked). */
   chartHeight?: number;
   /** Optional per-band stretch buttons; replaces the default percentile buttons. */
-  stretchOptions?: { id: string; label: string; description?: string; onApply: () => void }[];
+  stretchOptions?: { id: string; label: string; description?: string; active?: boolean; onApply: () => void }[];
 }
 
 function formatTickValue(v: number): string {
@@ -362,10 +362,11 @@ export function BandHistogram({
             {stretchOptions.map((opt, idx) => (
               <Button
                 key={opt.id}
-                variant="outline"
+                variant={opt.active ? 'default' : 'outline'}
                 size="sm"
                 className="h-7 text-[11px] px-2"
                 title={opt.description}
+                aria-pressed={opt.active === true}
                 onClick={() => opt.onApply()}
               >
                 {idx === 0 && <Wand2 className="h-3 w-3 mr-1" />}
