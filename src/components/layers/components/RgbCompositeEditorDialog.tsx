@@ -10,9 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import {
-  applyToScope, cogIndices, copyToAll, datasetLabel, firstCogIndex, resetToFirst,
+  applyToScope, cogIndices, datasetLabel, firstCogIndex,
 } from '@/utils/rgbComposite/perDataset';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -167,7 +166,6 @@ export function RgbCompositeEditorDialog({
   const cogIdx = useMemo(() => cogIndices(source.data || []), [source.data]);
   const firstIdx = cogIdx[0] ?? 0;
   const multiDataset = cogIdx.length > 1;
-  const isFirstScope = scope === firstIdx;
   const scopePos = cogIdx.indexOf(scope);
   const [batchProgress, setBatchProgress] = useState<{ done: number; total: number } | null>(null);
   const [batchMessage, setBatchMessage] = useState<string | null>(null);
@@ -187,12 +185,6 @@ export function RgbCompositeEditorDialog({
     setStyleDirty(true);
     pendingStyle?.();
     setPendingStyle(null);
-  };
-
-  const statusLabel = (i: number) => {
-    if (i === firstIdx) return 'First dataset';
-    const s = source.data?.[i]?.styleSource;
-    return s === 'own' ? 'Own settings' : s === 'batch' ? 'Per-dataset stretch' : 'Same as first';
   };
 
   // URL of the COG being edited (drives band count, noData and histograms)
@@ -272,18 +264,6 @@ export function RgbCompositeEditorDialog({
     setRangeDirty(false);
     loadFromItem(source.data[i], false);
     setView('editor');
-  };
-
-  const handleResetToFirst = () => {
-    const next = resetToFirst(source.data || [], scope);
-    onUpdateDataSources(next);
-    loadFromItem(next[scope], false);
-  };
-
-  const handleCopyToAll = () => {
-    const next = copyToAll(source.data || [], scope);
-    onUpdateDataSources(next);
-    loadFromItem(next[scope], false);
   };
 
   // Fetch band count and noData from first COG
@@ -778,23 +758,6 @@ export function RgbCompositeEditorDialog({
                           <ChevronRight className="h-3.5 w-3.5" />
                         </Button>
                       </div>
-                      <div className="flex items-center gap-x-2 gap-y-1 flex-wrap">
-                        <Badge variant="outline" className="text-[10px] font-normal">{statusLabel(scope)}</Badge>
-                        {!isFirstScope && (source.data[scope]?.styleSource === 'own' || source.data[scope]?.styleSource === 'batch') && (
-                          <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleResetToFirst}>
-                            Reset to same as first
-                          </Button>
-                        )}
-                        <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleCopyToAll}
-                          title="Copy this dataset's saved settings to every dataset">
-                          Copy to all
-                        </Button>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        {isFirstScope
-                          ? 'Changes here also update datasets marked “Same as first”.'
-                          : 'Changes here apply only to this dataset when saved.'}
-                      </p>
                     </div>
                   )}
                   {mode === 'rgb' && <div className={`${multiDataset ? 'border-t pt-5' : ''} space-y-2`}>

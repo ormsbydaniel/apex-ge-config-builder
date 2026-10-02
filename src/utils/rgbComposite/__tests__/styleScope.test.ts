@@ -16,11 +16,11 @@ describe('composite style scope', () => {
     expect(result[2]).toBe(items[2]);
   });
 
-  it('changes all recipes while retaining each range and own marker', () => {
+  it('changes all datasets, unifying ones marked own while keeping each range', () => {
     const result = applyCompositeStyle(items, 0, [9, 7, 1], true, (item) => item.style);
     expect(result.map((x) => x.bands)).toEqual([[9, 7, 1], [9, 7, 1], [9, 7, 1]]);
     expect(result.map((x) => (x.style as any).variables.rMin)).toEqual([10, 20, 30]);
-    expect(result[1].styleSource).toBe('own');
+    expect(result[1].styleSource).toBeUndefined();
   });
 
   it('keeps former same-as-first peers independent when only first recipe changes', () => {

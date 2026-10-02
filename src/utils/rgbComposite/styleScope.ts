@@ -25,10 +25,12 @@ export function applyCompositeStyle(
     if (!all && !styleDirty && scope === first) {
       return { ...item, style: makeStyle(item) };
     }
+    // "All datasets" unifies every COG dataset (including ones marked 'own'),
+    // since it is now the only copy-to-all action in the editor.
     const { spectralIndex, batchStretch, ...rest } = item;
     return {
       ...rest, convertToRGB: true, bands: [...bands], style: makeStyle(item),
-      styleSource: all && i !== first && item.styleSource !== 'own' ? undefined : i === first ? undefined : 'own',
+      styleSource: all || i === first ? undefined : 'own',
     } as DataSourceItem;
   });
 }
