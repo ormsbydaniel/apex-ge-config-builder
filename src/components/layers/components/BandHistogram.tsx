@@ -316,9 +316,9 @@ export function BandHistogram({
   }
 
   return (
-    <div className="flex-1 flex flex-col gap-3 min-w-0">
+    <div className="flex-1 flex flex-col min-w-0">
       {/* Header */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
         <span
           className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-6 h-6 flex-shrink-0"
           style={{ backgroundColor: channelColor }}
@@ -364,7 +364,7 @@ export function BandHistogram({
       />
 
       {/* Data range helper */}
-      <p className="text-[10px] text-muted-foreground">
+      <p className="text-[10px] text-muted-foreground mt-0.5">
         Data range: {formatTickValue(dataMin)} – {formatTickValue(dataMax)}
       </p>
     </div>
