@@ -45,6 +45,15 @@ The viewer only loads the three bands you requested, so the persisted style alwa
 !!! tip "When to tune min/max"
     Imagery often has an overall brightness range that doesn't match its true value range (e.g. 16-bit data with most values in a narrow window). Setting tighter min/max values per channel dramatically improves contrast without altering the underlying data.
 
+## Different settings per dataset
+
+When a layer holds more than one COG (for example a time series), the editor shows a dataset selector with **‹ / ›** arrows.
+
+- The first dataset is edited by default. Every dataset marked **Same as first** follows its settings.
+- Pick another dataset to give it **Own settings** — a different stretch, bands, composite or index. Use **Apply** to save and keep stepping through datasets.
+- **Reset to same as first** makes a dataset follow the first one again; **Copy to all** copies a dataset's saved settings to every dataset.
+- **Compute stretch per dataset** applies the chosen stretch method (e.g. Mean ± 2σ) using each dataset's own pixel values, without loading each histogram by hand. Datasets with own settings are left unchanged.
+
 ## Bulk behaviour
 
 Deleting the RGB Composite bulk-removes `convertToRGB` and `bands` from every data source under the layer. Use this when switching to a categorical or colormap rendering.
