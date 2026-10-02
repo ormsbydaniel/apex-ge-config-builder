@@ -101,8 +101,7 @@ export function RgbCompositeEditorDialog({
 }: RgbCompositeEditorDialogProps) {
   const [selectedBands, setSelectedBands] = useState<(number | null)[]>([1, 2, 3]);
   const [view, setView] = useState<'gallery' | 'editor'>('editor');
-  // True when this session started on the gallery (no existing composite).
-  const [startedOnGallery, setStartedOnGallery] = useState(false);
+  const [homeTab, setHomeTab] = useState<'rgb' | 'index'>('rgb');
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
   const [rMinMax, setRMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
@@ -172,7 +171,7 @@ export function RgbCompositeEditorDialog({
       const firstIndex = (source.data || []).find((d: DataSourceItem) => d.format === 'cog' && d.spectralIndex);
       const hasExisting = !!firstRgb || !!firstIndex;
       setView(hasExisting ? 'editor' : 'gallery');
-      setStartedOnGallery(!hasExisting);
+      setHomeTab(firstIndex ? 'index' : 'rgb');
       setMode('rgb');
       if (firstIndex) loadIndexConfig(firstIndex.spectralIndex as SpectralIndexConfig);
       const bands = firstRgb?.bands && firstRgb.bands.length >= 3
@@ -536,9 +535,9 @@ export function RgbCompositeEditorDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-5xl h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>RGB Composite & Spectral Index Editor</DialogTitle>
+          <DialogTitle>Multi-band visualisations</DialogTitle>
           <DialogDescription>
-            Choose a three-band composite or a spectral index, then fine-tune bands and ranges. Changes apply to all COG sources in this layer.
+            {view === 'gallery' ? 'Choose a composite or index to edit.' : 'Adjust bands and ranges. Changes apply to all COG sources in this layer.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -548,6 +547,8 @@ export function RgbCompositeEditorDialog({
               bandCount={cogBandCount}
               bandLabels={bandLabels}
               loading={loading}
+              activeTab={homeTab}
+              onTabChange={setHomeTab}
               onPick={handleGalleryPick}
               onPickIndex={handleGalleryPickIndex}
             />
@@ -562,16 +563,16 @@ export function RgbCompositeEditorDialog({
               {/* ── Left pane: composite, channels, stretch ── */}
               <ScrollArea className="min-h-0 pr-3">
                 <div className="space-y-5">
-                  {startedOnGallery && (
-                    <button
+                  <div>
+                    <Button
                       type="button"
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      onClick={() => setView('gallery')}
-                    >
-                      ← Back to composites
-                    </button>
-                  )}
-                  <div className="space-y-2">
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-muted-foreground"
+                      onClick={() => { setHomeTab(mode); setView('gallery'); }}
+                    >← Back to visualisations</Button>
+                  </div>
+                  {mode === 'rgb' && <div className="space-y-2">
                     <div className={sectionLabel}>
                       Composite
                       {sensor && <span className="normal-case tracking-normal font-normal ml-2">· detected {SENSOR_NAMES[sensor]}</span>}
@@ -614,9 +615,9 @@ export function RgbCompositeEditorDialog({
                         );
                       })}
                     </div>
-                  </div>
+                  </div>}
 
-                  <div className="space-y-2">
+                  {mode === 'index' && <div className="space-y-2">
                     <div className={sectionLabel}>Spectral indices</div>
                     <div className="flex flex-col gap-1">
                       {INDEX_RECIPES.map((r) => {
@@ -654,7 +655,7 @@ export function RgbCompositeEditorDialog({
                         );
                       })}
                     </div>
-                  </div>
+                  </div>}
 
                   {mode === 'rgb' ? (<>
                   <div className="space-y-2">
