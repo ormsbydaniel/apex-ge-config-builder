@@ -22,7 +22,8 @@ import {
 } from '@/utils/rgbComposite/recipes';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
-import { fetchCogHeaderMetadata, fetchBandHistogram, BandHistogramResult } from '@/utils/cogMetadata';
+import { fetchCogHeaderMetadata, BandHistogramResult } from '@/utils/cogMetadata';
+import { getHistogram, peekStretch } from '@/utils/rgbComposite/histogramCache';
 import { BandHistogram } from './BandHistogram';
 import CompositeGallery, { RECIPE_ICONS, INDEX_ICONS } from './CompositeGallery';
 import {
@@ -169,6 +170,7 @@ export function RgbCompositeEditorDialog({
   const [batchProgress, setBatchProgress] = useState<{ done: number; total: number } | null>(null);
   const [batchMessage, setBatchMessage] = useState<string | null>(null);
   const batchAbortRef = React.useRef<AbortController | null>(null);
+  const [applyAll, setApplyAll] = useState(false);
 
   const statusLabel = (i: number) => {
     if (i === firstIdx) return 'First dataset';
@@ -233,6 +235,7 @@ export function RgbCompositeEditorDialog({
       setScope(first < 0 ? 0 : first);
       setBatchMessage(null);
       setBatchProgress(null);
+      setApplyAll(first >= 0 && data[first]?.styleSource === 'batch');
       loadFromItem(first < 0 ? undefined : data[first], true);
     }
     if (!open && prevOpenRef.current) batchAbortRef.current?.abort();
@@ -350,20 +353,26 @@ export function RgbCompositeEditorDialog({
   };
 
   /** Compute the chosen stretch from each dataset's own pixels (skips datasets with own settings). */
-  const runBatch = async () => {
-    if (!sharedMethod || !allChannelsSet) return;
+  const applyToAllDatasets = async (method: StretchMethod | null = sharedMethod) => {
+    if (!method || !allChannelsSet) return;
     const data = source.data || [];
     const bands = selectedBands as number[];
     const targets = cogIdx
       .filter((i) => i === firstIdx || !hasOwnSettings(data[i]))
       .map((i) => ({ index: i, url: data[i].url as string }));
+    batchAbortRef.current?.abort();
     const ctrl = new AbortController();
     batchAbortRef.current = ctrl;
     setBatchMessage(null);
-    setBatchProgress({ done: 0, total: targets.length });
-    const results = await computeBatchStretch(
-      targets, bands, sharedMethod,
-      (url, b0) => fetchBandHistogram(url, b0, noDataValue),
+    // Fully cached: apply instantly without a progress indicator.
+    const cached = targets.map((t) => bands.map((b) => peekStretch(t.url, b - 1, noDataValue, method)));
+    const allCached = cached.every((r) => r.every(Boolean));
+    if (!allCached) setBatchProgress({ done: 0, total: targets.length });
+    const results = allCached
+      ? targets.map((t, k) => ({ index: t.index, ranges: cached[k] as { min: number; max: number }[], error: undefined as string | undefined }))
+      : await computeBatchStretch(
+      targets, bands, method,
+      (url, b0) => getHistogram(url, b0, noDataValue),
       { concurrency: 3, signal: ctrl.signal, onProgress: (done, total) => setBatchProgress({ done, total }) },
     );
     setBatchProgress(null);
@@ -381,13 +390,13 @@ export function RgbCompositeEditorDialog({
         bands: [...bands],
         style: buildRgbStyle(rr, gg, bb),
         styleSource: 'batch',
-        batchStretch: { method: sharedMethod },
+        batchStretch: { method },
       } as DataSourceItem;
     });
     onUpdateDataSources(next);
     const mine = byIndex.get(scope)?.ranges;
     if (mine) { setRMinMax(mine[0]); setGMinMax(mine[1]); setBMinMax(mine[2]); }
-    setBatchMessage(
+    setBatchMessage(allCached && !failed ? null :
       `Stretch computed for ${results.length - failed} of ${targets.length} datasets` +
       (failed ? ` (${failed} failed and were left unchanged).` : '.'),
     );
@@ -453,7 +462,7 @@ export function RgbCompositeEditorDialog({
       inFlightRef.current.add(band);
       setHistogramLoading((prev) => ({ ...prev, [band]: true }));
       setHistogramError((prev) => ({ ...prev, [band]: null }));
-      fetchBandHistogram(firstCogUrl, band - 1, noDataValue)
+      getHistogram(firstCogUrl, band - 1, noDataValue)
         .then((result) => {
           setHistogramCache((prev) => ({ ...prev, [band]: result }));
         })
@@ -522,6 +531,7 @@ export function RgbCompositeEditorDialog({
     setStretchMethod(value as StretchMethod);
     setChannelMethods([value as StretchMethod, value as StretchMethod, value as StretchMethod]);
     queueStretch([0, 1, 2]);
+    if (applyAll && multiDataset && isFirstScope) void applyToAllDatasets(value as StretchMethod);
   };
 
   /** Gallery card picked: apply the recipe and enter the editor. */
