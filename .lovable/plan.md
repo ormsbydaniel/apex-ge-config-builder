@@ -6,12 +6,13 @@
 - So "apply to all" already happens, but there is no way to opt out.
 
 ## Core concept (shared by every visualisation tool)
-A layer has **one shared visualisation** (today's behaviour). Any dataset can be given an **override** for that dataset only. If a dataset has no override, it uses the shared one.
+By default every dataset uses the **same settings as the first dataset** (today's behaviour). Any dataset can be switched to **its own settings**. The datasets are peers; there is no hierarchy, only "same as first" or "own settings".
 
 ```text
-Layer shared style  ──►  COG A (inherits)
-                    ──►  COG B (override: tighter stretch, summer)
-                    ──►  COG C (inherits)
+COG A (first)  ── settings edited here
+COG B          ── Same as first
+COG C          ── Own settings (tighter stretch, summer)
+COG D          ── Same as first
 ```
 
 This works for every tool, because each one already produces "a style for a dataset".
@@ -20,7 +21,7 @@ This works for every tool, because each one already produces "a style for a data
 
 **Option 1 - Scope selector in the editor header (recommended)**
 - A dropdown next to the title: "All datasets (shared)" / "COG A" / "COG B"... with Previous / Next arrows beside it.
-- Choosing a single dataset loads *that* COG's histograms and edits its override. A badge shows "Inherits shared" or "Overridden", with "Reset to shared" and "Copy to all".
+- Choosing a single dataset loads *that* COG's histograms and edits its own settings. A badge shows "Same as first" or "Own settings", with "Reset to same as first" and "Copy to all".
 - Good for time series (step through dates) and for swipe comparisons (pick the two COGs).
 
 **Option 2 - Dataset strip/list as a third pane**
