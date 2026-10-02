@@ -66,3 +66,16 @@ Recommendation: Option 1 as the main control, plus Option 3 as a shortcut. Optio
 - Editor: `RgbCompositeEditorDialog.tsx` gains a `scopeIndex` state; the histogram cache key becomes `(url, band)` instead of `band`; mode (composite/index) becomes per scope.
 - Batch: new pure util `computeBatchStretch(items, rule, opts)` in `src/utils/rgbComposite/` using `fetchBandHistogram`, concurrency 3, `AbortController` on dialog close; unit tests for the stretch maths.
 - Phase 3: colormaps/categories move from layer `meta` to optional per-item settings, with layer `meta` still read as the "first" value for existing configs (backwards compatible).
+
+## Test and development config
+- Develop and test against the **Multispectral datasets** test config (manifest id `multispectral-datasets`, `test-configs/config-multispectral-datasets.json`), loadable from Load Configuration under "Test & development".
+- It contains:
+    - **East London - time series, natural colour**: 11 monthly Sentinel-2 ARD COGs, bands 3-2-1, each with an identical saved stretch. Main case for stepping through datasets with Previous/Next and for the per-COG batch stretch (seasonal variation).
+    - **East London - time series, agriculture**: the same 11 COGs with bands 9-7-1. Good for the "different recipe on the same scene" comparison, and for checking existing configs load as "Same as first" without any change.
+    - **Bristol Sentinel 2 - true colour composite**: single COG; checks that single-dataset layers show no scope selector.
+- Existing items have no new marker; loading them must treat every dataset as "Same as first" and export unchanged until edited.
+
+## Testing approach
+- Unit tests (Vitest) for: resolving "same as first" vs own settings, saving the first dataset only rewrites "same as first" items, batch stretch maths (mean +/- k SD, percentiles), and a round-trip of the multispectral test config through schema validation with the new marker.
+- Typecheck and build after each phase.
+- Full UI testing is left to you.
