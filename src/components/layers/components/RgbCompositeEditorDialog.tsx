@@ -936,7 +936,7 @@ export function RgbCompositeEditorDialog({
               {/* ── Right pane: stacked channel histograms ── */}
               <ScrollArea className="min-h-0 border-l pl-5 pr-3">
                 {mode === 'rgb' ? (
-                <div className="space-y-4">
+                <div className="space-y-4 pl-1.5">
                   <div className="space-y-2">
                     <div className={sectionLabel}>Contrast stretch (all bands)</div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1">

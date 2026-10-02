@@ -41,4 +41,30 @@ describe('BandHistogram stretch buttons', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Full range' }));
     expect(onFullRange).toHaveBeenCalledOnce();
   });
+
+  it('keeps Min and Max grips and labels inside the plot at range endpoints', () => {
+    render(
+      <BandHistogram
+        data={[{ x: 0, count: 4 }, { x: 100, count: 5 }]}
+        loading={false}
+        channelColor="red"
+        channelLabel="R"
+        bandLabel="Band 3 – Red"
+        dataMin={0}
+        dataMax={100}
+        min={0}
+        max={100}
+        onMinChange={vi.fn()}
+        onMaxChange={vi.fn()}
+        chartHeight={110}
+      />,
+    );
+
+    const minLabel = screen.getByText('Min', { selector: 'div' });
+    const maxLabel = screen.getByText('Max', { selector: 'div' });
+    expect(minLabel).toHaveStyle({ left: '0px', transform: 'none' });
+    expect(maxLabel).toHaveStyle({ right: '0px', transform: 'none' });
+    expect(minLabel.parentElement).toHaveStyle({ left: '0%', transform: 'none' });
+    expect(maxLabel.parentElement).toHaveStyle({ left: '100%', transform: 'translateX(-100%)' });
+  });
 });
