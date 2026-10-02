@@ -9,7 +9,11 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import {
+  applyToScope, cogIndices, computeBatchStretch, copyToAll, datasetLabel, firstCogIndex, hasOwnSettings, resetToFirst,
+} from '@/utils/rgbComposite/perDataset';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -154,56 +158,104 @@ export function RgbCompositeEditorDialog({
     return fromItem;
   }, [source.meta, source.data]);
 
-  // Find first COG source URL for band count
+  // Per-dataset scope: index into source.data of the COG being edited.
+  const [scope, setScope] = useState(0);
+  const cogIdx = useMemo(() => cogIndices(source.data || []), [source.data]);
+  const firstIdx = cogIdx[0] ?? 0;
+  const multiDataset = cogIdx.length > 1;
+  const isFirstScope = scope === firstIdx;
+  const scopePos = cogIdx.indexOf(scope);
+  const [batchProgress, setBatchProgress] = useState<{ done: number; total: number } | null>(null);
+  const [batchMessage, setBatchMessage] = useState<string | null>(null);
+  const batchAbortRef = React.useRef<AbortController | null>(null);
+
+  const statusLabel = (i: number) => {
+    if (i === firstIdx) return 'First dataset';
+    const s = source.data?.[i]?.styleSource;
+    return s === 'own' ? 'Own settings' : s === 'batch' ? 'Per-dataset stretch' : 'Same as first';
+  };
+
+  // URL of the COG being edited (drives band count, noData and histograms)
   const firstCogUrl = useMemo(() => {
+    const item = source.data?.[scope];
+    if (item?.format === 'cog') return item.url;
     return (source.data || []).find((d: DataSourceItem) => d.format === 'cog')?.url;
-  }, [source.data]);
+  }, [source.data, scope]);
 
   const inFlightRef = React.useRef<Set<number>>(new Set());
   const selectedBandsRef = React.useRef(selectedBands);
   selectedBandsRef.current = selectedBands;
 
+  /** Load the editor state from one data item. */
+  const loadFromItem = (item: DataSourceItem | undefined, setInitialView: boolean) => {
+    const rgbItem = item?.convertToRGB === true ? item : undefined;
+    const indexItem = item?.format === 'cog' && item?.spectralIndex ? item : undefined;
+    const hasExisting = !!rgbItem || !!indexItem;
+    if (setInitialView) setView(hasExisting ? 'editor' : 'gallery');
+    setHomeTab(indexItem ? 'index' : 'rgb');
+    setMode('rgb');
+    if (indexItem) loadIndexConfig(indexItem.spectralIndex as SpectralIndexConfig);
+    const bands = rgbItem?.bands && rgbItem.bands.length >= 3 ? rgbItem.bands.slice(0, 3) : [1, 2, 3];
+    setSelectedBands(bands);
+    setStretchError(null);
+    inFlightRef.current = new Set();
+    setHistogramCache({});
+    setHistogramLoading({});
+    setHistogramError({});
+
+    // Initialize min/max from existing style variables (shown as "Custom"),
+    // otherwise auto-apply the default stretch once histograms load.
+    const vars = (rgbItem as any)?.style?.variables;
+    if (vars) {
+      setRMinMax({ min: vars.rMin ?? 0, max: vars.rMax ?? 10000 });
+      setGMinMax({ min: vars.gMin ?? 0, max: vars.gMax ?? 10000 });
+      setBMinMax({ min: vars.bMin ?? 0, max: vars.bMax ?? 10000 });
+      setStretchCustom(true);
+      setPendingStretch([]);
+    } else {
+      setRMinMax({ min: 0, max: 10000 });
+      setGMinMax({ min: 0, max: 10000 });
+      setBMinMax({ min: 0, max: 10000 });
+      setStretchMethod('percent-2-98');
+      setStretchCustom(false);
+      setPendingStretch([0, 1, 2]);
+    }
+  };
+
   // Initialize state only when dialog opens
   const prevOpenRef = React.useRef(false);
   useEffect(() => {
     if (open && !prevOpenRef.current) {
-      const firstRgb = (source.data || []).find((d: DataSourceItem) => d.convertToRGB === true);
-      const firstIndex = (source.data || []).find((d: DataSourceItem) => d.format === 'cog' && d.spectralIndex);
-      const hasExisting = !!firstRgb || !!firstIndex;
-      setView(hasExisting ? 'editor' : 'gallery');
-      setHomeTab(firstIndex ? 'index' : 'rgb');
-      setMode('rgb');
-      if (firstIndex) loadIndexConfig(firstIndex.spectralIndex as SpectralIndexConfig);
-      const bands = firstRgb?.bands && firstRgb.bands.length >= 3
-        ? firstRgb.bands.slice(0, 3)
-        : [1, 2, 3];
-      setSelectedBands(bands);
-      setStretchError(null);
-      inFlightRef.current = new Set();
-      setHistogramCache({});
-      setHistogramLoading({});
-      setHistogramError({});
-
-      // Initialize min/max from existing style variables (shown as "Custom"),
-      // otherwise auto-apply the default stretch once histograms load.
-      const vars = (firstRgb as any)?.style?.variables;
-      if (vars) {
-        setRMinMax({ min: vars.rMin ?? 0, max: vars.rMax ?? 10000 });
-        setGMinMax({ min: vars.gMin ?? 0, max: vars.gMax ?? 10000 });
-        setBMinMax({ min: vars.bMin ?? 0, max: vars.bMax ?? 10000 });
-        setStretchCustom(true);
-        setPendingStretch([]);
-      } else {
-        setRMinMax({ min: 0, max: 10000 });
-        setGMinMax({ min: 0, max: 10000 });
-        setBMinMax({ min: 0, max: 10000 });
-        setStretchMethod('percent-2-98');
-        setStretchCustom(false);
-        setPendingStretch([0, 1, 2]);
-      }
+      const data = source.data || [];
+      const first = firstCogIndex(data);
+      setScope(first < 0 ? 0 : first);
+      setBatchMessage(null);
+      setBatchProgress(null);
+      loadFromItem(first < 0 ? undefined : data[first], true);
     }
+    if (!open && prevOpenRef.current) batchAbortRef.current?.abort();
     prevOpenRef.current = open;
   }, [open, source.data]);
+
+  const changeScope = (i: number) => {
+    if (i === scope || i < 0) return;
+    setScope(i);
+    setBatchMessage(null);
+    loadFromItem(source.data[i], false);
+    setView('editor');
+  };
+
+  const handleResetToFirst = () => {
+    const next = resetToFirst(source.data || [], scope);
+    onUpdateDataSources(next);
+    loadFromItem(next[scope], false);
+  };
+
+  const handleCopyToAll = () => {
+    const next = copyToAll(source.data || [], scope);
+    onUpdateDataSources(next);
+    loadFromItem(next[scope], false);
+  };
 
   // Fetch band count and noData from first COG
   useEffect(() => {
@@ -257,8 +309,10 @@ export function RgbCompositeEditorDialog({
   const indexReady = indexBands[0] != null && indexBands[1] != null && indexBands[0] !== indexBands[1] && indexMax > indexMin;
   const canSave = mode === 'index' ? indexReady : allChannelsSet;
 
-  const handleSave = () => {
+  const handleSave = (close = true) => {
     if (!canSave) return;
+    const data = source.data || [];
+    let transform: (d: DataSourceItem) => DataSourceItem;
     if (mode === 'index') {
       const cfg: SpectralIndexConfig = {
         recipe: indexRecipe,
@@ -269,19 +323,14 @@ export function RgbCompositeEditorDialog({
         min: indexMin,
         max: indexMax,
       };
-      const updatedData = (source.data || []).map((d: DataSourceItem) => {
-        if (d.format !== 'cog') return d;
-        // The viewer loads only `bands` and renumbers them 1..n, so the style reads bands 1 and 2.
+      // The viewer loads only `bands` and renumbers them 1..n, so the style reads bands 1 and 2.
+      transform = (d) => {
         const { convertToRGB, bands, ...rest } = d as any;
-        return { ...rest, bands: [cfg.bandA, cfg.bandB], style: buildIndexStyle(cfg), spectralIndex: cfg } as DataSourceItem;
-      });
-      onUpdateDataSources(updatedData);
-      onOpenChange(false);
-      return;
-    }
-    const bands = selectedBands as number[];
-    const updatedData = (source.data || []).map((d: DataSourceItem) => {
-      if (d.format === 'cog') {
+        return { ...rest, bands: [cfg.bandA, cfg.bandB], style: buildIndexStyle(cfg), spectralIndex: { ...cfg } } as DataSourceItem;
+      };
+    } else {
+      const bands = selectedBands as number[];
+      transform = (d) => {
         const { spectralIndex, ...rest } = d as any;
         const updated: any = { ...rest, convertToRGB: true, bands: [...bands] };
         if (hasAdvancedValues) {
@@ -290,11 +339,11 @@ export function RgbCompositeEditorDialog({
           delete updated.style;
         }
         return updated;
-      }
-      return d;
-    });
-    onUpdateDataSources(updatedData);
-    onOpenChange(false);
+      };
+    }
+    const effectiveScope = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
+    onUpdateDataSources(applyToScope(data, effectiveScope, transform));
+    if (close) onOpenChange(false);
   };
 
   // ── Spectral index actions ──
@@ -551,9 +600,47 @@ export function RgbCompositeEditorDialog({
                 onClick={() => { setHomeTab(mode); setView('gallery'); }}
               >← Back to visualisations</Button>
             </div>
-            <DialogDescription className="border-l pl-5 pr-3">
-              Adjust bands and ranges. Changes apply to all COG sources in this layer.
-            </DialogDescription>
+            <div className="border-l pl-5 pr-3 space-y-2">
+              <DialogDescription>
+                {!multiDataset
+                  ? 'Adjust bands and ranges.'
+                  : isFirstScope
+                    ? 'Editing the first dataset. Datasets marked \u201cSame as first\u201d follow these settings.'
+                    : 'Editing this dataset only. Saving gives it its own settings.'}
+              </DialogDescription>
+              {multiDataset && (
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <Button type="button" size="icon" variant="outline" className="h-7 w-7" aria-label="Previous dataset"
+                    disabled={scopePos <= 0} onClick={() => changeScope(cogIdx[scopePos - 1])}>
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  <Select value={String(scope)} onValueChange={(v) => changeScope(Number(v))}>
+                    <SelectTrigger className="h-7 w-[220px] text-xs" aria-label="Dataset"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {cogIdx.map((i, pos) => (
+                        <SelectItem key={i} value={String(i)} className="text-xs">
+                          {datasetLabel(source.data[i], pos + 1)}{statusLabel(i) !== 'Same as first' ? ` · ${statusLabel(i)}` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button type="button" size="icon" variant="outline" className="h-7 w-7" aria-label="Next dataset"
+                    disabled={scopePos >= cogIdx.length - 1} onClick={() => changeScope(cogIdx[scopePos + 1])}>
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                  <Badge variant="outline" className="text-[10px] font-normal">{statusLabel(scope)}</Badge>
+                  {!isFirstScope && (source.data[scope]?.styleSource === 'own' || source.data[scope]?.styleSource === 'batch') && (
+                    <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleResetToFirst}>
+                      Reset to same as first
+                    </Button>
+                  )}
+                  <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleCopyToAll}
+                    title="Copy this dataset's saved settings to every dataset">
+                    Copy to all
+                  </Button>
+                </div>
+              )}
+            </div>
           </DialogHeader>
         )}
 
@@ -711,6 +798,28 @@ export function RgbCompositeEditorDialog({
                         : STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
                     </p>
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
+                    {multiDataset && isFirstScope && (
+                      <div className="space-y-1 pt-1">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="h-8 w-full text-xs"
+                          disabled={stretchCustom || !allChannelsSet || batchProgress !== null}
+                          onClick={runBatch}
+                        >
+                          {batchProgress
+                            ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> {batchProgress.done} of {batchProgress.total} datasets</>
+                            : 'Compute stretch per dataset'}
+                        </Button>
+                        <p className="text-[11px] text-muted-foreground">
+                          {stretchCustom
+                            ? 'Pick a stretch method above to compute it for each dataset.'
+                            : 'Uses these bands and computes the chosen stretch from each dataset\u2019s own pixel values. Datasets with own settings are left unchanged.'}
+                        </p>
+                        {batchMessage && <p className="text-[11px] text-muted-foreground">{batchMessage}</p>}
+                      </div>
+                    )}
                   </div>
                   </>) : indexLeft}
                 </div>
@@ -769,10 +878,15 @@ export function RgbCompositeEditorDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {multiDataset ? 'Close' : 'Cancel'}
           </Button>
+          {view === 'editor' && multiDataset && (
+            <Button variant="outline" onClick={() => handleSave(false)} disabled={!canSave}>
+              Apply
+            </Button>
+          )}
           {view === 'editor' && (
-            <Button onClick={handleSave} disabled={!canSave}>
+            <Button onClick={() => handleSave(true)} disabled={!canSave}>
               Save
             </Button>
           )}
