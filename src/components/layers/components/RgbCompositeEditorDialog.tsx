@@ -387,7 +387,7 @@ export function RgbCompositeEditorDialog({
   const applyToAllDatasets = async (method: StretchMethod | null = sharedMethod) => {
     if (!method || !allChannelsSet) return;
     const data = source.data || [];
-    const targets = cogIdx.filter((i) => i === scope || (data[i].convertToRGB && !data[i].spectralIndex))
+    const targets = cogIdx.filter((i) => (i === scope && mode === 'rgb') || (data[i].convertToRGB && !data[i].spectralIndex))
       .map((i) => ({ index: i, url: data[i].url as string,
         bands: i === scope ? selectedBands as number[] : (data[i].bands?.slice(0, 3) ?? []) }));
     const validTargets = targets.filter((t) => t.bands.length === 3 && t.bands.every((b) => typeof b === 'number'));

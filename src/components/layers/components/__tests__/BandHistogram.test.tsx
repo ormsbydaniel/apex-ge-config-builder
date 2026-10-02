@@ -35,6 +35,9 @@ describe('BandHistogram stretch buttons', () => {
 
     expect(screen.getByRole('button', { name: '2–98%' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: 'Full range' })).toHaveAttribute('aria-pressed', 'false');
+    const header = screen.getByText('Band 3 – Red').parentElement;
+    expect(header).toContainElement(screen.getByRole('spinbutton', { name: 'Min' }));
+    expect(header).toContainElement(screen.getByRole('button', { name: 'Full range' }));
     fireEvent.click(screen.getByRole('button', { name: 'Full range' }));
     expect(onFullRange).toHaveBeenCalledOnce();
   });
