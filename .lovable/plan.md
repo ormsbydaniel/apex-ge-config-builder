@@ -40,28 +40,29 @@ Recommendation: Option 1 as the main control, plus Option 3 as a shortcut. Optio
 - Indices: same idea applied to the index value range.
 
 ## How it applies per tool
-| Tool | Shared | Per-dataset override | Batch |
+| Tool | Same as first | Own settings | Batch |
 |---|---|---|---|
-| RGB composites | bands + stretch | own stretch (and optionally bands/recipe) | per-COG stretch |
-| Spectral indices | recipe + range + colormap | own range / colormap / recipe | per-COG range |
-| Colormaps / gradient | layer meta | own colormap range | per-COG min/max |
-| Categories | layer meta | rarely useful; override allowed later | n/a |
+| RGB composites | bands + stretch | own recipe, bands and stretch | per-COG stretch |
+| Spectral indices | recipe + range + colormap | own recipe, bands, range, colormap | per-COG range |
+| Colormaps / gradient | first dataset's colormap | own colormap and range | per-COG min/max |
+| Categories | first dataset's categories | own category list | n/a |
 | Vector styling | rules | own rule set | n/a |
 
-Swipe comparisons: allowing a different recipe per COG (e.g. composite on one, NDVI on the other) falls out naturally from per-dataset overrides.
+## Mixing visualisation types per dataset
+- A dataset with own settings can use any recipe or bands, and can switch between composite and index (e.g. NDVI on one, Agriculture composite on another).
+- Main use: swipe layers comparing two visualisations, either of the **same scene** (the same COG added twice) or of **different scenes**.
+- "Add same COG again" shortcut in the editor, so a same-scene comparison doesn't need the COG re-entered by hand.
+- The layer card lists each distinct visualisation (e.g. "NDVI - 1 dataset", "Agriculture - 1 dataset") instead of a single summary.
+- Mutual exclusivity of visualisation types stays per dataset rather than per layer.
 
 ## Suggested phasing
-1. **Phase 1 - Multi-band only:** scope selector + Previous/Next, per-COG histograms, override / reset / copy to all, layer-card badge ("2 of 5 overridden").
+1. **Phase 1 - Multi-band:** scope selector + Previous/Next, per-COG histograms, own recipe/bands/stretch, composite-or-index per dataset, reset / copy to all, layer-card summary ("2 of 5 with own settings").
 2. **Phase 2 - Batch compute** for composites and indices.
-3. **Phase 3 - Extend** to colormaps/gradient and vector styling using the same scope selector; categories last if needed.
-
-## Questions to settle before building
-- Does the Explorer accept per-dataset colormap/category settings, or only layer-level ones? This decides whether Phase 3 needs viewer changes. Multi-band and vector styles are already per dataset, so Phases 1-2 need no viewer change.
-- Per-dataset overrides: stretch only, or also allow a different recipe or bands?
+3. **Phase 3 - Extend** the same scope selector to colormaps/gradient, categories and vector styling.
 
 ## Technical details
-- Multi-band: no schema change needed. Each data item already carries `bands`, `style`, `spectralIndex`. Add an optional `styleSource?: 'shared' | 'override' | 'batch'` marker (plus batch rule, e.g. `{ method: 'meanStd', k: 2 }`) on the data item, kept in sync in `configSchema.ts`, `types/config.ts` and `useValidatedConfig.ts`. Saving "shared" rewrites only items marked shared/batch.
-- Shared defaults for multi-band are taken from the first item marked shared (no separate layer-level copy, avoiding drift).
-- Editor: `RgbCompositeEditorDialog.tsx` gains a `scopeIndex` state; the histogram cache key becomes `(url, band)` instead of `band`.
+- Multi-band: each data item already carries `bands`, `style`, `spectralIndex`, so per-dataset recipes and bands need no new rendering fields. Add an optional `styleSource?: 'first' | 'own' | 'batch'` marker (plus batch rule, e.g. `{ method: 'meanStd', k: 2 }`) on the data item, kept in sync in `configSchema.ts`, `types/config.ts` and `useValidatedConfig.ts`. Saving the first dataset rewrites only items marked `first`/`batch`.
+- No separate layer-level copy of settings: "same as first" is resolved from the first dataset, avoiding drift.
+- Editor: `RgbCompositeEditorDialog.tsx` gains a `scopeIndex` state; the histogram cache key becomes `(url, band)` instead of `band`; mode (composite/index) becomes per scope.
 - Batch: new pure util `computeBatchStretch(items, rule, opts)` in `src/utils/rgbComposite/` using `fetchBandHistogram`, concurrency 3, `AbortController` on dialog close; unit tests for the stretch maths.
-- Colormaps/categories override (Phase 3) would add optional per-item `meta` overrides; only once viewer support is confirmed.
+- Phase 3: colormaps/categories move from layer `meta` to optional per-item settings, with layer `meta` still read as the "first" value for existing configs (backwards compatible).
