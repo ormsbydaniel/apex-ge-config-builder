@@ -262,6 +262,8 @@ export function RgbCompositeEditorDialog({
 
   const changeScope = (i: number) => {
     if (i === scope || i < 0) return;
+    batchAbortRef.current?.abort();
+    setBatchProgress(null);
     setScope(i);
     setBatchMessage(null);
     setStyleScope('this');
@@ -533,6 +535,7 @@ export function RgbCompositeEditorDialog({
   };
 
   const applyChannelStretch = (channelIdx: number, method: StretchMethod, hist: BandHistogramResult) => {
+    setBatchMessage(null);
     setRangeDirty(!applyAll);
     setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
     [setRMinMax, setGMinMax, setBMinMax][channelIdx](computeStretch(method, hist));
@@ -593,6 +596,7 @@ export function RgbCompositeEditorDialog({
   );
 
   const applyRecipe = (id: RgbRecipeId) => {
+    setBatchMessage(null);
     setStretchError(null);
     if (id === 'custom') {
       setMode('rgb');
@@ -635,6 +639,7 @@ export function RgbCompositeEditorDialog({
   };
 
   const handleGalleryPickIndex = (id: IndexRecipeId) => {
+    setBatchMessage(null);
     askStyleScope(() => applyIndexRecipe(id));
     setView('editor');
   };
