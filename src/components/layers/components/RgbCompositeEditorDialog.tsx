@@ -10,7 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import {
+  applyToScope, cogIndices, datasetLabel, firstCogIndex,
 import {
   applyToScope, cogIndices, copyToAll, datasetLabel, firstCogIndex, resetToFirst,
 } from '@/utils/rgbComposite/perDataset';
