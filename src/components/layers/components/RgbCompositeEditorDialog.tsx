@@ -603,6 +603,7 @@ export function RgbCompositeEditorDialog({
 
   /** Gallery card picked: apply the recipe and enter the editor. */
   const handleGalleryPick = (id: RgbRecipeId) => {
+    setStyleDirty(true);
     applyRecipe(id);
     setView('editor');
   };

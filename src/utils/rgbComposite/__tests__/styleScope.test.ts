@@ -28,6 +28,13 @@ describe('composite style scope', () => {
     expect(result[2]).toMatchObject({ bands: [3, 2, 1], styleSource: 'own' });
   });
 
+  it('keeps follower ranges when only the first dataset stretch changes', () => {
+    const result = applyCompositeStyle(items, 0, [3, 2, 1], false,
+      () => ({ variables: { rMin: 42 } }), false, true);
+    expect(result[0].style).toEqual({ variables: { rMin: 42 } });
+    expect(result[2]).toMatchObject({ styleSource: 'own', style: { variables: { rMin: 30 } } });
+  });
+
   it('labels saved composite choices', () => {
     expect(visualisationName(items[0], 10)).toBe('Natural colour');
     expect(visualisationName(items[1], 10)).toBe('Agriculture');
