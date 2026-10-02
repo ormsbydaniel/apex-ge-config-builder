@@ -856,7 +856,7 @@ export function RgbCompositeEditorDialog({
                     <div className={sectionLabel}>Contrast stretch (all bands)</div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                       <Select value={sharedMethod ?? 'custom'} onValueChange={chooseStretchMethod}>
-                        <SelectTrigger className="h-8 w-auto gap-2 text-xs" aria-label="Contrast stretch (all bands)"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="h-8 w-auto min-w-[7.5rem] gap-2 text-xs" aria-label="Contrast stretch (all bands)"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {STRETCH_METHODS.map((m) => (
                             <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
