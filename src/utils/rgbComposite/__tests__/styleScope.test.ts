@@ -3,9 +3,9 @@ import { applyCompositeStyle, visualisationName } from '../styleScope';
 import type { DataSourceItem } from '@/types/dataSource';
 
 const items = [
-  { format: 'cog', url: 'first.tif', convertToRGB: true, bands: [3, 2, 1], style: { variables: { rMin: 10 } } },
-  { format: 'cog', url: 'second.tif', convertToRGB: true, bands: [9, 7, 1], styleSource: 'own', style: { variables: { rMin: 20 } } },
-  { format: 'cog', url: 'third.tif', convertToRGB: true, bands: [3, 2, 1], style: { variables: { rMin: 30 } } },
+  { format: 'cog', url: 'first.tif', zIndex: 0, convertToRGB: true, bands: [3, 2, 1], style: { variables: { rMin: 10 } } },
+  { format: 'cog', url: 'second.tif', zIndex: 1, convertToRGB: true, bands: [9, 7, 1], styleSource: 'own', style: { variables: { rMin: 20 } } },
+  { format: 'cog', url: 'third.tif', zIndex: 2, convertToRGB: true, bands: [3, 2, 1], style: { variables: { rMin: 30 } } },
 ] as DataSourceItem[];
 
 describe('composite style scope', () => {
