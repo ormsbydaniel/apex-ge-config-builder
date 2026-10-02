@@ -759,23 +759,6 @@ export function RgbCompositeEditorDialog({
                           <ChevronRight className="h-3.5 w-3.5" />
                         </Button>
                       </div>
-                      <div className="flex items-center gap-x-2 gap-y-1 flex-wrap">
-                        <Badge variant="outline" className="text-[10px] font-normal">{statusLabel(scope)}</Badge>
-                        {!isFirstScope && (source.data[scope]?.styleSource === 'own' || source.data[scope]?.styleSource === 'batch') && (
-                          <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleResetToFirst}>
-                            Reset to same as first
-                          </Button>
-                        )}
-                        <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={handleCopyToAll}
-                          title="Copy this dataset's saved settings to every dataset">
-                          Copy to all
-                        </Button>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        {isFirstScope
-                          ? 'Changes here also update datasets marked “Same as first”.'
-                          : 'Changes here apply only to this dataset when saved.'}
-                      </p>
                     </div>
                   )}
                   {mode === 'rgb' && <div className={`${multiDataset ? 'border-t pt-5' : ''} space-y-2`}>
