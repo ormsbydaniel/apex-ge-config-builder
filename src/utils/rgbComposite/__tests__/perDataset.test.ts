@@ -51,7 +51,7 @@ describe('per-dataset multi-band settings', () => {
 
   it('computes a stretch per dataset and reports failures', async () => {
     const hist = (lo: number, hi: number) => ({
-      bins: [{ value: lo, count: 1 }, { value: hi, count: 1 }], min: lo, max: hi,
+      bins: [{ x: lo, count: 1 }, { x: hi, count: 1 }], min: lo, max: hi,
     });
     const fetcher = async (url: string) => {
       if (url.endsWith('bad.tif')) throw new Error('nope');
