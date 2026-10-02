@@ -55,7 +55,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   const visTypeLabels: Record<string, string> = {
     categories: 'categories',
     colormaps: 'colormaps',
-    composites: 'RGB composites',
+    composites: 'multi-band visualisations',
     gradient: 'gradient',
   };
 
@@ -227,12 +227,12 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
           )}
         </div>
 
-        {/* RGB Composites sub-section */}
+        {/* Multi-band visualisations sub-section */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Layers className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
-              RGB Composites {hasRgbComposites ? `(${convertToRgbCount})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
+              Multi-band visualisations {hasRgbComposites ? `(${convertToRgbCount})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
             {renderPencilButton('composites', () => setRgbDialogOpen(true))}
             {hasRgbComposites && (
