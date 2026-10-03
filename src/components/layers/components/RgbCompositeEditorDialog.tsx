@@ -180,7 +180,9 @@ export function RgbCompositeEditorDialog({
   const [pendingStyle, setPendingStyle] = useState<(() => void) | null>(null);
 
   const askStyleScope = (change: () => void) => {
-    if (!multiDataset) { change(); return; }
+    // Single-dataset layers skip the scope prompt, so mark the style dirty here
+    // — otherwise handleSave's early return would drop the change.
+    if (!multiDataset) { setStyleDirty(true); change(); return; }
     setPendingStyle(() => change);
   };
   const [commitStyle, setCommitStyle] = useState<'this' | 'all' | null>(null);
