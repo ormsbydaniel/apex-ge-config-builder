@@ -515,8 +515,8 @@ export function RgbCompositeEditorDialog({
     setIndexBands(bands ? [...bands] : [null, null]);
     setIndexColormap(r.colormap);
     setIndexReverse(r.reverse);
-    setIndexMin(r.min);
-    setIndexMax(r.max);
+    setIndexMin(recipePalette(id)?.displayMin ?? r.min);
+    setIndexMax(recipePalette(id)?.displayMax ?? r.max);
     setIndexPaletteMode(recipePalette(id) ? 'recipe' : 'generic');
   };
 
@@ -802,11 +802,11 @@ export function RgbCompositeEditorDialog({
             Show all
           </Button>
         </div>
-        <p className="text-[11px] text-muted-foreground">Values outside this range are transparent. Colours still follow the value range above.</p>
+        <p className="text-[11px] text-muted-foreground">Values outside this range are transparent. Colours still follow {selectedPalette ? 'the recipe stops' : 'the colour range'} above.</p>
       </div>
       <p className="text-[11px] text-muted-foreground">
         Index values run from −1 to 1. Values below min take the first colour, above max the last. Pixels where both bands are zero (no data) stay transparent.
-        {indexStops.length > 0 && ` ${indexStops.length} colour stops.`}
+        {selectedPalette ? ` ${selectedPalette.stops.length} colour stops.` : indexStops.length > 0 && ` ${indexStops.length} colour stops.`}
       </p>
     </div>
   );
