@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-10-05",
+    title: "Release 2.8.0 - Revamp of multi-band visualisation UI (formerly RGB composites) to include standard composites and indices and multi-dataset support",
+    category: "Feature",
+  },
+  {
     date: "2026-10-01",
     title: "Release 2.7.0 - Revamp of vector data styling user interface",
     category: "Feature",
