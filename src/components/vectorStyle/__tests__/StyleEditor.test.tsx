@@ -43,7 +43,9 @@ describe('StyleEditor rule list', () => {
     expect(screen.queryByRole('button', { name: 'Move rule up' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Move rule down' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('listitem')).toHaveLength(2);
-    expect(screen.getAllByRole('listitem')[0]).toHaveAttribute('draggable', 'true');
+    // Only the grip handle drags, not the whole card.
+    expect(screen.getAllByRole('listitem')[0]).not.toHaveAttribute('draggable');
+    expect(screen.getAllByLabelText('Drag to reorder')[0]).toHaveAttribute('draggable', 'true');
   });
 
   it('selects the rule the focusRule prop points at after a recipe append', () => {
