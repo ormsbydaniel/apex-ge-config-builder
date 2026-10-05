@@ -680,10 +680,45 @@ export function RgbCompositeEditorDialog({
   };
 
   const sectionLabel = 'text-xs font-medium text-muted-foreground uppercase tracking-wide';
-  const indexStops = indexMax > indexMin ? indexColorStops(indexColormap, indexReverse, indexMin, indexMax) : [];
   const selectedPalette = indexPaletteMode === 'recipe' ? recipePalette(indexRecipe) : undefined;
-  const indexGradient = selectedPalette ? paletteGradient(selectedPalette.stops) : createGradientCSS(indexColormap, indexReverse);
+  const activeStops = indexPaletteMode === 'custom' ? customIndexStops : selectedPalette?.stops;
+  const indexGradient = activeStops?.length ? paletteGradient(activeStops) : createGradientCSS(indexColormap, indexReverse);
   const fmt = (v: number) => parseFloat(v.toFixed(3)).toString();
+
+  const beginCustomising = () => {
+    const sourceStops = activeStops?.length
+      ? activeStops
+      : genericLegendStops(indexColormap, indexReverse, indexMin, indexMax);
+    setCustomIndexStops(cloneLegendStops(sourceStops));
+    setIndexPaletteMode('custom');
+  };
+
+  const applyNamedRamp = (name: string) => {
+    const base = customIndexStops.length ? customIndexStops : genericLegendStops(indexColormap, indexReverse, indexMin, indexMax);
+    const colors = generateColorRamp(name, Math.max(2, base.length), indexReverse).map(([r, g, b]) => rgbToHex(r, g, b));
+    setIndexColormap(name);
+    setCustomIndexStops(recolourLegendStops(base, colors));
+    setIndexPaletteMode('custom');
+  };
+
+  const restoreIndexDefaults = () => {
+    const palette = recipePalette(indexRecipe);
+    if (palette) {
+      setIndexMin(palette.displayMin);
+      setIndexMax(palette.displayMax);
+      setCustomIndexStops(cloneLegendStops(palette.stops));
+      setIndexPaletteMode('recipe');
+      return;
+    }
+    const recipe = INDEX_RECIPES.find((candidate) => candidate.id === indexRecipe);
+    if (!recipe) return;
+    setIndexMin(recipe.min);
+    setIndexMax(recipe.max);
+    setIndexColormap(recipe.colormap);
+    setIndexReverse(recipe.reverse);
+    setCustomIndexStops(genericLegendStops(recipe.colormap, recipe.reverse, recipe.min, recipe.max));
+    setIndexPaletteMode('generic');
+  };
 
   const indexLeft = (
     <>
@@ -718,12 +753,12 @@ export function RgbCompositeEditorDialog({
 
   const indexRight = (
     <div className="space-y-4">
-      {selectedPalette && <div className="space-y-2">
+      {activeStops && <div className="space-y-2">
         <div className={sectionLabel}>Index colours</div>
         <div className="h-5 rounded-sm border" style={{ background: indexGradient }} />
         <div className="space-y-1">
-          {selectedPalette.stops.map((stop) => (
-            <div key={stop.value} className="flex items-center gap-2 text-xs">
+          {activeStops.map((stop, index) => (
+            <div key={`${stop.value}-${index}`} className="flex items-center gap-2 text-xs">
               <span className="h-3 w-3 shrink-0 rounded-sm border" style={{ backgroundColor: stop.color }} />
               <span className="w-10 shrink-0 tabular-nums text-muted-foreground">{fmt(stop.value)}</span>
               <span>{stop.meaning}</span>
@@ -731,36 +766,6 @@ export function RgbCompositeEditorDialog({
           ))}
         </div>
       </div>}
-      {recipePalette(indexRecipe) && !selectedPalette && <Button variant="outline" size="sm" type="button" onClick={() => {
-        const palette = recipePalette(indexRecipe);
-        if (!palette) return;
-        setIndexMin(palette.displayMin);
-        setIndexMax(palette.displayMax);
-        setIndexPaletteMode('recipe');
-      }}>Use {indexRecipe.toUpperCase()} defaults</Button>}
-      <details open={!recipePalette(indexRecipe) ? true : undefined}>
-        <summary className="cursor-pointer text-xs font-medium">Advanced colour settings</summary>
-      <div className="space-y-2 pt-3">
-        <div className={sectionLabel}>Colour ramp</div>
-        <div className="flex items-center gap-2">
-          <Select value={indexColormap} onValueChange={(v) => { setIndexPaletteMode('generic'); setIndexColormap(v); }}>
-            <SelectTrigger className="h-8 text-xs flex-1" aria-label="Colour ramp"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {INDEX_COLORMAPS.map((c) => (
-                <SelectItem key={c} value={c} className="text-xs">
-                  <span className="flex items-center gap-2">
-                    <span className="inline-block h-2.5 w-16 rounded-sm" style={{ background: createGradientCSS(c, indexReverse) }} />
-                    {c}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <label className="flex items-center gap-1.5 text-xs">
-            <Checkbox checked={indexReverse} onCheckedChange={(v) => { setIndexPaletteMode('generic'); setIndexReverse(v === true); }} /> Reverse
-          </label>
-        </div>
-      </div>
       <div className={sectionLabel}>Index value range</div>
       <div className="space-y-1">
         <div className="h-5 rounded-sm border" style={{ background: indexGradient }} />
@@ -774,12 +779,12 @@ export function RgbCompositeEditorDialog({
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">Min</span>
           <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMin}
-            onChange={(e) => { setIndexPaletteMode('generic'); setIndexMin(Number(e.target.value)); }} />
+            onChange={(e) => setIndexMin(Number(e.target.value))} />
         </label>
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">Max</span>
           <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMax}
-            onChange={(e) => { setIndexPaletteMode('generic'); setIndexMax(Number(e.target.value)); }} />
+            onChange={(e) => setIndexMax(Number(e.target.value))} />
         </label>
         <Button type="button" size="sm" variant="outline" className="h-8 text-xs" onClick={resetIndexRange}>
           Reset range
@@ -790,12 +795,11 @@ export function RgbCompositeEditorDialog({
         {indexRangePresets(indexRecipe).map((p) => (
           <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
             title={p.visibleMin != null || p.visibleMax != null ? `Colours ${p.min} – ${p.max}, shows only ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}` : `Colours ${p.min} – ${p.max}, shows all values`}
-            onClick={() => { setIndexPaletteMode('generic'); setIndexMin(p.min); setIndexMax(p.max); setVisibleRange([p.visibleMin ?? -1, p.visibleMax ?? 1]); }}>
+            onClick={() => { setIndexMin(p.min); setIndexMax(p.max); setVisibleRange([p.visibleMin ?? -1, p.visibleMax ?? 1]); }}>
             {p.label} ({p.min} – {p.max}{p.visibleMin != null || p.visibleMax != null ? `, visible ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}` : ''})
           </Button>
         ))}
       </div>
-      </details>
       <div className={sectionLabel}>Visible range</div>
       <div className="space-y-2">
         <div className="relative h-3 rounded-sm border overflow-hidden" style={{ background: indexGradient }}>
@@ -820,12 +824,56 @@ export function RgbCompositeEditorDialog({
             Show all
           </Button>
         </div>
-        <p className="text-[11px] text-muted-foreground">Values outside this range are transparent. Colours still follow {selectedPalette ? 'the recipe stops' : 'the colour range'} above.</p>
+        <p className="text-[11px] text-muted-foreground">Values outside this range are transparent. Colours still follow {activeStops ? 'the colour stops' : 'the colour range'} above.</p>
       </div>
       <p className="text-[11px] text-muted-foreground">
         Index values run from −1 to 1. Values below min take the first colour, above max the last. Pixels where both bands are zero (no data) stay transparent.
-        {selectedPalette ? ` ${selectedPalette.stops.length} colour stops.` : indexStops.length > 0 && ` ${indexStops.length} colour stops.`}
+        {activeStops?.length ? ` ${activeStops.length} colour stops.` : ''}
       </p>
+      <details className="border-t pt-3" open={indexPaletteMode === 'custom' || !recipePalette(indexRecipe) ? true : undefined}>
+        <summary className="cursor-pointer text-xs font-medium">Customise settings</summary>
+        <div className="space-y-4 pt-3">
+          {indexPaletteMode !== 'custom' ? (
+            <Button type="button" variant="outline" size="sm" onClick={beginCustomising}>Customise colour stops</Button>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <div className={sectionLabel}>Apply named colour ramp</div>
+                <div className="flex items-center gap-2">
+                  <Select value={indexColormap} onValueChange={applyNamedRamp}>
+                    <SelectTrigger className="h-8 flex-1 text-xs" aria-label="Named colour ramp"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {INDEX_COLORMAPS.map((colorMap) => (
+                        <SelectItem key={colorMap} value={colorMap} className="text-xs">
+                          <span className="flex items-center gap-2">
+                            <span className="inline-block h-2.5 w-16 rounded-sm" style={{ background: createGradientCSS(colorMap, indexReverse) }} />
+                            {colorMap}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <label className="flex items-center gap-1.5 text-xs">
+                    <Checkbox checked={indexReverse} onCheckedChange={(checked) => {
+                      const reverse = checked === true;
+                      setIndexReverse(reverse);
+                      const colors = generateColorRamp(indexColormap, Math.max(2, customIndexStops.length), reverse)
+                        .map(([r, g, b]) => rgbToHex(r, g, b));
+                      setCustomIndexStops(recolourLegendStops(customIndexStops, colors));
+                    }} /> Reverse
+                  </label>
+                </div>
+                <p className="text-[11px] text-muted-foreground">Applying a ramp changes colours only; values and legend meanings stay unchanged.</p>
+              </div>
+              <IndexStopsEditor stops={customIndexStops} onChange={setCustomIndexStops} />
+              {customStopsError && <p className="text-[11px] text-destructive">{customStopsError}</p>}
+            </>
+          )}
+          <Button type="button" variant="link" size="sm" className="h-auto px-0 text-xs" onClick={restoreIndexDefaults}>
+            {recipePalette(indexRecipe) ? `Restore ${indexRecipe.toUpperCase()} defaults` : 'Restore default ramp'}
+          </Button>
+        </div>
+      </details>
     </div>
   );
 
