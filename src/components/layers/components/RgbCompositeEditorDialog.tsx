@@ -686,16 +686,26 @@ export function RgbCompositeEditorDialog({
   const maskPresets = indexRangePresets(indexRecipe).filter((p) => p.visibleMin != null || p.visibleMax != null);
   const fmt = (v: number) => parseFloat(v.toFixed(3)).toString();
 
-  const beginCustomising = () => {
-    const sourceStops = activeStops?.length
+  // Stops shown in the editor: saved custom stops, the recipe defaults, or the
+  // current generic ramp. Merely viewing them does not change the palette mode.
+  const editorStops = indexPaletteMode === 'custom'
+    ? customIndexStops
+    : activeStops?.length
       ? activeStops
       : genericLegendStops(indexColormap, indexReverse, indexMin, indexMax);
-    setCustomIndexStops(cloneLegendStops(sourceStops));
-    setIndexPaletteMode('custom');
+
+  // The style only becomes a custom palette on the first actual edit.
+  const editStops = (next: IndexLegendStop[]) => {
+    if (indexPaletteMode !== 'custom') {
+      setCustomIndexStops(cloneLegendStops(next));
+      setIndexPaletteMode('custom');
+      return;
+    }
+    setCustomIndexStops(next);
   };
 
   const applyNamedRamp = (name: string) => {
-    const base = customIndexStops.length ? customIndexStops : genericLegendStops(indexColormap, indexReverse, indexMin, indexMax);
+    const base = cloneLegendStops(editorStops);
     const colors = generateColorRamp(name, Math.max(2, base.length), indexReverse).map(([r, g, b]) => rgbToHex(r, g, b));
     setIndexColormap(name);
     setCustomIndexStops(recolourLegendStops(base, colors));
@@ -841,42 +851,37 @@ export function RgbCompositeEditorDialog({
               <p className="text-[11px] text-muted-foreground">Stretches the generic colour ramp; recipe and custom stops use their own values.</p>
             </div>
           )}
-          {indexPaletteMode !== 'custom' ? (
-            <Button type="button" variant="outline" size="sm" onClick={beginCustomising}>Customise colour stops</Button>
-          ) : (
-            <>
-              <div className="space-y-2">
-                <div className={sectionLabel}>Apply named colour ramp</div>
-                <div className="flex items-center gap-2">
-                  <Select onValueChange={applyNamedRamp}>
-                    <SelectTrigger className="h-8 flex-1 text-xs" aria-label="Named colour ramp"><SelectValue placeholder="Choose a ramp" /></SelectTrigger>
-                    <SelectContent>
-                      {INDEX_COLORMAPS.map((colorMap) => (
-                        <SelectItem key={colorMap} value={colorMap} className="text-xs">
-                          <span className="flex items-center gap-2">
-                            <span className="inline-block h-2.5 w-16 rounded-sm" style={{ background: createGradientCSS(colorMap, indexReverse) }} />
-                            {colorMap}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <label className="flex items-center gap-1.5 text-xs">
-                    <Checkbox checked={indexReverse} onCheckedChange={(checked) => {
-                      const reverse = checked === true;
-                      setIndexReverse(reverse);
-                      const colors = generateColorRamp(indexColormap, Math.max(2, customIndexStops.length), reverse)
-                        .map(([r, g, b]) => rgbToHex(r, g, b));
-                      setCustomIndexStops(recolourLegendStops(customIndexStops, colors));
-                    }} /> Reverse
-                  </label>
-                </div>
-                <p className="text-[11px] text-muted-foreground">Applying a ramp changes colours only; values and legend meanings stay unchanged.</p>
-              </div>
-              <IndexStopsEditor stops={customIndexStops} onChange={setCustomIndexStops} />
-              {customStopsError && <p className="text-[11px] text-destructive">{customStopsError}</p>}
-            </>
-          )}
+          <div className="space-y-2">
+            <div className={sectionLabel}>Apply named colour ramp</div>
+            <div className="flex items-center gap-2">
+              <Select onValueChange={applyNamedRamp}>
+                <SelectTrigger className="h-8 flex-1 text-xs" aria-label="Named colour ramp"><SelectValue placeholder="Choose a ramp" /></SelectTrigger>
+                <SelectContent>
+                  {INDEX_COLORMAPS.map((colorMap) => (
+                    <SelectItem key={colorMap} value={colorMap} className="text-xs">
+                      <span className="flex items-center gap-2">
+                        <span className="inline-block h-2.5 w-16 rounded-sm" style={{ background: createGradientCSS(colorMap, indexReverse) }} />
+                        {colorMap}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <label className="flex items-center gap-1.5 text-xs">
+                <Checkbox checked={indexReverse} onCheckedChange={(checked) => {
+                  const reverse = checked === true;
+                  setIndexReverse(reverse);
+                  const colors = generateColorRamp(indexColormap, Math.max(2, editorStops.length), reverse)
+                    .map(([r, g, b]) => rgbToHex(r, g, b));
+                  setCustomIndexStops(recolourLegendStops(cloneLegendStops(editorStops), colors));
+                  setIndexPaletteMode('custom');
+                }} /> Reverse
+              </label>
+            </div>
+            <p className="text-[11px] text-muted-foreground">Applying a ramp changes colours only; values and legend meanings stay unchanged.</p>
+          </div>
+          <IndexStopsEditor stops={editorStops} onChange={editStops} />
+          {customStopsError && <p className="text-[11px] text-destructive">{customStopsError}</p>}
           <Button type="button" variant="link" size="sm" className="h-auto px-0 text-xs" onClick={restoreIndexDefaults}>
             {recipePalette(indexRecipe) ? `Restore ${indexRecipe.toUpperCase()} defaults` : 'Restore default ramp'}
           </Button>
