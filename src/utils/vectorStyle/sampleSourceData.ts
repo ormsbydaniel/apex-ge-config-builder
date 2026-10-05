@@ -178,19 +178,25 @@ const sampleGeoJson = async (url: string, limit: number): Promise<SourceSample> 
 };
 
 const sampleFlatGeobuf = async (url: string, limit: number): Promise<SourceSample> => {
-  const response = await fetch(url);
+  // Stream features and stop at the limit, so large files are never fully downloaded.
+  const controller = new AbortController();
+  const response = await fetch(url, { signal: controller.signal });
   if (!response.ok) {
     throw new Error(`Failed to fetch FlatGeoBuf: ${response.status} ${response.statusText}`);
   }
 
-  const buffer = new Uint8Array(await response.arrayBuffer());
   const rows: Properties[] = [];
   const geomTypes: unknown[] = [];
+  const stream = (response.body ?? new Uint8Array(await response.arrayBuffer())) as unknown as Uint8Array;
 
-  for await (const feature of deserialize(buffer) as AsyncIterable<{ properties?: Properties; geometry?: { type?: string } }>) {
-    rows.push((feature?.properties ?? {}) as Properties);
-    geomTypes.push(feature?.geometry?.type);
-    if (rows.length >= limit) break;
+  try {
+    for await (const feature of deserialize(stream) as AsyncIterable<{ properties?: Properties; geometry?: { type?: string } }>) {
+      rows.push((feature?.properties ?? {}) as Properties);
+      geomTypes.push(feature?.geometry?.type);
+      if (rows.length >= limit) break;
+    }
+  } finally {
+    controller.abort();
   }
 
   return {
