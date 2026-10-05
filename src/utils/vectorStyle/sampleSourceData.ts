@@ -11,6 +11,8 @@ import { deserialize } from 'flatgeobuf/lib/mjs/geojson';
 
 /** Hard cap on features inspected, to keep sampling cheap on large files. */
 export const MAX_SAMPLED_FEATURES = 500;
+/** Hard cap on bytes streamed while sampling a FlatGeoBuf. */
+export const MAX_SAMPLE_BYTES = 256 * 1024 * 1024;
 /** Hard cap on distinct categories offered by the categorised recipe. */
 export const MAX_CATEGORIES = 20;
 
@@ -187,14 +189,26 @@ const sampleFlatGeobuf = async (url: string, limit: number): Promise<SourceSampl
 
   const rows: Properties[] = [];
   const geomTypes: unknown[] = [];
-  const stream = (response.body ?? new Uint8Array(await response.arrayBuffer())) as unknown as Uint8Array;
+  if (!response.body) throw new Error('Streaming is not supported for this FlatGeoBuf source.');
+  // Safety cap: stop reading after MAX_SAMPLE_BYTES even if the limit is not reached
+  // (e.g. a huge spatial index precedes the features).
+  let read = 0;
+  const capped = response.body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+    transform(chunk, ctrl) {
+      read += chunk.byteLength;
+      if (read > MAX_SAMPLE_BYTES) { ctrl.terminate(); return; }
+      ctrl.enqueue(chunk);
+    },
+  }));
 
   try {
-    for await (const feature of deserialize(stream) as AsyncIterable<{ properties?: Properties; geometry?: { type?: string } }>) {
+    for await (const feature of deserialize(capped as unknown as Uint8Array) as AsyncIterable<{ properties?: Properties; geometry?: { type?: string } }>) {
       rows.push((feature?.properties ?? {}) as Properties);
       geomTypes.push(feature?.geometry?.type);
       if (rows.length >= limit) break;
     }
+  } catch (error) {
+    if (rows.length === 0) throw error;
   } finally {
     controller.abort();
   }
