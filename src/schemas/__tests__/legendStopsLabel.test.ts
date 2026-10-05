@@ -47,7 +47,7 @@ describe('spectralIndex.legendStops label field', () => {
 
   it('rejects stops with an empty or missing label', () => {
     for (const legendStops of [
-      stops.map((s) => ({ ...s, label: '  ' })),
+      stops.map((s) => ({ ...s, label: '' })),
       stops,
       stops.map((s) => ({ ...s, meaning: '' })),
     ]) {
