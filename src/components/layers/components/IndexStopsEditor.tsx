@@ -9,7 +9,7 @@ interface IndexStopsEditorProps {
 }
 
 function nextStop(stops: IndexLegendStop[]): IndexLegendStop {
-  if (stops.length < 2) return { value: stops.length ? 1 : -1, color: '#808080', meaning: 'New stop' };
+  if (stops.length < 2) return { value: stops.length ? 1 : -1, color: '#808080', label: 'New stop' };
   let gapIndex = 0;
   for (let i = 1; i < stops.length - 1; i++) {
     if (stops[i + 1].value - stops[i].value > stops[gapIndex + 1].value - stops[gapIndex].value) gapIndex = i;
@@ -19,7 +19,7 @@ function nextStop(stops: IndexLegendStop[]): IndexLegendStop {
   return {
     value: Number(((before.value + after.value) / 2).toFixed(3)),
     color: before.color,
-    meaning: 'New stop',
+    label: 'New stop',
   };
 }
 
@@ -30,7 +30,7 @@ export default function IndexStopsEditor({ stops, onChange }: IndexStopsEditorPr
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-[5.5rem_8.5rem_minmax(8rem,1fr)_2rem] gap-2 text-[11px] text-muted-foreground">
-        <span>At value</span><span>Use</span><span>Legend meaning</span><span />
+        <span>At value</span><span>Use</span><span>Legend label</span><span />
       </div>
       {stops.map((stop, index) => (
         <div key={index} className="grid grid-cols-[5.5rem_8.5rem_minmax(8rem,1fr)_2rem] items-center gap-2">
@@ -60,10 +60,10 @@ export default function IndexStopsEditor({ stops, onChange }: IndexStopsEditorPr
             />
           </div>
           <Input
-            aria-label={`Stop ${index + 1} legend meaning`}
+            aria-label={`Stop ${index + 1} legend label`}
             className="h-8 min-w-0 text-xs"
-            value={stop.meaning}
-            onChange={(event) => update(index, { meaning: event.target.value })}
+            value={stop.label}
+            onChange={(event) => update(index, { label: event.target.value })}
           />
           <Button
             type="button"
