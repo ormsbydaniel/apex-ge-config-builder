@@ -26,7 +26,7 @@ import { getHistogram, peekStretch } from '@/utils/rgbComposite/histogramCache';
 import { BandHistogram } from './BandHistogram';
 import CompositeGallery, { RECIPE_ICONS, INDEX_ICONS } from './CompositeGallery';
 import {
-  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, buildIndexStyle, matchIndexRecipe, resolveIndexBands, indexColorStops, withVisibleRange,
+  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, buildIndexStyle, matchIndexRecipe, resolveIndexBands, indexColorStops, withVisibleRange, withRecipePalette, recipePalette, paletteGradient,
   type IndexRecipeId, type SpectralIndexConfig,
 } from '@/utils/rgbComposite/indices';
 import { createGradientCSS } from '@/utils/colormapUtils';
@@ -136,6 +136,7 @@ export function RgbCompositeEditorDialog({
   const [indexReverse, setIndexReverse] = useState(false);
   const [indexMin, setIndexMin] = useState(-1);
   const [indexMax, setIndexMax] = useState(1);
+  const [indexPaletteMode, setIndexPaletteMode] = useState<'recipe' | 'generic'>('generic');
   const [visibleRange, setVisibleRange] = useState<[number, number]>([-1, 1]);
 
   const queueStretch = (channels: number[]) => {
@@ -150,6 +151,7 @@ export function RgbCompositeEditorDialog({
     setIndexReverse(!!cfg.reverse);
     setIndexMin(cfg.min);
     setIndexMax(cfg.max);
+    setIndexPaletteMode(cfg.paletteMode === 'recipe' && recipePalette(cfg.recipe) ? 'recipe' : 'generic');
     setVisibleRange([cfg.visibleMin ?? -1, cfg.visibleMax ?? 1]);
   };
 
@@ -336,7 +338,7 @@ export function RgbCompositeEditorDialog({
     const data = source.data || [];
     let transform: (d: DataSourceItem) => DataSourceItem;
     if (mode === 'index') {
-      const cfg: SpectralIndexConfig = withVisibleRange({
+      const cfg: SpectralIndexConfig = withRecipePalette(withVisibleRange({
         recipe: indexRecipe,
         bandA: indexBands[0] as number,
         bandB: indexBands[1] as number,
@@ -344,7 +346,8 @@ export function RgbCompositeEditorDialog({
         reverse: indexReverse,
         min: indexMin,
         max: indexMax,
-      }, visibleRange[0], visibleRange[1]);
+        ...(indexPaletteMode === 'recipe' ? { paletteMode: 'recipe' as const } : {}),
+      }, visibleRange[0], visibleRange[1]));
       // The viewer loads only `bands` and renumbers them 1..n, so the style reads bands 1 and 2.
       transform = (d) => {
         const { convertToRGB, bands, ...rest } = d as any;
@@ -397,6 +400,7 @@ export function RgbCompositeEditorDialog({
       onUpdateDataSources(applyIndexStyle(data, target, withVisibleRange({
         recipe: indexRecipe, bandA: indexBands[0] as number, bandB: indexBands[1] as number,
         colormap: indexColormap, reverse: indexReverse, min: indexMin, max: indexMax,
+        ...(indexPaletteMode === 'recipe' ? { paletteMode: 'recipe' as const } : {}),
       }, visibleRange[0], visibleRange[1]), all));
       setCommitStyle(null);
       return;
@@ -511,8 +515,9 @@ export function RgbCompositeEditorDialog({
     setIndexBands(bands ? [...bands] : [null, null]);
     setIndexColormap(r.colormap);
     setIndexReverse(r.reverse);
-    setIndexMin(r.min);
-    setIndexMax(r.max);
+    setIndexMin(recipePalette(id)?.displayMin ?? r.min);
+    setIndexMax(recipePalette(id)?.displayMax ?? r.max);
+    setIndexPaletteMode(recipePalette(id) ? 'recipe' : 'generic');
   };
 
   const assignIndexBand = (slot: number, band: number) => {
@@ -522,7 +527,9 @@ export function RgbCompositeEditorDialog({
     next[slot] = band;
     setIndexBands(next);
     if (next[0] != null && next[1] != null) {
-      setIndexRecipe(matchIndexRecipe([next[0], next[1]], cogBandCount, bandLabels));
+      const matched = matchIndexRecipe([next[0], next[1]], cogBandCount, bandLabels);
+      if (matched !== indexRecipe) setIndexPaletteMode(recipePalette(matched) ? 'recipe' : 'generic');
+      setIndexRecipe(matched);
     }
   };
 
@@ -656,6 +663,8 @@ export function RgbCompositeEditorDialog({
 
   const sectionLabel = 'text-xs font-medium text-muted-foreground uppercase tracking-wide';
   const indexStops = indexMax > indexMin ? indexColorStops(indexColormap, indexReverse, indexMin, indexMax) : [];
+  const selectedPalette = indexPaletteMode === 'recipe' ? recipePalette(indexRecipe) : undefined;
+  const indexGradient = selectedPalette ? paletteGradient(selectedPalette.stops) : createGradientCSS(indexColormap, indexReverse);
   const fmt = (v: number) => parseFloat(v.toFixed(3)).toString();
 
   const indexLeft = (
@@ -691,10 +700,32 @@ export function RgbCompositeEditorDialog({
 
   const indexRight = (
     <div className="space-y-4">
-      <div className="space-y-2">
+      {selectedPalette && <div className="space-y-2">
+        <div className={sectionLabel}>Index colours</div>
+        <div className="h-5 rounded-sm border" style={{ background: indexGradient }} />
+        <div className="space-y-1">
+          {selectedPalette.stops.map((stop) => (
+            <div key={stop.value} className="flex items-center gap-2 text-xs">
+              <span className="h-3 w-3 shrink-0 rounded-sm border" style={{ backgroundColor: stop.color }} />
+              <span className="w-10 shrink-0 tabular-nums text-muted-foreground">{fmt(stop.value)}</span>
+              <span>{stop.meaning}</span>
+            </div>
+          ))}
+        </div>
+      </div>}
+      {recipePalette(indexRecipe) && !selectedPalette && <Button variant="outline" size="sm" type="button" onClick={() => {
+        const palette = recipePalette(indexRecipe);
+        if (!palette) return;
+        setIndexMin(palette.displayMin);
+        setIndexMax(palette.displayMax);
+        setIndexPaletteMode('recipe');
+      }}>Use {indexRecipe.toUpperCase()} defaults</Button>}
+      <details open={!recipePalette(indexRecipe) ? true : undefined}>
+        <summary className="cursor-pointer text-xs font-medium">Advanced colour settings</summary>
+      <div className="space-y-2 pt-3">
         <div className={sectionLabel}>Colour ramp</div>
         <div className="flex items-center gap-2">
-          <Select value={indexColormap} onValueChange={setIndexColormap}>
+          <Select value={indexColormap} onValueChange={(v) => { setIndexPaletteMode('generic'); setIndexColormap(v); }}>
             <SelectTrigger className="h-8 text-xs flex-1" aria-label="Colour ramp"><SelectValue /></SelectTrigger>
             <SelectContent>
               {INDEX_COLORMAPS.map((c) => (
@@ -708,13 +739,13 @@ export function RgbCompositeEditorDialog({
             </SelectContent>
           </Select>
           <label className="flex items-center gap-1.5 text-xs">
-            <Checkbox checked={indexReverse} onCheckedChange={(v) => setIndexReverse(v === true)} /> Reverse
+            <Checkbox checked={indexReverse} onCheckedChange={(v) => { setIndexPaletteMode('generic'); setIndexReverse(v === true); }} /> Reverse
           </label>
         </div>
       </div>
       <div className={sectionLabel}>Index value range</div>
       <div className="space-y-1">
-        <div className="h-5 rounded-sm border" style={{ background: createGradientCSS(indexColormap, indexReverse) }} />
+        <div className="h-5 rounded-sm border" style={{ background: indexGradient }} />
         <div className="flex justify-between text-[11px] text-muted-foreground">
           <span>{fmt(indexMin)}</span>
           <span>{fmt((indexMin + indexMax) / 2)}</span>
@@ -725,15 +756,15 @@ export function RgbCompositeEditorDialog({
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">Min</span>
           <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMin}
-            onChange={(e) => setIndexMin(Number(e.target.value))} />
+            onChange={(e) => { setIndexPaletteMode('generic'); setIndexMin(Number(e.target.value)); }} />
         </label>
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">Max</span>
           <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMax}
-            onChange={(e) => setIndexMax(Number(e.target.value))} />
+            onChange={(e) => { setIndexPaletteMode('generic'); setIndexMax(Number(e.target.value)); }} />
         </label>
         <Button type="button" size="sm" variant="outline" className="h-8 text-xs" onClick={resetIndexRange}>
-          Reset to default
+          Reset range
         </Button>
       </div>
       {!(indexMax > indexMin) && <p className="text-[11px] text-destructive">Max must be greater than min.</p>}
@@ -741,14 +772,15 @@ export function RgbCompositeEditorDialog({
         {indexRangePresets(indexRecipe).map((p) => (
           <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
             title={p.visibleMin != null || p.visibleMax != null ? `Colours ${p.min} – ${p.max}, shows only ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}` : `Colours ${p.min} – ${p.max}, shows all values`}
-            onClick={() => { setIndexMin(p.min); setIndexMax(p.max); setVisibleRange([p.visibleMin ?? -1, p.visibleMax ?? 1]); }}>
+            onClick={() => { setIndexPaletteMode('generic'); setIndexMin(p.min); setIndexMax(p.max); setVisibleRange([p.visibleMin ?? -1, p.visibleMax ?? 1]); }}>
             {p.label} ({p.min} – {p.max}{p.visibleMin != null || p.visibleMax != null ? `, visible ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}` : ''})
           </Button>
         ))}
       </div>
+      </details>
       <div className={sectionLabel}>Visible range</div>
       <div className="space-y-2">
-        <div className="relative h-3 rounded-sm border overflow-hidden" style={{ background: createGradientCSS(indexColormap, indexReverse) }}>
+        <div className="relative h-3 rounded-sm border overflow-hidden" style={{ background: indexGradient }}>
           <div className="absolute inset-y-0 left-0 bg-muted/90" style={{ width: `${((visibleRange[0] + 1) / 2) * 100}%` }} />
           <div className="absolute inset-y-0 right-0 bg-muted/90" style={{ width: `${((1 - visibleRange[1]) / 2) * 100}%` }} />
         </div>
@@ -770,11 +802,11 @@ export function RgbCompositeEditorDialog({
             Show all
           </Button>
         </div>
-        <p className="text-[11px] text-muted-foreground">Values outside this range are transparent. Colours still follow the value range above.</p>
+        <p className="text-[11px] text-muted-foreground">Values outside this range are transparent. Colours still follow {selectedPalette ? 'the recipe stops' : 'the colour range'} above.</p>
       </div>
       <p className="text-[11px] text-muted-foreground">
         Index values run from −1 to 1. Values below min take the first colour, above max the last. Pixels where both bands are zero (no data) stay transparent.
-        {indexStops.length > 0 && ` ${indexStops.length} colour stops.`}
+        {selectedPalette ? ` ${selectedPalette.stops.length} colour stops.` : indexStops.length > 0 && ` ${indexStops.length} colour stops.`}
       </p>
     </div>
   );

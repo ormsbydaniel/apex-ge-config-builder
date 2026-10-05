@@ -1,0 +1,82 @@
+{
+  "NDVI": {
+    "name": "Normalized Difference Vegetation Index",
+    "displayMin": -0.2,
+    "displayMax": 0.8,
+    "stops": [
+      { "value": -0.2, "color": "#8C510A", "meaning": "Very low / non-vegetated" },
+      { "value": 0.0, "color": "#D8B365", "meaning": "Bare / little vegetation" },
+      { "value": 0.2, "color": "#F6E8A6", "meaning": "Sparse vegetation" },
+      { "value": 0.4, "color": "#A6D96A", "meaning": "Moderate vegetation" },
+      { "value": 0.6, "color": "#4D9221", "meaning": "Healthy vegetation" },
+      { "value": 0.8, "color": "#1B5E20", "meaning": "Dense vegetation" }
+    ]
+  },
+  "NDWI": {
+    "name": "Normalized Difference Water Index",
+    "displayMin": -0.5,
+    "displayMax": 0.5,
+    "stops": [
+      { "value": -0.5, "color": "#A6611A", "meaning": "Dry land" },
+      { "value": -0.25, "color": "#DFC27D", "meaning": "Land" },
+      { "value": 0.0, "color": "#F5F5F5", "meaning": "Land / water transition" },
+      { "value": 0.15, "color": "#ABD9E9", "meaning": "Likely water" },
+      { "value": 0.3, "color": "#4393C3", "meaning": "Water" },
+      { "value": 0.5, "color": "#2166AC", "meaning": "Strong water response" }
+    ]
+  },
+  "MNDWI": {
+    "name": "Modified Normalized Difference Water Index",
+    "displayMin": -0.5,
+    "displayMax": 0.5,
+    "stops": [
+      { "value": -0.5, "color": "#B2182B", "meaning": "Built-up / dry surface" },
+      { "value": -0.25, "color": "#EF8A62", "meaning": "Land" },
+      { "value": 0.0, "color": "#F7F7F7", "meaning": "Land / water transition" },
+      { "value": 0.15, "color": "#92C5DE", "meaning": "Likely water" },
+      { "value": 0.3, "color": "#4393C3", "meaning": "Water" },
+      { "value": 0.5, "color": "#2166AC", "meaning": "Strong water response" }
+    ]
+  },
+  "NDBI": {
+    "name": "Normalized Difference Built-up Index",
+    "displayMin": -0.5,
+    "displayMax": 0.5,
+    "stops": [
+      { "value": -0.5, "color": "#2166AC", "meaning": "Strong negative response" },
+      { "value": -0.25, "color": "#92C5DE", "meaning": "Vegetated / non-built" },
+      { "value": 0.0, "color": "#F7F7F7", "meaning": "Transition" },
+      { "value": 0.15, "color": "#FDAE61", "meaning": "Likely built-up" },
+      { "value": 0.3, "color": "#F46D43", "meaning": "Built-up" },
+      { "value": 0.5, "color": "#B2182B", "meaning": "Strong built-up response" }
+    ]
+  },
+  "NBR": {
+    "name": "Normalized Burn Ratio",
+    "displayMin": -1.0,
+    "displayMax": 1.0,
+    "stops": [
+      { "value": -1.0, "color": "#3B0F0F", "meaning": "Very low NBR" },
+      { "value": -0.5, "color": "#A63603", "meaning": "Low / strongly disturbed" },
+      { "value": -0.2, "color": "#E6550D", "meaning": "Low NBR" },
+      { "value": 0.0, "color": "#FEC44F", "meaning": "Neutral / sparse vegetation" },
+      { "value": 0.3, "color": "#C2E699", "meaning": "Moderate vegetation" },
+      { "value": 0.6, "color": "#78C679", "meaning": "Healthy vegetation" },
+      { "value": 1.0, "color": "#238443", "meaning": "Very high NBR" }
+    ]
+  },
+  "NDRE": {
+    "name": "Normalized Difference Red Edge Index",
+    "displayMin": 0.0,
+    "displayMax": 0.8,
+    "stops": [
+      { "value": 0.0, "color": "#762A83", "meaning": "Very low vegetation response" },
+      { "value": 0.15, "color": "#C51B7D", "meaning": "Low vegetation response" },
+      { "value": 0.3, "color": "#F1B6DA", "meaning": "Low to moderate vegetation response" },
+      { "value": 0.4, "color": "#F7F7B9", "meaning": "Moderate vegetation response" },
+      { "value": 0.55, "color": "#A6D96A", "meaning": "Healthy vegetation" },
+      { "value": 0.7, "color": "#4D9221", "meaning": "High vegetation response" },
+      { "value": 0.8, "color": "#1B5E20", "meaning": "Very high vegetation response" }
+    ]
+  }
+}

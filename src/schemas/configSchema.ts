@@ -230,6 +230,10 @@ export const DataSourceItemSchema = z.object({
     max: z.number(),
     visibleMin: z.number().optional(),
     visibleMax: z.number().optional(),
+    paletteMode: z.literal('recipe').optional(),
+    legendStops: z.array(z.object({
+      value: z.number(), color: z.string(), meaning: z.string(),
+    })).optional(),
   }).optional(),
   // Per-dataset visualisation marker ('first' = same as first dataset)
   styleSource: z.enum(['first', 'own', 'batch']).optional(),

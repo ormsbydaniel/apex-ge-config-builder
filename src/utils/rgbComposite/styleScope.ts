@@ -1,7 +1,7 @@
 import type { DataSourceItem } from '@/types/dataSource';
 import { copyVisualisation, firstCogIndex, isCog } from './perDataset';
 import { matchRecipe, RGB_RECIPES } from './recipes';
-import { INDEX_RECIPES, buildIndexStyle, type SpectralIndexConfig } from './indices';
+import { INDEX_RECIPES, buildIndexStyle, withRecipePalette, type SpectralIndexConfig } from './indices';
 
 /** Change composite bands without replacing each dataset's existing RGB ranges. */
 export function applyCompositeStyle(
@@ -43,6 +43,7 @@ export function applyIndexStyle(
   data: DataSourceItem[], scope: number, cfg: SpectralIndexConfig, all: boolean,
 ): DataSourceItem[] {
   const first = firstCogIndex(data);
+  const styledConfig = withRecipePalette(cfg);
   return data.map((item, i) => {
     if (!isCog(item)) return item;
     if (!all && i !== scope) {
@@ -51,7 +52,7 @@ export function applyIndexStyle(
     }
     const { convertToRGB, batchStretch, ...rest } = item as any;
     return {
-      ...rest, bands: [cfg.bandA, cfg.bandB], style: buildIndexStyle(cfg), spectralIndex: { ...cfg },
+      ...rest, bands: [styledConfig.bandA, styledConfig.bandB], style: buildIndexStyle(styledConfig), spectralIndex: { ...styledConfig },
       styleSource: all || i === first ? undefined : 'own',
     } as DataSourceItem;
   });
