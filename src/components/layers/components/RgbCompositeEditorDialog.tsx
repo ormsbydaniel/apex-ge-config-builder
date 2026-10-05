@@ -26,7 +26,7 @@ import { getHistogram, peekStretch } from '@/utils/rgbComposite/histogramCache';
 import { BandHistogram } from './BandHistogram';
 import CompositeGallery, { RECIPE_ICONS, INDEX_ICONS } from './CompositeGallery';
 import {
-  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, buildIndexStyle, matchIndexRecipe, resolveIndexBands, withVisibleRange, withRecipePalette, recipePalette, paletteGradient, cloneLegendStops, genericLegendStops, recolourLegendStops, validateLegendStops,
+  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, INDEX_RANGE_PRESETS, buildIndexStyle, matchIndexRecipe, resolveIndexBands, withVisibleRange, withRecipePalette, recipePalette, paletteGradient, cloneLegendStops, genericLegendStops, recolourLegendStops, validateLegendStops,
   type IndexLegendStop, type IndexRecipeId, type SpectralIndexConfig,
 } from '@/utils/rgbComposite/indices';
 import { createGradientCSS } from '@/utils/colormapUtils';
@@ -683,6 +683,7 @@ export function RgbCompositeEditorDialog({
   const selectedPalette = indexPaletteMode === 'recipe' ? recipePalette(indexRecipe) : undefined;
   const activeStops = indexPaletteMode === 'custom' ? customIndexStops : selectedPalette?.stops;
   const indexGradient = activeStops?.length ? paletteGradient(activeStops) : createGradientCSS(indexColormap, indexReverse);
+  const maskPresets = indexRangePresets(indexRecipe).filter((p) => p.visibleMin != null || p.visibleMax != null);
   const fmt = (v: number) => parseFloat(v.toFixed(3)).toString();
 
   const beginCustomising = () => {
@@ -766,40 +767,6 @@ export function RgbCompositeEditorDialog({
           ))}
         </div>
       </div>}
-      <div className={sectionLabel}>Index value range</div>
-      <div className="space-y-1">
-        <div className="h-5 rounded-sm border" style={{ background: indexGradient }} />
-        <div className="flex justify-between text-[11px] text-muted-foreground">
-          <span>{fmt(indexMin)}</span>
-          <span>{fmt((indexMin + indexMax) / 2)}</span>
-          <span>{fmt(indexMax)}</span>
-        </div>
-      </div>
-      <div className="flex items-end gap-3">
-        <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Min</span>
-          <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMin}
-            onChange={(e) => setIndexMin(Number(e.target.value))} />
-        </label>
-        <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Max</span>
-          <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMax}
-            onChange={(e) => setIndexMax(Number(e.target.value))} />
-        </label>
-        <Button type="button" size="sm" variant="outline" className="h-8 text-xs" onClick={resetIndexRange}>
-          Reset range
-        </Button>
-      </div>
-      {!(indexMax > indexMin) && <p className="text-[11px] text-destructive">Max must be greater than min.</p>}
-      <div className="flex flex-wrap gap-1.5">
-        {indexRangePresets(indexRecipe).map((p) => (
-          <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
-            title={p.visibleMin != null || p.visibleMax != null ? `Colours ${p.min} – ${p.max}, shows only ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}` : `Colours ${p.min} – ${p.max}, shows all values`}
-            onClick={() => { setIndexMin(p.min); setIndexMax(p.max); setVisibleRange([p.visibleMin ?? -1, p.visibleMax ?? 1]); }}>
-            {p.label} ({p.min} – {p.max}{p.visibleMin != null || p.visibleMax != null ? `, visible ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}` : ''})
-          </Button>
-        ))}
-      </div>
       <div className={sectionLabel}>Visible range</div>
       <div className="space-y-2">
         <div className="relative h-3 rounded-sm border overflow-hidden" style={{ background: indexGradient }}>
@@ -824,15 +791,56 @@ export function RgbCompositeEditorDialog({
             Show all
           </Button>
         </div>
+        {maskPresets.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {maskPresets.map((p) => (
+              <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
+                title={`Colours ${p.min} – ${p.max}, shows only ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}`}
+                onClick={() => { setIndexMin(p.min); setIndexMax(p.max); setVisibleRange([p.visibleMin ?? -1, p.visibleMax ?? 1]); }}>
+                {p.label}
+              </Button>
+            ))}
+          </div>
+        )}
         <p className="text-[11px] text-muted-foreground">Values outside this range are transparent. Colours still follow {activeStops ? 'the colour stops' : 'the colour range'} above.</p>
       </div>
       <p className="text-[11px] text-muted-foreground">
-        Index values run from −1 to 1. Values below min take the first colour, above max the last. Pixels where both bands are zero (no data) stay transparent.
+        Index values run from −1 to 1. Pixels where both bands are zero (no data) stay transparent.
         {activeStops?.length ? ` ${activeStops.length} colour stops.` : ''}
       </p>
       <details className="border-t pt-3" open={indexPaletteMode === 'custom' || !recipePalette(indexRecipe) ? true : undefined}>
         <summary className="cursor-pointer text-xs font-medium">Customise settings</summary>
         <div className="space-y-4 pt-3">
+          {indexPaletteMode === 'generic' && (
+            <div className="space-y-2">
+              <div className={sectionLabel}>Colour ramp range</div>
+              <div className="flex items-end gap-3">
+                <label className="space-y-1 text-xs">
+                  <span className="text-muted-foreground">Min</span>
+                  <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMin}
+                    onChange={(e) => setIndexMin(Number(e.target.value))} />
+                </label>
+                <label className="space-y-1 text-xs">
+                  <span className="text-muted-foreground">Max</span>
+                  <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMax}
+                    onChange={(e) => setIndexMax(Number(e.target.value))} />
+                </label>
+                <Button type="button" size="sm" variant="outline" className="h-8 text-xs" onClick={resetIndexRange}>
+                  Reset range
+                </Button>
+              </div>
+              {!(indexMax > indexMin) && <p className="text-[11px] text-destructive">Max must be greater than min.</p>}
+              <div className="flex flex-wrap gap-1.5">
+                {INDEX_RANGE_PRESETS.map((p) => (
+                  <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
+                    onClick={() => { setIndexMin(p.min); setIndexMax(p.max); }}>
+                    {p.label} ({p.min} – {p.max})
+                  </Button>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground">Stretches the generic colour ramp; recipe and custom stops use their own values.</p>
+            </div>
+          )}
           {indexPaletteMode !== 'custom' ? (
             <Button type="button" variant="outline" size="sm" onClick={beginCustomising}>Customise colour stops</Button>
           ) : (
