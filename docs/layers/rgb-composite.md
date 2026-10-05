@@ -61,3 +61,9 @@ Deleting the RGB Composite bulk-removes `convertToRGB` and `bands` from every da
 ## Visible range (spectral indices)
 
 In the indices editor, **Index value range** sets where the colour ramp is stretched; **Visible range** is a separate mask. Drag the two slider handles (or type Min/Max) to make pixels outside the range transparent — e.g. NDWI stretched over −1 to 1 with a visible range of 0 to 1 hides land and shows only water. It is saved as optional `visibleMin` / `visibleMax` in `spectralIndex` (omitted when nothing is hidden) and compiled into the style as extra transparent `case` branches.
+
+## Index-specific colours
+
+New NDVI, NDWI, MNDWI, NDBI, NBR and NDRE styles use fixed, labelled colour stops at meaningful index values. Values outside the first and last stop use the nearest stop colour; they are **not** hidden unless you narrow the separate Visible range. The **Advanced colour settings** section retains generic ramp, reverse and range controls. Changing one of these switches to a generic ramp; **Use [index] defaults** restores the labelled recipe palette. Custom indices continue to use generic ramps.
+
+Saved styles from before these defaults are not silently changed. The exported `spectralIndex.paletteMode: "recipe"` opts a dataset into the new mapping, and `spectralIndex.legendStops` contains its ordered `{ value, color, meaning }` stops. The Geospatial Explorer currently receives this data but must add support for displaying these labels in its own legend; the configuration builder does not change the separately hosted viewer bundle.

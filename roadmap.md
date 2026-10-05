@@ -18,3 +18,8 @@
 - [ ] Shortcut from each dataset row to the editor scoped to that dataset.
 - [ ] "Add same COG again" shortcut for same-scene swipe comparisons.
 - [ ] Phase 3: same pattern for colormaps/gradient, categories and vector styling.
+
+# Index palettes
+
+- [x] Apply six index-specific absolute colour-stop defaults with Advanced generic overrides and per-COG labelled export.
+- [ ] Display exported index stop meanings in the separately hosted Geospatial Explorer viewer bundle (requires viewer-side support).

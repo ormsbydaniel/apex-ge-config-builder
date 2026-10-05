@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { buildIndexStyle, indexColorStops, indexRangePresets, matchIndexRecipe, resolveIndexBands } from '../indices';
+import { buildIndexStyle, indexColorStops, indexRangePresets, matchIndexRecipe, resolveIndexBands, INDEX_PALETTES, recipeLegendStops, withRecipePalette } from '../indices';
+import { DataSourceItemSchema } from '@/schemas/configSchema';
 
 describe('indexRangePresets', () => {
   it('gives each recipe its own contextual presets', () => {
@@ -59,5 +60,42 @@ describe('buildIndexStyle', () => {
     for (let i = 1; i < stops.length; i++) expect(stops[i][0]).toBeGreaterThan(stops[i - 1][0]);
     // reversed greens ends dark
     expect(stops[stops.length - 1][1].slice(0, 3)).toEqual([0, 68, 27]);
+  });
+});
+
+describe('recipe palettes', () => {
+  it('has ordered absolute stops and labelled endpoints for all six supplied indices', () => {
+    expect(Object.keys(INDEX_PALETTES).sort()).toEqual(['mndwi', 'nbr', 'ndbi', 'ndre', 'ndvi', 'ndwi']);
+    for (const [id, palette] of Object.entries(INDEX_PALETTES)) {
+      expect(palette.stops[0].value).toBe(palette.displayMin);
+      expect(palette.stops.at(-1)?.value).toBe(palette.displayMax);
+      expect(palette.stops.length).toBeGreaterThanOrEqual(6);
+      for (let i = 0; i < palette.stops.length; i++) {
+        expect(palette.stops[i].color).toMatch(/^#[0-9A-Fa-f]{6}$/);
+        expect(palette.stops[i].meaning.length).toBeGreaterThan(0);
+        if (i) expect(palette.stops[i].value).toBeGreaterThan(palette.stops[i - 1].value);
+      }
+      const cfg = withRecipePalette({ recipe: id as keyof typeof INDEX_PALETTES, bandA: 1, bandB: 2, colormap: 'viridis', min: palette.displayMin, max: palette.displayMax, paletteMode: 'recipe' });
+      const expression = buildIndexStyle(cfg).color.at(-1) as unknown[];
+      expect(expression[0]).toBe('interpolate');
+      expect(expression[3]).toBe(palette.displayMin);
+      expect(expression.at(-2)).toBe(palette.displayMax);
+      expect(expression[4]).toEqual(palette.stops[0].color.match(/\w\w/g)?.map((hex) => parseInt(hex, 16)).concat(1));
+      expect(cfg.legendStops).toEqual(recipeLegendStops(cfg.recipe));
+      const parsed = DataSourceItemSchema.parse({ format: 'cog', zIndex: 0, spectralIndex: cfg });
+      expect(parsed.spectralIndex?.legendStops).toEqual(palette.stops);
+    }
+  });
+  it('keeps legacy styles generic and omits false legend labels on override', () => {
+    const cfg = { recipe: 'ndwi' as const, bandA: 3, bandB: 8, colormap: 'rdbu', reverse: true, min: -0.5, max: 0.5 };
+    expect(withRecipePalette(cfg).legendStops).toBeUndefined();
+    expect(buildIndexStyle(cfg)).toEqual(buildIndexStyle(withRecipePalette(cfg)));
+    expect(withRecipePalette({ ...cfg, legendStops: recipeLegendStops('ndwi') }).legendStops).toBeUndefined();
+  });
+  it('keeps the visibility mask separate from absolute colour stops', () => {
+    const cfg = withRecipePalette({ recipe: 'ndwi', bandA: 3, bandB: 8, colormap: 'rdbu', min: -0.5, max: 0.5, paletteMode: 'recipe', visibleMin: 0 });
+    const expression = buildIndexStyle(cfg).color;
+    expect(expression[3]).toEqual(['<', ['/', ['-', ['band', 1], ['band', 2]], ['+', ['band', 1], ['band', 2]]], 0]);
+    expect((expression.at(-1) as unknown[])[3]).toBe(-0.5);
   });
 });
