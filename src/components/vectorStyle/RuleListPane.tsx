@@ -70,12 +70,25 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
             key={idx}
             ref={(el) => { itemRefs.current[idx] = el; }}
             draggable
-            onDragStart={() => setDragFrom(idx)}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={() => {
-              if (dragFrom !== null && dragFrom !== idx) onMove(dragFrom, idx);
+            onDragStart={(e) => {
+              // Browsers (notably Firefox) only start a native drag when data is set.
+              e.dataTransfer.effectAllowed = 'move';
+              e.dataTransfer.setData('text/plain', String(idx));
+              setDragFrom(idx);
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const raw = e.dataTransfer.getData('text/plain');
+              const from = dragFrom ?? (raw !== '' ? Number(raw) : NaN);
+              if (Number.isInteger(from) && from !== idx) onMove(from, idx);
               setDragFrom(null);
             }}
+            onDragEnd={() => setDragFrom(null)}
             onClick={() => onSelect(idx)}
             className={cn(
               'group flex items-center gap-1 rounded-md border px-1 py-1 cursor-pointer text-xs',
