@@ -1,4 +1,5 @@
 import { COLORMAP_DATA } from '@/constants/colormapData';
+import suppliedPalettes from '@/constants/indexPalettes.json';
 import { guessSensor, type SensorId } from './recipes';
 
 /**
@@ -11,6 +12,32 @@ import { guessSensor, type SensorId } from './recipes';
 export type IndexRecipeId = 'ndvi' | 'ndwi' | 'mndwi' | 'ndbi' | 'nbr' | 'ndre' | 'custom-index';
 
 export type BandRole = 'green' | 'red' | 'rededge1' | 'nir' | 'swir1' | 'swir2';
+
+export interface IndexLegendStop {
+  value: number;
+  color: string;
+  meaning: string;
+}
+
+/** Absolute value stops, shared by rendering and the exported viewer legend. */
+export const INDEX_PALETTES = Object.fromEntries(
+  Object.entries(suppliedPalettes).map(([id, palette]) => [id.toLowerCase(), palette]),
+) as Record<Exclude<IndexRecipeId, 'custom-index'>, { name: string; displayMin: number; displayMax: number; stops: IndexLegendStop[] }>;
+
+export function recipePalette(id: IndexRecipeId) {
+  return id === 'custom-index' ? undefined : INDEX_PALETTES[id];
+}
+
+export function recipeLegendStops(id: IndexRecipeId): IndexLegendStop[] | undefined {
+  return recipePalette(id)?.stops.map((stop) => ({ ...stop }));
+}
+
+export function paletteGradient(stops: IndexLegendStop[]): string {
+  if (stops.length < 2) return '';
+  const min = stops[0].value;
+  const span = stops[stops.length - 1].value - min;
+  return `linear-gradient(to right, ${stops.map((stop) => `${stop.color} ${((stop.value - min) / span) * 100}%`).join(', ')})`;
+}
 
 export interface IndexRangePreset {
   label: string;
@@ -121,9 +148,23 @@ export interface SpectralIndexConfig {
   reverse?: boolean;
   min: number;
   max: number;
+  /** Explicitly opts into the absolute recipe stops; absent on legacy/generic styles. */
+  paletteMode?: 'recipe';
+  /** Snapshot of the rendered recipe stops for the Explorer's future legend. */
+  legendStops?: IndexLegendStop[];
   /** Visibility mask: pixels with index values outside [visibleMin, visibleMax] are transparent. Omitted = no mask. */
   visibleMin?: number;
   visibleMax?: number;
+}
+
+/** Rebuild the legend snapshot from the same source used to compile the style. */
+export function withRecipePalette(cfg: SpectralIndexConfig): SpectralIndexConfig {
+  const { legendStops, ...rest } = cfg;
+  if (cfg.paletteMode !== 'recipe' || !recipePalette(cfg.recipe)) {
+    const { paletteMode, ...generic } = rest;
+    return generic;
+  }
+  return { ...rest, paletteMode: 'recipe', legendStops: recipeLegendStops(cfg.recipe) };
 }
 
 /** Returns cfg with visible bounds set, omitting bounds that do not narrow the full −1..1 range. */
@@ -160,7 +201,14 @@ export function buildIndexStyle(cfg: SpectralIndexConfig) {
   const b = ['band', 2];
   const sum = ['+', a, b];
   const index = ['/', ['-', a, b], sum];
-  const stops = indexColorStops(cfg.colormap, !!cfg.reverse, cfg.min, cfg.max).flatMap(([v, c]) => [v, c]);
+  const palette = cfg.paletteMode === 'recipe' ? recipePalette(cfg.recipe) : undefined;
+  const stops = (palette
+    ? palette.stops.map((s): [number, [number, number, number, number]] => {
+        const rgb = [1, 3, 5].map((i) => parseInt(s.color.slice(i, i + 2), 16));
+        return [s.value, [rgb[0], rgb[1], rgb[2], 1]];
+      })
+    : indexColorStops(cfg.colormap, !!cfg.reverse, cfg.min, cfg.max)
+  ).flatMap(([v, c]) => [v, c]);
   return {
     color: [
       'case',
