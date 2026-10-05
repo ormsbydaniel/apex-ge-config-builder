@@ -72,18 +72,18 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
             draggable
             onDragStart={(e) => {
               // Browsers (notably Firefox) only start a native drag when data is set.
-              e.dataTransfer.effectAllowed = 'move';
-              e.dataTransfer.setData('text/plain', String(idx));
+              if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+              e.dataTransfer?.setData('text/plain', String(idx));
               setDragFrom(idx);
             }}
             onDragOver={(e) => {
               e.preventDefault();
-              e.dataTransfer.dropEffect = 'move';
+              if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
             }}
             onDrop={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              const raw = e.dataTransfer.getData('text/plain');
+              const raw = e.dataTransfer?.getData('text/plain') ?? '';
               const from = dragFrom ?? (raw !== '' ? Number(raw) : NaN);
               if (Number.isInteger(from) && from !== idx) onMove(from, idx);
               setDragFrom(null);
