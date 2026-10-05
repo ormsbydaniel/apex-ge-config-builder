@@ -1,8 +1,7 @@
 import React from 'react';
 import { Image, Leaf, Wheat, Building2, PencilRuler, Loader2, Sprout, Droplet, Waves, Factory, Flame, TreeDeciduous, Calculator } from 'lucide-react';
 import { RGB_RECIPES, resolveRecipeBands, type RgbRecipeId } from '@/utils/rgbComposite/recipes';
-import { INDEX_RECIPES, resolveIndexBands, type IndexRecipeId } from '@/utils/rgbComposite/indices';
-import { createGradientCSS } from '@/utils/colormapUtils';
+import { INDEX_RECIPES, paletteGradient, recipePalette, resolveIndexBands, type IndexRecipeId } from '@/utils/rgbComposite/indices';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -95,6 +94,7 @@ const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChan
             {INDEX_RECIPES.map((r) => {
               const Icon = INDEX_ICONS[r.id];
               const bands = resolveIndexBands(r.id, bandCount, bandLabels);
+              const palette = recipePalette(r.id);
               const custom = r.id === 'custom-index';
               const unavailable = !custom && !bands;
               return withTooltip(r.id, unavailable, (
@@ -113,7 +113,13 @@ const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChan
                     </div>
                     <div className="text-xs text-muted-foreground">{r.description}</div>
                     <div className="text-[11px] font-mono text-muted-foreground">{r.formula}</div>
-                    {!custom && <div className="h-1.5 rounded-sm" style={{ background: createGradientCSS(r.colormap, r.reverse) }} />}
+                    {palette && (
+                      <div
+                        data-testid={`index-gradient-${r.id}`}
+                        className="h-1.5 rounded-sm"
+                        style={{ background: paletteGradient(palette.stops) }}
+                      />
+                    )}
                   </div>
                 </Button>
               ));
