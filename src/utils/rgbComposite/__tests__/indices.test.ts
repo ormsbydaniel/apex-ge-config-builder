@@ -72,7 +72,7 @@ describe('recipe palettes', () => {
       expect(palette.stops.length).toBeGreaterThanOrEqual(6);
       for (let i = 0; i < palette.stops.length; i++) {
         expect(palette.stops[i].color).toMatch(/^#[0-9A-Fa-f]{6}$/);
-        expect(palette.stops[i].meaning.length).toBeGreaterThan(0);
+        expect(palette.stops[i].label.length).toBeGreaterThan(0);
         if (i) expect(palette.stops[i].value).toBeGreaterThan(palette.stops[i - 1].value);
       }
       const cfg = withRecipePalette({ recipe: id as keyof typeof INDEX_PALETTES, bandA: 1, bandB: 2, colormap: 'viridis', min: palette.displayMin, max: palette.displayMax, paletteMode: 'recipe' });
@@ -100,8 +100,8 @@ describe('recipe palettes', () => {
   });
   it('renders and validates explicitly customised labelled stops', () => {
     const stops = [
-      { value: -0.4, color: '#112233', meaning: 'Low' },
-      { value: 0.6, color: '#AABBCC', meaning: 'High' },
+      { value: -0.4, color: '#112233', label: 'Low' },
+      { value: 0.6, color: '#AABBCC', label: 'High' },
     ];
     const cfg = withRecipePalette({ recipe: 'ndvi', bandA: 8, bandB: 4, colormap: 'viridis', min: -0.4, max: 0.6, paletteMode: 'custom', legendStops: stops });
     expect(cfg.legendStops).toEqual(stops);
@@ -115,10 +115,10 @@ describe('recipe palettes', () => {
     expect(validateLegendStops([stops[1], stops[0]])).toMatch(/increasing/);
     expect(DataSourceItemSchema.safeParse({ url: 'https://example.com/index.tif', format: 'cog', zIndex: 0, spectralIndex: { ...cfg, legendStops: [stops[0]] } }).success).toBe(false);
   });
-  it('recolours rows without changing values or meanings', () => {
+  it('recolours rows without changing values or labels', () => {
     const stops = recipeLegendStops('ndwi') ?? [];
     const recoloured = recolourLegendStops(stops, ['#000000', '#FFFFFF']);
-    expect(recoloured.map(({ value, meaning }) => ({ value, meaning }))).toEqual(stops.map(({ value, meaning }) => ({ value, meaning })));
+    expect(recoloured.map(({ value, label }) => ({ value, label }))).toEqual(stops.map(({ value, label }) => ({ value, label })));
     expect(recoloured[0].color).toBe('#000000');
     expect(recoloured.at(-1)?.color).toBe('#FFFFFF');
   });

@@ -231,9 +231,16 @@ export const DataSourceItemSchema = z.object({
     visibleMin: z.number().optional(),
     visibleMax: z.number().optional(),
     paletteMode: z.enum(['recipe', 'custom']).optional(),
-    legendStops: z.array(z.object({
-      value: z.number().min(-1).max(1), color: z.string().regex(/^#[0-9A-Fa-f]{6}$/), meaning: z.string().min(1),
-    })).optional(),
+    legendStops: z.array(z.preprocess((stop) => {
+      // Legacy saved configs used `meaning`; normalise to `label` (categories shape).
+      if (stop && typeof stop === 'object' && 'meaning' in stop && !('label' in stop)) {
+        const { meaning, ...rest } = stop as Record<string, unknown>;
+        return { ...rest, label: meaning };
+      }
+      return stop;
+    }, z.object({
+      value: z.number().min(-1).max(1), color: z.string().regex(/^#[0-9A-Fa-f]{6}$/), label: z.string().min(1),
+    }))).optional(),
   }).superRefine((index, ctx) => {
     if (index.paletteMode !== 'custom') return;
     if (!index.legendStops || index.legendStops.length < 2) {

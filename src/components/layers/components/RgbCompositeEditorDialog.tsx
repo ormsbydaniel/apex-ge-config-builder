@@ -772,7 +772,7 @@ export function RgbCompositeEditorDialog({
             <div key={`${stop.value}-${index}`} className="flex items-center gap-2 text-xs">
               <span className="h-3 w-3 shrink-0 rounded-sm border" style={{ backgroundColor: stop.color }} />
               <span className="w-10 shrink-0 tabular-nums text-muted-foreground">{fmt(stop.value)}</span>
-              <span>{stop.meaning}</span>
+              <span>{stop.label}</span>
             </div>
           ))}
         </div>
@@ -878,7 +878,7 @@ export function RgbCompositeEditorDialog({
                 }} /> Reverse
               </label>
             </div>
-            <p className="text-[11px] text-muted-foreground">Applying a ramp changes colours only; values and legend meanings stay unchanged.</p>
+            <p className="text-[11px] text-muted-foreground">Applying a ramp changes colours only; values and legend labels stay unchanged.</p>
           </div>
           <IndexStopsEditor stops={editorStops} onChange={editStops} />
           {customStopsError && <p className="text-[11px] text-destructive">{customStopsError}</p>}
