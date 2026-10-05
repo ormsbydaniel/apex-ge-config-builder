@@ -22,4 +22,5 @@
 # Index palettes
 
 - [x] Apply six index-specific absolute colour-stop defaults with Advanced generic overrides and per-COG labelled export.
+- [x] Add editable index colour stops, meanings, and named-ramp recolouring under Customise settings.
 - [ ] Display exported index stop meanings in the separately hosted Geospatial Explorer viewer bundle (requires viewer-side support).

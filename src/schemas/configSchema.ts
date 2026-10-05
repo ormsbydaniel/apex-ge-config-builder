@@ -232,8 +232,19 @@ export const DataSourceItemSchema = z.object({
     visibleMax: z.number().optional(),
     paletteMode: z.enum(['recipe', 'custom']).optional(),
     legendStops: z.array(z.object({
-      value: z.number(), color: z.string(), meaning: z.string(),
+      value: z.number().min(-1).max(1), color: z.string().regex(/^#[0-9A-Fa-f]{6}$/), meaning: z.string().min(1),
     })).optional(),
+  }).superRefine((index, ctx) => {
+    if (index.paletteMode !== 'custom') return;
+    if (!index.legendStops || index.legendStops.length < 2) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['legendStops'], message: 'Custom palettes require at least two colour stops' });
+      return;
+    }
+    for (let i = 1; i < index.legendStops.length; i++) {
+      if (index.legendStops[i].value <= index.legendStops[i - 1].value) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['legendStops', i, 'value'], message: 'Colour stop values must be strictly increasing' });
+      }
+    }
   }).optional(),
   // Per-dataset visualisation marker ('first' = same as first dataset)
   styleSource: z.enum(['first', 'own', 'batch']).optional(),

@@ -840,8 +840,8 @@ export function RgbCompositeEditorDialog({
               <div className="space-y-2">
                 <div className={sectionLabel}>Apply named colour ramp</div>
                 <div className="flex items-center gap-2">
-                  <Select value={indexColormap} onValueChange={applyNamedRamp}>
-                    <SelectTrigger className="h-8 flex-1 text-xs" aria-label="Named colour ramp"><SelectValue /></SelectTrigger>
+                  <Select onValueChange={applyNamedRamp}>
+                    <SelectTrigger className="h-8 flex-1 text-xs" aria-label="Named colour ramp"><SelectValue placeholder="Choose a ramp" /></SelectTrigger>
                     <SelectContent>
                       {INDEX_COLORMAPS.map((colorMap) => (
                         <SelectItem key={colorMap} value={colorMap} className="text-xs">

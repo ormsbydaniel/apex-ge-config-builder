@@ -5,4 +5,4 @@
 - Per-dataset multi-band settings live on each COG data item, marked by `styleSource` (absent = same as first COG, 'own', 'batch'), with scope helpers in `src/utils/rgbComposite/perDataset.ts`; there is no layer-level copy, so "same as first" cannot drift.
 - Keep composite recipe scope and display-name transformations in `src/utils/rgbComposite/styleScope.ts`, so the editor preserves each COG's own stretch and labels without duplicating scope rules.
 - Vector attribute detection probes a layer's data files in order (`src/utils/vectorStyle/pickAttributeSource.ts`) and streams FlatGeobuf reads with early abort, because multi-file layers can contain attribute-less files and files can be very large.
-- Keep spectral-index absolute palette stops and legend labels in one recipe source; export a per-COG labelled snapshot only for explicitly opted-in recipe palettes so older and overridden styles stay truthful.
+- Keep spectral-index recipe and custom palette stops as the single rendering/legend source; export per-COG labelled snapshots only for explicit palette modes so legacy styles stay truthful.
