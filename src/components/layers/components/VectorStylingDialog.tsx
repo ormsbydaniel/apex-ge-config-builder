@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
-import { isVectorFormat, detectFieldsFromSource } from '@/utils/fieldDetection';
+import { isVectorFormat } from '@/utils/fieldDetection';
+import { pickAttributeSource } from '@/utils/vectorStyle/pickAttributeSource';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
 import { FileJson } from 'lucide-react';
@@ -261,8 +262,8 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
           ) : view === 'wizard' && recipe ? (
             <RecipeWizard
               recipe={recipe}
-              sample={sampleQuery.data}
-              sampling={sampleQuery.isFetching}
+              sample={wizardSample}
+              sampling={wizardSampling}
               fallbackFields={fields.map((f) => f.name)}
                backLabel={wizardOrigin === 'editor' ? 'Back to rules' : 'Back to recipes'}
                onBack={() => setView(wizardOrigin)}
