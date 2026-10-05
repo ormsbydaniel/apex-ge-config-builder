@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildIndexStyle, indexColorStops, indexRangePresets, matchIndexRecipe, resolveIndexBands, INDEX_PALETTES, recipeLegendStops, withRecipePalette } from '../indices';
+import { buildIndexStyle, indexColorStops, indexRangePresets, matchIndexRecipe, resolveIndexBands, INDEX_PALETTES, recipeLegendStops, recolourLegendStops, validateLegendStops, withRecipePalette } from '../indices';
 import { DataSourceItemSchema } from '@/schemas/configSchema';
 
 describe('indexRangePresets', () => {
@@ -97,5 +97,29 @@ describe('recipe palettes', () => {
     const expression = buildIndexStyle(cfg).color;
     expect(expression[3]).toEqual(['<', ['/', ['-', ['band', 1], ['band', 2]], ['+', ['band', 1], ['band', 2]]], 0]);
     expect((expression.at(-1) as unknown[])[3]).toBe(-0.5);
+  });
+  it('renders and validates explicitly customised labelled stops', () => {
+    const stops = [
+      { value: -0.4, color: '#112233', meaning: 'Low' },
+      { value: 0.6, color: '#AABBCC', meaning: 'High' },
+    ];
+    const cfg = withRecipePalette({ recipe: 'ndvi', bandA: 8, bandB: 4, colormap: 'viridis', min: -0.4, max: 0.6, paletteMode: 'custom', legendStops: stops });
+    expect(cfg.legendStops).toEqual(stops);
+    expect(cfg.legendStops).not.toBe(stops);
+    const expression = buildIndexStyle(cfg).color.at(-1) as unknown[];
+    expect(expression[3]).toBe(-0.4);
+    expect(expression[4]).toEqual([17, 34, 51, 1]);
+    expect(expression.at(-2)).toBe(0.6);
+    expect(DataSourceItemSchema.parse({ url: 'https://example.com/index.tif', format: 'cog', zIndex: 0, spectralIndex: cfg }).spectralIndex?.legendStops).toEqual(stops);
+    expect(validateLegendStops(stops)).toBeNull();
+    expect(validateLegendStops([stops[1], stops[0]])).toMatch(/increasing/);
+    expect(DataSourceItemSchema.safeParse({ url: 'https://example.com/index.tif', format: 'cog', zIndex: 0, spectralIndex: { ...cfg, legendStops: [stops[0]] } }).success).toBe(false);
+  });
+  it('recolours rows without changing values or meanings', () => {
+    const stops = recipeLegendStops('ndwi') ?? [];
+    const recoloured = recolourLegendStops(stops, ['#000000', '#FFFFFF']);
+    expect(recoloured.map(({ value, meaning }) => ({ value, meaning }))).toEqual(stops.map(({ value, meaning }) => ({ value, meaning })));
+    expect(recoloured[0].color).toBe('#000000');
+    expect(recoloured.at(-1)?.color).toBe('#FFFFFF');
   });
 });

@@ -47,7 +47,7 @@ export interface DataSourceItem {
     max: number;
     visibleMin?: number;
     visibleMax?: number;
-    paletteMode?: 'recipe';
+    paletteMode?: 'recipe' | 'custom';
     legendStops?: Array<{ value: number; color: string; meaning: string }>;
   };
   // Per-dataset visualisation: absent/'first' = same as first dataset, 'own' = own settings, 'batch' = per-dataset computed stretch

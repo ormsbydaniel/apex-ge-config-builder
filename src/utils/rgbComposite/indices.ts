@@ -32,6 +32,33 @@ export function recipeLegendStops(id: IndexRecipeId): IndexLegendStop[] | undefi
   return recipePalette(id)?.stops.map((stop) => ({ ...stop }));
 }
 
+export function cloneLegendStops(stops: IndexLegendStop[]): IndexLegendStop[] {
+  return stops.map((stop) => ({ ...stop }));
+}
+
+export function validateLegendStops(stops: IndexLegendStop[]): string | null {
+  if (stops.length < 2) return 'Add at least two colour stops.';
+  for (let i = 0; i < stops.length; i++) {
+    const stop = stops[i];
+    if (!Number.isFinite(stop.value) || stop.value < -1 || stop.value > 1) return 'Stop values must be between −1 and 1.';
+    if (!/^#[0-9a-f]{6}$/i.test(stop.color)) return 'Each stop needs a valid six-digit hex colour.';
+    if (!stop.meaning.trim()) return 'Each stop needs a legend meaning.';
+    if (i > 0 && stop.value <= stops[i - 1].value) return 'Stop values must be in strictly increasing order.';
+  }
+  return null;
+}
+
+/** Recolour existing rows while preserving their values and legend meanings. */
+export function recolourLegendStops(stops: IndexLegendStop[], colors: string[]): IndexLegendStop[] {
+  if (!colors.length) return cloneLegendStops(stops);
+  if (stops.length === 1) return [{ ...stops[0], color: colors[Math.floor(colors.length / 2)] }];
+  return stops.map((stop, index) => {
+    const position = (index / (stops.length - 1)) * (colors.length - 1);
+    const nearest = Math.round(position);
+    return { ...stop, color: colors[nearest] };
+  });
+}
+
 export function paletteGradient(stops: IndexLegendStop[]): string {
   if (stops.length < 2) return '';
   const min = stops[0].value;
@@ -149,7 +176,7 @@ export interface SpectralIndexConfig {
   min: number;
   max: number;
   /** Explicitly opts into the absolute recipe stops; absent on legacy/generic styles. */
-  paletteMode?: 'recipe';
+  paletteMode?: 'recipe' | 'custom';
   /** Snapshot of the rendered recipe stops for the Explorer's future legend. */
   legendStops?: IndexLegendStop[];
   /** Visibility mask: pixels with index values outside [visibleMin, visibleMax] are transparent. Omitted = no mask. */
@@ -159,6 +186,7 @@ export interface SpectralIndexConfig {
 
 /** Rebuild the legend snapshot from the same source used to compile the style. */
 export function withRecipePalette(cfg: SpectralIndexConfig): SpectralIndexConfig {
+  if (cfg.paletteMode === 'custom') return { ...cfg, legendStops: cloneLegendStops(cfg.legendStops ?? []) };
   const { legendStops, ...rest } = cfg;
   if (cfg.paletteMode !== 'recipe' || !recipePalette(cfg.recipe)) {
     const { paletteMode, ...generic } = rest;
@@ -191,6 +219,14 @@ export function indexColorStops(colormap: string, reverse: boolean, min: number,
   return out;
 }
 
+export function genericLegendStops(colormap: string, reverse: boolean, min: number, max: number): IndexLegendStop[] {
+  return indexColorStops(colormap, reverse, min, max).map(([value, color], index, stops) => ({
+    value,
+    color: `#${color.slice(0, 3).map((channel) => channel.toString(16).padStart(2, '0')).join('')}`.toUpperCase(),
+    meaning: index === 0 ? 'Low values' : index === stops.length - 1 ? 'High values' : `Value ${value}`,
+  }));
+}
+
 /**
  * OpenLayers WebGL tile style for a normalised difference index.
  * The data item saves `bands: [bandA, bandB]`; the viewer loads only those and
@@ -201,9 +237,9 @@ export function buildIndexStyle(cfg: SpectralIndexConfig) {
   const b = ['band', 2];
   const sum = ['+', a, b];
   const index = ['/', ['-', a, b], sum];
-  const palette = cfg.paletteMode === 'recipe' ? recipePalette(cfg.recipe) : undefined;
-  const stops = (palette
-    ? palette.stops.map((s): [number, [number, number, number, number]] => {
+  const paletteStops = cfg.paletteMode === 'custom' ? cfg.legendStops : cfg.paletteMode === 'recipe' ? recipePalette(cfg.recipe)?.stops : undefined;
+  const stops = (paletteStops
+    ? paletteStops.map((s): [number, [number, number, number, number]] => {
         const rgb = [1, 3, 5].map((i) => parseInt(s.color.slice(i, i + 2), 16));
         return [s.value, [rgb[0], rgb[1], rgb[2], 1]];
       })
