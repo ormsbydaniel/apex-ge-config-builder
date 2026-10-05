@@ -99,8 +99,6 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
                 // Browsers (notably Firefox) only start a native drag when data is set.
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', String(idx));
-                const li = itemRefs.current[idx];
-                if (li) e.dataTransfer.setDragImage(li, 8, 8);
                 setDragFrom(idx);
               }}
               onDragEnd={() => setDragFrom(null)}
