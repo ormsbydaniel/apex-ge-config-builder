@@ -69,13 +69,6 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
           <li
             key={idx}
             ref={(el) => { itemRefs.current[idx] = el; }}
-            draggable
-            onDragStart={(e) => {
-              // Browsers (notably Firefox) only start a native drag when data is set.
-              if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
-              e.dataTransfer?.setData('text/plain', String(idx));
-              setDragFrom(idx);
-            }}
             onDragOver={(e) => {
               e.preventDefault();
               if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
@@ -88,15 +81,32 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
               if (Number.isInteger(from) && from !== idx) onMove(from, idx);
               setDragFrom(null);
             }}
-            onDragEnd={() => setDragFrom(null)}
             onClick={() => onSelect(idx)}
             className={cn(
               'group flex items-center gap-1 rounded-md border px-1 py-1 cursor-pointer text-xs',
               idx === selected ? 'border-primary bg-primary/5' : 'bg-card hover:bg-muted/50',
               !enabled && 'opacity-50',
+              dragFrom === idx && 'opacity-40',
             )}
           >
-            <GripVertical className="h-3.5 w-3.5 shrink-0 text-muted-foreground cursor-grab" aria-hidden />
+            {/* Only the grip starts a drag, so the drag image stays small and clicks never drag. */}
+            <span
+              draggable
+              aria-label="Drag to reorder"
+              className="shrink-0 cursor-grab active:cursor-grabbing"
+              onClick={(e) => e.stopPropagation()}
+              onDragStart={(e) => {
+                // Browsers (notably Firefox) only start a native drag when data is set.
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', String(idx));
+                const li = itemRefs.current[idx];
+                if (li) e.dataTransfer.setDragImage(li, 8, 8);
+                setDragFrom(idx);
+              }}
+              onDragEnd={() => setDragFrom(null)}
+            >
+              <GripVertical className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+            </span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">
                 <span className="font-medium truncate">{rule.name || `Rule ${idx + 1}`}</span>
