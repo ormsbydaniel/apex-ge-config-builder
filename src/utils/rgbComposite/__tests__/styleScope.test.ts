@@ -59,9 +59,9 @@ describe('applyIndexStyle', () => {
   it('exports labelled palette stops only to targeted datasets', () => {
     const styled = applyIndexStyle([cog('a'), cog('b')], 1, { ...cfg, paletteMode: 'recipe' }, false);
     expect(styled[0].spectralIndex).toBeUndefined();
-    expect(styled[1].spectralIndex?.legendStops?.[0].meaning).toBe('Very low vegetation response');
+    expect(styled[1].spectralIndex?.legendStops?.[0].label).toBe('Very low vegetation response');
     const all = applyIndexStyle(styled, 1, { ...cfg, paletteMode: 'recipe', recipe: 'ndwi' }, true);
-    expect(all.every((item) => item.spectralIndex?.legendStops?.[0].meaning === 'Dry land')).toBe(true);
+    expect(all.every((item) => item.spectralIndex?.legendStops?.[0].label === 'Dry land')).toBe(true);
     expect(all.every((item) => item.spectralIndex?.recipe === 'ndwi')).toBe(true);
   });
 });

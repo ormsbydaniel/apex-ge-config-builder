@@ -54,7 +54,7 @@ describe('RgbCompositeEditorDialog customise settings', () => {
     fireEvent.click(screen.getByText('Customise settings'));
 
     expect(await screen.findByLabelText('Stop 1 value')).toBeTruthy();
-    expect(screen.getByLabelText('Stop 1 legend meaning')).toBeTruthy();
+    expect(screen.getByLabelText('Stop 1 legend label')).toBeTruthy();
     expect(screen.getByLabelText('Named colour ramp')).toBeTruthy();
     expect(screen.queryByText('Customise colour stops')).toBeNull();
   });
