@@ -82,7 +82,7 @@ describe('recipe palettes', () => {
       expect(expression.at(-2)).toBe(palette.displayMax);
       expect(expression[4]).toEqual(palette.stops[0].color.match(/\w\w/g)?.map((hex) => parseInt(hex, 16)).concat(1));
       expect(cfg.legendStops).toEqual(recipeLegendStops(cfg.recipe));
-      const parsed = DataSourceItemSchema.parse({ format: 'cog', zIndex: 0, spectralIndex: cfg });
+      const parsed = DataSourceItemSchema.parse({ url: 'https://example.com/index.tif', format: 'cog', zIndex: 0, spectralIndex: cfg });
       expect(parsed.spectralIndex?.legendStops).toEqual(palette.stops);
     }
   });
