@@ -49,7 +49,9 @@ const COLUMN_TYPE_NAMES: Record<number, string> = {
 
 export async function fetchFlatGeobufMetadata(url: string): Promise<FlatGeobufMetadata> {
   try {
-    const response = await fetch(url);
+    // Large files can be hundreds of MB: abort the download once the header is read.
+    const controller = new AbortController();
+    const response = await fetch(url, { signal: controller.signal });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch FlatGeobuf: ${response.statusText}`);
@@ -63,8 +65,12 @@ export async function fetchFlatGeobufMetadata(url: string): Promise<FlatGeobufMe
       headerInfo = header;
     });
     
-    // We just need the header, so we don't iterate
-    await iterator.next();
+    // The header callback fires before the first feature is yielded.
+    try {
+      await iterator.next();
+    } finally {
+      controller.abort();
+    }
 
     if (!headerInfo) {
       throw new Error('Failed to read FlatGeobuf header');

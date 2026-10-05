@@ -142,7 +142,7 @@ const FieldsEditorTabs = ({
       if (fields.length === 0) {
         toast({
           title: 'No fields found',
-          description: 'This file has no readable fields.',
+          description: 'This file has no attribute columns. If the layer has other files, try one of those.',
           variant: 'destructive'
         });
       } else {
