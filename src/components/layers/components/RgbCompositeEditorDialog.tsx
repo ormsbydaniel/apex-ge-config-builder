@@ -26,15 +26,18 @@ import { getHistogram, peekStretch } from '@/utils/rgbComposite/histogramCache';
 import { BandHistogram } from './BandHistogram';
 import CompositeGallery, { RECIPE_ICONS, INDEX_ICONS } from './CompositeGallery';
 import {
-  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, buildIndexStyle, matchIndexRecipe, resolveIndexBands, indexColorStops, withVisibleRange, withRecipePalette, recipePalette, paletteGradient,
-  type IndexRecipeId, type SpectralIndexConfig,
+  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, buildIndexStyle, matchIndexRecipe, resolveIndexBands, withVisibleRange, withRecipePalette, recipePalette, paletteGradient, cloneLegendStops, genericLegendStops, recolourLegendStops, validateLegendStops,
+  type IndexLegendStop, type IndexRecipeId, type SpectralIndexConfig,
 } from '@/utils/rgbComposite/indices';
 import { createGradientCSS } from '@/utils/colormapUtils';
+import { generateColorRamp } from '@/utils/colormapUtils';
+import { rgbToHex } from '@/utils/colorUtils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from '@/components/ui/alert-dialog';
 import { applyCompositeStyle, applyIndexStyle, visualisationName } from '@/utils/rgbComposite/styleScope';
+import IndexStopsEditor from './IndexStopsEditor';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
@@ -136,7 +139,8 @@ export function RgbCompositeEditorDialog({
   const [indexReverse, setIndexReverse] = useState(false);
   const [indexMin, setIndexMin] = useState(-1);
   const [indexMax, setIndexMax] = useState(1);
-  const [indexPaletteMode, setIndexPaletteMode] = useState<'recipe' | 'generic'>('generic');
+  const [indexPaletteMode, setIndexPaletteMode] = useState<'recipe' | 'custom' | 'generic'>('generic');
+  const [customIndexStops, setCustomIndexStops] = useState<IndexLegendStop[]>([]);
   const [visibleRange, setVisibleRange] = useState<[number, number]>([-1, 1]);
 
   const queueStretch = (channels: number[]) => {
@@ -151,7 +155,17 @@ export function RgbCompositeEditorDialog({
     setIndexReverse(!!cfg.reverse);
     setIndexMin(cfg.min);
     setIndexMax(cfg.max);
-    setIndexPaletteMode(cfg.paletteMode === 'recipe' && recipePalette(cfg.recipe) ? 'recipe' : 'generic');
+    const paletteMode = cfg.paletteMode === 'recipe' && recipePalette(cfg.recipe)
+      ? 'recipe'
+      : cfg.paletteMode === 'custom' && cfg.legendStops?.length
+        ? 'custom'
+        : 'generic';
+    setIndexPaletteMode(paletteMode);
+    setCustomIndexStops(
+      paletteMode === 'custom'
+        ? cloneLegendStops(cfg.legendStops ?? [])
+        : genericLegendStops(cfg.colormap, !!cfg.reverse, cfg.min, cfg.max),
+    );
     setVisibleRange([cfg.visibleMin ?? -1, cfg.visibleMax ?? 1]);
   };
 
@@ -330,7 +344,8 @@ export function RgbCompositeEditorDialog({
     bMinMax.min !== 0 || bMinMax.max !== 10000;
 
   const allChannelsSet = selectedBands.length === MAX_BANDS && selectedBands.every((b) => b != null);
-  const indexReady = indexBands[0] != null && indexBands[1] != null && indexBands[0] !== indexBands[1] && indexMax > indexMin;
+  const customStopsError = indexPaletteMode === 'custom' ? validateLegendStops(customIndexStops) : null;
+  const indexReady = indexBands[0] != null && indexBands[1] != null && indexBands[0] !== indexBands[1] && indexMax > indexMin && !customStopsError;
   const canSave = mode === 'index' ? indexReady : allChannelsSet;
 
   const handleSave = (close = true) => {
@@ -347,6 +362,7 @@ export function RgbCompositeEditorDialog({
         min: indexMin,
         max: indexMax,
         ...(indexPaletteMode === 'recipe' ? { paletteMode: 'recipe' as const } : {}),
+        ...(indexPaletteMode === 'custom' ? { paletteMode: 'custom' as const, legendStops: cloneLegendStops(customIndexStops) } : {}),
       }, visibleRange[0], visibleRange[1]));
       // The viewer loads only `bands` and renumbers them 1..n, so the style reads bands 1 and 2.
       transform = (d) => {
@@ -401,6 +417,7 @@ export function RgbCompositeEditorDialog({
         recipe: indexRecipe, bandA: indexBands[0] as number, bandB: indexBands[1] as number,
         colormap: indexColormap, reverse: indexReverse, min: indexMin, max: indexMax,
         ...(indexPaletteMode === 'recipe' ? { paletteMode: 'recipe' as const } : {}),
+        ...(indexPaletteMode === 'custom' ? { paletteMode: 'custom' as const, legendStops: cloneLegendStops(customIndexStops) } : {}),
       }, visibleRange[0], visibleRange[1]), all));
       setCommitStyle(null);
       return;
@@ -518,6 +535,7 @@ export function RgbCompositeEditorDialog({
     setIndexMin(recipePalette(id)?.displayMin ?? r.min);
     setIndexMax(recipePalette(id)?.displayMax ?? r.max);
     setIndexPaletteMode(recipePalette(id) ? 'recipe' : 'generic');
+    setCustomIndexStops(recipePalette(id) ? cloneLegendStops(recipePalette(id)?.stops ?? []) : genericLegendStops(r.colormap, r.reverse, r.min, r.max));
   };
 
   const assignIndexBand = (slot: number, band: number) => {

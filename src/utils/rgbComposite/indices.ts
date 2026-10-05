@@ -219,6 +219,14 @@ export function indexColorStops(colormap: string, reverse: boolean, min: number,
   return out;
 }
 
+export function genericLegendStops(colormap: string, reverse: boolean, min: number, max: number): IndexLegendStop[] {
+  return indexColorStops(colormap, reverse, min, max).map(([value, color], index, stops) => ({
+    value,
+    color: `#${color.slice(0, 3).map((channel) => channel.toString(16).padStart(2, '0')).join('')}`.toUpperCase(),
+    meaning: index === 0 ? 'Low values' : index === stops.length - 1 ? 'High values' : `Value ${value}`,
+  }));
+}
+
 /**
  * OpenLayers WebGL tile style for a normalised difference index.
  * The data item saves `bands: [bandA, bandB]`; the viewer loads only those and
