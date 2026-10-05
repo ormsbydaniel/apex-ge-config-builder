@@ -16,7 +16,7 @@ export type BandRole = 'green' | 'red' | 'rededge1' | 'nir' | 'swir1' | 'swir2';
 export interface IndexLegendStop {
   value: number;
   color: string;
-  meaning: string;
+  label: string;
 }
 
 /** Absolute value stops, shared by rendering and the exported viewer legend. */
@@ -42,13 +42,13 @@ export function validateLegendStops(stops: IndexLegendStop[]): string | null {
     const stop = stops[i];
     if (!Number.isFinite(stop.value) || stop.value < -1 || stop.value > 1) return 'Stop values must be between −1 and 1.';
     if (!/^#[0-9a-f]{6}$/i.test(stop.color)) return 'Each stop needs a valid six-digit hex colour.';
-    if (!stop.meaning.trim()) return 'Each stop needs a legend meaning.';
+    if (!stop.label.trim()) return 'Each stop needs a legend label.';
     if (i > 0 && stop.value <= stops[i - 1].value) return 'Stop values must be in strictly increasing order.';
   }
   return null;
 }
 
-/** Recolour existing rows while preserving their values and legend meanings. */
+/** Recolour existing rows while preserving their values and legend labels. */
 export function recolourLegendStops(stops: IndexLegendStop[], colors: string[]): IndexLegendStop[] {
   if (!colors.length) return cloneLegendStops(stops);
   if (stops.length === 1) return [{ ...stops[0], color: colors[Math.floor(colors.length / 2)] }];
@@ -223,7 +223,7 @@ export function genericLegendStops(colormap: string, reverse: boolean, min: numb
   return indexColorStops(colormap, reverse, min, max).map(([value, color], index, stops) => ({
     value,
     color: `#${color.slice(0, 3).map((channel) => channel.toString(16).padStart(2, '0')).join('')}`.toUpperCase(),
-    meaning: index === 0 ? 'Low values' : index === stops.length - 1 ? 'High values' : `Value ${value}`,
+    label: index === 0 ? 'Low values' : index === stops.length - 1 ? 'High values' : `Value ${value}`,
   }));
 }
 
