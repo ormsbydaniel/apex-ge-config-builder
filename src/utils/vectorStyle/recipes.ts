@@ -491,8 +491,8 @@ export const applyRecipeRules = (
   const rest = combined.filter(r => !r.else);
   // Only one else branch is meaningful. A newly generated fallback replaces
   // the old fallback; otherwise preserve the existing one at the end.
-  const fallback = generated.findLast((rule) => rule.else)
-    ?? existing.findLast((rule) => rule.else);
+  const fallback = [...generated].reverse().find((rule) => rule.else)
+    ?? [...existing].reverse().find((rule) => rule.else);
   return fallback ? [...rest, fallback] : rest;
 };
 
