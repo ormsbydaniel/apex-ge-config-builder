@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
-import { isVectorFormat, detectFieldsFromSource } from '@/utils/fieldDetection';
+import { isVectorFormat } from '@/utils/fieldDetection';
+import { pickAttributeSource } from '@/utils/vectorStyle/pickAttributeSource';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
 import { FileJson } from 'lucide-react';
@@ -110,50 +111,50 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   };
 
   const handleStartFromScratch = () => {
-    setRules([{ enabled: true, primitives: {} }]);
+    setRules((current) => [{ enabled: true, primitives: {} }, ...current]);
+    setFocusRule({ index: 0, nonce: Date.now() });
     setView('editor');
   };
 
-  // Stable URL + format for the first vector data item — avoids re-fetching when
-  // the parent re-renders with a new `source.data` array identity.
-  const firstVectorItem = useMemo(() => {
-    return source.data.find((item) => isVectorFormat(item.format) && item.url);
-  }, [source.data]);
-  const firstVectorUrl = firstVectorItem?.url ?? '';
-  const firstVectorFormat = firstVectorItem?.format ?? '';
+  // Stable key of vector data files — avoids re-fetching when the parent
+  // re-renders with a new `source.data` array identity.
+  const vectorItems = useMemo(
+    () => source.data
+      .filter((item) => isVectorFormat(item.format) && item.url)
+      .map((item) => ({ url: item.url as string, format: item.format })),
+    [source.data],
+  );
+  const vectorKey = vectorItems.map((i) => `${i.format}|${i.url}`).join('\n');
 
-  // Sample attributes from the first data file for recipes (cached per URL, never throws).
+  // First data file that actually has attribute columns (some files in a layer may have none).
+  const attributeSourceQuery = useQuery({
+    queryKey: ['vector-attribute-source', vectorKey],
+    queryFn: () => pickAttributeSource(vectorItems),
+    enabled: open && vectorItems.length > 0,
+    staleTime: 10 * 60 * 1000,
+    retry: false,
+  });
+  const attrSource = attributeSourceQuery.data ?? null;
+
+  // Sample attributes for recipes (cached per URL, never throws).
   const sampleQuery = useQuery({
-    queryKey: ['vector-style-sample', firstVectorUrl, firstVectorFormat],
-    queryFn: () => sampleSourceData(firstVectorUrl, firstVectorFormat),
-    enabled: open && view === 'wizard' && !!firstVectorUrl && canSampleSource(firstVectorFormat),
+    queryKey: ['vector-style-sample', attrSource?.url, attrSource?.format],
+    queryFn: () => sampleSourceData(attrSource!.url, attrSource!.format),
+    enabled: open && view === 'wizard' && !!attrSource && canSampleSource(attrSource.format),
     staleTime: 10 * 60 * 1000,
   });
+  const noAttributes = attributeSourceQuery.isSuccess && !attrSource;
+  const wizardSample = noAttributes
+    ? { featureCount: 0, fields: [], error: vectorItems.length > 1 ? 'none of the layer\'s files have attribute columns' : 'the file has no attribute columns' }
+    : attributeSourceQuery.isError
+      ? { featureCount: 0, fields: [], error: attributeSourceQuery.error instanceof Error ? attributeSourceQuery.error.message : 'could not reach the file' }
+      : sampleQuery.data;
+  const wizardSampling = attributeSourceQuery.isLoading || sampleQuery.isLoading;
 
-  // Auto-detect fields from the first vector source if none are configured.
+  // Auto-detected fields are used when none are configured.
   useEffect(() => {
-    if (!open) return;
-    if (configuredFields.length > 0) return;
-    if (!firstVectorUrl) {
-      setDetectedFields([]);
-      return;
-    }
-    let cancelled = false;
-    setDetectedFields([]);
-    detectFieldsFromSource(firstVectorUrl, firstVectorFormat)
-      .then((detected) => {
-        if (cancelled) return;
-        console.log('[VectorStylingDialog] auto-detected fields', detected);
-        setDetectedFields(detected.map((d) => ({ name: d.name, type: d.type })));
-      })
-      .catch((err) => {
-        console.warn('[VectorStylingDialog] field auto-detection failed', err);
-        if (!cancelled) setDetectedFields([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [open, configuredFields.length, firstVectorUrl, firstVectorFormat]);
+    setDetectedFields(configuredFields.length > 0 ? [] : (attrSource?.fields ?? []).map((d) => ({ name: d.name, type: d.type })));
+  }, [attrSource, configuredFields.length]);
 
   const toggleMode = () => {
     if (mode === 'basic') {
@@ -262,8 +263,8 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
           ) : view === 'wizard' && recipe ? (
             <RecipeWizard
               recipe={recipe}
-              sample={sampleQuery.data}
-              sampling={sampleQuery.isFetching}
+              sample={wizardSample}
+              sampling={wizardSampling}
               fallbackFields={fields.map((f) => f.name)}
                backLabel={wizardOrigin === 'editor' ? 'Back to rules' : 'Back to recipes'}
                onBack={() => setView(wizardOrigin)}

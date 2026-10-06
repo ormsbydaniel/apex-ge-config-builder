@@ -36,7 +36,7 @@ interface BandHistogramProps {
   /** Fixed chart height in px (used when histograms are stacked). */
   chartHeight?: number;
   /** Optional per-band stretch buttons; replaces the default percentile buttons. */
-  stretchOptions?: { id: string; label: string; description?: string; onApply: () => void }[];
+  stretchOptions?: { id: string; label: string; description?: string; active?: boolean; onApply: () => void }[];
 }
 
 function formatTickValue(v: number): string {
@@ -207,7 +207,7 @@ function DraggableChart({
         }}
       >
         {(['min', 'max'] as const).map((which) => {
-          const pct = which === 'min' ? minPct : maxPct;
+          const pct = Math.max(0, Math.min(100, which === 'min' ? minPct : maxPct));
           return (
             <div
               key={which}
@@ -215,7 +215,7 @@ function DraggableChart({
               className="absolute top-0 h-full"
               style={{
                 left: `${pct}%`,
-                transform: 'translateX(-50%)',
+                 transform: pct === 0 ? 'none' : pct === 100 ? 'translateX(-100%)' : 'translateX(-50%)',
                 width: 14,
                 cursor: 'ew-resize',
                 zIndex: 10,
@@ -241,8 +241,13 @@ function DraggableChart({
               </div>
               {/* Label */}
               <div
-                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[9px] font-semibold whitespace-nowrap pointer-events-none"
-                style={{ color: channelColor }}
+                 className="absolute -top-3 text-[9px] font-semibold whitespace-nowrap pointer-events-none"
+                 style={{
+                   color: channelColor,
+                   left: pct <= 5 ? 0 : pct >= 95 ? undefined : '50%',
+                   right: pct >= 95 ? 0 : undefined,
+                   transform: pct <= 5 || pct >= 95 ? 'none' : 'translateX(-50%)',
+                 }}
               >
                 {which === 'min' ? 'Min' : 'Max'}
               </div>
@@ -311,16 +316,37 @@ export function BandHistogram({
   }
 
   return (
-    <div className="flex-1 flex flex-col gap-3 min-w-0">
+    <div className="flex-1 flex flex-col min-w-0">
       {/* Header */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
         <span
           className="inline-flex items-center justify-center rounded text-[11px] font-bold text-white w-6 h-6 flex-shrink-0"
           style={{ backgroundColor: channelColor }}
         >
           {channelLabel}
         </span>
-        <span className="text-sm font-medium">{bandLabel}</span>
+        <span className="text-sm font-medium mr-auto">{bandLabel}</span>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Label className="text-xs text-muted-foreground" htmlFor={`min-${channelLabel}`}>Min</Label>
+          <Input id={`min-${channelLabel}`} type="number" className="h-7 w-[4.5rem] text-xs" value={min} onChange={(e) => onMinChange(Number(e.target.value))} />
+          <Label className="text-xs text-muted-foreground" htmlFor={`max-${channelLabel}`}>Max</Label>
+          <Input id={`max-${channelLabel}`} type="number" className="h-7 w-[4.5rem] text-xs" value={max} onChange={(e) => onMaxChange(Number(e.target.value))} />
+          {stretchOptions && stretchOptions.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-1">
+              {stretchOptions.map((opt, idx) => (
+                <Button key={opt.id} variant={opt.active ? 'default' : 'outline'} size="sm" className="h-7 text-[11px] px-2" title={opt.description} aria-pressed={opt.active === true} onClick={opt.onApply}>
+                  {idx === 0 && <Wand2 className="h-3 w-3 mr-1" />}{opt.label}
+                </Button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-1">
+              <Button variant="outline" size="sm" className="h-7 text-[11px] px-2" onClick={() => applyStretch(2, 98)}><Wand2 className="h-3 w-3 mr-1" />2–98%</Button>
+              <Button variant="outline" size="sm" className="h-7 text-[11px] px-2" onClick={() => applyStretch(1, 99)}>1–99%</Button>
+              <Button variant="outline" size="sm" className="h-7 text-[11px] px-2" onClick={() => applyStretch(0, 100)}>Full</Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Chart with draggable min/max lines */}
@@ -337,75 +363,8 @@ export function BandHistogram({
         chartHeight={chartHeight}
       />
 
-      {/* Min/Max inputs + auto-stretch */}
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-1.5">
-          <Label className="text-xs text-muted-foreground">Min</Label>
-          <Input
-            type="number"
-            className="h-7 w-24 text-xs"
-            value={min}
-            onChange={(e) => onMinChange(Number(e.target.value))}
-          />
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Label className="text-xs text-muted-foreground">Max</Label>
-          <Input
-            type="number"
-            className="h-7 w-24 text-xs"
-            value={max}
-            onChange={(e) => onMaxChange(Number(e.target.value))}
-          />
-        </div>
-        {stretchOptions && stretchOptions.length > 0 ? (
-          <div className="flex items-center gap-1">
-            {stretchOptions.map((opt, idx) => (
-              <Button
-                key={opt.id}
-                variant="outline"
-                size="sm"
-                className="h-7 text-[11px] px-2"
-                title={opt.description}
-                onClick={() => opt.onApply()}
-              >
-                {idx === 0 && <Wand2 className="h-3 w-3 mr-1" />}
-                {opt.label}
-              </Button>
-            ))}
-          </div>
-        ) : (
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-[11px] px-2"
-            onClick={() => applyStretch(2, 98)}
-          >
-            <Wand2 className="h-3 w-3 mr-1" />
-            2–98%
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-[11px] px-2"
-            onClick={() => applyStretch(1, 99)}
-          >
-            1–99%
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-[11px] px-2"
-            onClick={() => applyStretch(0, 100)}
-          >
-            Full
-          </Button>
-        </div>
-        )}
-      </div>
-
       {/* Data range helper */}
-      <p className="text-[10px] text-muted-foreground">
+      <p className="text-[10px] text-muted-foreground mt-0.5">
         Data range: {formatTickValue(dataMin)} – {formatTickValue(dataMax)}
       </p>
     </div>

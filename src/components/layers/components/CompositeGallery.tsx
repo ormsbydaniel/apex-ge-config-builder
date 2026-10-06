@@ -1,7 +1,10 @@
 import React from 'react';
-import { Image, Leaf, Wheat, Building2, PencilRuler, Loader2 } from 'lucide-react';
+import { Image, Leaf, Wheat, Building2, PencilRuler, Loader2, Sprout, Droplet, Waves, Factory, Flame, TreeDeciduous, Calculator } from 'lucide-react';
 import { RGB_RECIPES, resolveRecipeBands, type RgbRecipeId } from '@/utils/rgbComposite/recipes';
+import { INDEX_RECIPES, paletteGradient, recipePalette, resolveIndexBands, type IndexRecipeId } from '@/utils/rgbComposite/indices';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export const RECIPE_ICONS: Record<RgbRecipeId, React.ComponentType<{ className?: string }>> = {
@@ -12,72 +15,120 @@ export const RECIPE_ICONS: Record<RgbRecipeId, React.ComponentType<{ className?:
   custom: PencilRuler,
 };
 
-const ICONS = RECIPE_ICONS;
+export const INDEX_ICONS: Record<IndexRecipeId, React.ComponentType<{ className?: string }>> = {
+  ndvi: Sprout,
+  ndwi: Droplet,
+  mndwi: Waves,
+  ndbi: Factory,
+  nbr: Flame,
+  ndre: TreeDeciduous,
+  'custom-index': Calculator,
+};
 
 interface CompositeGalleryProps {
   bandCount: number;
   bandLabels?: string[];
   loading: boolean;
+  activeTab: 'rgb' | 'index';
+  onTabChange: (tab: 'rgb' | 'index') => void;
   onPick: (id: RgbRecipeId) => void;
+  onPickIndex: (id: IndexRecipeId) => void;
 }
 
 const cardClass =
-  'flex items-start gap-3 rounded-md border bg-card p-3 text-left transition-colors hover:border-primary hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring';
+  'h-auto min-h-20 w-full items-start justify-start gap-3 rounded-md border bg-card p-3 text-left font-normal whitespace-normal transition-colors hover:border-primary hover:bg-accent';
+const UNAVAILABLE = 'Not available — this source lacks the required bands or band labels.';
 
-const CompositeGallery = ({ bandCount, bandLabels, loading, onPick }: CompositeGalleryProps) => (
-  <div className="space-y-3">
-    <p className="text-sm text-muted-foreground">
-      How do you want this imagery to look? Pick a composite and we'll assign the bands for you — you can adjust the ranges afterwards.
-    </p>
+const withTooltip = (key: string, unavailable: boolean, card: React.ReactNode) =>
+  !unavailable ? <React.Fragment key={key}>{card}</React.Fragment> : (
+    <Tooltip key={key}>
+      <TooltipTrigger asChild><span className="block">{card}</span></TooltipTrigger>
+      <TooltipContent className="max-w-[240px]"><p>{UNAVAILABLE}</p></TooltipContent>
+    </Tooltip>
+  );
+
+const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChange, onPick, onPickIndex }: CompositeGalleryProps) => (
+  <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'rgb' | 'index')} className="space-y-4">
+    <TabsList aria-label="Visualisation type">
+      <TabsTrigger value="rgb">Composites</TabsTrigger>
+      <TabsTrigger value="index">Indices</TabsTrigger>
+    </TabsList>
     {loading ? (
       <div className="flex items-center justify-center gap-2 py-10 text-xs text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" /> Reading band information…
       </div>
     ) : (
       <TooltipProvider delayDuration={400}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {RGB_RECIPES.map((r) => {
-            const Icon = ICONS[r.id];
-            const bands = resolveRecipeBands(r.id, bandCount, bandLabels);
-            const unavailable = r.id !== 'custom' && !bands;
-            const card = (
-              <button
-                key={r.id}
-                type="button"
-                className={cn(
-                  cardClass,
-                  r.id === 'custom' && 'border-dashed',
-                  unavailable && 'opacity-50 cursor-not-allowed hover:border-border hover:bg-card',
-                )}
-                disabled={unavailable}
-                onClick={() => !unavailable && onPick(r.id)}
-              >
-                <Icon className={cn('h-5 w-5 mt-0.5 shrink-0', r.id === 'custom' ? 'text-muted-foreground' : 'text-primary')} />
-                <div>
-                  <div className="text-sm font-medium">
-                    {r.name}
-                    {bands && <span className="ml-2 text-xs font-normal text-muted-foreground">{bands.join('-')}</span>}
+        <TabsContent value="rgb" className="space-y-3">
+          <p className="text-sm text-muted-foreground">Choose how three bands combine into a colour image.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {RGB_RECIPES.map((r) => {
+              const Icon = RECIPE_ICONS[r.id];
+              const bands = resolveRecipeBands(r.id, bandCount, bandLabels);
+              const unavailable = r.id !== 'custom' && !bands;
+              return withTooltip(r.id, unavailable, (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn(cardClass, r.id === 'custom' && 'border-dashed', unavailable && 'opacity-50 cursor-not-allowed hover:border-border hover:bg-card')}
+                  disabled={unavailable}
+                  onClick={() => !unavailable && onPick(r.id)}
+                >
+                  <Icon className={cn('h-5 w-5 mt-0.5 shrink-0', r.id === 'custom' ? 'text-muted-foreground' : 'text-primary')} />
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium">
+                      {r.name}
+                      {bands && <span className="ml-2 text-xs font-normal text-muted-foreground">{bands.join('-')}</span>}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{r.description}</div>
                   </div>
-                  <div className="text-xs text-muted-foreground">{r.description}</div>
-                </div>
-              </button>
-            );
-            if (!unavailable) return card;
-            return (
-              <Tooltip key={r.id}>
-                <TooltipTrigger asChild>
-                  <span className="block">{card}</span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-[240px]">
-                  <p>Not available — this source lacks the required bands or band labels.</p>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </div>
+                </Button>
+              ));
+            })}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="index" className="space-y-3">
+          <p className="text-sm text-muted-foreground">Calculate an index from two bands and display it with a colour ramp.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {INDEX_RECIPES.map((r) => {
+              const Icon = INDEX_ICONS[r.id];
+              const bands = resolveIndexBands(r.id, bandCount, bandLabels);
+              const palette = recipePalette(r.id);
+              const custom = r.id === 'custom-index';
+              const unavailable = !custom && !bands;
+              return withTooltip(r.id, unavailable, (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn(cardClass, custom && 'border-dashed', unavailable && 'opacity-50 cursor-not-allowed hover:border-border hover:bg-card')}
+                  disabled={unavailable}
+                  onClick={() => !unavailable && onPickIndex(r.id)}
+                >
+                  <Icon className={cn('h-5 w-5 mt-0.5 shrink-0', custom ? 'text-muted-foreground' : 'text-primary')} />
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="text-sm font-medium">
+                      {r.fullName}
+                      {bands && <span className="ml-2 text-xs font-normal text-muted-foreground">{bands.join(' & ')}</span>}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{r.description}</div>
+                    <div className="text-[11px] font-mono text-muted-foreground">{r.formula}</div>
+                    {palette && (
+                      <div
+                        data-testid={`index-gradient-${r.id}`}
+                        className="h-1.5 rounded-sm"
+                        style={{ background: paletteGradient(palette.stops) }}
+                      />
+                    )}
+                  </div>
+                </Button>
+              ));
+            })}
+          </div>
+        </TabsContent>
       </TooltipProvider>
     )}
-  </div>
+  </Tabs>
 );
 
 export default CompositeGallery;

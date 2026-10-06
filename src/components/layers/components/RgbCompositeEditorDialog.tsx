@@ -9,18 +9,35 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
+import {
+  applyToScope, cogIndices, datasetLabel, firstCogIndex,
+} from '@/utils/rgbComposite/perDataset';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
-  RGB_RECIPES, SENSOR_NAMES, STRETCH_METHODS, computeStretch, guessSensor, matchRecipe, resolveRecipeBands,
+  RGB_RECIPES, SENSOR_NAMES, STRETCH_METHODS, computeStretch, guessSensor, matchRecipe, resolveRecipeBands, sharedStretchMethod,
   type RgbRecipeId, type StretchMethod,
 } from '@/utils/rgbComposite/recipes';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
-import { fetchCogHeaderMetadata, fetchBandHistogram, BandHistogramResult } from '@/utils/cogMetadata';
+import { fetchCogHeaderMetadata, BandHistogramResult } from '@/utils/cogMetadata';
+import { getHistogram, peekStretch } from '@/utils/rgbComposite/histogramCache';
 import { BandHistogram } from './BandHistogram';
-import CompositeGallery, { RECIPE_ICONS } from './CompositeGallery';
+import CompositeGallery, { RECIPE_ICONS, INDEX_ICONS } from './CompositeGallery';
+import {
+  INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, INDEX_RANGE_PRESETS, buildIndexStyle, matchIndexRecipe, resolveIndexBands, withVisibleRange, withRecipePalette, recipePalette, paletteGradient, cloneLegendStops, genericLegendStops, recolourLegendStops, validateLegendStops,
+  type IndexLegendStop, type IndexRecipeId, type SpectralIndexConfig,
+} from '@/utils/rgbComposite/indices';
+import { createGradientCSS } from '@/utils/colormapUtils';
+import { generateColorRamp } from '@/utils/colormapUtils';
+import { rgbToHex } from '@/utils/colorUtils';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from '@/components/ui/alert-dialog';
+import { applyCompositeStyle, applyIndexStyle, visualisationName } from '@/utils/rgbComposite/styleScope';
+import IndexStopsEditor from './IndexStopsEditor';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
@@ -94,8 +111,7 @@ export function RgbCompositeEditorDialog({
 }: RgbCompositeEditorDialogProps) {
   const [selectedBands, setSelectedBands] = useState<(number | null)[]>([1, 2, 3]);
   const [view, setView] = useState<'gallery' | 'editor'>('editor');
-  // True when this session started on the gallery (no existing composite).
-  const [startedOnGallery, setStartedOnGallery] = useState(false);
+  const [homeTab, setHomeTab] = useState<'rgb' | 'index'>('rgb');
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
   const [rMinMax, setRMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
@@ -108,14 +124,49 @@ export function RgbCompositeEditorDialog({
   const [histogramError, setHistogramError] = useState<Record<number, string | null>>({});
   const [noDataValue, setNoDataValue] = useState<number | undefined>(undefined);
   const [stretchMethod, setStretchMethod] = useState<StretchMethod>('percent-2-98');
-  // True once the user edits a min/max by hand; the dropdown then shows "Custom".
-  const [stretchCustom, setStretchCustom] = useState(false);
+  // Saved numeric ranges do not retain their originating method.
+  const [channelMethods, setChannelMethods] = useState<(StretchMethod | null)[]>(['percent-2-98', 'percent-2-98', 'percent-2-98']);
+  const sharedMethod = sharedStretchMethod(channelMethods);
   // Channels (0=R,1=G,2=B) waiting for their band's histogram to apply the active stretch.
   const [pendingStretch, setPendingStretch] = useState<number[]>([]);
   const [stretchError, setStretchError] = useState<string | null>(null);
 
+  // Spectral index mode
+  const [mode, setMode] = useState<'rgb' | 'index'>('rgb');
+  const [indexRecipe, setIndexRecipe] = useState<IndexRecipeId>('ndvi');
+  const [indexBands, setIndexBands] = useState<(number | null)[]>([null, null]);
+  const [indexColormap, setIndexColormap] = useState('greens');
+  const [indexReverse, setIndexReverse] = useState(false);
+  const [indexMin, setIndexMin] = useState(-1);
+  const [indexMax, setIndexMax] = useState(1);
+  const [indexPaletteMode, setIndexPaletteMode] = useState<'recipe' | 'custom' | 'generic'>('generic');
+  const [customIndexStops, setCustomIndexStops] = useState<IndexLegendStop[]>([]);
+  const [visibleRange, setVisibleRange] = useState<[number, number]>([-1, 1]);
+
   const queueStretch = (channels: number[]) => {
     setPendingStretch((prev) => Array.from(new Set([...prev, ...channels])));
+  };
+
+  const loadIndexConfig = (cfg: SpectralIndexConfig) => {
+    setMode('index');
+    setIndexRecipe(cfg.recipe);
+    setIndexBands([cfg.bandA, cfg.bandB]);
+    setIndexColormap(cfg.colormap);
+    setIndexReverse(!!cfg.reverse);
+    setIndexMin(cfg.min);
+    setIndexMax(cfg.max);
+    const paletteMode = cfg.paletteMode === 'recipe' && recipePalette(cfg.recipe)
+      ? 'recipe'
+      : cfg.paletteMode === 'custom' && cfg.legendStops?.length
+        ? 'custom'
+        : 'generic';
+    setIndexPaletteMode(paletteMode);
+    setCustomIndexStops(
+      paletteMode === 'custom'
+        ? cloneLegendStops(cfg.legendStops ?? [])
+        : genericLegendStops(cfg.colormap, !!cfg.reverse, cfg.min, cfg.max),
+    );
+    setVisibleRange([cfg.visibleMin ?? -1, cfg.visibleMax ?? 1]);
   };
 
   // Band labels: layer meta wins, otherwise fall back to labels extracted from
@@ -129,53 +180,119 @@ export function RgbCompositeEditorDialog({
     return fromItem;
   }, [source.meta, source.data]);
 
-  // Find first COG source URL for band count
+  // Per-dataset scope: index into source.data of the COG being edited.
+  const [scope, setScope] = useState(0);
+  const cogIdx = useMemo(() => cogIndices(source.data || []), [source.data]);
+  const firstIdx = cogIdx[0] ?? 0;
+  const multiDataset = cogIdx.length > 1;
+  const scopePos = cogIdx.indexOf(scope);
+  const [batchProgress, setBatchProgress] = useState<{ done: number; total: number } | null>(null);
+  const [batchMessage, setBatchMessage] = useState<{ text: string; failed: boolean } | null>(null);
+  const batchAbortRef = React.useRef<AbortController | null>(null);
+  const [applyAll, setApplyAll] = useState(false);
+  const [styleScope, setStyleScope] = useState<'this' | 'all'>('this');
+  const [styleDirty, setStyleDirty] = useState(false);
+  const [rangeDirty, setRangeDirty] = useState(false);
+  const [pendingStyle, setPendingStyle] = useState<(() => void) | null>(null);
+
+  const askStyleScope = (change: () => void) => {
+    // Single-dataset layers skip the scope prompt, so mark the style dirty here
+    // — otherwise handleSave's early return would drop the change.
+    if (!multiDataset) { setStyleDirty(true); change(); return; }
+    setPendingStyle(() => change);
+  };
+  const [commitStyle, setCommitStyle] = useState<'this' | 'all' | null>(null);
+  const [restretchAll, setRestretchAll] = useState(false);
+  const confirmStyleScope = (choice: 'this' | 'all') => {
+    setBatchMessage(null);
+    setStyleScope(choice);
+    setStyleDirty(true);
+    pendingStyle?.();
+    setPendingStyle(null);
+    setCommitStyle(choice);
+  };
+
+
+  // URL of the COG being edited (drives band count, noData and histograms)
   const firstCogUrl = useMemo(() => {
+    const item = source.data?.[scope];
+    if (item?.format === 'cog') return item.url;
     return (source.data || []).find((d: DataSourceItem) => d.format === 'cog')?.url;
-  }, [source.data]);
+  }, [source.data, scope]);
 
   const inFlightRef = React.useRef<Set<number>>(new Set());
   const selectedBandsRef = React.useRef(selectedBands);
   selectedBandsRef.current = selectedBands;
 
+  /** Load the editor state from one data item. */
+  const loadFromItem = (item: DataSourceItem | undefined, setInitialView: boolean) => {
+    const rgbItem = item?.convertToRGB === true ? item : undefined;
+    const indexItem = item?.format === 'cog' && item?.spectralIndex ? item : undefined;
+    const hasExisting = !!rgbItem || !!indexItem;
+    if (setInitialView) setView(hasExisting ? 'editor' : 'gallery');
+    setHomeTab(indexItem ? 'index' : 'rgb');
+    setMode('rgb');
+    if (indexItem) loadIndexConfig(indexItem.spectralIndex as SpectralIndexConfig);
+    const bands = rgbItem?.bands && rgbItem.bands.length >= 3 ? rgbItem.bands.slice(0, 3) : [1, 2, 3];
+    setSelectedBands(bands);
+    setStretchError(null);
+    inFlightRef.current = new Set();
+    setHistogramCache({});
+    setHistogramLoading({});
+    setHistogramError({});
+
+    // Initialize min/max from existing style variables (shown as "Custom"),
+    // otherwise auto-apply the default stretch once histograms load.
+    const vars = (rgbItem as any)?.style?.variables;
+    if (vars) {
+      setRMinMax({ min: vars.rMin ?? 0, max: vars.rMax ?? 10000 });
+      setGMinMax({ min: vars.gMin ?? 0, max: vars.gMax ?? 10000 });
+      setBMinMax({ min: vars.bMin ?? 0, max: vars.bMax ?? 10000 });
+      setStretchMethod('percent-2-98');
+      setChannelMethods([null, null, null]);
+      setPendingStretch([]);
+    } else {
+      setRMinMax({ min: 0, max: 10000 });
+      setGMinMax({ min: 0, max: 10000 });
+      setBMinMax({ min: 0, max: 10000 });
+      setStretchMethod('percent-2-98');
+      setChannelMethods(['percent-2-98', 'percent-2-98', 'percent-2-98']);
+      setPendingStretch([0, 1, 2]);
+    }
+  };
+
   // Initialize state only when dialog opens
   const prevOpenRef = React.useRef(false);
   useEffect(() => {
     if (open && !prevOpenRef.current) {
-      const firstRgb = (source.data || []).find((d: DataSourceItem) => d.convertToRGB === true);
-      const hasExisting = !!firstRgb;
-      setView(hasExisting ? 'editor' : 'gallery');
-      setStartedOnGallery(!hasExisting);
-      const bands = firstRgb?.bands && firstRgb.bands.length >= 3
-        ? firstRgb.bands.slice(0, 3)
-        : [1, 2, 3];
-      setSelectedBands(bands);
-      setStretchError(null);
-      inFlightRef.current = new Set();
-      setHistogramCache({});
-      setHistogramLoading({});
-      setHistogramError({});
-
-      // Initialize min/max from existing style variables (shown as "Custom"),
-      // otherwise auto-apply the default stretch once histograms load.
-      const vars = (firstRgb as any)?.style?.variables;
-      if (vars) {
-        setRMinMax({ min: vars.rMin ?? 0, max: vars.rMax ?? 10000 });
-        setGMinMax({ min: vars.gMin ?? 0, max: vars.gMax ?? 10000 });
-        setBMinMax({ min: vars.bMin ?? 0, max: vars.bMax ?? 10000 });
-        setStretchCustom(true);
-        setPendingStretch([]);
-      } else {
-        setRMinMax({ min: 0, max: 10000 });
-        setGMinMax({ min: 0, max: 10000 });
-        setBMinMax({ min: 0, max: 10000 });
-        setStretchMethod('percent-2-98');
-        setStretchCustom(false);
-        setPendingStretch([0, 1, 2]);
-      }
+      const data = source.data || [];
+      const first = firstCogIndex(data);
+      setScope(first < 0 ? 0 : first);
+      setBatchMessage(null);
+      setBatchProgress(null);
+      setApplyAll(first >= 0 && data[first]?.styleSource === 'batch');
+      setStyleScope('this');
+      setStyleDirty(false);
+      setRangeDirty(false);
+      setPendingStyle(null);
+      loadFromItem(first < 0 ? undefined : data[first], true);
     }
+    if (!open && prevOpenRef.current) batchAbortRef.current?.abort();
     prevOpenRef.current = open;
   }, [open, source.data]);
+
+  const changeScope = (i: number) => {
+    if (i === scope || i < 0) return;
+    batchAbortRef.current?.abort();
+    setBatchProgress(null);
+    setScope(i);
+    setBatchMessage(null);
+    setStyleScope('this');
+    setStyleDirty(false);
+    setRangeDirty(false);
+    loadFromItem(source.data[i], false);
+    setView('editor');
+  };
 
   // Fetch band count and noData from first COG
   useEffect(() => {
@@ -217,7 +334,8 @@ export function RgbCompositeEditorDialog({
     }
     next[channelIdx] = band;
     setSelectedBands(next);
-    // Re-stretch the affected channels with the active method (2–98% when "Custom").
+    // Re-stretch affected channels with their own methods (2–98% for an untracked range).
+    setChannelMethods((prev) => prev.map((method, i) => changed.has(i) ? (method ?? stretchMethod) : method));
     queueStretch(Array.from(changed));
   };
 
@@ -226,22 +344,216 @@ export function RgbCompositeEditorDialog({
     bMinMax.min !== 0 || bMinMax.max !== 10000;
 
   const allChannelsSet = selectedBands.length === MAX_BANDS && selectedBands.every((b) => b != null);
+  const customStopsError = indexPaletteMode === 'custom' ? validateLegendStops(customIndexStops) : null;
+  const indexReady = indexBands[0] != null && indexBands[1] != null && indexBands[0] !== indexBands[1] && indexMax > indexMin && !customStopsError;
+  const canSave = mode === 'index' ? indexReady : allChannelsSet;
 
-  const handleSave = () => {
-    if (!allChannelsSet) return;
-    const bands = selectedBands as number[];
-    const updatedData = (source.data || []).map((d: DataSourceItem) => {
-      if (d.format === 'cog') {
-        const updated: any = { ...d, convertToRGB: true, bands: [...bands] };
+  const handleSave = (close = true) => {
+    if (!canSave) return;
+    const data = source.data || [];
+    let transform: (d: DataSourceItem) => DataSourceItem;
+    if (mode === 'index') {
+      const cfg: SpectralIndexConfig = withRecipePalette(withVisibleRange({
+        recipe: indexRecipe,
+        bandA: indexBands[0] as number,
+        bandB: indexBands[1] as number,
+        colormap: indexColormap,
+        reverse: indexReverse,
+        min: indexMin,
+        max: indexMax,
+        ...(indexPaletteMode === 'recipe' ? { paletteMode: 'recipe' as const } : {}),
+        ...(indexPaletteMode === 'custom' ? { paletteMode: 'custom' as const, legendStops: cloneLegendStops(customIndexStops) } : {}),
+      }, visibleRange[0], visibleRange[1]));
+      // The viewer loads only `bands` and renumbers them 1..n, so the style reads bands 1 and 2.
+      transform = (d) => {
+        const { convertToRGB, bands, ...rest } = d as any;
+        return { ...rest, bands: [cfg.bandA, cfg.bandB], style: buildIndexStyle(cfg), spectralIndex: { ...cfg } } as DataSourceItem;
+      };
+    } else {
+      const bands = selectedBands as number[];
+      transform = (d) => {
+        const { spectralIndex, ...rest } = d as any;
+        const updated: any = { ...rest, convertToRGB: true, bands: [...bands] };
         if (hasAdvancedValues) {
           updated.style = buildRgbStyle(rMinMax, gMinMax, bMinMax);
+        } else if (spectralIndex) {
+          delete updated.style;
         }
         return updated;
+      };
+    }
+    const effectiveScope = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
+    if (mode === 'rgb') {
+      // Batch stretch writes its own per-item styles immediately; saving without
+      // further edits must not turn a batch dataset into an own-style override.
+      if (!styleDirty && !rangeDirty) {
+        if (close) onOpenChange(false);
+        return;
       }
-      return d;
+      const bands = selectedBands as number[];
+      const styled = applyCompositeStyle(data, effectiveScope, bands, styleDirty && styleScope === 'all', (item) => {
+        if (effectiveScope === data.indexOf(item)) return rangeDirty || styleDirty ? buildRgbStyle(rMinMax, gMinMax, bMinMax) : item.style;
+        return item.style ?? buildRgbStyle(rMinMax, gMinMax, bMinMax);
+      }, styleDirty, rangeDirty);
+      onUpdateDataSources(styled);
+      setStyleDirty(false);
+      setRangeDirty(false);
+    } else {
+      onUpdateDataSources(applyToScope(data, effectiveScope, transform));
+    }
+    if (close) onOpenChange(false);
+  };
+
+  // Commit a confirmed composite change straight away, so the map and the
+  // dataset labels reflect it (This dataset / All datasets) without saving first.
+  useEffect(() => {
+    if (!commitStyle) return;
+    const data = source.data || [];
+    const target = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
+    const all = commitStyle === 'all';
+    if (mode === 'index') {
+      if (indexBands[0] == null || indexBands[1] == null) return;
+      onUpdateDataSources(applyIndexStyle(data, target, withVisibleRange({
+        recipe: indexRecipe, bandA: indexBands[0] as number, bandB: indexBands[1] as number,
+        colormap: indexColormap, reverse: indexReverse, min: indexMin, max: indexMax,
+        ...(indexPaletteMode === 'recipe' ? { paletteMode: 'recipe' as const } : {}),
+        ...(indexPaletteMode === 'custom' ? { paletteMode: 'custom' as const, legendStops: cloneLegendStops(customIndexStops) } : {}),
+      }, visibleRange[0], visibleRange[1]), all));
+      setCommitStyle(null);
+      return;
+    }
+    if (!allChannelsSet) return;
+    // Switching from an index: ranges are re-stretched in the editor, so let Save write them.
+    if (data[target]?.spectralIndex) setRangeDirty(true);
+    const styled = applyCompositeStyle(data, target, selectedBands as number[], all, (item) =>
+      data.indexOf(item) === target ? buildRgbStyle(rMinMax, gMinMax, bMinMax) : item.style ?? buildRgbStyle(rMinMax, gMinMax, bMinMax),
+    true, false);
+    onUpdateDataSources(styled);
+    setCommitStyle(null);
+    if (all) setRestretchAll(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commitStyle, selectedBands, mode, indexBands]);
+
+  // After an all-datasets band change, re-stretch each dataset from its own new bands.
+  useEffect(() => {
+    if (!restretchAll) return;
+    setRestretchAll(false);
+    applyToAllDatasets(sharedMethod ?? stretchMethod);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restretchAll, source.data]);
+
+  /** Compute the chosen stretch from each dataset's own pixels (skips datasets with own settings). */
+  const applyToAllDatasets = async (method: StretchMethod | null = sharedMethod, channel?: number) => {
+    if (!method || !allChannelsSet) return;
+    const data = source.data || [];
+    const targets = cogIdx.filter((i) => (i === scope && mode === 'rgb') || (data[i].convertToRGB && !data[i].spectralIndex))
+      .map((i) => ({ index: i, url: data[i].url as string,
+        bands: i === scope ? selectedBands as number[] : (data[i].bands?.slice(0, 3) ?? []) }));
+    const validTargets = targets.filter((t) => t.bands.length === 3 && t.bands.every((b) => typeof b === 'number'));
+    batchAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    batchAbortRef.current = ctrl;
+    setBatchMessage(null);
+    setBatchProgress(null);
+    // Fully cached: apply instantly without a progress indicator.
+    const cached = validTargets.map((t) => t.bands.map((b, j) => channel == null || channel === j ? peekStretch(t.url, b - 1, noDataValue, method) : { min: 0, max: 0 }));
+    const allCached = cached.every((r) => r.every(Boolean));
+    if (!allCached) setBatchProgress({ done: 0, total: validTargets.length });
+    const results = allCached
+      ? validTargets.map((t, k) => ({ index: t.index, ranges: cached[k] as { min: number; max: number }[], error: undefined as string | undefined }))
+      : await (async () => {
+        let next = 0;
+        let done = 0;
+        const results: { index: number; ranges?: { min: number; max: number }[]; error?: string }[] = [];
+        await Promise.all(Array.from({ length: Math.min(3, validTargets.length) }, async () => {
+          while (next < validTargets.length && !ctrl.signal.aborted) {
+            const target = validTargets[next++];
+            try {
+              const ranges = await Promise.all(target.bands.map(async (b, j) => channel == null || channel === j
+                ? computeStretch(method, await getHistogram(target.url, b - 1, noDataValue)) : { min: 0, max: 0 }));
+              results.push({ index: target.index, ranges });
+            } catch (e) { results.push({ index: target.index, error: e instanceof Error ? e.message : 'Failed' }); }
+            done++;
+            if (!ctrl.signal.aborted && batchAbortRef.current === ctrl) {
+              setBatchProgress({ done, total: validTargets.length });
+            }
+          }
+        }));
+        return results;
+      })();
+    if (ctrl.signal.aborted || batchAbortRef.current !== ctrl) return;
+    setBatchProgress(null);
+    const byIndex = new Map(results.map((r) => [r.index, r]));
+    const failed = results.filter((r) => r.error).length;
+    const next = data.map((d, i) => {
+      const r = byIndex.get(i);
+      if (!r?.ranges) return d;
+      const { spectralIndex, batchStretch, ...rest } = d as any;
+      const [rr, gg, bb] = r.ranges;
+      const prior = (d.style as { variables?: Record<string, number> } | undefined)?.variables;
+      const current = [{ min: prior?.rMin ?? rMinMax.min, max: prior?.rMax ?? rMinMax.max },
+        { min: prior?.gMin ?? gMinMax.min, max: prior?.gMax ?? gMinMax.max },
+        { min: prior?.bMin ?? bMinMax.min, max: prior?.bMax ?? bMinMax.max }];
+      const ranges = channel == null ? [rr, gg, bb] : current.map((range, j) => j === channel ? r.ranges?.[j] ?? range : range);
+      return {
+        ...rest,
+        convertToRGB: true,
+        bands: i === scope ? [...selectedBands] : [...(d.bands ?? selectedBands)],
+        style: buildRgbStyle(ranges[0], ranges[1], ranges[2]),
+        styleSource: i === firstIdx ? 'batch' : d.styleSource === 'own' ? 'own' : 'batch',
+        ...(channel == null && d.styleSource !== 'own' ? { batchStretch: { method } } : {}),
+      } as DataSourceItem;
     });
-    onUpdateDataSources(updatedData);
-    onOpenChange(false);
+    onUpdateDataSources(next);
+    const mine = byIndex.get(scope)?.ranges;
+    if (mine) {
+      if (channel == null || channel === 0) setRMinMax(mine[0]);
+      if (channel == null || channel === 1) setGMinMax(mine[1]);
+      if (channel == null || channel === 2) setBMinMax(mine[2]);
+    }
+    setRangeDirty(false);
+    const methodName = STRETCH_METHODS.find((m) => m.id === method)?.shortName ?? method;
+    const CHANNEL_NAMES = ['red', 'green', 'blue'];
+    const methodLabel = channel == null ? methodName : `${methodName} on ${CHANNEL_NAMES[channel]} channel`;
+    const applied = results.length - failed;
+    setBatchMessage({
+      text: `${methodLabel} applied to ${applied} ${applied === 1 ? 'dataset' : 'datasets'}` +
+        (failed ? ` · ${failed} failed and left unchanged` : ''),
+      failed: failed > 0,
+    });
+  };
+
+  // ── Spectral index actions ──
+  const applyIndexRecipe = (id: IndexRecipeId) => {
+    const r = INDEX_RECIPES.find((x) => x.id === id)!;
+    setMode('index');
+    setIndexRecipe(id);
+    const bands = resolveIndexBands(id, cogBandCount, bandLabels);
+    setIndexBands(bands ? [...bands] : [null, null]);
+    setIndexColormap(r.colormap);
+    setIndexReverse(r.reverse);
+    setIndexMin(recipePalette(id)?.displayMin ?? r.min);
+    setIndexMax(recipePalette(id)?.displayMax ?? r.max);
+    setIndexPaletteMode(recipePalette(id) ? 'recipe' : 'generic');
+    setCustomIndexStops(recipePalette(id) ? cloneLegendStops(recipePalette(id)?.stops ?? []) : genericLegendStops(r.colormap, r.reverse, r.min, r.max));
+  };
+
+  const assignIndexBand = (slot: number, band: number) => {
+    const next = [...indexBands];
+    const other = slot === 0 ? 1 : 0;
+    if (next[other] === band) next[other] = next[slot];
+    next[slot] = band;
+    setIndexBands(next);
+    if (next[0] != null && next[1] != null) {
+      const matched = matchIndexRecipe([next[0], next[1]], cogBandCount, bandLabels);
+      if (matched !== indexRecipe) setIndexPaletteMode(recipePalette(matched) ? 'recipe' : 'generic');
+      setIndexRecipe(matched);
+    }
+  };
+
+  const resetIndexRange = () => {
+    const r = INDEX_RECIPES.find((x) => x.id === indexRecipe);
+    if (r) { setIndexMin(r.min); setIndexMax(r.max); }
   };
 
   /** Manual edits to a channel range switch the stretch dropdown to "Custom". */
@@ -250,9 +562,20 @@ export function RgbCompositeEditorDialog({
     channelIdx: number,
     update: React.SetStateAction<{ min: number; max: number }>,
   ) => {
+    setBatchMessage(null);
+    setRangeDirty(true);
     setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
-    setStretchCustom(true);
+    setChannelMethods((prev) => prev.map((method, i) => i === channelIdx ? null : method));
     setter(update);
+  };
+
+  const applyChannelStretch = (channelIdx: number, method: StretchMethod, hist: BandHistogramResult) => {
+    setBatchMessage(null);
+    setRangeDirty(!applyAll);
+    setPendingStretch((prev) => prev.filter((c) => c !== channelIdx));
+    [setRMinMax, setGMinMax, setBMinMax][channelIdx](computeStretch(method, hist));
+    setChannelMethods((prev) => prev.map((current, i) => i === channelIdx ? method : current));
+    if (applyAll && multiDataset) void applyToAllDatasets(method, channelIdx);
   };
 
   const channelConfigs = [
@@ -263,13 +586,13 @@ export function RgbCompositeEditorDialog({
 
   // Load histograms for every assigned band (stacked view shows all three)
   useEffect(() => {
-    if (!open || loading || !firstCogUrl) return;
+    if (!open || loading || !firstCogUrl || mode !== 'rgb') return;
     selectedBands.forEach((band) => {
       if (band == null || histogramCache[band] || inFlightRef.current.has(band)) return;
       inFlightRef.current.add(band);
       setHistogramLoading((prev) => ({ ...prev, [band]: true }));
       setHistogramError((prev) => ({ ...prev, [band]: null }));
-      fetchBandHistogram(firstCogUrl, band - 1, noDataValue)
+      getHistogram(firstCogUrl, band - 1, noDataValue)
         .then((result) => {
           setHistogramCache((prev) => ({ ...prev, [band]: result }));
         })
@@ -284,7 +607,7 @@ export function RgbCompositeEditorDialog({
           setHistogramLoading((prev) => ({ ...prev, [band]: false }));
         });
     });
-  }, [open, loading, firstCogUrl, noDataValue, selectedBands, histogramCache]);
+  }, [open, loading, firstCogUrl, noDataValue, selectedBands, histogramCache, mode]);
 
   // Apply the active stretch to queued channels as soon as their histogram is available.
   useEffect(() => {
@@ -294,11 +617,11 @@ export function RgbCompositeEditorDialog({
     pendingStretch.forEach((ch) => {
       const band = selectedBands[ch];
       const hist = band ? histogramCache[band] : undefined;
-      if (hist) setters[ch](computeStretch(stretchMethod, hist));
+      if (hist) setters[ch](computeStretch(channelMethods[ch] ?? stretchMethod, hist));
       else if (band && !histogramError[band]) remaining.push(ch);
     });
     if (remaining.length !== pendingStretch.length) setPendingStretch(remaining);
-  }, [pendingStretch, histogramCache, histogramError, selectedBands, stretchMethod]);
+  }, [pendingStretch, histogramCache, histogramError, selectedBands, stretchMethod, channelMethods]);
 
   // ── Recipes & auto-stretch ──
   const sensor = guessSensor(cogBandCount);
@@ -308,8 +631,10 @@ export function RgbCompositeEditorDialog({
   );
 
   const applyRecipe = (id: RgbRecipeId) => {
+    setBatchMessage(null);
     setStretchError(null);
     if (id === 'custom') {
+      setMode('rgb');
       // Start from a blank slate: clear channels, ranges and histograms.
       setSelectedBands([null, null, null]);
       setRMinMax({ min: 0, max: 10000 });
@@ -320,41 +645,271 @@ export function RgbCompositeEditorDialog({
       setHistogramError({});
       inFlightRef.current = new Set();
       setPendingStretch([]);
-      setStretchCustom(false);
+      setChannelMethods([null, null, null]);
       return;
     }
     const bands = resolveRecipeBands(id, cogBandCount, bandLabels);
     if (!bands) return;
+    setMode('rgb');
     setSelectedBands([...bands]);
-    setStretchCustom(false);
+    setChannelMethods((prev) => prev.map((method) => method ?? stretchMethod));
     queueStretch([0, 1, 2]);
   };
 
   /** Choosing a stretch method re-applies it to all three channels. */
   const chooseStretchMethod = (value: string) => {
     if (value === 'custom') return;
+    setBatchMessage(null);
+    setRangeDirty(!applyAll);
     setStretchMethod(value as StretchMethod);
-    setStretchCustom(false);
+    setChannelMethods([value as StretchMethod, value as StretchMethod, value as StretchMethod]);
     queueStretch([0, 1, 2]);
+    if (applyAll && multiDataset) void applyToAllDatasets(value as StretchMethod);
   };
 
   /** Gallery card picked: apply the recipe and enter the editor. */
   const handleGalleryPick = (id: RgbRecipeId) => {
-    applyRecipe(id);
+    askStyleScope(() => { setStyleDirty(true); applyRecipe(id); });
+    setView('editor');
+  };
+
+  const handleGalleryPickIndex = (id: IndexRecipeId) => {
+    setBatchMessage(null);
+    askStyleScope(() => applyIndexRecipe(id));
     setView('editor');
   };
 
   const sectionLabel = 'text-xs font-medium text-muted-foreground uppercase tracking-wide';
+  const selectedPalette = indexPaletteMode === 'recipe' ? recipePalette(indexRecipe) : undefined;
+  const activeStops = indexPaletteMode === 'custom' ? customIndexStops : selectedPalette?.stops;
+  const indexGradient = activeStops?.length ? paletteGradient(activeStops) : createGradientCSS(indexColormap, indexReverse);
+  const maskPresets = indexRangePresets(indexRecipe).filter((p) => p.visibleMin != null || p.visibleMax != null);
+  const fmt = (v: number) => parseFloat(v.toFixed(3)).toString();
+
+  // Stops shown in the editor: saved custom stops, the recipe defaults, or the
+  // current generic ramp. Merely viewing them does not change the palette mode.
+  const editorStops = indexPaletteMode === 'custom'
+    ? customIndexStops
+    : activeStops?.length
+      ? activeStops
+      : genericLegendStops(indexColormap, indexReverse, indexMin, indexMax);
+
+  // The style only becomes a custom palette on the first actual edit.
+  const editStops = (next: IndexLegendStop[]) => {
+    if (indexPaletteMode !== 'custom') {
+      setCustomIndexStops(cloneLegendStops(next));
+      setIndexPaletteMode('custom');
+      return;
+    }
+    setCustomIndexStops(next);
+  };
+
+  const applyNamedRamp = (name: string) => {
+    const base = cloneLegendStops(editorStops);
+    const colors = generateColorRamp(name, Math.max(2, base.length), indexReverse).map(([r, g, b]) => rgbToHex(r, g, b));
+    setIndexColormap(name);
+    setCustomIndexStops(recolourLegendStops(base, colors));
+    setIndexPaletteMode('custom');
+  };
+
+  const restoreIndexDefaults = () => {
+    const palette = recipePalette(indexRecipe);
+    if (palette) {
+      setIndexMin(palette.displayMin);
+      setIndexMax(palette.displayMax);
+      setCustomIndexStops(cloneLegendStops(palette.stops));
+      setIndexPaletteMode('recipe');
+      return;
+    }
+    const recipe = INDEX_RECIPES.find((candidate) => candidate.id === indexRecipe);
+    if (!recipe) return;
+    setIndexMin(recipe.min);
+    setIndexMax(recipe.max);
+    setIndexColormap(recipe.colormap);
+    setIndexReverse(recipe.reverse);
+    setCustomIndexStops(genericLegendStops(recipe.colormap, recipe.reverse, recipe.min, recipe.max));
+    setIndexPaletteMode('generic');
+  };
+
+  const indexLeft = (
+    <>
+      <div className="border-t pt-5 space-y-2">
+        <div className={sectionLabel}>Index bands</div>
+        {[0, 1].map((slot) => (
+          <div key={slot} className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center rounded text-[11px] font-bold bg-muted text-foreground w-6 h-6 flex-shrink-0">
+              {slot === 0 ? 'A' : 'B'}
+            </span>
+            <Select
+              value={indexBands[slot] ? String(indexBands[slot]) : undefined}
+              onValueChange={(v) => assignIndexBand(slot, Number(v))}
+            >
+              <SelectTrigger className="h-8 text-xs flex-1" aria-label={`Index band ${slot === 0 ? 'A' : 'B'}`}>
+                <SelectValue placeholder="Choose a band" />
+              </SelectTrigger>
+              <SelectContent>
+                {allBands.map((b) => (
+                  <SelectItem key={b} value={String(b)} className="text-xs">{getBandLabel(b)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+        <p className="text-[11px] text-muted-foreground font-mono">
+          {INDEX_RECIPES.find((r) => r.id === indexRecipe)?.formula} · computed as (A − B) / (A + B)
+        </p>
+      </div>
+    </>
+  );
+
+  const indexRight = (
+    <div className="space-y-4">
+      {activeStops && <div className="space-y-2">
+        <div className={sectionLabel}>Index colours</div>
+        <div className="h-5 rounded-sm border" style={{ background: indexGradient }} />
+        <div className="space-y-1">
+          {activeStops.map((stop, index) => (
+            <div key={`${stop.value}-${index}`} className="flex items-center gap-2 text-xs">
+              <span className="h-3 w-3 shrink-0 rounded-sm border" style={{ backgroundColor: stop.color }} />
+              <span className="w-10 shrink-0 tabular-nums text-muted-foreground">{fmt(stop.value)}</span>
+              <span>{stop.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>}
+      <div className={sectionLabel}>Visible range</div>
+      <div className="space-y-2">
+        <div className="relative h-3 rounded-sm border overflow-hidden" style={{ background: indexGradient }}>
+          <div className="absolute inset-y-0 left-0 bg-muted/90" style={{ width: `${((visibleRange[0] + 1) / 2) * 100}%` }} />
+          <div className="absolute inset-y-0 right-0 bg-muted/90" style={{ width: `${((1 - visibleRange[1]) / 2) * 100}%` }} />
+        </div>
+        <Slider min={-1} max={1} step={0.01} value={visibleRange} minStepsBetweenThumbs={1}
+          aria-label="Visible range" onValueChange={(v) => setVisibleRange([v[0], v[1]])} />
+        <div className="flex items-end gap-3">
+          <label className="space-y-1 text-xs">
+            <span className="text-muted-foreground">Min</span>
+            <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={visibleRange[0]}
+              onChange={(e) => { const v = Math.max(-1, Math.min(Number(e.target.value), visibleRange[1])); setVisibleRange([v, visibleRange[1]]); }} />
+          </label>
+          <label className="space-y-1 text-xs">
+            <span className="text-muted-foreground">Max</span>
+            <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={visibleRange[1]}
+              onChange={(e) => { const v = Math.min(1, Math.max(Number(e.target.value), visibleRange[0])); setVisibleRange([visibleRange[0], v]); }} />
+          </label>
+          <Button type="button" size="sm" variant="link" className="h-8 px-0 text-xs" onClick={() => setVisibleRange([-1, 1])}
+            disabled={visibleRange[0] <= -1 && visibleRange[1] >= 1}>
+            Show all
+          </Button>
+        </div>
+        {maskPresets.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {maskPresets.map((p) => (
+              <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
+                title={`Colours ${p.min} – ${p.max}, shows only ${p.visibleMin ?? -1} – ${p.visibleMax ?? 1}`}
+                onClick={() => { setIndexMin(p.min); setIndexMax(p.max); setVisibleRange([p.visibleMin ?? -1, p.visibleMax ?? 1]); }}>
+                {p.label}
+              </Button>
+            ))}
+          </div>
+        )}
+        <p className="text-[11px] text-muted-foreground">Values outside this range are transparent. Colours still follow {activeStops ? 'the colour stops' : 'the colour range'} above.</p>
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        Index values run from −1 to 1. Pixels where both bands are zero (no data) stay transparent.
+        {activeStops?.length ? ` ${activeStops.length} colour stops.` : ''}
+      </p>
+      <details className="border-t pt-3" open={indexPaletteMode === 'custom' || !recipePalette(indexRecipe) ? true : undefined}>
+        <summary className="cursor-pointer text-xs font-medium">Customise settings</summary>
+        <div className="space-y-4 pt-3">
+          {indexPaletteMode === 'generic' && (
+            <div className="space-y-2">
+              <div className={sectionLabel}>Colour ramp range</div>
+              <div className="flex items-end gap-3">
+                <label className="space-y-1 text-xs">
+                  <span className="text-muted-foreground">Min</span>
+                  <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMin}
+                    onChange={(e) => setIndexMin(Number(e.target.value))} />
+                </label>
+                <label className="space-y-1 text-xs">
+                  <span className="text-muted-foreground">Max</span>
+                  <Input type="number" step={0.05} min={-1} max={1} className="h-8 w-24 text-xs" value={indexMax}
+                    onChange={(e) => setIndexMax(Number(e.target.value))} />
+                </label>
+                <Button type="button" size="sm" variant="outline" className="h-8 text-xs" onClick={resetIndexRange}>
+                  Reset range
+                </Button>
+              </div>
+              {!(indexMax > indexMin) && <p className="text-[11px] text-destructive">Max must be greater than min.</p>}
+              <div className="flex flex-wrap gap-1.5">
+                {INDEX_RANGE_PRESETS.map((p) => (
+                  <Button key={p.label} type="button" size="sm" variant="secondary" className="h-7 text-xs"
+                    onClick={() => { setIndexMin(p.min); setIndexMax(p.max); }}>
+                    {p.label} ({p.min} – {p.max})
+                  </Button>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground">Stretches the generic colour ramp; recipe and custom stops use their own values.</p>
+            </div>
+          )}
+          <div className="space-y-2">
+            <div className={sectionLabel}>Apply named colour ramp</div>
+            <div className="flex items-center gap-2">
+              <Select onValueChange={applyNamedRamp}>
+                <SelectTrigger className="h-8 flex-1 text-xs" aria-label="Named colour ramp"><SelectValue placeholder="Choose a ramp" /></SelectTrigger>
+                <SelectContent>
+                  {INDEX_COLORMAPS.map((colorMap) => (
+                    <SelectItem key={colorMap} value={colorMap} className="text-xs">
+                      <span className="flex items-center gap-2">
+                        <span className="inline-block h-2.5 w-16 rounded-sm" style={{ background: createGradientCSS(colorMap, indexReverse) }} />
+                        {colorMap}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <label className="flex items-center gap-1.5 text-xs">
+                <Checkbox checked={indexReverse} onCheckedChange={(checked) => {
+                  const reverse = checked === true;
+                  setIndexReverse(reverse);
+                  const colors = generateColorRamp(indexColormap, Math.max(2, editorStops.length), reverse)
+                    .map(([r, g, b]) => rgbToHex(r, g, b));
+                  setCustomIndexStops(recolourLegendStops(cloneLegendStops(editorStops), colors));
+                  setIndexPaletteMode('custom');
+                }} /> Reverse
+              </label>
+            </div>
+            <p className="text-[11px] text-muted-foreground">Applying a ramp changes colours only; values and legend labels stay unchanged.</p>
+          </div>
+          <IndexStopsEditor stops={editorStops} onChange={editStops} />
+          {customStopsError && <p className="text-[11px] text-destructive">{customStopsError}</p>}
+          <Button type="button" variant="link" size="sm" className="h-auto px-0 text-xs" onClick={restoreIndexDefaults}>
+            {recipePalette(indexRecipe) ? `Restore ${indexRecipe.toUpperCase()} defaults` : 'Restore default ramp'}
+          </Button>
+        </div>
+      </details>
+    </div>
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>RGB Composite Editor</DialogTitle>
-          <DialogDescription>
-            Choose a composite, assign bands to Red, Green and Blue, then set each channel's range. Changes apply to all COG sources in this layer.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogContent className="sm:max-w-6xl h-[85vh] flex flex-col">
+        {view === 'gallery' ? (
+          <DialogHeader>
+            <DialogTitle>Multi-band visualisations</DialogTitle>
+            <DialogDescription>Choose a composite or index to edit.</DialogDescription>
+          </DialogHeader>
+        ) : (
+          <DialogHeader className="space-y-1 text-left">
+            <DialogTitle>Multi-band visualisations</DialogTitle>
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="h-auto self-start p-0 text-xs text-muted-foreground"
+              onClick={() => { setHomeTab(mode); setView('gallery'); }}
+            >← Back to visualisations</Button>
+          </DialogHeader>
+        )}
 
         {view === 'gallery' ? (
           <ScrollArea className="flex-1 min-h-0 pr-3">
@@ -362,7 +917,10 @@ export function RgbCompositeEditorDialog({
               bandCount={cogBandCount}
               bandLabels={bandLabels}
               loading={loading}
+              activeTab={homeTab}
+              onTabChange={setHomeTab}
               onPick={handleGalleryPick}
+              onPickIndex={handleGalleryPickIndex}
             />
           </ScrollArea>
         ) : loading ? (
@@ -371,20 +929,37 @@ export function RgbCompositeEditorDialog({
           </div>
         ) : (
           <TooltipProvider delayDuration={400}>
-            <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5 flex-1 min-h-0">
-              {/* ── Left pane: composite, channels, stretch ── */}
+            <div className="flex flex-col flex-1 min-h-0 gap-3">
+              <div className="grid grid-rows-2 sm:grid-rows-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3 sm:gap-5 flex-1 min-h-0">
+              {/* ── Left pane: recipe and bands ── */}
               <ScrollArea className="min-h-0 pr-3">
                 <div className="space-y-5">
-                  {startedOnGallery && (
-                    <button
-                      type="button"
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      onClick={() => setView('gallery')}
-                    >
-                      ← Back to composites
-                    </button>
+                  {multiDataset && (
+                    <div className="space-y-2 min-w-0">
+                      <div className={sectionLabel}>Dataset</div>
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Button type="button" size="icon" variant="outline" className="h-7 w-7 shrink-0" aria-label="Previous dataset"
+                          disabled={scopePos <= 0} onClick={() => changeScope(cogIdx[scopePos - 1])}>
+                          <ChevronLeft className="h-3.5 w-3.5" />
+                        </Button>
+                        <Select value={String(scope)} onValueChange={(v) => changeScope(Number(v))}>
+                          <SelectTrigger className="h-7 min-w-0 flex-1 text-xs" aria-label="Dataset"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {cogIdx.map((i, pos) => (
+                              <SelectItem key={i} value={String(i)} className="text-xs">
+                                {datasetLabel(source.data[i], pos + 1)} · {visualisationName(source.data[i], cogBandCount, bandLabels)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button type="button" size="icon" variant="outline" className="h-7 w-7 shrink-0" aria-label="Next dataset"
+                          disabled={scopePos >= cogIdx.length - 1} onClick={() => changeScope(cogIdx[scopePos + 1])}>
+                          <ChevronRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
                   )}
-                  <div className="space-y-2">
+                  {mode === 'rgb' && <div className={`${multiDataset ? 'border-t pt-5' : ''} space-y-2`}>
                     <div className={sectionLabel}>
                       Composite
                       {sensor && <span className="normal-case tracking-normal font-normal ml-2">· detected {SENSOR_NAMES[sensor]}</span>}
@@ -394,7 +969,7 @@ export function RgbCompositeEditorDialog({
                         const Icon = RECIPE_ICONS[r.id];
                         const bands = resolveRecipeBands(r.id, cogBandCount, bandLabels);
                         const unavailable = r.id !== 'custom' && !bands;
-                        const active = currentRecipe === r.id;
+                        const active = mode === 'rgb' && currentRecipe === r.id;
                         return (
                           <Tooltip key={r.id}>
                             <TooltipTrigger asChild>
@@ -405,7 +980,7 @@ export function RgbCompositeEditorDialog({
                                   variant={active ? 'default' : 'outline'}
                                   className="h-8 w-full justify-between text-xs"
                                   disabled={unavailable}
-                                  onClick={() => applyRecipe(r.id)}
+                                  onClick={() => askStyleScope(() => applyRecipe(r.id))}
                                 >
                                   <span className="flex items-center gap-1.5 min-w-0">
                                     <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -427,9 +1002,50 @@ export function RgbCompositeEditorDialog({
                         );
                       })}
                     </div>
-                  </div>
+                  </div>}
 
-                  <div className="space-y-2">
+                  {mode === 'index' && <div className={`${multiDataset ? 'border-t pt-5' : ''} space-y-2`}>
+                    <div className={sectionLabel}>Spectral indices</div>
+                    <div className="flex flex-col gap-1">
+                      {INDEX_RECIPES.map((r) => {
+                        const Icon = INDEX_ICONS[r.id];
+                        const bands = resolveIndexBands(r.id, cogBandCount, bandLabels);
+                        const unavailable = r.id !== 'custom-index' && !bands;
+                        const active = mode === 'index' && indexRecipe === r.id;
+                        return (
+                          <Tooltip key={r.id}>
+                            <TooltipTrigger asChild>
+                              <span>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant={active ? 'default' : 'outline'}
+                                  className="h-8 w-full justify-between text-xs"
+                                  disabled={unavailable}
+                                  onClick={() => askStyleScope(() => applyIndexRecipe(r.id))}
+                                >
+                                  <span className="flex items-center gap-1.5 min-w-0">
+                                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">{r.fullName}</span>
+                                  </span>
+                                  {bands && <span className="opacity-70 font-normal">{bands.join(' & ')}</span>}
+                                </Button>
+                                {active && <p className="text-[11px] text-muted-foreground mt-1 px-1">{r.description}</p>}
+                              </span>
+                            </TooltipTrigger>
+                            {!active && (
+                              <TooltipContent side="right" className="max-w-[240px]">
+                                <p>{unavailable ? `${r.description} Not available — this source lacks the required bands or band labels.` : r.description}</p>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        );
+                      })}
+                    </div>
+                  </div>}
+
+                  {mode === 'rgb' ? (<>
+                  <div className="border-t pt-5 space-y-2">
                     <div className={sectionLabel}>Channels</div>
                     {CHANNEL_NAMES.map((name, i) => (
                       <div key={name} className="flex items-center gap-2">
@@ -442,7 +1058,7 @@ export function RgbCompositeEditorDialog({
                         </span>
                         <Select
                           value={selectedBands[i] ? String(selectedBands[i]) : undefined}
-                          onValueChange={(v) => assignBand(i, Number(v))}
+                          onValueChange={(v) => askStyleScope(() => assignBand(i, Number(v)))}
                         >
                           <SelectTrigger className="h-8 text-xs flex-1" aria-label={`${name} channel band`}>
                             <SelectValue placeholder="Choose a band" />
@@ -458,31 +1074,62 @@ export function RgbCompositeEditorDialog({
                     <p className="text-[11px] text-muted-foreground">Picking a band already used by another channel swaps the two.</p>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className={sectionLabel}>Contrast stretch (all bands)</div>
-                    <Select value={stretchCustom ? 'custom' : stretchMethod} onValueChange={chooseStretchMethod}>
-                      <SelectTrigger className="h-8 w-full text-xs" aria-label="Contrast stretch (all bands)"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {STRETCH_METHODS.map((m) => (
-                          <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
-                        ))}
-                        <SelectItem value="custom" disabled className="text-xs">Custom</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-[11px] text-muted-foreground">
-                      {stretchCustom
-                        ? 'Ranges differ per band or were set by hand. Pick a method to re-apply it to every band.'
-                        : STRETCH_METHODS.find((m) => m.id === stretchMethod)?.description}
-                    </p>
-                    {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
-                  </div>
+                  </>) : indexLeft}
                 </div>
               </ScrollArea>
 
               {/* ── Right pane: stacked channel histograms ── */}
               <ScrollArea className="min-h-0 border-l pl-5 pr-3">
-                <div className="space-y-2">
-                  <div className={sectionLabel}>Channel ranges</div>
+                {mode === 'rgb' ? (
+                <div className="space-y-4 pl-1.5">
+                  <div className="space-y-2">
+                    <div className={sectionLabel}>Contrast stretch (all bands)</div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                      <Select value={sharedMethod ?? 'custom'} onValueChange={chooseStretchMethod}>
+                        <SelectTrigger className="h-8 w-auto min-w-[7.5rem] gap-2 text-xs" aria-label="Contrast stretch (all bands)"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {STRETCH_METHODS.map((m) => (
+                            <SelectItem key={m.id} value={m.id} className="text-xs">{m.name}</SelectItem>
+                          ))}
+                          <SelectItem value="custom" disabled className="text-xs">Custom</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {multiDataset && (
+                        <label className="flex items-center gap-2 text-xs cursor-pointer">
+                          <Checkbox
+                            checked={applyAll}
+                            disabled={!allChannelsSet}
+                            aria-label="Apply stretch to all datasets"
+                            onCheckedChange={(v) => {
+                              const on = v === true;
+                              setApplyAll(on);
+                              if (!on) { batchAbortRef.current?.abort(); setBatchProgress(null); setBatchMessage(null); }
+                              else void applyToAllDatasets();
+                            }}
+                          />
+                          Apply stretch to all datasets
+                        </label>
+                      )}
+                      {batchProgress && (
+                        <span className="flex items-center text-[11px] text-muted-foreground" role="status">
+                          <Loader2 className="h-3 w-3 animate-spin mr-1" /> Calculating histograms — {batchProgress.done} of {batchProgress.total} datasets
+                        </span>
+                      )}
+                      {!batchProgress && batchMessage && (
+                        <span className={`flex items-center text-[11px] ${batchMessage.failed ? 'text-destructive' : 'text-muted-foreground'}`} role="status">
+                          {batchMessage.failed ? <AlertCircle className="h-3 w-3 mr-1 shrink-0" /> : <Check className="h-3 w-3 mr-1 shrink-0" />}
+                          {batchMessage.text}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {!sharedMethod
+                        ? 'Ranges differ per band or were set by hand. Pick a method to re-apply it to every band.'
+                        : STRETCH_METHODS.find((m) => m.id === sharedMethod)?.description}
+                      {multiDataset && applyAll && ' Each composite dataset is stretched using its own bands and pixel values.'}
+                    </p>
+                    {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
+                  </div>
                   {!firstCogUrl ? (
                     <p className="text-sm text-muted-foreground py-6 text-center">No COG source to read pixel values from.</p>
                   ) : selectedBands.every((b) => b == null) ? (
@@ -513,7 +1160,8 @@ export function RgbCompositeEditorDialog({
                                 id: m.id,
                                 label: m.shortName,
                                 description: m.description,
-                                onApply: () => editRange(cfg.setMinMax, i, computeStretch(m.id, hist)),
+                                active: channelMethods[i] === m.id,
+                                onApply: () => applyChannelStretch(i, m.id, hist),
                               })) : undefined}
                               chartHeight={110}
                             />
@@ -523,21 +1171,41 @@ export function RgbCompositeEditorDialog({
                     </div>
                   )}
                 </div>
+                ) : indexRight}
               </ScrollArea>
+              </div>
             </div>
           </TooltipProvider>
         )}
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {multiDataset ? 'Close' : 'Cancel'}
           </Button>
+          {view === 'editor' && multiDataset && (
+            <Button variant="outline" onClick={() => handleSave(false)} disabled={!canSave}>
+              Apply
+            </Button>
+          )}
           {view === 'editor' && (
-            <Button onClick={handleSave} disabled={!allChannelsSet}>
+            <Button onClick={() => handleSave(true)} disabled={!canSave}>
               Save
             </Button>
           )}
         </DialogFooter>
+        <AlertDialog open={pendingStyle !== null} onOpenChange={(isOpen) => { if (!isOpen) setPendingStyle(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Change composite style?</AlertDialogTitle>
+              <AlertDialogDescription>Apply this composite or band choice to this dataset, or use it for every dataset? Contrast stretch is controlled separately.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setPendingStyle(null)}>Cancel</Button>
+              <Button variant="outline" onClick={() => confirmStyleScope('this')}>This dataset</Button>
+              <Button onClick={() => confirmStyleScope('all')}>All datasets</Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );

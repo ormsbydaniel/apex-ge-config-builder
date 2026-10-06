@@ -47,30 +47,68 @@ const COLUMN_TYPE_NAMES: Record<number, string> = {
   14: 'Binary',
 };
 
+/** Bytes requested up front; FlatGeobuf headers are almost always far smaller. */
+export const HEADER_RANGE_BYTES = 65536;
+
+/** Parse the header from a (possibly truncated) leading byte buffer. */
+const headerFromBytes = async (bytes: Uint8Array): Promise<any | null> => {
+  let header: any = null;
+  try {
+    const it = deserialize(bytes, undefined, (h: any) => { header = h; }) as any;
+    await it.next();
+  } catch {
+    // Truncated feature data after the header is expected.
+  }
+  return header;
+};
+
+/** Fallback for servers without Range support: stream and abort after the header. */
+const headerFromStream = async (url: string): Promise<{ header: any; size: number }> => {
+  const controller = new AbortController();
+  const response = await fetch(url, { signal: controller.signal });
+  if (!response.ok) throw new Error(`Failed to fetch FlatGeobuf: ${response.status} ${response.statusText}`);
+  const size = parseInt(response.headers.get('content-length') || '0');
+  let header: any = null;
+  try {
+    const it = deserialize(response.body as any, undefined, (h: any) => { header = h; }) as any;
+    await it.next();
+  } catch (e) {
+    if (!header) throw e;
+  } finally {
+    controller.abort();
+  }
+  return { header, size };
+};
+
 export async function fetchFlatGeobufMetadata(url: string): Promise<FlatGeobufMetadata> {
   try {
-    const response = await fetch(url);
-    
+    // Request only the leading bytes, so probing many (or huge) files stays cheap.
+    const response = await fetch(url, { headers: { Range: `bytes=0-${HEADER_RANGE_BYTES - 1}` } });
     if (!response.ok) {
-      throw new Error(`Failed to fetch FlatGeobuf: ${response.statusText}`);
+      throw new Error(`Failed to fetch FlatGeobuf: ${response.status} ${response.statusText}`);
     }
 
-    const fileSize = parseInt(response.headers.get('content-length') || '0');
-    
-    // Read only the header by using deserialize with a limit of 0 features
     let headerInfo: any = null;
-    const iterator = deserialize(response.body as any, undefined, (header: any) => {
-      headerInfo = header;
-    });
-    
-    // We just need the header, so we don't iterate
-    await iterator.next();
+    let fileSize = 0;
+    if (response.status === 206) {
+      const total = response.headers.get('content-range')?.split('/')[1];
+      fileSize = total && total !== '*' ? parseInt(total) : 0;
+      headerInfo = await headerFromBytes(new Uint8Array(await response.arrayBuffer()));
+    } else {
+      // Range ignored: don't download the whole body here.
+      await response.body?.cancel().catch(() => undefined);
+    }
+    if (!headerInfo) {
+      const streamed = await headerFromStream(url);
+      headerInfo = streamed.header;
+      fileSize = fileSize || streamed.size;
+    }
 
     if (!headerInfo) {
       throw new Error('Failed to read FlatGeobuf header');
     }
 
-    const metadata: FlatGeobufMetadata = {
+    return {
       featureCount: headerInfo.featuresCount || 0,
       geometryType: GEOMETRY_TYPE_NAMES[headerInfo.geometryType] || 'Unknown',
       bounds: {
@@ -87,8 +125,6 @@ export async function fetchFlatGeobufMetadata(url: string): Promise<FlatGeobufMe
       })),
       fileSize: fileSize > 0 ? fileSize : undefined,
     };
-
-    return metadata;
   } catch (error) {
     console.error('Error fetching FlatGeobuf metadata:', error);
     throw error;
