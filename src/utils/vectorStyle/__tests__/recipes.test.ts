@@ -314,6 +314,7 @@ describe('applyRecipeRules', () => {
     const result = applyRecipeRules(existing, generated, 'append');
     expect(result[result.length - 1].else).toBe(true);
     expect(result.filter(r => r.else)).toHaveLength(1);
+    expect(result[result.length - 1].name).toBe('Everything else');
   });
 });
 

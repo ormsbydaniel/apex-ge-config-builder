@@ -75,10 +75,11 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe,
     if (copy.name) copy.name = `${copy.name} copy`;
     const nonFallbackRules = rules.filter((rule) => !rule.else);
     const fallbackRules = rules.filter((rule) => rule.else);
-    onChange(copy.else
-      ? [...nonFallbackRules, ...fallbackRules, copy]
-      : [copy, ...nonFallbackRules, ...fallbackRules]);
-    setSelected(copy.else ? rules.length : 0);
+    // A fallback cannot be duplicated as another fallback: only one `else`
+    // branch is meaningful. Make its copy a normal top rule instead.
+    if (copy.else) delete copy.else;
+    onChange([copy, ...nonFallbackRules, ...fallbackRules]);
+    setSelected(0);
   };
 
   const moveRule = (from: number, to: number) => {

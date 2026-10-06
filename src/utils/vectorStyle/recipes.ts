@@ -488,10 +488,12 @@ export const applyRecipeRules = (
   mode: RecipeApplyMode,
 ): StyleRule[] => {
   const combined = mode === 'replace' ? [...generated] : [...generated, ...existing];
-  const elseRules = combined.filter(r => r.else);
   const rest = combined.filter(r => !r.else);
-  // Only one else branch is meaningful; keep the last one authored.
-  return elseRules.length ? [...rest, elseRules[elseRules.length - 1]] : rest;
+  // Only one else branch is meaningful. A newly generated fallback replaces
+  // the old fallback; otherwise preserve the existing one at the end.
+  const fallback = generated.findLast((rule) => rule.else)
+    ?? existing.findLast((rule) => rule.else);
+  return fallback ? [...rest, fallback] : rest;
 };
 
 export type RecipeInput =
