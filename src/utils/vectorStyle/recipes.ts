@@ -479,7 +479,7 @@ export type RecipeApplyMode = 'replace' | 'append';
 
 /**
  * Merge recipe-generated rules into an existing rule list.
- * `replace` discards existing rules; `append` keeps them and adds the new ones.
+ * `replace` discards existing rules; `append` keeps them and adds the new ones at the top.
  * Any `else` rule is kept last, as OpenLayers evaluates it as the fallback.
  */
 export const applyRecipeRules = (
@@ -487,7 +487,7 @@ export const applyRecipeRules = (
   generated: StyleRule[],
   mode: RecipeApplyMode,
 ): StyleRule[] => {
-  const combined = mode === 'replace' ? [...generated] : [...existing, ...generated];
+  const combined = mode === 'replace' ? [...generated] : [...generated, ...existing];
   const elseRules = combined.filter(r => r.else);
   const rest = combined.filter(r => !r.else);
   // Only one else branch is meaningful; keep the last one authored.
