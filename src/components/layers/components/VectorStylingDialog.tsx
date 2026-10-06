@@ -111,7 +111,8 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   };
 
   const handleStartFromScratch = () => {
-    setRules([{ enabled: true, primitives: {} }]);
+    setRules((current) => [{ enabled: true, primitives: {} }, ...current]);
+    setFocusRule({ index: 0, nonce: Date.now() });
     setView('editor');
   };
 
