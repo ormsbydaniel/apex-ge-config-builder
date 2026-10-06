@@ -73,8 +73,13 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe,
   const duplicateRule = (idx: number) => {
     const copy = JSON.parse(JSON.stringify(rules[idx])) as StyleRule;
     if (copy.name) copy.name = `${copy.name} copy`;
-    onChange([...rules.slice(0, idx + 1), copy, ...rules.slice(idx + 1)]);
-    setSelected(idx + 1);
+    const nonFallbackRules = rules.filter((rule) => !rule.else);
+    const fallbackRules = rules.filter((rule) => rule.else);
+    // A fallback cannot be duplicated as another fallback: only one `else`
+    // branch is meaningful. Make its copy a normal top rule instead.
+    if (copy.else) delete copy.else;
+    onChange([copy, ...nonFallbackRules, ...fallbackRules]);
+    setSelected(0);
   };
 
   const moveRule = (from: number, to: number) => {
@@ -88,8 +93,8 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe,
   };
 
   const addRule = () => {
-    onChange([...rules, { enabled: true, primitives: {} }]);
-    setSelected(rules.length);
+    onChange([{ enabled: true, primitives: {} }, ...rules]);
+    setSelected(0);
   };
 
   if (rules.length === 0) {
@@ -108,7 +113,7 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe,
           {fallbackCount} item{fallbackCount === 1 ? '' : 's'} opened in expression mode — they couldn't be mapped to a structured form, but will save back unchanged.
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-[minmax(220px,30%)_minmax(0,1fr)] gap-3 min-h-[420px]">
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(225px,31%)_minmax(0,1fr)] gap-3 min-h-[420px]">
         <div className="space-y-3 md:border-r md:pr-3 min-w-0">
           <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
             Rules — drawn top to bottom

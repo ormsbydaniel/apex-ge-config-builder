@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import StyleEditor from '../StyleEditor';
 import type { StyleRule } from '@/types/vectorStyle';
 
@@ -19,6 +19,10 @@ const renderEditor = (rules: StyleRule[], onChange = vi.fn(), onRulesEmpty = vi.
 };
 
 describe('StyleEditor rule list', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('returns to the recipe gallery after deleting the final rule', () => {
     const { onChange, onRulesEmpty } = renderEditor([rule('Only rule')]);
 
@@ -37,13 +41,63 @@ describe('StyleEditor rule list', () => {
     expect(onRulesEmpty).not.toHaveBeenCalled();
   });
 
-  it('uses drag handles without additional move buttons', () => {
+  it('uses move buttons outside each rule card instead of drag handles', () => {
     renderEditor([rule('First'), rule('Second')]);
 
-    expect(screen.queryByRole('button', { name: 'Move rule up' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Move rule down' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Move rule up, double-click to move to top' })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: 'Move rule down, double-click to move to bottom' })).toHaveLength(2);
     expect(screen.getAllByRole('listitem')).toHaveLength(2);
-    expect(screen.getAllByRole('listitem')[0]).toHaveAttribute('draggable', 'true');
+    expect(screen.queryByLabelText('Drag to reorder')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Move rule up, double-click to move to top' })[0]).toBeDisabled();
+    expect(screen.getAllByRole('button', { name: 'Move rule down, double-click to move to bottom' })[1]).toBeDisabled();
+  });
+
+  it('moves a rule one position on a single arrow click', () => {
+    vi.useFakeTimers();
+    const { onChange } = renderEditor([rule('First'), rule('Second'), rule('Third')]);
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Move rule down, double-click to move to bottom' })[0]);
+    act(() => vi.advanceTimersByTime(250));
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({ name: 'Second' }),
+      expect.objectContaining({ name: 'First' }),
+      expect.objectContaining({ name: 'Third' }),
+    ]);
+  });
+
+  it('moves a rule to the end on an arrow double-click', () => {
+    vi.useFakeTimers();
+    const { onChange } = renderEditor([rule('First'), rule('Second'), rule('Third')]);
+
+    fireEvent.doubleClick(screen.getAllByRole('button', { name: 'Move rule down, double-click to move to bottom' })[0]);
+    act(() => vi.runAllTimers());
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({ name: 'Second' }),
+      expect.objectContaining({ name: 'Third' }),
+      expect.objectContaining({ name: 'First' }),
+    ]);
+  });
+
+  it('adds blank rules and duplicates at the top', () => {
+    const blank = renderEditor([rule('First'), rule('Second')]).onChange;
+    fireEvent.click(screen.getByRole('button', { name: /Start from scratch/i }));
+    expect(blank).toHaveBeenCalledWith([
+      expect.objectContaining({ primitives: {} }),
+      expect.objectContaining({ name: 'First' }),
+      expect.objectContaining({ name: 'Second' }),
+    ]);
+
+    const duplicate = vi.fn();
+    renderEditor([rule('First'), rule('Second')], duplicate);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Duplicate rule' })[3]);
+    expect(duplicate).toHaveBeenCalledWith([
+      expect.objectContaining({ name: 'Second copy' }),
+      expect.objectContaining({ name: 'First' }),
+      expect.objectContaining({ name: 'Second' }),
+    ]);
   });
 
   it('selects the rule the focusRule prop points at after a recipe append', () => {

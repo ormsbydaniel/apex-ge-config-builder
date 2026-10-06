@@ -11,13 +11,36 @@ export interface StacLink {
   method?: string;
 }
 
+export interface StacEoBand {
+  name?: string;
+  common_name?: string;
+  description?: string;
+}
+
 export interface StacAsset {
   href: string;
   type?: string;
   title?: string;
   roles?: string[];
   'file:size'?: number;
+  'eo:bands'?: StacEoBand[];
 }
+
+/**
+ * Extract band labels from a STAC asset's `eo:bands` metadata, falling back to
+ * the item-level `properties['eo:bands']`. Returns undefined when no usable
+ * band names are present.
+ */
+export const extractBandLabels = (
+  asset: StacAsset,
+  itemProperties?: Record<string, unknown>,
+): string[] | undefined => {
+  const bands = asset['eo:bands']
+    ?? (itemProperties?.['eo:bands'] as StacEoBand[] | undefined);
+  if (!Array.isArray(bands) || bands.length === 0) return undefined;
+  const labels = bands.map((b, i) => b?.name || b?.common_name || `Band ${i + 1}`);
+  return labels.some(Boolean) ? labels : undefined;
+};
 
 export interface StacCollection {
   id: string;

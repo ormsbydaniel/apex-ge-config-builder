@@ -1,3 +1,4 @@
+import { createGradientCSS } from '@/utils/colormapUtils';
 import React, { useState } from 'react';
 import { Eye, Tags, Palette, Layers, Blend, PenTool } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
 import VectorStyleSummary from '@/components/layers/components/VectorStyleSummary';
+import { countOwn } from '@/utils/rgbComposite/perDataset';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
@@ -33,7 +35,8 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   
   // Detect RGB composites from data source items
   const convertToRgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
-  const convertToRgbCount = convertToRgbSources.length;
+  const indexSources = (source.data || []).filter((d: DataSourceItem) => d.format === 'cog' && !!d.spectralIndex);
+  const convertToRgbCount = convertToRgbSources.length + indexSources.length;
 
   const hasCategories = categories.length > 0;
   const hasColormaps = colormaps.length > 0;
@@ -53,7 +56,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   const visTypeLabels: Record<string, string> = {
     categories: 'categories',
     colormaps: 'colormaps',
-    composites: 'RGB composites',
+    composites: 'multi-band visualisations',
     gradient: 'gradient',
   };
 
@@ -96,6 +99,10 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
 
   const handleDeleteRgbComposites = () => {
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
+      if (d.spectralIndex) {
+        const { spectralIndex, style, convertToRGB, bands, ...rest } = d;
+        return rest as DataSourceItem;
+      }
       if (d.convertToRGB) {
         const { convertToRGB, ...rest } = d;
         return rest as DataSourceItem;
@@ -221,12 +228,12 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
           )}
         </div>
 
-        {/* RGB Composites sub-section */}
+        {/* Multi-band visualisations sub-section */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Layers className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
-              RGB Composites {hasRgbComposites ? `(${convertToRgbCount})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
+              Multi-band visualisations {hasRgbComposites ? `(${convertToRgbCount})` : <span className="normal-case tracking-normal font-normal italic">(None)</span>}
             </span>
             {renderPencilButton('composites', () => setRgbDialogOpen(true))}
             {hasRgbComposites && (
@@ -234,8 +241,26 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
                 <Trash2 className="h-2.5 w-2.5" />
               </Button>
             )}
+            {hasRgbComposites && countOwn(source.data || []) > 0 && (
+              <span className="text-[10px] text-muted-foreground italic">
+                {countOwn(source.data || [])} of {(source.data || []).filter((d) => d.format === 'cog').length} datasets with own settings
+              </span>
+            )}
           </div>
-          {hasRgbComposites && (() => {
+          {hasRgbComposites && indexSources.length > 0 && (() => {
+            const si = indexSources[0].spectralIndex!;
+            const name = si.recipe === 'custom-index' ? 'Index' : si.recipe.toUpperCase();
+            return (
+              <div className="flex items-center gap-1.5 ml-5">
+                <span className="inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-medium">
+                  {name}: B{si.bandA} / B{si.bandB} · {si.colormap}
+                  {(si.visibleMin != null || si.visibleMax != null) && ` · visible ${si.visibleMin ?? -1} – ${si.visibleMax ?? 1}`}
+                </span>
+                <span className="inline-block h-2.5 w-14 rounded-sm" style={{ background: createGradientCSS(si.colormap, !!si.reverse) }} />
+              </div>
+            );
+          })()}
+          {hasRgbComposites && convertToRgbSources.length > 0 && (() => {
             const firstRgbSource = convertToRgbSources[0];
             const bands = firstRgbSource?.bands && firstRgbSource.bands.length >= 3
               ? firstRgbSource.bands

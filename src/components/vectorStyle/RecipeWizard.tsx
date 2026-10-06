@@ -221,7 +221,7 @@ const RecipeWizard = ({ recipe, sample, sampling, fallbackFields, onBack, backLa
 
       {sampling && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Loader2 className="h-3 w-3 animate-spin" /> Reading attributes from the layer's first data file…
+          <Loader2 className="h-3 w-3 animate-spin" /> Reading attributes from the layer's data…
         </div>
       )}
       {sampleFailed && needsField && (

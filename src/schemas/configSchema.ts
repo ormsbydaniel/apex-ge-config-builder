@@ -217,6 +217,45 @@ export const DataSourceItemSchema = z.object({
   maxZoom: z.number().optional(),
   // Optional asset names/keys for STAC collection data sources
   assets: z.array(z.string().min(1)).optional(),
+  // Band labels extracted from STAC eo:bands metadata (drives RGB composite recipes)
+  bandLabels: z.array(z.string()).optional(),
+  // Spectral index editor settings (rendered expression lives in `style`)
+  spectralIndex: z.object({
+    recipe: z.string(),
+    bandA: z.number(),
+    bandB: z.number(),
+    colormap: z.string(),
+    reverse: z.boolean().optional(),
+    min: z.number(),
+    max: z.number(),
+    visibleMin: z.number().optional(),
+    visibleMax: z.number().optional(),
+    paletteMode: z.enum(['recipe', 'custom']).optional(),
+    legendStops: z.array(z.preprocess((stop) => {
+      // Legacy saved configs used `meaning`; normalise to `label` (categories shape).
+      if (stop && typeof stop === 'object' && 'meaning' in stop && !('label' in stop)) {
+        const { meaning, ...rest } = stop as Record<string, unknown>;
+        return { ...rest, label: meaning };
+      }
+      return stop;
+    }, z.object({
+      value: z.number().min(-1).max(1), color: z.string().regex(/^#[0-9A-Fa-f]{6}$/), label: z.string().min(1),
+    }))).optional(),
+  }).superRefine((index, ctx) => {
+    if (index.paletteMode !== 'custom') return;
+    if (!index.legendStops || index.legendStops.length < 2) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['legendStops'], message: 'Custom palettes require at least two colour stops' });
+      return;
+    }
+    for (let i = 1; i < index.legendStops.length; i++) {
+      if (index.legendStops[i].value <= index.legendStops[i - 1].value) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['legendStops', i, 'value'], message: 'Colour stop values must be strictly increasing' });
+      }
+    }
+  }).optional(),
+  // Per-dataset visualisation marker ('first' = same as first dataset)
+  styleSource: z.enum(['first', 'own', 'batch']).optional(),
+  batchStretch: z.object({ method: z.string() }).optional(),
   // Temporal fields for data items
   timestamps: z.array(z.number()).optional(),
   // Opacity support (0-1 range)  

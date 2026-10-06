@@ -32,7 +32,7 @@ interface ServiceSelectionModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (selection: ServiceSelectionValue, layers?: string, format?: DataSourceFormat | string, datetime?: string, layerInfo?: LayerInfo) => void;
+  onSelect: (selection: ServiceSelectionValue, layers?: string, format?: DataSourceFormat | string, datetime?: string, layerInfo?: LayerInfo, bandLabels?: string[]) => void;
   allowedFormats?: string[];
   sourceContext?: SourceContext;
 }
@@ -153,7 +153,7 @@ export const ServiceSelectionModal = ({ service, isOpen, onClose, onSelect, allo
                 if (Array.isArray(selection)) {
                   onSelect(selection);
                 } else {
-                  onSelect(selection.url, '', selection.format, selection.datetime);
+                  onSelect(selection.url, '', selection.format, selection.datetime, undefined, selection.bandLabels);
                 }
                 handleClose();
               }}
