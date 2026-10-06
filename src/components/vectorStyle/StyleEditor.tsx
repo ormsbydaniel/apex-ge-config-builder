@@ -113,7 +113,7 @@ const StyleEditor = ({ rules, onChange, fields, fallbackCount = 0, onPickRecipe,
           {fallbackCount} item{fallbackCount === 1 ? '' : 's'} opened in expression mode — they couldn't be mapped to a structured form, but will save back unchanged.
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-[minmax(220px,30%)_minmax(0,1fr)] gap-3 min-h-[420px]">
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(240px,34%)_minmax(0,1fr)] gap-3 min-h-[420px]">
         <div className="space-y-3 md:border-r md:pr-3 min-w-0">
           <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
             Rules — drawn top to bottom

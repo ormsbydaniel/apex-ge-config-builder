@@ -170,7 +170,7 @@ const RuleListPane = ({ rules, selected, onSelect, onMove, onDuplicate, onRemove
             <div
               onClick={() => onSelect(idx)}
               className={cn(
-                'group flex min-w-0 flex-1 cursor-pointer items-center gap-1 rounded-md border px-1 py-1 text-xs',
+                'group flex min-w-0 flex-1 cursor-pointer items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs',
                 idx === selected ? 'border-primary bg-primary/5' : 'bg-card hover:bg-muted/50',
                 !enabled && 'opacity-50',
               )}
