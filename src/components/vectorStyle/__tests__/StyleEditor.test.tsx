@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import StyleEditor from '../StyleEditor';
 import type { StyleRule } from '@/types/vectorStyle';
@@ -57,7 +57,7 @@ describe('StyleEditor rule list', () => {
     const { onChange } = renderEditor([rule('First'), rule('Second'), rule('Third')]);
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Move rule down, double-click to move to bottom' })[0]);
-    vi.advanceTimersByTime(250);
+    act(() => vi.advanceTimersByTime(250));
 
     expect(onChange).toHaveBeenCalledWith([
       expect.objectContaining({ name: 'Second' }),
@@ -71,7 +71,7 @@ describe('StyleEditor rule list', () => {
     const { onChange } = renderEditor([rule('First'), rule('Second'), rule('Third')]);
 
     fireEvent.doubleClick(screen.getAllByRole('button', { name: 'Move rule down, double-click to move to bottom' })[0]);
-    vi.runAllTimers();
+    act(() => vi.runAllTimers());
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith([
