@@ -282,12 +282,12 @@ describe('applyRecipeRules', () => {
     expect(applyRecipeRules(existing, generated, 'replace')[0].name).toBe('Fill and outline');
   });
 
-  it('keeps existing rules in append mode', () => {
+  it('keeps existing rules and inserts generated rules at the top in append mode', () => {
     const generated = buildUniformRecipe({ geometry: 'polygon' });
     const result = applyRecipeRules(existing, generated, 'append');
     expect(result).toHaveLength(2);
-    expect(result[0].name).toBe('Existing');
-    expect(result[1].name).toBe('Fill and outline');
+    expect(result[0].name).toBe('Fill and outline');
+    expect(result[1].name).toBe('Existing');
     expect(existing).toHaveLength(1);
   });
 
@@ -300,7 +300,7 @@ describe('applyRecipeRules', () => {
     const fallback: StyleRule = { name: 'Everything else', enabled: true, else: true, primitives: {} };
     const generated = buildUniformRecipe({ geometry: 'polygon' });
     const result = applyRecipeRules([...existing, fallback], generated, 'append');
-    expect(result.map((rule) => rule.name)).toEqual(['Existing', 'Fill and outline', 'Everything else']);
+    expect(result.map((rule) => rule.name)).toEqual(['Fill and outline', 'Existing', 'Everything else']);
   });
 
   it('keeps a single else rule last', () => {
