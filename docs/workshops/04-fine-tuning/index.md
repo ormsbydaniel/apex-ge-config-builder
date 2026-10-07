@@ -1,6 +1,7 @@
 ---
 title: 4. Fine tuning my config
 ---
+
 # 4. Fine tuning my config
 
 ## Tutorial Objectives
@@ -17,6 +18,7 @@ By the end of this tutorial you will be able to:
 - Enable and disable layer controls on a layer card.
 - Specify units for numeric layers so they appear in the legend and data values.
 - Preview the effect of your choices in Preview.
+- Reorder the layers in your UI to a more logical order
 
 ## Steps
 
