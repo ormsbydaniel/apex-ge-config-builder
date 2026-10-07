@@ -1011,7 +1011,7 @@ export function RgbCompositeEditorDialog({
               onPick={handleGalleryPick}
               onPickIndex={handleGalleryPickIndex}
               onPickComputed={handleGalleryPickComputed}
-              showComputed={appSettings.showExperimentalFeatures || (Array.isArray(data) && data.some((d: any) => d?.computedComposite))}
+              showComputed={appSettings.showExperimentalFeatures || (source.data || []).some((d: any) => d?.computedComposite)}
             />
           </ScrollArea>
         ) : loading ? (
