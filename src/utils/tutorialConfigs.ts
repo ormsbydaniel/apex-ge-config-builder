@@ -106,22 +106,64 @@ export function parseTutorialListing(
     a.tutorial - b.tutorial || (a.kind === b.kind ? 0 : a.kind === 'prerequisite' ? -1 : 1));
 }
 
-let cache: Promise<TutorialConfigEntry[]> | null = null;
+/**
+ * Session memory: latest entry per tutorial/kind, and downloaded file text by
+ * exact file name. The folder listing (names only) is re-read on every call;
+ * file contents are only downloaded again when a fresher date stamp appears.
+ */
+const entriesByKey = new Map<string, TutorialConfigEntry>();
+const textByFileName = new Map<string, string>();
+
+const keyOf = (e: Pick<TutorialConfigEntry, 'tutorial' | 'kind'>) => `${e.tutorial}-${e.kind}`;
+
+export function __resetTutorialCache(): void {
+  entriesByKey.clear();
+  textByFileName.clear();
+}
+
+/** Merge a fresh listing, keeping unchanged entry objects and evicting stale file text. */
+function mergeListing(fresh: TutorialConfigEntry[]): TutorialConfigEntry[] {
+  const seen = new Set<string>();
+  const merged = fresh.map((entry) => {
+    const key = keyOf(entry);
+    seen.add(key);
+    const current = entriesByKey.get(key);
+    if (current && current.fileName === entry.fileName) return current;
+    if (current?.fileName) textByFileName.delete(current.fileName);
+    entriesByKey.set(key, entry);
+    return entry;
+  });
+  for (const [key, entry] of entriesByKey) {
+    if (!seen.has(key)) {
+      if (entry.fileName) textByFileName.delete(entry.fileName);
+      entriesByKey.delete(key);
+    }
+  }
+  return merged;
+}
 
 export const fetchTutorialConfigs = async (): Promise<TutorialConfigEntry[]> => {
-  if (cache) return cache;
-  cache = (async () => {
-    const res = await fetch(TUTORIALS_LISTING_URL, { headers: { Accept: 'application/vnd.github+json' } });
-    if (res.status === 403 || res.status === 429) {
-      throw new Error('GitHub rate limit reached — please try again in a few minutes.');
-    }
-    if (!res.ok) throw new Error(`Failed to list tutorial configurations (HTTP ${res.status})`);
-    const data = await res.json();
-    if (!Array.isArray(data)) throw new Error('Unexpected response listing the tutorials folder');
-    return parseTutorialListing(data);
-  })().catch((e) => {
-    cache = null;
-    throw e;
+  const res = await fetch(TUTORIALS_LISTING_URL, {
+    headers: { Accept: 'application/vnd.github+json' },
+    cache: 'no-store',
   });
-  return cache;
+  if (res.status === 403 || res.status === 429) {
+    throw new Error('GitHub rate limit reached — please try again in a few minutes.');
+  }
+  if (!res.ok) throw new Error(`Failed to list tutorial configurations (HTTP ${res.status})`);
+  const data = await res.json();
+  if (!Array.isArray(data)) throw new Error('Unexpected response listing the tutorials folder');
+  return mergeListing(parseTutorialListing(data));
 };
+
+/** Return the tutorial JSON text, downloading it only once per file name. */
+export async function getTutorialConfigText(entry: TutorialConfigEntry): Promise<string> {
+  const name = entry.fileName || entry.url;
+  const cached = textByFileName.get(name);
+  if (cached !== undefined) return cached;
+  const res = await fetch(entry.url);
+  if (!res.ok) throw new Error(`Failed to download ${entry.fileName || 'tutorial'} (HTTP ${res.status})`);
+  const text = await res.text();
+  textByFileName.set(name, text);
+  return text;
+}

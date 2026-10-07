@@ -413,5 +413,12 @@ export const useConfigImport = () => {
     [runImport, dispatch, toast],
   );
 
-  return { importConfig, handleFileSelect, importConfigFromUrl, runImportFromObject };
+  /** Import already-fetched JSON text with an explicit source (e.g. cached tutorial files). */
+  const importConfigFromText = useCallback(
+    (text: string, source: LoadedConfigSource, options: ImportOptions = {}) =>
+      runImport(text, source.label, source, options),
+    [runImport],
+  );
+
+  return { importConfig, handleFileSelect, importConfigFromUrl, importConfigFromText, runImportFromObject };
 };

@@ -31,8 +31,14 @@ import {
   type ExampleConfigEntry,
   type ExampleManifest,
 } from '@/utils/exampleManifest';
-import { fetchTutorialConfigs, TUTORIALS_FOLDER_URL } from '@/utils/tutorialConfigs';
-import { useQuery } from '@tanstack/react-query';
+import {
+  fetchTutorialConfigs,
+  getTutorialConfigText,
+  TUTORIALS_FOLDER_URL,
+  type TutorialConfigEntry,
+} from '@/utils/tutorialConfigs';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 
 const DEFAULT_REPO = 'ESA-APEx/apex_geospatial_explorer_configs';
@@ -59,7 +65,9 @@ type Stage = 'idle' | 'parse' | 'normalize' | 'validate' | 'done';
 type ExampleConfig = ExampleConfigEntry;
 
 const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps) => {
-  const { importConfig, importConfigFromUrl } = useConfigImport();
+  const { importConfig, importConfigFromUrl, importConfigFromText } = useConfigImport();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<string>('upload');
@@ -268,8 +276,38 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
     queryKey: ['tutorial-configs'],
     queryFn: () => fetchTutorialConfigs(),
     enabled: open && activeTab === 'tutorials',
-    staleTime: 30 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
+    retry: false,
+    placeholderData: keepPreviousData,
   });
+
+  // Re-check the tutorials folder every time the dialog opens.
+  useEffect(() => {
+    if (open) queryClient.invalidateQueries({ queryKey: ['tutorial-configs'] });
+  }, [open, queryClient]);
+
+  const handleLoadTutorial = async (tutorial: TutorialConfigEntry) => {
+    startLoading(tutorial.name);
+    try {
+      const text = await getTutorialConfigText(tutorial);
+      const result = await importConfigFromText(
+        text,
+        { type: 'example', label: tutorial.name },
+        { onProgress: handleProgress, signal: abortRef.current?.signal },
+      );
+      finishLoading(result, tutorial.fileName);
+    } catch (e) {
+      setIsLoading(false);
+      abortRef.current = null;
+      toast({
+        title: 'Import Failed',
+        description: e instanceof Error ? e.message : 'Could not download the tutorial configuration.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   // ---- Loading view subcomponent ----
   const renderLoadingView = () => {
@@ -499,7 +537,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Loading tutorials…
                   </div>
-                ) : tutorialsError ? (
+                ) : tutorialsError && !tutorials ? (
                   <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 space-y-2">
                     <div className="flex items-start gap-2 text-sm">
                       <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
@@ -527,10 +565,20 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                   </div>
                 ) : (
                   <div className="space-y-2">
+                    {tutorialsError && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                        <span className="flex-1">Couldn't check for newer tutorials — showing the last list loaded. {(tutorialsError as Error).message}</span>
+                        <Button size="sm" variant="ghost" className="h-6 px-2" onClick={() => refetchTutorials()}>
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          Retry
+                        </Button>
+                      </div>
+                    )}
                     {tutorials.map((t) => (
                       <button
                         key={t.id}
-                        onClick={() => handleLoadExample(t)}
+                        onClick={() => handleLoadTutorial(t)}
                         className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
                       >
                         <div className="flex items-center justify-between gap-3">
