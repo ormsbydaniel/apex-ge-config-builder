@@ -1910,18 +1910,16 @@ a single COG layer showing wind power density at 100 m over Austria.</p>
 <ol>
 <li>
 <p>In the <strong>Layers</strong> tab, add a new <strong>Interface Group</strong> called <code>Energy</code>, then
-   <strong>Add layer</strong> inside it and name the layer
-   <code>Austria Wind Power Density at 100m</code>.</p>
+    <strong>Add layer</strong> inside it and name the layer
+    <code>Austria Wind Power Density at 100m</code>.</p>
 </li>
 <li>
 <p>Add a <strong>COG</strong> data source with this URL:</p>
-</li>
-</ol>
 <div class="highlight"><pre><span></span><code>https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix.tif
 </code></pre></div>
-<ol>
-<li>Open <strong>Data Visualisation → Colormaps → Edit</strong> and add a colormap:</li>
-</ol>
+</li>
+<li>
+<p>Open <strong>Data Visualisation → Colormaps → Edit</strong> and add a colormap:</p>
 <table>
 <thead>
 <tr>
@@ -1952,37 +1950,35 @@ a single COG layer showing wind power density at 100 m over Austria.</p>
 </tr>
 </tbody>
 </table>
-<ol>
+</li>
 <li>
 <p>In the layer card <strong>Controls</strong>, enable:</p>
-</li>
-<li>
-<p><strong>Opacity slider</strong></p>
-</li>
+<ul>
+<li><strong>Opacity slider</strong></li>
 <li><strong>Zoom to centre</strong></li>
 <li><strong>Constraint slider</strong></li>
-</ol>
+</ul>
 <p>Leave <strong>Temporal controls</strong> and <strong>Blend controls</strong> unchecked, then close the dialogue.</p>
-<p>!!! warning "Constraint slider"
-   Without the <strong>Constraint slider</strong> control the constraints you add in
-   the rest ot this tutorial steps will be saved to the configuration but will never
-   appear in the viewer.</p>
-<ol>
+<div class="admonition warning">
+<p class="admonition-title">Constraint slider</p>
+<p>Without the <strong>Constraint slider</strong> control the constraints you add in
+the rest ot this tutorial steps will be saved to the configuration but will never
+appear in the viewer.</p>
+</div>
+</li>
 <li>
 <p>To avoid you having to constantly zoom for the rest of this tutorial,go to <strong>Settings → Navigation</strong> and pick <strong>Austria</strong> from the quick location list.</p>
 </li>
 <li>
 <p>Open <strong>Preview</strong> and toggle the layer on. You should see a jet colour ramp
-   over Austria with a gradient legend,and a <strong>Filter</strong> icon in the layer card, which looks like a <em>funnel.</em></p>
+    over Austria with a gradient legend,and a <strong>Filter</strong> icon in the layer card, which looks like a <em>funnel.</em></p>
 </li>
 <li>
 <p>Click on the filter, then <strong>drag the slider</strong> values. See how this effects the display of the wind power layer.</p>
-</li>
-</ol>
 <p><img alt="Austria Wind Power Density layer preview with the layer panel open, showing the jet colour ramp legend and layer description" src="../../assets/screenshots/wind-power-layer-result.png" /></p>
-<ol>
-<li><strong>Optional — polish the layer and the start location.</strong></li>
-</ol>
+</li>
+<li>
+<p><strong>Optional — polish the layer and the start location.</strong></p>
 <p>In the layer <strong>Metadata</strong>, set:</p>
 <ul>
 <li>
@@ -1997,8 +1993,10 @@ by multiple criteria.
 <p><strong>Units</strong> — <code>w / m 2</code></p>
 </li>
 <li><strong>Attribution</strong> — text <code>ESA GTIF</code>, URL
-     <a href="https://gtif.esa.int/" target="_blank">https://gtif.esa.int/</a></li>
+  <a href="https://gtif.esa.int/" target="_blank">https://gtif.esa.int/</a></li>
 </ul>
+</li>
+</ol>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
 

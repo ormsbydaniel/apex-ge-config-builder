@@ -14,35 +14,34 @@ are not available. Sometimes the WMS services return a legend, but if not (like 
 You could **manually define** the categories using the dialogue or **import from a CSV** in the same way as we did earlier. However, because we already defined a full category set on the COG layer,we can simply **copy** the category definitions across.
 
 1. On the **Layers** tab, expand _World Cover 2021_ layer card, go to **Data Visualisation → Categories → Edit**, and choose **Copy from layer** and select
-   **Austria Land Cover** (the COG layer from
-   [5-3. Categories for a COG](03-categories-cog.md)).
+    **Austria Land Cover** (the COG layer from
+    [5-3. Categories for a COG](03-categories-cog.md)).
 
-   ![Edit Categories dialog for the World Cover WMS layer showing populated categories](../../assets/screenshots/categories-wms-editor.png)
+    ![Edit Categories dialog for the World Cover WMS layer showing populated categories](../../assets/screenshots/categories-wms-editor.png)
 
 2. **Save categories** to return the layer card and then **Preview**. The legend in the Explorer now contains a row per class, using the colours and labels you copied.
 
-!!! info
-If in the last tutorial you only edited the class names that the COG
-populated, you will not have **Shrubland** or **Mangroves** here — neither
-class is present in Austria, so they were never sampled. If you imported
-the CSV, the full set will be there.
+    !!! info
+        If in the last tutorial you only edited the class names that the COG
+        populated, you will not have **Shrubland** or **Mangroves** here — neither
+        class is present in Austria, so they were never sampled. If you imported
+        the CSV, the full set will be there.
 
-    An alternative for this WMS layer is therefore to import the categories
-
-directly from
-[`world-cover-classes.csv`](../../assets/world-cover-classes.csv), as
-described in [5-3 step 5](03-categories-cog.md).
+        An alternative for this WMS layer is therefore to import the categories
+        directly from
+        [`world-cover-classes.csv`](../../assets/world-cover-classes.csv), as
+        described in [5-3 step 5](03-categories-cog.md).
 
 3. _(Optional)_ Open the categories editor again and untoggle **Use category
-   values**. Save the layer card and preview. The legend still shows the class
-   labels and colours, but the numeric values are no longer displayed — this
-   reflects the fact that class numbers cannot be read from a WMS or WMTS
-   layer.
+    values**. Save the layer card and preview. The legend still shows the class
+    labels and colours, but the numeric values are no longer displayed — this
+    reflects the fact that class numbers cannot be read from a WMS or WMTS
+    layer.
 
 4. _(Optional)_ In the categories editor, change the colour for one of the
-   classes and save. The legend in the Explorer will now show the new colour
-   for that class. However, for WMS / WMTS layers the actual map styling is
-   determined by the service, so the rendered tiles will not change.
+    classes and save. The legend in the Explorer will now show the new colour
+    for that class. However, for WMS / WMTS layers the actual map styling is
+    determined by the service, so the rendered tiles will not change.
 
 See the full WorldCover class lookup in
 [5-3. Categories for a COG](03-categories-cog.md#worldcover-class-lookup).

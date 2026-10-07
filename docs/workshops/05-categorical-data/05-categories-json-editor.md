@@ -38,21 +38,21 @@ editor.
 
 1. Copy the following JSON to your clipboard:
 
-   ```json
-   "categories": [
-     { "color": "#006400", "label": "Tree cover", "value": 10 },
-     { "color": "#ffbb22", "label": "Shrubland", "value": 20 },
-     { "color": "#ffff4c", "label": "Grassland", "value": 30 },
-     { "color": "#f096ff", "label": "Cropland", "value": 40 },
-     { "color": "#ff0000", "label": "Built-up", "value": 50 },
-     { "color": "#b4b4b4", "label": "Bare", "value": 60 },
-     { "color": "#f0f0f0", "label": "Snow and ice", "value": 70 },
-     { "color": "#0064c8", "label": "Permanent water bodies", "value": 80 },
-     { "color": "#0096a0", "label": "Herbaceous wetland", "value": 90 },
-     { "color": "#00cf75", "label": "Mangroves", "value": 95 },
-     { "color": "#fae6a0", "label": "Moss and lichen", "value": 100 }
-   ]
-   ```
+    ```json
+    "categories": [
+      { "color": "#006400", "label": "Tree cover", "value": 10 },
+      { "color": "#ffbb22", "label": "Shrubland", "value": 20 },
+      { "color": "#ffff4c", "label": "Grassland", "value": 30 },
+      { "color": "#f096ff", "label": "Cropland", "value": 40 },
+      { "color": "#ff0000", "label": "Built-up", "value": 50 },
+      { "color": "#b4b4b4", "label": "Bare", "value": 60 },
+      { "color": "#f0f0f0", "label": "Snow and ice", "value": 70 },
+      { "color": "#0064c8", "label": "Permanent water bodies", "value": 80 },
+      { "color": "#0096a0", "label": "Herbaceous wetland", "value": 90 },
+      { "color": "#00cf75", "label": "Mangroves", "value": 95 },
+      { "color": "#fae6a0", "label": "Moss and lichen", "value": 100 }
+    ]
+    ```
 
 2. On your _World Cover 2020_ layer card, click the **{JSON}** icon to open
     the JSON editor, then click **Enable editing** to switch from the
