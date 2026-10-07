@@ -10,6 +10,11 @@
 - [x] Review tutorial Markdown for nested-list and numbered-step indentation; rebuild the guide.
 - [x] Correct remaining nested lists in 9-4 and 3-5; audit all tutorials and rebuild the guide.
 
+# Tutorial numbering
+
+- [ ] Correct interrupted numbered lists across tutorial Markdown pages.
+- [ ] Build the guide in strict mode and inspect the corrected rendered lists.
+
 # Per-dataset visualisation settings
 
 - [x] Phase 1: dataset selector with Previous/Next in the multi-band editor; "Same as first" / own settings; Apply, Reset to same as first, Copy to all; layer-card count.
