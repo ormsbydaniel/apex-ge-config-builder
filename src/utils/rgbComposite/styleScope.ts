@@ -2,6 +2,7 @@ import type { DataSourceItem } from '@/types/dataSource';
 import { copyVisualisation, firstCogIndex, isCog } from './perDataset';
 import { matchRecipe, RGB_RECIPES } from './recipes';
 import { INDEX_RECIPES, buildIndexStyle, withRecipePalette, type SpectralIndexConfig } from './indices';
+import { buildComputedStyle, COMPUTED_NAME, type ComputedCompositeConfig } from './computed';
 
 /** Change composite bands without replacing each dataset's existing RGB ranges. */
 export function applyCompositeStyle(
@@ -27,7 +28,7 @@ export function applyCompositeStyle(
     }
     // "All datasets" unifies every COG dataset (including ones marked 'own'),
     // since it is now the only copy-to-all action in the editor.
-    const { spectralIndex, batchStretch, ...rest } = item;
+    const { spectralIndex, computedComposite, batchStretch, ...rest } = item;
     return {
       ...rest, convertToRGB: true, bands: [...bands], style: makeStyle(item),
       styleSource: all || i === first ? undefined : 'own',
@@ -50,7 +51,7 @@ export function applyIndexStyle(
       if (scope === first && i !== first && !item.styleSource) return copyVisualisation(item, item, 'own');
       return item;
     }
-    const { convertToRGB, batchStretch, ...rest } = item as any;
+    const { convertToRGB, computedComposite, batchStretch, ...rest } = item as any;
     return {
       ...rest, bands: [styledConfig.bandA, styledConfig.bandB], style: buildIndexStyle(styledConfig), spectralIndex: { ...styledConfig },
       styleSource: all || i === first ? undefined : 'own',
@@ -60,6 +61,7 @@ export function applyIndexStyle(
 
 
 export function visualisationName(item: DataSourceItem, bandCount: number, bandLabels?: string[]): string {
+  if (item.computedComposite) return `${COMPUTED_NAME} (Computed)`;
   if (item.spectralIndex) {
     return INDEX_RECIPES.find((r) => r.id === item.spectralIndex?.recipe)?.fullName ?? 'Custom index';
   }
@@ -68,4 +70,17 @@ export function visualisationName(item: DataSourceItem, bandCount: number, bandL
     return RGB_RECIPES.find((r) => r.id === id)?.name ?? 'Custom';
   }
   return 'No visualisation';
+}
+
+export function applyComputedStyle(data: DataSourceItem[], scope: number, cfg: ComputedCompositeConfig, all: boolean): DataSourceItem[] {
+  const first = firstCogIndex(data);
+  return data.map((item, i) => {
+    if (!isCog(item)) return item;
+    if (!all && i !== scope) {
+      return scope === first && i !== first && !item.styleSource ? copyVisualisation(item, item, 'own') : item;
+    }
+    const { convertToRGB, spectralIndex, batchStretch, ...rest } = item;
+    return { ...rest, normalize: false, bands: [...cfg.bands], computedComposite: { ...cfg, bands: [...cfg.bands] },
+      style: buildComputedStyle(cfg), styleSource: all || i === first ? undefined : 'own' };
+  });
 }

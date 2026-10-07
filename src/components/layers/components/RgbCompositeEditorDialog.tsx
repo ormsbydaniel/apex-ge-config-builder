@@ -36,7 +36,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from '@/components/ui/alert-dialog';
-import { applyCompositeStyle, applyIndexStyle, visualisationName } from '@/utils/rgbComposite/styleScope';
+import { applyCompositeStyle, applyIndexStyle, applyComputedStyle, visualisationName } from '@/utils/rgbComposite/styleScope';
+import { COMPUTED_NAME, COMPUTED_DESCRIPTION, COMPUTED_ROLES, resolveComputedBands, type ComputedCompositeConfig } from '@/utils/rgbComposite/computed';
 import IndexStopsEditor from './IndexStopsEditor';
 
 interface RgbCompositeEditorDialogProps {
@@ -111,7 +112,7 @@ export function RgbCompositeEditorDialog({
 }: RgbCompositeEditorDialogProps) {
   const [selectedBands, setSelectedBands] = useState<(number | null)[]>([1, 2, 3]);
   const [view, setView] = useState<'gallery' | 'editor'>('editor');
-  const [homeTab, setHomeTab] = useState<'rgb' | 'index'>('rgb');
+  const [homeTab, setHomeTab] = useState<'rgb' | 'index' | 'computed'>('rgb');
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
   const [rMinMax, setRMinMax] = useState<ChannelMinMax>({ min: 0, max: 10000 });
@@ -132,7 +133,10 @@ export function RgbCompositeEditorDialog({
   const [stretchError, setStretchError] = useState<string | null>(null);
 
   // Spectral index mode
-  const [mode, setMode] = useState<'rgb' | 'index'>('rgb');
+  const [mode, setMode] = useState<'rgb' | 'index' | 'computed'>('rgb');
+  const [computedBands, setComputedBands] = useState<(number | null)[]>([null, null, null, null]);
+  const [computedScale, setComputedScale] = useState<ComputedCompositeConfig['inputScale']>('dn');
+  const computedConfig = (): ComputedCompositeConfig => ({ recipe: 'barren-soil', bands: computedBands as ComputedCompositeConfig['bands'], inputScale: computedScale, ...(noDataValue !== undefined ? { noData: noDataValue } : {}) });
   const [indexRecipe, setIndexRecipe] = useState<IndexRecipeId>('ndvi');
   const [indexBands, setIndexBands] = useState<(number | null)[]>([null, null]);
   const [indexColormap, setIndexColormap] = useState('greens');
@@ -221,6 +225,7 @@ export function RgbCompositeEditorDialog({
   }, [source.data, scope]);
 
   const inFlightRef = React.useRef<Set<number>>(new Set());
+  const metadataReadyUrlRef = React.useRef<string | undefined>(undefined);
   const selectedBandsRef = React.useRef(selectedBands);
   selectedBandsRef.current = selectedBands;
 
@@ -228,11 +233,17 @@ export function RgbCompositeEditorDialog({
   const loadFromItem = (item: DataSourceItem | undefined, setInitialView: boolean) => {
     const rgbItem = item?.convertToRGB === true ? item : undefined;
     const indexItem = item?.format === 'cog' && item?.spectralIndex ? item : undefined;
-    const hasExisting = !!rgbItem || !!indexItem;
+    const computedItem = item?.format === 'cog' ? item.computedComposite : undefined;
+    const hasExisting = !!rgbItem || !!indexItem || !!computedItem;
     if (setInitialView) setView(hasExisting ? 'editor' : 'gallery');
-    setHomeTab(indexItem ? 'index' : 'rgb');
+    setHomeTab(computedItem ? 'computed' : indexItem ? 'index' : 'rgb');
     setMode('rgb');
     if (indexItem) loadIndexConfig(indexItem.spectralIndex as SpectralIndexConfig);
+    if (computedItem) {
+      setMode('computed');
+      setComputedBands([...computedItem.bands]);
+      setComputedScale(computedItem.inputScale);
+    }
     const bands = rgbItem?.bands && rgbItem.bands.length >= 3 ? rgbItem.bands.slice(0, 3) : [1, 2, 3];
     setSelectedBands(bands);
     setStretchError(null);
@@ -298,6 +309,7 @@ export function RgbCompositeEditorDialog({
   useEffect(() => {
     if (!open || !firstCogUrl) return;
     let cancelled = false;
+    metadataReadyUrlRef.current = undefined;
     setLoading(true);
     fetchCogHeaderMetadata(firstCogUrl)
       .then((meta) => {
@@ -308,7 +320,10 @@ export function RgbCompositeEditorDialog({
       })
       .catch(() => {})
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          metadataReadyUrlRef.current = firstCogUrl;
+          setLoading(false);
+        }
       });
     return () => { cancelled = true; };
   }, [open, firstCogUrl]);
@@ -346,11 +361,19 @@ export function RgbCompositeEditorDialog({
   const allChannelsSet = selectedBands.length === MAX_BANDS && selectedBands.every((b) => b != null);
   const customStopsError = indexPaletteMode === 'custom' ? validateLegendStops(customIndexStops) : null;
   const indexReady = indexBands[0] != null && indexBands[1] != null && indexBands[0] !== indexBands[1] && indexMax > indexMin && !customStopsError;
-  const canSave = mode === 'index' ? indexReady : allChannelsSet;
+  const computedReady = computedBands.length === 4 && computedBands.every((band) => band != null && band > 0 && band <= cogBandCount) && new Set(computedBands).size === 4;
+  const canSave = mode === 'computed' ? computedReady : mode === 'index' ? indexReady : allChannelsSet;
 
   const handleSave = (close = true) => {
     if (!canSave) return;
     const data = source.data || [];
+    if (mode === 'computed') {
+      onUpdateDataSources(applyComputedStyle(data, scope, computedConfig(), styleDirty && styleScope === 'all'));
+      setStyleDirty(false);
+      setRangeDirty(false);
+      if (close) onOpenChange(false);
+      return;
+    }
     let transform: (d: DataSourceItem) => DataSourceItem;
     if (mode === 'index') {
       const cfg: SpectralIndexConfig = withRecipePalette(withVisibleRange({
@@ -366,7 +389,7 @@ export function RgbCompositeEditorDialog({
       }, visibleRange[0], visibleRange[1]));
       // The viewer loads only `bands` and renumbers them 1..n, so the style reads bands 1 and 2.
       transform = (d) => {
-        const { convertToRGB, bands, ...rest } = d as any;
+        const { convertToRGB, computedComposite, bands, ...rest } = d as any;
         return { ...rest, bands: [cfg.bandA, cfg.bandB], style: buildIndexStyle(cfg), spectralIndex: { ...cfg } } as DataSourceItem;
       };
     } else {
@@ -411,6 +434,13 @@ export function RgbCompositeEditorDialog({
     const data = source.data || [];
     const target = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
     const all = commitStyle === 'all';
+    if (mode === 'computed') {
+      if (!computedReady) return;
+      onUpdateDataSources(applyComputedStyle(data, target, computedConfig(), all));
+      setCommitStyle(null);
+      setStyleDirty(false);
+      return;
+    }
     if (mode === 'index') {
       if (indexBands[0] == null || indexBands[1] == null) return;
       onUpdateDataSources(applyIndexStyle(data, target, withVisibleRange({
@@ -424,7 +454,7 @@ export function RgbCompositeEditorDialog({
     }
     if (!allChannelsSet) return;
     // Switching from an index: ranges are re-stretched in the editor, so let Save write them.
-    if (data[target]?.spectralIndex) setRangeDirty(true);
+    if (data[target]?.spectralIndex || data[target]?.computedComposite) setRangeDirty(true);
     const styled = applyCompositeStyle(data, target, selectedBands as number[], all, (item) =>
       data.indexOf(item) === target ? buildRgbStyle(rMinMax, gMinMax, bMinMax) : item.style ?? buildRgbStyle(rMinMax, gMinMax, bMinMax),
     true, false);
@@ -432,7 +462,7 @@ export function RgbCompositeEditorDialog({
     setCommitStyle(null);
     if (all) setRestretchAll(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commitStyle, selectedBands, mode, indexBands]);
+  }, [commitStyle, selectedBands, mode, indexBands, computedBands, computedScale]);
 
   // After an all-datasets band change, re-stretch each dataset from its own new bands.
   useEffect(() => {
@@ -525,7 +555,8 @@ export function RgbCompositeEditorDialog({
 
   // ── Spectral index actions ──
   const applyIndexRecipe = (id: IndexRecipeId) => {
-    const r = INDEX_RECIPES.find((x) => x.id === id)!;
+    const r = INDEX_RECIPES.find((x) => x.id === id);
+    if (!r) return;
     setMode('index');
     setIndexRecipe(id);
     const bands = resolveIndexBands(id, cogBandCount, bandLabels);
@@ -586,7 +617,7 @@ export function RgbCompositeEditorDialog({
 
   // Load histograms for every assigned band (stacked view shows all three)
   useEffect(() => {
-    if (!open || loading || !firstCogUrl || mode !== 'rgb') return;
+    if (!open || loading || !firstCogUrl || metadataReadyUrlRef.current !== firstCogUrl || mode !== 'rgb') return;
     selectedBands.forEach((band) => {
       if (band == null || histogramCache[band] || inFlightRef.current.has(band)) return;
       inFlightRef.current.add(band);
@@ -679,7 +710,63 @@ export function RgbCompositeEditorDialog({
     setView('editor');
   };
 
+  const handleGalleryPickComputed = () => {
+    askStyleScope(() => {
+      setMode('computed');
+      setComputedBands(resolveComputedBands(cogBandCount, bandLabels) ?? [null, null, null, null]);
+      setComputedScale('dn');
+      setPendingStretch([]);
+      setBatchMessage(null);
+    });
+    setView('editor');
+  };
+
   const sectionLabel = 'text-xs font-medium text-muted-foreground uppercase tracking-wide';
+  const computedLeft = (
+    <div className="space-y-5">
+      <div className={`${multiDataset ? 'border-t pt-5' : ''} space-y-2`}>
+        <div className={sectionLabel}>Computed composite</div>
+        <div className="text-sm font-medium">{COMPUTED_NAME}</div>
+        <p className="text-xs text-muted-foreground">{COMPUTED_DESCRIPTION}</p>
+      </div>
+      <div className="border-t pt-5 space-y-3">
+        <div className={sectionLabel}>Input bands</div>
+        {COMPUTED_ROLES.map((role, slot) => (
+          <div key={role} className="flex items-center gap-2">
+            <span className="w-12 text-xs shrink-0">{role}</span>
+            <Select value={computedBands[slot] == null ? undefined : String(computedBands[slot])}
+              onValueChange={(value) => askStyleScope(() => setComputedBands((prev) => prev.map((band, i) => i === slot ? Number(value) : band)))}>
+              <SelectTrigger className="h-8 flex-1 text-xs" aria-label={`${role} input band`}><SelectValue placeholder="Choose a band" /></SelectTrigger>
+              <SelectContent>{allBands.map((band) => <SelectItem key={band} value={String(band)}>{getBandLabel(band)}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+        ))}
+        {!computedReady && <p className="text-xs text-destructive">Choose four distinct input bands.</p>}
+      </div>
+    </div>
+  );
+  const computedRight = (
+    <div className="space-y-5">
+      <div className="space-y-3">
+        <div className={sectionLabel}>openEO defaults</div>
+        <dl className="space-y-3 text-xs">
+          <div><dt className="font-medium">Red · BSI × 2.5</dt><dd className="mt-1 text-muted-foreground break-words">((SWIR1 + Red) − (NIR + Blue)) / ((SWIR1 + Red) + (NIR + Blue))</dd></div>
+          <div><dt className="font-medium">Green · NIR reflectance</dt></div>
+          <div><dt className="font-medium">Blue · SWIR1 reflectance</dt></div>
+        </dl>
+      </div>
+      <div className="border-t pt-5 space-y-2">
+        <div className={sectionLabel}>Input values</div>
+        <Select value={computedScale} onValueChange={(value) => askStyleScope(() => setComputedScale(value as ComputedCompositeConfig['inputScale']))}>
+          <SelectTrigger className="h-8 text-xs" aria-label="Input values"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="dn">Scaled integers (divide by 10000)</SelectItem>
+            <SelectItem value="reflectance">Reflectance (0–1)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
   const selectedPalette = indexPaletteMode === 'recipe' ? recipePalette(indexRecipe) : undefined;
   const activeStops = indexPaletteMode === 'custom' ? customIndexStops : selectedPalette?.stops;
   const indexGradient = activeStops?.length ? paletteGradient(activeStops) : createGradientCSS(indexColormap, indexReverse);
@@ -921,6 +1008,7 @@ export function RgbCompositeEditorDialog({
               onTabChange={setHomeTab}
               onPick={handleGalleryPick}
               onPickIndex={handleGalleryPickIndex}
+              onPickComputed={handleGalleryPickComputed}
             />
           </ScrollArea>
         ) : loading ? (
@@ -1074,7 +1162,7 @@ export function RgbCompositeEditorDialog({
                     <p className="text-[11px] text-muted-foreground">Picking a band already used by another channel swaps the two.</p>
                   </div>
 
-                  </>) : indexLeft}
+                  </>) : mode === 'computed' ? computedLeft : indexLeft}
                 </div>
               </ScrollArea>
 
@@ -1171,7 +1259,7 @@ export function RgbCompositeEditorDialog({
                     </div>
                   )}
                 </div>
-                ) : indexRight}
+                ) : mode === 'computed' ? computedRight : indexRight}
               </ScrollArea>
               </div>
             </div>

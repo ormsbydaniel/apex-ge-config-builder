@@ -36,6 +36,13 @@ export interface DataSourceItem {
   opacity?: number;
   // RGB composite rendering flag
   convertToRGB?: boolean;
+  computedComposite?: {
+    recipe: 'barren-soil';
+    /** Blue, Red, NIR, SWIR1 (original COG band numbers). */
+    bands: [number, number, number, number];
+    inputScale: 'dn' | 'reflectance';
+    noData?: number;
+  };
   // Spectral index settings (editor metadata; the rendered expression lives in `style`)
   spectralIndex?: {
     recipe: string;
