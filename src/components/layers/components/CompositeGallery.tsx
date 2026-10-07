@@ -35,6 +35,8 @@ interface CompositeGalleryProps {
   onPick: (id: RgbRecipeId) => void;
   onPickIndex: (id: IndexRecipeId) => void;
   onPickComputed?: () => void;
+  /** Show the experimental Computed Composites tab. */
+  showComputed?: boolean;
 }
 
 const cardClass =
@@ -49,12 +51,12 @@ const withTooltip = (key: string, unavailable: boolean, card: React.ReactNode) =
     </Tooltip>
   );
 
-const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChange, onPick, onPickIndex, onPickComputed }: CompositeGalleryProps) => (
-  <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'rgb' | 'index' | 'computed')} className="space-y-4">
+const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChange, onPick, onPickIndex, onPickComputed, showComputed = true }: CompositeGalleryProps) => (
+  <Tabs value={!showComputed && activeTab === 'computed' ? 'rgb' : activeTab} onValueChange={(value) => onTabChange(value as 'rgb' | 'index' | 'computed')} className="space-y-4">
     <TabsList aria-label="Visualisation type">
       <TabsTrigger value="rgb">Composites</TabsTrigger>
       <TabsTrigger value="index">Indices</TabsTrigger>
-      <TabsTrigger value="computed">Computed Composites</TabsTrigger>
+      {showComputed && <TabsTrigger value="computed">Computed Composites</TabsTrigger>}
     </TabsList>
     {loading ? (
       <div className="flex items-center justify-center gap-2 py-10 text-xs text-muted-foreground">
@@ -62,7 +64,7 @@ const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChan
       </div>
     ) : (
       <TooltipProvider delayDuration={400}>
-        <TabsContent value="computed" className="space-y-3">
+        {showComputed && <TabsContent value="computed" className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <Button type="button" variant="outline" className={cardClass} onClick={onPickComputed}>
               <Calculator className="h-5 w-5 mt-0.5 shrink-0 text-primary" />
@@ -73,7 +75,7 @@ const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChan
               </div>
             </Button>
           </div>
-        </TabsContent>
+        </TabsContent>}
         <TabsContent value="rgb" className="space-y-3">
           <p className="text-sm text-muted-foreground">Choose how three bands combine into a colour image.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
