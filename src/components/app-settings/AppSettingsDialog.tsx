@@ -63,6 +63,20 @@ const AppSettingsDialog = ({ open, onOpenChange }: AppSettingsDialogProps) => {
               </p>
             </div>
           </label>
+
+          <label className="flex items-start gap-3 cursor-pointer">
+            <Checkbox
+              checked={settings.showExperimentalFeatures}
+              onCheckedChange={(v) => setSetting('showExperimentalFeatures', v === true)}
+              className="mt-0.5"
+            />
+            <div className="space-y-1">
+              <div className="text-sm font-medium leading-none">Experimental features</div>
+              <p className="text-xs text-muted-foreground">
+                Includes features that are under development and review and not intended for production use (for example, Computed Composites).
+              </p>
+            </div>
+          </label>
         </div>
 
         <DialogFooter>

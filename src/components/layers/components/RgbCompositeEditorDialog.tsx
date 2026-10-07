@@ -24,6 +24,7 @@ import { DataSourceItem } from '@/types/dataSource';
 import { fetchCogHeaderMetadata, BandHistogramResult } from '@/utils/cogMetadata';
 import { getHistogram, peekStretch } from '@/utils/rgbComposite/histogramCache';
 import { BandHistogram } from './BandHistogram';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import CompositeGallery, { RECIPE_ICONS, INDEX_ICONS } from './CompositeGallery';
 import {
   INDEX_RECIPES, INDEX_COLORMAPS, indexRangePresets, INDEX_RANGE_PRESETS, buildIndexStyle, matchIndexRecipe, resolveIndexBands, withVisibleRange, withRecipePalette, recipePalette, paletteGradient, cloneLegendStops, genericLegendStops, recolourLegendStops, validateLegendStops,
@@ -112,6 +113,7 @@ export function RgbCompositeEditorDialog({
 }: RgbCompositeEditorDialogProps) {
   const [selectedBands, setSelectedBands] = useState<(number | null)[]>([1, 2, 3]);
   const [view, setView] = useState<'gallery' | 'editor'>('editor');
+  const { settings: appSettings } = useAppSettings();
   const [homeTab, setHomeTab] = useState<'rgb' | 'index' | 'computed'>('rgb');
   const [cogBandCount, setCogBandCount] = useState(3);
   const [loading, setLoading] = useState(false);
@@ -1009,6 +1011,7 @@ export function RgbCompositeEditorDialog({
               onPick={handleGalleryPick}
               onPickIndex={handleGalleryPickIndex}
               onPickComputed={handleGalleryPickComputed}
+              showComputed={appSettings.showExperimentalFeatures || (Array.isArray(data) && data.some((d: any) => d?.computedComposite))}
             />
           </ScrollArea>
         ) : loading ? (
