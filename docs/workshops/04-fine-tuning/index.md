@@ -28,3 +28,4 @@ By the end of this tutorial you will be able to:
 - [4-3. Experiment with layer controls](03-layer-controls.md)
 - [4-4. Default start location](04-default-start-location.md)
 - [4-5. Re-ordering layers in the UI](05-reordering-layers.md)
+- [4-6. Mutually exclusive layers](06-exclusivity-sets.md)
