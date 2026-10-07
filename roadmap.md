@@ -12,8 +12,8 @@
 
 # Tutorial numbering
 
-- [ ] Correct interrupted numbered lists across tutorial Markdown pages.
-- [ ] Build the guide in strict mode and inspect the corrected rendered lists.
+- [x] Correct interrupted numbered lists across tutorial Markdown pages.
+- [x] Build the guide in strict mode and inspect the corrected rendered lists.
 
 # Per-dataset visualisation settings
 

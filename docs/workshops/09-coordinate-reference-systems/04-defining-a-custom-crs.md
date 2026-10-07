@@ -23,18 +23,18 @@ in OSGB so it lines up natively with the National Grid.
     - **PROJ.4 Definition:**
       `+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs +type=crs`
 
-   The new CRS appears as a pill under **Custom CRS** and, from now on, in the
-   **Default Coordinate Reference System** dropdown under _Custom Projections_.
+    The new CRS appears as a pill under **Custom CRS** and, from now on, in the
+    **Default Coordinate Reference System** dropdown under _Custom Projections_.
 
 3. Set the **Default Coordinate Reference System** to **EPSG:27700 - British
-   National Grid**.
+    National Grid**.
 
 4. Still in **Settings**, set the start location to the UK. In the
-   **Navigation** section, choose **United Kingdom** from the **Quick
-   location** list.
+    **Navigation** section, choose **United Kingdom** from the **Quick
+    location** list.
 
 5. Open **Preview**. The map should now open on the UK in British National
-   Grid rather than Web Mercator. If you zoom out a few times you will notice how data for the rest of the world now looks very different. This is because this CRS is optimised for mimising reprojection distortion in the UK and isn't concerned with data elsewhere!
+    Grid rather than Web Mercator. If you zoom out a few times you will notice how data for the rest of the world now looks very different. This is because this CRS is optimised for mimising reprojection distortion in the UK and isn't concerned with data elsewhere!
 
 ## Adding data that uses the custom CRS (optional)
 
