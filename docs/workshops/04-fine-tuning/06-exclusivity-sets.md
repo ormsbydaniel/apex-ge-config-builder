@@ -1,6 +1,7 @@
 ---
 title: 4-6. Mutually exclusive layers
 ---
+
 # 4-6. Mutually exclusive layers
 
 For data like land cover, it only makes sense to display one layer at a time.
@@ -19,11 +20,9 @@ user switches on one layer in the set, the others are switched off.
 3. Scroll to the bottom of the layer editing page and, in the
    **Exclusivity Sets** section, tick the checkbox for **landcover**.
 
-4. Save the layer, then repeat steps 2 and 3 for each of the other World
-   Cover layers.
+4. **Save** the layer, then repeat steps 2 and 3 for each of the other layers in the land cover group.
 
 5. **Export** your configuration to save the exclusivity set.
 
-!!! tip
-    Use **Preview** to check the result: switching on one World Cover layer
-    should switch off any other layer in the **landcover** set.
+6. Use **Preview** to check the result: switching on one World Cover layer
+   should switch off any other layer in the **landcover** set.
