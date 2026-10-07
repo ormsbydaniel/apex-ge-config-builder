@@ -368,13 +368,13 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                   <FileText className="h-4 w-4 mr-2" />
                   Examples
                 </TabsTrigger>
-                <TabsTrigger value="tutorials">
-                  <GraduationCap className="h-4 w-4 mr-2" />
-                  Tutorials
-                </TabsTrigger>
                 <TabsTrigger value="github">
                   <Github className="h-4 w-4 mr-2" />
                   From GitHub
+                </TabsTrigger>
+                <TabsTrigger value="tutorials">
+                  <GraduationCap className="h-4 w-4 mr-2" />
+                  Tutorials
                 </TabsTrigger>
               </TabsList>
 

@@ -1,7 +1,8 @@
 /**
  * Lists tutorial configurations from the `tutorials` folder of the
  * ESA-APEx/apex_geospatial_explorer_configs repository. Files follow the
- * pattern `tutorial-N-completion.json` / `tutorial-N-prerequisite.json`.
+ * pattern `tutorial-N-completion[_YYYYMMDD_HHmm].json` /
+ * `tutorial-N-prerequisite[_YYYYMMDD_HHmm].json`.
  */
 import type { ExampleConfigEntry } from './exampleManifest';
 
@@ -16,37 +17,92 @@ export type TutorialKind = 'prerequisite' | 'completion';
 export interface TutorialConfigEntry extends ExampleConfigEntry {
   tutorial: number;
   kind: TutorialKind;
+  updatedAt?: string;
 }
 
-const PATTERN = /^tutorial-(\d+)-(completion|prerequisite)\.json$/i;
+const PATTERN = /^tutorial-(\d+)-(completion|prerequisite)(?:_(\d{8})_(\d{4}))?\.json$/i;
 
-/** Parse listing entries into sorted tutorial configs; non-matching files are ignored. */
+interface ParsedTutorialFile {
+  tutorial: number;
+  kind: TutorialKind;
+  timestamp?: string;
+  updatedAt?: string;
+}
+
+function parseTutorialFileName(name: string): ParsedTutorialFile | null {
+  const match = PATTERN.exec(name);
+  if (!match) return null;
+
+  const tutorial = Number.parseInt(match[1], 10);
+  const kind = match[2].toLowerCase() as TutorialKind;
+  if (!match[3] || !match[4]) return { tutorial, kind };
+
+  const timestamp = `${match[3]}${match[4]}`;
+  const year = Number.parseInt(match[3].slice(0, 4), 10);
+  const month = Number.parseInt(match[3].slice(4, 6), 10);
+  const day = Number.parseInt(match[3].slice(6, 8), 10);
+  const hour = Number.parseInt(match[4].slice(0, 2), 10);
+  const minute = Number.parseInt(match[4].slice(2, 4), 10);
+  const date = new Date(Date.UTC(year, month - 1, day, hour, minute));
+  if (
+    date.getUTCFullYear() !== year
+    || date.getUTCMonth() !== month - 1
+    || date.getUTCDate() !== day
+    || date.getUTCHours() !== hour
+    || date.getUTCMinutes() !== minute
+  ) return null;
+
+  return { tutorial, kind, timestamp, updatedAt: date.toISOString() };
+}
+
+function formatUpdatedAt(updatedAt: string): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+    timeZone: 'UTC',
+    timeZoneName: 'short',
+  }).format(new Date(updatedAt));
+}
+
+/** Parse, de-duplicate and sort tutorial configs; non-matching files are ignored. */
 export function parseTutorialListing(
   entries: Array<{ name?: unknown; type?: unknown; download_url?: unknown }>,
 ): TutorialConfigEntry[] {
-  const out: TutorialConfigEntry[] = [];
+  const latest = new Map<string, { entry: TutorialConfigEntry; timestamp?: string }>();
   for (const e of entries) {
     if (typeof e?.name !== 'string' || (e.type !== undefined && e.type !== 'file')) continue;
-    const m = PATTERN.exec(e.name);
-    if (!m) continue;
-    const tutorial = parseInt(m[1], 10);
-    const kind = m[2].toLowerCase() as TutorialKind;
+    const parsed = parseTutorialFileName(e.name);
+    if (!parsed) continue;
+    const { tutorial, kind, timestamp, updatedAt } = parsed;
     const url = typeof e.download_url === 'string' && e.download_url
       ? e.download_url
       : `https://raw.githubusercontent.com/${TUTORIALS_REPO}/${TUTORIALS_BRANCH}/${TUTORIALS_DIR}/${e.name}`;
-    out.push({
+    const baseDescription = kind === 'prerequisite'
+      ? `Starting point for Tutorial ${tutorial}`
+      : `Finished result of Tutorial ${tutorial}`;
+    const entry: TutorialConfigEntry = {
       id: `tutorial-${tutorial}-${kind}`,
       tutorial,
       kind,
       name: `Tutorial ${tutorial} ${kind}`,
-      description: kind === 'prerequisite'
-        ? `Starting point for Tutorial ${tutorial}`
-        : `Finished result of Tutorial ${tutorial}`,
+      description: updatedAt
+        ? `${baseDescription} · Last updated ${formatUpdatedAt(updatedAt)}`
+        : baseDescription,
       url,
       fileName: e.name,
-    });
+      ...(updatedAt && { updatedAt }),
+    };
+    const key = `${tutorial}-${kind}`;
+    const current = latest.get(key);
+    if (!current || (timestamp !== undefined && (current.timestamp === undefined || timestamp > current.timestamp))) {
+      latest.set(key, { entry, timestamp });
+    }
   }
-  return out.sort((a, b) =>
+  return Array.from(latest.values(), ({ entry }) => entry).sort((a, b) =>
     a.tutorial - b.tutorial || (a.kind === b.kind ? 0 : a.kind === 'prerequisite' ? -1 : 1));
 }
 
