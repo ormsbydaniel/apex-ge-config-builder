@@ -12,7 +12,7 @@ import { computeStretch, type StretchMethod } from './recipes';
 export type StyleSource = 'first' | 'own' | 'batch';
 
 /** Fields that make up a multi-band visualisation on a data item. */
-const VIS_FIELDS = ['convertToRGB', 'bands', 'style', 'spectralIndex', 'styleSource', 'batchStretch'] as const;
+const VIS_FIELDS = ['convertToRGB', 'bands', 'style', 'spectralIndex', 'computedComposite', 'normalize', 'styleSource', 'batchStretch'] as const;
 
 export const isCog = (d: DataSourceItem) => d.format === 'cog';
 export const hasOwnSettings = (d: DataSourceItem) => d.styleSource === 'own';

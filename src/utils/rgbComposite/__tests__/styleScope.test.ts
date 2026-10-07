@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { applyCompositeStyle, visualisationName } from '../styleScope';
+import { applyCompositeStyle, applyComputedStyle, visualisationName } from '../styleScope';
+import type { ComputedCompositeConfig } from '../computed';
+import { copyVisualisation, stripVisualisation } from '../perDataset';
 import type { DataSourceItem } from '@/types/dataSource';
 
 const items = [
@@ -41,6 +43,26 @@ describe('composite style scope', () => {
   });
 });
 import { applyIndexStyle } from '../styleScope';
+describe('computed style scope', () => {
+  const cfg: ComputedCompositeConfig = { recipe: 'barren-soil', bands: [1, 3, 7, 9], inputScale: 'dn' };
+  it('switches a single dataset and keeps peers independent', () => {
+    const out = applyComputedStyle(items, 0, cfg, false);
+    expect(out[0]).toMatchObject({ computedComposite: cfg, bands: cfg.bands, normalize: false });
+    expect(out[0].convertToRGB).toBeUndefined();
+    expect(out[2].styleSource).toBe('own');
+    expect(out[1]).toBe(items[1]);
+    expect(visualisationName(out[0], 10)).toBe('Barren soil (Computed)');
+  });
+  it('copies and strips metadata together with rendered expressions', () => {
+    const out = applyComputedStyle(items, 1, cfg, true);
+    expect(out.every((d) => d.computedComposite && !d.styleSource)).toBe(true);
+    expect(copyVisualisation(out[0], items[1]).computedComposite).toEqual(cfg);
+    expect(stripVisualisation(out[0]).computedComposite).toBeUndefined();
+    expect(applyCompositeStyle(out, 0, [3, 2, 1], true, () => ({ variables: { rMin: 0, rMax: 10000 } })).every((d) => !d.computedComposite && d.convertToRGB)).toBe(true);
+    const index = { recipe: 'ndvi' as const, bandA: 7, bandB: 3, colormap: 'greens', min: -1, max: 1 };
+    expect(applyIndexStyle(out, 1, index, false)[1].computedComposite).toBeUndefined();
+  });
+});
 describe('applyIndexStyle', () => {
   const cog = (url: string) => ({ format: 'cog', url, convertToRGB: true, bands: [9, 7, 1] } as any);
   const cfg = { recipe: 'ndre', bandA: 8, bandB: 5, colormap: 'viridis', reverse: false, min: 0, max: 0.8 } as any;

@@ -27,5 +27,5 @@
 
 # Computed composites
 
-- [ ] Add a Computed Composites tab and barren-soil RGB recipe matching the supplied openEO graph, using definition presets without per-channel histograms.
-- [ ] Preserve per-dataset scope, save/reopen and exported rendering; verify formulas and schema persistence with focused tests.
+- [x] Add a Computed Composites tab and barren-soil RGB recipe matching the supplied openEO graph, using definition presets without per-channel histograms.
+- [x] Preserve per-dataset scope, save/reopen and exported rendering; verify formulas and schema persistence with focused tests.

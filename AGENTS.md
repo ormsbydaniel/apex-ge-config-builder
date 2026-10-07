@@ -1,7 +1,8 @@
 - Keep field-row display ordering in `src/utils/fieldOrder.ts`, deriving saved `order` values from visible row positions so JSON key order never determines display order.
 - Register each new guide tutorial in `mkdocs.yml` and `docs/javascripts/nav-groups.js` so its menu grouping and step labels stay in sync.
 - Define vector line-style presets in recipe utilities so the wizard and generated OpenLayers properties cannot drift apart.
-- Keep composite and spectral-index recipes in separate tabs and same-kind editor lists within one multi-band dialog, so each styling workflow stays focused without duplicating saving logic.
+- Keep standard composite, spectral-index, and computed-composite recipes in separate tabs with matching editor views within one multi-band dialog, so workflows stay focused and share saving logic.
+- Keep computed-composite formulas and band resolution in recipe utilities and save unnormalised source bands with compiled GPU styles, so editor presets and rendered outputs match the source graph.
 - Per-dataset multi-band settings live on each COG data item, marked by `styleSource` (absent = same as first COG, 'own', 'batch'), with scope helpers in `src/utils/rgbComposite/perDataset.ts`; there is no layer-level copy, so "same as first" cannot drift.
 - Keep composite recipe scope and display-name transformations in `src/utils/rgbComposite/styleScope.ts`, so the editor preserves each COG's own stretch and labels without duplicating scope rules.
 - Vector attribute detection probes a layer's data files in order (`src/utils/vectorStyle/pickAttributeSource.ts`) and streams FlatGeobuf reads with early abort, because multi-file layers can contain attribute-less files and files can be very large.
