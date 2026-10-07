@@ -20,6 +20,7 @@ import {
   Clock,
   RefreshCw,
   FlaskConical,
+  GraduationCap,
 } from 'lucide-react';
 import { useConfigImport } from '@/hooks/useConfigIO';
 import type { ImportProgress } from '@/hooks/useConfigImport';
@@ -30,6 +31,7 @@ import {
   type ExampleConfigEntry,
   type ExampleManifest,
 } from '@/utils/exampleManifest';
+import { fetchTutorialConfigs, TUTORIALS_FOLDER_URL } from '@/utils/tutorialConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 
@@ -256,6 +258,19 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
   const examples = manifest?.examples;
   const testConfigs = manifest?.testConfigs;
 
+  const {
+    data: tutorials,
+    isLoading: tutorialsLoading,
+    error: tutorialsError,
+    refetch: refetchTutorials,
+    isFetching: tutorialsFetching,
+  } = useQuery({
+    queryKey: ['tutorial-configs'],
+    queryFn: () => fetchTutorialConfigs(),
+    enabled: open && activeTab === 'tutorials',
+    staleTime: 30 * 60 * 1000,
+  });
+
   // ---- Loading view subcomponent ----
   const renderLoadingView = () => {
     const stageReached = (s: Stage): boolean => {
@@ -344,7 +359,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
               onValueChange={setActiveTab}
               className="w-full flex-1 flex flex-col min-h-0"
             >
-              <TabsList className="grid grid-cols-3 w-full">
+              <TabsList className="grid grid-cols-4 w-full">
                 <TabsTrigger value="upload">
                   <Upload className="h-4 w-4 mr-2" />
                   Upload
@@ -352,6 +367,10 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                 <TabsTrigger value="examples">
                   <FileText className="h-4 w-4 mr-2" />
                   Examples
+                </TabsTrigger>
+                <TabsTrigger value="tutorials">
+                  <GraduationCap className="h-4 w-4 mr-2" />
+                  Tutorials
                 </TabsTrigger>
                 <TabsTrigger value="github">
                   <Github className="h-4 w-4 mr-2" />
@@ -469,6 +488,60 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                         ))}
                       </div>
                     )}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Tutorials */}
+              <TabsContent value="tutorials" className="mt-4 flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden">
+                {tutorialsLoading || (tutorialsFetching && !tutorials) ? (
+                  <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading tutorials…
+                  </div>
+                ) : tutorialsError ? (
+                  <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 space-y-2">
+                    <div className="flex items-start gap-2 text-sm">
+                      <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
+                      <div className="flex-1">
+                        <div className="font-medium">Couldn't load tutorial configurations</div>
+                        <div className="text-xs text-muted-foreground mt-1 break-all">
+                          {(tutorialsError as Error).message}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-2 break-all">
+                          Folder:{' '}
+                          <a href={TUTORIALS_FOLDER_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                            {TUTORIALS_FOLDER_URL}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => refetchTutorials()}>
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      Retry
+                    </Button>
+                  </div>
+                ) : !tutorials || tutorials.length === 0 ? (
+                  <div className="py-10 text-center text-sm text-muted-foreground">
+                    No tutorial configurations were found.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {tutorials.map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => handleLoadExample(t)}
+                        className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <div className="font-medium text-sm">{t.name}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">{t.description}</div>
+                          </div>
+                          <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 )}
               </TabsContent>
