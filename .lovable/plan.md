@@ -1,17 +1,30 @@
-# Always fetch the latest tutorials when the dialog opens
+# Keep tutorials fresh without reloading unchanged files
 
 ## What the user sees
-- Every time the Load Configuration dialog is opened and the Tutorials tab is viewed, the list is read fresh from GitHub — a tutorial file pushed a moment earlier appears without reloading the page, and last-updated notes reflect the newest file.
-- The list still appears immediately (any previously seen entries) and quietly updates itself if the fresh fetch returns something different, so there is no spinner flash on every open.
-- Loading, empty and error states (including the rate-limit message and Retry button) are unchanged.
+- Each time the Load Configuration dialog opens on the Tutorials tab, the list is checked against GitHub, so a newly pushed dated file (e.g. `tutorial-3-completion_20261007_1700.json`) shows up straight away with its new last-updated note.
+- Entries already seen appear instantly. Only entries with a newer date stamp change.
+- Clicking a tutorial whose file hasn't changed since it was last loaded reuses the copy already in memory. Only a tutorial with a newer date stamp is downloaded again.
+- Loading, empty, error, rate-limit and Retry behaviour are unchanged.
 
 ## Logic
-- Two caches currently hold the list: a session-long cache inside the tutorial utility, and a 30-minute cache in the dialog's data query. Both are removed for tutorials, so every open triggers a live read.
-- Examples and test configs keep their existing 5-minute caching — only tutorials change.
-- Requests still happen only when the Tutorials tab is actually open, so opening the dialog on the Upload tab costs nothing.
+- Finding out whether a newer date stamp exists still takes one small folder-listing request per open. That request contains only file names, not their contents. Tutorial files themselves are never downloaded ahead of time.
+- In memory, keep the latest file name for each tutorial and kind, plus the downloaded content of each tutorial file, stored by its exact file name.
+- When the listing comes back, compare it with the stored names. If a tutorial and kind now has a fresher date stamp, its entry is updated and its old stored content is dropped. Unchanged entries are left as they are.
+- If the listing request fails, for example because GitHub limits requests, the list already in memory stays visible with a small notice. The full error panel only appears if nothing has loaded yet.
+- Memory lasts for the browser session. Reloading the page starts fresh.
+- Examples and test configs keep their current caching.
 
 ## Technical details
-- `src/utils/tutorialConfigs.ts`: delete the module-level `cache` promise and its failure-reset handling; `fetchTutorialConfigs()` performs a new `fetch(TUTORIALS_LISTING_URL)` on every call, keeping the HTTP 403/429 rate-limit message and the "unexpected response" guard. `parseTutorialListing` and its exports stay as they are.
-- `src/components/config/LoadConfigDialog.tsx`: the `['tutorial-configs']` query gets `staleTime: 0`, `refetchOnMount: 'always'` and `retry: false` (so a rate-limit or offline failure surfaces at once instead of retrying against GitHub). On modal open, `queryClient.invalidateQueries({ queryKey: ['tutorial-configs'] })` is called via `useQueryClient`, so reopening the dialog always re-reads the folder even if the tab stays selected. The `enabled: open && activeTab === 'tutorials'` gate stays.
-- Note for the user: an unauthenticated GitHub listing is limited to about 60 requests per hour per IP address, so each dialog open now spends one of those requests. The existing clear message and Retry button cover that case.
-- Tests: add a case to `src/utils/__tests__/tutorialConfigs.test.ts` stubbing `fetch` to assert two calls to `fetchTutorialConfigs()` issue two network requests (no caching); the existing parser, latest-dated-file and sorting tests are unaffected.
+- `src/utils/tutorialConfigs.ts`:
+  - Remove the session-long promise cache. `fetchTutorialConfigs()` always reads the listing, but merges it into a module-level `Map<"N-kind", TutorialConfigEntry>` and keeps an existing entry object when its `fileName` hasn't changed, so the rendered list stays stable.
+  - Add `getTutorialConfigText(entry)`. It returns stored JSON text from `Map<fileName, string>`, or fetches `entry.url` once and stores it. Stored text for older file names of the same tutorial and kind is evicted.
+  - Export `__resetTutorialCache()` for tests.
+- `LoadConfigDialog.tsx`:
+  - The tutorials query uses `staleTime: 0`, `refetchOnMount: 'always'`, `retry: false` and `placeholderData` from the previous result. On open it calls `invalidateQueries(['tutorial-configs'])`.
+  - Tutorial clicks get the text via `getTutorialConfigText`, then go through the existing `importConfig` path as an in-memory `File`, with the same label, validation, error dialog and unsaved-changes guard. The source is recorded as `{ type: 'example', label }` as it is today.
+- GitHub allows about 60 unauthenticated listing requests per hour per IP address. Each open now uses one listing request, but no file downloads.
+- Tests (`tutorialConfigs.test.ts`, with a stubbed `fetch`):
+  - Repeated listings keep unchanged entries.
+  - A newer date stamp replaces the entry and evicts the old stored content.
+  - Content is downloaded only once per file name.
+  - The existing parser tests are unchanged.
