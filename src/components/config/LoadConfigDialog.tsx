@@ -537,7 +537,7 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Loading tutorials…
                   </div>
-                ) : tutorialsError ? (
+                ) : tutorialsError && !tutorials ? (
                   <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 space-y-2">
                     <div className="flex items-start gap-2 text-sm">
                       <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
@@ -565,10 +565,20 @@ const LoadConfigDialog = ({ open, onOpenChange, onError }: LoadConfigDialogProps
                   </div>
                 ) : (
                   <div className="space-y-2">
+                    {tutorialsError && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                        <span className="flex-1">Couldn't check for newer tutorials — showing the last list loaded. {(tutorialsError as Error).message}</span>
+                        <Button size="sm" variant="ghost" className="h-6 px-2" onClick={() => refetchTutorials()}>
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          Retry
+                        </Button>
+                      </div>
+                    )}
                     {tutorials.map((t) => (
                       <button
                         key={t.id}
-                        onClick={() => handleLoadExample(t)}
+                        onClick={() => handleLoadTutorial(t)}
                         className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
                       >
                         <div className="flex items-center justify-between gap-3">
