@@ -19,6 +19,7 @@ By the end of this tutorial you will be able to:
 - Specify units for numeric layers so they appear in the legend and data values.
 - Preview the effect of your choices in Preview.
 - Reorder the layers in your UI into a more logical order
+- Create a mutually exclusive layer set
 
 ## Steps
 
