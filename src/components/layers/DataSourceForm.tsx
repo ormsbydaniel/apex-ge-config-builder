@@ -14,7 +14,7 @@ import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } f
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
 import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
-import { sampleStacAsset, STAC_ASSET_FORMATS, type StacAssetFormat } from '@/utils/stacAssetFormat';
+import { listStacAssets, sampleStacAsset, STAC_ASSET_FORMATS, type StacAssetChoice, type StacAssetFormat } from '@/utils/stacAssetFormat';
 
 
 import { useServices } from '@/hooks/useServices';
@@ -103,6 +103,8 @@ const DataSourceForm = ({
   const [stacAssets, setStacAssets] = useState<string[]>(editingDataSource?.assets || []);
   const [stacAssetFormat, setStacAssetFormat] = useState<StacAssetFormat | undefined>(editingDataSource?.assetFormat);
   const [isDetectingStac, setIsDetectingStac] = useState(false);
+  const [discoveredAssets, setDiscoveredAssets] = useState<StacAssetChoice[] | null>(null);
+  const [isListingAssets, setIsListingAssets] = useState(false);
   const [newStacAsset, setNewStacAsset] = useState('');
   const [minZoom, setMinZoom] = useState<number | undefined>(editingDataSource?.minZoom);
   const [maxZoom, setMaxZoom] = useState<number | undefined>(editingDataSource?.maxZoom);
