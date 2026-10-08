@@ -888,23 +888,7 @@ const DataSourceForm = ({
               type="button"
               variant="outline"
               disabled={!directUrl.trim() || isDetectingStac}
-              onClick={async () => {
-                setIsDetectingStac(true);
-                try {
-                  const sample = await sampleStacAsset(directUrl.trim(), stacAssets);
-                  if (sample.format) {
-                    setStacAssetFormat(sample.format);
-                    if (sample.bandLabels?.length) setStacBandLabels(sample.bandLabels);
-                    toast({ title: 'Asset format detected', description: `${sample.assetName ?? 'Asset'}: ${FORMAT_CONFIGS[sample.format]?.label ?? sample.format}` });
-                  } else {
-                    toast({ title: 'Format not recognised', description: 'Choose the asset format manually.', variant: 'destructive' });
-                  }
-                } catch (e) {
-                  toast({ title: 'Could not read STAC items', description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
-                } finally {
-                  setIsDetectingStac(false);
-                }
-              }}
+              onClick={() => runStacDetect(stacAssets)}
             >
               {isDetectingStac ? 'Detecting…' : 'Detect'}
             </Button>
