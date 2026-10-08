@@ -246,7 +246,8 @@ export function RgbCompositeEditorDialog({
   }, [open, source.data]);
 
   // URL of the COG asset being edited (drives band count, noData and histograms).
-  const firstCogUrl = inspectionUrls[isCog(source.data?.[scope] as DataSourceItem) ? scope : firstIdx];
+  const scopedItem = source.data?.[scope];
+  const firstCogUrl = inspectionUrls[scopedItem && isCog(scopedItem) ? scope : firstIdx];
 
   const inFlightRef = React.useRef<Set<number>>(new Set());
   const metadataReadyUrlRef = React.useRef<string | undefined>(undefined);
