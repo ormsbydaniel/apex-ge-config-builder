@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import type { DataSourceItem } from '@/types/config';
 import { getEffectiveFormat, resolveDataSourceInspectionAccess } from '@/utils/stacAssetFormat';
-import { fetchStacCollection, fetchStacItemSample, getStacCollectionUrl, stripUrlParams, type StacItemSample } from '@/utils/stacMetadata';
+import { fetchStacCollection, fetchStacItemSample, fetchStacQueryables, getStacCollectionUrl, stripUrlParams, summariseStacQueryables, type StacItemSample } from '@/utils/stacMetadata';
 import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 
@@ -49,6 +49,7 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
 
   const [tab, setTab] = useState<Tab>('item');
   const [collection, setCollection] = useState<LoadState<any>>({ loading: false });
+  const [queryables, setQueryables] = useState<LoadState<any>>({ loading: false });
   const [item, setItem] = useState<LoadState<StacItemSample>>({ loading: false });
   const [assetUrl, setAssetUrl] = useState<LoadState<string>>({ loading: false });
   const [inspectorOpen, setInspectorOpen] = useState(false);
@@ -60,6 +61,7 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
     generation.current += 1;
     loaded.current = new Set();
     setCollection({ loading: false });
+    setQueryables({ loading: false });
     setItem({ loading: false });
     setAssetUrl({ loading: false });
     setTab(hasMappedAsset ? 'asset' : 'item');
@@ -82,7 +84,13 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
         .catch((e) => guard(() => setItem({ loading: false, error: msg(e) })));
     };
 
-    if (tab === 'collection') {
+    if (tab === 'queryables') {
+      if (!getStacCollectionUrl(url)) return;
+      setQueryables({ loading: true });
+      fetchStacQueryables(url)
+        .then((data) => guard(() => setQueryables({ loading: false, data })))
+        .catch((e) => guard(() => setQueryables({ loading: false, error: msg(e) })));
+    } else if (tab === 'collection') {
       if (!getStacCollectionUrl(url)) { setCollection({ loading: false }); return; }
       setCollection({ loading: true });
       fetchStacCollection(url)
@@ -113,6 +121,7 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-0 flex-1 flex-col">
           <TabsList className="shrink-0">
             <TabsTrigger value="collection">Collection</TabsTrigger>
+            <TabsTrigger value="queryables">Queryables</TabsTrigger>
             <TabsTrigger value="item">Item</TabsTrigger>
             <TabsTrigger value="asset">Asset</TabsTrigger>
           </TabsList>
@@ -137,6 +146,40 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
                     <RawJson data={c} />
                   </>
                 )}
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="queryables" className="space-y-2 h-full min-h-0 overflow-y-auto">
+            {!getStacCollectionUrl(url) ? (
+              <p className="text-sm text-muted-foreground">Queryables are not available for this address.</p>
+            ) : (
+              <>
+                <Status state={queryables} empty="No queryables." />
+                {queryables.data && (() => {
+                  const list = summariseStacQueryables(queryables.data);
+                  if (list.length === 0) return <p className="text-sm text-muted-foreground">The collection lists no queryable properties.</p>;
+                  return (
+                    <>
+                      <p className="text-xs text-muted-foreground">{list.length} properties can be used to filter items in this collection.</p>
+                      <div className="divide-y rounded border">
+                        {list.map((q) => (
+                          <div key={q.key} className="p-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-xs break-all">{q.key}</span>
+                              <Badge variant="outline" className="text-xs flex-shrink-0">{q.type}</Badge>
+                            </div>
+                            {q.title && q.title !== q.key && <div className="text-xs">{q.title}</div>}
+                            {q.description && <div className="text-xs text-muted-foreground">{q.description}</div>}
+                            {q.range && <div className="text-xs text-muted-foreground">Range: {q.range}</div>}
+                            {q.enumValues && <div className="text-xs text-muted-foreground break-words">Values: {q.enumValues.map(String).join(', ')}</div>}
+                          </div>
+                        ))}
+                      </div>
+                      <RawJson data={queryables.data} />
+                    </>
+                  );
+                })()}
               </>
             )}
           </TabsContent>
