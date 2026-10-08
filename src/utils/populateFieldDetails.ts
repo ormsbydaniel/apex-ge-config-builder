@@ -6,7 +6,7 @@ import { assignFieldOrder } from '@/utils/fieldOrder';
 /** Only these formats can currently be inspected by the field detector. */
 export function fieldDetectionSources(sources: DataSourceItem[]) {
   return sources.flatMap((source, index) =>
-    source.url && ['geojson', 'json', 'flatgeobuf', 'fgb'].includes(source.format?.toLowerCase())
+    source.url && ['geojson', 'json', 'flatgeobuf', 'fgb'].includes(getEffectiveFormat(source)?.toLowerCase())
       ? [{ ...source, index, url: source.url }]
       : []
   );
