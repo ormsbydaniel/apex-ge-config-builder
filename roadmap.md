@@ -40,7 +40,8 @@
 - [x] Replace the duplicated asset-name controls with one discovery-first selector, manual entry, rescan, and format override
 - [x] Add shared in-memory inspection access and refine the row badge to show the asset format
 - [x] Phase 2B: enable multi-band COG styling for mapped STAC assets using in-memory sample URLs
-- [ ] Phase 2A/later: gate vector and remaining format-specific tools on effective format and use in-memory sample URLs
+- [x] Phase 2A: gate vector styling, field detection, statistics and field-value charts on effective format with in-memory sample URLs
+- [ ] Later: CSV assets and remaining format-specific tools (constraints, validation) on effective format
 
 ## STAC item queries
 - [x] Assess queryables-driven support and scope the first release to core URL parameters.

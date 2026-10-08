@@ -337,7 +337,9 @@ const DataSourceForm = ({
     : Object.entries(FORMAT_CONFIGS);
 
   // Check if current format supports statistics
-  const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
+  // STAC sources support statistics when their selected asset maps to a vector format.
+  const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson'
+    || (selectedFormat === 'stac' && (stacAssetFormat === 'flatgeobuf' || stacAssetFormat === 'geojson'));
 
   const handleFormatChange = (format: DataSourceFormat) => {
     setSelectedFormat(format);

@@ -158,3 +158,15 @@ describe('automatic STAC asset selection', () => {
     expect(decideStacAutoSelection([])).toEqual({ kind: 'none' });
   });
 });
+
+describe('isVectorDataSource', () => {
+  it('treats mapped STAC vector assets as vector sources', async () => {
+    const { isVectorDataSource } = await import('@/utils/stacAssetFormat');
+    expect(isVectorDataSource({ format: 'stac', assets: ['data'], assetFormats: { data: 'flatgeobuf' } })).toBe(true);
+    expect(isVectorDataSource({ format: 'stac', assets: ['data'], assetFormats: { data: 'geojson' } })).toBe(true);
+    expect(isVectorDataSource({ format: 'stac', assets: ['visual'], assetFormats: { visual: 'cog' } })).toBe(false);
+    expect(isVectorDataSource({ format: 'stac' })).toBe(false);
+    expect(isVectorDataSource({ format: 'geojson' })).toBe(true);
+    expect(isVectorDataSource({ format: 'cog' })).toBe(false);
+  });
+});

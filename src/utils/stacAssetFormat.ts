@@ -6,6 +6,7 @@
  * multiple assets and their formats by name.
  */
 import { appendQueryParam, detectAssetFormat, extractBandLabels, resolveAssetUrl, type StacAsset } from '@/utils/stacUtils';
+import { detectFieldsFromSource, isVectorFormat, type DetectedField } from '@/utils/fieldDetection';
 import type { DataSourceItem } from '@/types/config';
 
 export const STAC_ASSET_FORMATS = ['cog', 'geojson', 'flatgeobuf', 'csv', 'xyz'] as const;
@@ -31,6 +32,14 @@ export function getEffectiveFormat(
   return item.format;
 }
 
+/** True when the item's effective format is a vector format (incl. mapped STAC assets). */
+export function isVectorDataSource(
+  item: Pick<DataSourceItem, 'format' | 'assets' | 'assetFormats'>,
+): boolean {
+  const format = getEffectiveFormat(item);
+  return !!format && isVectorFormat(format);
+}
+
 export interface DataSourceInspectionAccess {
   format: string;
   url: string;
@@ -51,6 +60,18 @@ export async function resolveDataSourceInspectionAccess(
 
   const sample = await getStacSample(item.url, item.assets);
   return sample.sampleUrl ? { format, url: sample.sampleUrl } : null;
+}
+
+/**
+ * Detects attribute fields for a data item, resolving STAC items to their
+ * in-memory sample asset URL first. Resolved URLs are never persisted.
+ */
+export async function detectFieldsFromDataSource(
+  item: Pick<DataSourceItem, 'url' | 'format' | 'assets' | 'assetFormats'>,
+): Promise<DetectedField[]> {
+  const access = await resolveDataSourceInspectionAccess(item);
+  if (!access) return [];
+  return detectFieldsFromSource(access.url, access.format);
 }
 
 /** Returns a new format map with one named entry set or removed. */
