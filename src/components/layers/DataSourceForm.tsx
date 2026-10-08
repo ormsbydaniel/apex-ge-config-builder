@@ -1204,22 +1204,25 @@ const DataSourceForm = ({
                   </div>
                 )}
                 
-                <div className="space-y-2">
-                  <Label htmlFor="directZIndex">Z-Index</Label>
-                  <Input
-                    id="directZIndex"
-                    name="directZIndex"
-                    type="number"
-                    value={zIndex}
-                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
-                    min="0"
-                    max="200"
-                    autoComplete="off"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
-                  </p>
-                </div>
+                {selectedFormat !== 'stac' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="directZIndex">Z-Index</Label>
+                    <Input
+                      id="directZIndex"
+                      name="directZIndex"
+                      type="number"
+                      value={zIndex}
+                      onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
+                      min="0"
+                      max="200"
+                      autoComplete="off"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+                    </p>
+                  </div>
+                )}
+
 
                 {renderStacOptions('direct')}
 
@@ -1440,22 +1443,25 @@ const DataSourceForm = ({
                   </div>
                 )}
                 
-                <div className="space-y-2">
-                  <Label htmlFor="serviceDirectZIndex">Z-Index</Label>
-                  <Input
-                    id="serviceDirectZIndex"
-                    name="serviceDirectZIndex"
-                    type="number"
-                    value={zIndex}
-                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
-                    min="0"
-                    max="200"
-                    autoComplete="off"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
-                  </p>
-                </div>
+                {selectedFormat !== 'stac' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="serviceDirectZIndex">Z-Index</Label>
+                    <Input
+                      id="serviceDirectZIndex"
+                      name="serviceDirectZIndex"
+                      type="number"
+                      value={zIndex}
+                      onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
+                      min="0"
+                      max="200"
+                      autoComplete="off"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+                    </p>
+                  </div>
+                )}
+
 
                 {renderStacOptions('service')}
 
