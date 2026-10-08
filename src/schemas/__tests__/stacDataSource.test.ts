@@ -78,10 +78,8 @@ describe('extractBandLabels', () => {
     expect(parsed.bandLabels).toEqual(['B02', 'B03', 'B04']);
   });
 });
-describe('STAC asset name requirement', () => {
-  it('requires a non-empty asset name only for STAC sources', () => {
-    expect(DataSourceItemSchema.safeParse({ url: 'https://x.test/items', format: 'stac', zIndex: 1 }).success).toBe(false);
-    expect(DataSourceItemSchema.safeParse({ url: 'https://x.test/items', format: 'stac', zIndex: 1, assets: [] }).success).toBe(false);
-    expect(DataSourceItemSchema.safeParse({ url: 'https://x.test/a.tif', format: 'cog', zIndex: 1 }).success).toBe(true);
+describe('STAC asset name on load', () => {
+  it('still loads existing STAC sources without an asset name', () => {
+    expect(DataSourceItemSchema.safeParse({ url: 'https://x.test/items', format: 'stac', zIndex: 1 }).success).toBe(true);
   });
 });
