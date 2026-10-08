@@ -14,6 +14,7 @@ import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } f
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
 import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
+import { sampleStacAsset, STAC_ASSET_FORMATS, type StacAssetFormat } from '@/utils/stacAssetFormat';
 
 
 import { useServices } from '@/hooks/useServices';
@@ -100,6 +101,8 @@ const DataSourceForm = ({
   const [directLayers, setDirectLayers] = useState(editingDataSource?.layers || '');
   const [zIndex, setZIndex] = useState(editingDataSource?.zIndex ?? getRecommendedZIndex(getInitialFormat()));
   const [stacAssets, setStacAssets] = useState<string[]>(editingDataSource?.assets || []);
+  const [stacAssetFormat, setStacAssetFormat] = useState<StacAssetFormat | undefined>(editingDataSource?.assetFormat);
+  const [isDetectingStac, setIsDetectingStac] = useState(false);
   const [newStacAsset, setNewStacAsset] = useState('');
   const [minZoom, setMinZoom] = useState<number | undefined>(editingDataSource?.minZoom);
   const [maxZoom, setMaxZoom] = useState<number | undefined>(editingDataSource?.maxZoom);
@@ -197,6 +200,7 @@ const DataSourceForm = ({
       setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
       setParameterRows(recordToRows(editingDataSource.parameters));
       setStacAssets(editingDataSource.assets || []);
+      setStacAssetFormat(editingDataSource.assetFormat);
       setNewStacAsset('');
       setMinZoom(editingDataSource.minZoom);
       setMaxZoom(editingDataSource.maxZoom);
@@ -609,6 +613,18 @@ const DataSourceForm = ({
     if (selectedFormat === 'stac') {
       if (stacAssets.length > 0) baseItem.assets = stacAssets;
       else delete baseItem.assets;
+      let formatToSave = stacAssetFormat;
+      if (!formatToSave) {
+        try {
+          const sample = await sampleStacAsset(url, stacAssets);
+          formatToSave = sample.format;
+          if (sample.bandLabels?.length && !baseItem.bandLabels) baseItem.bandLabels = sample.bandLabels;
+        } catch {
+          // Non-fatal: save without a detected format
+        }
+      }
+      if (formatToSave) baseItem.assetFormat = formatToSave;
+      else delete baseItem.assetFormat;
       if (minZoom !== undefined) baseItem.minZoom = minZoom;
       else delete baseItem.minZoom;
       if (maxZoom !== undefined) baseItem.maxZoom = maxZoom;
