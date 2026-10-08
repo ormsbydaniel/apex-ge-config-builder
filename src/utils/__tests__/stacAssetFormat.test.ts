@@ -88,3 +88,27 @@ describe('STAC asset format', () => {
     )).toEqual({ data: 'flatgeobuf' });
   });
 });
+
+import { decideStacAutoSelection, getStacItemEndpointKey } from '@/utils/stacAssetFormat';
+
+describe('automatic STAC asset selection', () => {
+  it('keys item endpoints without their filter query', () => {
+    expect(getStacItemEndpointKey('https://x.test/collections/c/items?limit=5&bbox=1,2,3,4')).toBe('https://x.test/collections/c/items');
+    expect(getStacItemEndpointKey('https://x.test/collections/c/items?limit=9')).toBe('https://x.test/collections/c/items');
+    expect(getStacItemEndpointKey('https://x.test/collections/c/items/abc')).toBe('https://x.test/collections/c/items/abc');
+    expect(getStacItemEndpointKey('https://x.test/collections/c')).toBeNull();
+    expect(getStacItemEndpointKey('not a url')).toBeNull();
+  });
+
+  it('auto-selects a single asset', () => {
+    expect(decideStacAutoSelection([{ name: 'data', format: 'flatgeobuf' }], 'old')).toEqual({ kind: 'select', asset: { name: 'data', format: 'flatgeobuf' } });
+  });
+
+  it('asks for a choice among multiple assets unless the current one is offered', () => {
+    const assets = [{ name: 'visual' }, { name: 'data' }];
+    expect(decideStacAutoSelection(assets)).toEqual({ kind: 'choose' });
+    expect(decideStacAutoSelection(assets, 'stale')).toEqual({ kind: 'choose' });
+    expect(decideStacAutoSelection(assets, 'data')).toEqual({ kind: 'keep' });
+    expect(decideStacAutoSelection([])).toEqual({ kind: 'none' });
+  });
+});

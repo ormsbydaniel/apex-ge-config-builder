@@ -135,3 +135,35 @@ export function getStacSample(url: string, assetNames?: string[]): Promise<StacS
   }
   return p;
 }
+
+/**
+ * Endpoint identity for automatic asset discovery: the URL without query or
+ * fragment, but only when it is an `items` list or a direct `items/{id}` item.
+ * Filter edits change only the query, so they keep the same identity.
+ */
+export function getStacItemEndpointKey(url: string): string | null {
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  try {
+    const parsed = new URL(trimmed);
+    const path = parsed.pathname.replace(/\/+$/, '');
+    if (!/\/items(\/[^/]+)?$/.test(path)) return null;
+    return `${parsed.origin}${path}`;
+  } catch {
+    return null;
+  }
+}
+
+export type StacAutoSelection =
+  | { kind: 'select'; asset: StacAssetChoice }
+  | { kind: 'keep' }
+  | { kind: 'choose' }
+  | { kind: 'none' };
+
+/** Decides how discovered assets should update the current one-asset selection. */
+export function decideStacAutoSelection(assets: StacAssetChoice[], currentName?: string): StacAutoSelection {
+  if (assets.length === 0) return { kind: 'none' };
+  if (assets.length === 1) return { kind: 'select', asset: assets[0] };
+  if (currentName && assets.some((asset) => asset.name === currentName)) return { kind: 'keep' };
+  return { kind: 'choose' };
+}
