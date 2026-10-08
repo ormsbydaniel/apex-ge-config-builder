@@ -12,7 +12,7 @@ import LayerFieldsDisplay from './LayerFieldsDisplay';
 import LayerDataVisualisationSection from './LayerDataVisualisationSection';
 import LayerLegendSection from './LayerLegendSection';
 import { LayerCardTabs } from './LayerCardTabs';
-import { isVectorFormat } from '@/utils/fieldDetection';
+import { isVectorDataSource } from '@/utils/stacAssetFormat';
 
 interface LayerCardContentProps {
   source: DataSource;
@@ -62,7 +62,7 @@ const LayerCardContent = ({
   const sourceIndex = config.sources.findIndex(s => s.name === source.name);
 
   const vectorSources = isDataSourceItemArray(source.data)
-    ? source.data.filter((item: DataSourceItem) => item.format && isVectorFormat(item.format))
+    ? source.data.filter((item: DataSourceItem) => item.format && isVectorDataSource(item))
     : [];
 
   // Handler to update meta fields

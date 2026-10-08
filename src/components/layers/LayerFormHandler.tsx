@@ -179,7 +179,7 @@ const LayerFormHandler = ({
         onAddStatisticsLayer={onStatisticsLayerAdded}
         onAddService={onAddService}
         onCancel={onDataSourceCancel}
-        allowedFormats={isAddingStatistics ? ['flatgeobuf', 'geojson'] : undefined}
+        allowedFormats={isAddingStatistics ? ['flatgeobuf', 'geojson', 'stac'] : undefined}
         isAddingStatistics={isAddingStatistics}
         editingDataSource={editingDataSource}
         editingIndex={editingDataSourceIndex ?? undefined}
@@ -238,7 +238,7 @@ const LayerFormHandler = ({
 
     // Filter vector sources for fieldValues chart support
     const vectorSources = (currentLayer.data || []).filter(
-      (d: any) => d.format === 'geojson' || d.format === 'flatgeobuf'
+      (d: any) => isVectorDataSource(d)
     );
     
     // Create handler that routes to add or update based on editing state

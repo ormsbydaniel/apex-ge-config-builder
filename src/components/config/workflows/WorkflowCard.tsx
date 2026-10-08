@@ -22,7 +22,7 @@ import {
   isDataSourceItemArray,
 } from '@/types/config';
 import { DataSourceMeta, DataSourceLayout } from '@/types/layer';
-import { isVectorFormat } from '@/utils/fieldDetection';
+import { isVectorDataSource } from '@/utils/stacAssetFormat';
 import LayerDescriptionAttributionDisplay from '@/components/layers/components/LayerDescriptionAttributionDisplay';
 import LayerDataVisualisationSection from '@/components/layers/components/LayerDataVisualisationSection';
 import LayerLegendSection from '@/components/layers/components/LayerLegendSection';
@@ -118,7 +118,7 @@ export const WorkflowCard = ({
   };
 
   const adapter = toSourceAdapter(workflow);
-  const hasVectorSource = isDataSourceItemArray(adapter.data) && adapter.data.some((d) => d.format && isVectorFormat(d.format));
+  const hasVectorSource = isDataSourceItemArray(adapter.data) && adapter.data.some((d) => d.format && isVectorDataSource(d));
 
   const endpointHost = workflow.serviceDetails?.endpoint
     ?.replace(/^https?:\/\//, '')
