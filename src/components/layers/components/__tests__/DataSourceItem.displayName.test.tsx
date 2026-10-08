@@ -28,7 +28,7 @@ describe('DataSourceItem display names', () => {
     expect(screen.getByText(`${longId.slice(0, 80)}…`)).toBeInTheDocument();
 
     await user.hover(screen.getByText(`${longId.slice(0, 80)}…`));
-    expect((await screen.findAllByText(longId)).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText(`https://stac.example.com/collections/sentinel2_ard/items/${longId}`)).length).toBeGreaterThan(0);
   });
 
   it('shows the collection name for an items list endpoint', () => {
