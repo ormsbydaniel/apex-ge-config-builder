@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,7 @@ import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } f
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
 import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
-import { listStacAssets, sampleStacAsset, STAC_ASSET_FORMATS, updateStacAssetFormatMap, type StacAssetChoice, type StacAssetFormat } from '@/utils/stacAssetFormat';
+import { decideStacAutoSelection, getStacItemEndpointKey, listStacAssets, sampleStacAsset, STAC_ASSET_FORMATS, updateStacAssetFormatMap, type StacAssetChoice, type StacAssetFormat } from '@/utils/stacAssetFormat';
 import { getStacUrlBase, replaceStacUrlBase } from '@/utils/stacQuery';
 
 
@@ -114,6 +114,8 @@ const DataSourceForm = ({
   const [discoveredAssets, setDiscoveredAssets] = useState<StacAssetChoice[] | null>(null);
   const [isListingAssets, setIsListingAssets] = useState(false);
   const [isEnteringStacAsset, setIsEnteringStacAsset] = useState(false);
+  const [isAssetSelectOpen, setIsAssetSelectOpen] = useState(false);
+  const assetDiscoveryRequest = useRef(0);
   const [manualStacAsset, setManualStacAsset] = useState(editingDataSource?.assets?.[0] || '');
   const [minZoom, setMinZoom] = useState<number | undefined>(editingDataSource?.minZoom);
   const [maxZoom, setMaxZoom] = useState<number | undefined>(editingDataSource?.maxZoom);
@@ -239,10 +241,22 @@ const DataSourceForm = ({
     }
   }, [editingDataSource, layerType]);
 
-  // Clear discovered STAC assets when the URL changes so stale names aren't offered
+  // Endpoint identity ignores the query string, so filter edits don't reset discovery
+  const stacEndpointKey = selectedFormat === 'stac' ? getStacItemEndpointKey(directUrl) : null;
+  const stacUrlBase = getStacUrlBase(directUrl);
+
+  // Clear discovered STAC assets when the endpoint changes so stale names aren't offered
   useEffect(() => {
     setDiscoveredAssets(null);
-  }, [directUrl]);
+  }, [stacUrlBase]);
+
+  // Automatically discover assets once an items/item endpoint is entered
+  useEffect(() => {
+    if (!stacEndpointKey || isEnteringStacAsset) return;
+    const timer = setTimeout(() => { void discoverStacAssets(true); }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stacEndpointKey]);
 
   // Track dirty state and update ConfigContext
   useEffect(() => {
@@ -555,13 +569,10 @@ const DataSourceForm = ({
       return;
     }
 
-    if (selectedFormat === 'stac' && (
-      (isEnteringStacAsset && !stacAssets[0]?.trim())
-      || (Boolean(stacAssets[0]?.trim()) && !stacAssetFormat)
-    )) {
+    if (selectedFormat === 'stac' && (!stacAssets[0]?.trim() || !stacAssetFormat)) {
       toast({
         title: "Incomplete asset details",
-        description: "Enter an asset name and choose its format.",
+        description: "Select or enter an asset name and choose its format.",
         variant: "destructive"
       });
       return;
@@ -798,19 +809,37 @@ const DataSourceForm = ({
     }
   };
 
-  const discoverStacAssets = async () => {
+  const discoverStacAssets = async (automatic = false) => {
+    const requestId = ++assetDiscoveryRequest.current;
     setIsListingAssets(true);
     try {
       const assets = await listStacAssets(directUrl.trim());
-      if (assets.length === 0) {
-        toast({ title: 'No assets found', description: 'The first item does not advertise any assets.', variant: 'destructive' });
+      if (requestId !== assetDiscoveryRequest.current) return; // stale response
+      const decision = decideStacAutoSelection(assets, stacAssets[0]);
+      if (decision.kind === 'none') {
+        toast({ title: 'No assets found', description: 'The first item does not advertise any assets. Use manual entry to type the asset name.', variant: 'destructive' });
         return;
       }
       setDiscoveredAssets(assets);
+      if (decision.kind === 'select') {
+        const { name, format } = decision.asset;
+        if (name !== stacAssets[0] || !stacAssetFormat) {
+          setStacAssets([name]);
+          setStacAssetFormat(format ?? editingDataSource?.assetFormats?.[name]);
+          setStacBandLabels(null);
+          void runStacDetect([name]);
+        }
+      } else if (decision.kind === 'choose') {
+        setStacAssets([]);
+        setStacAssetFormat(undefined);
+        setStacBandLabels(null);
+        setIsAssetSelectOpen(true);
+      }
     } catch (e) {
-      toast({ title: 'Could not read STAC items', description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
+      if (requestId !== assetDiscoveryRequest.current) return;
+      toast({ title: 'Could not read STAC items', description: `${e instanceof Error ? e.message : String(e)}${automatic ? ' Use manual entry to type the asset name.' : ''}`, variant: 'destructive' });
     } finally {
-      setIsListingAssets(false);
+      if (requestId === assetDiscoveryRequest.current) setIsListingAssets(false);
     }
   };
 
@@ -832,7 +861,7 @@ const DataSourceForm = ({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <div className="flex h-5 items-center gap-1">
-              <Label htmlFor={`${idPrefix}StacAsset`}>Asset name</Label>
+              <Label htmlFor={`${idPrefix}StacAsset`}>Asset name <span className="text-destructive">*</span></Label>
               <TooltipProvider delayDuration={400}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -879,6 +908,8 @@ const DataSourceForm = ({
               />
             ) : discoveredAssets ? (
               <Select
+                open={isAssetSelectOpen}
+                onOpenChange={setIsAssetSelectOpen}
                 value={selectedAsset ?? ''}
                 onValueChange={(name) => {
                   const choice = discoveredAssets.find((asset) => asset.name === name);
@@ -906,7 +937,7 @@ const DataSourceForm = ({
                 variant="outline"
                 className="w-full justify-start font-normal"
                 disabled={!directUrl.trim() || isListingAssets}
-                onClick={() => void discoverStacAssets()}
+                onClick={() => void discoverStacAssets(false)}
               >
                 {isListingAssets ? 'Finding assets…' : selectedAsset || 'Browse assets from the first item…'}
               </Button>
@@ -938,7 +969,7 @@ const DataSourceForm = ({
               size="sm"
               className="h-7 gap-1 px-2 text-xs"
               disabled={!directUrl.trim() || isListingAssets}
-              onClick={() => void discoverStacAssets()}
+              onClick={() => void discoverStacAssets(false)}
             >
               <RefreshCw className={cn('h-3 w-3', isListingAssets && 'animate-spin')} />
               Rescan collection
