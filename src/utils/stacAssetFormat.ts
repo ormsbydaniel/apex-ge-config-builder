@@ -2,7 +2,8 @@
  * STAC data sources only store an items/collection URL plus optional asset
  * names. These helpers detect the asset's real format from one sample item,
  * so format-dependent tools (COG, vector, CSV) can be gated on it.
- * Single renderable asset per STAC data source: the first named asset wins.
+ * The current editor exposes one asset, while the saved contract can describe
+ * multiple assets and their formats by name.
  */
 import { appendQueryParam, detectAssetFormat, extractBandLabels, resolveAssetUrl, type StacAsset } from '@/utils/stacUtils';
 import type { DataSourceItem } from '@/types/config';
@@ -18,10 +19,29 @@ export interface StacSample {
   assetName?: string;
 }
 
-/** Format used for feature gating: the detected asset format for STAC sources. */
-export function getEffectiveFormat(item: Pick<DataSourceItem, 'format'> & { assetFormat?: string }): string {
-  if (item.format === 'stac') return item.assetFormat || 'stac';
+/** Format used for feature gating: the selected asset's mapped format for STAC sources. */
+export function getEffectiveFormat(
+  item: Pick<DataSourceItem, 'format' | 'assets' | 'assetFormats'>,
+  assetName?: string,
+): string {
+  if (item.format === 'stac') {
+    const name = assetName ?? item.assets?.[0];
+    return (name ? item.assetFormats?.[name] : undefined) || 'stac';
+  }
   return item.format;
+}
+
+/** Returns a new format map with one named entry set or removed. */
+export function updateStacAssetFormatMap(
+  current: DataSourceItem['assetFormats'] | undefined,
+  assetName: string | undefined,
+  format: StacAssetFormat | undefined,
+): DataSourceItem['assetFormats'] | undefined {
+  if (!assetName) return current;
+  const next = { ...current };
+  if (format) next[assetName] = format;
+  else delete next[assetName];
+  return Object.keys(next).length > 0 ? next : undefined;
 }
 
 type FetchLike = (url: string, init?: RequestInit) => Promise<{ ok: boolean; status?: number; json: () => Promise<any> }>;

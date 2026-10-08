@@ -174,7 +174,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
 
       {url.trim() && (
         <div className="space-y-1">
-          <Label>Formulated URL</Label>
+          <Label className="text-muted-foreground">Formulated URL</Label>
           <p className="overflow-hidden break-all text-xs text-muted-foreground">{url}</p>
         </div>
       )}
