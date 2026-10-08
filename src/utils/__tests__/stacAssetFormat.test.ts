@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getEffectiveFormat, listStacAssets, sampleStacAsset, updateStacAssetFormatMap } from '@/utils/stacAssetFormat';
+import { getEffectiveFormat, listStacAssets, resolveDataSourceInspectionAccess, sampleStacAsset, updateStacAssetFormatMap } from '@/utils/stacAssetFormat';
 import { DataSourceItemSchema } from '@/schemas/configSchema';
 
 const fakeFetch = (routes: Record<string, any>) => async (url: string) => {
@@ -86,6 +86,52 @@ describe('STAC asset format', () => {
       'visual',
       undefined,
     )).toEqual({ data: 'flatgeobuf' });
+  });
+
+  it('passes direct source access through unchanged', async () => {
+    await expect(resolveDataSourceInspectionAccess({
+      format: 'cog',
+      url: 'https://x.test/direct.tif',
+    })).resolves.toEqual({ format: 'cog', url: 'https://x.test/direct.tif' });
+  });
+
+  it('resolves a STAC source to its selected sample asset without changing its mapped format', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = fakeFetch({
+      'https://inspection.test/items': { features: [{ assets: { data: { href: 'https://inspection.test/data.fgb' } } }] },
+    }) as unknown as typeof fetch;
+    try {
+      await expect(resolveDataSourceInspectionAccess({
+        format: 'stac',
+        url: 'https://inspection.test/items',
+        assets: ['data'],
+        assetFormats: { data: 'flatgeobuf' },
+      })).resolves.toEqual({ format: 'flatgeobuf', url: 'https://inspection.test/data.fgb' });
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('returns unavailable access for incomplete or unresolvable STAC sources', async () => {
+    await expect(resolveDataSourceInspectionAccess({ format: 'stac' })).resolves.toBeNull();
+    await expect(resolveDataSourceInspectionAccess({
+      format: 'stac', url: 'https://x.test/items', assets: ['data'],
+    })).resolves.toBeNull();
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = fakeFetch({
+      'https://unresolved.test/items': { features: [{ assets: { data: { title: 'No href' } } }] },
+    }) as unknown as typeof fetch;
+    try {
+      await expect(resolveDataSourceInspectionAccess({
+        format: 'stac',
+        url: 'https://unresolved.test/items',
+        assets: ['data'],
+        assetFormats: { data: 'geojson' },
+      })).resolves.toBeNull();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 });
 

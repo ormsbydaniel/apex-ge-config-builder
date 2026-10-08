@@ -38,6 +38,7 @@
 ## STAC asset formats
 - [x] Phase 1–2: name-keyed `assetFormats` map with detection and manual selection
 - [x] Replace the duplicated asset-name controls with one discovery-first selector, manual entry, rescan, and format override
+- [x] Add shared in-memory inspection access and refine the row badge to show the asset format
 - [ ] Phase 3: gate COG/vector tools on effective format and use in-memory sample URL
 
 ## STAC item queries

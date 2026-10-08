@@ -31,6 +31,28 @@ export function getEffectiveFormat(
   return item.format;
 }
 
+export interface DataSourceInspectionAccess {
+  format: string;
+  url: string;
+}
+
+/**
+ * Resolves the URL and format a format-specific inspection tool should use.
+ * STAC asset hrefs are deliberately returned only in memory and must never be
+ * copied onto the saved data-source item.
+ */
+export async function resolveDataSourceInspectionAccess(
+  item: Pick<DataSourceItem, 'format' | 'url' | 'assets' | 'assetFormats'>,
+): Promise<DataSourceInspectionAccess | null> {
+  if (!item.url) return null;
+  const format = getEffectiveFormat(item);
+  if (item.format !== 'stac') return format ? { format, url: item.url } : null;
+  if (format === 'stac') return null;
+
+  const sample = await getStacSample(item.url, item.assets);
+  return sample.sampleUrl ? { format, url: sample.sampleUrl } : null;
+}
+
 /** Returns a new format map with one named entry set or removed. */
 export function updateStacAssetFormatMap(
   current: DataSourceItem['assetFormats'] | undefined,

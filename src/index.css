@@ -25,6 +25,10 @@
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
+    --asset-badge: 210 60% 96%;
+    --asset-badge-foreground: 213 55% 38%;
+    --asset-badge-border: 211 45% 82%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
@@ -72,6 +76,10 @@
 
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
+
+    --asset-badge: 215 34% 20%;
+    --asset-badge-foreground: 210 45% 78%;
+    --asset-badge-border: 213 30% 38%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
