@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getEffectiveFormat, sampleStacAsset } from '@/utils/stacAssetFormat';
+import { getEffectiveFormat, listStacAssets, sampleStacAsset } from '@/utils/stacAssetFormat';
 import { DataSourceItemSchema } from '@/schemas/configSchema';
 
 const fakeFetch = (routes: Record<string, any>) => async (url: string) => {
@@ -30,6 +30,35 @@ describe('STAC asset format', () => {
       'https://x.test/items': { features: [{ assets: { data: { href: 'https://x.test/f.fgb' } } }] },
     }));
     expect(res.format).toBe('flatgeobuf');
+  });
+
+  it('lists asset names with detected formats from an items endpoint', async () => {
+    const assets = await listStacAssets('https://x.test/items', fakeFetch({
+      'https://x.test/items': { features: [{ assets: {
+        visual: { href: 'https://x.test/v.tif', type: 'image/tiff; application=geotiff', title: 'True colour' },
+        data: { href: 'https://x.test/f.fgb' },
+        thumb: { href: 't.png', type: 'image/png' },
+      } }] },
+    }));
+    expect(assets).toEqual([
+      { name: 'visual', title: 'True colour', format: 'cog' },
+      { name: 'data', title: undefined, format: 'flatgeobuf' },
+      { name: 'thumb', title: undefined, format: undefined },
+    ]);
+  });
+
+  it('lists collection-level assets for static collections', async () => {
+    const assets = await listStacAssets('https://x.test/collection.json', fakeFetch({
+      'https://x.test/collection.json': { assets: { csv: { href: 'data.csv' } } },
+    }));
+    expect(assets).toEqual([{ name: 'csv', title: undefined, format: 'csv' }]);
+  });
+
+  it('returns an empty list when the first item has no assets', async () => {
+    const assets = await listStacAssets('https://x.test/items', fakeFetch({
+      'https://x.test/items': { features: [{ properties: {} }] },
+    }));
+    expect(assets).toEqual([]);
   });
 
   it('keeps assetFormat through validation', () => {

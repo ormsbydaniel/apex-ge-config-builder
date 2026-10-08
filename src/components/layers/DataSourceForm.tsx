@@ -14,7 +14,7 @@ import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } f
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
 import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
-import { sampleStacAsset, STAC_ASSET_FORMATS, type StacAssetFormat } from '@/utils/stacAssetFormat';
+import { listStacAssets, sampleStacAsset, STAC_ASSET_FORMATS, type StacAssetChoice, type StacAssetFormat } from '@/utils/stacAssetFormat';
 
 
 import { useServices } from '@/hooks/useServices';
@@ -103,6 +103,8 @@ const DataSourceForm = ({
   const [stacAssets, setStacAssets] = useState<string[]>(editingDataSource?.assets || []);
   const [stacAssetFormat, setStacAssetFormat] = useState<StacAssetFormat | undefined>(editingDataSource?.assetFormat);
   const [isDetectingStac, setIsDetectingStac] = useState(false);
+  const [discoveredAssets, setDiscoveredAssets] = useState<StacAssetChoice[] | null>(null);
+  const [isListingAssets, setIsListingAssets] = useState(false);
   const [newStacAsset, setNewStacAsset] = useState('');
   const [minZoom, setMinZoom] = useState<number | undefined>(editingDataSource?.minZoom);
   const [maxZoom, setMaxZoom] = useState<number | undefined>(editingDataSource?.maxZoom);
@@ -225,6 +227,11 @@ const DataSourceForm = ({
       setIsDirty(false);
     }
   }, [editingDataSource, layerType]);
+
+  // Clear discovered STAC assets when the URL changes so stale names aren't offered
+  useEffect(() => {
+    setDiscoveredAssets(null);
+  }, [directUrl]);
 
   // Track dirty state and update ConfigContext
   useEffect(() => {
@@ -745,6 +752,25 @@ const DataSourceForm = ({
     onCancel();
   };
 
+  // Shared STAC detection: fills asset format and band labels from the first item.
+  const runStacDetect = async (assetNames: string[]) => {
+    setIsDetectingStac(true);
+    try {
+      const sample = await sampleStacAsset(directUrl.trim(), assetNames);
+      if (sample.format) {
+        setStacAssetFormat(sample.format);
+        if (sample.bandLabels?.length) setStacBandLabels(sample.bandLabels);
+        toast({ title: 'Asset format detected', description: `${sample.assetName ?? 'Asset'}: ${FORMAT_CONFIGS[sample.format]?.label ?? sample.format}` });
+      } else {
+        toast({ title: 'Format not recognised', description: 'Choose the asset format manually.', variant: 'destructive' });
+      }
+    } catch (e) {
+      toast({ title: 'Could not read STAC items', description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
+    } finally {
+      setIsDetectingStac(false);
+    }
+  };
+
   const renderStacOptions = (idPrefix: string) => {
     if (selectedFormat !== 'stac') return null;
 
@@ -797,6 +823,51 @@ const DataSourceForm = ({
             </div>
           )}
           <p className="text-xs text-muted-foreground">Optional asset names advertised by the collection.</p>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!directUrl.trim() || isListingAssets}
+              onClick={async () => {
+                setIsListingAssets(true);
+                try {
+                  const assets = await listStacAssets(directUrl.trim());
+                  if (assets.length === 0) {
+                    toast({ title: 'No assets found', description: 'The first item does not advertise any assets.', variant: 'destructive' });
+                  } else {
+                    setDiscoveredAssets(assets);
+                  }
+                } catch (e) {
+                  toast({ title: 'Could not read STAC items', description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
+                } finally {
+                  setIsListingAssets(false);
+                }
+              }}
+            >
+              {isListingAssets ? 'Listing…' : 'List assets'}
+            </Button>
+            {discoveredAssets && discoveredAssets.length > 0 && (
+              <Select
+                value={stacAssets[0] ?? ''}
+                onValueChange={(name) => {
+                  setStacAssets([name]);
+                  runStacDetect([name]);
+                }}
+              >
+                <SelectTrigger className="flex-1" aria-label="Discovered assets">
+                  <SelectValue placeholder="Pick an asset…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {discoveredAssets.map((asset) => (
+                    <SelectItem key={asset.name} value={asset.name}>
+                      {asset.name}
+                      {asset.format ? ` — ${FORMAT_CONFIGS[asset.format]?.label ?? asset.format.toUpperCase()}` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}StacAssetFormat`}>Asset format</Label>
@@ -817,23 +888,7 @@ const DataSourceForm = ({
               type="button"
               variant="outline"
               disabled={!directUrl.trim() || isDetectingStac}
-              onClick={async () => {
-                setIsDetectingStac(true);
-                try {
-                  const sample = await sampleStacAsset(directUrl.trim(), stacAssets);
-                  if (sample.format) {
-                    setStacAssetFormat(sample.format);
-                    if (sample.bandLabels?.length) setStacBandLabels(sample.bandLabels);
-                    toast({ title: 'Asset format detected', description: `${sample.assetName ?? 'Asset'}: ${FORMAT_CONFIGS[sample.format]?.label ?? sample.format}` });
-                  } else {
-                    toast({ title: 'Format not recognised', description: 'Choose the asset format manually.', variant: 'destructive' });
-                  }
-                } catch (e) {
-                  toast({ title: 'Could not read STAC items', description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
-                } finally {
-                  setIsDetectingStac(false);
-                }
-              }}
+              onClick={() => runStacDetect(stacAssets)}
             >
               {isDetectingStac ? 'Detecting…' : 'Detect'}
             </Button>
