@@ -90,16 +90,21 @@ const DataSourceItem = ({
     }
   };
 
-  const getDisplayName = () => {
+  const getDisplayName = (truncate: boolean = true) => {
     const format = dataSource.format?.toLowerCase() || '';
-    
+
+    // STAC rows show the item ID (single item) or the collection's items path
+    if (format === 'stac') {
+      return extractStacDisplayName(dataSource.url || '', truncate);
+    }
+
     // For web services, try to get the layers parameter
     if (['wms', 'wmts', 'wfs'].includes(format)) {
       if (dataSource.layers) {
-        return dataSource.layers;
+        return truncateDisplayName(dataSource.layers, truncate ? DISPLAY_NAME_MAX_LENGTH : Infinity);
       }
     }
-    
+
     // For XYZ services, get the domain
     if (format === 'xyz' && dataSource.url) {
       try {
@@ -109,9 +114,9 @@ const DataSourceItem = ({
         // Fall back to extractDisplayName if URL parsing fails
       }
     }
-    
+
     // For all other cases, use the existing utility
-    return extractDisplayName(dataSource.url || '', dataSource.format || '');
+    return extractDisplayName(dataSource.url || '', dataSource.format || '', truncate);
   };
 
   const getZIndex = () => {
