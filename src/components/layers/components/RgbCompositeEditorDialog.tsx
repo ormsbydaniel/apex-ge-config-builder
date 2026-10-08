@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
 import {
-  applyToScope, cogIndices, datasetLabel, firstCogIndex,
+  applyToScope, cogIndices, datasetLabel, firstCogIndex, isCog,
 } from '@/utils/rgbComposite/perDataset';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -40,6 +40,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import { applyCompositeStyle, applyIndexStyle, applyComputedStyle, visualisationName } from '@/utils/rgbComposite/styleScope';
 import { COMPUTED_NAME, COMPUTED_DESCRIPTION, COMPUTED_ROLES, resolveComputedBands, type ComputedCompositeConfig } from '@/utils/rgbComposite/computed';
 import IndexStopsEditor from './IndexStopsEditor';
+import { resolveDataSourceInspectionAccess } from '@/utils/stacAssetFormat';
 
 interface RgbCompositeEditorDialogProps {
   open: boolean;
@@ -181,7 +182,7 @@ export function RgbCompositeEditorDialog({
     const fromMeta = (source.meta as any)?.bandLabels as string[] | undefined;
     if (fromMeta && fromMeta.some(Boolean)) return fromMeta;
     const fromItem = (source.data || []).find(
-      (d: DataSourceItem) => d.format === 'cog' && d.bandLabels?.some(Boolean),
+      (d: DataSourceItem) => isCog(d) && d.bandLabels?.some(Boolean),
     )?.bandLabels;
     return fromItem;
   }, [source.meta, source.data]);
@@ -219,12 +220,33 @@ export function RgbCompositeEditorDialog({
   };
 
 
-  // URL of the COG being edited (drives band count, noData and histograms)
-  const firstCogUrl = useMemo(() => {
-    const item = source.data?.[scope];
-    if (item?.format === 'cog') return item.url;
-    return (source.data || []).find((d: DataSourceItem) => d.format === 'cog')?.url;
-  }, [source.data, scope]);
+  // Inspection URLs are resolved in memory. For STAC these are sample asset
+  // hrefs and must never be copied back into the saved data item.
+  const [inspectionUrls, setInspectionUrls] = useState<Record<number, string>>({});
+  const [inspectionResolving, setInspectionResolving] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    const data = source.data || [];
+    const indices = cogIndices(data);
+    setInspectionResolving(true);
+    void Promise.all(indices.map(async (index) => {
+      try {
+        const access = await resolveDataSourceInspectionAccess(data[index]);
+        return access?.format === 'cog' ? [index, access.url] as const : null;
+      } catch {
+        return null;
+      }
+    })).then((resolved) => {
+      if (cancelled) return;
+      setInspectionUrls(Object.fromEntries(resolved.filter((entry): entry is readonly [number, string] => entry !== null)));
+      setInspectionResolving(false);
+    });
+    return () => { cancelled = true; };
+  }, [open, source.data]);
+
+  // URL of the COG asset being edited (drives band count, noData and histograms).
+  const firstCogUrl = inspectionUrls[isCog(source.data?.[scope] as DataSourceItem) ? scope : firstIdx];
 
   const inFlightRef = React.useRef<Set<number>>(new Set());
   const metadataReadyUrlRef = React.useRef<string | undefined>(undefined);
@@ -234,8 +256,8 @@ export function RgbCompositeEditorDialog({
   /** Load the editor state from one data item. */
   const loadFromItem = (item: DataSourceItem | undefined, setInitialView: boolean) => {
     const rgbItem = item?.convertToRGB === true ? item : undefined;
-    const indexItem = item?.format === 'cog' && item?.spectralIndex ? item : undefined;
-    const computedItem = item?.format === 'cog' ? item.computedComposite : undefined;
+    const indexItem = item && isCog(item) && item.spectralIndex ? item : undefined;
+    const computedItem = item && isCog(item) ? item.computedComposite : undefined;
     const hasExisting = !!rgbItem || !!indexItem || !!computedItem;
     if (setInitialView) setView(hasExisting ? 'editor' : 'gallery');
     setHomeTab(computedItem ? 'computed' : indexItem ? 'index' : 'rgb');
@@ -407,7 +429,7 @@ export function RgbCompositeEditorDialog({
         return updated;
       };
     }
-    const effectiveScope = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
+    const effectiveScope = data[scope] && isCog(data[scope]) ? scope : firstCogIndex(data);
     if (mode === 'rgb') {
       // Batch stretch writes its own per-item styles immediately; saving without
       // further edits must not turn a batch dataset into an own-style override.
@@ -434,7 +456,7 @@ export function RgbCompositeEditorDialog({
   useEffect(() => {
     if (!commitStyle) return;
     const data = source.data || [];
-    const target = data[scope]?.format === 'cog' ? scope : firstCogIndex(data);
+    const target = data[scope] && isCog(data[scope]) ? scope : firstCogIndex(data);
     const all = commitStyle === 'all';
     if (mode === 'computed') {
       if (!computedReady) return;
@@ -479,9 +501,10 @@ export function RgbCompositeEditorDialog({
     if (!method || !allChannelsSet) return;
     const data = source.data || [];
     const targets = cogIdx.filter((i) => (i === scope && mode === 'rgb') || (data[i].convertToRGB && !data[i].spectralIndex))
-      .map((i) => ({ index: i, url: data[i].url as string,
+      .map((i) => ({ index: i, url: inspectionUrls[i],
         bands: i === scope ? selectedBands as number[] : (data[i].bands?.slice(0, 3) ?? []) }));
-    const validTargets = targets.filter((t) => t.bands.length === 3 && t.bands.every((b) => typeof b === 'number'));
+    const unavailable = targets.filter((t) => !t.url).length;
+    const validTargets = targets.filter((t): t is typeof t & { url: string } => !!t.url && t.bands.length === 3 && t.bands.every((b) => typeof b === 'number'));
     batchAbortRef.current?.abort();
     const ctrl = new AbortController();
     batchAbortRef.current = ctrl;
@@ -516,7 +539,7 @@ export function RgbCompositeEditorDialog({
     if (ctrl.signal.aborted || batchAbortRef.current !== ctrl) return;
     setBatchProgress(null);
     const byIndex = new Map(results.map((r) => [r.index, r]));
-    const failed = results.filter((r) => r.error).length;
+    const failed = results.filter((r) => r.error).length + unavailable;
     const next = data.map((d, i) => {
       const r = byIndex.get(i);
       if (!r?.ranges) return d;
@@ -547,7 +570,7 @@ export function RgbCompositeEditorDialog({
     const methodName = STRETCH_METHODS.find((m) => m.id === method)?.shortName ?? method;
     const CHANNEL_NAMES = ['red', 'green', 'blue'];
     const methodLabel = channel == null ? methodName : `${methodName} on ${CHANNEL_NAMES[channel]} channel`;
-    const applied = results.length - failed;
+    const applied = results.filter((r) => !r.error).length;
     setBatchMessage({
       text: `${methodLabel} applied to ${applied} ${applied === 1 ? 'dataset' : 'datasets'}` +
         (failed ? ` · ${failed} failed and left unchanged` : ''),
@@ -1005,7 +1028,7 @@ export function RgbCompositeEditorDialog({
             <CompositeGallery
               bandCount={cogBandCount}
               bandLabels={bandLabels}
-              loading={loading}
+              loading={loading || inspectionResolving}
               activeTab={homeTab}
               onTabChange={setHomeTab}
               onPick={handleGalleryPick}
@@ -1014,7 +1037,7 @@ export function RgbCompositeEditorDialog({
               showComputed={appSettings.showExperimentalFeatures || (source.data || []).some((d: any) => d?.computedComposite)}
             />
           </ScrollArea>
-        ) : loading ? (
+        ) : loading || inspectionResolving ? (
           <div className="flex-1 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading band information…
           </div>
