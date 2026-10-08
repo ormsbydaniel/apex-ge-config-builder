@@ -4,6 +4,9 @@ import { probeCogPerformance } from '@/utils/cogPerformanceProbe';
 import { probeServiceCapabilitiesPerformance } from '@/utils/serviceCapabilitiesPerformanceProbe';
 import { probeTileRequest } from '@/utils/serviceTileProbe';
 import { checkMixedContent } from '@/utils/transportSecurityProbe';
+import { getEffectiveFormat, getStacSample, listStacAssets } from '@/utils/stacAssetFormat';
+
+type StacFields = Pick<DataSourceItem, 'assets' | 'assetFormats'>;
 
 /** Threshold for flagging GeoJSON files as a performance warning. */
 const GEOJSON_PERF_WARNING_BYTES = 5 * 1024 * 1024;
@@ -24,7 +27,8 @@ async function validateUrl(
   url: string, 
   type: 'data' | 'statistics',
   format?: string,
-  layers?: string
+  layers?: string,
+  stac?: StacFields
 ): Promise<UrlValidationResult> {
   const result: UrlValidationResult = {
     url,
@@ -45,7 +49,82 @@ async function validateUrl(
       return await validateServiceUrl(url, type, format, layers);
     }
 
-    // For direct file URLs (COG, GeoJSON, FlatGeobuf, etc.)
+    if (format === 'stac') {
+      return await validateStacUrl(url, type, stac);
+    }
+
+    return await validateDirectFile(url, type, format);
+  } catch (error) {
+    if (error instanceof Error) {
+      result.status = 'error';
+      result.error = error.message;
+    } else {
+      result.status = 'error';
+      result.error = 'Unknown error occurred';
+    }
+    return result;
+  }
+}
+
+/**
+ * Validates a STAC dataset: endpoint reachable, first item has the chosen
+ * asset, and the asset file passes the direct checks for its mapped format.
+ * The sample asset href is used only in memory; results report the saved URL.
+ */
+async function validateStacUrl(
+  url: string,
+  type: 'data' | 'statistics',
+  stac?: StacFields
+): Promise<UrlValidationResult> {
+  const endpoint = await validateDirectUrl(url, type);
+  endpoint.format = 'stac';
+  if (endpoint.status !== 'valid') return endpoint;
+
+  const assetName = stac?.assets?.[0];
+  const assetFormat = getEffectiveFormat({ format: 'stac', ...stac });
+  if (!assetName || assetFormat === 'stac') {
+    return {
+      ...endpoint,
+      status: 'performance-warning',
+      warning: 'No asset name or format set — open the dataset and select an asset so it can be checked',
+    };
+  }
+
+  const sample = await getStacSample(url, stac?.assets);
+  if (!sample.assetName && !sample.sampleUrl) {
+    let found: string[] = [];
+    try { found = (await listStacAssets(url)).map(a => a.name); } catch { /* ignore */ }
+    const error = found.length === 0
+      ? 'STAC endpoint returned no items or assets'
+      : `Asset "${assetName}" not found on the first item (found: ${found.join(', ')})`;
+    return { ...endpoint, status: 'error', error };
+  }
+  if (!sample.sampleUrl) {
+    return { ...endpoint, status: 'error', error: `Asset "${assetName}" has no file link on the first item` };
+  }
+
+  const assetResult = await validateDirectFile(sample.sampleUrl, type, assetFormat);
+  const note = `Checked asset ${assetName} (${assetFormat})`;
+  return {
+    url,
+    type,
+    format: 'stac',
+    status: assetResult.status,
+    statusCode: assetResult.statusCode,
+    validationType: assetResult.validationType,
+    bytes: assetResult.bytes,
+    error: assetResult.error ? `${note}: ${assetResult.error}` : undefined,
+    warning: assetResult.warning ? `${note}: ${assetResult.warning}` : undefined,
+  };
+}
+
+/** Direct file checks: reachability plus format-specific performance probes. */
+async function validateDirectFile(
+  url: string,
+  type: 'data' | 'statistics',
+  format?: string
+): Promise<UrlValidationResult> {
+  {
     const directResult = await validateDirectUrl(url, type);
 
     // GeoJSON-only performance check: layered on top of reachability,
@@ -84,16 +163,6 @@ async function validateUrl(
     }
 
     return directResult;
-    
-  } catch (error) {
-    if (error instanceof Error) {
-      result.status = 'error';
-      result.error = error.message;
-    } else {
-      result.status = 'error';
-      result.error = 'Unknown error occurred';
-    }
-    return result;
   }
 }
 
@@ -464,7 +533,8 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
           urlToValidate,
           'data',
           dataItem.format,
-          dataItem.layers
+          dataItem.layers,
+          { assets: dataItem.assets, assetFormats: dataItem.assetFormats }
         );
         
         // Mark if this was a service lookup
@@ -492,7 +562,8 @@ export async function validateLayerUrls(layer: DataSource, services?: any[]): Pr
           urlToValidate,
           'statistics',
           statsItem.format,
-          statsItem.layers
+          statsItem.layers,
+          { assets: (statsItem as any).assets, assetFormats: (statsItem as any).assetFormats }
         );
         
         // Mark if this was a service lookup
