@@ -279,10 +279,6 @@ export const DataSourceItemSchema = z.object({
   {
     message: "Either 'url' or 'images' array must be provided",
   }
-).refine(
-  // STAC sources must name at least one asset; other formats leave `assets` optional
-  (data) => data.format !== 'stac' || (Array.isArray(data.assets) && data.assets.some((name) => name.trim() !== '')),
-  { message: "STAC data sources require at least one asset name", path: ['assets'] }
 );
 
 // Simplified - data field is always an array of DataSourceItems
