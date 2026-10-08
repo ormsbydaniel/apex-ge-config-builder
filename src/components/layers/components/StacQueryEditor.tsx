@@ -39,7 +39,14 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
     setStart(toDateTimeLocalValue(parsed.datetimeStart));
     setEnd(toDateTimeLocalValue(parsed.datetimeEnd));
     setLimit(parsed.limit ? String(parsed.limit) : '');
-    setTarget(null);
+    try {
+      const pathname = new URL(url).pathname;
+      if (/\/items\/[^/?#]+\/?$/.test(pathname)) setTarget({ kind: 'item' });
+      else if (/\/items\/?$/.test(pathname)) setTarget({ kind: 'items', itemsUrl: url });
+      else setTarget(null);
+    } catch {
+      setTarget(null);
+    }
     setTargetError(undefined);
   }, [url]);
 
@@ -96,6 +103,11 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
         <CollapsibleContent className="space-y-4 border-t p-3">
           {isInspecting && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Checking this STAC source…</p>}
           {targetError && <p className="text-sm text-destructive">{targetError}</p>}
+          {!target && !isInspecting && (
+            <Button type="button" variant="outline" size="sm" disabled={!url.trim()} onClick={() => void inspect()}>
+              Check source
+            </Button>
+          )}
           {target?.kind === 'item' && <p className="text-sm text-muted-foreground">Filters do not apply to a single fixed item.</p>}
           {target?.kind === 'static' && <p className="text-sm text-muted-foreground">This source does not advertise an items endpoint for server-side filtering.</p>}
           {target?.kind === 'items' && (

@@ -26,7 +26,7 @@ describe('STAC core query URLs', () => {
   });
 
   it('resolves a collection through its advertised items link', async () => {
-    await expect(inspectStacQueryTarget('https://x.test/collection', fakeFetch({ links: [{ rel: 'items', href: './collection/items?token=a' }] })))
+    await expect(inspectStacQueryTarget('https://x.test/collection', fakeFetch({ links: [{ rel: 'items', href: './items?token=a' }] })))
       .resolves.toEqual({ kind: 'items', itemsUrl: 'https://x.test/collection/items?token=a' });
   });
 
