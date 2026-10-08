@@ -1,15 +1,20 @@
-# STAC row display name refinements on layer cards
+# Layer card display name refinements
 
 ## Goal
 
-Two refinements to how STAC data source rows on layer cards show their name:
+Refinements to how data source rows on layer cards show their name:
 
-1. **Long single-item names truncated.** A STAC source pointing at a single item
-   (`.../collections/{name}/items/{id}`) shows the item ID truncated to the first
-   80 characters followed by `…`. The tooltip shows the full, untruncated item ID.
+1. **Long single-item STAC names truncated.** A STAC source pointing at a single
+   item (`.../collections/{name}/items/{id}`) shows the item ID truncated to the
+   first 80 characters followed by `…`. The tooltip shows the full, untruncated
+   item ID.
 2. **Items list endpoints show the collection name.** A STAC source pointing at
    an items list endpoint (`.../collections/{name}/items`, with or without query
    parameters) displays `{name}/items` instead of the bare `items` it shows today.
+3. **Same truncation rule for all formats.** COG, GeoTIFF, vector and default
+   filenames (and the XYZ hostname path) get the same 80-character cap with `…`,
+   so a very long COG file name no longer makes the row spill over. The tooltip
+   shows the full untruncated name in every case.
 
 ## Current behaviour (verified)
 
@@ -22,7 +27,13 @@ Two refinements to how STAC data source rows on layer cards show their name:
 
 ## Implementation
 
-### 1. New helper in `src/utils/urlDisplay.ts`
+### 1. Shared truncation helper in `src/utils/urlDisplay.ts`
+
+- Add `truncateDisplayName(name: string, maxLength = 80): string` — returns the
+  name unchanged when it fits, otherwise the first 80 characters plus `…`.
+- Export a `DISPLAY_NAME_MAX_LENGTH = 80` constant for the cap.
+
+### 2. STAC-aware helper in `src/utils/urlDisplay.ts`
 
 Add `extractStacDisplayName(url: string): string`:
 
@@ -30,39 +41,45 @@ Add `extractStacDisplayName(url: string): string`:
 - If the path ends with `/items` (list endpoint): return the preceding
   `collections` segment as `{collectionName}/items`. If no collection segment
   exists (e.g. `/items` at root), fall back to the last segment as today.
-- If the path ends with `/items/{id}` (single item): return the item ID; when the
-  ID exceeds 80 characters, return `id.slice(0, 80) + '…'`.
+- If the path ends with `/items/{id}` (single item): return the item ID through
+  `truncateDisplayName` (80-char cap).
 - Anything else (collection URLs, query-only endpoints, unparseable URLs): fall
   back to the existing `extractDisplayName` behaviour so nothing regresses.
-- Export a `STAC_ITEM_ID_MAX_LENGTH = 80` constant for the cap.
 
-### 2. `DataSourceItem.tsx`
+### 3. General truncation in `extractDisplayName`
 
-- In `getDisplayName()`, add a STAC branch: when
-  `format === 'stac'`, return `extractStacDisplayName(dataSource.url)`.
-- Tooltip: for STAC rows, show the **full untruncated display name**
-  (`extractStacDisplayName` without truncation — reuse the helper with a
-  `truncate` option or export a second untruncated variant) instead of the URL;
-  non-STAC rows keep the existing URL tooltip. The row already has a Copy URL
-  button, so the URL stays accessible.
+- Wrap each returned name — COG/GeoTIFF filename, WMS/WMTS layer or service name,
+  vector filename, default filename/hostname, and the catch-all fallback — in
+  `truncateDisplayName`, so every format gets the 80-char cap with `…`.
+- `truncateUrl` and `getUrlType` are untouched.
 
-### 3. Tests
+### 4. `DataSourceItem.tsx`
 
-- New `src/utils/__tests__/urlDisplay.test.ts` covering `extractStacDisplayName`:
-  - items list endpoint with and without query parameters → `{name}/items`
-  - single item with a long ID (>80 chars) → truncated with `…`
-  - single item with a short ID → full ID
-  - item URL not under `/collections` → last-segment fallback
-  - collection URL and unparseable URL → existing fallback behaviour
-- One component test (`DataSourceItem.stacName.test.tsx`): a STAC row with a long
-  item ID renders the truncated name and the tooltip carries the full ID; an
-  items-list row renders `{name}/items`.
+- In `getDisplayName()`, add a STAC branch: when `format === 'stac'`, return
+  `extractStacDisplayName(dataSource.url)`.
+- Tooltip: replace the URL-based tooltip with the **full untruncated display
+  name** for all formats (a new `extractFullDisplayName` or a `truncate: false`
+  option on the helpers), rendered with `break-all`. Non-truncated rows simply
+  show the same text in the tooltip as on the row. The row already has a Copy
+  URL button, so the URL stays accessible.
+
+### 5. Tests
+
+- New `src/utils/__tests__/urlDisplay.test.ts` covering:
+  - `extractStacDisplayName`: items list endpoint with and without query
+    parameters → `{name}/items`; single item with a long ID (>80 chars) →
+    truncated with `…`; short ID → full ID; item URL not under `/collections` →
+    last-segment fallback; collection URL and unparseable URL → fallback.
+  - `truncateDisplayName` / `extractDisplayName`: long COG filename truncated at
+    80 chars with `…`; short filenames unchanged; long vector and default-case
+    names truncated.
 
 ## Out of scope
 
 - No changes to saved configuration, schema, or types — display-only.
 - Other `extractDisplayName` consumers (constraints tab, URL display component)
-  are untouched; STAC is not used there today.
+  get the truncation automatically through the shared helper — no code changes
+  needed there.
 
 ## Verification
 
