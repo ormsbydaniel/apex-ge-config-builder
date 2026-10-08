@@ -228,8 +228,9 @@ const LayerFormHandler = ({
     }
     
     // Filter COG sources from the current layer's data for pixelValues chart support
+    // Includes STAC datasets whose selected asset is mapped as a COG
     const cogSources = (currentLayer.data || []).filter(
-      (d: any) => d.format === 'cog'
+      (d: any) => getEffectiveFormat(d) === 'cog'
     );
 
     // COG sources that carry timestamps — used for pixelTimeSeries chart support
