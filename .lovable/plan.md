@@ -38,3 +38,19 @@ No implementation is planned at this stage. Moving source definitions into dialo
 - Accessibility and nested-dialog risk: moderate.
 - Responsive layout risk: moderate, highest for charts.
 - Regression risk is lowest with a staged migration and focused add/edit/cancel tests for each source type.
+
+## STAC test reference
+
+No STAC implementation is included in this assessment. For future STAC dataset work, use the manifest entry `stac-datasets` (`test-configs/config-stac-datasets.json`) as the primary test configuration.
+
+The current fixture has been reviewed and includes:
+
+- collection URLs without explicit asset names;
+- item-list URLs with datetime, bounding-box, and limit query parameters;
+- direct single-item URLs;
+- explicit `data`, `PRODUCT`, and `cog` asset selections;
+- multiple STAC datasets in one swipe layer;
+- vector and multi-band raster comparisons against equivalent direct-file sources;
+- STAC-backed chart examples.
+
+The fixture currently omits `assetFormat`, so future work must test both legacy inference/detection and the later persisted-format path without assuming the field is already present.
