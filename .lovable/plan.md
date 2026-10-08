@@ -30,7 +30,7 @@ Example saved shape:
 2. **Centralise format resolution**
    - Add utility helpers that resolve a named asset’s format from `assetFormats`.
    - Make effective-format gating use the format mapped to the first selected asset, falling back to `stac` when that entry is absent.
-   - Keep sample asset URLs session-only; neither format property will store resolved or signed URLs.
+   - Keep sample asset URLs session-only; `assetFormats` stores formats only, never resolved or signed URLs.
 
 3. **Update the current one-asset editor**
    - When discovery, automatic detection, or manual override resolves the selected asset, save that value under its asset name in `assetFormats`.
