@@ -40,7 +40,7 @@ export const FORMAT_CONFIGS: Record<DataSourceFormat, FormatConfig> = {
   },
   flatgeobuf: {
     label: 'FlatGeoBuf',
-    urlPlaceholder: '/worldcover-stats-nuts.level00.fgb',
+    urlPlaceholder: 'https://example.com/data.fgb',
     layersPlaceholder: '',
     requiresLayers: false,
     supportsGetCapabilities: false,
