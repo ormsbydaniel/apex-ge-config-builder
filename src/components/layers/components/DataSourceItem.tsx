@@ -144,26 +144,6 @@ const DataSourceItem = ({
           {dataSource.format?.toUpperCase() || 'UNKNOWN'}
         </Badge>
 
-        {/* Asset name badges for STAC sources */}
-        {dataSource.format?.toLowerCase() === 'stac' && Array.isArray(dataSource.assets) && dataSource.assets.map((assetName) => {
-          const assetFormat = dataSource.assetFormats?.[assetName];
-          return (
-            <TooltipProvider key={assetName}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="outline" className="text-xs flex-shrink-0 max-w-[12rem]">
-                    <span className="truncate">{assetName}</span>
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs break-all">{assetFormat ? `${assetName} — ${assetFormat}` : assetName}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          );
-        })}
-
-        
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -178,7 +158,30 @@ const DataSourceItem = ({
         </TooltipProvider>
       </div>
 
-      <div className="flex items-center gap-1 flex-shrink-0 flex-wrap">
+      <div className="flex items-center gap-1 flex-shrink-0 flex-wrap" aria-label="Dataset metadata">
+        {/* Asset name badges for STAC sources */}
+        {dataSource.format?.toLowerCase() === 'stac' && Array.isArray(dataSource.assets) && dataSource.assets.map((assetName) => {
+          const assetFormat = dataSource.assetFormats?.[assetName];
+          const label = assetFormat ? `${assetName} (${assetFormat})` : assetName;
+          return (
+            <TooltipProvider key={assetName}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className="max-w-[12rem] flex-shrink-0 border-asset-badge-border bg-asset-badge text-xs text-asset-badge-foreground"
+                  >
+                    <span className="truncate">{label}</span>
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs break-all">{assetFormat ? `${assetName} — ${assetFormat}` : assetName}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+
         {/* Band count badge for COG files */}
         {isCog && cogBandLoading && (
           <span className="text-xs text-muted-foreground animate-pulse">bands…</span>
