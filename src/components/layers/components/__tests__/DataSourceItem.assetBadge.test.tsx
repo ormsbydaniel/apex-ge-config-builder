@@ -23,7 +23,7 @@ describe('DataSourceItem asset badges', () => {
     const metadata = screen.getByLabelText('Dataset metadata');
     const badge = screen.getByText('data (cog)');
     expect(metadata).toContainElement(badge);
-    expect(badge.closest('[class]')).toHaveClass('bg-asset-badge', 'text-asset-badge-foreground', 'border-asset-badge-border');
+    expect(badge.parentElement).toHaveClass('bg-asset-badge', 'text-asset-badge-foreground', 'border-asset-badge-border');
   });
 
   it('renders one badge per asset in order for multiple assets', () => {
