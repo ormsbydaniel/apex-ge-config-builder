@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+
 import { Save, X, Database, Globe, Server, CalendarIcon, ChevronLeft, ChevronRight, Pencil, RefreshCw } from 'lucide-react';
 import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
@@ -818,10 +820,10 @@ const DataSourceForm = ({
         : [];
 
     return (
-      <div className="space-y-4 border-t pt-4">
-        <StacQueryEditor url={directUrl} onChange={setDirectUrl} />
+      <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor={`${idPrefix}StacAsset`}>Asset</Label>
+          <Label htmlFor={`${idPrefix}StacAsset`}>Asset name</Label>
+
           {isEnteringStacAsset ? (
             <div className="flex gap-2">
               <Input
@@ -855,7 +857,7 @@ const DataSourceForm = ({
                 void runStacDetect([name]);
               }}
             >
-              <SelectTrigger id={`${idPrefix}StacAsset`} aria-label="Asset">
+              <SelectTrigger id={`${idPrefix}StacAsset`} aria-label="Asset name">
                 <SelectValue placeholder="Select an asset…" />
               </SelectTrigger>
               <SelectContent>
@@ -960,6 +962,8 @@ const DataSourceForm = ({
             <p className="text-xs text-muted-foreground">Use only when the advertised asset type is missing or incorrect.</p>
           </div>
         )}
+        <StacQueryEditor url={directUrl} onChange={setDirectUrl} />
+        <Separator />
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor={`${idPrefix}MinZoom`}>Minimum zoom</Label>
@@ -970,7 +974,24 @@ const DataSourceForm = ({
             <Input id={`${idPrefix}MaxZoom`} type="number" value={maxZoom ?? ''} onChange={(event) => setMaxZoom(event.target.value === '' ? undefined : Number(event.target.value))} min="0" autoComplete="off" />
           </div>
         </div>
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}StacZIndex`}>Z-Index</Label>
+          <Input
+            id={`${idPrefix}StacZIndex`}
+            name={`${idPrefix}StacZIndex`}
+            type="number"
+            value={zIndex}
+            onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
+            min="0"
+            max="200"
+            autoComplete="off"
+          />
+          <p className="text-xs text-muted-foreground">
+            Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+          </p>
+        </div>
       </div>
+
     );
   };
 
