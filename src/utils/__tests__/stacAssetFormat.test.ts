@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getEffectiveFormat, listStacAssets, sampleStacAsset } from '@/utils/stacAssetFormat';
+import { getEffectiveFormat, listStacAssets, sampleStacAsset, updateStacAssetFormatMap } from '@/utils/stacAssetFormat';
 import { DataSourceItemSchema } from '@/schemas/configSchema';
 
 const fakeFetch = (routes: Record<string, any>) => async (url: string) => {
@@ -8,10 +8,13 @@ const fakeFetch = (routes: Record<string, any>) => async (url: string) => {
 };
 
 describe('STAC asset format', () => {
-  it('uses assetFormat as the effective format for STAC sources', () => {
-    expect(getEffectiveFormat({ format: 'stac', assetFormat: 'cog' })).toBe('cog');
+  it('uses the selected asset mapping as the effective format for STAC sources', () => {
+    const item = { format: 'stac', assets: ['visual', 'data'], assetFormats: { visual: 'cog' as const, data: 'flatgeobuf' as const } };
+    expect(getEffectiveFormat(item)).toBe('cog');
+    expect(getEffectiveFormat(item, 'data')).toBe('flatgeobuf');
+    expect(getEffectiveFormat({ format: 'stac', assets: ['missing'], assetFormats: { visual: 'cog' } })).toBe('stac');
     expect(getEffectiveFormat({ format: 'stac' })).toBe('stac');
-    expect(getEffectiveFormat({ format: 'geojson', assetFormat: 'cog' })).toBe('geojson');
+    expect(getEffectiveFormat({ format: 'geojson', assets: ['visual'], assetFormats: { visual: 'cog' } })).toBe('geojson');
   });
 
   it('detects a COG asset from a collection items link', async () => {
@@ -61,7 +64,27 @@ describe('STAC asset format', () => {
     expect(assets).toEqual([]);
   });
 
-  it('keeps assetFormat through validation', () => {
-    expect(DataSourceItemSchema.parse({ url: 'https://x.test', format: 'stac', zIndex: 1, assetFormat: 'cog' }).assetFormat).toBe('cog');
+  it('keeps name-keyed assetFormats through validation', () => {
+    const parsed = DataSourceItemSchema.parse({
+      url: 'https://x.test',
+      format: 'stac',
+      zIndex: 1,
+      assets: ['visual', 'data'],
+      assetFormats: { visual: 'cog', data: 'flatgeobuf' },
+    });
+    expect(parsed.assetFormats).toEqual({ visual: 'cog', data: 'flatgeobuf' });
+  });
+
+  it('updates one mapped asset without removing other saved formats', () => {
+    expect(updateStacAssetFormatMap(
+      { visual: 'cog', data: 'flatgeobuf' },
+      'visual',
+      'xyz',
+    )).toEqual({ visual: 'xyz', data: 'flatgeobuf' });
+    expect(updateStacAssetFormatMap(
+      { visual: 'cog', data: 'flatgeobuf' },
+      'visual',
+      undefined,
+    )).toEqual({ data: 'flatgeobuf' });
   });
 });
