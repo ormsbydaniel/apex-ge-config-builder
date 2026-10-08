@@ -7,6 +7,7 @@
  * whose settings the "same as first" items follow.
  */
 import type { DataSourceItem } from '@/types/dataSource';
+import { getEffectiveFormat } from '@/utils/stacAssetFormat';
 import { computeStretch, type StretchMethod } from './recipes';
 
 export type StyleSource = 'first' | 'own' | 'batch';
@@ -14,7 +15,8 @@ export type StyleSource = 'first' | 'own' | 'batch';
 /** Fields that make up a multi-band visualisation on a data item. */
 const VIS_FIELDS = ['convertToRGB', 'bands', 'style', 'spectralIndex', 'computedComposite', 'normalize', 'styleSource', 'batchStretch'] as const;
 
-export const isCog = (d: DataSourceItem) => d.format === 'cog';
+/** Direct COGs and STAC data items whose selected asset is mapped as COG. */
+export const isCog = (d: DataSourceItem) => getEffectiveFormat(d) === 'cog';
 export const hasOwnSettings = (d: DataSourceItem) => d.styleSource === 'own';
 
 /** Index of the first COG item, or -1. */

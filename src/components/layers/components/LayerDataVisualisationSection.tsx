@@ -17,7 +17,7 @@ import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
 import VectorStyleSummary from '@/components/layers/components/VectorStyleSummary';
-import { countOwn, stripVisualisation } from '@/utils/rgbComposite/perDataset';
+import { countOwn, isCog, stripVisualisation } from '@/utils/rgbComposite/perDataset';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
@@ -35,8 +35,8 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   
   // Detect RGB composites from data source items
   const convertToRgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
-  const indexSources = (source.data || []).filter((d: DataSourceItem) => d.format === 'cog' && !!d.spectralIndex);
-  const computedSources = (source.data || []).filter((d: DataSourceItem) => d.format === 'cog' && !!d.computedComposite);
+  const indexSources = (source.data || []).filter((d: DataSourceItem) => isCog(d) && !!d.spectralIndex);
+  const computedSources = (source.data || []).filter((d: DataSourceItem) => isCog(d) && !!d.computedComposite);
   const convertToRgbCount = convertToRgbSources.length + indexSources.length + computedSources.length;
 
   const hasCategories = categories.length > 0;
@@ -245,7 +245,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             )}
             {hasRgbComposites && countOwn(source.data || []) > 0 && (
               <span className="text-[10px] text-muted-foreground italic">
-                {countOwn(source.data || [])} of {(source.data || []).filter((d) => d.format === 'cog').length} datasets with own settings
+                {countOwn(source.data || [])} of {(source.data || []).filter(isCog).length} datasets with own settings
               </span>
             )}
           </div>
