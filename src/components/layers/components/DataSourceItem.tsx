@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Copy, Trash2, Clock, Info, Edit, Layers } from 'lucide-react';
 import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import { BandSelectorDialog } from './BandSelectorDialog';
-import { extractDisplayName } from '@/utils/urlDisplay';
+import { extractDisplayName, extractStacDisplayName, truncateDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
 import CogMetadataDialog from './CogMetadataDialog';
@@ -90,16 +90,21 @@ const DataSourceItem = ({
     }
   };
 
-  const getDisplayName = () => {
+  const getDisplayName = (truncate: boolean = true) => {
     const format = dataSource.format?.toLowerCase() || '';
-    
+
+    // STAC rows show the item ID (single item) or the collection's items path
+    if (format === 'stac') {
+      return extractStacDisplayName(dataSource.url || '', truncate);
+    }
+
     // For web services, try to get the layers parameter
     if (['wms', 'wmts', 'wfs'].includes(format)) {
       if (dataSource.layers) {
-        return dataSource.layers;
+        return truncate ? truncateDisplayName(dataSource.layers) : dataSource.layers;
       }
     }
-    
+
     // For XYZ services, get the domain
     if (format === 'xyz' && dataSource.url) {
       try {
@@ -109,9 +114,9 @@ const DataSourceItem = ({
         // Fall back to extractDisplayName if URL parsing fails
       }
     }
-    
+
     // For all other cases, use the existing utility
-    return extractDisplayName(dataSource.url || '', dataSource.format || '');
+    return extractDisplayName(dataSource.url || '', dataSource.format || '', truncate);
   };
 
   const getZIndex = () => {
@@ -152,7 +157,7 @@ const DataSourceItem = ({
               </span>
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs break-all">{dataSource.url || 'No URL'}</p>
+              <p className="max-w-xs break-all">{getDisplayName(false)}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
