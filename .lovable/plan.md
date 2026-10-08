@@ -1,15 +1,20 @@
-# STAC row display name refinements on layer cards
+# Layer card display name refinements
 
 ## Goal
 
-Two refinements to how STAC data source rows on layer cards show their name:
+Refinements to how data source rows on layer cards show their name:
 
-1. **Long single-item names truncated.** A STAC source pointing at a single item
-   (`.../collections/{name}/items/{id}`) shows the item ID truncated to the first
-   80 characters followed by `…`. The tooltip shows the full, untruncated item ID.
+1. **Long single-item STAC names truncated.** A STAC source pointing at a single
+   item (`.../collections/{name}/items/{id}`) shows the item ID truncated to the
+   first 80 characters followed by `…`. The tooltip shows the full, untruncated
+   item ID.
 2. **Items list endpoints show the collection name.** A STAC source pointing at
    an items list endpoint (`.../collections/{name}/items`, with or without query
    parameters) displays `{name}/items` instead of the bare `items` it shows today.
+3. **Same truncation rule for all formats.** COG, GeoTIFF, vector and default
+   filenames (and the XYZ hostname path) get the same 80-character cap with `…`,
+   so a very long COG file name no longer makes the row spill over. The tooltip
+   shows the full untruncated name in every case.
 
 ## Current behaviour (verified)
 
