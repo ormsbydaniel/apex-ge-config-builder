@@ -18,6 +18,8 @@ import {
   CheckCircle2,
   Clock,
   RefreshCw,
+  FlaskConical,
+  GraduationCap,
 } from 'lucide-react';
 import { ModalErrorBoundary } from '@/components/common/ModalErrorBoundary';
 import {
@@ -28,11 +30,16 @@ import {
 } from '@/hooks/useDonorConfigLoader';
 import { ValidationErrorDetails } from '@/types/config';
 import {
-  fetchExamples,
+  fetchExampleManifest,
   EXAMPLES_MANIFEST_URL,
   type ExampleConfigEntry,
 } from '@/utils/exampleManifest';
-import { useQuery } from '@tanstack/react-query';
+import {
+  fetchTutorialConfigs,
+  TUTORIALS_FOLDER_URL,
+  type TutorialConfigEntry,
+} from '@/utils/tutorialConfigs';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DonorLayerTree } from './DonorLayerTree';
 
 const DEFAULT_REPO = 'ESA-APEx/apex_geospatial_explorer_configs';
@@ -60,6 +67,7 @@ const DonorConfigPickerDialog = ({
   onImport,
 }: DonorConfigPickerDialogProps) => {
   const { loadFromFile, loadFromUrl } = useDonorConfigLoader();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<string>('upload');
@@ -207,17 +215,50 @@ const DonorConfigPickerDialog = ({
   };
 
   const {
-    data: examples,
+    data: manifest,
     isLoading: examplesLoading,
     error: examplesError,
     refetch: refetchExamples,
     isFetching: examplesFetching,
   } = useQuery({
-    queryKey: ['example-configs-list'],
-    queryFn: () => fetchExamples(),
+    queryKey: ['example-configs-manifest'],
+    queryFn: () => fetchExampleManifest(),
     enabled: open && activeTab === 'examples',
     staleTime: 5 * 60 * 1000,
   });
+  const examples = manifest?.examples;
+  const testConfigs = manifest?.testConfigs;
+
+  const {
+    data: tutorials,
+    isLoading: tutorialsLoading,
+    error: tutorialsError,
+    refetch: refetchTutorials,
+    isFetching: tutorialsFetching,
+  } = useQuery({
+    queryKey: ['tutorial-configs'],
+    queryFn: () => fetchTutorialConfigs(),
+    enabled: open && activeTab === 'tutorials',
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
+    retry: false,
+    placeholderData: keepPreviousData,
+  });
+
+  useEffect(() => {
+    if (open) queryClient.invalidateQueries({ queryKey: ['tutorial-configs'] });
+  }, [open, queryClient]);
+
+  const handleLoadTutorial = async (tutorial: TutorialConfigEntry) => {
+    startLoading(tutorial.name);
+    const result = await loadFromUrl(
+      tutorial.url,
+      { type: 'example', label: tutorial.name },
+      { onStage: setStage },
+    );
+    handleResult(result);
+  };
 
   const handleLoadFromGithub = async (path: string) => {
     startLoading(path);
@@ -450,7 +491,7 @@ const DonorConfigPickerDialog = ({
                 onValueChange={setActiveTab}
                 className="w-full flex-1 flex flex-col min-h-0"
               >
-                <TabsList className="grid grid-cols-3 w-full">
+                <TabsList className="grid grid-cols-4 w-full">
                   <TabsTrigger value="upload">
                     <Upload className="h-4 w-4 mr-2" />
                     Upload
@@ -462,6 +503,10 @@ const DonorConfigPickerDialog = ({
                   <TabsTrigger value="github">
                     <Github className="h-4 w-4 mr-2" />
                     From GitHub
+                  </TabsTrigger>
+                  <TabsTrigger value="tutorials">
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    Tutorials
                   </TabsTrigger>
                 </TabsList>
 
@@ -524,26 +569,125 @@ const DonorConfigPickerDialog = ({
                         Retry
                       </Button>
                     </div>
-                  ) : !examples || examples.length === 0 ? (
+                  ) : (!examples || examples.length === 0) && (!testConfigs || testConfigs.length === 0) ? (
                     <div className="py-10 text-center text-sm text-muted-foreground">
                       No examples are listed in the manifest.
                     </div>
                   ) : (
+                    <div className="space-y-4">
+                      {examples && examples.length > 0 && (
+                        <div className="space-y-2">
+                          {examples.map((ex) => (
+                            <button
+                              key={ex.id}
+                              onClick={() => handleLoadExample(ex)}
+                              className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <div>
+                                  <div className="font-medium text-sm">{ex.name}</div>
+                                  <div className="text-xs text-muted-foreground mt-0.5">
+                                    {ex.description}
+                                  </div>
+                                </div>
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {testConfigs && testConfigs.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 pt-2">
+                            <FlaskConical className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              Test &amp; development
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              — configs for testing and building features
+                            </span>
+                          </div>
+                          {testConfigs.map((ex) => (
+                            <button
+                              key={ex.id}
+                              onClick={() => handleLoadExample(ex)}
+                              className="w-full text-left p-4 rounded-lg border border-dashed border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <div>
+                                  <div className="font-medium text-sm">{ex.name}</div>
+                                  <div className="text-xs text-muted-foreground mt-0.5">
+                                    {ex.description}
+                                  </div>
+                                </div>
+                                <FlaskConical className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* Tutorials */}
+                <TabsContent value="tutorials" className="mt-4 flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden">
+                  {tutorialsLoading || (tutorialsFetching && !tutorials) ? (
+                    <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading tutorials…
+                    </div>
+                  ) : tutorialsError && !tutorials ? (
+                    <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 space-y-2">
+                      <div className="flex items-start gap-2 text-sm">
+                        <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
+                        <div className="flex-1">
+                          <div className="font-medium">Couldn't load tutorial configurations</div>
+                          <div className="text-xs text-muted-foreground mt-1 break-all">
+                            {(tutorialsError as Error).message}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-2 break-all">
+                            Folder:{' '}
+                            <a href={TUTORIALS_FOLDER_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                              {TUTORIALS_FOLDER_URL}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline" onClick={() => refetchTutorials()}>
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Retry
+                      </Button>
+                    </div>
+                  ) : !tutorials || tutorials.length === 0 ? (
+                    <div className="py-10 text-center text-sm text-muted-foreground">
+                      No tutorial configurations were found.
+                    </div>
+                  ) : (
                     <div className="space-y-2">
-                      {examples.map((ex) => (
+                      {tutorialsError && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                          <span className="flex-1">Couldn't check for newer tutorials — showing the last list loaded. {(tutorialsError as Error).message}</span>
+                          <Button size="sm" variant="ghost" className="h-6 px-2" onClick={() => refetchTutorials()}>
+                            <RefreshCw className="h-3 w-3 mr-1" />
+                            Retry
+                          </Button>
+                        </div>
+                      )}
+                      {tutorials.map((tutorial) => (
                         <button
-                          key={ex.id}
-                          onClick={() => handleLoadExample(ex)}
+                          key={tutorial.id}
+                          onClick={() => handleLoadTutorial(tutorial)}
                           className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent hover:border-accent-foreground/20 transition-colors"
                         >
                           <div className="flex items-center justify-between gap-3">
                             <div>
-                              <div className="font-medium text-sm">{ex.name}</div>
-                              <div className="text-xs text-muted-foreground mt-0.5">
-                                {ex.description}
-                              </div>
+                              <div className="font-medium text-sm">{tutorial.name}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">{tutorial.description}</div>
                             </div>
-                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <GraduationCap className="h-4 w-4 text-muted-foreground" />
                           </div>
                         </button>
                       ))}
