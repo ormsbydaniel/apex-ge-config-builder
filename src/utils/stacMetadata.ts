@@ -49,6 +49,41 @@ export async function fetchStacCollection(url: string, fetcher: Fetcher = defaul
   return getJson(collectionUrl, fetcher);
 }
 
+export interface StacQueryable {
+  key: string;
+  title?: string;
+  description?: string;
+  type: string;
+  enumValues?: unknown[];
+  range?: string;
+}
+
+/** Converts a queryables JSON Schema into a sorted, display-friendly list. */
+export function summariseStacQueryables(schema: any): StacQueryable[] {
+  const props = schema?.properties;
+  if (!props || typeof props !== 'object') return [];
+  return Object.entries<any>(props)
+    .map(([key, p]) => {
+      let type: string = Array.isArray(p?.type) ? p.type.join(' | ')
+        : p?.type ?? (p?.$ref ? 'reference' : p?.oneOf || p?.anyOf ? 'union' : 'any');
+      if (p?.format) type = `${type} (${p.format})`;
+      const range = p?.minimum !== undefined || p?.maximum !== undefined
+        ? `${p.minimum ?? '−∞'} – ${p.maximum ?? '∞'}` : undefined;
+      return { key, title: p?.title, description: p?.description, type, enumValues: Array.isArray(p?.enum) ? p.enum : undefined, range };
+    })
+    .sort((a, b) => a.key.localeCompare(b.key));
+}
+
+/** Fetches `{collection}/queryables`; null when the collection can't be derived. */
+export async function fetchStacQueryables(url: string, fetcher: Fetcher = defaultFetch) {
+  const collectionUrl = getStacCollectionUrl(url);
+  if (!collectionUrl) return null;
+  const res = await fetcher(`${collectionUrl}/queryables`);
+  if (res.status === 404) throw new Error('This collection does not publish queryables.');
+  if (!res.ok) throw new Error(`Request failed (${res.status ?? 'error'})`);
+  return res.json();
+}
+
 export interface StacItemSample {
   item: any | null;
   /** Number of items returned by the items endpoint (undefined for single items). */
