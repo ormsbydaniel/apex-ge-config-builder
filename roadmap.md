@@ -43,4 +43,5 @@
 ## STAC item queries
 - [x] Assess queryables-driven support and scope the first release to core URL parameters.
 - [x] Add guided bbox, datetime, and limit controls with URL-only persistence.
+- [x] Simplify the STAC form with side-by-side asset fields, inline result limit, and badge-based date/bbox dialogs.
 - [ ] Later: use collection queryables for CQL2 property filters.

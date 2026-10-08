@@ -110,7 +110,6 @@ const DataSourceForm = ({
   const [isListingAssets, setIsListingAssets] = useState(false);
   const [isEnteringStacAsset, setIsEnteringStacAsset] = useState(false);
   const [manualStacAsset, setManualStacAsset] = useState(editingDataSource?.assets?.[0] || '');
-  const [showStacFormatOverride, setShowStacFormatOverride] = useState(false);
   const [minZoom, setMinZoom] = useState<number | undefined>(editingDataSource?.minZoom);
   const [maxZoom, setMaxZoom] = useState<number | undefined>(editingDataSource?.maxZoom);
   
@@ -210,7 +209,6 @@ const DataSourceForm = ({
       setStacAssetFormat(editingDataSource.assetFormat);
       setManualStacAsset(editingDataSource.assets?.[0] || '');
       setIsEnteringStacAsset(false);
-      setShowStacFormatOverride(false);
       setMinZoom(editingDataSource.minZoom);
       setMaxZoom(editingDataSource.maxZoom);
        const editingVersion = dataFormat === 'wmts'
@@ -551,6 +549,18 @@ const DataSourceForm = ({
       return;
     }
 
+    if (selectedFormat === 'stac' && (
+      (isEnteringStacAsset && !stacAssets[0]?.trim())
+      || (Boolean(stacAssets[0]?.trim()) && !stacAssetFormat)
+    )) {
+      toast({
+        title: "Incomplete asset details",
+        description: "Enter an asset name and choose its format.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Validate position for comparison layers
     if (needsPosition && !selectedPosition) {
       toast({
@@ -766,12 +776,10 @@ const DataSourceForm = ({
       const sample = await sampleStacAsset(directUrl.trim(), assetNames);
       if (sample.format) {
         setStacAssetFormat(sample.format);
-        setShowStacFormatOverride(false);
         if (sample.bandLabels?.length) setStacBandLabels(sample.bandLabels);
         toast({ title: 'Asset format detected', description: `${sample.assetName ?? 'Asset'}: ${FORMAT_CONFIGS[sample.format]?.label ?? sample.format}` });
       } else {
         setStacAssetFormat(undefined);
-        setShowStacFormatOverride(true);
         toast({ title: 'Format not recognised', description: 'Choose the asset format manually.', variant: 'destructive' });
       }
     } catch (e) {
@@ -800,16 +808,6 @@ const DataSourceForm = ({
   const renderStacOptions = (idPrefix: string) => {
     if (selectedFormat !== 'stac') return null;
 
-    const applyManualAsset = () => {
-      const assetName = manualStacAsset.trim();
-      if (!assetName) return;
-      setStacAssets([assetName]);
-      setStacAssetFormat(undefined);
-      setStacBandLabels(null);
-      setIsEnteringStacAsset(false);
-      void runStacDetect([assetName]);
-    };
-
     const selectedAsset = stacAssets[0];
     const assetChoices = discoveredAssets
       ? discoveredAssets.some((asset) => asset.name === selectedAsset) || !selectedAsset
@@ -821,147 +819,110 @@ const DataSourceForm = ({
 
     return (
       <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor={`${idPrefix}StacAsset`}>Asset name</Label>
-
-          {isEnteringStacAsset ? (
-            <div className="flex gap-2">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}StacAsset`}>Asset name</Label>
+            {isEnteringStacAsset ? (
               <Input
                 id={`${idPrefix}StacAsset`}
                 value={manualStacAsset}
-                onChange={(event) => setManualStacAsset(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    applyManualAsset();
-                  }
+                onChange={(event) => {
+                  setManualStacAsset(event.target.value);
+                  setStacAssets(event.target.value.trim() ? [event.target.value] : []);
                 }}
                 placeholder="Enter an asset name"
                 autoComplete="off"
-                autoFocus
               />
-              <Button type="button" onClick={applyManualAsset} disabled={!manualStacAsset.trim() || isDetectingStac}>
-                Apply
-              </Button>
-              <Button type="button" variant="outline" onClick={() => setIsEnteringStacAsset(false)}>
-                Cancel
-              </Button>
-            </div>
-          ) : discoveredAssets ? (
-            <Select
-              value={selectedAsset ?? ''}
-              onValueChange={(name) => {
-                setStacAssets([name]);
-                setStacAssetFormat(undefined);
-                setStacBandLabels(null);
-                void runStacDetect([name]);
-              }}
-            >
-              <SelectTrigger id={`${idPrefix}StacAsset`} aria-label="Asset name">
-                <SelectValue placeholder="Select an asset…" />
-              </SelectTrigger>
-              <SelectContent>
-                {assetChoices.map((asset) => (
-                  <SelectItem key={asset.name} value={asset.name}>
-                    {asset.name}
-                    {asset.format ? ` — ${FORMAT_CONFIGS[asset.format]?.label ?? asset.format.toUpperCase()}` : ''}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <Button
-              id={`${idPrefix}StacAsset`}
-              type="button"
-              variant="outline"
-              className="w-full justify-start font-normal"
-              disabled={!directUrl.trim() || isListingAssets}
-              onClick={() => void discoverStacAssets()}
-            >
-              {isListingAssets ? 'Finding assets…' : selectedAsset || 'Browse assets from the first item…'}
-            </Button>
-          )}
-
-          <div className="flex items-center justify-between gap-3 px-1">
-            <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-              {isDetectingStac ? (
-                <span>Detecting format…</span>
-              ) : stacAssetFormat ? (
-                <>
-                  <span>Detected format:</span>
-                  <Badge variant="secondary">{FORMAT_CONFIGS[stacAssetFormat]?.label ?? stacAssetFormat.toUpperCase()}</Badge>
-                </>
-              ) : selectedAsset ? (
-                <span>Format will be detected automatically.</span>
-              ) : (
-                <span>Select the asset this data source should render.</span>
-              )}
-            </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-7 gap-1 px-2 text-xs"
-                onClick={() => {
-                  setManualStacAsset(selectedAsset || '');
-                  setIsEnteringStacAsset(true);
+            ) : discoveredAssets ? (
+              <Select
+                value={selectedAsset ?? ''}
+                onValueChange={(name) => {
+                  const choice = discoveredAssets.find((asset) => asset.name === name);
+                  setStacAssets([name]);
+                  setStacAssetFormat(choice?.format);
+                  setStacBandLabels(null);
+                  void runStacDetect([name]);
                 }}
               >
-                <Pencil className="h-3 w-3" />
-                Manual entry
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-7 gap-1 px-2 text-xs"
-                disabled={!directUrl.trim() || isListingAssets}
-                onClick={() => void discoverStacAssets()}
-              >
-                <RefreshCw className={cn('h-3 w-3', isListingAssets && 'animate-spin')} />
-                Rescan collection
-              </Button>
-            </div>
-          </div>
-
-          {(showStacFormatOverride || stacAssetFormat) && (
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                variant="link"
-                size="sm"
-                className="h-auto p-0 text-xs"
-                onClick={() => setShowStacFormatOverride((visible) => !visible)}
-              >
-                {showStacFormatOverride ? 'Hide format override' : 'Override format'}
-              </Button>
-            </div>
-          )}
-        </div>
-        {showStacFormatOverride && (
-          <div className="space-y-2">
-            <Label htmlFor={`${idPrefix}StacAssetFormat`}>Asset format override</Label>
-            <div className="flex gap-2">
-              <Select
-                value={stacAssetFormat ?? 'auto'}
-                onValueChange={(v) => setStacAssetFormat(v === 'auto' ? undefined : (v as StacAssetFormat))}
-              >
-                <SelectTrigger id={`${idPrefix}StacAssetFormat`}><SelectValue /></SelectTrigger>
+                <SelectTrigger id={`${idPrefix}StacAsset`} aria-label="Asset name">
+                  <SelectValue placeholder="Select an asset…">{selectedAsset}</SelectValue>
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto">Automatic</SelectItem>
-                  {STAC_ASSET_FORMATS.map((format) => (
-                    <SelectItem key={format} value={format}>{FORMAT_CONFIGS[format]?.label ?? format.toUpperCase()}</SelectItem>
+                  {assetChoices.map((asset) => (
+                    <SelectItem key={asset.name} value={asset.name}>
+                      {asset.name}{asset.format ? ` — ${FORMAT_CONFIGS[asset.format]?.label ?? asset.format.toUpperCase()}` : ''}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Button type="button" variant="outline" disabled={!directUrl.trim() || !selectedAsset || isDetectingStac} onClick={() => void runStacDetect(stacAssets)}>
-                {isDetectingStac ? 'Detecting…' : 'Detect again'}
+            ) : (
+              <Button
+                id={`${idPrefix}StacAsset`}
+                type="button"
+                variant="outline"
+                className="w-full justify-start font-normal"
+                disabled={!directUrl.trim() || isListingAssets}
+                onClick={() => void discoverStacAssets()}
+              >
+                {isListingAssets ? 'Finding assets…' : selectedAsset || 'Browse assets from the first item…'}
               </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">Use only when the advertised asset type is missing or incorrect.</p>
+            )}
           </div>
-        )}
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}StacAssetFormat`}>Asset format</Label>
+            <Select
+              value={stacAssetFormat}
+              onValueChange={(value) => setStacAssetFormat(value as StacAssetFormat)}
+              disabled={!selectedAsset || isDetectingStac}
+            >
+              <SelectTrigger id={`${idPrefix}StacAssetFormat`}>
+                <SelectValue placeholder={isDetectingStac ? 'Detecting…' : 'Select format…'} />
+              </SelectTrigger>
+              <SelectContent>
+                {STAC_ASSET_FORMATS.map((format) => (
+                  <SelectItem key={format} value={format}>{FORMAT_CONFIGS[format]?.label ?? format.toUpperCase()}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex flex-wrap justify-end gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 gap-1 px-2 text-xs"
+            onClick={() => {
+              if (isEnteringStacAsset) {
+                setIsEnteringStacAsset(false);
+                setDiscoveredAssets(null);
+                setStacAssets([]);
+                setStacAssetFormat(undefined);
+              } else {
+                setManualStacAsset(selectedAsset || '');
+                setIsEnteringStacAsset(true);
+                setStacAssetFormat(undefined);
+                setStacBandLabels(null);
+              }
+            }}
+          >
+            <Pencil className="h-3 w-3" />
+            {isEnteringStacAsset ? 'Browse discovered assets' : 'Manual entry'}
+          </Button>
+          {!isEnteringStacAsset && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 px-2 text-xs"
+              disabled={!directUrl.trim() || isListingAssets}
+              onClick={() => void discoverStacAssets()}
+            >
+              <RefreshCw className={cn('h-3 w-3', isListingAssets && 'animate-spin')} />
+              Rescan collection
+            </Button>
+          )}
+        </div>
         <StacQueryEditor url={directUrl} onChange={setDirectUrl} />
         <Separator />
         <div className="grid grid-cols-2 gap-4">

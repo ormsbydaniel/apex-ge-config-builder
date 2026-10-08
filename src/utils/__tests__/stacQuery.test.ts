@@ -18,6 +18,27 @@ describe('STAC core query URLs', () => {
     expect(parsed.searchParams.get('limit')).toBe('100');
   });
 
+  it('updates and removes each guided filter independently', () => {
+    const source = 'https://x.test/items?token=public&bbox=-3,51,-1,52&datetime=2026-06-01T00:00:00Z/..&limit=100';
+    const parsed = parseStacCoreQuery(source);
+
+    const withoutLimit = new URL(updateStacCoreQuery(source, { ...parsed, limit: undefined }));
+    expect(withoutLimit.searchParams.get('limit')).toBeNull();
+    expect(withoutLimit.searchParams.get('bbox')).toBe('-3,51,-1,52');
+    expect(withoutLimit.searchParams.get('datetime')).toBe('2026-06-01T00:00:00Z/..');
+
+    const withoutDate = new URL(updateStacCoreQuery(source, { ...parsed, datetimeStart: undefined, datetimeEnd: undefined }));
+    expect(withoutDate.searchParams.get('datetime')).toBeNull();
+    expect(withoutDate.searchParams.get('bbox')).toBe('-3,51,-1,52');
+    expect(withoutDate.searchParams.get('limit')).toBe('100');
+
+    const withoutBbox = new URL(updateStacCoreQuery(source, { ...parsed, bbox: undefined }));
+    expect(withoutBbox.searchParams.get('bbox')).toBeNull();
+    expect(withoutBbox.searchParams.get('datetime')).toBe('2026-06-01T00:00:00Z/..');
+    expect(withoutBbox.searchParams.get('limit')).toBe('100');
+    expect(withoutBbox.searchParams.get('token')).toBe('public');
+  });
+
   it('validates complete and ordered bounding boxes', () => {
     expect(validateBbox(['', '', '', ''])).toBeUndefined();
     expect(validateBbox(['-3', '51', '-1', '52'])).toBeUndefined();
