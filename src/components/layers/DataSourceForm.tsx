@@ -17,7 +17,7 @@ import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } f
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
 import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
-import { listStacAssets, sampleStacAsset, STAC_ASSET_FORMATS, type StacAssetChoice, type StacAssetFormat } from '@/utils/stacAssetFormat';
+import { listStacAssets, sampleStacAsset, STAC_ASSET_FORMATS, updateStacAssetFormatMap, type StacAssetChoice, type StacAssetFormat } from '@/utils/stacAssetFormat';
 import { getStacUrlBase, replaceStacUrlBase } from '@/utils/stacQuery';
 
 
@@ -106,7 +106,10 @@ const DataSourceForm = ({
   const [directLayers, setDirectLayers] = useState(editingDataSource?.layers || '');
   const [zIndex, setZIndex] = useState(editingDataSource?.zIndex ?? getRecommendedZIndex(getInitialFormat()));
   const [stacAssets, setStacAssets] = useState<string[]>(editingDataSource?.assets || []);
-  const [stacAssetFormat, setStacAssetFormat] = useState<StacAssetFormat | undefined>(editingDataSource?.assetFormat);
+  const initialStacAssetName = editingDataSource?.assets?.[0];
+  const [stacAssetFormat, setStacAssetFormat] = useState<StacAssetFormat | undefined>(
+    initialStacAssetName ? editingDataSource?.assetFormats?.[initialStacAssetName] : undefined,
+  );
   const [isDetectingStac, setIsDetectingStac] = useState(false);
   const [discoveredAssets, setDiscoveredAssets] = useState<StacAssetChoice[] | null>(null);
   const [isListingAssets, setIsListingAssets] = useState(false);
@@ -208,7 +211,8 @@ const DataSourceForm = ({
       setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
       setParameterRows(recordToRows(editingDataSource.parameters));
       setStacAssets(editingDataSource.assets || []);
-      setStacAssetFormat(editingDataSource.assetFormat);
+      const editingStacAssetName = editingDataSource.assets?.[0];
+      setStacAssetFormat(editingStacAssetName ? editingDataSource.assetFormats?.[editingStacAssetName] : undefined);
       setManualStacAsset(editingDataSource.assets?.[0] || '');
       setIsEnteringStacAsset(false);
       setMinZoom(editingDataSource.minZoom);
@@ -649,14 +653,17 @@ const DataSourceForm = ({
           // Non-fatal: save without a detected format
         }
       }
-      if (formatToSave) baseItem.assetFormat = formatToSave;
-      else delete baseItem.assetFormat;
+      const selectedAssetName = stacAssets[0]?.trim();
+      const assetFormats = updateStacAssetFormatMap(editingDataSource?.assetFormats, selectedAssetName, formatToSave);
+      if (assetFormats) baseItem.assetFormats = assetFormats;
+      else delete baseItem.assetFormats;
       if (minZoom !== undefined) baseItem.minZoom = minZoom;
       else delete baseItem.minZoom;
       if (maxZoom !== undefined) baseItem.maxZoom = maxZoom;
       else delete baseItem.maxZoom;
     } else {
       delete baseItem.assets;
+      delete baseItem.assetFormats;
     }
 
     // Band labels extracted from STAC eo:bands metadata (used by RGB composite recipes)
@@ -861,8 +868,11 @@ const DataSourceForm = ({
                 id={`${idPrefix}StacAsset`}
                 value={manualStacAsset}
                 onChange={(event) => {
-                  setManualStacAsset(event.target.value);
-                  setStacAssets(event.target.value.trim() ? [event.target.value] : []);
+                  const name = event.target.value;
+                  const trimmedName = name.trim();
+                  setManualStacAsset(name);
+                  setStacAssets(trimmedName ? [trimmedName] : []);
+                  setStacAssetFormat(trimmedName ? editingDataSource?.assetFormats?.[trimmedName] : undefined);
                 }}
                 placeholder="Enter an asset name"
                 autoComplete="off"
@@ -873,7 +883,7 @@ const DataSourceForm = ({
                 onValueChange={(name) => {
                   const choice = discoveredAssets.find((asset) => asset.name === name);
                   setStacAssets([name]);
-                  setStacAssetFormat(choice?.format);
+                  setStacAssetFormat(choice?.format ?? editingDataSource?.assetFormats?.[name]);
                   setStacBandLabels(null);
                   void runStacDetect([name]);
                 }}
