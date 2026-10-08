@@ -823,6 +823,51 @@ const DataSourceForm = ({
             </div>
           )}
           <p className="text-xs text-muted-foreground">Optional asset names advertised by the collection.</p>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!directUrl.trim() || isListingAssets}
+              onClick={async () => {
+                setIsListingAssets(true);
+                try {
+                  const assets = await listStacAssets(directUrl.trim());
+                  if (assets.length === 0) {
+                    toast({ title: 'No assets found', description: 'The first item does not advertise any assets.', variant: 'destructive' });
+                  } else {
+                    setDiscoveredAssets(assets);
+                  }
+                } catch (e) {
+                  toast({ title: 'Could not read STAC items', description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
+                } finally {
+                  setIsListingAssets(false);
+                }
+              }}
+            >
+              {isListingAssets ? 'Listing…' : 'List assets'}
+            </Button>
+            {discoveredAssets && discoveredAssets.length > 0 && (
+              <Select
+                value={stacAssets[0] ?? ''}
+                onValueChange={(name) => {
+                  setStacAssets([name]);
+                  runStacDetect([name]);
+                }}
+              >
+                <SelectTrigger className="flex-1" aria-label="Discovered assets">
+                  <SelectValue placeholder="Pick an asset…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {discoveredAssets.map((asset) => (
+                    <SelectItem key={asset.name} value={asset.name}>
+                      {asset.name}
+                      {asset.format ? ` — ${FORMAT_CONFIGS[asset.format]?.label ?? asset.format.toUpperCase()}` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}StacAssetFormat`}>Asset format</Label>
