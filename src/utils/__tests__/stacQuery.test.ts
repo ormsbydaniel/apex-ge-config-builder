@@ -1,9 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { inspectStacQueryTarget, parseStacCoreQuery, updateStacCoreQuery, validateBbox } from '@/utils/stacQuery';
+import { getStacUrlBase, inspectStacQueryTarget, parseStacCoreQuery, replaceStacUrlBase, updateStacCoreQuery, validateBbox } from '@/utils/stacQuery';
 
 const fakeFetch = (body: any) => async () => ({ ok: true, json: async () => body });
 
 describe('STAC core query URLs', () => {
+  it('shows only the base while retaining the complete formulated URL', () => {
+    const source = 'https://x.test/items?token=public&limit=5#results';
+    expect(getStacUrlBase(source)).toBe('https://x.test/items');
+    expect(replaceStacUrlBase(source, 'https://next.test/search')).toBe('https://next.test/search?token=public&limit=5#results');
+  });
+
+  it('imports query parameters and fragments from a complete pasted URL', () => {
+    const source = 'https://x.test/items?token=old&limit=5#old';
+    expect(replaceStacUrlBase(source, 'https://next.test/items?token=new&bbox=-3,51,-1,52#new'))
+      .toBe('https://next.test/items?token=new&bbox=-3,51,-1,52#new');
+  });
+
+  it('handles incomplete URL text without losing the user input', () => {
+    expect(getStacUrlBase('example.test/items?limit=5')).toBe('example.test/items');
+    expect(replaceStacUrlBase('https://x.test/items?limit=5', 'example.test/items')).toBe('example.test/items');
+  });
+
   it('parses the bbox, datetime interval, and limit used by stac-datasets', () => {
     const parsed = parseStacCoreQuery('https://x.test/items?bbox=-3,51,-1,52&datetime=2026-06-01T00:00:00Z/2026-07-01T00:00:00Z&limit=100');
     expect(parsed).toEqual({ bbox: [-3, 51, -1, 52], datetimeStart: '2026-06-01T00:00:00Z', datetimeEnd: '2026-07-01T00:00:00Z', limit: 100 });

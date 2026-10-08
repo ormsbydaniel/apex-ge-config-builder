@@ -24,6 +24,38 @@ const parseFinite = (value: string): number | undefined => {
   return Number.isFinite(number) ? number : undefined;
 };
 
+export const getStacUrlBase = (url: string): string => {
+  try {
+    const parsed = new URL(url);
+    parsed.search = '';
+    parsed.hash = '';
+    return parsed.toString();
+  } catch {
+    return url.split(/[?#]/, 1)[0];
+  }
+};
+
+export const replaceStacUrlBase = (currentUrl: string, nextValue: string): string => {
+  const trimmed = nextValue.trim();
+  if (!trimmed) return '';
+
+  try {
+    const next = new URL(trimmed);
+    if (trimmed.includes('?')) return next.toString();
+
+    try {
+      const current = new URL(currentUrl);
+      next.search = current.search;
+      if (!next.hash) next.hash = current.hash;
+    } catch {
+      // A new valid base can replace an incomplete current value as-is.
+    }
+    return next.toString();
+  } catch {
+    return trimmed;
+  }
+};
+
 export const parseStacCoreQuery = (url: string): StacCoreQuery => {
   try {
     const parsed = new URL(url);

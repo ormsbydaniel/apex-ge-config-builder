@@ -18,6 +18,7 @@ import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension
 import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { listStacAssets, sampleStacAsset, STAC_ASSET_FORMATS, type StacAssetChoice, type StacAssetFormat } from '@/utils/stacAssetFormat';
+import { getStacUrlBase, replaceStacUrlBase } from '@/utils/stacQuery';
 
 
 import { useServices } from '@/hooks/useServices';
@@ -1154,8 +1155,8 @@ const DataSourceForm = ({
                   <Input
                     id="directUrl"
                     name="directUrl"
-                    value={directUrl}
-                    onChange={(e) => setDirectUrl(e.target.value)}
+                    value={selectedFormat === 'stac' ? getStacUrlBase(directUrl) : directUrl}
+                    onChange={(e) => setDirectUrl(selectedFormat === 'stac' ? replaceStacUrlBase(directUrl, e.target.value) : e.target.value)}
                     placeholder={config_format.urlPlaceholder}
                     autoComplete="url"
                   />
@@ -1393,8 +1394,8 @@ const DataSourceForm = ({
                   <Input
                     id="serviceDirectUrl"
                     name="serviceDirectUrl"
-                    value={directUrl}
-                    onChange={(e) => setDirectUrl(e.target.value)}
+                    value={selectedFormat === 'stac' ? getStacUrlBase(directUrl) : directUrl}
+                    onChange={(e) => setDirectUrl(selectedFormat === 'stac' ? replaceStacUrlBase(directUrl, e.target.value) : e.target.value)}
                     placeholder={config_format.urlPlaceholder}
                     autoComplete="url"
                   />

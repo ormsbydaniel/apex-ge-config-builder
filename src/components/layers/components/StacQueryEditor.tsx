@@ -172,6 +172,13 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
         )}
       </div>
 
+      {url.trim() && (
+        <div className="space-y-1">
+          <Label>Formulated URL</Label>
+          <p className="overflow-hidden break-all text-xs text-muted-foreground">{url}</p>
+        </div>
+      )}
+
       <Dialog open={limitOpen} onOpenChange={setLimitOpen}>
         <DialogContent>
           <DialogHeader>
