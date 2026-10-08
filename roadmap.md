@@ -39,3 +39,8 @@
 - [x] Phase 1–2: `assetFormat` field, detection on save/Detect button
 - [x] Replace the duplicated asset-name controls with one discovery-first selector, manual entry, rescan, and format override
 - [ ] Phase 3: gate COG/vector tools on effective format and use in-memory sample URL
+
+## STAC item queries
+- [x] Assess queryables-driven support and scope the first release to core URL parameters.
+- [x] Add guided bbox, datetime, and limit controls with URL-only persistence.
+- [ ] Later: use collection queryables for CQL2 property filters.
