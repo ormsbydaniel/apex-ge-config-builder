@@ -549,7 +549,10 @@ const DataSourceForm = ({
       return;
     }
 
-    if (selectedFormat === 'stac' && isEnteringStacAsset && (!stacAssets[0]?.trim() || !stacAssetFormat)) {
+    if (selectedFormat === 'stac' && (
+      (isEnteringStacAsset && !stacAssets[0]?.trim())
+      || (Boolean(stacAssets[0]?.trim()) && !stacAssetFormat)
+    )) {
       toast({
         title: "Incomplete asset details",
         description: "Enter an asset name and choose its format.",
