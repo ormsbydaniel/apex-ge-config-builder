@@ -34,3 +34,7 @@
 
 - [x] Add a Computed Composites tab and barren-soil RGB recipe matching the supplied openEO graph, using definition presets without per-channel histograms.
 - [x] Preserve per-dataset scope, save/reopen and exported rendering; verify formulas and schema persistence with focused tests.
+
+## STAC asset formats
+- [x] Phase 1–2: `assetFormat` field, detection on save/Detect button
+- [ ] Phase 3: gate COG/vector tools on effective format and use in-memory sample URL
