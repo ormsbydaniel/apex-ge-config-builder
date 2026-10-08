@@ -40,8 +40,16 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   const [end, setEnd] = useState(toDateTimeLocalValue(initial.datetimeEnd));
   const [bboxOpen, setBboxOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
+  const [limitOpen, setLimitOpen] = useState(false);
 
   const parsedQuery = parseStacCoreQuery(url);
+
+  useEffect(() => {
+    if (limitOpen) {
+      const parsed = parseStacCoreQuery(url);
+      setLimit(parsed.limit ? String(parsed.limit) : '');
+    }
+  }, [limitOpen, url]);
 
   useEffect(() => {
     const parsed = parseStacCoreQuery(url);
@@ -114,28 +122,6 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
 
   return (
     <div className="space-y-3">
-      <div className="space-y-2 sm:max-w-48">
-        <Label htmlFor="stac-limit">Result limit</Label>
-        <Input
-          id="stac-limit"
-          type="number"
-          min="1"
-          step="1"
-          value={limit}
-          disabled={!queryable}
-          onChange={(event) => setLimit(event.target.value)}
-          onBlur={applyLimit}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              applyLimit();
-            }
-          }}
-          autoComplete="off"
-        />
-        {limitError && <p className="text-xs text-destructive">{limitError}</p>}
-      </div>
-
       {isInspecting && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Checking this STAC source…</p>}
       {targetError && <p className="text-sm text-destructive">{targetError}</p>}
       {!target && !isInspecting && (
@@ -147,6 +133,18 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
       {target?.kind === 'static' && <p className="text-sm text-muted-foreground">This source does not advertise an items endpoint for server-side filtering.</p>}
 
       <div className="flex flex-wrap gap-2">
+        {parsedQuery.limit ? (
+          <Badge variant="secondary" className="gap-1 py-1 pl-1 pr-1">
+            <Button type="button" variant="ghost" size="sm" className="h-6 px-1.5 text-xs" disabled={!queryable} onClick={() => setLimitOpen(true)}>
+              Result limit: {parsedQuery.limit}
+            </Button>
+            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" disabled={!queryable} aria-label="Remove result limit" onClick={() => updateQuery({ limit: undefined })}>
+              <X className="h-3 w-3" />
+            </Button>
+          </Badge>
+        ) : (
+          <Button type="button" variant="outline" size="sm" disabled={!queryable} onClick={() => setLimitOpen(true)}>+ Result limit</Button>
+        )}
         {parsedQuery.datetimeStart || parsedQuery.datetimeEnd ? (
           <Badge variant="secondary" className="gap-1 py-1 pl-1 pr-1">
             <Button type="button" variant="ghost" size="sm" className="h-6 gap-1 px-1.5 text-xs" onClick={openDateDialog}>
@@ -173,6 +171,26 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
           <Button type="button" variant="outline" size="sm" disabled={!queryable} onClick={openBboxDialog}>+ Add bbox filter</Button>
         )}
       </div>
+
+      <Dialog open={limitOpen} onOpenChange={setLimitOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Result limit</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="stac-limit">Result limit</Label>
+            <Input id="stac-limit" type="number" min="1" step="1" value={limit} onChange={(event) => setLimit(event.target.value)} autoComplete="off" />
+            {limitError && <p className="text-xs text-destructive">{limitError}</p>}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setLimitOpen(false)}>Cancel</Button>
+            <Button type="button" disabled={Boolean(limitError) || !queryable || limit === ''} onClick={() => {
+              applyLimit();
+              setLimitOpen(false);
+            }}>Save limit</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dateOpen} onOpenChange={setDateOpen}>
         <DialogContent>

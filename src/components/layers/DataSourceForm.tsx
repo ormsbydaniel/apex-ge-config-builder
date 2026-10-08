@@ -10,6 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { Save, X, Database, Globe, Server, CalendarIcon, ChevronLeft, ChevronRight, Pencil, RefreshCw } from 'lucide-react';
 import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
@@ -819,9 +820,41 @@ const DataSourceForm = ({
 
     return (
       <div className="space-y-4">
+        <StacQueryEditor url={directUrl} onChange={setDirectUrl} />
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor={`${idPrefix}StacAsset`}>Asset name</Label>
+            <div className="flex h-5 items-center gap-1">
+              <Label htmlFor={`${idPrefix}StacAsset`}>Asset name</Label>
+              <TooltipProvider delayDuration={400}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5"
+            aria-label={isEnteringStacAsset ? 'Browse discovered assets' : 'Manual entry'}
+            onClick={() => {
+              if (isEnteringStacAsset) {
+                setIsEnteringStacAsset(false);
+                setDiscoveredAssets(null);
+                setStacAssets([]);
+                setStacAssetFormat(undefined);
+              } else {
+                setManualStacAsset(selectedAsset || '');
+                setIsEnteringStacAsset(true);
+                setStacAssetFormat(undefined);
+                setStacBandLabels(null);
+              }
+            }}
+          >
+            {isEnteringStacAsset ? <Database className="h-3 w-3" /> : <Pencil className="h-3 w-3" />}
+          </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{isEnteringStacAsset ? 'Browse discovered assets' : 'Manual entry'}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             {isEnteringStacAsset ? (
               <Input
                 id={`${idPrefix}StacAsset`}
@@ -869,7 +902,7 @@ const DataSourceForm = ({
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor={`${idPrefix}StacAssetFormat`}>Asset format</Label>
+            <Label className="flex h-5 items-center" htmlFor={`${idPrefix}StacAssetFormat`}>Asset format</Label>
             <Select
               value={stacAssetFormat}
               onValueChange={(value) => setStacAssetFormat(value as StacAssetFormat)}
@@ -887,28 +920,6 @@ const DataSourceForm = ({
           </div>
         </div>
         <div className="flex flex-wrap justify-end gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1 px-2 text-xs"
-            onClick={() => {
-              if (isEnteringStacAsset) {
-                setIsEnteringStacAsset(false);
-                setDiscoveredAssets(null);
-                setStacAssets([]);
-                setStacAssetFormat(undefined);
-              } else {
-                setManualStacAsset(selectedAsset || '');
-                setIsEnteringStacAsset(true);
-                setStacAssetFormat(undefined);
-                setStacBandLabels(null);
-              }
-            }}
-          >
-            <Pencil className="h-3 w-3" />
-            {isEnteringStacAsset ? 'Browse discovered assets' : 'Manual entry'}
-          </Button>
           {!isEnteringStacAsset && (
             <Button
               type="button"
@@ -923,7 +934,6 @@ const DataSourceForm = ({
             </Button>
           )}
         </div>
-        <StacQueryEditor url={directUrl} onChange={setDirectUrl} />
         <Separator />
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
