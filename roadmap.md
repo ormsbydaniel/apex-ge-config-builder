@@ -10,6 +10,11 @@
 - [x] Review tutorial Markdown for nested-list and numbered-step indentation; rebuild the guide.
 - [x] Correct remaining nested lists in 9-4 and 3-5; audit all tutorials and rebuild the guide.
 
+# Tutorial numbering
+
+- [x] Correct interrupted numbered lists across tutorial Markdown pages.
+- [x] Build the guide in strict mode and inspect the corrected rendered lists.
+
 # Per-dataset visualisation settings
 
 - [x] Phase 1: dataset selector with Previous/Next in the multi-band editor; "Same as first" / own settings; Apply, Reset to same as first, Copy to all; layer-card count.
@@ -24,3 +29,8 @@
 - [x] Apply six index-specific absolute colour-stop defaults with Advanced generic overrides and per-COG labelled export.
 - [x] Add editable index colour stops, meanings, and named-ramp recolouring under Customise settings.
 - [ ] Display exported index stop meanings in the separately hosted Geospatial Explorer viewer bundle (requires viewer-side support).
+
+# Computed composites
+
+- [x] Add a Computed Composites tab and barren-soil RGB recipe matching the supplied openEO graph, using definition presets without per-channel histograms.
+- [x] Preserve per-dataset scope, save/reopen and exported rendering; verify formulas and schema persistence with focused tests.

@@ -15,24 +15,24 @@ hand-picked layers.
 1. Create a new layer card called **NDVI time series**.
 2. In the layer **Controls**, add **Temporal Control → Years**.
 3. Select **+ Add dataset → From service → MapProxy WMS** and add
-   the **WORLDCOVER NDVI 2020** layer.
+    the **WORLDCOVER NDVI 2020** layer.
 4. After the dataset is added, open its settings and explicitly set the
-   timestamp to:
+    timestamp to:
 
-   ```
-   2020-01-01
-   ```
+    ```
+    2020-01-01
+    ```
 
 5. Add a second dataset to the same layer for **WORLDCOVER NDVI 2021** and set
-   its timestamp to:
+    its timestamp to:
 
-   ```
-   2021-01-01
-   ```
+    ```
+    2021-01-01
+    ```
 
 6. Save the datasets and click **Preview**. The layer should now display a
-   **Years** temporal control; use it to step between the 2020 and 2021 NDVI
-   layers.
+    **Years** temporal control; use it to step between the 2020 and 2021 NDVI
+    layers.
 
 ### Did you remember to export?
 

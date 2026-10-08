@@ -6,9 +6,8 @@ title: 6-3. Temporal control with manual timestamps
 
 Attach timestamps to your _Above Ground Biomass_ layer (ABG) datasets by hand.
 
-1. Expand the _Above Ground Biomass_ layer card. Scroll down to the **Controls** section, toggle **Temporal control** on and set the dropdown to **Years**. Save and exit.
-2. On the **Datasets** tab, **edit** the AGB dataset. A timestamp field is now
-   available. Enter the date matching the data — a full date like `2023-01-01`
+1. Expand the _Above Ground Biomass_ layer card. Scroll down to the **Controls** section and select the pen icon next to it. Toggle **Temporal control** on and set the dropdown to **Years**. Save and exit.
+2. On the **Datasets** tab, **edit** the AGB dataset from the pen icon on the dataset row. A timestamp field is now available. Enter the date matching the data — a full date like `2023-01-01`
    is required, but with the granularity set to _Years_ the GE will show it
    simply as `2023`. Save and return to the layer.
 3. Add another dataset via **Direct connection → COG** and paste in this URL:

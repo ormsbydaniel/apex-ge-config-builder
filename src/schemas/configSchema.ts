@@ -219,6 +219,12 @@ export const DataSourceItemSchema = z.object({
   assets: z.array(z.string().min(1)).optional(),
   // Band labels extracted from STAC eo:bands metadata (drives RGB composite recipes)
   bandLabels: z.array(z.string()).optional(),
+  computedComposite: z.object({
+    recipe: z.literal('barren-soil'),
+    bands: z.tuple([z.number().int().positive(), z.number().int().positive(), z.number().int().positive(), z.number().int().positive()]),
+    inputScale: z.enum(['dn', 'reflectance']),
+    noData: z.number().optional(),
+  }).refine((cfg) => new Set(cfg.bands).size === 4, { message: 'Computed composites require four distinct bands' }).optional(),
   // Spectral index editor settings (rendered expression lives in `style`)
   spectralIndex: z.object({
     recipe: z.string(),

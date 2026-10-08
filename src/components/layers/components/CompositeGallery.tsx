@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { COMPUTED_NAME, COMPUTED_DESCRIPTION } from '@/utils/rgbComposite/computed';
 
 export const RECIPE_ICONS: Record<RgbRecipeId, React.ComponentType<{ className?: string }>> = {
   natural: Image,
@@ -29,10 +30,13 @@ interface CompositeGalleryProps {
   bandCount: number;
   bandLabels?: string[];
   loading: boolean;
-  activeTab: 'rgb' | 'index';
-  onTabChange: (tab: 'rgb' | 'index') => void;
+  activeTab: 'rgb' | 'index' | 'computed';
+  onTabChange: (tab: 'rgb' | 'index' | 'computed') => void;
   onPick: (id: RgbRecipeId) => void;
   onPickIndex: (id: IndexRecipeId) => void;
+  onPickComputed?: () => void;
+  /** Show the experimental Computed Composites tab. */
+  showComputed?: boolean;
 }
 
 const cardClass =
@@ -47,11 +51,12 @@ const withTooltip = (key: string, unavailable: boolean, card: React.ReactNode) =
     </Tooltip>
   );
 
-const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChange, onPick, onPickIndex }: CompositeGalleryProps) => (
-  <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'rgb' | 'index')} className="space-y-4">
+const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChange, onPick, onPickIndex, onPickComputed, showComputed = true }: CompositeGalleryProps) => (
+  <Tabs value={!showComputed && activeTab === 'computed' ? 'rgb' : activeTab} onValueChange={(value) => onTabChange(value as 'rgb' | 'index' | 'computed')} className="space-y-4">
     <TabsList aria-label="Visualisation type">
       <TabsTrigger value="rgb">Composites</TabsTrigger>
       <TabsTrigger value="index">Indices</TabsTrigger>
+      {showComputed && <TabsTrigger value="computed">Computed Composites</TabsTrigger>}
     </TabsList>
     {loading ? (
       <div className="flex items-center justify-center gap-2 py-10 text-xs text-muted-foreground">
@@ -59,6 +64,18 @@ const CompositeGallery = ({ bandCount, bandLabels, loading, activeTab, onTabChan
       </div>
     ) : (
       <TooltipProvider delayDuration={400}>
+        {showComputed && <TabsContent value="computed" className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Button type="button" variant="outline" className={cardClass} onClick={onPickComputed}>
+              <Calculator className="h-5 w-5 mt-0.5 shrink-0 text-primary" />
+              <div className="min-w-0 space-y-1">
+                <div className="text-sm font-medium">{COMPUTED_NAME}</div>
+                <div className="text-xs text-muted-foreground">{COMPUTED_DESCRIPTION}</div>
+                <div className="text-[11px] font-mono text-muted-foreground">R: 2.5 × BSI · G: NIR · B: SWIR1</div>
+              </div>
+            </Button>
+          </div>
+        </TabsContent>}
         <TabsContent value="rgb" className="space-y-3">
           <p className="text-sm text-muted-foreground">Choose how three bands combine into a colour image.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

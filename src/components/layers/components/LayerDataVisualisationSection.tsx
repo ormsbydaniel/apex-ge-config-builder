@@ -17,7 +17,7 @@ import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
 import VectorStyleSummary from '@/components/layers/components/VectorStyleSummary';
-import { countOwn } from '@/utils/rgbComposite/perDataset';
+import { countOwn, stripVisualisation } from '@/utils/rgbComposite/perDataset';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
@@ -36,7 +36,8 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   // Detect RGB composites from data source items
   const convertToRgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
   const indexSources = (source.data || []).filter((d: DataSourceItem) => d.format === 'cog' && !!d.spectralIndex);
-  const convertToRgbCount = convertToRgbSources.length + indexSources.length;
+  const computedSources = (source.data || []).filter((d: DataSourceItem) => d.format === 'cog' && !!d.computedComposite);
+  const convertToRgbCount = convertToRgbSources.length + indexSources.length + computedSources.length;
 
   const hasCategories = categories.length > 0;
   const hasColormaps = colormaps.length > 0;
@@ -99,6 +100,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
 
   const handleDeleteRgbComposites = () => {
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
+      if (d.computedComposite) return stripVisualisation(d);
       if (d.spectralIndex) {
         const { spectralIndex, style, convertToRGB, bands, ...rest } = d;
         return rest as DataSourceItem;
@@ -247,6 +249,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
               </span>
             )}
           </div>
+          {computedSources.length > 0 && <div className="ml-5 text-[11px] text-muted-foreground">Barren soil (Computed) · {computedSources.length} {computedSources.length === 1 ? 'dataset' : 'datasets'}</div>}
           {hasRgbComposites && indexSources.length > 0 && (() => {
             const si = indexSources[0].spectralIndex!;
             const name = si.recipe === 'custom-index' ? 'Index' : si.recipe.toUpperCase();
