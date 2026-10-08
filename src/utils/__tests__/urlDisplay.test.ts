@@ -6,7 +6,7 @@ import {
   truncateDisplayName,
 } from '../urlDisplay';
 
-const longId = 'S2A_30VUS_20260412T105321_Z04_mosaic_0001_ard_scene_a Very Long Sentinel Scene Identifier Segment';
+const longId = 'S2A_30VUS_20260412T105321Z04_mosaic_0001_ard_scene_aVeryLongSentinelSceneIdentifierSegment';
 
 describe('truncateDisplayName', () => {
   it('leaves short names unchanged', () => {

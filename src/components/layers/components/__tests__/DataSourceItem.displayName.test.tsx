@@ -13,7 +13,7 @@ vi.mock('@/utils/cogMetadata', () => ({
   fetchCogHeaderMetadata: vi.fn().mockResolvedValue({ samplesPerPixel: 1 }),
 }));
 
-const longId = 'S2A_30VUS_20260412T105321_Z04_mosaic_0001_ard_scene_a Very Long Sentinel Scene Identifier Segment';
+const longId = 'S2A_30VUS_20260412T105321Z04_mosaic_0001_ard_scene_aVeryLongSentinelSceneIdentifierSegment';
 
 describe('DataSourceItem display names', () => {
   it('truncates a long single-item STAC name and shows the full ID in the tooltip', async () => {
