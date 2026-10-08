@@ -3,19 +3,29 @@ import { DataSourceItemSchema } from '@/schemas/configSchema';
 import { extractBandLabels, getStacCollectionDataSourceUrl } from '@/utils/stacUtils';
 
 describe('STAC collection data sources', () => {
-  it('preserves asset names, zoom bounds, and styles through validation', () => {
+  it('preserves asset names, formats, zoom bounds, and styles through validation', () => {
     const style = [{ 'stroke-color': 'rgba(51, 94, 111, 0.85)', 'stroke-width': 1 }];
     const parsed = DataSourceItemSchema.parse({
       url: 'https://eoresults.esa.int/stac/collections/tillage_type_detection',
       format: 'stac',
       zIndex: 50,
       assets: ['classification'],
+      assetFormats: { classification: 'cog' },
       minZoom: 10,
       maxZoom: 18,
       style,
     });
 
-    expect(parsed).toMatchObject({ format: 'stac', assets: ['classification'], minZoom: 10, maxZoom: 18, style });
+    expect(parsed).toMatchObject({ format: 'stac', assets: ['classification'], assetFormats: { classification: 'cog' }, minZoom: 10, maxZoom: 18, style });
+  });
+
+  it('accepts existing STAC sources without stored asset formats', () => {
+    expect(DataSourceItemSchema.parse({
+      url: 'https://example.test/collections/legacy',
+      format: 'stac',
+      zIndex: 50,
+      assets: ['data'],
+    }).assetFormats).toBeUndefined();
   });
 
   it('uses a collection self link when available', () => {

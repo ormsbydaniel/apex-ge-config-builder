@@ -217,8 +217,8 @@ export const DataSourceItemSchema = z.object({
   maxZoom: z.number().optional(),
   // Optional asset names/keys for STAC collection data sources
   assets: z.array(z.string().min(1)).optional(),
-  // Detected (or user-chosen) format of the STAC asset; gates format-dependent tools
-  assetFormat: z.enum(['cog', 'geojson', 'flatgeobuf', 'csv', 'xyz']).optional(),
+  // Detected (or user-chosen) formats of STAC assets, keyed by asset name
+  assetFormats: z.record(z.string(), z.enum(['cog', 'geojson', 'flatgeobuf', 'csv', 'xyz'])).optional(),
   // Band labels extracted from STAC eo:bands metadata (drives RGB composite recipes)
   bandLabels: z.array(z.string()).optional(),
   computedComposite: z.object({
