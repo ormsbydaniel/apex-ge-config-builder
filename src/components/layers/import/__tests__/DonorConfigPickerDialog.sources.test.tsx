@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import DonorConfigPickerDialog from '../DonorConfigPickerDialog';
 
 const loadFromUrl = vi.fn();
@@ -11,6 +11,22 @@ vi.mock('@/hooks/useDonorConfigLoader', () => ({
     loadFromUrl,
   }),
 }));
+
+vi.mock('@/components/ui/tabs', async () => {
+  const React = await import('react');
+  const TabsContext = React.createContext<(value: string) => void>(() => undefined);
+  return {
+    Tabs: ({ onValueChange, children }: { onValueChange: (value: string) => void; children: React.ReactNode }) => (
+      <TabsContext.Provider value={onValueChange}><div>{children}</div></TabsContext.Provider>
+    ),
+    TabsList: ({ children }: { children: React.ReactNode }) => <div role="tablist">{children}</div>,
+    TabsTrigger: ({ value, children }: { value: string; children: React.ReactNode }) => {
+      const onValueChange = React.useContext(TabsContext);
+      return <button role="tab" onClick={() => onValueChange(value)}>{children}</button>;
+    },
+    TabsContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  };
+});
 
 vi.mock('@/utils/exampleManifest', () => ({
   EXAMPLES_MANIFEST_URL: 'https://example.test/manifest.json',
@@ -50,6 +66,10 @@ const renderDialog = () => {
 };
 
 describe('Import Layer Card configuration sources', () => {
+  beforeEach(() => {
+    loadFromUrl.mockReset();
+  });
+
   it('offers test configurations from the examples manifest', async () => {
     loadFromUrl.mockResolvedValueOnce({
       success: true,
