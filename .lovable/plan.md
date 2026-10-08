@@ -78,7 +78,8 @@ Add `extractStacDisplayName(url: string): string`:
 
 - No changes to saved configuration, schema, or types — display-only.
 - Other `extractDisplayName` consumers (constraints tab, URL display component)
-  are untouched; STAC is not used there today.
+  get the truncation automatically through the shared helper — no code changes
+  needed there.
 
 ## Verification
 
