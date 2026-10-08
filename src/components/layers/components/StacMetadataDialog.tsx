@@ -108,16 +108,16 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
+      <DialogContent className="w-full max-w-2xl h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader><DialogTitle>STAC Metadata</DialogTitle></DialogHeader>
-        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-          <TabsList>
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-0 flex-1 flex-col">
+          <TabsList className="shrink-0">
             <TabsTrigger value="collection">Collection</TabsTrigger>
             <TabsTrigger value="item">Item</TabsTrigger>
             <TabsTrigger value="asset">Asset</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="collection" className="space-y-1">
+          <TabsContent value="collection" className="space-y-1 h-full min-h-0 overflow-y-auto">
             {!getStacCollectionUrl(url) ? (
               <p className="text-sm text-muted-foreground">Collection metadata is not available for this address.</p>
             ) : (
@@ -141,7 +141,7 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
             )}
           </TabsContent>
 
-          <TabsContent value="item" className="space-y-1">
+          <TabsContent value="item" className="space-y-1 h-full min-h-0 overflow-y-auto">
             <Status state={item} empty="No items were returned." />
             {item.data && !item.data.single && it && (
               <p className="mb-2 text-xs text-muted-foreground">
@@ -169,7 +169,7 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
             )}
           </TabsContent>
 
-          <TabsContent value="asset" className="space-y-1">
+          <TabsContent value="asset" className="space-y-1 h-full min-h-0 overflow-y-auto">
             {!hasMappedAsset ? (
               <p className="text-sm text-muted-foreground">No asset name and format are set. Edit the dataset to select an asset.</p>
             ) : (
