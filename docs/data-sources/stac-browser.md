@@ -76,3 +76,13 @@ supported shapes.
   API may be rate-limiting. Filter by date upstream where possible.
 - Signed URLs are common in commercial STAC catalogues; the builder
   stores the base URL and re-signs at view time when supported.
+
+## Viewing STAC metadata
+
+Click the **(i)** button on a STAC dataset row to open **STAC Metadata**. It has three tabs:
+
+- **Collection**: title, description, licence, extents, keywords and the asset types the collection offers.
+- **Item**: the single item, or the first item returned by your filters, with its date, extent, key properties and the list of assets.
+- **Asset**: details for the selected asset, plus a button that opens the COG or FlatGeobuf file inspector.
+
+This view is read-only. Temporary or signed file links are never saved to your configuration.

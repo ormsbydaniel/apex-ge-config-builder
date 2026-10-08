@@ -13,6 +13,7 @@ import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 import WmsWmtsMetadataDialog from './WmsWmtsMetadataDialog';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
+import StacMetadataDialog from './StacMetadataDialog';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
@@ -56,6 +57,7 @@ const DataSourceItem = ({
   const [showBandSelector, setShowBandSelector] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
   const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
+  const [showStacDialog, setShowStacDialog] = useState(false);
   const [cogBandCount, setCogBandCount] = useState<number | null>(null);
   const [cogBandLoading, setCogBandLoading] = useState(false);
 
@@ -230,6 +232,19 @@ const DataSourceItem = ({
             <Info className="h-3 w-3" />
           </Button>
         )}
+
+        {/* Info icon for STAC sources */}
+        {dataSource.format?.toLowerCase() === 'stac' && dataSource.url && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowStacDialog(true)}
+            className="h-6 w-6 p-0"
+            title="View STAC Metadata"
+          >
+            <Info className="h-3 w-3" />
+          </Button>
+        )}
         
         {/* Info icon for FlatGeobuf files */}
         {dataSource.format?.toLowerCase() === 'flatgeobuf' && dataSource.url && (
@@ -396,6 +411,9 @@ const DataSourceItem = ({
           currentLayout={currentLayout}
           onUpdateLayout={onUpdateLayout}
         />
+      )}
+      {dataSource.format?.toLowerCase() === 'stac' && dataSource.url && (
+        <StacMetadataDialog dataSource={dataSource} open={showStacDialog} onOpenChange={setShowStacDialog} />
       )}
       {/* Band Selector Dialog */}
       {isCog && cogBandCount !== null && cogBandCount > 1 && (
