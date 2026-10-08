@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { DataSource } from '@/types/config';
 import { DataSourceItem } from '@/types/dataSource';
-import { isVectorFormat } from '@/utils/fieldDetection';
+import { isVectorDataSource } from '@/utils/stacAssetFormat';
 import { pickAttributeSource } from '@/utils/vectorStyle/pickAttributeSource';
 import MonacoJsonEditor from '@/components/config/components/MonacoJsonEditor';
 import { useToast } from '@/hooks/use-toast';
@@ -57,7 +57,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   const initialStyle: unknown[] = useMemo(() => {
     if (!open) return [];
     const vectorItem = source.data.find(
-      (item) => isVectorFormat(item.format) && Array.isArray(item.style)
+      (item) => isVectorDataSource(item) && Array.isArray(item.style)
     );
     return (vectorItem?.style as unknown[]) ?? [];
   }, [open, source.data]);
@@ -120,8 +120,8 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
   // re-renders with a new `source.data` array identity.
   const vectorItems = useMemo(
     () => source.data
-      .filter((item) => isVectorFormat(item.format) && item.url)
-      .map((item) => ({ url: item.url as string, format: item.format })),
+      .filter((item) => isVectorDataSource(item) && item.url)
+      .map((item) => ({ url: item.url as string, format: item.format, assets: item.assets, assetFormats: item.assetFormats })),
     [source.data],
   );
   const vectorKey = vectorItems.map((i) => `${i.format}|${i.url}`).join('\n');
@@ -200,7 +200,7 @@ const VectorStylingDialog = ({ open, onOpenChange, source, onUpdateDataSources }
       return;
     }
     const updatedData = source.data.map((item) =>
-      isVectorFormat(item.format) ? { ...item, style: parsedArr } : item
+      isVectorDataSource(item) ? { ...item, style: parsedArr } : item
     );
     onUpdateDataSources(updatedData);
     onOpenChange(false);
