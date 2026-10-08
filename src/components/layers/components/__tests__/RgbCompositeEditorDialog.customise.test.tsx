@@ -13,9 +13,21 @@ vi.mock('@/utils/cogMetadata', () => ({
 }));
 
 vi.mock('@/utils/rgbComposite/histogramCache', () => ({
-  getHistogram: vi.fn().mockResolvedValue(null),
+  getHistogram: vi.fn().mockResolvedValue({ bins: [{ x: 0, count: 1 }, { x: 100, count: 1 }], min: 0, max: 100 }),
   peekStretch: vi.fn(() => null),
 }));
+
+vi.mock('@/utils/stacAssetFormat', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/stacAssetFormat')>();
+  return {
+    ...actual,
+    resolveDataSourceInspectionAccess: vi.fn(async (item) => item.format === 'stac'
+      ? { format: 'cog', url: 'https://assets.example.com/visual.tif?signature=session-only' }
+      : { format: item.format, url: item.url }),
+  };
+});
+
+import { getHistogram } from '@/utils/rgbComposite/histogramCache';
 
 const savedItem = {
   format: 'cog',
@@ -86,5 +98,31 @@ describe('RgbCompositeEditorDialog customise settings', () => {
     const saved = onUpdate.mock.calls[0][0][0].spectralIndex;
     expect(saved.paletteMode).toBe('custom');
     expect(saved.legendStops[0].value).toBe(-0.25);
+  });
+
+  it('loads STAC COG histograms from the resolved asset URL', async () => {
+    const stacSource = { name: 'STAC RGB', data: [{
+      format: 'stac',
+      url: 'https://catalogue.example.com/items',
+      assets: ['visual'],
+      assetFormats: { visual: 'cog' },
+      convertToRGB: true,
+      bands: [3, 2, 1],
+    }] } as unknown as DataSource;
+    render(
+      <RgbCompositeEditorDialog
+        open
+        onOpenChange={vi.fn()}
+        source={stacSource}
+        onUpdateDataSources={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(getHistogram).toHaveBeenCalledWith(
+      'https://assets.example.com/visual.tif?signature=session-only',
+      expect.any(Number),
+      0,
+    ));
+    expect(getHistogram).not.toHaveBeenCalledWith('https://catalogue.example.com/items', expect.anything(), expect.anything());
   });
 });
