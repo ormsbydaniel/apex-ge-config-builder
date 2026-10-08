@@ -37,4 +37,5 @@
 
 ## STAC asset formats
 - [x] Phase 1–2: `assetFormat` field, detection on save/Detect button
+- [ ] Replace the duplicated asset-name controls with one discovery-first selector, manual entry, rescan, and format override
 - [ ] Phase 3: gate COG/vector tools on effective format and use in-memory sample URL
