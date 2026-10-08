@@ -1,57 +1,54 @@
-# Future-safe STAC asset format mapping
+# Guided STAC core query parameters
 
 ## Goal
 
-Replace the not-yet-adopted singular `assetFormat` property with a format mapping keyed by STAC asset name, while retaining the current one-asset editor.
+Help users construct STAC item queries without hand-editing URLs. The first version will support only the standard core parameters `bbox`, `datetime`, and `limit`, and will save the result solely as the existing data-source URL.
 
-Example saved shape:
+The collection-specific `queryables` response is useful for a later property-filter builder, but it is not needed for these three core parameters. That broader work will remain deferred.
 
-```json
-{
-  "format": "stac",
-  "assets": ["visual", "data"],
-  "assetFormats": {
-    "visual": "cog",
-    "data": "flatgeobuf"
-  }
-}
-```
+## User experience
 
-`assets` remains the Explorer-compatible ordered array. `assetFormats` provides stable per-asset metadata without relying on matching array positions. The current editor uses the format mapped to `assets[0]`; future multi-asset support can use every named entry.
+1. Add a compact **Filter items** section to the STAC data-source form.
+2. Determine what the entered URL represents before enabling filters:
+   - Collection URL: follow its advertised `items` link and build the query against that endpoint.
+   - Items URL: edit its query directly.
+   - Direct item URL: explain that filters do not apply to a single fixed item.
+   - Static STAC document without an items endpoint: explain that server-side filters are unavailable.
+3. Provide focused controls for:
+   - **Area**: west, south, east, and north coordinates for `bbox`.
+   - **Date and time**: start and end values for a STAC `datetime` interval, while permitting an open start or end.
+   - **Result limit**: a positive integer for `limit`.
+4. Preserve the URL field as the source of truth. Changes in the controls update its query string; editing or reopening an existing URL repopulates the controls.
+5. Preserve unrelated query parameters already present in the URL. Clearing a control removes only its corresponding parameter.
 
-## Implementation
+## Technical details
 
-1. **Synchronise the saved structure**
-   - Remove singular `assetFormat` from the data-source schema, TypeScript type, editor state, utilities, and tests.
-   - Add optional `assetFormats` to the schema and type as a record keyed by asset name, using the existing supported-format values.
-   - Confirm the map survives validation and config round trips.
-   - Keep `assetFormats` optional so existing configurations, including the new fixture, continue to load unchanged and can be detected when edited.
+1. **Central URL utilities**
+   - Add pure helpers to classify STAC URLs, parse `bbox`/`datetime`/`limit`, and update those parameters through `URL`/`URLSearchParams` without disturbing other parameters.
+   - Resolve collection URLs through their advertised `rel: items` link rather than assuming a fixed path.
+   - Reuse the same URL classification in STAC sample and asset discovery so queried item-list URLs remain consistent.
 
-2. **Centralise format resolution**
-   - Add utility helpers that resolve a named asset’s format from `assetFormats`.
-   - Make effective-format gating use the format mapped to the first selected asset, falling back to `stac` when that entry is absent.
-   - Keep sample asset URLs session-only; `assetFormats` stores formats only, never resolved or signed URLs.
+2. **Validation**
+   - Require four finite bbox values in west/south/east/north order, with west not exceeding east and south not exceeding north.
+   - Validate datetime values before producing the STAC interval syntax.
+   - Require a positive integer limit.
+   - Keep invalid edits visible with field-level feedback, but do not write malformed parameters into the URL.
 
-3. **Update the current one-asset editor**
-   - When discovery, automatic detection, or manual override resolves the selected asset, save that value under its asset name in `assetFormats`.
-   - Changing the selected asset must not associate the previous asset’s format with the new name.
-   - Preserve any existing mapped entries when editing a future multi-asset configuration, even though the current UI exposes one selected asset.
+3. **Form integration**
+   - Keep all query state local to the STAC form and derive it from the URL when editing an existing source.
+   - Do not add configuration fields or change the data model: the validated and exported value remains `DataSourceItem.url`.
+   - Ensure changing between collection, items, and direct-item URLs resets or rehydrates the controls correctly without affecting asset selection.
 
-4. **Use the new STAC fixture for coverage**
-   - Treat manifest test config `stac-datasets` as the primary STAC development fixture.
-   - Cover collection URLs, query-parameter item lists, direct item URLs, explicit asset names, swipe datasets, vector assets, and multi-band raster assets.
-   - Verify the fixture still loads without `assetFormats`, then verify detection/edit/save adds the correct name-keyed entry.
+4. **Coverage using `stac-datasets`**
+   - Use the manifest fixture as the primary manual test source.
+   - Cover its plain collection URLs, existing item-list URLs with `datetime` and `limit`, the bbox/datetime/limit Sentinel-2 query, and direct Sentinel-2 item URLs.
+   - Add focused utility and form tests for URL round trips, unknown-parameter preservation, collection resolution, invalid values, and direct-item/static-source gating.
 
-5. **Tests and documentation of the contract**
-   - Add focused tests for mapped lookup, missing mappings, unknown asset names, stale mappings, validation persistence, and one-asset save behavior.
-   - Record that `assets` remains an ordered string array for Explorer compatibility and `assetFormats` is keyed by asset name for future multi-asset support.
-   - Update the existing STAC project rule from “one renderable asset” to “one asset exposed by the current editor, multiple assets preserved by the data contract.”
+## Deferred
 
-## Boundaries
-
-- Do not add multi-asset selection to the UI yet.
-- Do not convert `assets` into an object array.
-- Do not retain, export, or support singular `assetFormat`.
-- Do not require `assetFormats` when loading configurations.
-- Do not persist resolved sample asset URLs.
-- The general modal-editor assessment remains parked.
+- Fetching and rendering collection-specific `queryables` fields.
+- CQL2 property filters, operators, and AND/OR groups.
+- Map drawing for bbox selection.
+- Structured STAC query metadata in the saved configuration.
+- The separate future-safe `assetFormats` mapping plan.
+- The general modal-editor assessment.
