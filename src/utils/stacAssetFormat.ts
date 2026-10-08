@@ -6,6 +6,7 @@
  * multiple assets and their formats by name.
  */
 import { appendQueryParam, detectAssetFormat, extractBandLabels, resolveAssetUrl, type StacAsset } from '@/utils/stacUtils';
+import { isVectorFormat } from '@/utils/fieldDetection';
 import type { DataSourceItem } from '@/types/config';
 
 export const STAC_ASSET_FORMATS = ['cog', 'geojson', 'flatgeobuf', 'csv', 'xyz'] as const;
@@ -29,6 +30,14 @@ export function getEffectiveFormat(
     return (name ? item.assetFormats?.[name] : undefined) || 'stac';
   }
   return item.format;
+}
+
+/** True when the item's effective format is a vector format (incl. mapped STAC assets). */
+export function isVectorDataSource(
+  item: Pick<DataSourceItem, 'format' | 'assets' | 'assetFormats'>,
+): boolean {
+  const format = getEffectiveFormat(item);
+  return !!format && isVectorFormat(format);
 }
 
 export interface DataSourceInspectionAccess {
