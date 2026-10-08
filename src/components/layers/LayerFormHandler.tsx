@@ -7,7 +7,7 @@ import LayerFormContainer from './LayerFormContainer';
 import DataSourceForm from './DataSourceForm';
 import ConstraintSourceForm from './components/ConstraintSourceForm';
 import { ChartSourceForm } from './components/ChartSourceForm';
-import { isVectorDataSource } from '@/utils/stacAssetFormat';
+import { getEffectiveFormat, isVectorDataSource } from '@/utils/stacAssetFormat';
 
 interface LayerFormHandlerProps {
   showLayerForm: boolean;
