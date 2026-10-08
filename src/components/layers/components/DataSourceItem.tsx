@@ -412,6 +412,9 @@ const DataSourceItem = ({
           onUpdateLayout={onUpdateLayout}
         />
       )}
+      {dataSource.format?.toLowerCase() === 'stac' && dataSource.url && (
+        <StacMetadataDialog dataSource={dataSource} open={showStacDialog} onOpenChange={setShowStacDialog} />
+      )}
       {/* Band Selector Dialog */}
       {isCog && cogBandCount !== null && cogBandCount > 1 && (
         <BandSelectorDialog
