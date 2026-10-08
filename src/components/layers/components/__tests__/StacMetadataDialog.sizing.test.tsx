@@ -65,8 +65,8 @@ describe('StacMetadataDialog sizing', () => {
     SCROLL_CLASSES.forEach((cls) => expect(content).toHaveClass(cls));
   });
 
-  it('does not let the tab strip or header shrink away', () => {
+  it('does not let the tab strip shrink away', () => {
     render(<StacMetadataDialog dataSource={dataSource} open onOpenChange={() => {}} />);
-    expect(screen.getByRole('tab', { name: 'Asset' })).toHaveClass('shrink-0');
+    expect(screen.getByRole('tablist')).toHaveClass('shrink-0');
   });
 });
