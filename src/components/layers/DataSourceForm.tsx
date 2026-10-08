@@ -752,6 +752,25 @@ const DataSourceForm = ({
     onCancel();
   };
 
+  // Shared STAC detection: fills asset format and band labels from the first item.
+  const runStacDetect = async (assetNames: string[]) => {
+    setIsDetectingStac(true);
+    try {
+      const sample = await sampleStacAsset(directUrl.trim(), assetNames);
+      if (sample.format) {
+        setStacAssetFormat(sample.format);
+        if (sample.bandLabels?.length) setStacBandLabels(sample.bandLabels);
+        toast({ title: 'Asset format detected', description: `${sample.assetName ?? 'Asset'}: ${FORMAT_CONFIGS[sample.format]?.label ?? sample.format}` });
+      } else {
+        toast({ title: 'Format not recognised', description: 'Choose the asset format manually.', variant: 'destructive' });
+      }
+    } catch (e) {
+      toast({ title: 'Could not read STAC items', description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
+    } finally {
+      setIsDetectingStac(false);
+    }
+  };
+
   const renderStacOptions = (idPrefix: string) => {
     if (selectedFormat !== 'stac') return null;
 
