@@ -47,3 +47,6 @@
 - [x] Move query actions before assets, make result limit an add action/badge, and move manual entry beside Asset name.
 - [x] Show only the STAC root in the editable URL field and display the complete formulated URL after filter badges.
 - [ ] Later: use collection queryables for CQL2 property filters.
+
+## Configuration donor sources
+- [x] Align Import Layer Card with Load Configuration by offering test/development and tutorial configs.
