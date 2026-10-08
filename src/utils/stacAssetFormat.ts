@@ -61,6 +61,29 @@ function toKnownFormat(value: string): StacAssetFormat | undefined {
   return (STAC_ASSET_FORMATS as readonly string[]).includes(value) ? (value as StacAssetFormat) : undefined;
 }
 
+export interface StacAssetChoice {
+  name: string;
+  title?: string;
+  format?: StacAssetFormat;
+}
+
+/** Lists the assets advertised by the first item (or collection-level assets). */
+export async function listStacAssets(
+  url: string,
+  fetcher: FetchLike = fetch as unknown as FetchLike,
+): Promise<StacAssetChoice[]> {
+  const sample = await fetchSampleItem(url, fetcher);
+  if (!sample) return [];
+  const assets: Record<string, StacAsset> = sample.item.assets || {};
+  return Object.entries(assets)
+    .filter(([, asset]) => asset?.href)
+    .map(([name, asset]) => ({
+      name,
+      title: asset.title,
+      format: toKnownFormat(String(detectAssetFormat(asset))),
+    }));
+}
+
 /** Fetches one sample item and works out the named asset's format. */
 export async function sampleStacAsset(
   url: string,
