@@ -485,12 +485,12 @@ const DonorConfigPickerDialog = ({
             ) : donorConfig ? (
               renderDonorLoadedView()
             ) : (
-              <>
+              <div className="flex min-h-0 flex-1 flex-col">
                 {renderErrorBanner()}
                 <Tabs
                   value={activeTab}
                   onValueChange={setActiveTab}
-                  className="flex min-h-0 w-full flex-1 flex-col"
+                  className="grid min-h-0 w-full flex-1 grid-rows-[auto_minmax(0,1fr)]"
                 >
                 <TabsList className="grid grid-cols-4 w-full">
                   <TabsTrigger value="upload">
@@ -512,7 +512,7 @@ const DonorConfigPickerDialog = ({
                 </TabsList>
 
                 {/* Upload */}
-                <TabsContent value="upload" className="mt-4 flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden">
+                <TabsContent value="upload" className="mt-4 h-full min-h-0 overflow-y-auto data-[state=inactive]:hidden">
                   <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center gap-3 bg-muted/30">
                     <Upload className="h-10 w-10 text-muted-foreground" />
                     <div className="text-center">
@@ -537,7 +537,7 @@ const DonorConfigPickerDialog = ({
                 </TabsContent>
 
                 {/* Examples */}
-                <TabsContent value="examples" className="mt-4 flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden">
+                <TabsContent value="examples" className="mt-4 h-full min-h-0 overflow-y-auto data-[state=inactive]:hidden">
                   {examplesLoading || (examplesFetching && !examples) ? (
                     <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -633,7 +633,7 @@ const DonorConfigPickerDialog = ({
                 </TabsContent>
 
                 {/* Tutorials */}
-                <TabsContent value="tutorials" className="mt-4 flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden">
+                <TabsContent value="tutorials" className="mt-4 h-full min-h-0 overflow-y-auto data-[state=inactive]:hidden">
                   {tutorialsLoading || (tutorialsFetching && !tutorials) ? (
                     <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -699,7 +699,7 @@ const DonorConfigPickerDialog = ({
                 {/* From GitHub */}
                 <TabsContent
                   value="github"
-                  className="mt-4 space-y-3 flex-1 min-h-0 flex flex-col"
+                  className="mt-4 h-full min-h-0 space-y-3 overflow-y-auto"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-3 items-end">
                     <div className="space-y-1 min-w-0">
@@ -838,7 +838,7 @@ const DonorConfigPickerDialog = ({
                     Cancel
                   </Button>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </ModalErrorBoundary>

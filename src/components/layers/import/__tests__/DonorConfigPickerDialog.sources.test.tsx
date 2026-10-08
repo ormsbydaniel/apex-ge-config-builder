@@ -88,6 +88,17 @@ describe('Import Layer Card configuration sources', () => {
     ));
   });
 
+  it('gives the source tabs a full-height scrolling content row', () => {
+    renderDialog();
+
+    const tabList = screen.getByRole('tablist');
+    const tabs = tabList.parentElement;
+    expect(tabs).toHaveClass('grid', 'min-h-0', 'flex-1', 'grid-rows-[auto_minmax(0,1fr)]');
+
+    const uploadPanel = screen.getByText('Upload a donor configuration JSON file').closest('[role="tabpanel"]');
+    expect(uploadPanel).toHaveClass('h-full', 'min-h-0', 'overflow-y-auto');
+  });
+
   it('offers tutorial configurations as donor sources', async () => {
     loadFromUrl.mockResolvedValueOnce({
       success: true,
