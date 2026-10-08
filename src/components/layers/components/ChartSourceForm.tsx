@@ -129,7 +129,7 @@ export function ChartSourceForm({
   const availableColumns = parsedData.columns;
 
   // Stabilize cogSources to prevent effect re-triggers from parent re-renders
-  const cogSourcesKey = cogSources.map(s => s.url || '').join('|');
+  const cogSourcesKey = cogSources.map(s => `${s.url || ''}:${(s.assets || []).join(',')}:${JSON.stringify(s.assetFormats || {})}`).join('|');
   const stableCogSources = useMemo(() => cogSources, [cogSourcesKey]);
 
   // Track dirty state
