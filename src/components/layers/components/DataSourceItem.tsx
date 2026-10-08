@@ -143,6 +143,26 @@ const DataSourceItem = ({
         <Badge variant="outline" className="text-xs flex-shrink-0">
           {dataSource.format?.toUpperCase() || 'UNKNOWN'}
         </Badge>
+
+        {/* Asset name badges for STAC sources */}
+        {dataSource.format?.toLowerCase() === 'stac' && Array.isArray(dataSource.assets) && dataSource.assets.map((assetName) => {
+          const assetFormat = dataSource.assetFormats?.[assetName];
+          return (
+            <TooltipProvider key={assetName}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="text-xs flex-shrink-0 max-w-[12rem]">
+                    <span className="truncate">{assetName}</span>
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs break-all">{assetFormat ? `${assetName} — ${assetFormat}` : assetName}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+
         
         <TooltipProvider>
           <Tooltip>
