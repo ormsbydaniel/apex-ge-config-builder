@@ -13,6 +13,7 @@ import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 import WmsWmtsMetadataDialog from './WmsWmtsMetadataDialog';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
+import StacMetadataDialog from './StacMetadataDialog';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
@@ -56,6 +57,7 @@ const DataSourceItem = ({
   const [showBandSelector, setShowBandSelector] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
   const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
+  const [showStacDialog, setShowStacDialog] = useState(false);
   const [cogBandCount, setCogBandCount] = useState<number | null>(null);
   const [cogBandLoading, setCogBandLoading] = useState(false);
 
@@ -226,6 +228,19 @@ const DataSourceItem = ({
             onClick={() => setShowMetadataDialog(true)}
             className="h-6 w-6 p-0"
             title="View COG Metadata"
+          >
+            <Info className="h-3 w-3" />
+          </Button>
+        )}
+
+        {/* Info icon for STAC sources */}
+        {dataSource.format?.toLowerCase() === 'stac' && dataSource.url && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowStacDialog(true)}
+            className="h-6 w-6 p-0"
+            title="View STAC Metadata"
           >
             <Info className="h-3 w-3" />
           </Button>
