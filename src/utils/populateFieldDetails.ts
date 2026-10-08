@@ -1,6 +1,7 @@
 import type { DataSourceItem } from '@/types/dataSource';
 import type { FieldsConfig } from '@/types/category';
 import type { DetectedField } from '@/utils/fieldDetection';
+import { getEffectiveFormat } from '@/utils/stacAssetFormat';
 import { assignFieldOrder } from '@/utils/fieldOrder';
 
 /** Only these formats can currently be inspected by the field detector. */
