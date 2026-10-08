@@ -28,6 +28,7 @@ vi.mock('@/utils/stacAssetFormat', async (importOriginal) => {
 });
 
 import { getHistogram } from '@/utils/rgbComposite/histogramCache';
+import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
 
 const savedItem = {
   format: 'cog',
@@ -101,6 +102,10 @@ describe('RgbCompositeEditorDialog customise settings', () => {
   });
 
   it('loads STAC COG histograms from the resolved asset URL', async () => {
+    vi.mocked(fetchCogHeaderMetadata).mockImplementationOnce(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      return { samplesPerPixel: 10, noDataValue: 0 } as Awaited<ReturnType<typeof fetchCogHeaderMetadata>>;
+    });
     const stacSource = { name: 'STAC RGB', data: [{
       format: 'stac',
       url: 'https://catalogue.example.com/items',
