@@ -24,6 +24,8 @@ export interface DataSourceItem {
   maxZoom?: number;
   // Optional STAC collection asset names/keys
   assets?: string[];
+  // Format of the STAC asset (detected from a sample item, or chosen by the user)
+  assetFormat?: 'cog' | 'geojson' | 'flatgeobuf' | 'csv' | 'xyz';
   // Band labels extracted from STAC eo:bands metadata (drives RGB composite recipes)
   bandLabels?: string[];
   // Temporal support

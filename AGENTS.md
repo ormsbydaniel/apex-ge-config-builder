@@ -7,3 +7,4 @@
 - Keep composite recipe scope and display-name transformations in `src/utils/rgbComposite/styleScope.ts`, so the editor preserves each COG's own stretch and labels without duplicating scope rules.
 - Vector attribute detection probes a layer's data files in order (`src/utils/vectorStyle/pickAttributeSource.ts`) and streams FlatGeobuf reads with early abort, because multi-file layers can contain attribute-less files and files can be very large.
 - Keep spectral-index recipe and custom palette stops as the single rendering/legend source; export per-COG labelled snapshots only for explicit palette modes so legacy styles stay truthful.
+- STAC data sources hold one renderable asset; gate format-dependent tools with `getEffectiveFormat` in `src/utils/stacAssetFormat.ts` (saved `assetFormat`), and resolve sample asset URLs in memory only, because signed hrefs must not be persisted.
