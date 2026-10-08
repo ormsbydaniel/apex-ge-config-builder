@@ -96,7 +96,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
       <div className="rounded-md border">
         <CollapsibleTrigger asChild>
           <Button type="button" variant="ghost" className="w-full justify-between px-3">
-            Filter items
+            Filter items (optional)
             <ChevronDown className={cn('h-4 w-4 transition-transform', open && 'rotate-180')} />
           </Button>
         </CollapsibleTrigger>
