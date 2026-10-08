@@ -466,31 +466,32 @@ const DonorConfigPickerDialog = ({
           onClose={() => onOpenChange(false)}
           resetKey={open ? `${activeTab}:${isLoading ? 'loading' : donorConfig ? 'loaded' : 'idle'}` : 'closed'}
         >
-          <DialogHeader>
-            <DialogTitle>Import Layer Card (beta)</DialogTitle>
-            <DialogDescription>
-              {isLoading
-                ? 'Loading donor configuration — please wait.'
-                : donorConfig
-                  ? `Configuration loaded. Ready to import into ${targetLabel || 'your configuration'}.`
-                  : `Choose a configuration to import layer cards from${
-                      targetLabel ? ` into ${targetLabel}` : ''
-                    }.`}
-            </DialogDescription>
-          </DialogHeader>
+          <div className="flex min-h-0 flex-1 flex-col">
+            <DialogHeader>
+              <DialogTitle>Import Layer Card (beta)</DialogTitle>
+              <DialogDescription>
+                {isLoading
+                  ? 'Loading donor configuration — please wait.'
+                  : donorConfig
+                    ? `Configuration loaded. Ready to import into ${targetLabel || 'your configuration'}.`
+                    : `Choose a configuration to import layer cards from${
+                        targetLabel ? ` into ${targetLabel}` : ''
+                      }.`}
+              </DialogDescription>
+            </DialogHeader>
 
-          {isLoading ? (
-            renderLoadingView()
-          ) : donorConfig ? (
-            renderDonorLoadedView()
-          ) : (
-            <>
-              {renderErrorBanner()}
-              <Tabs
-                value={activeTab}
-                onValueChange={setActiveTab}
-                className="w-full flex-1 flex flex-col min-h-0"
-              >
+            {isLoading ? (
+              renderLoadingView()
+            ) : donorConfig ? (
+              renderDonorLoadedView()
+            ) : (
+              <>
+                {renderErrorBanner()}
+                <Tabs
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="flex min-h-0 w-full flex-1 flex-col"
+                >
                 <TabsList className="grid grid-cols-4 w-full">
                   <TabsTrigger value="upload">
                     <Upload className="h-4 w-4 mr-2" />
@@ -830,15 +831,16 @@ const DonorConfigPickerDialog = ({
                     )}
                   </div>
                 </TabsContent>
-              </Tabs>
+                </Tabs>
 
-              <div className="flex items-center justify-end gap-2 pt-2 mt-auto border-t border-border">
-                <Button variant="ghost" onClick={() => onOpenChange(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </>
-          )}
+                <div className="mt-auto flex items-center justify-end gap-2 border-t border-border pt-2">
+                  <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
         </ModalErrorBoundary>
       </DialogContent>
     </Dialog>

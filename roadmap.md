@@ -50,3 +50,4 @@
 
 ## Configuration donor sources
 - [x] Align Import Layer Card with Load Configuration by offering test/development and tutorial configs.
+- [ ] Make the Examples and Tutorials pickers use the full available dialog height.
