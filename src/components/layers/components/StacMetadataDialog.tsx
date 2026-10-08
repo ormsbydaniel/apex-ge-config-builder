@@ -10,7 +10,7 @@ import { fetchStacCollection, fetchStacItemSample, fetchStacQueryables, getStacC
 import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 
-type Tab = 'collection' | 'item' | 'asset';
+type Tab = 'collection' | 'queryables' | 'item' | 'asset';
 interface LoadState<T> { loading: boolean; error?: string; data?: T }
 
 interface Props {
