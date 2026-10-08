@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { ServiceSelectionModal, ServiceSelectionValue } from './components/ServiceSelectionModals';
 import { CatalogueLayerSelection } from './components/CatalogueBrowser';
 import { ServiceCardList } from './components/ServiceCardList';
+import StacQueryEditor from './components/StacQueryEditor';
 
 import { determineZLevel } from '@/utils/drawOrderUtils';
 import ParametersEditor, { ParameterRow, applyOgcServiceVersion, recordToRows } from './ParametersEditor';
@@ -818,6 +819,7 @@ const DataSourceForm = ({
 
     return (
       <div className="space-y-4 border-t pt-4">
+        <StacQueryEditor url={directUrl} onChange={setDirectUrl} />
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}StacAsset`}>Asset</Label>
           {isEnteringStacAsset ? (
