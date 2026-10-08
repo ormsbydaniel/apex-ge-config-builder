@@ -228,6 +228,11 @@ const DataSourceForm = ({
     }
   }, [editingDataSource, layerType]);
 
+  // Clear discovered STAC assets when the URL changes so stale names aren't offered
+  useEffect(() => {
+    setDiscoveredAssets(null);
+  }, [directUrl]);
+
   // Track dirty state and update ConfigContext
   useEffect(() => {
     const hasUrl = directUrl.trim() !== '';
