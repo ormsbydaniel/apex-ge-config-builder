@@ -54,3 +54,7 @@
 ## Configuration donor sources
 - [x] Align Import Layer Card with Load Configuration by offering test/development and tutorial configs.
 - [x] Make the Examples and Tutorials pickers use the full available dialog height.
+
+## STAC dataset metadata
+- [x] Add an (i) metadata action to STAC rows with Collection, Item, and Asset tabs plus file inspection.
+- [x] Fix the dialog resizing by opening it at a fixed size matching the COG metadata dialog's scrolled footprint.
