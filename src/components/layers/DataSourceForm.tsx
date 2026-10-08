@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Save, X, Database, Globe, Server, CalendarIcon, ChevronLeft, ChevronRight, Pencil, RefreshCw } from 'lucide-react';
 import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
+import { isManualTimestampRequired } from '@/utils/timestampRequirement';
 import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
 import { decideStacAutoSelection, getStacItemEndpointKey, listStacAssets, sampleStacAsset, STAC_ASSET_FORMATS, updateStacAssetFormatMap, type StacAssetChoice, type StacAssetFormat } from '@/utils/stacAssetFormat';
@@ -625,7 +626,11 @@ const DataSourceForm = ({
       }
     }
 
-    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !effectiveUseTimeParameter);
+    const needsManualTimestamp = isManualTimestampRequired({
+      requiresTimestamp: !!requiresTimestamp,
+      format: selectedFormat,
+      useTimeParameter: effectiveUseTimeParameter,
+    });
 
     
     if (needsManualTimestamp && !selectedDate) {
@@ -709,7 +714,14 @@ const DataSourceForm = ({
       delete baseItem.timestamps;
     } else {
       delete baseItem.useTimeParameter;
-      if (needsManualTimestamp && selectedDate) {
+      if (selectedFormat === 'stac') {
+        // STAC items supply their own datetime; a timestamp is only a manual override.
+        if (requiresTimestamp && selectedDate) {
+          baseItem.timestamps = [Math.floor(selectedDate.getTime() / 1000)];
+        } else {
+          delete baseItem.timestamps;
+        }
+      } else if (needsManualTimestamp && selectedDate) {
         baseItem.timestamps = [Math.floor(selectedDate.getTime() / 1000)];
       }
     }
@@ -1243,7 +1255,7 @@ const DataSourceForm = ({
                 {requiresTimestamp && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="timestamp">Timestamp {((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
+                      <Label htmlFor="timestamp">Timestamp {selectedFormat === 'stac' ? <span className="text-muted-foreground font-normal">(optional)</span> : ((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
                       
                       {/* WMS/WMTS TIME Parameter Option */}
                       {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
@@ -1333,9 +1345,21 @@ const DataSourceForm = ({
                                 />
                               </PopoverContent>
                             </Popover>
+                            {selectedFormat === 'stac' && (selectedDate || dateInputValue) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                type="button"
+                                onClick={() => { setSelectedDate(undefined); setDateInputValue(''); }}
+                              >
+                                Clear
+                              </Button>
+                            )}
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                            {selectedFormat === 'stac'
+                              ? "Leave blank to use each STAC item's own datetime. Set a date only to override it."
+                              : `This timestamp will be used for temporal data visualization (${timeframe} timeframe).`}
                           </p>
                         </>
                       ) : null}
@@ -1482,7 +1506,7 @@ const DataSourceForm = ({
                 {requiresTimestamp && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="serviceTimestamp">Timestamp {((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
+                      <Label htmlFor="serviceTimestamp">Timestamp {selectedFormat === 'stac' ? <span className="text-muted-foreground font-normal">(optional)</span> : ((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
                       
                       {/* WMS/WMTS TIME Parameter Option */}
                       {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
@@ -1572,9 +1596,21 @@ const DataSourceForm = ({
                                 />
                               </PopoverContent>
                             </Popover>
+                            {selectedFormat === 'stac' && (selectedDate || dateInputValue) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                type="button"
+                                onClick={() => { setSelectedDate(undefined); setDateInputValue(''); }}
+                              >
+                                Clear
+                              </Button>
+                            )}
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                            {selectedFormat === 'stac'
+                              ? "Leave blank to use each STAC item's own datetime. Set a date only to override it."
+                              : `This timestamp will be used for temporal data visualization (${timeframe} timeframe).`}
                           </p>
                         </>
                       ) : null}
