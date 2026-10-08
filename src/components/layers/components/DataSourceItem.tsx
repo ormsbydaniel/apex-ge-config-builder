@@ -157,7 +157,7 @@ const DataSourceItem = ({
               </span>
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs break-all">{getDisplayName(false)}</p>
+              <p className="max-w-xs break-all">{dataSource.url || getDisplayName(false)}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
