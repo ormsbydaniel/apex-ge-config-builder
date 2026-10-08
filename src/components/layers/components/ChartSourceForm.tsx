@@ -23,6 +23,14 @@ import { ChartSettingsPanel } from '@/components/charts/ChartSettingsPanel';
 import { useChartEditorState } from '@/hooks/useChartEditorState';
 import { fetchAndParseCSV } from '@/utils/csvParser';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
+import { resolveDataSourceInspectionAccess } from '@/utils/stacAssetFormat';
+
+// Resolve the readable COG URL for a dataset (STAC assets resolve in memory only, never saved)
+async function resolveCogUrl(source: DataSourceItem): Promise<string> {
+  const access = await resolveDataSourceInspectionAccess(source);
+  if (!access || access.format !== 'cog') throw new Error('No readable COG asset');
+  return access.url;
+}
 import { fetchCogCenterPixel } from '@/utils/cogSamplePixel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Activity, Loader2, Tag, Settings2, ListTree, TrendingUp } from 'lucide-react';
@@ -121,7 +129,7 @@ export function ChartSourceForm({
   const availableColumns = parsedData.columns;
 
   // Stabilize cogSources to prevent effect re-triggers from parent re-renders
-  const cogSourcesKey = cogSources.map(s => s.url || '').join('|');
+  const cogSourcesKey = cogSources.map(s => `${s.url || ''}:${(s.assets || []).join(',')}:${JSON.stringify(s.assetFormats || {})}`).join('|');
   const stableCogSources = useMemo(() => cogSources, [cogSourcesKey]);
 
   // Track dirty state
@@ -180,7 +188,7 @@ export function ChartSourceForm({
     const requestId = ++bandFetchRef.current;
     setBandLoading(true);
 
-    fetchCogHeaderMetadata(source.url)
+    resolveCogUrl(source).then(fetchCogHeaderMetadata)
       .then((meta) => {
         if (requestId !== bandFetchRef.current) return;
         const count = meta.samplesPerPixel || 1;
@@ -229,7 +237,7 @@ export function ChartSourceForm({
     const requestId = ++sampleFetchRef.current;
     setSampleLoading(true);
 
-    fetchCogCenterPixel(source.url)
+    resolveCogUrl(source).then(fetchCogCenterPixel)
       .then((result) => {
         if (requestId !== sampleFetchRef.current) return;
         setSamplePixelValues(result.bandValues);
@@ -263,12 +271,12 @@ export function ChartSourceForm({
   // Detect band count from the first timestamped COG
   useEffect(() => {
     if (sourceType !== 'pixelTimeSeries' || stableTimeSeriesSources.length === 0) return;
-    const url = stableTimeSeriesSources[0]?.url;
-    if (!url) return;
+    const first = stableTimeSeriesSources[0];
+    if (!first?.url) return;
 
     const requestId = ++tsBandFetchRef.current;
     setTsBandLoading(true);
-    fetchCogHeaderMetadata(url)
+    resolveCogUrl(first).then(fetchCogHeaderMetadata)
       .then((meta) => {
         if (requestId !== tsBandFetchRef.current) return;
         setTsBandCount(meta.samplesPerPixel || 1);
