@@ -798,6 +798,48 @@ const DataSourceForm = ({
           )}
           <p className="text-xs text-muted-foreground">Optional asset names advertised by the collection.</p>
         </div>
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}StacAssetFormat`}>Asset format</Label>
+          <div className="flex gap-2">
+            <Select
+              value={stacAssetFormat ?? 'auto'}
+              onValueChange={(v) => setStacAssetFormat(v === 'auto' ? undefined : (v as StacAssetFormat))}
+            >
+              <SelectTrigger id={`${idPrefix}StacAssetFormat`}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">Detect when saved</SelectItem>
+                {STAC_ASSET_FORMATS.map((f) => (
+                  <SelectItem key={f} value={f}>{FORMAT_CONFIGS[f]?.label ?? f.toUpperCase()}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!directUrl.trim() || isDetectingStac}
+              onClick={async () => {
+                setIsDetectingStac(true);
+                try {
+                  const sample = await sampleStacAsset(directUrl.trim(), stacAssets);
+                  if (sample.format) {
+                    setStacAssetFormat(sample.format);
+                    if (sample.bandLabels?.length) setStacBandLabels(sample.bandLabels);
+                    toast({ title: 'Asset format detected', description: `${sample.assetName ?? 'Asset'}: ${FORMAT_CONFIGS[sample.format]?.label ?? sample.format}` });
+                  } else {
+                    toast({ title: 'Format not recognised', description: 'Choose the asset format manually.', variant: 'destructive' });
+                  }
+                } catch (e) {
+                  toast({ title: 'Could not read STAC items', description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
+                } finally {
+                  setIsDetectingStac(false);
+                }
+              }}
+            >
+              {isDetectingStac ? 'Detecting…' : 'Detect'}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">Read from the first item's asset. Unlocks the matching styling tools for this source.</p>
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor={`${idPrefix}MinZoom`}>Minimum zoom</Label>
