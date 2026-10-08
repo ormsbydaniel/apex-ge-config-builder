@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import StacMetadataDialog from '../StacMetadataDialog';
+import type { DataSourceItem } from '@/types/config';
 
 vi.mock('../CogMetadataDialog', () => ({ default: () => null }));
 vi.mock('../FlatGeobufMetadataDialog', () => ({ default: () => null }));
@@ -23,12 +24,12 @@ vi.mock('@/utils/stacMetadata', () => ({
   stripUrlParams: vi.fn((href: string) => href.split('?')[0]),
 }));
 
-const dataSource = {
+const dataSource: Pick<DataSourceItem, 'url' | 'format' | 'assets' | 'assetFormats'> = {
   url: 'https://example.com/stac/collections/tillage/items',
   format: 'stac',
   assets: ['data'],
   assetFormats: { data: 'cog' },
-} as const;
+};
 
 const FIXED_PANEL_CLASSES = ['w-full', 'max-w-2xl', 'h-[80vh]', 'overflow-hidden', 'flex', 'flex-col'];
 const SCROLL_CLASSES = ['h-full', 'min-h-0', 'overflow-y-auto'];
