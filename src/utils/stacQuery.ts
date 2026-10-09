@@ -158,6 +158,9 @@ export async function inspectStacQueryTarget(
   const parsed = new URL(url);
   if (/\/items\/[^/?#]+\/?$/.test(parsed.pathname)) return { kind: 'item' };
   if (/\/items\/?$/.test(parsed.pathname)) return { kind: 'items', itemsUrl: url };
+  if (isStacSearchUrl(url)) {
+    return { kind: 'search', searchUrl: url, collectionId: parsed.searchParams.get('collections')! };
+  }
 
   const response = await fetcher(url, { headers: { Accept: 'application/json, application/geo+json' } });
   if (!response.ok) throw new Error(`STAC request failed (${response.status ?? 'error'})`);
