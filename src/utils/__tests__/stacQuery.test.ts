@@ -22,15 +22,13 @@ describe('STAC core query URLs', () => {
   });
 
   it('does not rewrite partially typed URLs while typing', () => {
-    const source = 'https://x.test/items?token=public&limit=5';
     let current = '';
-    for (const char of 'https://example.com/collections/sentinel-2'.replace(source.slice(0, 0), '')) {
-      current = replaceStacUrlBase(current || '', current + char);
+    for (const char of 'https://example.com/collections/sentinel-2') {
+      current = replaceStacUrlBase(current, current + char);
       // The display base must always match exactly what the user has typed.
-      expect(getStacUrlBase(current)).toBe(current + (current.includes('?') ? '' : ''));
+      expect(getStacUrlBase(current)).toBe(current);
     }
-    expect(current).toBe('https://example.com/collections/sentinel-2?token=public&limit=5');
-    expect(getStacUrlBase(current)).toBe('https://example.com/collections/sentinel-2');
+    expect(current).toBe('https://example.com/collections/sentinel-2');
   });
 
   it('keeps a partially typed host verbatim without adding a trailing slash', () => {
