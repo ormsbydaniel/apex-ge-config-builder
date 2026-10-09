@@ -125,7 +125,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   const rules = cql2 && 'rules' in cql2 ? cql2.rules : [];
   const openPropertyDialog = (edit: { index?: number; raw?: string }) => setPropertyEdit(edit);
   const saveFilter = (filter: StacPropertyRule[] | string | undefined) => {
-    try { onChange(updateStacCql2Filter(target?.kind === 'items' ? target.itemsUrl === url ? url : url : url, filter)); } catch { /* invalid URL */ }
+    try { onChange(updateStacCql2Filter(url, filter)); } catch { /* invalid URL */ }
   };
 
   const dateSummary = parsedQuery.datetimeStart || parsedQuery.datetimeEnd

@@ -73,3 +73,49 @@ describe('STAC core query URLs', () => {
     await expect(inspectStacQueryTarget('https://x.test/static/collection.json', fakeFetch({ links: [] }))).resolves.toEqual({ kind: 'static' });
   });
 });
+import { operatorsForQueryable, parseStacCql2Filter, serialiseCql2Rules, updateStacCql2Filter, type StacPropertyRule } from '@/utils/stacQuery';
+
+describe('STAC CQL2 property filters', () => {
+  const base = 'https://x.test/collections/s2/items?token=public&limit=50&bbox=-3,51,-1,52';
+  const rules: StacPropertyRule[] = [
+    { property: 'eo:cloud_cover', type: 'number', operator: 'lte', values: ['20'] },
+    { property: 'platform', type: 'string', operator: 'eq', values: ["sentinel-2a's"] },
+    { property: 'sat:relative_orbit', type: 'number', operator: 'between', values: ['10', '30'] },
+    { property: 'constellation', type: 'string', operator: 'in', values: ['a', 'b'] },
+    { property: 'title', type: 'string', operator: 'like', values: ['T30'] },
+    { property: 'created', type: 'datetime', operator: 'gt', values: ['2026-01-01T00:00:00.000Z'] },
+    { property: 'flag', type: 'boolean', operator: 'eq', values: ['true'] },
+  ];
+
+  it('serialises and round-trips every operator, preserving other parameters', () => {
+    const url = updateStacCql2Filter(base, rules);
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get('filter-lang')).toBe('cql2-text');
+    expect(parsed.searchParams.get('filter')).toBe(serialiseCql2Rules(rules));
+    expect(parsed.searchParams.get('filter')).toContain("'sentinel-2a''s'");
+    expect(parsed.searchParams.get('token')).toBe('public');
+    expect(parsed.searchParams.get('limit')).toBe('50');
+    expect(parsed.searchParams.get('bbox')).toBe('-3,51,-1,52');
+    expect(parseStacCql2Filter(url)).toEqual({ rules });
+  });
+
+  it('falls back to raw text for unsupported expressions', () => {
+    const url = updateStacCql2Filter(base, "a = 1 OR b = 2");
+    expect(parseStacCql2Filter(url)).toEqual({ raw: 'a = 1 OR b = 2' });
+  });
+
+  it('removes both filter parameters when cleared', () => {
+    const cleared = new URL(updateStacCql2Filter(updateStacCql2Filter(base, rules), []));
+    expect(cleared.searchParams.get('filter')).toBeNull();
+    expect(cleared.searchParams.get('filter-lang')).toBeNull();
+    expect(cleared.searchParams.get('limit')).toBe('50');
+  });
+
+  it('maps queryable types to operators', () => {
+    expect(operatorsForQueryable({ type: 'number' })).toContain('between');
+    expect(operatorsForQueryable({ type: 'string' })).toEqual(['eq', 'neq', 'like']);
+    expect(operatorsForQueryable({ type: 'string', enumValues: ['a'] })).toEqual(['eq', 'in']);
+    expect(operatorsForQueryable({ type: 'boolean' })).toEqual(['eq']);
+    expect(operatorsForQueryable({ type: 'string (date-time)' })).toContain('gte');
+  });
+});
