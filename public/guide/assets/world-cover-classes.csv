@@ -1,0 +1,12 @@
+label,color,value
+Tree cover,#006400,10
+Shrubland,#FFBB22,20
+Grassland,#FFFF4C,30
+Cropland,#F096FF,40
+Built-up,#FF0000,50
+Bare,#B4B4B4,60
+Snow and ice,#F0F0F0,70
+Permanent water bodies,#0064C8,80
+Herbaceous wetland,#0096A0,90
+Mangroves,#00CF75,95
+Moss and lichen,#FAE6A0,100

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 465" role="img" aria-labelledby="title desc">
+  <title id="title">Reprojecting source data for map display</title>
+  <desc id="desc">Data in EPSG:4326 is reprojected at runtime into the selected display CRS, EPSG:3413. The original data remains in EPSG:4326.</desc>
+  <rect width="480" height="465" rx="8" fill="#ffffff"/>
+
+  <rect x="20" y="16" width="440" height="110" rx="6" fill="#eaf3ef" stroke="#527665" stroke-width="2"/>
+  <circle cx="61" cy="52" r="17" fill="#255946"/>
+  <text x="61" y="58" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="17" font-weight="700">1</text>
+  <text x="93" y="59" fill="#183b30" font-family="sans-serif" font-size="21" font-weight="700">Source data</text>
+  <text x="93" y="94" fill="#183b30" font-family="sans-serif" font-size="18">Stored in EPSG:4326</text>
+
+  <path d="M240 131v30m-9-9 9 9 9-9" fill="none" stroke="#45566a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="20" y="166" width="440" height="110" rx="6" fill="#f2f4f6" stroke="#687585" stroke-width="2"/>
+  <circle cx="61" cy="202" r="17" fill="#45566a"/>
+  <text x="61" y="208" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="17" font-weight="700">2</text>
+  <text x="93" y="209" fill="#273544" font-family="sans-serif" font-size="21" font-weight="700">Reproject at runtime</text>
+  <text x="93" y="244" fill="#273544" font-family="sans-serif" font-size="18">Source file stays unchanged</text>
+
+  <path d="M240 281v30m-9-9 9 9 9-9" fill="none" stroke="#45566a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="20" y="316" width="440" height="110" rx="6" fill="#eaf1f7" stroke="#4b6c89" stroke-width="2"/>
+  <circle cx="61" cy="352" r="17" fill="#355a78"/>
+  <text x="61" y="358" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="17" font-weight="700">3</text>
+  <text x="93" y="359" fill="#223e58" font-family="sans-serif" font-size="21" font-weight="700">Displayed map</text>
+  <text x="93" y="394" fill="#223e58" font-family="sans-serif" font-size="18">Selected CRS: EPSG:3413</text>
+</svg>
