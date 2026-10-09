@@ -316,4 +316,4 @@ export const operatorsForType = (type: StacPropertyType): StacPropertyOperator[]
   operatorsForQueryable({ type: type === 'datetime' ? 'string (date-time)' : type });
 
 /** Keys handled by dedicated controls and never offered as property filters. */
-export const isDedicatedStacQueryable = (key: string) => ['datetime', 'geometry', 'bbox', 'id', 'collection'].includes(key);
+export const isDedicatedStacQueryable = (key: string) => ['datetime', 'geometry', 'bbox'].includes(key);
