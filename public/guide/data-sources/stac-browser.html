@@ -1128,6 +1128,42 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#viewing-stac-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing STAC metadata
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drawing-the-area-on-a-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      Drawing the area on a map
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#property-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property filters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-method-items-or-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query method: items or search
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1819,6 +1855,42 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#viewing-stac-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing STAC metadata
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drawing-the-area-on-a-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      Drawing the area on a map
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#property-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property filters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-method-items-or-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query method: items or search
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1896,6 +1968,21 @@ supported shapes.</p>
 <li>Signed URLs are common in commercial STAC catalogues; the builder
   stores the base URL and re-signs at view time when supported.</li>
 </ul>
+<h2 id="viewing-stac-metadata">Viewing STAC metadata<a class="headerlink" href="#viewing-stac-metadata" title="Permanent link">&para;</a></h2>
+<p>Click the <strong>(i)</strong> button on a STAC dataset row to open <strong>STAC Metadata</strong>. It has three tabs:</p>
+<ul>
+<li><strong>Collection</strong>: title, description, licence, extents, keywords and the asset types the collection offers.</li>
+<li><strong>Item</strong>: the single item, or the first item returned by your filters, with its date, extent, key properties and the list of assets.</li>
+<li><strong>Asset</strong>: details for the selected asset, plus a button that opens the COG or FlatGeobuf file inspector.</li>
+</ul>
+<p>This view is read-only. Temporary or signed file links are never saved to your configuration.</p>
+<h2 id="drawing-the-area-on-a-map">Drawing the area on a map<a class="headerlink" href="#drawing-the-area-on-a-map" title="Permanent link">&para;</a></h2>
+<p>The <strong>Bounding box filter</strong> dialog includes a small map. Choose <strong>Draw area</strong> and drag a rectangle, or pan to an area and click <strong>Use current map view</strong>; the West/South/East/North boxes stay in sync with the rectangle. Only <code>bbox=W,S,E,N</code> is saved in the address. Queryables named <code>geometry</code> describe the item footprint — spatial filtering on them uses this bbox filter.</p>
+<h2 id="property-filters">Property filters<a class="headerlink" href="#property-filters" title="Permanent link">&para;</a></h2>
+<p>For STAC items endpoints, <strong>+ Add property filter</strong> lists the properties the collection publishes in its <code>queryables</code> response (for example <code>eo:cloud_cover</code>). Choose a property, a condition suited to its type and a value; each rule appears as a badge and rules are combined with AND. <strong>Test filter</strong> runs the query once and reports how many items match, or the server's error.</p>
+<p>Filters are saved only in the data source URL as <code>filter=&lt;CQL2 text&gt;&amp;filter-lang=cql2-text</code>. If a collection does not publish queryables, enter the property name and type manually. Filters the editor cannot split into simple rules (for example ones using OR) are shown as a single <strong>Custom filter</strong> that you can edit as raw text.</p>
+<h2 id="query-method-items-or-search">Query method: items or search<a class="headerlink" href="#query-method-items-or-search" title="Permanent link">&para;</a></h2>
+<p>The query editor offers a <strong>Query method</strong> choice between the <strong>Items endpoint</strong> (<code>.../collections/{id}/items?…</code>, the default) and the <strong>Search endpoint</strong> (<code>.../search?collections={id}&amp;…</code>). Switching rewrites the address and keeps every filter — bbox, datetime, limit and property filters — intact. Some servers only evaluate property filters on the search endpoint, so if a filter has no effect on the result set, switch to <strong>Search endpoint</strong> and use <strong>Test filter</strong> to confirm. A pasted <code>/search?collections=…</code> address is recognised directly. Searches spanning several collections (<code>collections=a,b</code>) are recognised but cannot be switched back to the items endpoint, which serves a single collection.</p>
 
 
 

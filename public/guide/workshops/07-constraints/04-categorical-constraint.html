@@ -1733,6 +1733,8 @@
       
         
       
+        
+      
     
     
       
@@ -1985,8 +1987,8 @@ values.</p>
 the labels are only for display.</p>
 <h2 id="configure-it">Configure it<a class="headerlink" href="#configure-it" title="Permanent link">&para;</a></h2>
 <ol>
-<li>
-<p>On the <em>Austria Wind Power Density at 100m</em> layer card, open the <strong>Constraints</strong> tab and select <strong>Add constraint</strong>. Keep the source type as <strong>Direct URL</strong> and paste the WorldCover COG that has been prepared to align with the wind power data:</p>
+<li>On the <em>Austria Wind Power Density at 100m</em> layer card, open the <strong>Constraints</strong> tab and select <strong>Add constraint source</strong>. Keep the source type as <strong>Direct Connection, COG</strong> and paste the WorldCover COG that has been prepared to align with the wind power data:</li>
+</ol>
 <div class="highlight"><pre><span></span><code>https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif
 </code></pre></div>
 <p>Set:</p>
@@ -1995,13 +1997,15 @@ the labels are only for display.</p>
 <li><strong>Interactive</strong> — on</li>
 <li><strong>Constraint Type</strong> — <strong>Categorical</strong></li>
 </ul>
-</li>
+<ol start="2">
 <li>
 <p>Select <strong>Populate Categories from COG</strong>. The builder reads the distinct
    values present in the file and creates a row for each one.</p>
 </li>
 <li>
 <p>Edit the labels so they read as class names rather than numbers:</p>
+</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -2013,10 +2017,6 @@ the labels are only for display.</p>
 <tr>
 <td>Tree cover</td>
 <td>10</td>
-</tr>
-<tr>
-<td>Shrubland</td>
-<td>20</td>
 </tr>
 <tr>
 <td>Grassland</td>
@@ -2053,18 +2053,14 @@ the labels are only for display.</p>
 </tbody>
 </table>
 <p>This is the same class list used in
-<a href="../05-categorical-data/03-categories-cog.html">5-3. Categories from a COG</a>,
-and is also available as a
-<a href="../../assets/world-cover-classes.csv">CSV file</a>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Not every class is present in Austria. Values that the COG does not
-contain simply never mask anything, so it is harmless to leave them in.</p>
-</div>
-</li>
-<li>
-<p><strong>Save</strong> the constraint.</p>
-</li>
+   <a href="../05-categorical-data/03-categories-cog.html">5-3. Categories from a COG</a>,
+   and is also available as a
+   <a href="../../assets/world-cover-classes.csv">CSV file</a>.</p>
+<p>!!! note
+   Not every class is present in Austria. Values that the COG does not
+   contain simply never mask anything, so it is harmless to leave them in.</p>
+<ol start="4">
+<li><strong>Save</strong> the constraint.</li>
 </ol>
 <h2 id="view-the-result">View the result<a class="headerlink" href="#view-the-result" title="Permanent link">&para;</a></h2>
 <p>Open the <strong>Preview</strong>. The layer now has a set of land cover checkboxes. Untick

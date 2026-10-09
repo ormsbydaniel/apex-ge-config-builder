@@ -1468,6 +1468,8 @@
       
         
       
+        
+      
     
     
       
@@ -1693,11 +1695,32 @@
   
   
     <li class="md-nav__item">
-      <a href="07-preview-and-review.html" class="md-nav__link">
+      <a href="07-histogram-statistics.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    8-7. Preview and review
+    8-7. Histogram statistics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="08-preview-and-review.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    8-8. Preview and review
   </span>
   
 
@@ -1891,50 +1914,49 @@
 <p>Statistics sources are added from their own tab, not alongside the display
 data.</p>
 <ol>
-<li>
-<p>On the <code>World Cover 2021 with statistics</code> layer card, open
-   <strong>Data Sources</strong> and select the <strong>Statistics</strong> tab.</p>
+<li>On the <code>World Cover 2021 with statistics</code> layer card, open
+   <strong>Data Sources</strong> and select the <strong>Statistics</strong> tab.</li>
+</ol>
 <p><img alt="Statistics tab in the Data Sources section of the layer card" src="../../assets/screenshots/data-sources-statistics-tab.png" /></p>
-</li>
-<li>
-<p>Click <strong>Add source</strong>, choose <strong>FlatGeoBuf</strong>, and enter the NUTS level 0 (country) source details:</p>
-<div class="admonition note">
-<p class="admonition-title">Supported formats</p>
-<p>Statistics sources must be <strong>FlatGeoBuf</strong> or <strong>GeoJSON</strong>. FlatGeoBuf is
-preferred: it is indexed, so the Explorer only downloads the features
-in view.</p>
-</div>
+<ol start="2">
+<li>Click <strong>Add statistics source</strong>, choose <strong>FlatGeoBuf</strong>, and enter the NUTS level 0 (country) source details:</li>
+</ol>
+<p>!!! note "Supported formats"
+   Statistics sources must be <strong>FlatGeoBuf</strong> or <strong>GeoJSON</strong>. FlatGeoBuf is
+   preferred: it is indexed, so the Explorer only downloads the features
+   in view.</p>
 <ul>
-<li><strong>File URL:</strong></li>
-</ul>
+<li>
+<p><strong>File URL:</strong></p>
 <div class="highlight"><pre><span></span><code>https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level00.fgb
 </code></pre></div>
-<ul>
-<li><strong>level:</strong> Leave it at the pre-filled <code>0</code> — this is the first statistics source on the layer, with the coarsest boundaries.</li>
+</li>
+<li>
+<p><strong>level:</strong> Leave it at the pre-filled <code>0</code> — this is the first statistics source on the layer, with the coarsest boundaries.</p>
+</li>
 <li><strong>zIndex:</strong> Leave it at <code>100</code>, above the display data so the clickable boundaries sit on top of the raster.</li>
 </ul>
-</li>
+<ol start="3">
 <li>
 <p><strong>Save</strong> the source. It now appears under <strong>Statistics</strong>, separately from the
    WMS source on the <strong>Data</strong> tab.</p>
 </li>
 <li>
 <p>View the result. Open the <strong>Preview</strong>, turn the layer on, then:</p>
+</li>
+</ol>
 <ul>
 <li>Select the <strong>Statistics</strong> tab in the info panel.</li>
 <li>Click on a <strong>country</strong> on the map.</li>
 </ul>
-<p>You should see the land cover breakdown for that whole country:</p>
+<p>You should see the land cover breakdown for that whole country. If you want to view statistics for another country, select the red <strong>Clear</strong> link on the statistics panel (top right) and click on another.</p>
 <p><img alt="Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0" src="../../assets/screenshots/statistics-nuts-level0-result.png" /></p>
-</li>
-</ol>
-<div class="admonition warning">
-<p class="admonition-title">Coordinate reference system</p>
-<p>These files are published in EPSG:4326, matching the <code>epsg4326</code> in the file
+<p>By the way, if you click on <em>France</em> and notice it zooming out to the world, thats not an error. The polygon for France includes its overseas territories, such as <em>French Guiana</em> just north of Brazil - home of <a href="https://www.esa.int/Enabling_Support/Space_Transportation/Europe_s_Spaceport/Europe_s_Spaceport2">Europe's Space Port</a></p>
+<p>!! warning "Coordinate reference system"
+These files are published in EPSG:4326, matching the <code>epsg4326</code> in the file
 name. Statistics features must be in a CRS the Explorer can reproject to the
 map — a mismatch shows as boundaries in the wrong place, or no clickable
-features at all.</p>
-</div>
+features at all. If you are working with statistics files in future that are in different projections, then you may need to add them as custom statistics. See tutorial 9.</p>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
 
