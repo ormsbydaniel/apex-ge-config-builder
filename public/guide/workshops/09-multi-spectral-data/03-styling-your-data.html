@@ -24,7 +24,7 @@
     
     
       
-        <title>9-3. Styling your data - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>9-3. Styling multi-spectral data - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#9-3-styling-your-data" class="md-skip">
+        <a href="#9-3-styling-multi-spectral-data" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              9-3. Styling your data
+              9-3. Styling multi-spectral data
             
           </span>
         </div>
@@ -1919,7 +1919,30 @@
                   
 
 
-<h1 id="9-3-styling-your-data">9-3. Styling your data<a class="headerlink" href="#9-3-styling-your-data" title="Permanent link">&para;</a></h1>
+<h1 id="9-3-styling-multi-spectral-data">9-3. Styling multi-spectral data<a class="headerlink" href="#9-3-styling-multi-spectral-data" title="Permanent link">&para;</a></h1>
+<p>In this exercise we will work with an existing configuration. If you are following on from previous exercises you may want to <strong>export your current config</strong>, as we will load up a new one.</p>
+<p>1., From the configuration builder <strong>Home</strong> page, select <strong>Load -&gt; Tutorials -&gt; Tutorial 9 pre-requisites</strong>.</p>
+<div class="highlight"><pre><span></span><code>!!!info "About this config"
+This config file has a few multi-spectral datasets already included. Some of these are  from the [**UK Earth Observation Data Hub**](https://eodatahub.org.uk/) so we have also added in support in this config for **British National Grid** as a custom co-ordinate reference system.  Custom CRS definitions are covered in Tutorial 11 if you wish to replicate this elsewhere.
+</code></pre></div>
+<ol start="2">
+<li>Take a look at the <strong>Bristol Sentinel 2 scene</strong> layer in the Sentinel 2 interface group. Right now this is just a normal layer, with a COG added, as you have done before.</li>
+</ol>
+<ul>
+<li>Note how the row in the <em>Datasets</em> tab, tell is it has 10 bands, but they are "undefined".</li>
+<li>Now click on the <strong>( i )</strong> icon on that row to inspect the COG metadata. Note how it has a dropdown of bands and you can inspect the statistics of each individually.</li>
+</ul>
+<ol start="3">
+<li>Now lets add some styling. On the main layer card select the <strong>Pen</strong> icon next to the <strong>multi-band visualisations</strong> option. This will open a popup with two tabs, one called <strong>Composites</strong> another called <strong>Indices</strong>. Take a brief look at what is in each.</li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">Composites vs indices. What's the difference?</p>
+</div>
+<p><strong>Composites</strong> take three bands and visualise them in the <em>red</em>, <em>green</em> and <em>blue</em> channels of the output. If the input bands are also red, green and blue wavelengths, then this will look like a natural colour. However, if they are other wavelengths then they will reveal patterns not visible to the naked eye.</p>
+<p><strong>Indices</strong> meanwhile, make per pixel calulations across multiple bands, ending up with a value typically between -1 and +1. These indices reveal interesting insights according to the formula used!</p>
+<ol start="4">
+<li>Select <strong>Composites -&gt; Natural colour</strong> then <strong>Preview</strong>.</li>
+</ol>
 <p><em>Content to follow.</em></p>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
