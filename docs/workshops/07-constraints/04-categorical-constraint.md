@@ -17,7 +17,7 @@ the labels are only for display.
 
 ## Configure it
 
-1. On the _Austria Wind Power Density at 100m_ layer card, open the **Constraints** tab and select **Add constraint source**. Keep the source type as **Direct URL** and paste the WorldCover COG that has been prepared to align with the wind power data:
+1. On the _Austria Wind Power Density at 100m_ layer card, open the **Constraints** tab and select **Add constraint source**. Keep the source type as **Direct Connection, COG** and paste the WorldCover COG that has been prepared to align with the wind power data:
 
    ```
    https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif
