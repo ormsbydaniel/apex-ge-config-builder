@@ -224,10 +224,18 @@ export function RgbCompositeEditorDialog({
   // hrefs and must never be copied back into the saved data item.
   const [inspectionUrls, setInspectionUrls] = useState<Record<number, string>>({});
   const [inspectionResolving, setInspectionResolving] = useState(false);
+  // Only re-resolve when the COG addresses actually change, not when the
+  // parent hands in a new copy of the same dataset list (prevents flicker).
+  const inspectionSignature = useMemo(() => {
+    const data = source.data || [];
+    return JSON.stringify(cogIndices(data).map((i) => [i, data[i]?.url, (data[i] as any)?.assets, (data[i] as any)?.assetFormats]));
+  }, [source.data]);
+  const dataRef = React.useRef(source.data);
+  dataRef.current = source.data;
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
-    const data = source.data || [];
+    const data = dataRef.current || [];
     const indices = cogIndices(data);
     setInspectionResolving(true);
     void Promise.all(indices.map(async (index) => {
@@ -239,11 +247,12 @@ export function RgbCompositeEditorDialog({
       }
     })).then((resolved) => {
       if (cancelled) return;
-      setInspectionUrls(Object.fromEntries(resolved.filter((entry): entry is readonly [number, string] => entry !== null)));
+      const next = Object.fromEntries(resolved.filter((entry): entry is readonly [number, string] => entry !== null));
+      setInspectionUrls((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
       setInspectionResolving(false);
     });
     return () => { cancelled = true; };
-  }, [open, source.data]);
+  }, [open, inspectionSignature]);
 
   // URL of the COG asset being edited (drives band count, noData and histograms).
   const scopedItem = source.data?.[scope];
