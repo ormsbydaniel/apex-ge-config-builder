@@ -183,3 +183,23 @@ describe('STAC /search endpoint support', () => {
     expect(getStacCollectionUrl('https://api.test/stac/search')).toBeNull();
   });
 });
+
+describe('STAC collection identifiers', () => {
+  it('reads the collection from an items endpoint', () => {
+    expect(getStacCollectionIds('https://api.test/stac/collections/sentinel2_ard/items?limit=10')).toEqual(['sentinel2_ard']);
+  });
+
+  it('reads the collection from a single item or collection URL', () => {
+    expect(getStacCollectionIds('https://api.test/stac/collections/s2/items/abc')).toEqual(['s2']);
+    expect(getStacCollectionIds('https://api.test/stac/collections/s2')).toEqual(['s2']);
+  });
+
+  it('lists every collection in a search request', () => {
+    expect(getStacCollectionIds('https://api.test/stac/search?collections=a,b&limit=10')).toEqual(['a', 'b']);
+  });
+
+  it('returns nothing for unrelated or malformed URLs', () => {
+    expect(getStacCollectionIds('https://api.test/stac/items?limit=5')).toEqual([]);
+    expect(getStacCollectionIds('not a url')).toEqual([]);
+  });
+});
