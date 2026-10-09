@@ -16,7 +16,7 @@ that has been prepared to match the wind power grid.
 
 ## Configure it
 
-1. In the **Constraints** tab of the _Austria Wind Power Density at 100m_ layer card, select **Add constraint source**. Keep the source type as **Direct URL** and paste:
+1. In the **Constraints** tab of the _Austria Wind Power Density at 100m_ layer card, select **Add constraint source**. Keep the source type as **Direct Connection, COG** and paste:
 
    ```
    https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/Copernicus_DSM_COG_10m_3857_fix.tif
