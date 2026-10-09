@@ -195,7 +195,9 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
           </Badge>
         )}
 
+        {parsedQuery.limit ? (
           <Badge variant="secondary" className="gap-1 py-1 pl-1 pr-1">
+
             <Button type="button" variant="ghost" size="sm" className="h-6 px-1.5 text-xs" disabled={!queryable} onClick={() => setLimitOpen(true)}>
               Result limit: {parsedQuery.limit}
             </Button>
