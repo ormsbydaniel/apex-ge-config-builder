@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { getStacUrlBase, inspectStacQueryTarget, parseStacCoreQuery, replaceStacUrlBase, updateStacCoreQuery, validateBbox } from '@/utils/stacQuery';
+import { getStacUrlBase, inspectStacQueryTarget, isStacSearchUrl, itemsUrlToSearchUrl, parseStacCoreQuery, replaceStacUrlBase, searchUrlToItemsUrl, updateStacCoreQuery, validateBbox } from '@/utils/stacQuery';
+import { getStacCollectionUrl } from '@/utils/stacMetadata';
 
 const fakeFetch = (body: any) => async () => ({ ok: true, json: async () => body });
 
