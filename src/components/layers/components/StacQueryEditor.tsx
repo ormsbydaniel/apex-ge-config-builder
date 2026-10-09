@@ -230,7 +230,8 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
               type="button"
               variant={target.kind === 'items' ? 'default' : 'outline'}
               size="sm"
-              disabled={target.kind === 'items'}
+              disabled={target.kind === 'items' || !canSwitchToItems}
+              title={target.kind === 'search' && !canSwitchToItems ? 'Only single-collection searches can switch to the items endpoint.' : undefined}
               onClick={() => switchQueryMethod('items')}
             >
               Items endpoint
@@ -239,7 +240,8 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
               type="button"
               variant={target.kind === 'search' ? 'default' : 'outline'}
               size="sm"
-              disabled={target.kind === 'search'}
+              disabled={target.kind === 'search' || !canSwitchToSearch}
+              title={target.kind === 'items' && !canSwitchToSearch ? 'This items address cannot be converted to a search request.' : undefined}
               onClick={() => switchQueryMethod('search')}
             >
               Search endpoint
