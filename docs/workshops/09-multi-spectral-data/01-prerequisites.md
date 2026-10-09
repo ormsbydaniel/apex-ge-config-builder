@@ -11,7 +11,7 @@ builder:
 - [2. My first config](../02-getting-started/index.md)
 - [3. Working with Services](../03-working-with-services/index.md)
 
-In this exercise we will be using some data that we has already been partly configured to save time. This will be covered in the first exercise.
+In this exercise we will be using some data that has already been partly configured to save time. Loading this config will be covered in the first exercise, but in terms of what you need to know the core tutorials are fine!
 
 ## Load the starting configuration
 
