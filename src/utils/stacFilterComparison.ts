@@ -29,6 +29,8 @@ export interface FilterComparison {
   summary: string;
   /** Set when switching to the search endpoint would make the filter work. */
   recommendSearch: boolean;
+  /** Set when the probe for the currently selected method returned no items. */
+  zeroResults?: boolean;
 }
 
 type FetchLike = (url: string, init?: RequestInit) => Promise<{ ok: boolean; status?: number; json: () => Promise<any> }>;
@@ -143,11 +145,11 @@ export async function compareStacFilterEndpoints(
 
   const tasks: Promise<EndpointProbe>[] = [];
   if (itemsBase) {
-    tasks.push(probe(fetcher, 'items-baseline', 'Items, no filter', updateStacCql2Filter(itemsBase, undefined)));
-    tasks.push(probe(fetcher, 'items-filtered', 'Items + filter', updateStacCql2Filter(itemsBase, filter), rules));
+    tasks.push(probe(fetcher, 'items-baseline', 'Items, no property filter', updateStacCql2Filter(itemsBase, undefined)));
+    tasks.push(probe(fetcher, 'items-filtered', 'Items + property filter', updateStacCql2Filter(itemsBase, filter), rules));
   }
   if (searchBase) {
-    tasks.push(probe(fetcher, 'search-filtered', 'Search + filter', updateStacCql2Filter(searchBase, filter), rules));
+    tasks.push(probe(fetcher, 'search-filtered', 'Search + property filter', updateStacCql2Filter(searchBase, filter), rules));
   }
   const probes = await Promise.all(tasks);
   const baseline = probes.find((p) => p.key === 'items-baseline');
@@ -162,13 +164,16 @@ export async function compareStacFilterEndpoints(
   const current = isSearch ? search : items;
   const other = isSearch ? items : search;
   const recommendSearch = !isSearch && !!search && search.verdict === 'applied' && items?.verdict !== 'applied';
+  const zeroResults = !!current?.ok && current.returned === 0;
+  const baselineEmpty = !!baseline?.ok && baseline.returned === 0;
   let summary: string;
-  if (current?.verdict === 'applied') summary = `The filter works on the ${isSearch ? 'search' : 'items'} endpoint you are using.`;
-  else if (recommendSearch) summary = 'This service ignores filters on the items endpoint; switch to Search.';
-  else if (isSearch && other?.verdict === 'applied') summary = 'The filter works on items but not search for this service; consider switching to Items.';
-  else if (current?.verdict === 'ignored') summary = 'The filter appears to be ignored by this service.';
-  else if (current?.verdict === 'unsupported') summary = 'The service rejected the filter.';
-  else summary = 'Could not tell whether the filter was applied (no difference detectable).';
+  if (baselineEmpty && !filterEmpty) summary = 'The query returns no items even without the property filter — check the area, date range and limit before judging the filter.';
+  else if (current?.verdict === 'applied') summary = `The property filter works on the ${isSearch ? 'search' : 'items'} endpoint you are using.`;
+  else if (recommendSearch) summary = 'This service ignores property filters on the items endpoint; switch to Search.';
+  else if (isSearch && other?.verdict === 'applied') summary = 'The property filter works on items but not search for this service; consider switching to Items.';
+  else if (current?.verdict === 'ignored') summary = 'The property filter appears to be ignored by this service — the same items come back with and without it.';
+  else if (current?.verdict === 'unsupported') summary = 'The service rejected the property filter.';
+  else summary = 'Could not tell whether the property filter was applied (no difference detectable).';
 
-  return { probes, note, summary, recommendSearch };
+  return { probes, note, summary, recommendSearch, zeroResults };
 }
