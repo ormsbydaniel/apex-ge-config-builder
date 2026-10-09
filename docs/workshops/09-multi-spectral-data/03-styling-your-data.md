@@ -23,7 +23,7 @@ In this exercise we will work with an existing configuration. If you are followi
 
 **Indices** meanwhile, make per pixel calulations across multiple bands, ending up with a value typically between -1 and +1. These indices reveal interesting insights according to the formula used!
 
-4.
+4. Select **Composites -> Natural colour** then **Preview**.
 
 _Content to follow._
 
