@@ -49,7 +49,7 @@ example `config_biodiversity_20251114_1530.json`. The timestamp is added
 automatically so successive exports never overwrite each other.
 
 The `<prefix>` portion is taken from the **Export filename prefix** field in
-[Settings → Config Export Settings](../settings/index.md#config-export-settings).
+[Settings → Config Export Settings](../settings/overview.md#config-export-settings).
 Change it there to match your project naming convention.
 
 The exported file is what you ship to the APEx Geospatial Explorer host.

@@ -154,9 +154,9 @@ This file is what you ship to the APEx Geospatial Explorer host.
 
 ## What next
 
-- Add more layers and group them with [sub-interface groups](../layers/index.md#how-the-tab-is-laid-out).
+- Add more layers and group them with [sub-interface groups](../layers/overview.md#how-the-tab-is-laid-out).
 - Explore richer data sources: [COG](../data-sources/cog.md),
   [STAC](../data-sources/stac-browser.md),
   [GeoJSON / FlatGeoBuf](../data-sources/geojson-flatgeobuf.md).
 - Author [charts](../charts/index.md) from your data.
-- Tune branding under [Settings → Branding](../settings/index.md#branding-settings).
+- Tune branding under [Settings → Branding](../settings/overview.md#branding-settings).
