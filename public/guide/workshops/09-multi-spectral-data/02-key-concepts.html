@@ -1609,6 +1609,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    9-2. Key concepts
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="02-key-concepts.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1618,6 +1629,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      Context
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multispectral-and-hyperspectral-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multispectral and Hyperspectral data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multispectral-hyperspectral-data-in-cogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multispectral / hyperspectral data in COGS
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1850,6 +1907,41 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      Context
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multispectral-and-hyperspectral-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multispectral and Hyperspectral data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multispectral-hyperspectral-data-in-cogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multispectral / hyperspectral data in COGS
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1864,11 +1956,15 @@
 
 
 <h1 id="9-2-key-concepts">9-2. Key concepts<a class="headerlink" href="#9-2-key-concepts" title="Permanent link">&para;</a></h1>
+<h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
+<p>In the tutorials so far, we've largely looked at the <strong>outputs</strong> of <em>Earth Observation</em> programmes - clasifications of land use, such as <em>World Cover</em>, or other observations of the earth, such as <em>Above Ground Biomass</em>, <em>Soil Water Indexes</em> (tutorial 6), <em>Wind Power Density</em> (tutorial 7) and so on. In this exercise we look more at the actual observation data that is used to produced these.</p>
+<h2 id="multispectral-and-hyperspectral-data">Multispectral and Hyperspectral data<a class="headerlink" href="#multispectral-and-hyperspectral-data" title="Permanent link">&para;</a></h2>
 <p><strong>Multispectral data</strong> is imagery captured across several distinct wavelength bands of the electromagnetic spectrum, including visible and non-visible light, enabling the identification and analysis of features that may not be distinguishable in ordinary photographs. <strong>Sentinel-2</strong> and <strong>Landsat</strong> data are examples from ESA and NASA/USGS missions respectively.</p>
-<p><strong>Hyperspectral data</strong> extends this concept by capturing information across hundreds of narrow, closely spaced wavelength bands, allowing more detailed identification of materials and their properties based on their unique spectral signatures. EnMAP (Germany) and PRISMA (Italy) are examples of satellite missions providing hyperspectral imagery.</p>
+<p><strong>Hyperspectral data</strong> extends this concept by capturing information across hundreds of narrow, closely spaced wavelength bands, allowing more detailed identification of materials and their properties based on their unique spectral signatures. <strong>EnMAP (Germany)</strong> and <strong>PRISMA (Italy)</strong> are examples of satellite missions providing hyperspectral imagery.</p>
+<p>There are also <strong>commercial suppliers</strong> of both multspectral and hyperspectral data.</p>
 <p>In these exercises we will work with some multi-spectral data but the same principles apply to hyperspectral.</p>
-<p><strong>Multispectral data in COGS</strong></p>
-<p>Whilst multispectral data is often supplued in <em>Cloud Optimised Geotiffs</em> the structure of these can vary. On some occasions you may encouter a single COG with different bands of the COG representing the different wavelengths. On other occasions you may find each wavelength is supplied as its own separate COGS.</p>
+<h2 id="multispectral-hyperspectral-data-in-cogs">Multispectral / hyperspectral data in COGS<a class="headerlink" href="#multispectral-hyperspectral-data-in-cogs" title="Permanent link">&para;</a></h2>
+<p>Whilst multispectral data is often supplued in <em>Cloud Optimised Geotiffs</em> the structure of these can vary. On some occasions you may encouter a single COG with different bands of the COG representing the different wavelengths. On other occasions you may find each wavelength is supplied as its own separate COG.</p>
 
 
 
