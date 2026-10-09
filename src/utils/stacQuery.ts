@@ -24,33 +24,22 @@ const parseFinite = (value: string): number | undefined => {
   return Number.isFinite(number) ? number : undefined;
 };
 
-export const getStacUrlBase = (url: string): string => {
-  try {
-    const parsed = new URL(url);
-    parsed.search = '';
-    parsed.hash = '';
-    return parsed.toString();
-  } catch {
-    return url.split(/[?#]/, 1)[0];
-  }
-};
+export const getStacUrlBase = (url: string): string => url.split(/[?#]/, 1)[0];
 
 export const replaceStacUrlBase = (currentUrl: string, nextValue: string): string => {
   const trimmed = nextValue.trim();
   if (!trimmed) return '';
 
-  try {
-    const next = new URL(trimmed);
-    if (trimmed.includes('?')) return next.toString();
+  // A complete pasted URL with its own query string replaces everything as-is.
+  if (trimmed.includes('?')) return trimmed;
 
-    try {
-      const current = new URL(currentUrl);
-      next.search = current.search;
-      if (!next.hash) next.hash = current.hash;
-    } catch {
-      // A new valid base can replace an incomplete current value as-is.
-    }
-    return next.toString();
+  // While typing, keep the text verbatim — never normalise it through `new URL`,
+  // which would append a trailing slash mid-edit and move the caret. The current
+  // query string is re-attached by concatenation so it survives base edits.
+  try {
+    new URL(trimmed);
+    const suffixStart = currentUrl.search(/[?#]/);
+    return suffixStart === -1 ? trimmed : trimmed + currentUrl.slice(suffixStart);
   } catch {
     return trimmed;
   }
