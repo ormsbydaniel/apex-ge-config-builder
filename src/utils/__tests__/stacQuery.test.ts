@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { getStacUrlBase, inspectStacQueryTarget, parseStacCoreQuery, replaceStacUrlBase, updateStacCoreQuery, validateBbox } from '@/utils/stacQuery';
+import { getStacUrlBase, inspectStacQueryTarget, isStacSearchUrl, itemsUrlToSearchUrl, parseStacCoreQuery, replaceStacUrlBase, searchUrlToItemsUrl, updateStacCoreQuery, validateBbox } from '@/utils/stacQuery';
+import { getStacCollectionUrl } from '@/utils/stacMetadata';
 
 const fakeFetch = (body: any) => async () => ({ ok: true, json: async () => body });
 
@@ -133,5 +134,52 @@ describe('STAC CQL2 property filters', () => {
     expect(operatorsForQueryable({ type: 'string', enumValues: ['a'] })).toEqual(['eq', 'in']);
     expect(operatorsForQueryable({ type: 'boolean' })).toEqual(['eq']);
     expect(operatorsForQueryable({ type: 'string (date-time)' })).toContain('gte');
+  });
+});
+
+describe('STAC /search endpoint support', () => {
+  const itemsUrl = 'https://api.test/stac/collections/sentinel2_ard/items?bbox=-3,51,-1,52&datetime=2026-06-01T00:00:00Z/2026-07-01T00:00:00Z&limit=100&filter=cloud_cover%20%3C%2010&filter-lang=cql2-text&token=public';
+
+  it('recognises search URLs with a collections parameter', () => {
+    expect(isStacSearchUrl('https://api.test/stac/search?collections=sentinel2_ard')).toBe(true);
+    expect(isStacSearchUrl('https://api.test/stac/search')).toBe(false);
+    expect(isStacSearchUrl(itemsUrl)).toBe(false);
+    expect(isStacSearchUrl('not a url')).toBe(false);
+  });
+
+  it('converts items to search and back, preserving every filter and unrelated parameter', () => {
+    const search = itemsUrlToSearchUrl(itemsUrl)!;
+    const parsed = new URL(search);
+    expect(parsed.pathname).toBe('/stac/search');
+    expect(parsed.searchParams.get('collections')).toBe('sentinel2_ard');
+    expect(parsed.searchParams.get('bbox')).toBe('-3,51,-1,52');
+    expect(parsed.searchParams.get('datetime')).toBe('2026-06-01T00:00:00Z/2026-07-01T00:00:00Z');
+    expect(parsed.searchParams.get('limit')).toBe('100');
+    expect(parsed.searchParams.get('filter')).toBe('cloud_cover < 10');
+    expect(parsed.searchParams.get('filter-lang')).toBe('cql2-text');
+    expect(parsed.searchParams.get('token')).toBe('public');
+
+    const back = new URL(searchUrlToItemsUrl(search)!);
+    expect(back.pathname).toBe('/stac/collections/sentinel2_ard/items');
+    expect(back.searchParams.get('collections')).toBeNull();
+    expect(back.searchParams.get('filter')).toBe('cloud_cover < 10');
+    expect(back.searchParams.get('token')).toBe('public');
+  });
+
+  it('refuses to convert multi-collection searches or non-items paths', () => {
+    expect(searchUrlToItemsUrl('https://api.test/search?collections=a,b')).toBeUndefined();
+    expect(itemsUrlToSearchUrl('https://api.test/items?limit=5')).toBeUndefined();
+  });
+
+  it('classifies search URLs without a network call', async () => {
+    const target = await inspectStacQueryTarget('https://api.test/stac/search?collections=sentinel2_ard&limit=10');
+    expect(target).toEqual({ kind: 'search', searchUrl: 'https://api.test/stac/search?collections=sentinel2_ard&limit=10', collectionId: 'sentinel2_ard' });
+  });
+
+  it('derives the collection URL from a search URL for queryables and metadata', () => {
+    expect(getStacCollectionUrl('https://api.test/stac/search?collections=sentinel2_ard&limit=10'))
+      .toBe('https://api.test/stac/collections/sentinel2_ard');
+    expect(getStacCollectionUrl('https://api.test/stac/search?collections=a,b')).toBe('https://api.test/stac/collections/a');
+    expect(getStacCollectionUrl('https://api.test/stac/search')).toBeNull();
   });
 });

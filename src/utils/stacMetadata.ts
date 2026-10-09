@@ -3,13 +3,17 @@
  * Nothing returned here is ever written to the saved configuration.
  */
 
-/** Derives `.../collections/{id}` from an item, items or collection URL. */
+/** Derives `.../collections/{id}` from an item, items, collection or `/search` URL. */
 export function getStacCollectionUrl(url: string): string | null {
   try {
     const u = new URL(url);
     const m = u.pathname.match(/^(.*\/collections\/[^/]+)/);
-    if (!m) return null;
-    return `${u.origin}${m[1]}`;
+    if (m) return `${u.origin}${m[1]}`;
+    if (/\/search\/?$/.test(u.pathname)) {
+      const first = u.searchParams.get('collections')?.split(',')[0]?.trim();
+      if (first) return `${u.origin}${u.pathname.replace(/\/search\/?$/, '')}/collections/${first}`;
+    }
+    return null;
   } catch {
     return null;
   }

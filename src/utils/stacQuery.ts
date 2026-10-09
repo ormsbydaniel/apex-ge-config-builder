@@ -9,6 +9,7 @@ export interface StacCoreQuery {
 
 export type StacQueryTarget =
   | { kind: 'items'; itemsUrl: string }
+  | { kind: 'search'; searchUrl: string; collectionId: string }
   | { kind: 'item' }
   | { kind: 'static' };
 
@@ -42,6 +43,45 @@ export const replaceStacUrlBase = (currentUrl: string, nextValue: string): strin
     return suffixStart === -1 ? trimmed : trimmed + currentUrl.slice(suffixStart);
   } catch {
     return trimmed;
+  }
+};
+
+/** True when the URL targets the STAC `/search` endpoint with a `collections` parameter. */
+export const isStacSearchUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    return /\/search\/?$/.test(parsed.pathname) && Boolean(parsed.searchParams.get('collections'));
+  } catch {
+    return false;
+  }
+};
+
+/** Rewrites `.../collections/{id}/items?…` to `.../search?collections={id}&…`, preserving all filters. */
+export const itemsUrlToSearchUrl = (url: string): string | undefined => {
+  try {
+    const parsed = new URL(url);
+    const match = parsed.pathname.match(/^(.*)\/collections\/([^/]+)\/items\/?$/);
+    if (!match) return undefined;
+    parsed.pathname = `${match[1]}/search`;
+    parsed.searchParams.set('collections', match[2]);
+    return parsed.toString();
+  } catch {
+    return undefined;
+  }
+};
+
+/** Rewrites `.../search?collections={id}&…` back to `.../collections/{id}/items?…`. Single-collection only. */
+export const searchUrlToItemsUrl = (url: string): string | undefined => {
+  try {
+    const parsed = new URL(url);
+    if (!/\/search\/?$/.test(parsed.pathname)) return undefined;
+    const collections = parsed.searchParams.get('collections')?.split(',').map((c) => c.trim()).filter(Boolean) ?? [];
+    if (collections.length !== 1) return undefined;
+    parsed.pathname = `${parsed.pathname.replace(/\/search\/?$/, '')}/collections/${collections[0]}/items`;
+    parsed.searchParams.delete('collections');
+    return parsed.toString();
+  } catch {
+    return undefined;
   }
 };
 
@@ -118,6 +158,9 @@ export async function inspectStacQueryTarget(
   const parsed = new URL(url);
   if (/\/items\/[^/?#]+\/?$/.test(parsed.pathname)) return { kind: 'item' };
   if (/\/items\/?$/.test(parsed.pathname)) return { kind: 'items', itemsUrl: url };
+  if (isStacSearchUrl(url)) {
+    return { kind: 'search', searchUrl: url, collectionId: parsed.searchParams.get('collections')! };
+  }
 
   const response = await fetcher(url, { headers: { Accept: 'application/json, application/geo+json' } });
   if (!response.ok) throw new Error(`STAC request failed (${response.status ?? 'error'})`);

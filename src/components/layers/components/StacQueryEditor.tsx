@@ -17,8 +17,11 @@ import StacBboxMap from './StacBboxMap';
 import {
   describeStacPropertyRule,
   inspectStacQueryTarget,
+  isStacSearchUrl,
+  itemsUrlToSearchUrl,
   parseStacCoreQuery,
   parseStacCql2Filter,
+  searchUrlToItemsUrl,
   serialiseCql2Rule,
   toDateTimeLocalValue,
   toStacDateTime,
@@ -63,9 +66,10 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
     const parsed = parseStacCoreQuery(url);
     setLimit(parsed.limit ? String(parsed.limit) : '');
     try {
-      const pathname = new URL(url).pathname;
-      if (/\/items\/[^/?#]+\/?$/.test(pathname)) setTarget({ kind: 'item' });
-      else if (/\/items\/?$/.test(pathname)) setTarget({ kind: 'items', itemsUrl: url });
+      const parsed = new URL(url);
+      if (/\/items\/[^/?#]+\/?$/.test(parsed.pathname)) setTarget({ kind: 'item' });
+      else if (/\/items\/?$/.test(parsed.pathname)) setTarget({ kind: 'items', itemsUrl: url });
+      else if (isStacSearchUrl(url)) setTarget({ kind: 'search', searchUrl: url, collectionId: parsed.searchParams.get('collections')! });
       else setTarget(null);
     } catch {
       setTarget(null);
@@ -91,8 +95,14 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   };
 
   const updateQuery = (changes: Partial<ReturnType<typeof parseStacCoreQuery>>) => {
-    if (target?.kind !== 'items') return;
-    onChange(updateStacCoreQuery(target.itemsUrl, { ...parseStacCoreQuery(url), ...changes }));
+    const base = target?.kind === 'items' ? target.itemsUrl : target?.kind === 'search' ? target.searchUrl : undefined;
+    if (!base) return;
+    onChange(updateStacCoreQuery(base, { ...parseStacCoreQuery(url), ...changes }));
+  };
+
+  const switchQueryMethod = (method: 'items' | 'search') => {
+    const next = method === 'search' ? itemsUrlToSearchUrl(url) : searchUrlToItemsUrl(url);
+    if (next) onChange(next);
   };
 
   const applyLimit = () => {
@@ -121,7 +131,9 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   const dateError = start && end && new Date(start) > new Date(end)
     ? 'Start must not be after end.'
     : undefined;
-  const queryable = target?.kind === 'items';
+  const queryable = target?.kind === 'items' || target?.kind === 'search';
+  const canSwitchToSearch = target?.kind === 'items' && itemsUrlToSearchUrl(url) !== undefined;
+  const canSwitchToItems = target?.kind === 'search' && searchUrlToItemsUrl(url) !== undefined;
   const cql2 = parseStacCql2Filter(url);
   const rules = cql2 && 'rules' in cql2 ? cql2.rules : [];
   const openPropertyDialog = (edit: { index?: number; raw?: string }) => setPropertyEdit(edit);
@@ -210,11 +222,40 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
         )}
       </div>
 
-      {target?.kind === 'items' && (
+      {queryable && target && (
+        <div className="space-y-1">
+          <Label className="text-muted-foreground">Query method</Label>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant={target.kind === 'items' ? 'default' : 'outline'}
+              size="sm"
+              disabled={target.kind === 'items' || !canSwitchToItems}
+              title={target.kind === 'search' && !canSwitchToItems ? 'Only single-collection searches can switch to the items endpoint.' : undefined}
+              onClick={() => switchQueryMethod('items')}
+            >
+              Items endpoint
+            </Button>
+            <Button
+              type="button"
+              variant={target.kind === 'search' ? 'default' : 'outline'}
+              size="sm"
+              disabled={target.kind === 'search' || !canSwitchToSearch}
+              title={target.kind === 'items' && !canSwitchToSearch ? 'This items address cannot be converted to a search request.' : undefined}
+              onClick={() => switchQueryMethod('search')}
+            >
+              Search endpoint
+            </Button>
+            <p className="text-xs text-muted-foreground">Some servers only apply property filters on the search endpoint.</p>
+          </div>
+        </div>
+      )}
+
+      {queryable && target && (
         <PropertyFilterDialog
           open={propertyEdit !== null}
           onOpenChange={(open) => { if (!open) setPropertyEdit(null); }}
-          itemsUrl={target.itemsUrl}
+          itemsUrl={target.kind === 'items' ? target.itemsUrl : target.searchUrl}
           otherRules={rules.filter((_, i) => i !== propertyEdit?.index)}
           initialRule={propertyEdit?.index !== undefined ? rules[propertyEdit.index] : undefined}
           initialRaw={propertyEdit?.raw}
