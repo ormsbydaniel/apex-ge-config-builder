@@ -20,7 +20,8 @@ export interface TutorialConfigEntry extends ExampleConfigEntry {
   updatedAt?: string;
 }
 
-const PATTERN = /^tutorial-(\d+)-(completion|prerequisite)(?:_(\d{8})_(\d{4}))?\.json$/i;
+// Accept both "prerequisite" and "prerequisites" spellings.
+const PATTERN = /^tutorial-(\d+)-(completion|prerequisites?)(?:_(\d{8})_(\d{4}))?\.json$/i;
 
 interface ParsedTutorialFile {
   tutorial: number;
@@ -34,7 +35,7 @@ function parseTutorialFileName(name: string): ParsedTutorialFile | null {
   if (!match) return null;
 
   const tutorial = Number.parseInt(match[1], 10);
-  const kind = match[2].toLowerCase() as TutorialKind;
+  const kind = (match[2].toLowerCase() === 'completion' ? 'completion' : 'prerequisite') as TutorialKind;
   if (!match[3] || !match[4]) return { tutorial, kind };
 
   const timestamp = `${match[3]}${match[4]}`;
