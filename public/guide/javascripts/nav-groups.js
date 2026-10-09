@@ -28,8 +28,8 @@
         "07-constraints",
         "08-statistics",
         "09-coordinate-reference-systems",
-        "10-working-with-vector-data",
-        "11-working-with-multi-spectral-data",
+        "10-vector-data",
+        "11-multi-spectral-data",
       ],
     },
   ];
@@ -93,8 +93,8 @@
     "07-constraints": "7. Constraints",
     "08-statistics": "8. Statistics",
     "09-coordinate-reference-systems": "9. Coordinate reference systems",
-    "10-working-with-vector-data": "10. Working with vector data",
-    "11-working-with-multi-spectral-data": "11. Working with multi-spectral data",
+    "10-vector-data": "10. Vector data",
+    "11-multi-spectral-data": "11. Multi-spectral data",
   };
 
   function currentStepTutorial() {
