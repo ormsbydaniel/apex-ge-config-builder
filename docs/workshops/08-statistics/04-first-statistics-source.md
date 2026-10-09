@@ -36,7 +36,7 @@ data.
    - Select the **Statistics** tab in the info panel.
    - Click on a **country** on the map.
 
-   You should see the land cover breakdown for that whole country:
+   You should see the land cover breakdown for that whole country. if you want to view statistics for another country, select the red **Clear** link on the statistics panel (top right) and click on another.
 
    ![Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0](../../assets/screenshots/statistics-nuts-level0-result.png)
 
