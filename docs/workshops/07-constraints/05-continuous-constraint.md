@@ -32,7 +32,7 @@ that has been prepared to match the wind power grid.
    from the file and fills in the range.
 
 3. Round the values to `0` and `4000` so the slider has sensible stops, and set
-   **Units** to `meters`.
+   **Units** to `metres`.
 
 4. **Save** the constraint.
 
