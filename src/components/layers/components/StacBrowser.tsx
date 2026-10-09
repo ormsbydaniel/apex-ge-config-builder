@@ -1,3 +1,4 @@
+import { formatDisplayDate } from "@/utils/dateUtils";
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -1336,7 +1337,7 @@ const StacBrowser = ({ serviceUrl, serviceName, onAssetSelect }: StacBrowserProp
                       <div className="flex items-center gap-2 mt-1">
                         {item.properties?.datetime && (
                           <Badge variant="secondary" className="text-xs">
-                            {new Date(item.properties.datetime).toLocaleDateString()}
+                            {formatDisplayDate(item.properties.datetime)}
                           </Badge>
                         )}
                         {item.assets && (

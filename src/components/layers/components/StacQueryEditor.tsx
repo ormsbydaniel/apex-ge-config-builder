@@ -1,3 +1,4 @@
+import { formatDisplayDate } from "@/utils/dateUtils";
 import React, { useEffect, useState } from 'react';
 import { CalendarRange, Filter, Layers, Loader2, Map, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -171,7 +172,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   };
 
   const dateSummary = parsedQuery.datetimeStart || parsedQuery.datetimeEnd
-    ? `${parsedQuery.datetimeStart ? new Date(parsedQuery.datetimeStart).toLocaleString() : 'Open start'} → ${parsedQuery.datetimeEnd ? new Date(parsedQuery.datetimeEnd).toLocaleString() : 'Open end'}`
+    ? `${parsedQuery.datetimeStart ? formatDisplayDate(parsedQuery.datetimeStart, true) : 'Open start'} → ${parsedQuery.datetimeEnd ? formatDisplayDate(parsedQuery.datetimeEnd, true) : 'Open end'}`
     : '';
   const bboxSummary = parsedQuery.bbox?.join(', ') ?? '';
 

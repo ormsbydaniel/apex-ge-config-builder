@@ -1,3 +1,4 @@
+import { formatDisplayDate } from "@/utils/dateUtils";
 import React, { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -220,13 +221,13 @@ const ConfigSummary = ({ config }: ConfigSummaryProps) => {
               {config.lastLoaded && (
                 <div className="text-xs text-slate-50">
                   <span className="font-medium">Last loaded: </span> 
-                  {config.lastLoaded.toLocaleString()}
+                  {formatDisplayDate(config.lastLoaded, true)}
                 </div>
               )}
               {config.lastExported && (
                 <div className="text-xs text-slate-50">
                   <span className="font-medium">Last exported: </span> 
-                  {config.lastExported.toLocaleString()}
+                  {formatDisplayDate(config.lastExported, true)}
                 </div>
               )}
             </>

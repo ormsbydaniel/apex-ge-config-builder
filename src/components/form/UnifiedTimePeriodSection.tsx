@@ -1,3 +1,4 @@
+import { DISPLAY_DATE_FORMAT, getTimeframeDisplayFormat } from "@/utils/dateUtils";
 import React from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
@@ -184,7 +185,7 @@ const UnifiedTimePeriodSection = ({
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {selectedDate ? (
-                  format(selectedDate, timeframe === 'Time' ? 'PP' : getDateDisplayFormat())
+                  format(selectedDate, timeframe === 'Time' ? DISPLAY_DATE_FORMAT : getTimeframeDisplayFormat(timeframe))
                 ) : (
                   <span>{getDateFormatPlaceholder()}</span>
                 )}

@@ -1,3 +1,4 @@
+import { formatDisplayDate } from "@/utils/dateUtils";
 import React, { useState, useMemo, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -213,7 +214,7 @@ export const AssetPreviewDialog: React.FC<AssetPreviewDialogProps> = ({
   const formatDate = (datetime?: string) => {
     if (!datetime) return '';
     try {
-      return new Date(datetime).toLocaleDateString();
+      return formatDisplayDate(datetime);
     } catch {
       return datetime;
     }
