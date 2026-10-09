@@ -48,4 +48,48 @@ describe('stacFilterComparison', () => {
     );
     expect(result.probes.find((p) => p.key === 'items-filtered')?.verdict).toBe('unsupported');
   });
+
+  it('uses property filter wording in labels and summaries', async () => {
+    const result = await compareStacFilterEndpoints(
+      'https://x.org/stac/collections/s2/items?limit=10',
+      [rule],
+      fakeFetch((url) => ({ features: url.includes('/search') && url.includes('filter') ? low : all })),
+    );
+    expect(result.probes.map((p) => p.label)).toEqual([
+      'Items, no property filter',
+      'Items + property filter',
+      'Search + property filter',
+    ]);
+    expect(result.summary).toMatch(/property filter/);
+  });
+
+  it('flags zero results on the current method and treats them as a valid filter outcome', async () => {
+    const result = await compareStacFilterEndpoints(
+      'https://x.org/stac/collections/s2/items?limit=10',
+      [rule],
+      fakeFetch((url) => ({ features: url.includes('filter') ? [] : all })),
+    );
+    expect(result.probes.find((p) => p.key === 'items-filtered')?.verdict).toBe('applied');
+    expect(result.zeroResults).toBe(true);
+    expect(result.summary).toMatch(/property filter works on the items endpoint/);
+  });
+
+  it('explains when even the unfiltered query returns nothing', async () => {
+    const result = await compareStacFilterEndpoints(
+      'https://x.org/stac/collections/s2/items?limit=10',
+      [rule],
+      fakeFetch(() => ({ features: [] })),
+    );
+    expect(result.zeroResults).toBe(true);
+    expect(result.summary).toMatch(/no items even without the property filter/);
+  });
+
+  it('does not flag zeroResults when items are returned', async () => {
+    const result = await compareStacFilterEndpoints(
+      'https://x.org/stac/collections/s2/items?limit=10',
+      [rule],
+      fakeFetch(() => ({ features: all })),
+    );
+    expect(result.zeroResults).toBe(false);
+  });
 });
