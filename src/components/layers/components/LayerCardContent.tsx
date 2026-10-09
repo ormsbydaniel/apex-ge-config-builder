@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { DataSource, isDataSourceItemArray, Service, DataSourceMeta, DataSourceLayout, DataSourceItem } from '@/types/config';
 import { useConfig } from '@/contexts/ConfigContext';
+import { useLayersTabContext } from '@/contexts/LayersTabContext';
 import { useToast } from '@/hooks/use-toast';
 import { Database } from 'lucide-react';
 import LayerMetadata from './LayerMetadata';
