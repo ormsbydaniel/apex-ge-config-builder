@@ -36,9 +36,9 @@ load one of the same files as ordinary vector data.
 6. Delete the `Temp` layer when you are done — it was only there to look inside
    the file.
 
-!!! tip "Building your own statistics files"
-Any FlatGeoBuf or GeoJSON of zones will work as a statistics source, as long
-as each feature carries the pre-computed values as properties and the file
-is published in a CRS the Explorer can reproject.
+   !!! tip "Building your own statistics files"
+   Any FlatGeoBuf or GeoJSON of zones will work as a statistics source, as long
+   as each feature carries the pre-computed values as properties and the file
+   is published in a CRS the Explorer can reproject.
 
 ### Did you remember to export?

@@ -31,10 +31,10 @@ in this order gives you levels `0`, `1`, `2` and `3`.
    panel and click a **country** on the map. Now click on a **region** — as
    the zoom increases the Explorer switches to the finer NUTS levels,at each level presented a new set of polygons at the tier below. Use the **breadcrumbs** on the statistics panel to navigate back up and down through the nhierarcy.
 
-!!! tip "Fixing a level"
-If you add the files out of order, or delete one and re-add it, the levels
-can end up wrong. Edit the statistics source and set the **level** by hand,
-or correct the `level` values in the per-layer **{JSON}** editor. Levels
-should run from `0` upwards with no gaps and no duplicates.
+   !!! tip "Fixing a level"
+   If you add the files out of order, or delete one and re-add it, the levels
+   can end up wrong. Edit the statistics source and set the **level** by hand,
+   or correct the `level` values in the per-layer **{JSON}** editor. Levels
+   should run from `0` upwards with no gaps and no duplicates.
 
 ### Did you remember to export?
