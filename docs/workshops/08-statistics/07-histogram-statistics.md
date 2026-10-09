@@ -17,7 +17,7 @@ The configuration builder is clever enough to parse the file names for _level01,
 
 2. Now go to **Preview**. From the statistics panel you can now navigate through the histogram charts.
 
-3. _Optional_: Add the level 00 statistics as a normal data source and inspect its data values.
+3. _Optional_: Add the level 00 statistics a data source to a _Temp 2_ layer, as you did in the last exercise and inspect its data values.
 
 <!-- Content to be written -->
 
