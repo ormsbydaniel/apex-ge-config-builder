@@ -57,20 +57,6 @@ const TimestampManagementDialog = ({
     onUpdate(newTimestamps);
   };
 
-  const getDateDisplayFormat = () => {
-    switch (timeframe) {
-      case 'Years':
-        return 'yyyy';
-      case 'Months':
-        return 'MMMM yyyy';
-      case 'Days':
-        return 'PP';
-      case 'Time':
-        return 'PPpp';
-      default:
-        return 'PP';
-    }
-  };
 
   // State for time input when timeframe is 'Time'
   const [timeValue, setTimeValue] = React.useState<string>('12:00');
