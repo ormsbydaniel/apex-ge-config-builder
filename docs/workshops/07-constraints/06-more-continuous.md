@@ -8,8 +8,8 @@ Repeat the pattern from [7-5](05-continuous-constraint.md) for four more
 constraint layers. Each one is a separate COG, prepared on the same grid as the
 wind power data.
 
-For each row below (or just a couple if you prefer): **Add constraint** → **Direct URL** → paste the URL → set
-the label, type **Continuous**, min, max and units → **Save**.
+1. For each row below (or just a couple if you prefer): **Add constraint** → **Direct URL** → paste the URL → set
+   the label, type **Continuous**, min, max and units → **Save**.
 
 **Slope** — min `0`, max `65`, units `degrees`
 
@@ -34,6 +34,8 @@ https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerLineHigh_EucDist_
 ```
 https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/WSF_EucDist_Austria_3857_COG_fix.tif
 ```
+
+2. **Preview** your results
 
 ## Combining constraints
 
