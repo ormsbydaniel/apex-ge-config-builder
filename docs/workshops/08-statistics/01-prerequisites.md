@@ -17,6 +17,8 @@ Tutorial [5. Categorical data](../05-categorical-data/index.md) is strongly
 recommended: the World Cover class list is reused here, and if you already
 completed tutorial 5 you can copy those categories straight across.
 
+If you just completed Tutorial 7 on constraints, your default start map location will be _Austria_. You may want to reset this to the world in **Settings**.
+
 This tutorial builds a standalone layer, so you can follow it either in the
 configuration you have been developing, or in a fresh configuration.
 
