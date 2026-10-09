@@ -308,9 +308,14 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
               This query returns no items, so the layer will not display on the map. Try relaxing the property filter, widening the date range or area, or raising the limit.
             </p>
           )}
-          {methodTest?.result && methodTest.hasFilter && (
-            <p className="text-xs text-muted-foreground">The 'no property filter' row shows what the query returns with only the area, date range and limit applied — use it as the comparison for the filtered rows.</p>
-          )}
+          {methodTest?.result && methodTest.hasFilter && (() => {
+            const baseline = methodTest.result.probes.find((p) => p.key === 'items-baseline');
+            return baseline?.ok ? (
+              <p className="text-xs text-muted-foreground">
+                For comparison, the same query with no property filter (area, date range and limit still applied) returned {baseline.returned}{baseline.matched !== undefined ? ` of ${baseline.matched} matched` : ''}.
+              </p>
+            ) : null;
+          })()}
           <p className="text-xs text-muted-foreground">The test runs the query exactly as configured — area, date range, limit and property filters — fetching the first page only. Some servers only apply property filters on the search endpoint.</p>
         </div>
       )}
