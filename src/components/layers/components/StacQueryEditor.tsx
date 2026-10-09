@@ -259,16 +259,14 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
               const disabled = method === 'items' ? target.kind === 'search' && !canSwitchToItems : target.kind === 'items' && !canSwitchToSearch;
               const probe = methodTest?.result?.probes.find((p) => p.key === (method === 'items' ? (methodTest.hasFilter ? 'items-filtered' : 'items-baseline') : 'search-filtered'));
               return (
-                <div key={method} className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem id={`stac-method-${method}`} value={method} disabled={disabled} />
-                    <Label htmlFor={`stac-method-${method}`} className={`text-sm font-normal ${disabled ? 'text-muted-foreground' : ''}`}
-                      title={disabled ? (method === 'items' ? 'Only single-collection searches can switch to the items endpoint.' : 'This items address cannot be converted to a search request.') : undefined}>
-                      {method === 'items' ? 'Items endpoint' : 'Search endpoint'}
-                    </Label>
-                  </div>
+                <div key={method} className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <RadioGroupItem id={`stac-method-${method}`} value={method} disabled={disabled} />
+                  <Label htmlFor={`stac-method-${method}`} className={`text-sm font-normal ${disabled ? 'text-muted-foreground' : ''}`}
+                    title={disabled ? (method === 'items' ? 'Only single-collection searches can switch to the items endpoint.' : 'This items address cannot be converted to a search request.') : undefined}>
+                    {method === 'items' ? 'Items endpoint' : 'Search endpoint'}
+                  </Label>
                   {methodTest?.result && (
-                    <p className="pl-6 text-xs text-muted-foreground" title={probe?.url}>
+                    <span className="text-xs text-muted-foreground" title={probe?.url}>
                       {!probe ? 'Not tested for this address.'
                         : !probe.ok ? <span className="text-destructive">{probe.error}</span>
                         : <>
@@ -276,9 +274,10 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
                             {methodTest.hasFilter && <> · filter <span className={probe.verdict === 'applied' ? 'text-primary' : probe.verdict === 'ignored' || probe.verdict === 'unsupported' ? 'text-destructive' : ''}>{VERDICT_TEXT[probe.verdict]}</span></>}
                             {probe.spotCheck && ` (${probe.spotCheck.passed}/${probe.spotCheck.checked} items pass)`}
                           </>}
-                    </p>
+                    </span>
                   )}
                 </div>
+
               );
             })}
           </RadioGroup>
