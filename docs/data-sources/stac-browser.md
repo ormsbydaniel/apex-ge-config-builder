@@ -87,6 +87,10 @@ Click the **(i)** button on a STAC dataset row to open **STAC Metadata**. It has
 
 This view is read-only. Temporary or signed file links are never saved to your configuration.
 
+## Drawing the area on a map
+
+The **Bounding box filter** dialog includes a small map. Choose **Draw area** and drag a rectangle, or pan to an area and click **Use current map view**; the West/South/East/North boxes stay in sync with the rectangle. Only `bbox=W,S,E,N` is saved in the address. Queryables named `geometry` describe the item footprint — spatial filtering on them uses this bbox filter.
+
 ## Property filters
 
 For STAC items endpoints, **+ Add property filter** lists the properties the collection publishes in its `queryables` response (for example `eo:cloud_cover`). Choose a property, a condition suited to its type and a value; each rule appears as a badge and rules are combined with AND. **Test filter** runs the query once and reports how many items match, or the server's error.

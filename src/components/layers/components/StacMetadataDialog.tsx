@@ -172,6 +172,7 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
                             {q.title && q.title !== q.key && <div className="text-xs">{q.title}</div>}
                             {q.description && <div className="text-xs text-muted-foreground">{q.description}</div>}
                             {q.range && <div className="text-xs text-muted-foreground">Range: {q.range}</div>}
+                            {(q.key === 'geometry' || /geometry/i.test(q.type)) && <div className="text-xs text-muted-foreground">Spatial filtering on geometry uses the bbox filter.</div>}
                             {q.enumValues && <div className="text-xs text-muted-foreground break-words">Values: {q.enumValues.map(String).join(', ')}</div>}
                           </div>
                         ))}
