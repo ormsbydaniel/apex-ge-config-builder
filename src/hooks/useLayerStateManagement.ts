@@ -50,6 +50,8 @@ type LayerStateAction =
   | { type: 'COMPLETE_DATA_SOURCE_FORM' }
   | { type: 'CLEAR_DATA_SOURCE_FORM' }
   | { type: 'CLEAR_CANCELED_LAYER_INDEX' }
+  | { type: 'SET_FOCUS_TAB'; layerIndex: number; tab: string }
+  | { type: 'CLEAR_FOCUS_TAB' }
   | { type: 'START_CONSTRAINT_FORM'; layerIndex: number; isAddingConstraint?: boolean }
   | { type: 'CANCEL_CONSTRAINT_FORM'; selectedLayerIndex: number | null }
   | { type: 'COMPLETE_CONSTRAINT_FORM' }
