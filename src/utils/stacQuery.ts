@@ -46,6 +46,21 @@ export const replaceStacUrlBase = (currentUrl: string, nextValue: string): strin
   }
 };
 
+/** Collection id(s) referenced by a collection, items, item or `/search` URL. */
+export const getStacCollectionIds = (url: string): string[] => {
+  try {
+    const parsed = new URL(url);
+    const collections = parsed.searchParams.get('collections');
+    if (/\/search\/?$/.test(parsed.pathname) && collections) {
+      return collections.split(',').map((c) => c.trim()).filter(Boolean);
+    }
+    const match = parsed.pathname.match(/(?:^|\/)collections\/([^/?#]+)/);
+    return match ? [decodeURIComponent(match[1])] : [];
+  } catch {
+    return [];
+  }
+};
+
 /** True when the URL targets the STAC `/search` endpoint with a `collections` parameter. */
 export const isStacSearchUrl = (url: string): boolean => {
   try {
@@ -55,6 +70,7 @@ export const isStacSearchUrl = (url: string): boolean => {
     return false;
   }
 };
+
 
 /** Rewrites `.../collections/{id}/items?…` to `.../search?collections={id}&…`, preserving all filters. */
 export const itemsUrlToSearchUrl = (url: string): string | undefined => {

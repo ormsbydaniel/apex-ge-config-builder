@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarRange, Filter, Loader2, Map, X } from 'lucide-react';
+import { CalendarRange, Filter, Layers, Loader2, Map, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +18,8 @@ import PropertyFilterDialog from './PropertyFilterDialog';
 import StacBboxMap from './StacBboxMap';
 import {
   describeStacPropertyRule,
+  getStacCollectionIds,
+
   inspectStacQueryTarget,
   isStacSearchUrl,
   itemsUrlToSearchUrl,
@@ -156,6 +158,9 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
     ? 'Start must not be after end.'
     : undefined;
   const queryable = target?.kind === 'items' || target?.kind === 'search';
+  const collectionIds = queryable ? getStacCollectionIds(url) : [];
+  const collectionSummary = collectionIds.length > 1 ? `${collectionIds[0]} +${collectionIds.length - 1} more` : collectionIds[0] ?? '';
+
   const canSwitchToSearch = target?.kind === 'items' && itemsUrlToSearchUrl(url) !== undefined;
   const canSwitchToItems = target?.kind === 'search' && searchUrlToItemsUrl(url) !== undefined;
   const cql2 = parseStacCql2Filter(url);
@@ -183,8 +188,16 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
       {target?.kind === 'static' && <p className="text-sm text-muted-foreground">This source does not advertise an items endpoint for server-side filtering.</p>}
 
       <div className="flex flex-wrap gap-2">
+        {collectionIds.length > 0 && (
+          <Badge variant="outline" className="gap-1 py-1 px-2 text-xs font-normal text-muted-foreground"
+            title={collectionIds.length > 1 ? `Collections: ${collectionIds.join(', ')}` : `Collection: ${collectionIds[0]}`}>
+            <Layers className="h-3 w-3" />{collectionSummary}
+          </Badge>
+        )}
+
         {parsedQuery.limit ? (
           <Badge variant="secondary" className="gap-1 py-1 pl-1 pr-1">
+
             <Button type="button" variant="ghost" size="sm" className="h-6 px-1.5 text-xs" disabled={!queryable} onClick={() => setLimitOpen(true)}>
               Result limit: {parsedQuery.limit}
             </Button>
