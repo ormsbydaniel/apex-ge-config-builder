@@ -10,8 +10,7 @@ load one of the same files as ordinary vector data.
 
 1. Add a new layer and name it `Temp`.
 
-2. On the `Temp` layer card, select **+ Add dataset** under the data sources tab. Note, as we are **not** adding this as a _statistics_ layer, this time we will see the data as a standard vector dataset. Choose **Direct connection** and the format **FlatGeoBuf**, and use the NUTS level 0 file
-   again:
+2. On the `Temp` layer card, select **+ Add dataset** under the data sources tab. Choose **Direct connection** and the format **FlatGeoBuf**. **Do not** toggle the _statistics_ option on,as this time we want to see the data as a standard vector dataset. Here is the URL to the file:
 
    ```
    https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level00.fgb
@@ -32,7 +31,9 @@ load one of the same files as ordinary vector data.
    is that a statistics source is interpreted as a summary to plot, rather
    than as a layer to draw.
 
-5. Delete the `Temp` layer when you are done — it was only there to look inside
+5. _Optional_: In step 2 you recall there was a statistics toggle. Adding a data source and toggling this on, does exactly the same as using the statistics tab. In fact if you repeat step 2 and this time toggle that on, then when you come to Preview, you will also see the statistics tab. If you click on this, you will see the statistics as before. However as we do not have our World Cover categories on this layer, you will just see these all use a default colour scheme.
+
+6. Delete the `Temp` layer when you are done — it was only there to look inside
    the file.
 
 !!! tip "Building your own statistics files"
