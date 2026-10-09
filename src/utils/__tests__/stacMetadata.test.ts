@@ -21,3 +21,22 @@ describe('stacMetadata', () => {
     expect(one).toMatchObject({ single: true, item: { id: 'a' } });
   });
 });
+
+import { summariseStacQueryables } from '@/utils/stacMetadata';
+import { operatorsForQueryable } from '@/utils/stacQuery';
+
+describe('summariseStacQueryables $ref inference', () => {
+  it('treats referenced eo:cloud_cover and datetimes as comparable', () => {
+    const list = summariseStacQueryables({ properties: {
+      cloud_cover: { $ref: 'https://stac-extensions.github.io/eo/v1.0.0/schema.json#/definitions/fields/properties/eo:cloud_cover' },
+      created: { $ref: 'https://schemas.stacspec.org/v1.0.0/item-spec/json-schema/datetime.json#/properties/created' },
+      id: { $ref: 'https://schemas.stacspec.org/v1.0.0/item-spec/json-schema/item.json#/definitions/core/allOf/2/properties/id' },
+    } });
+    const cc = list.find((q) => q.key === 'cloud_cover')!;
+    expect(cc.type).toBe('number');
+    expect(cc.range).toBe('0 – 100');
+    expect(operatorsForQueryable(cc)).toContain('lte');
+    expect(list.find((q) => q.key === 'created')!.type).toBe('string (date-time)');
+    expect(operatorsForQueryable(list.find((q) => q.key === 'id')!)).toEqual(['eq', 'neq', 'like']);
+  });
+});
