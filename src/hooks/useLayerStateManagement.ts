@@ -538,6 +538,10 @@ export const useLayerStateManagement = () => {
     dispatch({ type: 'CLEAR_CANCELED_LAYER_INDEX' });
   }, []);
 
+  const clearFocusTabAfterForm = useCallback(() => {
+    dispatch({ type: 'CLEAR_FOCUS_TAB' });
+  }, []);
+
   // Constraint form actions
   const handleStartConstraintForm = useCallback((layerIndex: number, layerCardId?: string, isAddingConstraint = false) => {
     dispatch({ type: 'START_CONSTRAINT_FORM', layerIndex, isAddingConstraint });
