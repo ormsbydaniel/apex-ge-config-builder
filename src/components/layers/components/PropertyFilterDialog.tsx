@@ -310,7 +310,7 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
                 <Button type="button" size="sm" variant="secondary" onClick={() => { onSwitchToSearch(); setComparison(undefined); }}>Use search endpoint</Button>
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground">First page only; counts are capped by the limit unless the service reports a total.</p>
+            <p className="text-[10px] text-muted-foreground">The test runs the query exactly as configured — area, date range, limit and property filters — fetching the first page only; counts are capped by the limit unless the service reports a total.</p>
           </div>
         )}
 
