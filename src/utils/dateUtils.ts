@@ -1,6 +1,28 @@
 import { format } from 'date-fns';
 import { TimeframeType } from '@/types/config';
 
+/** Standard UK display formats used across the app (DD/MM/YYYY). */
+export const DISPLAY_DATE_FORMAT = 'dd/MM/yyyy';
+export const DISPLAY_DATETIME_FORMAT = 'dd/MM/yyyy HH:mm';
+
+/** Format a Date/ISO string/ms value as DD/MM/YYYY (or with time). */
+export function formatDisplayDate(value: Date | string | number | undefined | null, withTime = false): string {
+  if (value === undefined || value === null || value === '') return '';
+  const date = value instanceof Date ? value : new Date(value);
+  if (isNaN(date.getTime())) return String(value);
+  return format(date, withTime ? DISPLAY_DATETIME_FORMAT : DISPLAY_DATE_FORMAT);
+}
+
+/** date-fns display pattern for a timeframe (DD/MM/YYYY standard). */
+export function getTimeframeDisplayFormat(timeframe: TimeframeType | string | undefined): string {
+  switch (timeframe) {
+    case 'Years': return 'yyyy';
+    case 'Months': return 'MMMM yyyy';
+    case 'Time': return DISPLAY_DATETIME_FORMAT;
+    default: return DISPLAY_DATE_FORMAT;
+  }
+}
+
 /**
  * Format a timestamp for display based on the timeframe type
  */
@@ -13,12 +35,12 @@ export function formatTimestampForTimeframe(timestamp: number, timeframe: Timefr
     case 'Months':
       return format(date, 'MMMM yyyy');
     case 'Days':
-      return format(date, 'PP'); // e.g., "Dec 21, 2024"
+      return format(date, DISPLAY_DATE_FORMAT);
     case 'Time':
-      return format(date, 'PPpp'); // Full date and time
+      return format(date, DISPLAY_DATETIME_FORMAT);
     case 'None':
     default:
-      return format(date, 'PPpp'); // Full date and time
+      return format(date, DISPLAY_DATETIME_FORMAT);
   }
 }
 
