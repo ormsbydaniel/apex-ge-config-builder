@@ -194,6 +194,16 @@ nav:
           - 9-2. Key concepts: workshops/09-coordinate-reference-systems/02-key-concepts.md
           - 9-3. Using an alternative projection: workshops/09-coordinate-reference-systems/03-using-an-alternative-projection.md
           - 9-4. Defining a custom CRS: workshops/09-coordinate-reference-systems/04-defining-a-custom-crs.md
+      - 10. Working with vector data:
+          - Overview: workshops/10-working-with-vector-data/index.md
+          - 10-1. Pre-requisites: workshops/10-working-with-vector-data/01-prerequisites.md
+          - 10-2. Key concepts: workshops/10-working-with-vector-data/02-key-concepts.md
+          - 10-3. Styling your data: workshops/10-working-with-vector-data/03-styling-your-data.md
+      - 11. Working with multi-spectral data:
+          - Overview: workshops/11-working-with-multi-spectral-data/index.md
+          - 11-1. Pre-requisites: workshops/11-working-with-multi-spectral-data/01-prerequisites.md
+          - 11-2. Key concepts: workshops/11-working-with-multi-spectral-data/02-key-concepts.md
+          - 11-3. Styling your data: workshops/11-working-with-multi-spectral-data/03-styling-your-data.md
   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
