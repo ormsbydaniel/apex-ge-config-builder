@@ -58,18 +58,28 @@ export interface StacQueryable {
   range?: string;
 }
 
+/** Picks the most meaningful branch from anyOf/oneOf (e.g. [{number},{null}] → the number branch). */
+function resolveUnionBranch(p: any): any {
+  const branches = p?.anyOf ?? p?.oneOf;
+  if (!Array.isArray(branches)) return p;
+  const meaningful = branches.filter((b) => b && b.type !== 'null');
+  return meaningful.length === 1 ? { ...p, ...meaningful[0] } : p;
+}
+
 /** Converts a queryables JSON Schema into a sorted, display-friendly list. */
 export function summariseStacQueryables(schema: any): StacQueryable[] {
   const props = schema?.properties;
   if (!props || typeof props !== 'object') return [];
   return Object.entries<any>(props)
-    .map(([key, p]) => {
-      let type: string = Array.isArray(p?.type) ? p.type.join(' | ')
-        : p?.type ?? (p?.$ref ? 'reference' : p?.oneOf || p?.anyOf ? 'union' : 'any');
+    .map(([key, raw]) => {
+      const p = resolveUnionBranch(raw);
+      let type: string = Array.isArray(p?.type) ? p.type.filter((t: string) => t !== 'null').join(' | ')
+        : p?.type ?? (p?.$ref ? 'reference' : 'any');
       if (p?.format) type = `${type} (${p.format})`;
+      const enumValues = Array.isArray(p?.enum) ? p.enum : p?.const !== undefined ? [p.const] : undefined;
       const range = p?.minimum !== undefined || p?.maximum !== undefined
         ? `${p.minimum ?? '−∞'} – ${p.maximum ?? '∞'}` : undefined;
-      return { key, title: p?.title, description: p?.description, type, enumValues: Array.isArray(p?.enum) ? p.enum : undefined, range };
+      return { key, title: p?.title, description: p?.description, type, enumValues, range };
     })
     .sort((a, b) => a.key.localeCompare(b.key));
 }
