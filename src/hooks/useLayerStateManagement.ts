@@ -282,6 +282,19 @@ function layerStateReducer(
         },
       };
 
+    case 'SET_FOCUS_TAB':
+      return {
+        ...state,
+        focusTab: { layerIndex: action.layerIndex, tab: action.tab },
+      };
+
+    case 'CLEAR_FOCUS_TAB':
+      return {
+        ...state,
+        focusTab: null,
+      };
+
+
     case 'START_CONSTRAINT_FORM':
       return {
         ...state,
