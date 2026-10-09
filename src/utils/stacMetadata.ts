@@ -84,6 +84,23 @@ export async function fetchStacQueryables(url: string, fetcher: Fetcher = defaul
   return res.json();
 }
 
+const queryablesCache = new Map<string, Promise<any>>();
+
+/** Session cache keyed by collection URL; failed requests are not cached. */
+export function getCachedStacQueryables(url: string): Promise<any> {
+  const key = getStacCollectionUrl(url);
+  if (!key) return Promise.resolve(null);
+  let pending = queryablesCache.get(key);
+  if (!pending) {
+    pending = fetchStacQueryables(url).catch((error) => {
+      queryablesCache.delete(key);
+      throw error;
+    });
+    queryablesCache.set(key, pending);
+  }
+  return pending;
+}
+
 export interface StacItemSample {
   item: any | null;
   /** Number of items returned by the items endpoint (undefined for single items). */
