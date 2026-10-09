@@ -35,7 +35,7 @@ Three buttons sit at the top right of the **Project** card.
     - **Quick Export (Default)** — downloads the current config immediately as
       `<prefix>_YYYYMMDD_HHMM.json`. The `<prefix>` portion comes from the
       **Export filename prefix** field on the
-      [Settings tab](../settings/index.md#config-export-settings); see
+      [Settings tab](../settings/overview.md#config-export-settings); see
       [Loading and saving → Filename convention](../getting-started/loading-saving.md#filename-convention)
       for details.
     - **Export with Options…** — opens the

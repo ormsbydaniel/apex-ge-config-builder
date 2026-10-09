@@ -66,4 +66,4 @@ re-run when you edit and save its URL.
 !!! tip
     A service that is **reachable but slow** still validates green here.
     Performance grading happens at the layer level — see [Run
-    Healthcheck](healthcheck.md#performance) for the latency thresholds.
+    Healthcheck](healthcheck.md#performance-status) for the latency thresholds.
