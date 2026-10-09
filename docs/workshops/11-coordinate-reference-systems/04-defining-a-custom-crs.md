@@ -1,11 +1,11 @@
 ---
-title: 9-4. Defining a custom CRS
+title: 11-4. Defining a custom CRS
 ---
 
-# 9-4. Defining a custom CRS
+# 11-4. Defining a custom CRS
 
 The Geospatial Explorer ships with a set of built-in CRS options [as noted in
-9-2](02-key-concepts.md), but you are not limited to them. In this tutorial you
+11-2](02-key-concepts.md), but you are not limited to them. In this tutorial you
 will add **EPSG:27700 — British National Grid** as a custom CRS, use it as the
 display projection for the map, and add a Sentinel-2 dataset that is supplied
 in OSGB so it lines up natively with the National Grid.

@@ -27,9 +27,9 @@
         "06-time-series",
         "07-constraints",
         "08-statistics",
-        "09-coordinate-reference-systems",
+        "09-multi-spectral-data",
         "10-vector-data",
-        "11-multi-spectral-data",
+        "11-coordinate-reference-systems",
       ],
     },
   ];
@@ -92,9 +92,9 @@
     "06-time-series": "6. Time Series",
     "07-constraints": "7. Constraints",
     "08-statistics": "8. Statistics",
-    "09-coordinate-reference-systems": "9. Coordinate reference systems",
+    "09-multi-spectral-data": "9. Multi-spectral data",
     "10-vector-data": "10. Vector data",
-    "11-multi-spectral-data": "11. Multi-spectral data",
+    "11-coordinate-reference-systems": "11. Coordinate reference systems",
   };
 
   function currentStepTutorial() {

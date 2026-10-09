@@ -11,5 +11,8 @@ builder:
 - [2. My first config](../02-getting-started/index.md)
 - [3. Working with Services](../03-working-with-services/index.md)
 
-If you are already comfortable with the Configuration Builder you can start
-here and use your own configuration as the starting point.
+## Load the starting configuration
+
+1. Click **Load** in the Configuration Builder.
+2. Open the **Tutorials** tab.
+3. Select **Tutorial 9 pre-requisites data**.

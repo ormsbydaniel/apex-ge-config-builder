@@ -188,22 +188,22 @@ nav:
           - 8-6. Understanding the statistics files: workshops/08-statistics/06-panel-and-controls.md
           - 8-7. Histogram statistics: workshops/08-statistics/07-histogram-statistics.md
           - 8-8. Preview and review: workshops/08-statistics/08-preview-and-review.md
-      - 9. Coordinate reference systems:
-          - Overview: workshops/09-coordinate-reference-systems/index.md
-          - 9-1. Pre-requisites: workshops/09-coordinate-reference-systems/01-prerequisites.md
-          - 9-2. Key concepts: workshops/09-coordinate-reference-systems/02-key-concepts.md
-          - 9-3. Using an alternative projection: workshops/09-coordinate-reference-systems/03-using-an-alternative-projection.md
-          - 9-4. Defining a custom CRS: workshops/09-coordinate-reference-systems/04-defining-a-custom-crs.md
+      - 9. Multi-spectral data:
+          - Overview: workshops/09-multi-spectral-data/index.md
+          - 9-1. Pre-requisites: workshops/09-multi-spectral-data/01-prerequisites.md
+          - 9-2. Key concepts: workshops/09-multi-spectral-data/02-key-concepts.md
+          - 9-3. Styling your data: workshops/09-multi-spectral-data/03-styling-your-data.md
       - 10. Vector data:
           - Overview: workshops/10-vector-data/index.md
           - 10-1. Pre-requisites: workshops/10-vector-data/01-prerequisites.md
           - 10-2. Key concepts: workshops/10-vector-data/02-key-concepts.md
           - 10-3. Styling your data: workshops/10-vector-data/03-styling-your-data.md
-      - 11. Multi-spectral data:
-          - Overview: workshops/11-multi-spectral-data/index.md
-          - 11-1. Pre-requisites: workshops/11-multi-spectral-data/01-prerequisites.md
-          - 11-2. Key concepts: workshops/11-multi-spectral-data/02-key-concepts.md
-          - 11-3. Styling your data: workshops/11-multi-spectral-data/03-styling-your-data.md
+      - 11. Coordinate reference systems:
+          - Overview: workshops/11-coordinate-reference-systems/index.md
+          - 11-1. Pre-requisites: workshops/11-coordinate-reference-systems/01-prerequisites.md
+          - 11-2. Key concepts: workshops/11-coordinate-reference-systems/02-key-concepts.md
+          - 11-3. Using an alternative projection: workshops/11-coordinate-reference-systems/03-using-an-alternative-projection.md
+          - 11-4. Defining a custom CRS: workshops/11-coordinate-reference-systems/04-defining-a-custom-crs.md
   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
