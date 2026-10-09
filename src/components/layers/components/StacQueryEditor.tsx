@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarRange, Loader2, Map, X } from 'lucide-react';
+import { CalendarRange, Filter, Loader2, Map, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,13 +12,19 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import PropertyFilterDialog from './PropertyFilterDialog';
 import {
+  describeStacPropertyRule,
   inspectStacQueryTarget,
   parseStacCoreQuery,
+  parseStacCql2Filter,
+  serialiseCql2Rule,
   toDateTimeLocalValue,
   toStacDateTime,
   updateStacCoreQuery,
+  updateStacCql2Filter,
   validateBbox,
+  type StacPropertyRule,
   type StacQueryTarget,
 } from '@/utils/stacQuery';
 
@@ -41,6 +47,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   const [bboxOpen, setBboxOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
   const [limitOpen, setLimitOpen] = useState(false);
+  const [propertyEdit, setPropertyEdit] = useState<{ index?: number; raw?: string } | null>(null);
 
   const parsedQuery = parseStacCoreQuery(url);
 
@@ -114,6 +121,12 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
     ? 'Start must not be after end.'
     : undefined;
   const queryable = target?.kind === 'items';
+  const cql2 = parseStacCql2Filter(url);
+  const rules = cql2 && 'rules' in cql2 ? cql2.rules : [];
+  const openPropertyDialog = (edit: { index?: number; raw?: string }) => setPropertyEdit(edit);
+  const saveFilter = (filter: StacPropertyRule[] | string | undefined) => {
+    try { onChange(updateStacCql2Filter(url, filter)); } catch { /* invalid URL */ }
+  };
 
   const dateSummary = parsedQuery.datetimeStart || parsedQuery.datetimeEnd
     ? `${parsedQuery.datetimeStart ? new Date(parsedQuery.datetimeStart).toLocaleString() : 'Open start'} → ${parsedQuery.datetimeEnd ? new Date(parsedQuery.datetimeEnd).toLocaleString() : 'Open end'}`
@@ -170,7 +183,47 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
         ) : (
           <Button type="button" variant="outline" size="sm" disabled={!queryable} onClick={openBboxDialog}>+ Add bbox filter</Button>
         )}
+
+        {cql2 && 'raw' in cql2 && (
+          <Badge variant="secondary" className="gap-1 py-1 pl-1 pr-1">
+            <Button type="button" variant="ghost" size="sm" className="h-6 gap-1 px-1.5 text-xs" title={cql2.raw} onClick={() => openPropertyDialog({ raw: cql2.raw })}>
+              <Filter className="h-3 w-3" />Custom filter
+            </Button>
+            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" aria-label="Remove custom filter" onClick={() => saveFilter(undefined)}>
+              <X className="h-3 w-3" />
+            </Button>
+          </Badge>
+        )}
+        {rules.map((rule, index) => (
+          <Badge key={`${rule.property}-${index}`} variant="secondary" className="gap-1 py-1 pl-1 pr-1">
+            <Button type="button" variant="ghost" size="sm" className="h-6 gap-1 px-1.5 text-xs" title={serialiseCql2Rule(rule)} onClick={() => openPropertyDialog({ index })}>
+              <Filter className="h-3 w-3" />{describeStacPropertyRule(rule)}
+            </Button>
+            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" aria-label={`Remove ${rule.property} filter`} onClick={() => saveFilter(rules.filter((_, i) => i !== index))}>
+              <X className="h-3 w-3" />
+            </Button>
+          </Badge>
+        ))}
+        {!(cql2 && 'raw' in cql2) && (
+          <Button type="button" variant="outline" size="sm" disabled={!queryable} onClick={() => openPropertyDialog({})}>+ Add property filter</Button>
+        )}
       </div>
+
+      {target?.kind === 'items' && (
+        <PropertyFilterDialog
+          open={propertyEdit !== null}
+          onOpenChange={(open) => { if (!open) setPropertyEdit(null); }}
+          itemsUrl={target.itemsUrl}
+          otherRules={rules.filter((_, i) => i !== propertyEdit?.index)}
+          initialRule={propertyEdit?.index !== undefined ? rules[propertyEdit.index] : undefined}
+          initialRaw={propertyEdit?.raw}
+          onSave={(value) => {
+            if (typeof value === 'string') saveFilter(value);
+            else if (propertyEdit?.index !== undefined) saveFilter(rules.map((r, i) => (i === propertyEdit.index ? value : r)));
+            else saveFilter([...rules, value]);
+          }}
+        />
+      )}
 
       {url.trim() && (
         <div className="space-y-1">

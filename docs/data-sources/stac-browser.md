@@ -86,3 +86,9 @@ Click the **(i)** button on a STAC dataset row to open **STAC Metadata**. It has
 - **Asset**: details for the selected asset, plus a button that opens the COG or FlatGeobuf file inspector.
 
 This view is read-only. Temporary or signed file links are never saved to your configuration.
+
+## Property filters
+
+For STAC items endpoints, **+ Add property filter** lists the properties the collection publishes in its `queryables` response (for example `eo:cloud_cover`). Choose a property, a condition suited to its type and a value; each rule appears as a badge and rules are combined with AND. **Test filter** runs the query once and reports how many items match, or the server's error.
+
+Filters are saved only in the data source URL as `filter=<CQL2 text>&filter-lang=cql2-text`. If a collection does not publish queryables, enter the property name and type manually. Filters the editor cannot split into simple rules (for example ones using OR) are shown as a single **Custom filter** that you can edit as raw text.

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import type { DataSourceItem } from '@/types/config';
 import { getEffectiveFormat, resolveDataSourceInspectionAccess } from '@/utils/stacAssetFormat';
-import { fetchStacCollection, fetchStacItemSample, fetchStacQueryables, getStacCollectionUrl, stripUrlParams, summariseStacQueryables, type StacItemSample } from '@/utils/stacMetadata';
+import { fetchStacCollection, fetchStacItemSample, getCachedStacQueryables, getStacCollectionUrl, stripUrlParams, summariseStacQueryables, type StacItemSample } from '@/utils/stacMetadata';
 import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 
@@ -87,7 +87,7 @@ const StacMetadataDialog = ({ dataSource, open, onOpenChange }: Props) => {
     if (tab === 'queryables') {
       if (!getStacCollectionUrl(url)) return;
       setQueryables({ loading: true });
-      fetchStacQueryables(url)
+      getCachedStacQueryables(url)
         .then((data) => guard(() => setQueryables({ loading: false, data })))
         .catch((e) => guard(() => setQueryables({ loading: false, error: msg(e) })));
     } else if (tab === 'collection') {
