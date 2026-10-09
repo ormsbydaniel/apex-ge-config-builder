@@ -1,6 +1,7 @@
 ---
 title: 7-4. Create a categorical constraint
 ---
+
 # 7-4. Create a categorical constraint
 
 ## The principle
@@ -16,44 +17,43 @@ the labels are only for display.
 
 ## Configure it
 
-1. On the *Austria Wind Power Density at 100m* layer card, open the **Constraints** tab and select **Add constraint**. Keep the source type as **Direct URL** and paste the WorldCover COG that has been prepared to align with the wind power data:
+1. On the _Austria Wind Power Density at 100m_ layer card, open the **Constraints** tab and select **Add constraint**. Keep the source type as **Direct URL** and paste the WorldCover COG that has been prepared to align with the wind power data:
 
-    ```
-    https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif
-    ```
+   ```
+   https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/constraints/PowerDensity_100m_Austria_WGS84_COG_clipped_3857_fix-esa_worldcover_2021.tif
+   ```
 
-    Set:
+   Set:
 
-    - **Label** — `Land Cover (from World Cover)`
-    - **Interactive** — on
-    - **Constraint Type** — **Categorical**
+   - **Label** — `Land Cover (from World Cover)`
+   - **Interactive** — on
+   - **Constraint Type** — **Categorical**
 
 2. Select **Populate Categories from COG**. The builder reads the distinct
    values present in the file and creates a row for each one.
 
 3. Edit the labels so they read as class names rather than numbers:
 
-    | Label | Value |
-    | --- | --- |
-    | Tree cover | 10 |
-    | Shrubland | 20 |
-    | Grassland | 30 |
-    | Cropland | 40 |
-    | Built-up | 50 |
-    | Bare | 60 |
-    | Snow and ice | 70 |
-    | Permanent water bodies | 80 |
-    | Herbaceous wetland | 90 |
-    | Moss and lichen | 100 |
+   | Label                  | Value |
+   | ---------------------- | ----- |
+   | Tree cover             | 10    |
+   | Grassland              | 30    |
+   | Cropland               | 40    |
+   | Built-up               | 50    |
+   | Bare                   | 60    |
+   | Snow and ice           | 70    |
+   | Permanent water bodies | 80    |
+   | Herbaceous wetland     | 90    |
+   | Moss and lichen        | 100   |
 
-    This is the same class list used in
-    [5-3. Categories from a COG](../05-categorical-data/03-categories-cog.md),
-    and is also available as a
-    [CSV file](../../assets/world-cover-classes.csv).
+   This is the same class list used in
+   [5-3. Categories from a COG](../05-categorical-data/03-categories-cog.md),
+   and is also available as a
+   [CSV file](../../assets/world-cover-classes.csv).
 
-    !!! note
-        Not every class is present in Austria. Values that the COG does not
-        contain simply never mask anything, so it is harmless to leave them in.
+   !!! note
+   Not every class is present in Austria. Values that the COG does not
+   contain simply never mask anything, so it is harmless to leave them in.
 
 4. **Save** the constraint.
 
