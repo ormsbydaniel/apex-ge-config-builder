@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -39,7 +39,7 @@ interface PropertyFilterDialogProps {
 }
 
 const VERDICT_LABEL: Record<FilterVerdict, string> = {
-  applied: 'Applied', ignored: 'Probably ignored', unsupported: 'Not supported', unknown: 'Unclear', baseline: '—',
+  applied: 'Applied', ignored: 'Probably ignored', unsupported: 'Not supported', unknown: 'Unclear', baseline: 'No property filter',
 };
 const VERDICT_CLASS: Record<FilterVerdict, string> = {
   applied: 'text-primary', ignored: 'text-destructive', unsupported: 'text-destructive', unknown: 'text-muted-foreground', baseline: 'text-muted-foreground',
@@ -274,7 +274,7 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
           <div className="space-y-2 rounded-md border p-2 text-xs">
             <table className="w-full">
               <thead className="text-muted-foreground">
-                <tr><th className="text-left font-normal">Endpoint</th><th className="text-right font-normal">Returned</th><th className="text-right font-normal">Matched</th><th className="text-right font-normal">Filter</th></tr>
+                <tr><th className="text-left font-normal">Endpoint</th><th className="text-right font-normal">Returned</th><th className="text-right font-normal">Matched</th><th className="text-right font-normal">Property filter</th></tr>
               </thead>
               <tbody>
                 {comparison.probes.map((p) => (
@@ -297,13 +297,20 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
               </tbody>
             </table>
             {comparison.note && <p className="text-muted-foreground">{comparison.note}</p>}
+            <p className="text-muted-foreground">The 'no property filter' row shows what the query returns with only the area, date range and limit applied — use it as the comparison for the filtered rows.</p>
+            {comparison.zeroResults && (
+              <p className="flex items-start gap-1.5 text-muted-foreground">
+                <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
+                This query returns no items, so the layer will not display on the map. Try relaxing the property filter, widening the date range or area, or raising the limit.
+              </p>
+            )}
             <div className="flex items-center justify-between gap-2">
               <p className="font-medium">{comparison.summary}</p>
               {comparison.recommendSearch && onSwitchToSearch && (
                 <Button type="button" size="sm" variant="secondary" onClick={() => { onSwitchToSearch(); setComparison(undefined); }}>Use search endpoint</Button>
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground">First page only; counts are capped by the limit unless the service reports a total.</p>
+            <p className="text-[10px] text-muted-foreground">The test runs the query exactly as configured — area, date range, limit and property filters — fetching the first page only; counts are capped by the limit unless the service reports a total.</p>
           </div>
         )}
 

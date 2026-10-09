@@ -1,6 +1,6 @@
 import { formatDisplayDate } from "@/utils/dateUtils";
 import React, { useEffect, useState } from 'react';
-import { CalendarRange, Filter, Layers, Loader2, Map, X } from 'lucide-react';
+import { AlertTriangle, CalendarRange, Filter, Layers, Loader2, Map, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -44,7 +44,11 @@ interface StacQueryEditorProps {
 
 const bboxLabels = ['West', 'South', 'East', 'North'];
 const VERDICT_TEXT: Record<FilterVerdict, string> = {
-  applied: 'applied', ignored: 'probably ignored', unsupported: 'not supported', unknown: 'unclear', baseline: '—',
+  applied: 'property filter applied',
+  ignored: 'property filter probably ignored',
+  unsupported: 'property filter not supported',
+  unknown: 'property filter effect unclear',
+  baseline: '—',
 };
 
 const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
@@ -284,8 +288,10 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
                       {!probe ? 'Not tested for this address.'
                         : !probe.ok ? <span className="text-destructive">{probe.error}</span>
                         : <>
-                            {probe.returned} returned{probe.matched !== undefined ? `, ${probe.matched} matched` : ''}
-                            {methodTest.hasFilter && <> · filter <span className={probe.verdict === 'applied' ? 'text-primary' : probe.verdict === 'ignored' || probe.verdict === 'unsupported' ? 'text-destructive' : ''}>{VERDICT_TEXT[probe.verdict]}</span></>}
+                            {probe.returned === 0 && methodTest.hasFilter && probe.verdict === 'applied'
+                              ? '0 returned — no items match the property filter'
+                              : <>{probe.returned} returned{probe.matched !== undefined ? `, ${probe.matched} matched` : ''}</>}
+                            {methodTest.hasFilter && probe.verdict !== 'baseline' && <> · <span className={probe.verdict === 'applied' ? 'text-primary' : probe.verdict === 'ignored' || probe.verdict === 'unsupported' ? 'text-destructive' : ''}>{VERDICT_TEXT[probe.verdict]}</span></>}
                             {probe.spotCheck && ` (${probe.spotCheck.passed}/${probe.spotCheck.checked} items pass)`}
                           </>}
                     </span>
@@ -296,7 +302,21 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
             })}
           </RadioGroup>
           {methodTest?.error && <p className="text-xs text-destructive">{methodTest.error}</p>}
-          <p className="text-xs text-muted-foreground">Some servers only apply property filters on the search endpoint. Test uses the current dates, area, limit and filters (first page only).</p>
+          {methodTest?.result?.zeroResults && (
+            <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+              <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
+              This query returns no items, so the layer will not display on the map. Try relaxing the property filter, widening the date range or area, or raising the limit.
+            </p>
+          )}
+          {methodTest?.result && methodTest.hasFilter && (() => {
+            const baseline = methodTest.result.probes.find((p) => p.key === 'items-baseline');
+            return baseline?.ok ? (
+              <p className="text-xs text-muted-foreground">
+                For comparison, the same query with no property filter (area, date range and limit still applied) returned {baseline.returned}{baseline.matched !== undefined ? ` of ${baseline.matched} matched` : ''}.
+              </p>
+            ) : null;
+          })()}
+          <p className="text-xs text-muted-foreground">The test runs the query exactly as configured — area, date range, limit and property filters — fetching the first page only. Some servers only apply property filters on the search endpoint.</p>
         </div>
       )}
 
