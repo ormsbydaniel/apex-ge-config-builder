@@ -48,7 +48,7 @@ const VERDICT_CLASS: Record<FilterVerdict, string> = {
 const MANUAL = '__manual__';
 const TYPES: StacPropertyType[] = ['string', 'number', 'datetime', 'boolean'];
 
-const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpenChange, itemsUrl, otherRules, initialRule, initialRaw, onSave }) => {
+const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpenChange, itemsUrl, otherRules, initialRule, initialRaw, onSave, onSwitchToSearch }) => {
   const rawMode = initialRaw !== undefined;
   const [queryables, setQueryables] = useState<StacQueryable[]>([]);
   const [loadState, setLoadState] = useState<'idle' | 'loading' | 'ready' | 'failed'>('idle');
@@ -265,6 +265,42 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
 
         {testResult.loading && <p className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" />Testing…</p>}
         {testResult.message && <p className={`text-xs ${testResult.error ? 'text-destructive' : 'text-muted-foreground'}`}>{testResult.message}</p>}
+        {comparison && (
+          <div className="space-y-2 rounded-md border p-2 text-xs">
+            <table className="w-full">
+              <thead className="text-muted-foreground">
+                <tr><th className="text-left font-normal">Endpoint</th><th className="text-right font-normal">Returned</th><th className="text-right font-normal">Matched</th><th className="text-right font-normal">Filter</th></tr>
+              </thead>
+              <tbody>
+                {comparison.probes.map((p) => (
+                  <tr key={p.key} title={p.url}>
+                    <td className="py-0.5">{p.label}</td>
+                    {p.ok ? (
+                      <>
+                        <td className="text-right">{p.returned}</td>
+                        <td className="text-right">{p.matched ?? '—'}</td>
+                      </>
+                    ) : (
+                      <td colSpan={2} className="truncate text-right text-destructive" title={p.error}>{p.error}</td>
+                    )}
+                    <td className={`text-right ${VERDICT_CLASS[p.verdict]}`}>
+                      {VERDICT_LABEL[p.verdict]}
+                      {p.spotCheck && <span className="block text-[10px] text-muted-foreground">{p.spotCheck.passed}/{p.spotCheck.checked} items pass</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {comparison.note && <p className="text-muted-foreground">{comparison.note}</p>}
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium">{comparison.summary}</p>
+              {comparison.recommendSearch && onSwitchToSearch && (
+                <Button type="button" size="sm" variant="secondary" onClick={() => { onSwitchToSearch(); setComparison(undefined); }}>Use search endpoint</Button>
+              )}
+            </div>
+            <p className="text-[10px] text-muted-foreground">First page only; counts are capped by the limit unless the service reports a total.</p>
+          </div>
+        )}
 
         <DialogFooter className="gap-2 sm:justify-between">
           <Button type="button" variant="outline" size="sm" disabled={!canSave || testResult.loading} onClick={() => void testFilter()}>Test filter</Button>

@@ -259,6 +259,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
           otherRules={rules.filter((_, i) => i !== propertyEdit?.index)}
           initialRule={propertyEdit?.index !== undefined ? rules[propertyEdit.index] : undefined}
           initialRaw={propertyEdit?.raw}
+          onSwitchToSearch={canSwitchToSearch ? () => switchQueryMethod('search') : undefined}
           onSave={(value) => {
             if (typeof value === 'string') saveFilter(value);
             else if (propertyEdit?.index !== undefined) saveFilter(rules.map((r, i) => (i === propertyEdit.index ? value : r)));
