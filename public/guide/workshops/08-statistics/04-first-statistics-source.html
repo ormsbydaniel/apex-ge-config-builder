@@ -2067,11 +2067,9 @@ data.</p>
 <p><img alt="Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0" src="../../assets/screenshots/statistics-nuts-level0-result.png" /></p>
 <p>By the way, if you click on <em>France</em> and notice it zooming out to the world, thats not an error. The polygon for France includes its overseas territories, such as <em>French Guiana</em> just north of Brazil - home of <a href="https://www.esa.int/Enabling_Support/Space_Transportation/Europe_s_Spaceport/Europe_s_Spaceport2">Europe's Space Port</a></p>
 <div class="highlight"><pre><span></span><code>!!! warning "Coordinate reference system"
+
+These files are published in EPSG:4326, matching the `epsg4326` in the file name. Statistics features must be in a CRS the Explorer can reproject to the map — a mismatch shows as boundaries in the wrong place, or no clickable features at all. If you are working with statistics files in future that are in different projections, then you may need to add them as custom statistics. See tutorial 9.
 </code></pre></div>
-<p>These files are published in EPSG:4326, matching the <code>epsg4326</code> in the file
-name. Statistics features must be in a CRS the Explorer can reproject to the
-map — a mismatch shows as boundaries in the wrong place, or no clickable
-features at all. If you are working with statistics files in future that are in different projections, then you may need to add them as custom statistics. See tutorial 9.</p>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
 
