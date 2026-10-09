@@ -40,10 +40,12 @@ data.
 
    ![Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0](../../assets/screenshots/statistics-nuts-level0-result.png)
 
-!!! warning "Coordinate reference system"
+By the way, if you click on _France_ and notice it zooming out to the world, thats not an error. The polygon for France includes its overseas territories, such as _French Guiana_ just north of Brazil - home of [Europe's Space Port](https://www.esa.int/Enabling_Support/Space_Transportation/Europe_s_Spaceport/Europe_s_Spaceport2)
+
+!! warning "Coordinate reference system"
 These files are published in EPSG:4326, matching the `epsg4326` in the file
 name. Statistics features must be in a CRS the Explorer can reproject to the
 map — a mismatch shows as boundaries in the wrong place, or no clickable
-features at all.
+features at all. If you are working with statistics files in future that are in different projections, then you may need to add them as custom statistics. See tutorial 9.
 
 ### Did you remember to export?
