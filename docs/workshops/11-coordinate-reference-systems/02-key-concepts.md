@@ -1,7 +1,7 @@
 ---
-title: 9-2. Key concepts
+title: 11-2. Key concepts
 ---
-# 9-2. Key concepts
+# 11-2. Key concepts
 
 - A **CRS** (Coordinate Reference System) is essentially a **map projection** —
   the mathematical recipe for flattening the curved surface of the Earth onto a
@@ -20,7 +20,7 @@ title: 9-2. Key concepts
 - This means you are not limited to data stored in Web Mercator: you can use
   datasets kept in another projection, **and/or change the CRS used for
   display** — for example a polar stereographic view when working with Arctic
-  data (see [9-3](03-using-an-alternative-projection.md)).
+  data (see [11-3](03-using-an-alternative-projection.md)).
 - A number of standard CRS are **included with the Explorer**:
 
     | Code | Name |
