@@ -88,6 +88,7 @@ const initialState: LayerStateManagementState = {
     editingChartIndex: null,
     editingChartLayerIndex: null,
   },
+  focusTab: null,
 };
 
 // Reducer function
