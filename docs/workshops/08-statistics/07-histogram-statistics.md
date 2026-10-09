@@ -4,6 +4,8 @@ title: 8-7. Histogram statistics
 
 # 8-7. Histogram statistics
 
+![Statistics panel showing a histogram bar chart of above ground biomass for FR › Normandie](../../assets/screenshots/statistics-histogram-bar-chart.png)
+
 In exercises 8-4 and 8-5, we added in statistics that had been created for categorical data. However the same structure of statistics file can also be used to present histograms. In this exercise, we also add statistics files in bulk.
 
 1.  Navigate to the `Above Ground Biomass` layer that you created in exercise 2. Select **+Add statistics** from the statistics tab.
