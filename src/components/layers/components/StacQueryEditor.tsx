@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PropertyFilterDialog from './PropertyFilterDialog';
+import StacBboxMap from './StacBboxMap';
 import {
   describeStacPropertyRule,
   inspectStacQueryTarget,
@@ -274,11 +275,12 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
       </Dialog>
 
       <Dialog open={bboxOpen} onOpenChange={setBboxOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Bounding box filter</DialogTitle>
-            <DialogDescription>Enter west, south, east, and north coordinates.</DialogDescription>
+            <DialogDescription>Draw a rectangle on the map, or enter west, south, east, and north coordinates. Items whose geometry intersects this area are returned.</DialogDescription>
           </DialogHeader>
+          {bboxOpen && <StacBboxMap value={bbox} onChange={setBbox} open={bboxOpen} />}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {bboxLabels.map((label, index) => (
               <div key={label} className="space-y-2">
