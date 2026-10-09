@@ -21,9 +21,9 @@ In this exercise we will work with an existing configuration. If you are followi
     !!!info "Composites vs indices. What's the difference?"
     **Composites** take three bands and visualise them in the _red_, _green_ and _blue_ channels of the output. If the input bands are also red, green and blue wavelengths, then this will look like a natural colour. However, if they are other wavelengths then they will reveal patterns not visible to the naked eye.
 
-**Indices** meanwhile, make per pixel calulations across multiple bands, ending up with a value typically between -1 and +1. These indices reveal interesting insights according to the formula used!
+    **Indices** meanwhile, make per pixel calulations across multiple bands, ending up with a value typically between -1 and +1. These indices reveal interesting insights according to the formula used!
 
-4. Select **Composites -> Natural colour** then **Preview**.
+4.  Select **Composites -> Natural colour** then **Preview**.
 
 _Content to follow._
 
