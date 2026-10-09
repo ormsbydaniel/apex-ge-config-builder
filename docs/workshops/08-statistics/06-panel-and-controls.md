@@ -10,7 +10,7 @@ load one of the same files as ordinary vector data.
 
 1. Add a new layer and name it `Temp`.
 
-2. On the `Temp` layer card, select **+ Add dataset** under the data sources tab. Note, as we are **not** addint this as a _statistics_ layer, this time we will see the data as a standard vector dataset. Choose **Direct connection** and the format **FlatGeoBuf**, and use the NUTS level 0 file
+2. On the `Temp` layer card, select **+ Add dataset** under the data sources tab. Note, as we are **not** adding this as a _statistics_ layer, this time we will see the data as a standard vector dataset. Choose **Direct connection** and the format **FlatGeoBuf**, and use the NUTS level 0 file
    again:
 
    ```
