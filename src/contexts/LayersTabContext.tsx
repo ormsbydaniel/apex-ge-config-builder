@@ -44,6 +44,9 @@ export interface LayersTabContextValue {
   onUpdateChart: (layerIndex: number, chartIndex: number, chart: ChartConfig) => void;
   onStartChartForm?: (layerIndex: number) => void;
   onEditChartSource?: (layerIndex: number, chartIndex: number) => void;
+  // Tab to focus in a layer card after a form completes (e.g. Statistics after adding a statistics source)
+  focusTabAfterForm?: { layerIndex: number; tab: string } | null;
+  onClearFocusTabAfterForm?: () => void;
 }
 
 const LayersTabContext = createContext<LayersTabContextValue | null>(null);
