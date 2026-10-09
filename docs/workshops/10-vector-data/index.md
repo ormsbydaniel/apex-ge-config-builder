@@ -1,7 +1,7 @@
 ---
-title: 10. Working with vector data
+title: 10. Vector data
 ---
-# 10. Working with vector data
+# 10. Vector data
 
 ## Tutorial Objectives
 

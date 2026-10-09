@@ -1,7 +1,7 @@
 ---
-title: 11. Working with multi-spectral data
+title: 11. Multi-spectral data
 ---
-# 11. Working with multi-spectral data
+# 11. Multi-spectral data
 
 ## Tutorial Objectives
 
