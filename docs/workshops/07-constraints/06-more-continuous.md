@@ -23,13 +23,13 @@ https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/Copernicus_10m_DSM_COG
 https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/RuggednessIndex_Austria_3857_COG_fix.tif
 ```
 
-**Distance to High Power Line** — min `0`, max `30000`, units `meters`
+**Distance to High Power Line** — min `0`, max `30000`, units `metres`
 
 ```
 https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/PowerLineHigh_EucDist_Austria_3857_COG_fix.tif
 ```
 
-**Distance to settlement (WSF)** — min `0`, max `5500`, units `meters`
+**Distance to settlement (WSF)** — min `0`, max `5500`, units `metres`
 
 ```
 https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/WSF_EucDist_Austria_3857_COG_fix.tif
