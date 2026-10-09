@@ -234,9 +234,14 @@ function layerStateReducer(
         },
       };
 
-    case 'COMPLETE_DATA_SOURCE_FORM':
+    case 'COMPLETE_DATA_SOURCE_FORM': {
+      // When a statistics source was added, focus the layer card's Statistics tab afterwards
+      const focusTab = state.dataSourceForm.isAddingStatistics && state.dataSourceForm.selectedLayerIndex !== null
+        ? { layerIndex: state.dataSourceForm.selectedLayerIndex, tab: 'statistics' }
+        : state.focusTab;
       return {
         ...state,
+        focusTab,
         dataSourceForm: {
           ...state.dataSourceForm,
           showDataSourceForm: false,
@@ -246,6 +251,7 @@ function layerStateReducer(
           editingDataSourceLayerIndex: null,
         },
       };
+    }
 
     case 'CLEAR_DATA_SOURCE_FORM':
       return {
