@@ -1,6 +1,7 @@
 ---
 title: 7-5. Add a continuous constraint
 ---
+
 # 7-5. Add a continuous constraint
 
 ## The principle
@@ -15,17 +16,17 @@ that has been prepared to match the wind power grid.
 
 ## Configure it
 
-1. In the **Constraints** tab of the *Austria Wind Power Density at 100m* layer card, select **Add constraint**. Keep the source type as **Direct URL** and paste:
+1. In the **Constraints** tab of the _Austria Wind Power Density at 100m_ layer card, select **Add constraint source**. Keep the source type as **Direct URL** and paste:
 
-    ```
-    https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/Copernicus_DSM_COG_10m_3857_fix.tif
-    ```
+   ```
+   https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/Copernicus_DSM_COG_10m_3857_fix.tif
+   ```
 
-    Set:
+   Set:
 
-    - **Label** — `Elevation`
-    - **Interactive** — on
-    - **Constraint Type** — **Continuous**
+   - **Label** — `Elevation`
+   - **Interactive** — on
+   - **Constraint Type** — **Continuous**
 
 2. Select **Populate Min & Max from COG**. The builder reads the statistics
    from the file and fills in the range.
@@ -45,7 +46,7 @@ built or connected.
 ![Austria Wind Power Density layer with the Constraints panel open, showing the Land Cover and Elevation continuous constraint sliders](../../assets/screenshots/continuous-constraint-result.png)
 
 !!! tip "Units matter"
-    The units string is shown next to the slider values in the viewer. Without
-    it a user has no way to know whether `4000` means metres or feet.
+The units string is shown next to the slider values in the viewer. Without
+it a user has no way to know whether `4000` means metres or feet.
 
 ### Did you remember to export?
