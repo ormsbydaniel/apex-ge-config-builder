@@ -57,10 +57,23 @@ const LayerCardContent = ({
 }: LayerCardContentProps) => {
   const { config, dispatch } = useConfig();
   const { toast } = useToast();
+  const { focusTabAfterForm, onClearFocusTabAfterForm } = useLayersTabContext();
   const isSwipeLayer = source.meta?.swipeConfig !== undefined;
 
   // Find the index of this source in the config
   const sourceIndex = config.sources.findIndex(s => s.name === source.name);
+
+  // One-shot tab focus (e.g. open Statistics after adding a statistics source)
+  const focusTab = focusTabAfterForm && focusTabAfterForm.layerIndex === sourceIndex
+    ? focusTabAfterForm.tab
+    : undefined;
+
+  useEffect(() => {
+    if (focusTab) {
+      onClearFocusTabAfterForm?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const vectorSources = isDataSourceItemArray(source.data)
     ? source.data.filter((item: DataSourceItem) => item.format && isVectorDataSource(item))
@@ -244,6 +257,7 @@ const LayerCardContent = ({
           <div className="ml-6">
           <LayerCardTabs
           source={source}
+          initialTab={focusTab}
           services={(config.services || []) as Service[]}
           layerIndex={sourceIndex}
           onUpdateMeta={handleUpdateMeta}
