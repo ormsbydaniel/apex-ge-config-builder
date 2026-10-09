@@ -132,6 +132,8 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
     ? 'Start must not be after end.'
     : undefined;
   const queryable = target?.kind === 'items' || target?.kind === 'search';
+  const canSwitchToSearch = target?.kind === 'items' && itemsUrlToSearchUrl(url) !== undefined;
+  const canSwitchToItems = target?.kind === 'search' && searchUrlToItemsUrl(url) !== undefined;
   const cql2 = parseStacCql2Filter(url);
   const rules = cql2 && 'rules' in cql2 ? cql2.rules : [];
   const openPropertyDialog = (edit: { index?: number; raw?: string }) => setPropertyEdit(edit);
