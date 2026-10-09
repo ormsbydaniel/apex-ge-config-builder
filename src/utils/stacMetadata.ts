@@ -66,13 +66,38 @@ function resolveUnionBranch(p: any): any {
   return meaningful.length === 1 ? { ...p, ...meaningful[0] } : p;
 }
 
+const STAC_DATETIME_FIELDS = new Set(['datetime', 'created', 'updated', 'start_datetime', 'end_datetime', 'published', 'expires']);
+const STAC_INTEGER_FIELDS = new Set(['sat:relative_orbit', 'sat:absolute_orbit', 'proj:epsg', 'landsat:wrs_path', 'landsat:wrs_row']);
+const STAC_PERCENT_FIELDS = new Set(['eo:cloud_cover', 'eo:snow_cover', 'cloud_cover']);
+const STAC_NUMBER_FIELDS = new Set(['gsd', 'view:off_nadir', 'view:incidence_angle', 'view:azimuth', 'view:sun_azimuth', 'view:sun_elevation']);
+
+/**
+ * Infers a type for well-known STAC fields referenced via `$ref` (e.g. the eo
+ * extension's `eo:cloud_cover`), since many APIs point at shared schemas instead
+ * of inlining a type. Returns undefined for unrecognised references.
+ */
+function inferFromStacRef(ref: string, key: string): { type: string; format?: string; minimum?: number; maximum?: number } | undefined {
+  const field = ref.split('/').pop() ?? '';
+  const names = [field, key];
+  if (names.some((n) => STAC_DATETIME_FIELDS.has(n))) return { type: 'string', format: 'date-time' };
+  if (names.some((n) => STAC_PERCENT_FIELDS.has(n) || /_percentage$/.test(n))) return { type: 'number', minimum: 0, maximum: 100 };
+  if (names.some((n) => STAC_INTEGER_FIELDS.has(n))) return { type: 'integer' };
+  if (names.some((n) => STAC_NUMBER_FIELDS.has(n))) return { type: 'number' };
+  if (['id', 'collection', 'platform', 'constellation', 'mission'].includes(field)) return { type: 'string' };
+  return undefined;
+}
+
 /** Converts a queryables JSON Schema into a sorted, display-friendly list. */
 export function summariseStacQueryables(schema: any): StacQueryable[] {
   const props = schema?.properties;
   if (!props || typeof props !== 'object') return [];
   return Object.entries<any>(props)
     .map(([key, raw]) => {
-      const p = resolveUnionBranch(raw);
+      let p = resolveUnionBranch(raw);
+      if (p?.$ref && p?.type === undefined) {
+        const inferred = inferFromStacRef(String(p.$ref), key);
+        if (inferred) p = { ...inferred, ...p, type: inferred.type };
+      }
       let type: string = Array.isArray(p?.type) ? p.type.filter((t: string) => t !== 'null').join(' | ')
         : p?.type ?? (p?.$ref ? 'reference' : 'any');
       if (p?.format) type = `${type} (${p.format})`;
