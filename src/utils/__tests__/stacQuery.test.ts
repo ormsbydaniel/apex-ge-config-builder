@@ -21,6 +21,24 @@ describe('STAC core query URLs', () => {
     expect(replaceStacUrlBase('https://x.test/items?limit=5', 'example.test/items')).toBe('example.test/items');
   });
 
+  it('does not rewrite partially typed URLs while typing', () => {
+    const source = 'https://x.test/items?token=public&limit=5';
+    let current = '';
+    for (const char of 'https://example.com/collections/sentinel-2'.replace(source.slice(0, 0), '')) {
+      current = replaceStacUrlBase(current || '', current + char);
+      // The display base must always match exactly what the user has typed.
+      expect(getStacUrlBase(current)).toBe(current + (current.includes('?') ? '' : ''));
+    }
+    expect(current).toBe('https://example.com/collections/sentinel-2?token=public&limit=5');
+    expect(getStacUrlBase(current)).toBe('https://example.com/collections/sentinel-2');
+  });
+
+  it('keeps a partially typed host verbatim without adding a trailing slash', () => {
+    expect(replaceStacUrlBase('', 'https://e')).toBe('https://e');
+    expect(replaceStacUrlBase('https://e?token=public', 'https://ex')).toBe('https://ex?token=public');
+    expect(getStacUrlBase('https://e?token=public')).toBe('https://e');
+  });
+
   it('parses the bbox, datetime interval, and limit used by stac-datasets', () => {
     const parsed = parseStacCoreQuery('https://x.test/items?bbox=-3,51,-1,52&datetime=2026-06-01T00:00:00Z/2026-07-01T00:00:00Z&limit=100');
     expect(parsed).toEqual({ bbox: [-3, 51, -1, 52], datetimeStart: '2026-06-01T00:00:00Z', datetimeEnd: '2026-07-01T00:00:00Z', limit: 100 });
