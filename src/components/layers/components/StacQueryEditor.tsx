@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { compareStacFilterEndpoints, type FilterComparison, type FilterVerdict } from '@/utils/stacFilterComparison';
 import PropertyFilterDialog from './PropertyFilterDialog';
 import StacBboxMap from './StacBboxMap';
 import {
@@ -38,6 +40,9 @@ interface StacQueryEditorProps {
 }
 
 const bboxLabels = ['West', 'South', 'East', 'North'];
+const VERDICT_TEXT: Record<FilterVerdict, string> = {
+  applied: 'applied', ignored: 'probably ignored', unsupported: 'not supported', unknown: 'unclear', baseline: '—',
+};
 
 const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   const initial = parseStacCoreQuery(url);
@@ -52,6 +57,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   const [dateOpen, setDateOpen] = useState(false);
   const [limitOpen, setLimitOpen] = useState(false);
   const [propertyEdit, setPropertyEdit] = useState<{ index?: number; raw?: string } | null>(null);
+  const [methodTest, setMethodTest] = useState<{ loading?: boolean; hasFilter: boolean; result?: FilterComparison; error?: string }>();
 
   const parsedQuery = parseStacCoreQuery(url);
 
@@ -101,8 +107,26 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   };
 
   const switchQueryMethod = (method: 'items' | 'search') => {
+    if (target?.kind === method) return;
     const next = method === 'search' ? itemsUrlToSearchUrl(url) : searchUrlToItemsUrl(url);
     if (next) onChange(next);
+  };
+
+  // Results are keyed to the query only (not the endpoint), so they survive switching method.
+  const queryKey = (() => { try { const u = new URL(url); ['collections'].forEach((k) => u.searchParams.delete(k)); return u.search; } catch { return url; } })();
+  useEffect(() => { setMethodTest(undefined); }, [queryKey]);
+
+  const runMethodTest = async () => {
+    const f = parseStacCql2Filter(url);
+    const filter = f ? ('raw' in f ? f.raw : f.rules) : [];
+    const hasFilter = Boolean(f);
+    setMethodTest({ loading: true, hasFilter });
+    try {
+      const result = await compareStacFilterEndpoints(url, filter);
+      setMethodTest({ result, hasFilter });
+    } catch (error) {
+      setMethodTest({ hasFilter, error: error instanceof Error ? error.message : String(error) });
+    }
   };
 
   const applyLimit = () => {
@@ -223,31 +247,43 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
       </div>
 
       {queryable && target && (
-        <div className="space-y-1">
-          <Label className="text-muted-foreground">Query method</Label>
+        <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant={target.kind === 'items' ? 'default' : 'outline'}
-              size="sm"
-              disabled={target.kind === 'items' || !canSwitchToItems}
-              title={target.kind === 'search' && !canSwitchToItems ? 'Only single-collection searches can switch to the items endpoint.' : undefined}
-              onClick={() => switchQueryMethod('items')}
-            >
-              Items endpoint
+            <Label className="text-muted-foreground">Query method</Label>
+            <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" disabled={methodTest?.loading} onClick={() => void runMethodTest()}>
+              {methodTest?.loading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Test'}
             </Button>
-            <Button
-              type="button"
-              variant={target.kind === 'search' ? 'default' : 'outline'}
-              size="sm"
-              disabled={target.kind === 'search' || !canSwitchToSearch}
-              title={target.kind === 'items' && !canSwitchToSearch ? 'This items address cannot be converted to a search request.' : undefined}
-              onClick={() => switchQueryMethod('search')}
-            >
-              Search endpoint
-            </Button>
-            <p className="text-xs text-muted-foreground">Some servers only apply property filters on the search endpoint.</p>
           </div>
+          <RadioGroup value={target.kind} onValueChange={(v) => switchQueryMethod(v as 'items' | 'search')} className="gap-2">
+            {(['items', 'search'] as const).map((method) => {
+              const disabled = method === 'items' ? target.kind === 'search' && !canSwitchToItems : target.kind === 'items' && !canSwitchToSearch;
+              const probe = methodTest?.result?.probes.find((p) => p.key === (method === 'items' ? (methodTest.hasFilter ? 'items-filtered' : 'items-baseline') : 'search-filtered'));
+              return (
+                <div key={method} className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem id={`stac-method-${method}`} value={method} disabled={disabled} />
+                    <Label htmlFor={`stac-method-${method}`} className={`text-sm font-normal ${disabled ? 'text-muted-foreground' : ''}`}
+                      title={disabled ? (method === 'items' ? 'Only single-collection searches can switch to the items endpoint.' : 'This items address cannot be converted to a search request.') : undefined}>
+                      {method === 'items' ? 'Items endpoint' : 'Search endpoint'}
+                    </Label>
+                  </div>
+                  {methodTest?.result && (
+                    <p className="pl-6 text-xs text-muted-foreground" title={probe?.url}>
+                      {!probe ? 'Not tested for this address.'
+                        : !probe.ok ? <span className="text-destructive">{probe.error}</span>
+                        : <>
+                            {probe.returned} returned{probe.matched !== undefined ? `, ${probe.matched} matched` : ''}
+                            {methodTest.hasFilter && <> · filter <span className={probe.verdict === 'applied' ? 'text-primary' : probe.verdict === 'ignored' || probe.verdict === 'unsupported' ? 'text-destructive' : ''}>{VERDICT_TEXT[probe.verdict]}</span></>}
+                            {probe.spotCheck && ` (${probe.spotCheck.passed}/${probe.spotCheck.checked} items pass)`}
+                          </>}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </RadioGroup>
+          {methodTest?.error && <p className="text-xs text-destructive">{methodTest.error}</p>}
+          <p className="text-xs text-muted-foreground">Some servers only apply property filters on the search endpoint. Test uses the current dates, area, limit and filters (first page only).</p>
         </div>
       )}
 

@@ -61,6 +61,7 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
   const [testResult, setTestResult] = useState<{ loading?: boolean; message?: string; error?: boolean }>({});
   const [comparison, setComparison] = useState<FilterComparison | undefined>();
 
+  // Reset the form only when the dialog opens, so switching endpoint mid-edit keeps entries.
   useEffect(() => {
     if (!open) return;
     setTestResult({});
@@ -71,7 +72,11 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
     setManualKey(initialRule?.property ?? '');
     setManualType(initialRule?.type ?? 'string');
     setSelectedKey(initialRule?.property ?? '');
-    if (rawMode) return;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  useEffect(() => {
+    if (!open || rawMode) return;
     setLoadState('loading');
     let cancelled = false;
     getCachedStacQueryables(itemsUrl)
@@ -80,7 +85,7 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
         const list = summariseStacQueryables(schema).filter((q) => !isDedicatedStacQueryable(q.key));
         setQueryables(list);
         setLoadState(list.length ? 'ready' : 'failed');
-        if (initialRule && !list.some((q) => q.key === initialRule.property)) setSelectedKey(MANUAL);
+        setSelectedKey((current) => (current && current !== MANUAL && !list.some((q) => q.key === current) ? MANUAL : current));
       })
       .catch(() => {
         if (cancelled) return;
@@ -89,7 +94,7 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
         setSelectedKey(MANUAL);
       });
     return () => { cancelled = true; };
-  }, [open, itemsUrl, initialRule, initialRaw, rawMode]);
+  }, [open, itemsUrl, rawMode]);
 
   const manual = selectedKey === MANUAL || loadState === 'failed';
   const queryable = manual ? undefined : queryables.find((q) => q.key === selectedKey);
