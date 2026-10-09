@@ -652,6 +652,10 @@ export const useLayerStateManagement = () => {
     clearDataSourceForm,
     clearCanceledLayerIndex,
 
+    // Tab focus after a form completes (e.g. Statistics after adding a statistics source)
+    focusTabAfterForm: state.focusTab,
+    clearFocusTabAfterForm,
+
     // Constraint form state
     showConstraintForm: state.dataSourceForm.showConstraintForm,
     isAddingConstraint: state.dataSourceForm.isAddingConstraint,
