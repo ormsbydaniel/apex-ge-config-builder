@@ -21,11 +21,12 @@ import {
   type StacPropertyRule,
   type StacPropertyType,
 } from '@/utils/stacQuery';
+import { compareStacFilterEndpoints, type FilterComparison, type FilterVerdict } from '@/utils/stacFilterComparison';
 
 interface PropertyFilterDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Items URL the filter applies to (used for queryables and the test request). */
+  /** Items or search URL the filter applies to (used for queryables and the test request). */
   itemsUrl: string;
   /** Rules that remain alongside the one being edited, so Test filter checks the full query. */
   otherRules: StacPropertyRule[];
@@ -33,7 +34,16 @@ interface PropertyFilterDialogProps {
   /** When set, the dialog edits a raw CQL2 expression instead of a guided rule. */
   initialRaw?: string;
   onSave: (value: StacPropertyRule | string) => void;
+  /** Offered when the test shows only the search endpoint honours the filter. */
+  onSwitchToSearch?: () => void;
 }
+
+const VERDICT_LABEL: Record<FilterVerdict, string> = {
+  applied: 'Applied', ignored: 'Probably ignored', unsupported: 'Not supported', unknown: 'Unclear', baseline: '—',
+};
+const VERDICT_CLASS: Record<FilterVerdict, string> = {
+  applied: 'text-primary', ignored: 'text-destructive', unsupported: 'text-destructive', unknown: 'text-muted-foreground', baseline: 'text-muted-foreground',
+};
 
 const MANUAL = '__manual__';
 const TYPES: StacPropertyType[] = ['string', 'number', 'datetime', 'boolean'];
@@ -49,10 +59,12 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
   const [values, setValues] = useState<string[]>(['', '']);
   const [raw, setRaw] = useState('');
   const [testResult, setTestResult] = useState<{ loading?: boolean; message?: string; error?: boolean }>({});
+  const [comparison, setComparison] = useState<FilterComparison | undefined>();
 
   useEffect(() => {
     if (!open) return;
     setTestResult({});
+    setComparison(undefined);
     setRaw(initialRaw ?? '');
     setOperator(initialRule?.operator ?? 'eq');
     setValues(initialRule ? [...initialRule.values, '', ''].slice(0, Math.max(2, initialRule.values.length)) : ['', '']);
@@ -106,16 +118,11 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
   const testFilter = async () => {
     const filter = rawMode ? raw : rule ? [...otherRules, rule] : otherRules;
     setTestResult({ loading: true });
+    setComparison(undefined);
     try {
-      const response = await fetch(updateStacCql2Filter(itemsUrl, filter), { headers: { Accept: 'application/geo+json, application/json' } });
-      const body = await response.json().catch(() => null);
-      if (!response.ok) {
-        setTestResult({ error: true, message: body?.description || body?.detail || body?.message || `Server returned ${response.status}` });
-        return;
-      }
-      const matched = body?.numberMatched ?? body?.context?.matched;
-      const returned = Array.isArray(body?.features) ? body.features.length : 0;
-      setTestResult({ message: matched !== undefined ? `${matched} matching items (${returned} returned)` : `${returned} items returned` });
+      const result = await compareStacFilterEndpoints(itemsUrl, filter);
+      setComparison(result);
+      setTestResult({});
     } catch (error) {
       setTestResult({ error: true, message: error instanceof Error ? error.message : String(error) });
     }
