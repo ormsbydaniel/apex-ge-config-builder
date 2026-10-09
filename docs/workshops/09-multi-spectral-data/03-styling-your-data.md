@@ -23,8 +23,6 @@ In this exercise we will work with an existing configuration. If you are followi
 
     **Indices** meanwhile, make per pixel calulations across multiple bands, ending up with a value typically between -1 and +1. These indices reveal interesting insights according to the formula used!
 
-4.  Select **Composites -> Natural colour** then **Preview**.
-
-_Content to follow._
+4.  Select **Composites -> Natural colour**. You will see down the left that some _bands_ have already been selected for you. You will also see some _histograms_. We will go with these defaults for now. Save the visualisation, and then go to **Preview** to take a look at the lauer so far.
 
 ### Did you remember to export?
